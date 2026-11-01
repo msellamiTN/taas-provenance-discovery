@@ -77,10 +77,11 @@ def _task_record(task: dict[str, Any], known_tool_ids: set[str]) -> dict[str, An
     unresolved_ids: list[str] = []
     for raw in raw_gold:
         candidates = sorted({x for x in str(raw).split("|") if x})
-        if candidates and all(x in known_tool_ids for x in candidates):
+        if candidates:
+            # Keep the complete candidate set: dropping an unresolved candidate would
+            # turn an ambiguous gold mapping into a false single-tool gold label.
             alternatives.append(candidates)
-        else:
-            unresolved_ids.extend(candidates)
+            unresolved_ids.extend(x for x in candidates if x not in known_tool_ids)
     return {
         "task_id": task.get("id"),
         "query": task.get("query", ""),
