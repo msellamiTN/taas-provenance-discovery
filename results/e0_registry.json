@@ -1,0 +1,71 @@
+{
+ "table1": {
+  "LiveMCPTool": {
+   "servers": 69,
+   "tools": 525,
+   "annotated": 44
+  },
+  "MCPToolBench++": {
+   "servers": 10,
+   "tools": 87,
+   "annotated": 0
+  },
+  "merged": {
+   "servers": 76,
+   "tools": 569,
+   "annotated": 44
+  }
+ },
+ "requests": {
+  "LiveMCPBench": 95,
+  "MCPToolBench++": 1509,
+  "MCPToolBench++_unique_queries": 1470
+ },
+ "annotated_all_claim_read_only": true,
+ "annotated_servers": [
+  "npm-sentinel-mcp",
+  "opgg-mcp",
+  "ygocdb"
+ ],
+ "annotated_but_not_read_only_silver": [
+  "opgg-mcp::lol-summoner-renewal"
+ ],
+ "modify_state_silver": {
+  "count": 131,
+  "share": 0.23022847100175747
+ },
+ "modify_state_lexical": {
+  "count": 183,
+  "share": 0.3216168717047452
+ },
+ "lexical_vs_silver": {
+  "precision": 0.6010928961748634,
+  "recall": 0.8396946564885496,
+  "f1": 0.7006369426751591,
+  "silver_unsafe_missed_by_lex": 21
+ },
+ "require_declared_read_only_keeps": {
+  "count": 44,
+  "share": 0.0773286467486819
+ },
+ "closed_world_ann_filters": 0,
+ "silver_effect_classes": {
+  "egress": 310,
+  "read": 457,
+  "write": 122,
+  "session": 41,
+  "delete": 11,
+  "exec": 8,
+  "money": 3
+ },
+ "paper_reference": {
+  "servers": 76,
+  "tools": 569,
+  "annotated": 44,
+  "not_read_only_annotated": 1,
+  "modify_state": 158,
+  "modify_state_share": 0.278,
+  "require_hints_share": 0.077,
+  "MCPToolBench++_requests": 1429
+ }
+}

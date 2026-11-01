@@ -1,0 +1,3299 @@
+{
+ "summary": {
+  "ours-exact": {
+   "valid_rate": 1.0,
+   "abstain_rate": 0.0,
+   "optimal_rate": 1.0,
+   "opt_ratio": {
+    "mean": 1.0,
+    "ci95": 0.0,
+    "n": 48
+   },
+   "size": {
+    "mean": 3.0,
+    "ci95": 0.23343260299676216,
+    "n": 48
+   },
+   "time_s": {
+    "mean": 0.00996127400005283,
+    "ci95": 0.0009285754398243133,
+    "n": 48
+   }
+  },
+  "ours-greedy": {
+   "valid_rate": 1.0,
+   "abstain_rate": 0.0,
+   "optimal_rate": 1.0,
+   "opt_ratio": {
+    "mean": 1.0,
+    "ci95": 0.0,
+    "n": 48
+   },
+   "size": {
+    "mean": 3.0,
+    "ci95": 0.23343260299676216,
+    "n": 48
+   },
+   "time_s": {
+    "mean": 0.009915470520885114,
+    "ci95": 0.0009314684879959448,
+    "n": 48
+   }
+  },
+  "ours-no-closure": {
+   "valid_rate": 0.0625,
+   "abstain_rate": 0.9375,
+   "optimal_rate": 0.0625,
+   "opt_ratio": {
+    "mean": 1.0,
+    "ci95": 0.0,
+    "n": 3
+   },
+   "size": {
+    "mean": 0.14583333333333334,
+    "ci95": 0.16495427943100013,
+    "n": 48
+   },
+   "time_s": {
+    "mean": 0.004396956625043913,
+    "ci95": 0.00026296855126928644,
+    "n": 48
+   }
+  },
+  "per-subtask": {
+   "valid_rate": 0.6666666666666666,
+   "abstain_rate": 0.0,
+   "optimal_rate": 0.6666666666666666,
+   "opt_ratio": {
+    "mean": 1.0,
+    "ci95": 0.0,
+    "n": 32
+   },
+   "size": {
+    "mean": 2.6666666666666665,
+    "ci95": 0.13477237617781568,
+    "n": 48
+   },
+   "time_s": {
+    "mean": 0.0,
+    "ci95": 0.0,
+    "n": 48
+   }
+  }
+ },
+ "rows": [
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 0,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.0071622410005147685,
+   "cost": 3.9724967077525264,
+   "K": [
+    "srv0::make_summit",
+    "srv1::make_anchor"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 0,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.006361542999911762,
+   "cost": 3.9724967077525264,
+   "K": [
+    "srv0::make_summit",
+    "srv1::make_anchor"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 0,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.003371925999999803,
+   "cost": null,
+   "K": [],
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 0,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_anchor",
+    "srv0::make_summit"
+   ],
+   "cost": 3.9724967077525264,
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 1,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.00664846600011515,
+   "cost": 3.9807222556067376,
+   "K": [
+    "srv0::make_lantern",
+    "srv1::make_anchor"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 1,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.00651036099952762,
+   "cost": 3.9807222556067376,
+   "K": [
+    "srv0::make_lantern",
+    "srv1::make_anchor"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 1,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.003370250000443775,
+   "cost": null,
+   "K": [],
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 1,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_anchor",
+    "srv0::make_lantern"
+   ],
+   "cost": 3.9807222556067376,
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 2,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.006245348999982525,
+   "cost": 3.55511757287727,
+   "K": [
+    "srv0::make_relay",
+    "srv1::make_fable"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 2,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.006509350000669656,
+   "cost": 3.55511757287727,
+   "K": [
+    "srv0::make_relay",
+    "srv1::make_fable"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 2,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.003387260000636161,
+   "cost": null,
+   "K": [],
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 2,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_fable",
+    "srv0::make_relay"
+   ],
+   "cost": 3.55511757287727,
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 3,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.0073421770002823905,
+   "cost": 4.111244972728434,
+   "K": [
+    "srv0::make_pixel",
+    "srv1::make_glacier"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 3,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.006970620999709354,
+   "cost": 4.111244972728434,
+   "K": [
+    "srv0::make_pixel",
+    "srv1::make_glacier"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 3,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.003415766999751213,
+   "cost": null,
+   "K": [],
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 3,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_glacier",
+    "srv0::make_pixel"
+   ],
+   "cost": 4.111244972728434,
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 4,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.006651513999713643,
+   "cost": 3.601328867091735,
+   "K": [
+    "srv0::make_anchor",
+    "srv1::make_relay"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 4,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.006535092999911285,
+   "cost": 3.601328867091735,
+   "K": [
+    "srv0::make_anchor",
+    "srv1::make_relay"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 4,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.0033432769996579736,
+   "cost": null,
+   "K": [],
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 4,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_relay",
+    "srv0::make_anchor"
+   ],
+   "cost": 3.601328867091735,
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 5,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.006482013999629999,
+   "cost": 3.7147283721956468,
+   "K": [
+    "srv0::make_tariff",
+    "srv1::make_ledger"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 5,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.010064975999739545,
+   "cost": 3.7147283721956468,
+   "K": [
+    "srv0::make_tariff",
+    "srv1::make_ledger"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 5,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.004451476999747683,
+   "cost": null,
+   "K": [],
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 5,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_ledger",
+    "srv0::make_tariff"
+   ],
+   "cost": 3.7147283721956468,
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 6,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.008009045000108017,
+   "cost": 3.7198748006140576,
+   "K": [
+    "srv0::make_relay",
+    "srv1::make_canyon"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 6,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.007307173000299372,
+   "cost": 3.7198748006140576,
+   "K": [
+    "srv0::make_relay",
+    "srv1::make_canyon"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 6,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.0039629479997529415,
+   "cost": null,
+   "K": [],
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 6,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_canyon",
+    "srv0::make_relay"
+   ],
+   "cost": 3.7198748006140576,
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 7,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.00701260200003162,
+   "cost": 3.7863631663237802,
+   "K": [
+    "srv0::make_prism",
+    "srv1::make_harvest"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 7,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.0064224839998132666,
+   "cost": 3.7863631663237802,
+   "K": [
+    "srv0::make_prism",
+    "srv1::make_harvest"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 7,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.0038040839999666787,
+   "cost": null,
+   "K": [],
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 3,
+   "seed": 7,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_harvest",
+    "srv0::make_prism"
+   ],
+   "cost": 3.7863631663237802,
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 0,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.007087801000125182,
+   "cost": 2.500811525350705,
+   "K": [
+    "srv0::make_lantern",
+    "srv1::make_voyage"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 0,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.008777912999903492,
+   "cost": 2.500811525350705,
+   "K": [
+    "srv0::make_lantern",
+    "srv1::make_voyage"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 0,
+   "system": "ours-no-closure",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.003959405999921728,
+   "cost": 2.500811525350705,
+   "K": [
+    "srv0::make_lantern",
+    "srv1::make_voyage"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 0,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_voyage",
+    "srv0::make_lantern"
+   ],
+   "cost": 2.500811525350705,
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 1,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.007434170000124141,
+   "cost": 2.323102867174299,
+   "K": [
+    "srv0::make_canyon",
+    "srv1::make_prism"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 1,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.007239207000566239,
+   "cost": 2.323102867174299,
+   "K": [
+    "srv0::make_canyon",
+    "srv1::make_prism"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 1,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.005664892000822874,
+   "cost": null,
+   "K": [],
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 1,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_prism",
+    "srv0::make_canyon"
+   ],
+   "cost": 2.323102867174299,
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 2,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.006694848000734055,
+   "cost": 2.3688929406608845,
+   "K": [
+    "srv0::make_nectar",
+    "srv1::make_summit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 2,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.007306342999982007,
+   "cost": 2.3688929406608845,
+   "K": [
+    "srv0::make_nectar",
+    "srv1::make_summit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 2,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.0035994199997730902,
+   "cost": null,
+   "K": [],
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 2,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_summit",
+    "srv0::make_nectar"
+   ],
+   "cost": 2.3688929406608845,
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 3,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.006747878999703971,
+   "cost": 2.643684900889447,
+   "K": [
+    "srv0::make_relay",
+    "srv1::make_meadow"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 3,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.006553939999321301,
+   "cost": 2.643684900889447,
+   "K": [
+    "srv0::make_relay",
+    "srv1::make_meadow"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 3,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.0035914890004278277,
+   "cost": null,
+   "K": [],
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 3,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_meadow",
+    "srv0::make_relay"
+   ],
+   "cost": 2.643684900889447,
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 4,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.00627539600009186,
+   "cost": 2.408459134605272,
+   "K": [
+    "srv0::make_prism",
+    "srv1::make_glacier"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 4,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.006247287999940454,
+   "cost": 2.408459134605272,
+   "K": [
+    "srv0::make_prism",
+    "srv1::make_glacier"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 4,
+   "system": "ours-no-closure",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.00476216300012311,
+   "cost": 2.408459134605272,
+   "K": [
+    "srv0::make_prism",
+    "srv1::make_glacier"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 4,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_glacier",
+    "srv0::make_prism"
+   ],
+   "cost": 2.408459134605272,
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 5,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.007141496000258485,
+   "cost": 2.4161020882151383,
+   "K": [
+    "srv0::make_meadow",
+    "srv1::make_timber"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 5,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.006896388000313891,
+   "cost": 2.4161020882151383,
+   "K": [
+    "srv0::make_meadow",
+    "srv1::make_timber"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 5,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.0037513250008487375,
+   "cost": null,
+   "K": [],
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 5,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_timber",
+    "srv0::make_meadow"
+   ],
+   "cost": 2.4161020882151383,
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 6,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.007445983999787131,
+   "cost": 2.3305472994976277,
+   "K": [
+    "srv0::make_relay",
+    "srv1::make_meadow"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 6,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.007150578999244317,
+   "cost": 2.3305472994976277,
+   "K": [
+    "srv0::make_relay",
+    "srv1::make_meadow"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 6,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.0046012709999558865,
+   "cost": null,
+   "K": [],
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 6,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_meadow",
+    "srv0::make_relay"
+   ],
+   "cost": 2.3305472994976277,
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 7,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.007314815999961866,
+   "cost": 2.655374747390142,
+   "K": [
+    "srv0::make_meadow",
+    "srv1::make_harvest"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 7,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.006848323999292916,
+   "cost": 2.655374747390142,
+   "K": [
+    "srv0::make_meadow",
+    "srv1::make_harvest"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 7,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.0037160460005907225,
+   "cost": null,
+   "K": [],
+   "opt_size": 2
+  },
+  {
+   "L": 2,
+   "nd": 5,
+   "seed": 7,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 2,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_harvest",
+    "srv0::make_meadow"
+   ],
+   "cost": 2.655374747390142,
+   "opt_ratio": 1.0,
+   "opt_size": 2
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 0,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0070286259997374145,
+   "cost": 5.785955798099037,
+   "K": [
+    "srv0::make_cipher",
+    "srv1::make_ledger",
+    "srv2::make_orbit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 0,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.007482365000214486,
+   "cost": 5.785955798099037,
+   "K": [
+    "srv0::make_cipher",
+    "srv1::make_ledger",
+    "srv2::make_orbit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 0,
+   "system": "ours-no-closure",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.004145453999626625,
+   "cost": 5.785955798099037,
+   "K": [
+    "srv0::make_cipher",
+    "srv1::make_ledger",
+    "srv2::make_orbit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 0,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_ledger",
+    "srv2::make_orbit",
+    "srv0::make_cipher"
+   ],
+   "cost": 5.785955798099037,
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 1,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.007789622999553103,
+   "cost": 5.808661760475992,
+   "K": [
+    "srv0::make_summit",
+    "srv1::make_quartz",
+    "srv2::make_orbit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 1,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.00781744800042361,
+   "cost": 5.808661760475992,
+   "K": [
+    "srv0::make_summit",
+    "srv1::make_quartz",
+    "srv2::make_orbit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 1,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.0034789319997798884,
+   "cost": null,
+   "K": [],
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 1,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_quartz",
+    "srv2::make_orbit",
+    "srv0::make_summit"
+   ],
+   "cost": 5.808661760475992,
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 2,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.008934844000577868,
+   "cost": 5.584996804107066,
+   "K": [
+    "srv0::make_pixel",
+    "srv1::make_anchor",
+    "srv2::make_ledger"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 2,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.009365933000481164,
+   "cost": 5.584996804107066,
+   "K": [
+    "srv0::make_pixel",
+    "srv1::make_anchor",
+    "srv2::make_ledger"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 2,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.003723609999724431,
+   "cost": null,
+   "K": [],
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 2,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_anchor",
+    "srv2::make_ledger",
+    "srv0::make_pixel"
+   ],
+   "cost": 5.584996804107066,
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 3,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.008118276999994123,
+   "cost": 5.773084589144968,
+   "K": [
+    "srv0::make_canyon",
+    "srv1::make_glacier",
+    "srv2::make_ledger"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 3,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.008514152000316244,
+   "cost": 5.773084589144968,
+   "K": [
+    "srv0::make_canyon",
+    "srv1::make_glacier",
+    "srv2::make_ledger"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 3,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.0037339749997045146,
+   "cost": null,
+   "K": [],
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 3,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_glacier",
+    "srv2::make_ledger",
+    "srv0::make_canyon"
+   ],
+   "cost": 5.773084589144968,
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 4,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.009606514000552124,
+   "cost": 5.39824001585786,
+   "K": [
+    "srv0::make_lantern",
+    "srv1::make_cipher",
+    "srv2::make_harvest"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 4,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.008349905000613944,
+   "cost": 5.39824001585786,
+   "K": [
+    "srv0::make_lantern",
+    "srv1::make_cipher",
+    "srv2::make_harvest"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 4,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.0035817929992845166,
+   "cost": null,
+   "K": [],
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 4,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_cipher",
+    "srv2::make_harvest",
+    "srv0::make_lantern"
+   ],
+   "cost": 5.39824001585786,
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 5,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.007975470000019413,
+   "cost": 5.8251961383063495,
+   "K": [
+    "srv0::make_lantern",
+    "srv1::make_cipher",
+    "srv2::make_ledger"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 5,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.007737886000541039,
+   "cost": 5.8251961383063495,
+   "K": [
+    "srv0::make_lantern",
+    "srv1::make_cipher",
+    "srv2::make_ledger"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 5,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.0036620820001189713,
+   "cost": null,
+   "K": [],
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 5,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_cipher",
+    "srv2::make_ledger",
+    "srv0::make_lantern"
+   ],
+   "cost": 5.8251961383063495,
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 6,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.00788261199977569,
+   "cost": 5.243377164801179,
+   "K": [
+    "srv0::make_glacier",
+    "srv1::make_ledger",
+    "srv2::make_nectar"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 6,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.008543850000023667,
+   "cost": 5.243377164801179,
+   "K": [
+    "srv0::make_glacier",
+    "srv1::make_ledger",
+    "srv2::make_nectar"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 6,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.0035543789999792352,
+   "cost": null,
+   "K": [],
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 6,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_ledger",
+    "srv2::make_nectar",
+    "srv0::make_glacier"
+   ],
+   "cost": 5.243377164801179,
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 7,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.008324463000462856,
+   "cost": 5.870947355738701,
+   "K": [
+    "srv0::make_ledger",
+    "srv1::make_glacier",
+    "srv2::make_voyage"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 7,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.00792490200001339,
+   "cost": 5.870947355738701,
+   "K": [
+    "srv0::make_ledger",
+    "srv1::make_glacier",
+    "srv2::make_voyage"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 7,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.0036608760001399787,
+   "cost": null,
+   "K": [],
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 3,
+   "seed": 7,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_glacier",
+    "srv2::make_voyage",
+    "srv0::make_ledger"
+   ],
+   "cost": 5.870947355738701,
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 0,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.011367838999831292,
+   "cost": 3.721732516295237,
+   "K": [
+    "srv0::make_cipher",
+    "srv1::make_summit",
+    "srv2::make_quartz"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 0,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.014548340000146709,
+   "cost": 3.721732516295237,
+   "K": [
+    "srv0::make_cipher",
+    "srv1::make_summit",
+    "srv2::make_quartz"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 0,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.006157646000247041,
+   "cost": null,
+   "K": [],
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 0,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_summit",
+    "srv2::make_quartz",
+    "srv0::make_cipher"
+   ],
+   "cost": 3.721732516295237,
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 1,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.014869472000100359,
+   "cost": 3.565625054987234,
+   "K": [
+    "srv0::make_relay",
+    "srv1::make_glacier",
+    "srv2::make_orbit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 1,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.014529638000567502,
+   "cost": 3.565625054987234,
+   "K": [
+    "srv0::make_relay",
+    "srv1::make_glacier",
+    "srv2::make_orbit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 1,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.006422994999411458,
+   "cost": null,
+   "K": [],
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 1,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_glacier",
+    "srv2::make_orbit",
+    "srv0::make_relay"
+   ],
+   "cost": 3.565625054987234,
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 2,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.014655863999905705,
+   "cost": 3.7485491791780734,
+   "K": [
+    "srv0::make_quartz",
+    "srv1::make_relay",
+    "srv2::make_orbit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 2,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.01325511400045798,
+   "cost": 3.7485491791780734,
+   "K": [
+    "srv0::make_quartz",
+    "srv1::make_relay",
+    "srv2::make_orbit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 2,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.004928117999952519,
+   "cost": null,
+   "K": [],
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 2,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_relay",
+    "srv2::make_orbit",
+    "srv0::make_quartz"
+   ],
+   "cost": 3.7485491791780734,
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 3,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.01109165099933307,
+   "cost": 3.7569041303753186,
+   "K": [
+    "srv0::make_tariff",
+    "srv1::make_ember",
+    "srv2::make_orbit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 3,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.008673816999362316,
+   "cost": 3.7569041303753186,
+   "K": [
+    "srv0::make_tariff",
+    "srv1::make_ember",
+    "srv2::make_orbit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 3,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.004103057000065746,
+   "cost": null,
+   "K": [],
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 3,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_ember",
+    "srv2::make_orbit",
+    "srv0::make_tariff"
+   ],
+   "cost": 3.7569041303753186,
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 4,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.009614421000151196,
+   "cost": 3.817509778497752,
+   "K": [
+    "srv0::make_cipher",
+    "srv1::make_lantern",
+    "srv2::make_tariff"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 4,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.009385262000250805,
+   "cost": 3.817509778497752,
+   "K": [
+    "srv0::make_cipher",
+    "srv1::make_lantern",
+    "srv2::make_tariff"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 4,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.00584613699993497,
+   "cost": null,
+   "K": [],
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 4,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_lantern",
+    "srv2::make_tariff",
+    "srv0::make_cipher"
+   ],
+   "cost": 3.817509778497752,
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 5,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.009055014999830746,
+   "cost": 3.7442921874527997,
+   "K": [
+    "srv0::make_tariff",
+    "srv1::make_voyage",
+    "srv2::make_ember"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 5,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.010397722000561771,
+   "cost": 3.7442921874527997,
+   "K": [
+    "srv0::make_tariff",
+    "srv1::make_voyage",
+    "srv2::make_ember"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 5,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.00387295600012294,
+   "cost": null,
+   "K": [],
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 5,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_voyage",
+    "srv2::make_ember",
+    "srv0::make_tariff"
+   ],
+   "cost": 3.7442921874527997,
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 6,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.010015302999818232,
+   "cost": 3.8449237060036516,
+   "K": [
+    "srv0::make_ledger",
+    "srv1::make_relay",
+    "srv2::make_canyon"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 6,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.009418151999852853,
+   "cost": 3.8449237060036516,
+   "K": [
+    "srv0::make_ledger",
+    "srv1::make_relay",
+    "srv2::make_canyon"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 6,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.0042415540001456975,
+   "cost": null,
+   "K": [],
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 6,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_relay",
+    "srv2::make_canyon",
+    "srv0::make_ledger"
+   ],
+   "cost": 3.8449237060036516,
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 7,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.009822192999308754,
+   "cost": 3.6261536579893052,
+   "K": [
+    "srv0::make_prism",
+    "srv1::make_fable",
+    "srv2::make_canyon"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 7,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.011367209000127332,
+   "cost": 3.6261536579893052,
+   "K": [
+    "srv0::make_prism",
+    "srv1::make_fable",
+    "srv2::make_canyon"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 7,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.004384286999993492,
+   "cost": null,
+   "K": [],
+   "opt_size": 3
+  },
+  {
+   "L": 3,
+   "nd": 5,
+   "seed": 7,
+   "system": "per-subtask",
+   "valid": true,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv1::make_fable",
+    "srv2::make_canyon",
+    "srv0::make_prism"
+   ],
+   "cost": 3.6261536579893052,
+   "opt_ratio": 1.0,
+   "opt_size": 3
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 0,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.010007836999648134,
+   "cost": 7.931004411676465,
+   "K": [
+    "srv0::make_nectar",
+    "srv1::make_ledger",
+    "srv2::make_pixel",
+    "srv3::make_voyage"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 0,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.010418421999929706,
+   "cost": 7.931004411676465,
+   "K": [
+    "srv0::make_nectar",
+    "srv1::make_ledger",
+    "srv2::make_pixel",
+    "srv3::make_voyage"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 0,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.004355459000180417,
+   "cost": null,
+   "K": [],
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 0,
+   "system": "per-subtask",
+   "valid": false,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv2::make_pixel",
+    "srv3::make_voyage",
+    "srv0::make_nectar"
+   ],
+   "cost": 5.943918979189877,
+   "opt_ratio": null,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 1,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.012600587000633823,
+   "cost": 7.503132379440094,
+   "K": [
+    "srv0::make_fable",
+    "srv1::make_prism",
+    "srv2::make_tariff",
+    "srv3::make_ember"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 1,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.011678326000037487,
+   "cost": 7.503132379440094,
+   "K": [
+    "srv0::make_fable",
+    "srv1::make_prism",
+    "srv2::make_tariff",
+    "srv3::make_ember"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 1,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.004441461999704188,
+   "cost": null,
+   "K": [],
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 1,
+   "system": "per-subtask",
+   "valid": false,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv2::make_tariff",
+    "srv3::make_ember",
+    "srv0::make_fable"
+   ],
+   "cost": 5.7129213192974735,
+   "opt_ratio": null,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 2,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.011957491999964986,
+   "cost": 7.871240594480409,
+   "K": [
+    "srv0::make_nectar",
+    "srv1::make_pixel",
+    "srv2::make_canyon",
+    "srv3::make_quartz"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 2,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.012917852999635215,
+   "cost": 7.871240594480409,
+   "K": [
+    "srv0::make_nectar",
+    "srv1::make_pixel",
+    "srv2::make_canyon",
+    "srv3::make_quartz"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 2,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.004645336000066891,
+   "cost": null,
+   "K": [],
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 2,
+   "system": "per-subtask",
+   "valid": false,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv2::make_canyon",
+    "srv3::make_quartz",
+    "srv0::make_nectar"
+   ],
+   "cost": 5.9336729404709745,
+   "opt_ratio": null,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 3,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.012437415999556833,
+   "cost": 7.2628249579768145,
+   "K": [
+    "srv0::make_anchor",
+    "srv1::make_glacier",
+    "srv2::make_canyon",
+    "srv3::make_orbit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 3,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.010804976999679639,
+   "cost": 7.2628249579768145,
+   "K": [
+    "srv0::make_anchor",
+    "srv1::make_glacier",
+    "srv2::make_canyon",
+    "srv3::make_orbit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 3,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.0050592190000315895,
+   "cost": null,
+   "K": [],
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 3,
+   "system": "per-subtask",
+   "valid": false,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv2::make_canyon",
+    "srv3::make_orbit",
+    "srv0::make_anchor"
+   ],
+   "cost": 5.468997528212567,
+   "opt_ratio": null,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 4,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.010281118000420975,
+   "cost": 6.8454168055023645,
+   "K": [
+    "srv0::make_harvest",
+    "srv1::make_glacier",
+    "srv2::make_relay",
+    "srv3::make_nectar"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 4,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.010666661999493954,
+   "cost": 6.8454168055023645,
+   "K": [
+    "srv0::make_harvest",
+    "srv1::make_glacier",
+    "srv2::make_relay",
+    "srv3::make_nectar"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 4,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.004000525000265043,
+   "cost": null,
+   "K": [],
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 4,
+   "system": "per-subtask",
+   "valid": false,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv2::make_relay",
+    "srv3::make_nectar",
+    "srv0::make_harvest"
+   ],
+   "cost": 4.6938911518979305,
+   "opt_ratio": null,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 5,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.010075751999465865,
+   "cost": 7.578006246617097,
+   "K": [
+    "srv0::make_pixel",
+    "srv1::make_harvest",
+    "srv2::make_canyon",
+    "srv3::make_orbit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 5,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.010323409000193351,
+   "cost": 7.578006246617097,
+   "K": [
+    "srv0::make_pixel",
+    "srv1::make_harvest",
+    "srv2::make_canyon",
+    "srv3::make_orbit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 5,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.003893520999554312,
+   "cost": null,
+   "K": [],
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 5,
+   "system": "per-subtask",
+   "valid": false,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv2::make_canyon",
+    "srv3::make_orbit",
+    "srv0::make_pixel"
+   ],
+   "cost": 5.990182665207277,
+   "opt_ratio": null,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 6,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.011246129000028304,
+   "cost": 7.77062265851537,
+   "K": [
+    "srv0::make_relay",
+    "srv1::make_timber",
+    "srv2::make_glacier",
+    "srv3::make_anchor"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 6,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.01109966500007431,
+   "cost": 7.77062265851537,
+   "K": [
+    "srv0::make_relay",
+    "srv1::make_timber",
+    "srv2::make_glacier",
+    "srv3::make_anchor"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 6,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.0058711100000437,
+   "cost": null,
+   "K": [],
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 6,
+   "system": "per-subtask",
+   "valid": false,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv2::make_glacier",
+    "srv3::make_anchor",
+    "srv0::make_relay"
+   ],
+   "cost": 5.904374967782259,
+   "opt_ratio": null,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 7,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.014561066999704053,
+   "cost": 7.191574430292474,
+   "K": [
+    "srv0::make_fable",
+    "srv1::make_timber",
+    "srv2::make_harvest",
+    "srv3::make_summit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 7,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.015584972000397102,
+   "cost": 7.191574430292474,
+   "K": [
+    "srv0::make_fable",
+    "srv1::make_timber",
+    "srv2::make_harvest",
+    "srv3::make_summit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 7,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.005743102000451472,
+   "cost": null,
+   "K": [],
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 3,
+   "seed": 7,
+   "system": "per-subtask",
+   "valid": false,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv2::make_harvest",
+    "srv3::make_summit",
+    "srv0::make_fable"
+   ],
+   "cost": 5.5994384014526615,
+   "opt_ratio": null,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 0,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.014728673000718118,
+   "cost": 5.15153151753861,
+   "K": [
+    "srv0::make_ember",
+    "srv1::make_anchor",
+    "srv2::make_orbit",
+    "srv3::make_summit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 0,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.013572464000390028,
+   "cost": 5.15153151753861,
+   "K": [
+    "srv0::make_ember",
+    "srv1::make_anchor",
+    "srv2::make_orbit",
+    "srv3::make_summit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 0,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.004746115000671125,
+   "cost": null,
+   "K": [],
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 0,
+   "system": "per-subtask",
+   "valid": false,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv2::make_orbit",
+    "srv3::make_summit",
+    "srv0::make_ember"
+   ],
+   "cost": 3.8302803221149575,
+   "opt_ratio": null,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 1,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.012760390000039479,
+   "cost": 5.140235134613519,
+   "K": [
+    "srv0::make_harvest",
+    "srv1::make_lantern",
+    "srv2::make_timber",
+    "srv3::make_ledger"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 1,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.011435196000093129,
+   "cost": 5.140235134613519,
+   "K": [
+    "srv0::make_harvest",
+    "srv1::make_lantern",
+    "srv2::make_timber",
+    "srv3::make_ledger"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 1,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.004368135000731854,
+   "cost": null,
+   "K": [],
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 1,
+   "system": "per-subtask",
+   "valid": false,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv2::make_timber",
+    "srv3::make_ledger",
+    "srv0::make_harvest"
+   ],
+   "cost": 3.7420728059703237,
+   "opt_ratio": null,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 2,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.014043521000530745,
+   "cost": 4.773543071460443,
+   "K": [
+    "srv0::make_quartz",
+    "srv1::make_nectar",
+    "srv2::make_cipher",
+    "srv3::make_meadow"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 2,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.011201829000128782,
+   "cost": 4.773543071460443,
+   "K": [
+    "srv0::make_quartz",
+    "srv1::make_nectar",
+    "srv2::make_cipher",
+    "srv3::make_meadow"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 2,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.004494900000281632,
+   "cost": null,
+   "K": [],
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 2,
+   "system": "per-subtask",
+   "valid": false,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv2::make_cipher",
+    "srv3::make_meadow",
+    "srv0::make_quartz"
+   ],
+   "cost": 3.6509449899212507,
+   "opt_ratio": null,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 3,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.020107172999814793,
+   "cost": 4.994009551412619,
+   "K": [
+    "srv0::make_canyon",
+    "srv1::make_voyage",
+    "srv2::make_meadow",
+    "srv3::make_fable"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 3,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.019927882999581925,
+   "cost": 4.994009551412619,
+   "K": [
+    "srv0::make_canyon",
+    "srv1::make_voyage",
+    "srv2::make_meadow",
+    "srv3::make_fable"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 3,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.007454372000211151,
+   "cost": null,
+   "K": [],
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 3,
+   "system": "per-subtask",
+   "valid": false,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv2::make_meadow",
+    "srv3::make_fable",
+    "srv0::make_canyon"
+   ],
+   "cost": 3.6454290863146386,
+   "opt_ratio": null,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 4,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.011060691000238876,
+   "cost": 5.018545147020576,
+   "K": [
+    "srv0::make_pixel",
+    "srv1::make_relay",
+    "srv2::make_voyage",
+    "srv3::make_anchor"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 4,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.009617593999792007,
+   "cost": 5.018545147020576,
+   "K": [
+    "srv0::make_pixel",
+    "srv1::make_relay",
+    "srv2::make_voyage",
+    "srv3::make_anchor"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 4,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.004656789999899047,
+   "cost": null,
+   "K": [],
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 4,
+   "system": "per-subtask",
+   "valid": false,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv2::make_voyage",
+    "srv3::make_anchor",
+    "srv0::make_pixel"
+   ],
+   "cost": 3.799660548934005,
+   "opt_ratio": null,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 5,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.011988916000518657,
+   "cost": 4.9543994566034995,
+   "K": [
+    "srv0::make_prism",
+    "srv1::make_harvest",
+    "srv2::make_tariff",
+    "srv3::make_pixel"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 5,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.011630245000560535,
+   "cost": 4.9543994566034995,
+   "K": [
+    "srv0::make_prism",
+    "srv1::make_harvest",
+    "srv2::make_tariff",
+    "srv3::make_pixel"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 5,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.004383784000310698,
+   "cost": null,
+   "K": [],
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 5,
+   "system": "per-subtask",
+   "valid": false,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv2::make_tariff",
+    "srv3::make_pixel",
+    "srv0::make_prism"
+   ],
+   "cost": 3.7974897078775713,
+   "opt_ratio": null,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 6,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.018197347000750597,
+   "cost": 4.999414494269994,
+   "K": [
+    "srv0::make_quartz",
+    "srv1::make_fable",
+    "srv2::make_orbit",
+    "srv3::make_ember"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 6,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.01979042600032699,
+   "cost": 4.999414494269994,
+   "K": [
+    "srv0::make_quartz",
+    "srv1::make_fable",
+    "srv2::make_orbit",
+    "srv3::make_ember"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 6,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.005704546999368176,
+   "cost": null,
+   "K": [],
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 6,
+   "system": "per-subtask",
+   "valid": false,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv2::make_orbit",
+    "srv3::make_ember",
+    "srv0::make_quartz"
+   ],
+   "cost": 3.7961546754875286,
+   "opt_ratio": null,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 7,
+   "system": "ours-exact",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.01423905800038483,
+   "cost": 4.89029216913937,
+   "K": [
+    "srv0::make_relay",
+    "srv1::make_canyon",
+    "srv2::make_voyage",
+    "srv3::make_summit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 7,
+   "system": "ours-greedy",
+   "valid": true,
+   "abstain": false,
+   "size": 4,
+   "time_s": 0.014259384000069986,
+   "cost": 4.89029216913937,
+   "K": [
+    "srv0::make_relay",
+    "srv1::make_canyon",
+    "srv2::make_voyage",
+    "srv3::make_summit"
+   ],
+   "opt_ratio": 1.0,
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 7,
+   "system": "ours-no-closure",
+   "valid": false,
+   "abstain": true,
+   "size": 0,
+   "time_s": 0.004984688999684295,
+   "cost": null,
+   "K": [],
+   "opt_size": 4
+  },
+  {
+   "L": 4,
+   "nd": 5,
+   "seed": 7,
+   "system": "per-subtask",
+   "valid": false,
+   "abstain": false,
+   "size": 3,
+   "time_s": 0.0,
+   "K": [
+    "srv2::make_voyage",
+    "srv3::make_summit",
+    "srv0::make_relay"
+   ],
+   "cost": 3.6637594679627474,
+   "opt_ratio": null,
+   "opt_size": 4
+  }
+ ]
+}

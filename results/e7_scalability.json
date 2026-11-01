@@ -1,0 +1,69 @@
+{
+ "latency": {
+  "1000": {
+   "bitmap_us": 1.5048599925648887,
+   "naive_us": 1115.0962000101572,
+   "speedup": 740.9966412287852,
+   "build_s": 0.015046912999423512,
+   "eligible": 276
+  },
+  "10000": {
+   "bitmap_us": 1.6788399989309255,
+   "naive_us": 19582.224400073756,
+   "speedup": 11664.13977064139,
+   "build_s": 0.17039107800064812,
+   "eligible": 2583
+  },
+  "100000": {
+   "bitmap_us": 4.123800008528633,
+   "naive_us": 149291.2323999917,
+   "speedup": 36202.34543169775,
+   "build_s": 2.5732001320002382,
+   "eligible": 26761
+  }
+ },
+ "prop3": {
+  "confusion": {
+   "changed&invalidated": 3615,
+   "changed&kept": 0,
+   "same&invalidated": 0,
+   "same&kept": 5985
+  },
+  "stale": 0
+ },
+ "lemma1": {
+  "violations": 0,
+  "trials": 300
+ },
+ "maintenance": {
+  "incremental_ms": 31.83558299951983,
+  "full_rebuild_s": 3.039075378999769,
+  "rug_pull": {
+   "tool": "filesystem::write_file",
+   "strength_before": 0.7300000000000001,
+   "strength_after": 0.25,
+   "evidence_after": "lex",
+   "evidence_after_revert": "obs",
+   "events": [
+    {
+     "server": "filesystem",
+     "deleted": [],
+     "changed": [
+      "filesystem::write_file"
+     ],
+     "inserted": [],
+     "evidence_restored": 0
+    },
+    {
+     "server": "filesystem",
+     "deleted": [],
+     "changed": [
+      "filesystem::write_file"
+     ],
+     "inserted": [],
+     "evidence_restored": 1
+    }
+   ]
+  }
+ }
+}

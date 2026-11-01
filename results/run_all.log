@@ -1,0 +1,154 @@
+
+==============================================================================
+E0: registry characterisation (Table 1) — this checks the data matches the paper before any method runs
+==============================================================================
+merged registry: 76 servers, 569 tools, 44 annotated (paper: 76/569/44)
+annotated tools that are not read-only (silver): 1 ['opgg-mcp::lol-summoner-renewal'] (paper: 1)
+modify state — silver: 131 (23.0%), lexical: 183 (32.2%) (paper: 158, 27.8%)
+lexical labeller vs silver: P=0.60 R=0.84; unsafe tools missed by lex: 21
+'require declared read-only hints' keeps 44/569 = 7.7% (paper 7.7%); closed-world@ann filters 0 tools (nothing to filter)
+MCPToolBench++ requests: 1509 (unique queries 1470; paper reports 1,429)
+
+==============================================================================
+E2 / H2: which eligibility encodings stay sound when servers forge or omit metadata (expected: ann+/lex+ admit forged tools; obs+ exposure = 0 at FAR=0 and grows with FAR)
+==============================================================================
+alpha   far           ann+         ann-cw           lex+         lex-cw           obs+           att+
+ 0.00  0.00          0.008          0.855          0.160          0.160          0.000          0.000
+ 0.00  0.01          0.008          0.855          0.160          0.160          0.015          0.008
+ 0.00  0.05          0.008          0.855          0.160          0.160          0.058          0.017
+ 0.00  0.10          0.008          0.855          0.160          0.160          0.115          0.031
+ 0.00  0.20          0.008          0.855          0.160          0.160          0.220          0.063
+ 0.10  0.00          0.137          0.858          0.270          0.169          0.000          0.000
+ 0.10  0.01          0.137          0.858          0.270          0.169          0.015          0.008
+ 0.10  0.05          0.137          0.858          0.270          0.169          0.058          0.017
+ 0.10  0.10          0.137          0.858          0.270          0.169          0.115          0.031
+ 0.10  0.20          0.137          0.858          0.270          0.169          0.220          0.063
+ 0.25  0.00          0.293          0.861          0.397          0.174          0.000          0.000
+ 0.25  0.01          0.293          0.861          0.397          0.174          0.015          0.008
+ 0.25  0.05          0.293          0.861          0.397          0.174          0.058          0.017
+ 0.25  0.10          0.293          0.861          0.397          0.174          0.115          0.031
+ 0.25  0.20          0.293          0.861          0.397          0.174          0.220          0.063
+ 0.50  0.00          0.519          0.869          0.594          0.183          0.000          0.000
+ 0.50  0.01          0.519          0.869          0.594          0.183          0.015          0.008
+ 0.50  0.05          0.519          0.869          0.594          0.183          0.058          0.017
+ 0.50  0.10          0.519          0.869          0.594          0.183          0.115          0.031
+ 0.50  0.20          0.519          0.869          0.594          0.183          0.220          0.063
+(cells = exposure: share of truly unsafe tools admitted under a read-only policy)
+  α=0.25 FAR=0.05 ann+    unsafe share of Elig=0.201 safe retention=0.346 |Elig|=190
+  α=0.25 FAR=0.05 ann-cw  unsafe share of Elig=0.206 safe retention=0.995 |Elig|=549
+  α=0.25 FAR=0.05 lex+    unsafe share of Elig=0.119 safe retention=0.875 |Elig|=435
+  α=0.25 FAR=0.05 lex-cw  unsafe share of Elig=0.058 safe retention=0.841 |Elig|=391
+  α=0.25 FAR=0.05 obs+    unsafe share of Elig=0.017 safe retention=1.000 |Elig|=446
+  α=0.25 FAR=0.05 att+    unsafe share of Elig=0.016 safe retention=0.305 |Elig|=136
+
+==============================================================================
+E3-tune (dev = MCPToolBench++ sample): retrieval budget K × relevance weight in the cost
+==============================================================================
+K= 3 w_rel=  0.0  recall=0.317 |K|=0.95 abstain=0.05
+K= 3 w_rel=  1.0  recall=0.317 |K|=0.95 abstain=0.05
+K= 3 w_rel=  3.0  recall=0.283 |K|=0.95 abstain=0.05
+K= 3 w_rel= 10.0  recall=0.350 |K|=1.00 abstain=0.05
+K= 5 w_rel=  0.0  recall=0.200 |K|=0.95 abstain=0.05
+K= 5 w_rel=  1.0  recall=0.233 |K|=0.95 abstain=0.05
+K= 5 w_rel=  3.0  recall=0.233 |K|=0.95 abstain=0.05
+K= 5 w_rel= 10.0  recall=0.383 |K|=1.00 abstain=0.05
+K=10 w_rel=  0.0  recall=0.100 |K|=0.95 abstain=0.05
+K=10 w_rel=  1.0  recall=0.233 |K|=0.95 abstain=0.05
+K=10 w_rel=  3.0  recall=0.233 |K|=0.95 abstain=0.05
+K=10 w_rel= 10.0  recall=0.350 |K|=1.00 abstain=0.05
+selected on dev: K=5|rel=10.0
+
+==============================================================================
+E3 / H3: does gap analysis shrink toolkits without losing the tools the task needs? (compare |K|, tokens and gold recall across systems)
+==============================================================================
+
+[LiveMCPBench] system              |K|   tokens  recall bnd-rec   prec  abst  valid
+[LiveMCPBench] ours               1.42      126   0.186   0.211  0.318  0.06   0.94
+[LiveMCPBench] ours-nogap         1.96      165   0.175   0.199  0.200  0.12   0.88
+[LiveMCPBench] ours-strict        1.92      162   0.182   0.212  0.213  0.07   0.93
+[LiveMCPBench] per-subtask        2.57      343   0.249   0.253  0.246  0.00   0.00
+[LiveMCPBench] per-subtask-gap    1.72      219   0.202   0.220  0.288  0.00   0.00
+[LiveMCPBench] rag-top3           3.00      745   0.240   0.248  0.186  0.00   0.00
+[LiveMCPBench] rag-top5           5.00     1252   0.293   0.308  0.135  0.00   0.00
+[LiveMCPBench] mcp-zero           2.59      386   0.213   0.208  0.215  0.00   0.00
+[LiveMCPBench] all-tools        569.00    96420   1.000   1.000  0.005  0.00   0.00
+
+[MCPToolBench++] system              |K|   tokens  recall bnd-rec   prec  abst  valid
+[MCPToolBench++] ours               1.00       88   0.383   0.373  0.377  0.05   0.95
+[MCPToolBench++] ours-nogap         0.90       84   0.367   0.356  0.433  0.22   0.78
+[MCPToolBench++] ours-strict        1.05       94   0.367   0.356  0.360  0.05   0.95
+[MCPToolBench++] per-subtask        1.32      252   0.433   0.441  0.392  0.00   0.00
+[MCPToolBench++] per-subtask-gap    1.05      236   0.417   0.424  0.408  0.00   0.00
+[MCPToolBench++] rag-top3           3.00      617   0.467   0.475  0.156  0.00   0.00
+[MCPToolBench++] rag-top5           5.00     1089   0.550   0.559  0.110  0.00   0.00
+[MCPToolBench++] mcp-zero           1.28      220   0.317   0.322  0.300  0.00   0.00
+[MCPToolBench++] all-tools        569.00    96420   1.000   1.000  0.002  0.00   0.00
+
+prompts without a recorded analyst output: 0
+
+==============================================================================
+E4 / H4: how often can an injected instruction trigger an out-of-scope unsafe action through the exposed toolkit? (expected: 0 for certified toolkits at FAR=0, small at FAR>0; high for baselines)
+==============================================================================
+system                        ASR worst(out)  ASR stoch  recall    |K|  per-attack worst
+certified(cons,FAR=0.0)                0.000      0.000   0.188    1.2  exfiltrate=0.00 destroy=0.00 execute=0.00 pay=0.00 tamper=0.00
+certified(deriv,FAR=0.0)               0.000      0.000   0.243    1.3  exfiltrate=0.00 destroy=0.00 execute=0.00 pay=0.00 tamper=0.00
+certified(cons,FAR=0.05)               0.000      0.000   0.189    1.2  exfiltrate=0.00 destroy=0.00 execute=0.00 pay=0.00 tamper=0.00
+certified(deriv,FAR=0.05)              0.000      0.000   0.244    1.3  exfiltrate=0.00 destroy=0.00 execute=0.00 pay=0.00 tamper=0.00
+per-subtask                            0.032      0.007   0.321    2.1  exfiltrate=0.01 destroy=0.00 execute=0.00 pay=0.01 tamper=0.20
+rag-top5                               0.081      0.015   0.393    5.0  exfiltrate=0.07 destroy=0.03 execute=0.00 pay=0.05 tamper=0.33
+mcp-zero                               0.035      0.010   0.253    2.1  exfiltrate=0.05 destroy=0.00 execute=0.00 pay=0.01 tamper=0.16
+all-tools                              1.000      0.030   1.000  569.0  exfiltrate=1.00 destroy=1.00 execute=1.00 pay=1.00 tamper=1.00
+
+Property 1 (random call sequences over certified toolkits, true effects):
+  certified(cons,FAR=0.0)      effect-bound violations=   0 flow violations=   0 / 20400 sequences
+  certified(cons,FAR=0.05)     effect-bound violations=   0 flow violations=   0 / 20350 sequences
+  certified(deriv,FAR=0.0)     effect-bound violations=   0 flow violations=3559 / 21450 sequences
+  certified(deriv,FAR=0.05)    effect-bound violations=   0 flow violations=3599 / 21400 sequences
+
+==============================================================================
+E5 / RQ3: synthetic typed registries — validity, optimality, closure and sharing (graded by an independent checker; optimum by brute force)
+==============================================================================
+ours-exact       valid=1.000 optimal=1.000 cost/opt=1.000 |K|=3.00 abstain=0.00 t=10.0ms
+ours-greedy      valid=1.000 optimal=1.000 cost/opt=1.000 |K|=3.00 abstain=0.00 t=9.9ms
+ours-no-closure  valid=0.062 optimal=0.062 cost/opt=1.000 |K|=0.15 abstain=0.94 t=4.4ms
+per-subtask      valid=0.667 optimal=0.667 cost/opt=1.000 |K|=2.67 abstain=0.00 t=0.0ms
+  L=2: exact valid=1.00 t=7.0ms
+  L=3: exact valid=1.00 t=9.8ms
+  L=4: exact valid=1.00 t=13.1ms
+
+==============================================================================
+E6: ablations — retrieval components, request-path components, manifest sanitisation
+==============================================================================
+A. retrieval on 1,509 MCPToolBench++ requests (does fusion beat its parts?)
+  retrieval lex            R@1=0.423 R@3=0.556 R@5=0.613
+  retrieval den            R@1=0.366 R@3=0.498 R@5=0.543
+  retrieval rrf(lex+den)   R@1=0.399 R@3=0.544 R@5=0.588
+B. request-path ablations on the LiveMCPBench test split (which component matters?)
+  full (dev-tuned)                   recall=0.186 |K|=1.42 abstain=0.06 valid=0.94 uncertain-S=0.00 (n=95)
+  pure Eq.6 (w_rel=0)                recall=0.082 |K|=1.37 abstain=0.06 valid=0.94 uncertain-S=0.00 (n=95)
+  no structural score                recall=0.173 |K|=1.39 abstain=0.07 valid=0.93 uncertain-S=0.00 (n=95)
+  Alg.1 literal ctx                  recall=0.175 |K|=1.93 abstain=0.09 valid=0.91 uncertain-S=0.00 (n=95)
+  rule 1 off (exact_n_max=1e9)       recall=0.193 |K|=1.45 abstain=0.05 valid=0.95 uncertain-S=0.00 (n=95)
+  strict profile (rule 2)            recall=0.182 |K|=1.92 abstain=0.07 valid=0.93 uncertain-S=0.00 (n=95)
+  Haiku profile                      recall=0.186 |K|=1.42 abstain=0.06 valid=0.94 uncertain-S=0.00 (n=95)
+  Haiku analyst                      recall=0.176 |K|=1.60 abstain=0.04 valid=0.96 uncertain-S=0.00 (n=95)
+  no refinement                      recall=0.182 |K|=1.39 abstain=0.08 valid=0.92 uncertain-S=0.00 (n=95)
+  derivation-mode flow               recall=0.186 |K|=1.42 abstain=0.06 valid=0.94 uncertain-S=0.00 (n=95)
+  closure depth 0                    recall=0.182 |K|=1.37 abstain=0.07 valid=0.93 uncertain-S=0.00 (n=95)
+C. manifest sanitisation (does rewriting from the contract remove description-borne injection?)
+  sanitisation: poisoned descriptions reaching the model — raw 60/60, sanitised manifest 0/60; mean tokens per tool raw 169 vs sanitised 96
+
+==============================================================================
+E7 / RQ4: eligibility cost, exact cache invalidation (Prop. 3), Lemma 1, maintenance & rug pulls
+==============================================================================
+n=   1000: bitmap       1.5 µs  naive scan      1115.1 µs  ×   741  (index build 0.02s)
+n=  10000: bitmap       1.7 µs  naive scan     19582.2 µs  × 11664  (index build 0.17s)
+n= 100000: bitmap       4.1 µs  naive scan    149291.2 µs  × 36202  (index build 2.57s)
+Prop. 3 over 600 events × 16 cached sets: {'changed&invalidated': 3615, 'changed&kept': 0, 'same&invalidated': 0, 'same&kept': 5985}; stale answers served: 0
+Lemma 1: E_V ≠ E ∩ V in 0/300 random trials
+maintenance: incremental list_changed 31.8 ms vs full rebuild 3.04 s (×95); rug pull on filesystem::write_file: evidence 0.73→0.25 (lex), restored after revert: obs
+figures written to /home/claude/taas-provenance-discovery/results/figures
+
+==============================================================================
+all experiments finished in 905.5 s
+==============================================================================

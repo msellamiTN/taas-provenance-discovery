@@ -85,7 +85,7 @@ what they imply for the manuscript.
 * **Composition (RQ3).** On synthetic typed registries the exact regime is always valid and optimal.
   Without backward closure only 6% of tasks are solved; per-subtask retrieval solves 67%.
 * **Evolution (RQ4).** Bitmap eligibility answers in microseconds at 10⁵ tools. Cache invalidation is
-  exact (Prop. 3) with no stale answers. Incremental maintenance is about 150× faster than a rebuild, and
+  exact (Prop. 3) with no stale answers. Incremental maintenance is about 100× faster than a full rebuild (32 ms vs 3.0 s), and
   rug-pulled definitions lose their evidence.
 
 ## Deviations and limitations (read before citing numbers)
