@@ -91,6 +91,7 @@ def _task_record(task: dict[str, Any], known_tool_ids: set[str]) -> dict[str, An
         "category": task.get("category", ""),
         "n_steps": task.get("n_steps", 1),
         "gold_tool_alternatives": alternatives,
+        "resolved_gold_tool_ids": sorted({x for group in alternatives for x in group if x in known_tool_ids}),
         "unresolved_gold_tool_ids": sorted(set(unresolved_ids)),
         "gold_unresolved_names": list(task.get("gold_unresolved") or []),
         "usage": "evaluation_only_not_used_for_capability_inference",
@@ -190,7 +191,7 @@ def build_benchmark_hypergraph(
         "summary": {
             "n_tasks": len(task_records),
             "n_tasks_by_dataset": dict(sorted(Counter(t["dataset"] for t in task_records).items())),
-            "n_tasks_with_resolved_gold": sum(bool(t["gold_tool_alternatives"]) for t in task_records),
+            "n_tasks_with_resolved_gold": sum(bool(t["resolved_gold_tool_ids"]) for t in task_records),
             "n_unresolved_gold_mappings": sum(len(t["unresolved_gold_tool_ids"]) +
                                                len(t["gold_unresolved_names"]) for t in task_records),
             "n_ambiguous_gold_groups": sum(
