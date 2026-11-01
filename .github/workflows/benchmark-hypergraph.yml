@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - feature/benchmark-capability-hypergraph
+      - feature/taas-mcpbench-integration
   pull_request:
     branches:
       - main
+      - feature/benchmark-capability-hypergraph
   workflow_dispatch:
 
 permissions:
