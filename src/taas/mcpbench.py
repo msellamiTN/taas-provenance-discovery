@@ -111,8 +111,7 @@ class TaaSMCPBenchAdapter:
             "rho": result.gap.rho,
             "certificate": result.certificate.to_dict() if result.certificate is not None else None,
             "counterexample": (
-                {"code": counterexample.code, "detail": counterexample.detail,
-                 "witness": counterexample.witness}
+                counterexample.to_dict()
                 if counterexample is not None else None
             ),
             "manifest": result.manifest,
