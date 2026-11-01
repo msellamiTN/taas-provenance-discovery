@@ -1,0 +1,44 @@
+ITEM count-n40-r2
+QUESTION: How many lines below are exactly the word 'screen'? Answer with a single integer.
+---BEGIN DATA---
+price
+screen
+shipping
+noise
+price
+price
+price
+support
+price
+price
+delay
+delay
+delay
+app
+delay
+screen
+refund
+support
+app
+price
+refund
+screen
+refund
+screen
+delay
+screen
+battery
+noise
+noise
+delay
+app
+delay
+shipping
+screen
+app
+battery
+shipping
+delay
+screen
+battery
+---END DATA---

@@ -1,0 +1,44 @@
+ITEM extract-n40-r2
+QUESTION: In the records below, which city belongs to the record with id K9432004? Answer with the city name.
+---BEGIN DATA---
+id=K8725000 | name=Jana Trabelsi | city=Graz
+id=K2084001 | name=Wafa Kaya | city=Bilbao
+id=K3197002 | name=Goran Moreau | city=Quito
+id=K5644003 | name=Taha Kaya | city=Tunis
+id=K9432004 | name=Dora Haddad | city=Turin
+id=K5925005 | name=Emeka Petrov | city=Porto
+id=K5319006 | name=Taha Rossi | city=Izmir
+id=K6647007 | name=Omar Rossi | city=Lagos
+id=K7351008 | name=Goran Trabelsi | city=Tunis
+id=K5665009 | name=Ivo Horvat | city=Tunis
+id=K4222010 | name=Malik Trabelsi | city=Bergen
+id=K9829011 | name=Yara Sato | city=Quito
+id=K3153012 | name=Sara Mansour | city=Tunis
+id=K1170013 | name=Pia Novak | city=Lagos
+id=K3319014 | name=Bilel Nakamura | city=Quito
+id=K5947015 | name=Ana Nakamura | city=Porto
+id=K4540016 | name=Wafa Rossi | city=Utrecht
+id=K2797017 | name=Zied Dupont | city=Izmir
+id=K9324018 | name=Emeka Petrov | city=Lyon
+id=K2623019 | name=Una Trabelsi | city=Bilbao
+id=K8180020 | name=Chen Nakamura | city=Porto
+id=K9383021 | name=Goran Novak | city=Tunis
+id=K1109022 | name=Farah Moreau | city=Dakar
+id=K5326023 | name=Wafa Kaya | city=Dakar
+id=K6018024 | name=Nora Kaya | city=Pune
+id=K1260025 | name=Taha Rossi | city=Turin
+id=K9053026 | name=Ivo Sato | city=Krakow
+id=K6223027 | name=Lea Haddad | city=Porto
+id=K2500028 | name=Malik Dupont | city=Quito
+id=K8627029 | name=Malik Sato | city=Cork
+id=K4879030 | name=Zied Jensen | city=Sfax
+id=K2548031 | name=Farah Bauer | city=Osaka
+id=K8194032 | name=Farah Okafor | city=Porto
+id=K6397033 | name=Goran Silva | city=Pune
+id=K2039034 | name=Goran Costa | city=Bilbao
+id=K1969035 | name=Farah Kaya | city=Cork
+id=K5219036 | name=Una Silva | city=Cork
+id=K8853037 | name=Karim Dupont | city=Lyon
+id=K6922038 | name=Ivo Nakamura | city=Utrecht
+id=K3904039 | name=Karim Ben Ali | city=Bergen
+---END DATA---

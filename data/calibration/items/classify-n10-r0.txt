@@ -1,0 +1,14 @@
+ITEM classify-n10-r0
+QUESTION: Classify each review below as positive or negative. Is the majority positive or negative? Answer 'positive' or 'negative'.
+---BEGIN DATA---
+review 1: terrible customer support
+review 2: very comfortable to use
+review 3: screen scratches too easily
+review 4: the support team was helpful
+review 5: overpriced for what it is
+review 6: terrible customer support
+review 7: screen scratches too easily
+review 8: overpriced for what it is
+review 9: stopped working after a week
+review 10: very comfortable to use
+---END DATA---

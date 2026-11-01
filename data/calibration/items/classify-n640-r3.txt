@@ -1,0 +1,644 @@
+ITEM classify-n640-r3
+QUESTION: Classify each review below as positive or negative. Is the majority positive or negative? Answer 'positive' or 'negative'.
+---BEGIN DATA---
+review 1: excellent build quality
+review 2: stopped working after a week
+review 3: the strap is uncomfortable
+review 4: terrible customer support
+review 5: great value for money
+review 6: very comfortable to use
+review 7: great value for money
+review 8: great battery life
+review 9: arrived broken
+review 10: battery died after two days
+review 11: stopped working after a week
+review 12: great battery life
+review 13: works perfectly
+review 14: works perfectly
+review 15: screen is bright and sharp
+review 16: screen scratches too easily
+review 17: terrible customer support
+review 18: battery died after two days
+review 19: terrible customer support
+review 20: very comfortable to use
+review 21: stopped working after a week
+review 22: battery died after two days
+review 23: terrible customer support
+review 24: terrible customer support
+review 25: terrible customer support
+review 26: terrible customer support
+review 27: great battery life
+review 28: the strap is uncomfortable
+review 29: the strap is uncomfortable
+review 30: overpriced for what it is
+review 31: stopped working after a week
+review 32: battery died after two days
+review 33: fast delivery and well packed
+review 34: overpriced for what it is
+review 35: the strap is uncomfortable
+review 36: great battery life
+review 37: app keeps crashing
+review 38: great value for money
+review 39: stopped working after a week
+review 40: the support team was helpful
+review 41: works perfectly
+review 42: screen is bright and sharp
+review 43: overpriced for what it is
+review 44: screen scratches too easily
+review 45: the strap is uncomfortable
+review 46: overpriced for what it is
+review 47: terrible customer support
+review 48: excellent build quality
+review 49: works perfectly
+review 50: fast delivery and well packed
+review 51: the support team was helpful
+review 52: great value for money
+review 53: app keeps crashing
+review 54: the strap is uncomfortable
+review 55: overpriced for what it is
+review 56: stopped working after a week
+review 57: fast delivery and well packed
+review 58: app keeps crashing
+review 59: arrived broken
+review 60: terrible customer support
+review 61: arrived broken
+review 62: screen scratches too easily
+review 63: works perfectly
+review 64: very comfortable to use
+review 65: excellent build quality
+review 66: overpriced for what it is
+review 67: the strap is uncomfortable
+review 68: terrible customer support
+review 69: arrived broken
+review 70: stopped working after a week
+review 71: very comfortable to use
+review 72: works perfectly
+review 73: great battery life
+review 74: screen scratches too easily
+review 75: battery died after two days
+review 76: the strap is uncomfortable
+review 77: stopped working after a week
+review 78: overpriced for what it is
+review 79: great value for money
+review 80: battery died after two days
+review 81: overpriced for what it is
+review 82: the strap is uncomfortable
+review 83: the support team was helpful
+review 84: stopped working after a week
+review 85: screen is bright and sharp
+review 86: the strap is uncomfortable
+review 87: battery died after two days
+review 88: app keeps crashing
+review 89: app keeps crashing
+review 90: overpriced for what it is
+review 91: very comfortable to use
+review 92: screen scratches too easily
+review 93: works perfectly
+review 94: the strap is uncomfortable
+review 95: screen scratches too easily
+review 96: the strap is uncomfortable
+review 97: overpriced for what it is
+review 98: the strap is uncomfortable
+review 99: screen scratches too easily
+review 100: fast delivery and well packed
+review 101: the support team was helpful
+review 102: overpriced for what it is
+review 103: great battery life
+review 104: stopped working after a week
+review 105: the strap is uncomfortable
+review 106: terrible customer support
+review 107: arrived broken
+review 108: screen is bright and sharp
+review 109: app keeps crashing
+review 110: very comfortable to use
+review 111: overpriced for what it is
+review 112: screen scratches too easily
+review 113: very comfortable to use
+review 114: terrible customer support
+review 115: the support team was helpful
+review 116: the support team was helpful
+review 117: the support team was helpful
+review 118: app keeps crashing
+review 119: great value for money
+review 120: overpriced for what it is
+review 121: arrived broken
+review 122: app keeps crashing
+review 123: the strap is uncomfortable
+review 124: the strap is uncomfortable
+review 125: terrible customer support
+review 126: screen scratches too easily
+review 127: battery died after two days
+review 128: screen scratches too easily
+review 129: great value for money
+review 130: battery died after two days
+review 131: terrible customer support
+review 132: works perfectly
+review 133: arrived broken
+review 134: stopped working after a week
+review 135: overpriced for what it is
+review 136: great value for money
+review 137: screen scratches too easily
+review 138: terrible customer support
+review 139: terrible customer support
+review 140: very comfortable to use
+review 141: battery died after two days
+review 142: battery died after two days
+review 143: the strap is uncomfortable
+review 144: excellent build quality
+review 145: terrible customer support
+review 146: works perfectly
+review 147: excellent build quality
+review 148: terrible customer support
+review 149: battery died after two days
+review 150: overpriced for what it is
+review 151: very comfortable to use
+review 152: the support team was helpful
+review 153: stopped working after a week
+review 154: terrible customer support
+review 155: overpriced for what it is
+review 156: fast delivery and well packed
+review 157: the strap is uncomfortable
+review 158: screen scratches too easily
+review 159: screen is bright and sharp
+review 160: screen scratches too easily
+review 161: the support team was helpful
+review 162: the support team was helpful
+review 163: fast delivery and well packed
+review 164: screen scratches too easily
+review 165: arrived broken
+review 166: battery died after two days
+review 167: screen is bright and sharp
+review 168: battery died after two days
+review 169: the support team was helpful
+review 170: the support team was helpful
+review 171: terrible customer support
+review 172: very comfortable to use
+review 173: battery died after two days
+review 174: arrived broken
+review 175: works perfectly
+review 176: overpriced for what it is
+review 177: stopped working after a week
+review 178: screen is bright and sharp
+review 179: the strap is uncomfortable
+review 180: excellent build quality
+review 181: overpriced for what it is
+review 182: app keeps crashing
+review 183: overpriced for what it is
+review 184: terrible customer support
+review 185: the support team was helpful
+review 186: terrible customer support
+review 187: overpriced for what it is
+review 188: screen scratches too easily
+review 189: the strap is uncomfortable
+review 190: battery died after two days
+review 191: great value for money
+review 192: the support team was helpful
+review 193: fast delivery and well packed
+review 194: screen scratches too easily
+review 195: battery died after two days
+review 196: stopped working after a week
+review 197: terrible customer support
+review 198: fast delivery and well packed
+review 199: great battery life
+review 200: overpriced for what it is
+review 201: works perfectly
+review 202: screen scratches too easily
+review 203: great battery life
+review 204: arrived broken
+review 205: arrived broken
+review 206: terrible customer support
+review 207: screen scratches too easily
+review 208: fast delivery and well packed
+review 209: arrived broken
+review 210: fast delivery and well packed
+review 211: battery died after two days
+review 212: fast delivery and well packed
+review 213: screen scratches too easily
+review 214: fast delivery and well packed
+review 215: great battery life
+review 216: the strap is uncomfortable
+review 217: screen is bright and sharp
+review 218: the strap is uncomfortable
+review 219: screen scratches too easily
+review 220: the strap is uncomfortable
+review 221: arrived broken
+review 222: overpriced for what it is
+review 223: app keeps crashing
+review 224: great battery life
+review 225: fast delivery and well packed
+review 226: screen is bright and sharp
+review 227: overpriced for what it is
+review 228: arrived broken
+review 229: stopped working after a week
+review 230: great battery life
+review 231: stopped working after a week
+review 232: app keeps crashing
+review 233: the support team was helpful
+review 234: fast delivery and well packed
+review 235: great battery life
+review 236: the strap is uncomfortable
+review 237: terrible customer support
+review 238: the strap is uncomfortable
+review 239: overpriced for what it is
+review 240: screen scratches too easily
+review 241: app keeps crashing
+review 242: the strap is uncomfortable
+review 243: the support team was helpful
+review 244: screen scratches too easily
+review 245: fast delivery and well packed
+review 246: overpriced for what it is
+review 247: excellent build quality
+review 248: great battery life
+review 249: arrived broken
+review 250: arrived broken
+review 251: screen scratches too easily
+review 252: screen scratches too easily
+review 253: stopped working after a week
+review 254: the strap is uncomfortable
+review 255: screen scratches too easily
+review 256: screen is bright and sharp
+review 257: terrible customer support
+review 258: works perfectly
+review 259: the strap is uncomfortable
+review 260: fast delivery and well packed
+review 261: terrible customer support
+review 262: terrible customer support
+review 263: app keeps crashing
+review 264: terrible customer support
+review 265: great battery life
+review 266: stopped working after a week
+review 267: overpriced for what it is
+review 268: screen scratches too easily
+review 269: works perfectly
+review 270: fast delivery and well packed
+review 271: the strap is uncomfortable
+review 272: stopped working after a week
+review 273: battery died after two days
+review 274: great value for money
+review 275: great battery life
+review 276: the strap is uncomfortable
+review 277: battery died after two days
+review 278: great battery life
+review 279: great value for money
+review 280: app keeps crashing
+review 281: overpriced for what it is
+review 282: great battery life
+review 283: works perfectly
+review 284: excellent build quality
+review 285: overpriced for what it is
+review 286: great value for money
+review 287: battery died after two days
+review 288: battery died after two days
+review 289: great value for money
+review 290: battery died after two days
+review 291: battery died after two days
+review 292: overpriced for what it is
+review 293: the support team was helpful
+review 294: screen is bright and sharp
+review 295: overpriced for what it is
+review 296: excellent build quality
+review 297: stopped working after a week
+review 298: terrible customer support
+review 299: great value for money
+review 300: overpriced for what it is
+review 301: overpriced for what it is
+review 302: very comfortable to use
+review 303: stopped working after a week
+review 304: the strap is uncomfortable
+review 305: overpriced for what it is
+review 306: very comfortable to use
+review 307: stopped working after a week
+review 308: great battery life
+review 309: app keeps crashing
+review 310: battery died after two days
+review 311: screen scratches too easily
+review 312: overpriced for what it is
+review 313: screen scratches too easily
+review 314: arrived broken
+review 315: arrived broken
+review 316: overpriced for what it is
+review 317: excellent build quality
+review 318: arrived broken
+review 319: app keeps crashing
+review 320: the strap is uncomfortable
+review 321: screen is bright and sharp
+review 322: works perfectly
+review 323: overpriced for what it is
+review 324: terrible customer support
+review 325: overpriced for what it is
+review 326: the support team was helpful
+review 327: the strap is uncomfortable
+review 328: app keeps crashing
+review 329: the support team was helpful
+review 330: screen scratches too easily
+review 331: arrived broken
+review 332: battery died after two days
+review 333: stopped working after a week
+review 334: stopped working after a week
+review 335: arrived broken
+review 336: works perfectly
+review 337: terrible customer support
+review 338: very comfortable to use
+review 339: excellent build quality
+review 340: the strap is uncomfortable
+review 341: stopped working after a week
+review 342: very comfortable to use
+review 343: very comfortable to use
+review 344: stopped working after a week
+review 345: screen scratches too easily
+review 346: arrived broken
+review 347: arrived broken
+review 348: battery died after two days
+review 349: arrived broken
+review 350: screen is bright and sharp
+review 351: arrived broken
+review 352: the strap is uncomfortable
+review 353: overpriced for what it is
+review 354: fast delivery and well packed
+review 355: screen is bright and sharp
+review 356: stopped working after a week
+review 357: screen scratches too easily
+review 358: overpriced for what it is
+review 359: works perfectly
+review 360: terrible customer support
+review 361: stopped working after a week
+review 362: great battery life
+review 363: stopped working after a week
+review 364: arrived broken
+review 365: terrible customer support
+review 366: works perfectly
+review 367: terrible customer support
+review 368: screen scratches too easily
+review 369: battery died after two days
+review 370: arrived broken
+review 371: overpriced for what it is
+review 372: battery died after two days
+review 373: terrible customer support
+review 374: fast delivery and well packed
+review 375: arrived broken
+review 376: battery died after two days
+review 377: app keeps crashing
+review 378: overpriced for what it is
+review 379: screen scratches too easily
+review 380: arrived broken
+review 381: overpriced for what it is
+review 382: the support team was helpful
+review 383: the strap is uncomfortable
+review 384: terrible customer support
+review 385: terrible customer support
+review 386: stopped working after a week
+review 387: terrible customer support
+review 388: app keeps crashing
+review 389: great battery life
+review 390: overpriced for what it is
+review 391: works perfectly
+review 392: excellent build quality
+review 393: screen scratches too easily
+review 394: app keeps crashing
+review 395: app keeps crashing
+review 396: arrived broken
+review 397: stopped working after a week
+review 398: battery died after two days
+review 399: screen scratches too easily
+review 400: great value for money
+review 401: stopped working after a week
+review 402: works perfectly
+review 403: screen scratches too easily
+review 404: screen scratches too easily
+review 405: arrived broken
+review 406: the strap is uncomfortable
+review 407: arrived broken
+review 408: screen scratches too easily
+review 409: the support team was helpful
+review 410: great battery life
+review 411: screen is bright and sharp
+review 412: battery died after two days
+review 413: overpriced for what it is
+review 414: app keeps crashing
+review 415: terrible customer support
+review 416: overpriced for what it is
+review 417: battery died after two days
+review 418: very comfortable to use
+review 419: terrible customer support
+review 420: stopped working after a week
+review 421: great value for money
+review 422: overpriced for what it is
+review 423: app keeps crashing
+review 424: great value for money
+review 425: terrible customer support
+review 426: fast delivery and well packed
+review 427: the support team was helpful
+review 428: app keeps crashing
+review 429: stopped working after a week
+review 430: terrible customer support
+review 431: very comfortable to use
+review 432: screen is bright and sharp
+review 433: excellent build quality
+review 434: the strap is uncomfortable
+review 435: the strap is uncomfortable
+review 436: very comfortable to use
+review 437: works perfectly
+review 438: the support team was helpful
+review 439: terrible customer support
+review 440: very comfortable to use
+review 441: the strap is uncomfortable
+review 442: screen is bright and sharp
+review 443: app keeps crashing
+review 444: battery died after two days
+review 445: the strap is uncomfortable
+review 446: great value for money
+review 447: very comfortable to use
+review 448: app keeps crashing
+review 449: app keeps crashing
+review 450: screen scratches too easily
+review 451: fast delivery and well packed
+review 452: screen scratches too easily
+review 453: works perfectly
+review 454: the strap is uncomfortable
+review 455: the strap is uncomfortable
+review 456: the strap is uncomfortable
+review 457: screen scratches too easily
+review 458: very comfortable to use
+review 459: screen scratches too easily
+review 460: very comfortable to use
+review 461: the strap is uncomfortable
+review 462: excellent build quality
+review 463: arrived broken
+review 464: battery died after two days
+review 465: terrible customer support
+review 466: the strap is uncomfortable
+review 467: overpriced for what it is
+review 468: excellent build quality
+review 469: screen scratches too easily
+review 470: screen scratches too easily
+review 471: the strap is uncomfortable
+review 472: screen scratches too easily
+review 473: overpriced for what it is
+review 474: the support team was helpful
+review 475: the strap is uncomfortable
+review 476: works perfectly
+review 477: battery died after two days
+review 478: very comfortable to use
+review 479: terrible customer support
+review 480: app keeps crashing
+review 481: screen scratches too easily
+review 482: screen is bright and sharp
+review 483: stopped working after a week
+review 484: screen scratches too easily
+review 485: fast delivery and well packed
+review 486: screen scratches too easily
+review 487: overpriced for what it is
+review 488: app keeps crashing
+review 489: stopped working after a week
+review 490: arrived broken
+review 491: screen scratches too easily
+review 492: battery died after two days
+review 493: app keeps crashing
+review 494: overpriced for what it is
+review 495: terrible customer support
+review 496: the strap is uncomfortable
+review 497: stopped working after a week
+review 498: the strap is uncomfortable
+review 499: excellent build quality
+review 500: stopped working after a week
+review 501: screen scratches too easily
+review 502: arrived broken
+review 503: battery died after two days
+review 504: app keeps crashing
+review 505: screen is bright and sharp
+review 506: terrible customer support
+review 507: terrible customer support
+review 508: arrived broken
+review 509: battery died after two days
+review 510: screen is bright and sharp
+review 511: excellent build quality
+review 512: very comfortable to use
+review 513: screen is bright and sharp
+review 514: screen scratches too easily
+review 515: screen scratches too easily
+review 516: excellent build quality
+review 517: the strap is uncomfortable
+review 518: the support team was helpful
+review 519: great value for money
+review 520: great value for money
+review 521: overpriced for what it is
+review 522: stopped working after a week
+review 523: the strap is uncomfortable
+review 524: stopped working after a week
+review 525: excellent build quality
+review 526: terrible customer support
+review 527: the strap is uncomfortable
+review 528: terrible customer support
+review 529: terrible customer support
+review 530: app keeps crashing
+review 531: the support team was helpful
+review 532: screen scratches too easily
+review 533: very comfortable to use
+review 534: very comfortable to use
+review 535: battery died after two days
+review 536: arrived broken
+review 537: overpriced for what it is
+review 538: terrible customer support
+review 539: screen scratches too easily
+review 540: terrible customer support
+review 541: very comfortable to use
+review 542: great battery life
+review 543: fast delivery and well packed
+review 544: the strap is uncomfortable
+review 545: great battery life
+review 546: battery died after two days
+review 547: works perfectly
+review 548: stopped working after a week
+review 549: app keeps crashing
+review 550: overpriced for what it is
+review 551: great value for money
+review 552: battery died after two days
+review 553: stopped working after a week
+review 554: the support team was helpful
+review 555: arrived broken
+review 556: arrived broken
+review 557: overpriced for what it is
+review 558: arrived broken
+review 559: terrible customer support
+review 560: fast delivery and well packed
+review 561: terrible customer support
+review 562: the support team was helpful
+review 563: app keeps crashing
+review 564: excellent build quality
+review 565: screen scratches too easily
+review 566: screen scratches too easily
+review 567: great value for money
+review 568: arrived broken
+review 569: terrible customer support
+review 570: battery died after two days
+review 571: arrived broken
+review 572: terrible customer support
+review 573: app keeps crashing
+review 574: screen scratches too easily
+review 575: battery died after two days
+review 576: app keeps crashing
+review 577: screen scratches too easily
+review 578: works perfectly
+review 579: overpriced for what it is
+review 580: great battery life
+review 581: great value for money
+review 582: battery died after two days
+review 583: screen scratches too easily
+review 584: arrived broken
+review 585: works perfectly
+review 586: excellent build quality
+review 587: very comfortable to use
+review 588: great battery life
+review 589: arrived broken
+review 590: app keeps crashing
+review 591: very comfortable to use
+review 592: app keeps crashing
+review 593: the strap is uncomfortable
+review 594: terrible customer support
+review 595: overpriced for what it is
+review 596: works perfectly
+review 597: screen scratches too easily
+review 598: the strap is uncomfortable
+review 599: screen scratches too easily
+review 600: stopped working after a week
+review 601: terrible customer support
+review 602: overpriced for what it is
+review 603: battery died after two days
+review 604: app keeps crashing
+review 605: stopped working after a week
+review 606: terrible customer support
+review 607: the strap is uncomfortable
+review 608: great value for money
+review 609: stopped working after a week
+review 610: works perfectly
+review 611: terrible customer support
+review 612: stopped working after a week
+review 613: stopped working after a week
+review 614: the support team was helpful
+review 615: battery died after two days
+review 616: excellent build quality
+review 617: stopped working after a week
+review 618: arrived broken
+review 619: app keeps crashing
+review 620: overpriced for what it is
+review 621: the strap is uncomfortable
+review 622: the support team was helpful
+review 623: the strap is uncomfortable
+review 624: terrible customer support
+review 625: terrible customer support
+review 626: overpriced for what it is
+review 627: screen is bright and sharp
+review 628: screen scratches too easily
+review 629: app keeps crashing
+review 630: terrible customer support
+review 631: the strap is uncomfortable
+review 632: app keeps crashing
+review 633: terrible customer support
+review 634: terrible customer support
+review 635: works perfectly
+review 636: very comfortable to use
+review 637: great battery life
+review 638: app keeps crashing
+review 639: screen is bright and sharp
+review 640: screen scratches too easily
+---END DATA---

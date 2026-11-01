@@ -1,0 +1,44 @@
+ITEM extract-n40-r1
+QUESTION: In the records below, which city belongs to the record with id K3852018? Answer with the city name.
+---BEGIN DATA---
+id=K5800000 | name=Hana Mansour | city=Sfax
+id=K7455001 | name=Jana Bauer | city=Lagos
+id=K4859002 | name=Karim Wang | city=Dakar
+id=K5828003 | name=Dora Rossi | city=Izmir
+id=K4715004 | name=Hana Sato | city=Sousse
+id=K4641005 | name=Karim Rossi | city=Bilbao
+id=K8521006 | name=Una Moreau | city=Graz
+id=K2315007 | name=Emeka Costa | city=Malaga
+id=K7074008 | name=Ana Haddad | city=Graz
+id=K1869009 | name=Dora Sato | city=Tunis
+id=K8177010 | name=Karim Nakamura | city=Pune
+id=K4303011 | name=Ana Petrov | city=Utrecht
+id=K7086012 | name=Karim Moreau | city=Utrecht
+id=K6636013 | name=Dora Nakamura | city=Tunis
+id=K2575014 | name=Nora Jensen | city=Porto
+id=K4203015 | name=Malik Wang | city=Malaga
+id=K8646016 | name=Nora Novak | city=Graz
+id=K2132017 | name=Ivo Novak | city=Utrecht
+id=K3852018 | name=Bilel Okafor | city=Bergen
+id=K2714019 | name=Sara Petrov | city=Pune
+id=K4373020 | name=Jana Bauer | city=Bilbao
+id=K8037021 | name=Wafa Kaya | city=Quito
+id=K3824022 | name=Malik Mansour | city=Porto
+id=K7043023 | name=Malik Novak | city=Tunis
+id=K5057024 | name=Farah Haddad | city=Quito
+id=K5876025 | name=Rami Okafor | city=Krakow
+id=K7054026 | name=Emeka Trabelsi | city=Sousse
+id=K6738027 | name=Pia Sato | city=Quito
+id=K3916028 | name=Karim Moreau | city=Porto
+id=K8438029 | name=Malik Okafor | city=Izmir
+id=K9930030 | name=Victor Mansour | city=Sfax
+id=K1014031 | name=Rami Bauer | city=Krakow
+id=K7745032 | name=Chen Petrov | city=Porto
+id=K1932033 | name=Dora Okafor | city=Osaka
+id=K5048034 | name=Farah Costa | city=Izmir
+id=K5170035 | name=Bilel Horvat | city=Tunis
+id=K4011036 | name=Victor Dupont | city=Cork
+id=K9261037 | name=Wafa Haddad | city=Utrecht
+id=K8855038 | name=Karim Okafor | city=Tunis
+id=K9370039 | name=Chen Dupont | city=Utrecht
+---END DATA---

@@ -1,0 +1,44 @@
+ITEM classify-n40-r1
+QUESTION: Classify each review below as positive or negative. Is the majority positive or negative? Answer 'positive' or 'negative'.
+---BEGIN DATA---
+review 1: very comfortable to use
+review 2: screen is bright and sharp
+review 3: the support team was helpful
+review 4: very comfortable to use
+review 5: the strap is uncomfortable
+review 6: terrible customer support
+review 7: great battery life
+review 8: excellent build quality
+review 9: terrible customer support
+review 10: great battery life
+review 11: great battery life
+review 12: the support team was helpful
+review 13: battery died after two days
+review 14: arrived broken
+review 15: great battery life
+review 16: screen is bright and sharp
+review 17: fast delivery and well packed
+review 18: great battery life
+review 19: works perfectly
+review 20: works perfectly
+review 21: screen scratches too easily
+review 22: screen is bright and sharp
+review 23: excellent build quality
+review 24: very comfortable to use
+review 25: very comfortable to use
+review 26: fast delivery and well packed
+review 27: screen is bright and sharp
+review 28: very comfortable to use
+review 29: screen is bright and sharp
+review 30: screen scratches too easily
+review 31: very comfortable to use
+review 32: fast delivery and well packed
+review 33: the strap is uncomfortable
+review 34: great value for money
+review 35: screen scratches too easily
+review 36: the support team was helpful
+review 37: fast delivery and well packed
+review 38: great value for money
+review 39: great value for money
+review 40: fast delivery and well packed
+---END DATA---

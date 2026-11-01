@@ -1,0 +1,44 @@
+ITEM aggregate_sum-n40-r0
+QUESTION: What is the exact sum of all the numbers listed below (one per line)? Answer with a single integer.
+---BEGIN DATA---
+80
+39
+54
+39
+96
+38
+68
+47
+12
+63
+81
+92
+22
+33
+90
+47
+25
+52
+74
+64
+74
+95
+34
+48
+46
+85
+73
+74
+60
+85
+14
+71
+41
+61
+63
+95
+32
+56
+80
+99
+---END DATA---

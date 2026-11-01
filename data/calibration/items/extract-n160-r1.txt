@@ -1,0 +1,164 @@
+ITEM extract-n160-r1
+QUESTION: In the records below, which city belongs to the record with id K5678117? Answer with the city name.
+---BEGIN DATA---
+id=K7933000 | name=Wafa Novak | city=Sfax
+id=K8775001 | name=Zied Silva | city=Cork
+id=K2665002 | name=Lea Bauer | city=Cork
+id=K3457003 | name=Farah Ben Ali | city=Sfax
+id=K6072004 | name=Pia Trabelsi | city=Lagos
+id=K8941005 | name=Una Ben Ali | city=Turin
+id=K6651006 | name=Zied Mansour | city=Cork
+id=K1644007 | name=Dora Rossi | city=Izmir
+id=K9162008 | name=Omar Petrov | city=Graz
+id=K2778009 | name=Bilel Costa | city=Tunis
+id=K8896010 | name=Ivo Kaya | city=Bergen
+id=K9638011 | name=Yara Costa | city=Lyon
+id=K7310012 | name=Sara Nakamura | city=Cork
+id=K2635013 | name=Sara Sato | city=Leeds
+id=K5811014 | name=Una Dupont | city=Izmir
+id=K1236015 | name=Wafa Ben Ali | city=Quito
+id=K2974016 | name=Karim Nakamura | city=Lagos
+id=K6555017 | name=Bilel Bauer | city=Osaka
+id=K7096018 | name=Karim Bauer | city=Dakar
+id=K5578019 | name=Victor Horvat | city=Sfax
+id=K8846020 | name=Jana Haddad | city=Porto
+id=K4421021 | name=Yara Haddad | city=Lagos
+id=K5554022 | name=Victor Moreau | city=Osaka
+id=K9100023 | name=Ivo Okafor | city=Sfax
+id=K1421024 | name=Bilel Kaya | city=Tunis
+id=K9184025 | name=Farah Dupont | city=Bergen
+id=K4478026 | name=Ana Costa | city=Malaga
+id=K9720027 | name=Ivo Bauer | city=Bergen
+id=K8974028 | name=Taha Costa | city=Tunis
+id=K2667029 | name=Chen Mansour | city=Sousse
+id=K8804030 | name=Hana Jensen | city=Graz
+id=K1321031 | name=Emeka Petrov | city=Sfax
+id=K5433032 | name=Ana Dupont | city=Sousse
+id=K5650033 | name=Jana Dupont | city=Lagos
+id=K9159034 | name=Karim Trabelsi | city=Turin
+id=K1003035 | name=Farah Ben Ali | city=Krakow
+id=K2755036 | name=Nora Okafor | city=Izmir
+id=K6333037 | name=Jana Bauer | city=Sfax
+id=K3609038 | name=Pia Jensen | city=Tunis
+id=K4055039 | name=Victor Okafor | city=Turin
+id=K2835040 | name=Malik Jensen | city=Pune
+id=K6537041 | name=Farah Rossi | city=Quito
+id=K8782042 | name=Nora Sato | city=Bergen
+id=K7434043 | name=Taha Sato | city=Lagos
+id=K2139044 | name=Una Dupont | city=Bilbao
+id=K7867045 | name=Pia Petrov | city=Malaga
+id=K6017046 | name=Wafa Bauer | city=Bergen
+id=K9490047 | name=Rami Dupont | city=Lyon
+id=K4080048 | name=Bilel Okafor | city=Izmir
+id=K3633049 | name=Taha Bauer | city=Dakar
+id=K8556050 | name=Una Novak | city=Sousse
+id=K3886051 | name=Hana Costa | city=Cork
+id=K9830052 | name=Wafa Nakamura | city=Graz
+id=K2935053 | name=Wafa Kral | city=Dakar
+id=K4860054 | name=Ana Kral | city=Cork
+id=K5884055 | name=Goran Haddad | city=Dakar
+id=K6692056 | name=Hana Trabelsi | city=Sfax
+id=K8863057 | name=Nora Jensen | city=Lyon
+id=K8035058 | name=Bilel Bauer | city=Bilbao
+id=K3073059 | name=Zied Moreau | city=Osaka
+id=K5987060 | name=Jana Dupont | city=Izmir
+id=K7824061 | name=Jana Rossi | city=Dakar
+id=K9100062 | name=Yara Okafor | city=Quito
+id=K6692063 | name=Malik Ben Ali | city=Pune
+id=K3396064 | name=Jana Kral | city=Sfax
+id=K1575065 | name=Wafa Rossi | city=Lyon
+id=K5293066 | name=Rami Haddad | city=Izmir
+id=K7588067 | name=Bilel Kaya | city=Malaga
+id=K8325068 | name=Farah Trabelsi | city=Krakow
+id=K9063069 | name=Bilel Kral | city=Dakar
+id=K2957070 | name=Una Wang | city=Leeds
+id=K2379071 | name=Omar Dupont | city=Bergen
+id=K7882072 | name=Karim Wang | city=Leeds
+id=K6679073 | name=Yara Nakamura | city=Lyon
+id=K9455074 | name=Zied Ben Ali | city=Bergen
+id=K8063075 | name=Chen Costa | city=Tunis
+id=K4041076 | name=Goran Jensen | city=Osaka
+id=K7353077 | name=Goran Petrov | city=Izmir
+id=K9706078 | name=Omar Nakamura | city=Cork
+id=K4905079 | name=Lea Ben Ali | city=Sousse
+id=K1527080 | name=Jana Trabelsi | city=Malaga
+id=K4149081 | name=Karim Costa | city=Quito
+id=K6095082 | name=Ana Mansour | city=Turin
+id=K9199083 | name=Yara Mansour | city=Dakar
+id=K4648084 | name=Karim Petrov | city=Pune
+id=K6382085 | name=Taha Rossi | city=Dakar
+id=K3640086 | name=Hana Moreau | city=Utrecht
+id=K7772087 | name=Taha Mansour | city=Dakar
+id=K6265088 | name=Bilel Okafor | city=Sousse
+id=K7838089 | name=Yara Costa | city=Tunis
+id=K3252090 | name=Lea Jensen | city=Quito
+id=K4647091 | name=Ana Jensen | city=Sfax
+id=K3964092 | name=Hana Moreau | city=Graz
+id=K3205093 | name=Sara Haddad | city=Dakar
+id=K3424094 | name=Ana Bauer | city=Tunis
+id=K8850095 | name=Emeka Petrov | city=Izmir
+id=K4990096 | name=Omar Okafor | city=Quito
+id=K7181097 | name=Hana Okafor | city=Lagos
+id=K2588098 | name=Pia Horvat | city=Bilbao
+id=K8935099 | name=Rami Moreau | city=Lagos
+id=K8270100 | name=Wafa Costa | city=Lyon
+id=K3261101 | name=Yara Mansour | city=Utrecht
+id=K1508102 | name=Chen Kaya | city=Izmir
+id=K7245103 | name=Taha Silva | city=Krakow
+id=K7092104 | name=Zied Kral | city=Bilbao
+id=K6384105 | name=Victor Costa | city=Tunis
+id=K3888106 | name=Hana Okafor | city=Sousse
+id=K1222107 | name=Hana Trabelsi | city=Turin
+id=K2170108 | name=Bilel Dupont | city=Porto
+id=K4799109 | name=Una Dupont | city=Osaka
+id=K8359110 | name=Rami Rossi | city=Pune
+id=K8774111 | name=Omar Okafor | city=Turin
+id=K4394112 | name=Bilel Haddad | city=Leeds
+id=K7234113 | name=Malik Novak | city=Turin
+id=K7301114 | name=Emeka Nakamura | city=Porto
+id=K8633115 | name=Taha Novak | city=Izmir
+id=K5141116 | name=Bilel Rossi | city=Izmir
+id=K5678117 | name=Bilel Jensen | city=Turin
+id=K5384118 | name=Ana Horvat | city=Krakow
+id=K3974119 | name=Wafa Ben Ali | city=Graz
+id=K6930120 | name=Ana Wang | city=Izmir
+id=K5829121 | name=Hana Silva | city=Bergen
+id=K8411122 | name=Dora Mansour | city=Cork
+id=K9229123 | name=Rami Haddad | city=Bilbao
+id=K1975124 | name=Wafa Costa | city=Pune
+id=K5031125 | name=Sara Kral | city=Sfax
+id=K5514126 | name=Una Nakamura | city=Malaga
+id=K6721127 | name=Goran Petrov | city=Porto
+id=K6988128 | name=Ana Mansour | city=Krakow
+id=K7821129 | name=Goran Rossi | city=Quito
+id=K2313130 | name=Lea Rossi | city=Bergen
+id=K8034131 | name=Chen Petrov | city=Krakow
+id=K4819132 | name=Farah Petrov | city=Porto
+id=K1346133 | name=Rami Ben Ali | city=Lyon
+id=K7107134 | name=Pia Jensen | city=Graz
+id=K8965135 | name=Karim Haddad | city=Sfax
+id=K4206136 | name=Lea Mansour | city=Lyon
+id=K3281137 | name=Pia Silva | city=Lyon
+id=K4385138 | name=Una Dupont | city=Graz
+id=K6107139 | name=Hana Silva | city=Krakow
+id=K3548140 | name=Goran Kral | city=Izmir
+id=K6033141 | name=Farah Ben Ali | city=Cork
+id=K4467142 | name=Hana Bauer | city=Dakar
+id=K3704143 | name=Sara Ben Ali | city=Krakow
+id=K8602144 | name=Victor Rossi | city=Bilbao
+id=K7421145 | name=Bilel Horvat | city=Lyon
+id=K2690146 | name=Karim Bauer | city=Krakow
+id=K7470147 | name=Wafa Kral | city=Izmir
+id=K9864148 | name=Pia Kaya | city=Sousse
+id=K6151149 | name=Yara Rossi | city=Porto
+id=K4694150 | name=Bilel Moreau | city=Dakar
+id=K6667151 | name=Jana Sato | city=Bilbao
+id=K4188152 | name=Dora Haddad | city=Izmir
+id=K1311153 | name=Emeka Nakamura | city=Graz
+id=K8941154 | name=Rami Kaya | city=Izmir
+id=K4030155 | name=Jana Sato | city=Krakow
+id=K8217156 | name=Farah Rossi | city=Lagos
+id=K7685157 | name=Bilel Moreau | city=Lyon
+id=K4563158 | name=Emeka Nakamura | city=Leeds
+id=K5004159 | name=Victor Petrov | city=Sfax
+---END DATA---
