@@ -45,6 +45,7 @@ def test_builds_one_hyperedge_per_tool_and_retains_named_tail():
     edges = {e["edge_id"]: e for e in graph["hyperedges"]}
     assert edges["files::read_file"]["tail"] == [{"argument": "path", "type": "path"}]
     assert {x["argument"] for x in edges["files::write_file"]["tail"]} == {"path", "content"}
+    assert edges["files::read_file"]["contract"]["category"] == "filesystem"
     assert edges["files::read_file"]["head"]
     assert report["data_leakage_controls"]["gold_tool_labels_used_to_create_hyperedges"] is False
 
