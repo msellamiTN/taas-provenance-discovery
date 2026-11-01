@@ -27,3 +27,12 @@ jobs:
         run: pytest -q tests/test_benchmark_hypergraph.py
       - name: Run full regression suite
         run: pytest -q
+      - name: Build hypergraph from the pinned benchmark registry
+        run: python scripts/build_benchmark_hypergraph.py --outdir /tmp/taas-benchmark-hypergraph
+      - name: Upload benchmark hypergraph bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: taas-benchmark-capability-hypergraph
+          path: /tmp/taas-benchmark-hypergraph/
+          if-no-files-found: error
+          retention-days: 30
