@@ -7,6 +7,7 @@ for task execution and evaluation.
 """
 from __future__ import annotations
 from dataclasses import dataclass
+import time
 from typing import Any, Callable, Mapping
 
 from .contracts import extract_contract
@@ -83,7 +84,9 @@ class TaaSMCPBenchAdapter:
         raw_tools, key_by_id = raw_tools_from_mcpbench(all_tools)
         if not raw_tools:
             raise ValueError("MCP-Bench supplied an empty tool catalogue")
+        analyst_started = time.perf_counter()
         goal_spec = self.goal_spec_factory(task)
+        analyst_time_s = time.perf_counter() - analyst_started
         if not isinstance(goal_spec, dict) or not isinstance(goal_spec.get("goals"), list):
             raise ValueError("goal_spec_factory must return a GoalSpec dictionary with a goals array")
 
@@ -104,7 +107,12 @@ class TaaSMCPBenchAdapter:
             "selected_tool_count": len(selected),
             "selected_tool_keys": sorted(selected),
             "abstained": result.abstained,
+            "analyst_time_s": analyst_time_s,
+            "analyst_prompt_version": getattr(self.goal_spec_factory, "prompt_version", None),
+            "analyst_usage": getattr(self.goal_spec_factory, "last_usage", {}),
+            "analyst_raw_response": getattr(self.goal_spec_factory, "last_response", None),
             "discovery_time_s": result.time_s,
+            "taas_pre_execution_time_s": analyst_time_s + result.time_s,
             "goal_spec": goal_spec,
             "gap": [g.id for g in result.gap.gap],
             "gap_shrink": [g.id for g in result.gap.shrink],
