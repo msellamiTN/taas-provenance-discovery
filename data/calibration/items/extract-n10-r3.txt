@@ -1,0 +1,14 @@
+ITEM extract-n10-r3
+QUESTION: In the records below, which city belongs to the record with id K2912004? Answer with the city name.
+---BEGIN DATA---
+id=K5046000 | name=Sara Kaya | city=Bilbao
+id=K6156001 | name=Victor Kaya | city=Utrecht
+id=K1586002 | name=Goran Sato | city=Turin
+id=K3289003 | name=Chen Okafor | city=Krakow
+id=K2912004 | name=Hana Okafor | city=Graz
+id=K8809005 | name=Ivo Rossi | city=Turin
+id=K9658006 | name=Dora Mansour | city=Utrecht
+id=K1019007 | name=Goran Petrov | city=Quito
+id=K9562008 | name=Farah Wang | city=Dakar
+id=K2996009 | name=Ana Okafor | city=Leeds
+---END DATA---

@@ -1,0 +1,14 @@
+ITEM count-n10-r2
+QUESTION: How many lines below are exactly the word 'refund'? Answer with a single integer.
+---BEGIN DATA---
+strap
+strap
+delay
+app
+noise
+battery
+shipping
+strap
+app
+screen
+---END DATA---

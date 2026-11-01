@@ -1,0 +1,386 @@
+[
+ {
+  "id": "extract-n160-r3",
+  "class": "extract",
+  "n": 160,
+  "file": "data/calibration/items/extract-n160-r3.txt"
+ },
+ {
+  "id": "extract-n40-r0",
+  "class": "extract",
+  "n": 40,
+  "file": "data/calibration/items/extract-n40-r0.txt"
+ },
+ {
+  "id": "aggregate_sum-n10-r0",
+  "class": "aggregate_sum",
+  "n": 10,
+  "file": "data/calibration/items/aggregate_sum-n10-r0.txt"
+ },
+ {
+  "id": "extract-n160-r0",
+  "class": "extract",
+  "n": 160,
+  "file": "data/calibration/items/extract-n160-r0.txt"
+ },
+ {
+  "id": "aggregate_sum-n160-r2",
+  "class": "aggregate_sum",
+  "n": 160,
+  "file": "data/calibration/items/aggregate_sum-n160-r2.txt"
+ },
+ {
+  "id": "extract-n40-r1",
+  "class": "extract",
+  "n": 40,
+  "file": "data/calibration/items/extract-n40-r1.txt"
+ },
+ {
+  "id": "classify-n40-r3",
+  "class": "classify",
+  "n": 40,
+  "file": "data/calibration/items/classify-n40-r3.txt"
+ },
+ {
+  "id": "extract-n640-r0",
+  "class": "extract",
+  "n": 640,
+  "file": "data/calibration/items/extract-n640-r0.txt"
+ },
+ {
+  "id": "count-n40-r3",
+  "class": "count",
+  "n": 40,
+  "file": "data/calibration/items/count-n40-r3.txt"
+ },
+ {
+  "id": "extract-n160-r2",
+  "class": "extract",
+  "n": 160,
+  "file": "data/calibration/items/extract-n160-r2.txt"
+ },
+ {
+  "id": "count-n640-r0",
+  "class": "count",
+  "n": 640,
+  "file": "data/calibration/items/count-n640-r0.txt"
+ },
+ {
+  "id": "classify-n640-r1",
+  "class": "classify",
+  "n": 640,
+  "file": "data/calibration/items/classify-n640-r1.txt"
+ },
+ {
+  "id": "classify-n160-r0",
+  "class": "classify",
+  "n": 160,
+  "file": "data/calibration/items/classify-n160-r0.txt"
+ },
+ {
+  "id": "aggregate_sum-n640-r2",
+  "class": "aggregate_sum",
+  "n": 640,
+  "file": "data/calibration/items/aggregate_sum-n640-r2.txt"
+ },
+ {
+  "id": "classify-n40-r0",
+  "class": "classify",
+  "n": 40,
+  "file": "data/calibration/items/classify-n40-r0.txt"
+ },
+ {
+  "id": "count-n160-r2",
+  "class": "count",
+  "n": 160,
+  "file": "data/calibration/items/count-n160-r2.txt"
+ },
+ {
+  "id": "classify-n160-r2",
+  "class": "classify",
+  "n": 160,
+  "file": "data/calibration/items/classify-n160-r2.txt"
+ },
+ {
+  "id": "classify-n160-r3",
+  "class": "classify",
+  "n": 160,
+  "file": "data/calibration/items/classify-n160-r3.txt"
+ },
+ {
+  "id": "count-n640-r3",
+  "class": "count",
+  "n": 640,
+  "file": "data/calibration/items/count-n640-r3.txt"
+ },
+ {
+  "id": "count-n640-r1",
+  "class": "count",
+  "n": 640,
+  "file": "data/calibration/items/count-n640-r1.txt"
+ },
+ {
+  "id": "count-n10-r0",
+  "class": "count",
+  "n": 10,
+  "file": "data/calibration/items/count-n10-r0.txt"
+ },
+ {
+  "id": "classify-n10-r3",
+  "class": "classify",
+  "n": 10,
+  "file": "data/calibration/items/classify-n10-r3.txt"
+ },
+ {
+  "id": "classify-n160-r1",
+  "class": "classify",
+  "n": 160,
+  "file": "data/calibration/items/classify-n160-r1.txt"
+ },
+ {
+  "id": "aggregate_sum-n640-r1",
+  "class": "aggregate_sum",
+  "n": 640,
+  "file": "data/calibration/items/aggregate_sum-n640-r1.txt"
+ },
+ {
+  "id": "count-n10-r3",
+  "class": "count",
+  "n": 10,
+  "file": "data/calibration/items/count-n10-r3.txt"
+ },
+ {
+  "id": "aggregate_sum-n160-r1",
+  "class": "aggregate_sum",
+  "n": 160,
+  "file": "data/calibration/items/aggregate_sum-n160-r1.txt"
+ },
+ {
+  "id": "extract-n40-r3",
+  "class": "extract",
+  "n": 40,
+  "file": "data/calibration/items/extract-n40-r3.txt"
+ },
+ {
+  "id": "aggregate_sum-n40-r2",
+  "class": "aggregate_sum",
+  "n": 40,
+  "file": "data/calibration/items/aggregate_sum-n40-r2.txt"
+ },
+ {
+  "id": "aggregate_sum-n160-r0",
+  "class": "aggregate_sum",
+  "n": 160,
+  "file": "data/calibration/items/aggregate_sum-n160-r0.txt"
+ },
+ {
+  "id": "count-n40-r0",
+  "class": "count",
+  "n": 40,
+  "file": "data/calibration/items/count-n40-r0.txt"
+ },
+ {
+  "id": "count-n10-r1",
+  "class": "count",
+  "n": 10,
+  "file": "data/calibration/items/count-n10-r1.txt"
+ },
+ {
+  "id": "extract-n640-r3",
+  "class": "extract",
+  "n": 640,
+  "file": "data/calibration/items/extract-n640-r3.txt"
+ },
+ {
+  "id": "classify-n10-r2",
+  "class": "classify",
+  "n": 10,
+  "file": "data/calibration/items/classify-n10-r2.txt"
+ },
+ {
+  "id": "count-n40-r1",
+  "class": "count",
+  "n": 40,
+  "file": "data/calibration/items/count-n40-r1.txt"
+ },
+ {
+  "id": "classify-n640-r3",
+  "class": "classify",
+  "n": 640,
+  "file": "data/calibration/items/classify-n640-r3.txt"
+ },
+ {
+  "id": "extract-n10-r3",
+  "class": "extract",
+  "n": 10,
+  "file": "data/calibration/items/extract-n10-r3.txt"
+ },
+ {
+  "id": "aggregate_sum-n40-r3",
+  "class": "aggregate_sum",
+  "n": 40,
+  "file": "data/calibration/items/aggregate_sum-n40-r3.txt"
+ },
+ {
+  "id": "aggregate_sum-n40-r0",
+  "class": "aggregate_sum",
+  "n": 40,
+  "file": "data/calibration/items/aggregate_sum-n40-r0.txt"
+ },
+ {
+  "id": "aggregate_sum-n160-r3",
+  "class": "aggregate_sum",
+  "n": 160,
+  "file": "data/calibration/items/aggregate_sum-n160-r3.txt"
+ },
+ {
+  "id": "aggregate_sum-n10-r2",
+  "class": "aggregate_sum",
+  "n": 10,
+  "file": "data/calibration/items/aggregate_sum-n10-r2.txt"
+ },
+ {
+  "id": "extract-n10-r1",
+  "class": "extract",
+  "n": 10,
+  "file": "data/calibration/items/extract-n10-r1.txt"
+ },
+ {
+  "id": "count-n160-r1",
+  "class": "count",
+  "n": 160,
+  "file": "data/calibration/items/count-n160-r1.txt"
+ },
+ {
+  "id": "classify-n640-r2",
+  "class": "classify",
+  "n": 640,
+  "file": "data/calibration/items/classify-n640-r2.txt"
+ },
+ {
+  "id": "classify-n10-r0",
+  "class": "classify",
+  "n": 10,
+  "file": "data/calibration/items/classify-n10-r0.txt"
+ },
+ {
+  "id": "count-n640-r2",
+  "class": "count",
+  "n": 640,
+  "file": "data/calibration/items/count-n640-r2.txt"
+ },
+ {
+  "id": "count-n40-r2",
+  "class": "count",
+  "n": 40,
+  "file": "data/calibration/items/count-n40-r2.txt"
+ },
+ {
+  "id": "extract-n10-r2",
+  "class": "extract",
+  "n": 10,
+  "file": "data/calibration/items/extract-n10-r2.txt"
+ },
+ {
+  "id": "classify-n40-r1",
+  "class": "classify",
+  "n": 40,
+  "file": "data/calibration/items/classify-n40-r1.txt"
+ },
+ {
+  "id": "aggregate_sum-n10-r1",
+  "class": "aggregate_sum",
+  "n": 10,
+  "file": "data/calibration/items/aggregate_sum-n10-r1.txt"
+ },
+ {
+  "id": "count-n10-r2",
+  "class": "count",
+  "n": 10,
+  "file": "data/calibration/items/count-n10-r2.txt"
+ },
+ {
+  "id": "aggregate_sum-n640-r3",
+  "class": "aggregate_sum",
+  "n": 640,
+  "file": "data/calibration/items/aggregate_sum-n640-r3.txt"
+ },
+ {
+  "id": "extract-n160-r1",
+  "class": "extract",
+  "n": 160,
+  "file": "data/calibration/items/extract-n160-r1.txt"
+ },
+ {
+  "id": "extract-n640-r1",
+  "class": "extract",
+  "n": 640,
+  "file": "data/calibration/items/extract-n640-r1.txt"
+ },
+ {
+  "id": "extract-n40-r2",
+  "class": "extract",
+  "n": 40,
+  "file": "data/calibration/items/extract-n40-r2.txt"
+ },
+ {
+  "id": "aggregate_sum-n40-r1",
+  "class": "aggregate_sum",
+  "n": 40,
+  "file": "data/calibration/items/aggregate_sum-n40-r1.txt"
+ },
+ {
+  "id": "classify-n40-r2",
+  "class": "classify",
+  "n": 40,
+  "file": "data/calibration/items/classify-n40-r2.txt"
+ },
+ {
+  "id": "classify-n640-r0",
+  "class": "classify",
+  "n": 640,
+  "file": "data/calibration/items/classify-n640-r0.txt"
+ },
+ {
+  "id": "count-n160-r3",
+  "class": "count",
+  "n": 160,
+  "file": "data/calibration/items/count-n160-r3.txt"
+ },
+ {
+  "id": "count-n160-r0",
+  "class": "count",
+  "n": 160,
+  "file": "data/calibration/items/count-n160-r0.txt"
+ },
+ {
+  "id": "extract-n640-r2",
+  "class": "extract",
+  "n": 640,
+  "file": "data/calibration/items/extract-n640-r2.txt"
+ },
+ {
+  "id": "classify-n10-r1",
+  "class": "classify",
+  "n": 10,
+  "file": "data/calibration/items/classify-n10-r1.txt"
+ },
+ {
+  "id": "aggregate_sum-n10-r3",
+  "class": "aggregate_sum",
+  "n": 10,
+  "file": "data/calibration/items/aggregate_sum-n10-r3.txt"
+ },
+ {
+  "id": "extract-n10-r0",
+  "class": "extract",
+  "n": 10,
+  "file": "data/calibration/items/extract-n10-r0.txt"
+ },
+ {
+  "id": "aggregate_sum-n640-r0",
+  "class": "aggregate_sum",
+  "n": 640,
+  "file": "data/calibration/items/aggregate_sum-n640-r0.txt"
+ }
+]

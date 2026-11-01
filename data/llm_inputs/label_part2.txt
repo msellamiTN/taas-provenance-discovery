@@ -1,0 +1,378 @@
+[Ant Design Components::get-component-changelog] 列出 Ant Design 特定组件的更新日志 适用场景： 1. 用户询问特定组件的更新日志 2. 在知道用户 antd 版本的情况下，当用户需要实现相关组件功能时判断是否在后续版本中才实现，来决定是否需要升级依赖
+    args: componentName*:string
+[Ant Design Components::get-component-docs] 获取 Ant Design 特定组件的详细文档 适用场景： 1. 用户询问如何使用特定组件 2. 用户需要查看该组件的 api 属性
+    args: componentName*:string
+[Ant Design Components::list-component-examples] 获取 Ant Design 特定组件的代码示例 适用场景： 1. 用户询问特定组件的示例时 2. 用户想要实现某个功能时直接告知可使用的例子 3. 生成页面前需要获取组件的示例代码
+    args: componentName*:string
+[Ant Design Components::list-components] 当用户请求一个新的用户界面（UI）使用 Ant Design 组件时使用此工具。 此工具仅返回可用的组件列表。 调用此工具后，你必须编辑或添加文件，以便将代码片段集成到代码库中
+    args: -
+[Context7::get-library-docs] Fetches up-to-date documentation for a library. You must call 'resolve-library-id' first to obtain the exact Context7-compatible library ID required to use this tool, UNLESS the user explicitly provides a library ID in the format '/org/project' or '/org/project/version' in their query.
+    args: context7CompatibleLibraryID*:string (Exact Context7-compatible library ID (e.g., '/mongodb/docs',); topic:string (Topic to focus documentation on (e.g., 'hooks', 'routing').); tokens:number (Maximum number of tokens of documentation to retrieve (defau)
+[Context7::resolve-library-id] Resolves a package/product name to a Context7-compatible library ID and returns a list of matching libraries. You MUST call this function before 'get-library-docs' to obtain a valid Context7-compatible library ID UNLESS the user explicitly provides a library ID in the format '/org/project' or '/org/project/version' in 
+    args: libraryName*:string (Library name to search for and retrieve a Context7-compatibl)
+[airbnb::airbnb_listing_details] Get detailed information about a specific Airbnb listing. Provide direct links to the user
+    args: id*:string (The Airbnb listing ID); checkin:string (Check-in date (YYYY-MM-DD)); checkout:string (Check-out date (YYYY-MM-DD)); adults:number (Number of adults); children:number (Number of children); infants:number (Number of infants); pets:number (Number of pets); ignoreRobotsText:boolean (Ignore robots.txt rules for this request)
+[airbnb::airbnb_search] Search for Airbnb listings with various filters and pagination. Provide direct links to the user
+    args: location*:string (Location to search for (city, state, etc.)); placeId:string (Google Maps Place ID (overrides the location parameter)); checkin:string (Check-in date (YYYY-MM-DD)); checkout:string (Check-out date (YYYY-MM-DD)); adults:number (Number of adults); children:number (Number of children); infants:number (Number of infants); pets:number (Number of pets); minPrice:number (Minimum price for the stay); maxPrice:number (Maximum price for the stay); cursor:string (Base64-encoded string used for Pagination); ignoreRobotsText:boolean (Ignore robots.txt rules for this request)
+[arxiv-mcp-server::download_paper] Download a paper and create a resource for it
+    args: paper_id*:string (The arXiv ID of the paper to download); check_status:boolean (If true, only check conversion status without downloading)
+[arxiv-mcp-server::list_papers] List all existing papers available as resources
+    args: -
+[arxiv-mcp-server::read_paper] Read the full content of a stored paper in markdown format
+    args: paper_id*:string (The arXiv ID of the paper to read)
+[arxiv-mcp-server::search_papers] Search for papers on arXiv with advanced filtering
+    args: query*:string; max_results:integer; date_from:string; date_to:string; categories:array
+[calculator::calculate] Calculates/evaluates the given expression.
+    args: expression*:string
+[fetch::fetch] Fetches a URL from the internet and optionally extracts its contents as markdown. Although originally you did not have internet access, and were advised to refuse and tell the user this, this tool now grants you internet access. Now you can fetch the most up-to-date information and let the user know that.
+    args: url*:string (URL to fetch); max_length:integer (Maximum number of characters to return.); start_index:integer (On return output starting at this character index, useful if); raw:boolean (Get the actual HTML content of the requested page, without s)
+[howtocook-mcp::mcp_howtocook_getAllRecipes] 获取所有菜谱
+    args: no_param:string (无参数)
+[howtocook-mcp::mcp_howtocook_getRecipeById] 根据菜谱名称或ID查询指定菜谱的完整详情，包括食材、步骤等
+    args: query*:string (菜谱名称或ID，支持模糊匹配菜谱名称)
+[howtocook-mcp::mcp_howtocook_getRecipesByCategory] 根据分类查询菜谱，可选分类有: 水产, 早餐, 调料, 甜品, 饮品, 荤菜, 半成品加工, 汤, 主食, 素菜
+    args: category*:string (菜谱分类名称，如水产、早餐、荤菜、主食等)
+[howtocook-mcp::mcp_howtocook_recommendMeals] 根据用户的忌口、过敏原、人数智能推荐菜谱，创建一周的膳食计划以及大致的购物清单
+    args: allergies:array (过敏原列表，如["大蒜", "虾"]); avoidItems:array (忌口食材列表，如["葱", "姜"]); peopleCount*:integer (用餐人数，1-10之间的整数)
+[howtocook-mcp::mcp_howtocook_whatToEat] 不知道吃什么？根据人数直接推荐适合的菜品组合
+    args: peopleCount*:integer (用餐人数，1-10之间的整数，会根据人数推荐合适数量的菜品)
+[investor::get_cnn_fear_greed_index] Max 30 days of historical data.
+    args: days:integer; indicators:any
+[investor::get_crypto_fear_greed_index] Get historical Crypto Fear & Greed Index data.
+    args: days:integer
+[investor::get_earnings_history] 
+    args: ticker*:string; max_entries:integer
+[investor::get_financial_statements] 
+    args: ticker*:string; statement_type:string; frequency:string; max_periods:integer
+[investor::get_insider_trades] 
+    args: ticker*:string; max_trades:integer
+[investor::get_institutional_holders] Get major institutional and mutual fund holders.
+    args: ticker*:string; top_n:integer
+[investor::get_options] Get options data. Dates: YYYY-MM-DD. Type: C=calls, P=puts.
+    args: ticker_symbol*:string; num_options:integer; start_date:any; end_date:any; strike_lower:any; strike_upper:any; option_type:any
+[investor::get_price_history] Get historical OHLCV data: daily intervals for ≤1y periods, monthly intervals for ≥2y periods.
+    args: ticker*:string; period:string
+[investor::get_ticker_data] Returns: - info: Core financial metrics (P/E ratios, margins, growth rates, debt ratios, market cap, EPS, etc.) - calendar: Upcoming earnings dates and dividend dates - news: Recent news articles (headlines, dates, sources) - recommendations: Latest analyst recommendations (buy/sell/hold ratings) - upgrades_downgrades:
+    args: ticker*:string; max_news:integer; max_recommendations:integer; max_upgrades:integer
+[mcp-deepwiki::deepwiki_fetch] Fetch a deepwiki.com repo and return Markdown
+    args: url*:string (should be a URL, owner/repo name (e.g. "vercel/ai"), a two-w); maxDepth:integer (Can fetch a single site => maxDepth 0 or multiple/all sites ); mode:string; verbose:boolean
+[mcp-server-chart::generate_area_chart] Generate a area chart to show data trends under continuous independent variables and observe the overall data trend, such as, displacement = velocity (average or instantaneous) × time: s = v × t. If the x-axis is time (t) and the y-axis is velocity (v) at each moment, an area chart allows you to observe the trend of ve
+    args: data*:array (Data for area chart, such as, [{ time: '2018', value: 99.9 }); stack:boolean (Whether stacking is enabled. When enabled, area charts requi); theme:string (Set the theme for the chart, optional, default is 'default'.); width:number (Set the width of chart, default is 600.); height:number (Set the height of chart, default is 400.); title:string (Set the title of chart.); axisXTitle:string (Set the x-axis title of chart.); axisYTitle:string (Set the y-axis title of chart.)
+[mcp-server-chart::generate_bar_chart] Generate a bar chart to show data for numerical comparisons among different categories, such as, comparing categorical data and for horizontal comparisons.
+    args: data*:array (Data for bar chart, such as, [{ category: '分类一', value: 10 }); group:boolean (Whether grouping is enabled. When enabled, bar charts requir); stack:boolean (Whether stacking is enabled. When enabled, bar charts requir); theme:string (Set the theme for the chart, optional, default is 'default'.); width:number (Set the width of chart, default is 600.); height:number (Set the height of chart, default is 400.); title:string (Set the title of chart.); axisXTitle:string (Set the x-axis title of chart.); axisYTitle:string (Set the y-axis title of chart.)
+[mcp-server-chart::generate_boxplot_chart] Generate a boxplot chart to show data for statistical summaries among different categories, such as, comparing the distribution of data points across categories.
+    args: data*:array (Data for boxplot chart, such as, [{ category: '分类一', value: ); theme:string (Set the theme for the chart, optional, default is 'default'.); width:number (Set the width of chart, default is 600.); height:number (Set the height of chart, default is 400.); title:string (Set the title of chart.); axisXTitle:string (Set the x-axis title of chart.); axisYTitle:string (Set the y-axis title of chart.)
+[mcp-server-chart::generate_column_chart] Generate a column chart, which are best for comparing categorical data, such as, when values are close, column charts are preferable because our eyes are better at judging height than other visual elements like area or angles.
+    args: data*:array (Data for column chart, such as, [{ category: '北京', value: 82); group:boolean (Whether grouping is enabled. When enabled, column charts req); stack:boolean (Whether stacking is enabled. When enabled, column charts req); theme:string (Set the theme for the chart, optional, default is 'default'.); width:number (Set the width of chart, default is 600.); height:number (Set the height of chart, default is 400.); title:string (Set the title of chart.); axisXTitle:string (Set the x-axis title of chart.); axisYTitle:string (Set the y-axis title of chart.)
+[mcp-server-chart::generate_district_map] Generates regional distribution maps, which are usually used to show the administrative divisions and coverage of a dataset. It is not suitable for showing the distribution of specific locations, such as urban administrative divisions, GDP distribution maps of provinces and cities across the country, etc. This tool is 
+    args: title*:string (The map title should not exceed 16 characters. The content s); data*:object (Administrative division data, lower-level administrative div); width:number (Set the width of map, default is 1600.); height:number (Set the height of map, default is 1000.)
+[mcp-server-chart::generate_dual_axes_chart] Generate a dual axes chart which is a combination chart that integrates two different chart types, typically combining a bar chart with a line chart to display both the trend and comparison of data, such as, the trend of sales and profit over time.
+    args: categories*:array (Categories for dual axes chart, such as, ['2015', '2016', '2); series*:array (Series for dual axes chart, such as, [{ type: 'column', data); theme:string (Set the theme for the chart, optional, default is 'default'.); width:number (Set the width of chart, default is 600.); height:number (Set the height of chart, default is 400.); title:string (Set the title of chart.); axisXTitle:string (Set the x-axis title of chart.)
+[mcp-server-chart::generate_fishbone_diagram] Generate a fishbone diagram chart to uses a fish skeleton, like structure to display the causes or effects of a core problem, with the problem as the fish head and the causes/effects as the fish bones. It suits problems that can be split into multiple related factors.
+    args: data*:object (Data for fishbone diagram chart, such as, { name: 'main topi); theme:string (Set the theme for the chart, optional, default is 'default'.); width:number (Set the width of chart, default is 600.); height:number (Set the height of chart, default is 400.)
+[mcp-server-chart::generate_flow_diagram] Generate a flow diagram chart to show the steps and decision points of a process or system, such as, scenarios requiring linear process presentation.
+    args: data*:object (Data for flow diagram chart, such as, { nodes: [{ name: 'nod); theme:string (Set the theme for the chart, optional, default is 'default'.); width:number (Set the width of chart, default is 600.); height:number (Set the height of chart, default is 400.)
+[mcp-server-chart::generate_funnel_chart] Generate a funnel chart to visualize the progressive reduction of data as it passes through stages, such as, the conversion rates of users from visiting a website to completing a purchase.
+    args: data*:array (Data for funnel chart, such as, [{ category: '浏览网站', value: ); theme:string (Set the theme for the chart, optional, default is 'default'.); width:number (Set the width of chart, default is 600.); height:number (Set the height of chart, default is 400.); title:string (Set the title of chart.)
+[mcp-server-chart::generate_histogram_chart] Generate a histogram chart to show the frequency of data points within a certain range. It can observe data distribution, such as, normal and skewed distributions, and identify data concentration areas and extreme points.
+    args: data*:array (Data for histogram chart, such as, [78, 88, 60, 100, 95].); binNumber:any (Number of intervals to define the number of intervals in a h); theme:string (Set the theme for the chart, optional, default is 'default'.); width:number (Set the width of chart, default is 600.); height:number (Set the height of chart, default is 400.); title:string (Set the title of chart.); axisXTitle:string (Set the x-axis title of chart.); axisYTitle:string (Set the y-axis title of chart.)
+[mcp-server-chart::generate_line_chart] Generate a line chart to show trends over time, such as, the ratio of Apple computer sales to Apple's profits changed from 2000 to 2016.
+    args: data*:array (Data for line chart, such as, [{ time: '2015', value: 23 }].); stack:boolean (Whether stacking is enabled. When enabled, line charts requi); theme:string (Set the theme for the chart, optional, default is 'default'.); width:number (Set the width of chart, default is 600.); height:number (Set the height of chart, default is 400.); title:string (Set the title of chart.); axisXTitle:string (Set the x-axis title of chart.); axisYTitle:string (Set the y-axis title of chart.)
+[mcp-server-chart::generate_liquid_chart] Generate a liquid chart to visualize a single value as a percentage, such as, the current occupancy rate of a reservoir or the completion percentage of a project.
+    args: percent*:number (The percentage value to display in the liquid chart, should ); shape:string (The shape of the liquid chart, can be 'circle', 'rect', 'pin); theme:string (Set the theme for the chart, optional, default is 'default'.); width:number (Set the width of chart, default is 600.); height:number (Set the height of chart, default is 400.); title:string (Set the title of chart.)
+[mcp-server-chart::generate_mind_map] Generate a mind map chart to organizes and presents information in a hierarchical structure with branches radiating from a central topic, such as, a diagram showing the relationship between a main topic and its subtopics.
+    args: data*:object (Data for mind map chart, such as, { name: 'main topic', chil); theme:string (Set the theme for the chart, optional, default is 'default'.); width:number (Set the width of chart, default is 600.); height:number (Set the height of chart, default is 400.)
+[mcp-server-chart::generate_network_graph] Generate a network graph chart to show relationships (edges) between entities (nodes), such as, relationships between people in social networks.
+    args: data*:object (Data for network graph chart, such as, { nodes: [{ name: 'no); theme:string (Set the theme for the chart, optional, default is 'default'.); width:number (Set the width of chart, default is 600.); height:number (Set the height of chart, default is 400.)
+[mcp-server-chart::generate_organization_chart] Generate an organization chart to visualize the hierarchical structure of an organization, such as, a diagram showing the relationship between a CEO and their direct reports.
+    args: data*:object (Data for organization chart, such as, { name: 'CEO', descrip); orient:string (Orientation of the organization chart, either horizontal or ); theme:string (Set the theme for the chart, optional, default is 'default'.); width:number (Set the width of chart, default is 600.); height:number (Set the height of chart, default is 400.)
+[mcp-server-chart::generate_path_map] Generate a route map to display the user's planned route, such as travel guide routes.
+    args: title*:string (The map title should not exceed 16 characters. The content s); data*:array (Routes, each group represents all POIs along a route. For ex); width:number (Set the width of map, default is 1600.); height:number (Set the height of map, default is 1000.)
+[mcp-server-chart::generate_pie_chart] Generate a pie chart to show the proportion of parts, such as, market share and budget allocation.
+    args: data*:array (Data for pie chart, such as, [{ category: '分类一', value: 27 }); innerRadius:number (Set the innerRadius of pie chart, the value between 0 and 1.); theme:string (Set the theme for the chart, optional, default is 'default'.); width:number (Set the width of chart, default is 600.); height:number (Set the height of chart, default is 400.); title:string (Set the title of chart.)
+[mcp-server-chart::generate_pin_map] Generate a point map to display the location and distribution of point data on the map, such as the location distribution of attractions, hospitals, supermarkets, etc.
+    args: title*:string (The map title should not exceed 16 characters. The content s); data*:array (A list of keywords for the names of points of interest (POIs); markerPopup:object (Marker type, one is simple mode, which is just an icon and d); width:number (Set the width of map, default is 1600.); height:number (Set the height of map, default is 1000.)
+[mcp-server-chart::generate_radar_chart] Generate a radar chart to display multidimensional data (four dimensions or more), such as, evaluate Huawei and Apple phones in terms of five dimensions: ease of use, functionality, camera, benchmark scores, and battery life.
+    args: data*:array (Data for radar chart, such as, [{ name: 'Design', value: 70 ); theme:string (Set the theme for the chart, optional, default is 'default'.); width:number (Set the width of chart, default is 600.); height:number (Set the height of chart, default is 400.); title:string (Set the title of chart.)
+[mcp-server-chart::generate_sankey_chart] Generate a sankey chart to visualize the flow of data between different stages or categories, such as, the user journey from landing on a page to completing a purchase.
+    args: data*:array (Date for sankey chart, such as, [{ source: 'Landing Page', t); nodeAlign:string (Alignment of nodes in the sankey chart, such as, 'left', 'ri); theme:string (Set the theme for the chart, optional, default is 'default'.); width:number (Set the width of chart, default is 600.); height:number (Set the height of chart, default is 400.); title:string (Set the title of chart.)
+[mcp-server-chart::generate_scatter_chart] Generate a scatter chart to show the relationship between two variables, helps discover their relationship or trends, such as, the strength of correlation, data distribution patterns.
+    args: data*:array (Data for scatter chart, such as, [{ x: 10, y: 15 }].); theme:string (Set the theme for the chart, optional, default is 'default'.); width:number (Set the width of chart, default is 600.); height:number (Set the height of chart, default is 400.); title:string (Set the title of chart.); axisXTitle:string (Set the x-axis title of chart.); axisYTitle:string (Set the y-axis title of chart.)
+[mcp-server-chart::generate_treemap_chart] Generate a treemap chart to display hierarchical data and can intuitively show comparisons between items at the same level, such as, show disk space usage with treemap.
+    args: data*:array (Data for treemap chart, such as, [{ name: 'Design', value: 7); theme:string (Set the theme for the chart, optional, default is 'default'.); width:number (Set the width of chart, default is 600.); height:number (Set the height of chart, default is 400.); title:string (Set the title of chart.)
+[mcp-server-chart::generate_venn_chart] Generate a Venn diagram to visualize the relationships between different sets, showing how they intersect and overlap, such as the commonalities and differences between various groups.
+    args: data*:array (Data for venn chart, such as, [{ label: 'A', value: 10, sets); theme:string (Set the theme for the chart, optional, default is 'default'.); width:number (Set the width of chart, default is 600.); height:number (Set the height of chart, default is 400.); title:string (Set the title of chart.)
+[mcp-server-chart::generate_violin_chart] Generate a violin chart to show data for statistical summaries among different categories, such as, comparing the distribution of data points across categories.
+    args: data*:array (Data for violin chart, such as, [{ category: '分类一', value: 1); theme:string (Set the theme for the chart, optional, default is 'default'.); width:number (Set the width of chart, default is 600.); height:number (Set the height of chart, default is 400.); title:string (Set the title of chart.); axisXTitle:string (Set the x-axis title of chart.); axisYTitle:string (Set the y-axis title of chart.)
+[mcp-server-chart::generate_word_cloud_chart] Generate a word cloud chart to show word frequency or weight through text size variation, such as, analyzing common words in social media, reviews, or feedback.
+    args: data*:array (Data for word cloud chart, such as, [{ value: 4.272, text: '); theme:string (Set the theme for the chart, optional, default is 'default'.); width:number (Set the width of chart, default is 600.); height:number (Set the height of chart, default is 400.); title:string (Set the title of chart.)
+[mcp-simple-arxiv::get_paper_data] Get detailed information about a specific paper including abstract and available formats
+    args: paper_id*:string (arXiv paper ID (e.g., '2103.08220'))
+[mcp-simple-arxiv::list_categories] List all available arXiv categories and how to use them in search
+    args: primary_category:string (Optional: filter by primary category (e.g., 'cs' for Compute)
+[mcp-simple-arxiv::search_papers] Search for papers on arXiv by title and abstract content. You can use advanced search syntax: - Search in title: ti:"search terms" - Search in abstract: abs:"search terms" - Search by author: au:"author name" - Combine terms with: AND, OR, ANDNOT - Filter by category: cat:cs.AI (use list_categories tool to see availabl
+    args: query*:string (Search query to match against paper titles and abstracts); max_results:number (Maximum number of results to return (default: 10))
+[mcp-simple-arxiv::update_categories] Update the stored category taxonomy by fetching the latest version from arxiv.org
+    args: -
+[met-museum::get-museum-object] Get a museum object by its ID, from the Metropolitan Museum of Art Collection
+    args: objectId*:number (The ID of the museum object to retrieve); returnImage:boolean (Whether to return the image (if available) of the object and)
+[met-museum::list-departments] List all departments in the Metropolitan Museum of Art (Met Museum)
+    args: -
+[met-museum::search-museum-objects] Search for objects in the Metropolitan Museum of Art (Met Museum). Will return Total objects found, followed by a list of Object Ids.The parameter title should be set to true if you want to search for objects by title.The parameter hasImages is false by default, but can be set to true to return objects without images.I
+    args: q*:string (The search query, Returns a listing of all Object IDs for ob); hasImages:boolean (Only returns objects that have images); title:boolean (This should be set to true if you want to search for objects); departmentId:number (Returns objects that are in the specified department. The de)
+[music-analysis::beat_track] Computes the beat track of the given audio time series using librosa. The beat track is a representation of the audio signal in terms of its rhythmic content, which is useful for music analysis. The beat track is computed using the following parameters: - hop_length: The number of samples between frames. - start_bpm: T
+    args: path_audio_time_series_y*:string; hop_length:integer; start_bpm:number; tightness:integer; units:string
+[music-analysis::chroma_cqt] Computes the chroma CQT of the given audio time series using librosa. The chroma CQT is a representation of the audio signal in terms of its chromatic content, which is useful for music analysis. The chroma CQT is computed using the following parameters: - path_audio_time_series_y: The path to the audio time series (CS
+    args: path_audio_time_series_y*:string; hop_length:integer; fmin:number; n_chroma:integer; n_octaves:integer
+[music-analysis::download_from_url] Downloads a file from a given URL and returns the path to the downloaded file. Be careful, you will never know the name of the song.
+    args: url*:string
+[music-analysis::download_from_youtube] Downloads a file from a given youtube URL and returns the path to the downloaded file. Be careful, you will never know the name of the song.
+    args: youtube_url*:string
+[music-analysis::get_duration] Returns the total duration (in seconds) of the given audio time series.
+    args: path_audio_time_series_y*:string
+[music-analysis::load] Loads an audio file and returns the path to the audio time series Offset and duration are optional, in seconds. Be careful, you will never know the name of the song.
+    args: file_path*:string; offset:number; duration:number
+[music-analysis::mfcc] Computes the MFCC of the given audio time series using librosa. The MFCC is a representation of the audio signal in terms of its spectral content, which is useful for music analysis. The MFCC is computed using the following parameters: - path_audio_time_series_y: The path to the audio time series (CSV file). It's somet
+    args: path_audio_time_series_y*:string
+[music-analysis::tempo] Estimates the tempo (in BPM) of the given audio time series using librosa. Offset and duration are optional, in seconds.
+    args: path_audio_time_series_y*:string; hop_length:integer; start_bpm:number; std_bpm:number; ac_size:number; max_tempo:number
+[okppt::add_slide_with_layout] Inserts a new slide with a specified layout into a presentation and returns a JSON string of the result.
+    args: prs_path*:string; layout_name*:string; output_path:any; slide_title:any
+[okppt::analyze_presentation_layouts] Analyzes the layout details of a PowerPoint presentation and returns a JSON string of the analysis.
+    args: prs_path*:string; title:string
+[okppt::clear_placeholders_from_slides] Clears content from placeholders in specified slides of a presentation and returns a JSON string of the result.
+    args: prs_path*:string; output_path:any; slide_indices:any
+[okppt::convert_svg_to_png] 将SVG文件转换为PNG图像。 Args: svg_path: SVG文件路径 output_path: 输出PNG文件路径，如果未指定则使用相同文件名但扩展名为.png Returns: 操作结果消息
+    args: svg_path*:string; output_path:any
+[okppt::copy_svg_slide] 专门用于复制包含SVG图像的幻灯片，确保SVG和相关引用都被正确复制。 此函数使用直接操作PPTX内部XML文件的方式，确保SVG图像及其引用在复制过程中完全保留。 与普通的copy_slide函数相比，此函数特别关注SVG图像的复制，保证SVG的矢量属性在复制后依然可用。 Args: source_pptx_path: 源PPTX文件路径 target_pptx_path: 目标PPTX文件路径，如果为空则创建新文件 source_slide_number: 要复制的源幻灯片页码（从1开始） target_slide_number: 要插入到目标文件的位置（从1开始），如果为None则添加到末尾 output_path: 输出文件
+    args: source_pptx_path*:string; target_pptx_path:string; source_slide_number:integer; target_slide_number:any; output_path:any; create_if_not_exists:boolean
+[okppt::delete_slide] 从PPTX文件中删除指定编号的幻灯片。 !!!注意： 在使用SVG替换PPT幻灯片内容时，我们发现了一些关键点，以下是正确替换PPT内容的方法总结： ### 正确替换PPT内容的方法 1. **完全替换法**（最可靠）： - 删除需要替换的幻灯片（使用`delete_slide`功能） - 在同一位置插入空白幻灯片（使用`insert_blank_slide`功能） - 将新的SVG内容插入到空白幻灯片（使用`insert_svg`功能） 2. **新文件法**（适合多页修改）： - 创建全新的PPT文件 - 将所有需要的SVG（包括已修改的）按顺序插入到新文件中 - 这样可以避免在旧文件上操作导致的混淆和叠加问题 3. **注意事
+    args: pptx_path*:string; slide_number*:integer; output_path:any
+[okppt::get_file_info] 获取文件信息，如存在状态、大小等。 Args: file_path: 要查询的文件路径 Returns: 文件信息
+    args: file_path*:string
+[okppt::get_pptx_info] 获取PPTX文件的基本信息，包括幻灯片数量。 Args: pptx_path: PPTX文件路径 Returns: 包含文件信息和幻灯片数量的字符串
+    args: pptx_path*:string
+[okppt::insert_blank_slide] 在PPTX文件的指定位置插入一个空白幻灯片。 !!!注意： 在使用SVG替换PPT幻灯片内容时，我们发现了一些关键点，以下是正确替换PPT内容的方法总结： ### 正确替换PPT内容的方法 1. **完全替换法**（最可靠）： - 删除需要替换的幻灯片（使用`delete_slide`功能） - 在同一位置插入空白幻灯片（使用`insert_blank_slide`功能） - 将新的SVG内容插入到空白幻灯片（使用`insert_svg`功能） 2. **新文件法**（适合多页修改）： - 创建全新的PPT文件 - 将所有需要的SVG（包括已修改的）按顺序插入到新文件中 - 这样可以避免在旧文件上操作导致的混淆和叠加问题 3. **
+    args: pptx_path*:string; slide_number*:integer; layout_index:integer; output_path:any; create_if_not_exists:boolean
+[okppt::insert_svg] 将SVG图像插入到PPTX文件的指定位置。(如果需要替换已有的幻灯片，请组合使用`delete_slide`和`insert_blank_slide`功能) 如果未提供PPTX路径，将自动创建一个临时文件，位于服务器同级目录的tmp目录。 如果未提供输出路径，将使用标准输出目录，位于服务器同级目录的output目录。 如果未提供坐标，默认对齐幻灯片左上角。 如果未提供宽度和高度，默认覆盖整个幻灯片（16:9）。 支持批量处理： - 如果svg_path是单个字符串数组，则将SVG添加到slide_number指定的页面 - 如果svg_path是列表，则从slide_number开始顺序添加每个SVG，即第一个SVG添加到 slid
+    args: pptx_path*:string; svg_path*:array; slide_number:integer; x_inches:number; y_inches:number; width_inches:number; height_inches:number; output_path:string; create_if_not_exists:boolean
+[okppt::list_files] 列出目录中的文件，可选按文件类型过滤。 如需查看svg文件是否正确保存，请输入svg文件的保存路径。 Args: directory: 要列出文件的目录路径 file_type: 文件类型过滤，可以是 "svg" 或 "pptx" Returns: 文件列表（每行一个文件）
+    args: directory:string; file_type:any
+[okppt::save_svg_code] 将SVG代码保存为SVG文件并返回保存的绝对路径。 !!!注意：特殊字符如"&"需要转义为"&amp;" Args: svg_code: SVG代码内容 Returns: 操作结果消息，包含保存的文件路径或错误信息
+    args: svg_code*:string
+[okppt::set_placeholder_value] Assigns content to a specific placeholder on a specific slide and returns a JSON string of the result.
+    args: prs_path*:string; slide_idx*:integer; placeholder_id*:integer; content_to_set*:string; output_path:any
+[okppt::svg_prompt] 使用SVG设计宗师角色提示，当用户希望大模型生成或优化ppt时，使用此prompt对用户需求进行细化
+    args: source*:string
+[osm-mcp-server::analyze_commute] Perform a detailed commute analysis between home and work locations. This advanced tool analyzes commute options between two locations (typically home and work), comparing multiple transportation modes and providing detailed metrics for each option. Includes estimated travel times, distances, turn-by-turn directions, a
+    args: home_latitude*:number; home_longitude*:number; work_latitude*:number; work_longitude*:number; modes:array; depart_at:string
+[osm-mcp-server::analyze_neighborhood] Generate a comprehensive neighborhood analysis focused on livability factors. This advanced analysis tool evaluates a neighborhood based on multiple livability factors, including amenities, transportation options, green spaces, and services. Results include counts and proximity scores for various categories, helping to
+    args: latitude*:number; longitude*:number; radius:number
+[osm-mcp-server::explore_area] Generate a comprehensive profile of an area including all amenities and features. This powerful analysis tool creates a detailed overview of a neighborhood or area by identifying and categorizing all geographic features, amenities, and points of interest. Results are organized by category for easy analysis. Excellent f
+    args: latitude*:number; longitude*:number; radius:number
+[osm-mcp-server::find_ev_charging_stations] Locate electric vehicle charging stations near a specific location. This specialized search tool identifies EV charging infrastructure within a specified distance from a location. Results can be filtered by connector type (Tesla, CCS, CHAdeMO, etc.) and minimum power delivery. Essential for EV owners planning trips or 
+    args: latitude*:number; longitude*:number; radius:number; connector_types:array; min_power:number
+[osm-mcp-server::find_nearby_places] Discover points of interest and amenities near a specific location. This tool performs a comprehensive search around a geographic point to identify nearby establishments, amenities, and points of interest. Results are organized by category and subcategory, making it easy to find specific types of places. Essential for 
+    args: latitude*:number; longitude*:number; radius:number; categories:array; limit:integer
+[osm-mcp-server::find_parking_facilities] Locate parking facilities near a specific location. This tool finds parking options (lots, garages, street parking) near a specified location. Results can be filtered by parking type and include capacity information where available. Useful for trip planning, city navigation, and evaluating parking availability in urban
+    args: latitude*:number; longitude*:number; radius:number; parking_type:string
+[osm-mcp-server::find_schools_nearby] Locate educational institutions near a specific location, filtered by education level. This specialized search tool identifies schools, colleges, and other educational institutions within a specified distance from a location. Results can be filtered by education level (elementary, middle, high school, university, etc.)
+    args: latitude*:number; longitude*:number; radius:number; education_levels:array
+[osm-mcp-server::geocode_address] Convert an address or place name to geographic coordinates with detailed location information. This tool takes a text description of a location (such as an address, landmark name, or place of interest) and returns its precise geographic coordinates along with rich metadata. The results can be used for mapping, navigati
+    args: address*:string
+[osm-mcp-server::get_route_directions] Calculate detailed route directions between two geographic points. This tool provides comprehensive turn-by-turn navigation directions between any two locations on Earth. It calculates the optimal route based on the specified transportation mode and returns detailed information about distance, duration, maneuvers, and 
+    args: from_latitude*:number; from_longitude*:number; to_latitude*:number; to_longitude*:number; mode:string
+[osm-mcp-server::reverse_geocode] Convert geographic coordinates to a detailed address and location description. This tool takes a specific point on Earth (latitude and longitude) and returns comprehensive information about that location, including its address, nearby landmarks, administrative boundaries, and other contextual information. Useful for tr
+    args: latitude*:number; longitude*:number
+[osm-mcp-server::search_category] Search for specific types of places within a defined geographic area. This tool allows targeted searches for places matching specific categories within a rectangular geographic region. It's particularly useful for filtering places by type (restaurants, schools, parks, etc.) within a neighborhood or city district. Resul
+    args: category*:string; min_latitude*:number; min_longitude*:number; max_latitude*:number; max_longitude*:number; subcategories:array
+[osm-mcp-server::suggest_meeting_point] Find the optimal meeting place for multiple people coming from different locations. This tool calculates a central meeting point based on the locations of multiple individuals, then recommends suitable venues near that central point. Ideal for planning social gatherings, business meetings, or any situation where multip
+    args: locations*:array; venue_type:string
+[paypal::create_invoice] Create Invoices on PayPal. This function is used to create an invoice in the PayPal system. It allows you to generate a new invoice, specifying details such as customer information, items, quantities, pricing, and tax information. Once created, an invoice can be sent to the customer for payment.
+    args: detail*:object (The invoice detail, like{ "invoice_number": "#123", "referen); invoicer:object (The invoicer business information that appears on the invoic); primary_recipients:array (array of recipients); items:array (Array of invoice line items)
+[paypal::create_order] Create an order in PayPal. This tool is used to create a new order in PayPal. This is typically the first step in initiating a payment flow. It sets up an order with specified details such as item(s) to be purchased, quantity, amount, currency, and other details.
+    args: currencyCode*:string (Currency code of the amount.); items*:array; discount:number (The discount amount for the order.); shippingCost:number (The cost of shipping for the order.); shippingAddress:any (The shipping address for the order.); notes:any; returnUrl:string; cancelUrl:string
+[paypal::create_product] Create a product in PayPal using product catalog - create products API. This function creates a new product that will be used in subscription plans, subscriptions. Required parameters are: name (product name), type (product type). High level: - id: (auto-generated or specify SKU of the product) The ID of the product - 
+    args: name*:string (The product name.); type*:string (The product type. Value is PHYSICAL, DIGITAL, or SERVICE.); description:string (The product description.); category:string (The product category.); image_url:string (The image URL for the product.); home_url:string (The home page URL for the product.)
+[paypal::create_refund] Initiate a refund for a PayPal payment capture. If you have an order ID instead of a capture ID, first use the get order tool to obtain the capture ID from the order details. This function allows you to return funds to a customer by refunding a previously captured payment. You can issue a full refund or specify a parti
+    args: capture_id*:string (The ID of the capture to refund.); amount:object (The amount to refund. If not specified, the full captured am); invoice_id:string (The invoice ID that is used to track this payment.); note_to_payer:string (A note to the payer.)
+[paypal::create_shipment_tracking] Create a shipment for a transaction in PayPal. This function creates a shipment record for a specific transaction, allowing you to track the shipment status and details. The transaction_id can fetch from the captured payment details in the order information. Required parameters are: tracking_number (the tracking number
+    args: order_id:string (The ID of the order for which to create a shipment); tracking_number*:string (The tracking number for the shipment. Id is provided by the ); transaction_id*:string (The transaction ID associated with the shipment. Transaction); status:string (The status of the shipment. It can be "ON_HOLD", "SHIPPED", ); carrier:string (The carrier handling the shipment.)
+[paypal::create_subscription_plan] Create a subsctiption plan in PayPal using subscription - create plan API. This function creates a new subscription plan that defines pricing and billing cycle details for subscriptions. Required parameters are: product_id (the ID of the product for which to create the plan), name (subscription plan name), billing_cycl
+    args: product_id*:string (The ID of the product for which to create the plan.); name*:string (The subscription plan name.); description:string (The subscription plan description.); billing_cycles*:array (The billing cycles of the plan.); payment_preferences:object (The payment preferences for the subscription plan.); taxes:object (The tax details.)
+[pdf-reader-mcp::read_pdf] Reads content/metadata from one or more PDFs (local/URL). Each source can specify pages to extract.
+    args: sources*:array (An array of PDF sources to process, each can optionally spec); include_full_text:boolean (Include the full text content of each PDF (only if 'pages' i); include_metadata:boolean (Include metadata and info objects for each PDF.); include_page_count:boolean (Include the total number of pages for each PDF.)
+[puppeteer::puppeteer_click] Click an element on the page
+    args: selector*:string (CSS selector for element to click)
+[puppeteer::puppeteer_evaluate] Execute JavaScript in the browser console
+    args: script*:string (JavaScript code to execute)
+[puppeteer::puppeteer_fill] Fill out an input field
+    args: selector*:string (CSS selector for input field); value*:string (Value to fill)
+[puppeteer::puppeteer_hover] Hover an element on the page
+    args: selector*:string (CSS selector for element to hover)
+[puppeteer::puppeteer_navigate] Navigate to a URL
+    args: url*:string (URL to navigate to); launchOptions:object (PuppeteerJS LaunchOptions. Default null. If changed and not ); allowDangerous:boolean (Allow dangerous LaunchOptions that reduce security. When fal)
+[puppeteer::puppeteer_screenshot] Take a screenshot of the current page or a specific element
+    args: name*:string (Name for the screenshot); selector:string (CSS selector for element to screenshot); width:number (Width in pixels (default: 800)); height:number (Height in pixels (default: 600)); encoded:boolean (If true, capture the screenshot as a base64-encoded data URI)
+[puppeteer::puppeteer_select] Select an element on the page with Select tag
+    args: selector*:string (CSS selector for element to select); value*:string (Value to select)
+[searxng::document_reader] Read content from non-image document-files at specified paths, supporting various file formats: .pdf, .docx, .txt, .html, .csv
+    args: filePath*:string (Path to the file to be read)
+[searxng::docx_to_html] Convert DOCX to HTML while preserving formatting
+    args: inputPath*:string (Path to the input DOCX file); outputDir*:string (Directory where HTML should be saved)
+[searxng::docx_to_pdf] Convert DOCX files to PDF format
+    args: inputPath*:string (Path to the input DOCX file); outputPath*:string (Path where the output PDF file should be saved)
+[searxng::excel_read] Read Excel file and convert to JSON format while preserving structure
+    args: inputPath*:string (Path to the input Excel file); includeHeaders:boolean (Whether to include headers in the output)
+[searxng::format_convert] Convert between different document formats (Markdown, HTML, XML, JSON)
+    args: input*:string (Input content to convert); fromFormat*:string (Source format); toFormat*:string (Target format)
+[searxng::html_cleaner] Clean HTML by removing unnecessary tags and attributes
+    args: inputPath*:string (Path to the input HTML file); outputDir*:string (Directory where cleaned HTML should be saved)
+[searxng::html_extract_resources] Extract all resources (images, videos, links) from HTML
+    args: inputPath*:string (Path to the input HTML file); outputDir*:string (Directory where resources should be saved)
+[searxng::html_formatter] Format and beautify HTML code
+    args: inputPath*:string (Path to the input HTML file); outputDir*:string (Directory where formatted HTML should be saved)
+[searxng::html_to_markdown] Convert HTML to Markdown format
+    args: inputPath*:string (Path to the input HTML file); outputDir*:string (Directory where Markdown file should be saved)
+[searxng::html_to_text] Convert HTML to plain text while preserving structure
+    args: inputPath*:string (Path to the input HTML file); outputDir*:string (Directory where text file should be saved)
+[searxng::pdf_merger] Merge multiple PDF files into one
+    args: inputPaths*:array (Paths to the input PDF files); outputDir*:string (Directory where merged PDFs should be saved)
+[searxng::pdf_splitter] Split a PDF file into multiple files
+    args: inputPath*:string (Path to the input PDF file); outputDir*:string (Directory where split PDFs should be saved); pageRanges*:array (Array of page ranges to split)
+[searxng::text_diff] Compare two text files and show differences
+    args: file1Path*:string (Path to the first text file); file2Path*:string (Path to the second text file); outputDir*:string (Directory where diff result should be saved)
+[searxng::text_encoding_converter] Convert text between different encodings
+    args: inputPath*:string (Path to the input text file); outputDir*:string (Directory where converted file should be saved); fromEncoding*:string (Source encoding (e.g., 'big5', 'gbk', 'utf8')); toEncoding*:string (Target encoding (e.g., 'utf8', 'big5', 'gbk'))
+[searxng::text_formatter] Format text with proper indentation and line spacing
+    args: inputPath*:string (Path to the input text file); outputDir*:string (Directory where formatted file should be saved)
+[searxng::text_splitter] Split text file by specified delimiter or line count
+    args: inputPath*:string (Path to the input text file); outputDir*:string (Directory where split files should be saved); splitBy*:string (Split method: by line count or delimiter); value*:string (Line count (number) or delimiter string)
+[shadcn-ui-server::get_component_details] Get detailed information about a specific shadcn/ui component
+    args: componentName*:string (Name of the shadcn/ui component (e.g., "accordion", "button")
+[shadcn-ui-server::get_component_examples] Get usage examples for a specific shadcn/ui component
+    args: componentName*:string (Name of the shadcn/ui component (e.g., "accordion", "button")
+[shadcn-ui-server::list_shadcn_components] Get a list of all available shadcn/ui components
+    args: -
+[shadcn-ui-server::search_components] Search for shadcn/ui components by keyword
+    args: query*:string (Search query to find relevant components)
+[time::convert_time] Convert time between timezones
+    args: source_timezone*:string (Source IANA timezone name (e.g., 'America/New_York', 'Europe); time*:string (Time to convert in 24-hour format (HH:MM)); target_timezone*:string (Target IANA timezone name (e.g., 'Asia/Tokyo', 'America/San_)
+[time::get_current_time] Get current time in a specific timezones
+    args: timezone*:string (IANA timezone name (e.g., 'America/New_York', 'Europe/London)
+[trends-hub::get-36kr-trending] 获取 36 氪热榜，提供创业、商业、科技领域的热门资讯，包含投融资动态、新兴产业分析和商业模式创新信息
+    args: type:any (分类)
+[trends-hub::get-9to5mac-news] 获取 9to5Mac 苹果相关新闻，包含苹果产品发布、iOS 更新、Mac 硬件、应用推荐及苹果公司动态的英文资讯
+    args: -
+[trends-hub::get-bbc-news] 获取 BBC 新闻，提供全球新闻、英国新闻、商业、政治、健康、教育、科技、娱乐等资讯
+    args: category:any; edition:any (版本，仅对 `category` 为空有效)
+[trends-hub::get-bilibili-rank] 获取哔哩哔哩视频排行榜，包含全站、动画、音乐、游戏等多个分区的热门视频，反映当下年轻人的内容消费趋势
+    args: type:any (排行榜分区)
+[trends-hub::get-douban-rank] 获取豆瓣实时热门榜单，提供当前热门的图书、电影、电视剧、综艺等作品信息，包含评分和热度数据
+    args: type:any; start:integer; count:integer
+[trends-hub::get-douyin-trending] 获取抖音热搜榜单，展示当下最热门的社会话题、娱乐事件、网络热点和流行趋势
+    args: -
+[trends-hub::get-gcores-new] 获取机核网游戏相关资讯，包含电子游戏评测、玩家文化、游戏开发和游戏周边产品的深度内容
+    args: -
+[trends-hub::get-ifanr-news] 获取爱范儿科技快讯，包含最新的科技产品、数码设备、互联网动态等前沿科技资讯
+    args: limit:integer; offset:integer
+[trends-hub::get-infoq-news] 获取 InfoQ 技术资讯，包含软件开发、架构设计、云计算、AI等企业级技术内容和前沿开发者动态
+    args: region:string
+[trends-hub::get-juejin-article-rank] 获取掘金文章榜，包含前端开发、后端技术、人工智能、移动开发及技术架构等领域的高质量中文技术文章和教程
+    args: category_id:any
+[trends-hub::get-netease-news-trending] 获取网易新闻热点榜，包含时政要闻、社会事件、财经资讯、科技动态及娱乐体育的全方位中文新闻资讯
+    args: -
+[trends-hub::get-nytimes-news] 获取纽约时报新闻，包含国际政治、经济金融、社会文化、科学技术及艺术评论的高质量英文或中文国际新闻资讯
+    args: region:any; section:string (分类，当 `region` 为 `cn` 时无效。可选值: Africa, Americas, ArtandDesign)
+[trends-hub::get-smzdm-rank] 获取什么值得买热门，包含商品推荐、优惠信息、购物攻略、产品评测及消费经验分享的实用中文消费类资讯
+    args: unit:any
+[trends-hub::get-sspai-rank] 获取少数派热榜，包含数码产品评测、软件应用推荐、生活方式指南及效率工作技巧的优质中文科技生活类内容
+    args: tag:string (分类); limit:integer
+[trends-hub::get-tencent-news-trending] 获取腾讯新闻热点榜，包含国内外时事、社会热点、财经资讯、娱乐动态及体育赛事的综合性中文新闻资讯
+    args: page_size:integer
+[trends-hub::get-thepaper-trending] 获取澎湃新闻热榜，包含时政要闻、财经动态、社会事件、文化教育及深度报道的高质量中文新闻资讯
+    args: -
+[trends-hub::get-theverge-news] 获取 The Verge 新闻，包含科技创新、数码产品评测、互联网趋势及科技公司动态的英文科技资讯
+    args: -
+[trends-hub::get-toutiao-trending] 获取今日头条热榜，包含时政要闻、社会事件、国际新闻、科技发展及娱乐八卦等多领域的热门中文资讯
+    args: -
+[trends-hub::get-weibo-trending] 获取微博热搜榜，包含时事热点、社会现象、娱乐新闻、明星动态及网络热议话题的实时热门中文资讯
+    args: -
+[trends-hub::get-weread-rank] 获取微信读书排行榜，包含热门小说、畅销书籍、新书推荐及各类文学作品的阅读数据和排名信息
+    args: category:any (排行榜分区)
+[trends-hub::get-zhihu-trending] 获取知乎热榜，包含时事热点、社会话题、科技动态、娱乐八卦等多领域的热门问答和讨论的中文资讯
+    args: limit:number
+[whois::whois_as] Looksup whois information about the Autonomous System Number (ASN)
+    args: asn*:string
+[whois::whois_domain] Looksup whois information about the domain
+    args: domain*:string
+[whois::whois_ip] Looksup whois information about the IP
+    args: ip*:string
+[whois::whois_tld] Looksup whois information about the Top Level Domain (TLD)
+    args: tld*:string
+[wikipedia::extract_key_facts] Extract key facts from a Wikipedia article, optionally focused on a topic.
+    args: title*:string; topic_within_article:any; count:integer
+[wikipedia::get_article] Get the full content of a Wikipedia article.
+    args: title*:string
+[wikipedia::get_links] Get the links contained within a Wikipedia article.
+    args: title*:string
+[wikipedia::get_related_topics] Get topics related to a Wikipedia article based on links and categories.
+    args: title*:string; limit:integer
+[wikipedia::get_sections] Get the sections of a Wikipedia article.
+    args: title*:string
+[wikipedia::get_summary] Get a summary of a Wikipedia article.
+    args: title*:string
+[wikipedia::search_wikipedia] Search Wikipedia for articles matching a query.
+    args: query*:string; limit:integer
+[wikipedia::summarize_article_for_query] Get a summary of a Wikipedia article tailored to a specific query.
+    args: title*:string; query*:string; max_length:any
+[wikipedia::summarize_article_section] Get a summary of a specific section of a Wikipedia article.
+    args: title*:string; section_title*:string; max_length:any
+[word-document-server::add_endnote_to_document] Add an endnote to a specific paragraph in a Word document.
+    args: filename*:string; paragraph_index*:integer; endnote_text*:string
+[word-document-server::add_footnote_to_document] Add a footnote to a specific paragraph in a Word document.
+    args: filename*:string; paragraph_index*:integer; footnote_text*:string
+[word-document-server::add_heading] Add a heading to a Word document.
+    args: filename*:string; text*:string; level:integer
+[word-document-server::add_page_break] Add a page break to the document.
+    args: filename*:string
+[word-document-server::add_paragraph] Add a paragraph to a Word document.
+    args: filename*:string; text*:string; style:string
+[word-document-server::add_picture] Add an image to a Word document.
+    args: filename*:string; image_path*:string; width:number
+[word-document-server::add_table] Add a table to a Word document.
+    args: filename*:string; rows*:integer; cols*:integer; data:array
+[word-document-server::convert_to_pdf] Convert a Word document to PDF format.
+    args: filename*:string; output_filename:string
+[word-document-server::copy_document] Create a copy of a Word document.
+    args: source_filename*:string; destination_filename:string
+[word-document-server::create_custom_style] Create a custom style in the document.
+    args: filename*:string; style_name*:string; bold:boolean; italic:boolean; font_size:integer; font_name:string; color:string; base_style:string
+[word-document-server::create_document] Create a new Word document with optional metadata.
+    args: filename*:string; title:string; author:string
+[word-document-server::customize_footnote_style] Customize footnote numbering and formatting in a Word document.
+    args: filename*:string; numbering_format:string; start_number:integer; font_name:string; font_size:integer
+[word-document-server::delete_paragraph] Delete a paragraph from a document.
+    args: filename*:string; paragraph_index*:integer
+[word-document-server::find_text_in_document] Find occurrences of specific text in a Word document.
+    args: filename*:string; text_to_find*:string; match_case:boolean; whole_word:boolean
+[word-document-server::format_table] Format a table with borders, shading, and structure.
+    args: filename*:string; table_index*:integer; has_header_row:boolean; border_style:string; shading:array
+[word-document-server::format_text] Format a specific range of text within a paragraph.
+    args: filename*:string; paragraph_index*:integer; start_pos*:integer; end_pos*:integer; bold:boolean; italic:boolean; underline:boolean; color:string; font_size:integer; font_name:string
+[word-document-server::get_document_info] Get information about a Word document.
+    args: filename*:string
+[word-document-server::get_document_outline] Get the structure of a Word document.
+    args: filename*:string
+[word-document-server::get_document_text] Extract all text from a Word document.
+    args: filename*:string
+[word-document-server::get_paragraph_text_from_document] Get text from a specific paragraph in a Word document.
+    args: filename*:string; paragraph_index*:integer
+[word-document-server::list_available_documents] List all .docx files in the specified directory.
+    args: directory:string
+[word-document-server::protect_document] Add password protection to a Word document.
+    args: filename*:string; password*:string
+[word-document-server::search_and_replace] Search for text and replace all occurrences.
+    args: filename*:string; find_text*:string; replace_text*:string
+[word-document-server::unprotect_document] Remove password protection from a Word document.
+    args: filename*:string; password*:string

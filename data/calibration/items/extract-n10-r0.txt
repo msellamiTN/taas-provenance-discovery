@@ -1,0 +1,14 @@
+ITEM extract-n10-r0
+QUESTION: In the records below, which city belongs to the record with id K3373000? Answer with the city name.
+---BEGIN DATA---
+id=K3373000 | name=Jana Costa | city=Bilbao
+id=K2777001 | name=Wafa Haddad | city=Sfax
+id=K2229002 | name=Rami Novak | city=Osaka
+id=K3492003 | name=Rami Silva | city=Dakar
+id=K2612004 | name=Yara Dupont | city=Bilbao
+id=K3310005 | name=Wafa Silva | city=Krakow
+id=K1465006 | name=Karim Moreau | city=Utrecht
+id=K4052007 | name=Una Haddad | city=Dakar
+id=K2986008 | name=Ivo Haddad | city=Cork
+id=K6761009 | name=Hana Nakamura | city=Osaka
+---END DATA---

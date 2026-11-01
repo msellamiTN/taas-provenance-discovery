@@ -1,0 +1,14 @@
+ITEM count-n10-r3
+QUESTION: How many lines below are exactly the word 'shipping'? Answer with a single integer.
+---BEGIN DATA---
+delay
+strap
+delay
+strap
+noise
+refund
+screen
+delay
+app
+refund
+---END DATA---

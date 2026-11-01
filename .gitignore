@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.hypothesis/
+*.egg-info/
+build/
+dist/
+.venv/
+
+# raw MCPToolBench++ request files (33 MB) are re-downloaded by scripts/fetch_data.sh
+data/raw/mcptoolbenchpp/*.json

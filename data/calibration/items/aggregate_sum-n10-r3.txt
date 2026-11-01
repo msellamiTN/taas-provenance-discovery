@@ -1,0 +1,14 @@
+ITEM aggregate_sum-n10-r3
+QUESTION: What is the exact sum of all the numbers listed below (one per line)? Answer with a single integer.
+---BEGIN DATA---
+11
+58
+97
+37
+64
+13
+77
+38
+66
+73
+---END DATA---

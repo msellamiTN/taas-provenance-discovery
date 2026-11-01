@@ -1,0 +1,44 @@
+ITEM extract-n40-r3
+QUESTION: In the records below, which city belongs to the record with id K7551023? Answer with the city name.
+---BEGIN DATA---
+id=K5887000 | name=Sara Novak | city=Dakar
+id=K8986001 | name=Lea Petrov | city=Utrecht
+id=K7883002 | name=Goran Sato | city=Utrecht
+id=K3828003 | name=Hana Trabelsi | city=Graz
+id=K1706004 | name=Taha Petrov | city=Bilbao
+id=K6925005 | name=Hana Petrov | city=Krakow
+id=K3341006 | name=Goran Bauer | city=Porto
+id=K5419007 | name=Chen Silva | city=Malaga
+id=K6795008 | name=Rami Silva | city=Porto
+id=K2212009 | name=Ivo Haddad | city=Malaga
+id=K2648010 | name=Nora Petrov | city=Pune
+id=K7412011 | name=Rami Kral | city=Bilbao
+id=K1730012 | name=Nora Jensen | city=Sfax
+id=K8622013 | name=Una Nakamura | city=Quito
+id=K3142014 | name=Ana Horvat | city=Lyon
+id=K8666015 | name=Goran Jensen | city=Leeds
+id=K5291016 | name=Dora Petrov | city=Sfax
+id=K6385017 | name=Chen Silva | city=Sfax
+id=K2257018 | name=Hana Novak | city=Pune
+id=K7040019 | name=Dora Wang | city=Cork
+id=K1414020 | name=Goran Petrov | city=Turin
+id=K9389021 | name=Ana Rossi | city=Pune
+id=K5386022 | name=Pia Okafor | city=Tunis
+id=K7551023 | name=Pia Moreau | city=Porto
+id=K9954024 | name=Goran Novak | city=Krakow
+id=K5565025 | name=Omar Okafor | city=Sfax
+id=K8796026 | name=Hana Novak | city=Utrecht
+id=K3050027 | name=Victor Costa | city=Cork
+id=K4317028 | name=Jana Jensen | city=Izmir
+id=K7886029 | name=Victor Haddad | city=Malaga
+id=K8390030 | name=Yara Sato | city=Porto
+id=K7326031 | name=Ana Petrov | city=Sfax
+id=K3152032 | name=Omar Bauer | city=Krakow
+id=K4471033 | name=Zied Kral | city=Sousse
+id=K4034034 | name=Rami Petrov | city=Quito
+id=K3876035 | name=Farah Nakamura | city=Krakow
+id=K2202036 | name=Ana Nakamura | city=Leeds
+id=K5324037 | name=Ana Haddad | city=Pune
+id=K9596038 | name=Ivo Kaya | city=Izmir
+id=K2251039 | name=Lea Ben Ali | city=Krakow
+---END DATA---

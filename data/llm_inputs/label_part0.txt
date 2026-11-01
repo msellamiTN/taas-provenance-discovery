@@ -1,0 +1,380 @@
+[Bazi::buildBaziFromLunarDatetime] 根据农历时间、性别来获取八字信息。
+    args: lunarDatetime*:string (农历时间。例如：`2000-5-15 12:00:00`。); gender*:number (传0表示女性，传1表示男性。); eightCharProviderSect:number (早晚子时配置。传1表示23:00-23:59日干支为明天，传2表示23:00-23:59日干支为当天。)
+[Bazi::buildBaziFromSolarDatetime] 根据阳历时间、性别来获取八字信息。
+    args: solarDatetime*:string (用ISO时间格式表示的阳历时间. 例如：`2008-03-01T13:00:00+08:00`。); gender*:number (传0表示女性，传1表示男性。); eightCharProviderSect:number (早晚子时配置。传1表示23:00-23:59日干支为明天，传2表示23:00-23:59日干支为当天。)
+[Bazi::getBaziDetail] 根据时间（公历或农历）、性别来获取八字信息。solarDatetime和lunarDatetime必须传且只传其中一个。
+    args: solarDatetime:string (用ISO时间格式表示的公历时间. 例如：`2008-03-01T13:00:00+08:00`。); lunarDatetime:string (农历时间。例如农历2000年5月初五中午12点整表示为：`2000-5-5 12:00:00`。); gender*:number (传0表示女性，传1表示男性。); eightCharProviderSect:number (早晚子时配置。传1表示23:00-23:59日干支为明天，传2表示23:00-23:59日干支为当天。)
+[Bazi::getChineseCalendar] 获取指定公历时间（默认今天）的黄历信息。
+    args: solarDatetime:string (用ISO时间格式表示的公历时间. 例如：`2008-03-01T13:00:00+08:00`。)
+[Bazi::getSolarTimes] 根据八字获取公历时间列表。返回的时间格式为：YYYY-MM-DD hh:mm:ss。例如时间1998年7月31日下午2点整表示为：1998-07-31 14:00:00
+    args: bazi*:string (八字，按年柱、月柱、日柱、时柱顺序，用空格隔开。例如：戊寅 己未 己卯 辛未)
+[baidu-maps-sse::map_directions] 路线规划服务: 根据起终点`位置名称`或`纬经度坐标`规划出行路线. 驾车路线规划: 根据起终点`位置名称`或`纬经度坐标`规划驾车出行路线. 骑行路线规划: 根据起终点`位置名称`或`纬经度坐标`规划骑行出行路线. 步行路线规划: 根据起终点`位置名称`或`纬经度坐标`规划步行出行路线. 公交路线规划: 根据起终点`位置名称`或`纬经度坐标`规划公共交通出行路线.
+    args: model:string (路线规划类型(driving, riding, walking, transit)); origin*:string (起点位置名称或纬经度坐标, 纬度在前, 经度在后); destination*:string (终点位置名称或纬经度坐标, 纬度在前, 经度在后)
+[baidu-maps-sse::map_directions_matrix] 批量算路服务: 根据起点和终点坐标计算路线规划距离和行驶时间. 批量算路目前支持驾车、骑行、步行. 步行时任意起终点之间的距离不得超过200KM, 超过此限制会返回参数错误. 驾车批量算路一次最多计算100条路线, 起终点个数之积不能超过100.
+    args: origins*:string (多个起点纬经度坐标, 纬度在前, 经度在后, 多个起点用|分隔); destinations*:string (多个终点纬经度坐标, 纬度在前, 经度在后, 多个终点用|分隔); model:string (批量算路类型(driving, riding, walking))
+[baidu-maps-sse::map_geocode] 地理编码服务: 将地址解析为对应的位置坐标.地址结构越完整, 地址内容越准确, 解析的坐标精度越高.
+    args: address*:string (待解析的地址.最多支持84个字节.可以输入两种样式的值, 分别是： 1、标准的结构化地址信息, 如北京市海淀区上地十街十)
+[baidu-maps-sse::map_ip_location] IP定位服务: 通过所给IP获取具体位置信息和城市名称, 可用于定位IP或用户当前位置.
+    args: ip:string (需要定位的IP地址, 如果为空则获取用户当前IP地址(支持IPv4和IPv6))
+[baidu-maps-sse::map_mark] 根据旅游规划生成地图规划展示, 当根据用户的需求申城完旅游规划后, 在给用户详细讲解旅游规划的同时, 也需要使用该工具生成旅游规划地图. 该工具只会生成一个分享用的url, 并对针对该url生成一个二维码便于用户分享.
+    args: text_content*:string (旅行规划的文本描述(注意避免传入特殊字符, 如\等))
+[baidu-maps-sse::map_place_details] 地点详情检索服务: 地点详情检索针对指定POI, 检索其相关的详情信息. 通过地点检索服务获取POI uid.使用地点详情检索功能, 传入uid, 即可检索POI详情信息, 如评分、营业时间等(不同类型POI对应不同类别详情数据).
+    args: uid*:string (POI的唯一标识)
+[baidu-maps-sse::map_reverse_geocode] 逆地理编码服务: 根据纬经度坐标, 获取对应位置的地址描述, 所在行政区划, 道路以及相关POI等信息
+    args: latitude*:number (纬度 (bd09ll)); longitude*:number (经度 (bd09ll))
+[baidu-maps-sse::map_road_traffic] 实时路况查询服务: 查询实时交通拥堵情况, 可通过指定道路名和区域形状(矩形, 多边形, 圆形)进行实时路况查询. 道路实时路况查询: 查询具体道路的实时拥堵评价和拥堵路段、拥堵距离、拥堵趋势等信息. 矩形区域实时路况查询: 查询指定矩形地理范围的实时拥堵情况和各拥堵路段信息. 多边形区域实时路况查询: 查询指定多边形地理范围的实时拥堵情况和各拥堵路段信息. 圆形区域(周边)实时路况查询: 查询某中心点周边半径范围内的实时拥堵情况和各拥堵路段信息.
+    args: model*:string (路况查询类型(road, bound, polygon, around)); road_name:string (道路名称和道路方向, model=road时必传 (如:朝阳路南向北)); city:string (城市名称或城市adcode, model=road时必传 (如:北京市)); bounds:string (区域左下角和右上角的纬经度坐标, 纬度在前, 经度在后, model=bound时必传); vertexes:string (多边形区域的顶点纬经度坐标, 纬度在前, 经度在后, model=polygon时必传); center:string (圆形区域的中心点纬经度坐标, 纬度在前, 经度在后, model=around时必传); radius:integer (圆形区域的半径(米), 取值[1,1000], model=around时必传)
+[baidu-maps-sse::map_search_places] 地点检索服务: 支持检索城市内的地点信息(最小到city级别), 也可支持圆形区域内的周边地点信息检索. 城市内检索: 检索某一城市内（目前最细到城市级别）的地点信息. 周边检索: 设置圆心和半径, 检索圆形区域内的地点信息（常用于周边检索场景）.
+    args: query*:string (检索关键字, 可直接使用名称或类型, 如'天安门', 且可以至多10个关键字, 用英文逗号隔开); tag:string (检索分类, 以中文字符输入, 如'美食', 多个分类用英文逗号隔开, 如'美食,购物'); region:string (检索的城市名称, 可为行政区划名或citycode, 格式如'北京市'或'131', 不传默认为'全国'); location:string (圆形区域检索的中心点纬经度坐标, 格式为lat,lng); radius:integer (圆形区域检索半径, 单位：米); language:string (指定输入参数和召回参数的语言类型, 需要传入的是语言名称的英文缩写.  可选值如下: 'zh'(中文) 'en'(英语))
+[baidu-maps-sse::map_weather] 天气查询服务: 通过行政区划或是经纬度坐标查询实时天气信息及未来5天天气预报.
+    args: location:string (经纬度坐标, 经度在前纬度在后, 逗号分隔); district_id:string (行政区划代码, 需保证为6位无符号整数)
+[biomcp::alphagenome_predictor] Predict variant effects on gene regulation using Google DeepMind's AlphaGenome. ⚠️ PREREQUISITE: Use the 'think' tool FIRST to plan your analysis strategy! AlphaGenome provides state-of-the-art predictions for how genetic variants affect gene regulation, including: - Gene expression changes (RNA-seq) - Chromatin access
+    args: chromosome*:string (Chromosome (e.g., 'chr7', 'chrX')); position*:integer (1-based genomic position of the variant); reference*:string (Reference allele(s) (e.g., 'A', 'ATG')); alternate*:string (Alternate allele(s) (e.g., 'T', 'A')); interval_size:integer (Size of genomic interval to analyze in bp (max 1,000,000)); tissue_types:any (UBERON ontology terms for tissue-specific predictions (e.g.,); significance_threshold:number (Threshold for significant log2 fold changes (default: 0.5)); api_key:any (AlphaGenome API key. Check if user mentioned 'my AlphaGenome)
+[biomcp::article_getter] Fetch detailed information for a specific article. Retrieves the full abstract and available text for an article by its identifier. Supports: - PubMed IDs (PMID) for published articles - PMC IDs for articles in PubMed Central - DOIs for preprints from Europe PMC Returns formatted text including: - Title - Abstract - Fu
+    args: pmid*:string (Article identifier - either a PubMed ID (e.g., '38768446' or)
+[biomcp::article_searcher] Search PubMed/PubTator3 for research articles and preprints. ⚠️ PREREQUISITE: Use the 'think' tool FIRST to plan your research strategy! Use this tool to find scientific literature ABOUT genes, variants, diseases, or chemicals. Results include articles from PubMed and optionally preprints from bioRxiv/medRxiv. Importan
+    args: chemicals:any (Chemical/drug names to search for); diseases:any (Disease names to search for); genes:any (Gene symbols to search for); keywords:any (Free-text keywords to search for); variants:any (Variant strings to search for (e.g., 'V600E', 'p.D277Y')); include_preprints:boolean (Include preprints from bioRxiv/medRxiv); include_cbioportal:boolean (Include cBioPortal cancer genomics summary when searching by); page:integer (Page number (1-based)); page_size:integer (Results per page)
+[biomcp::fetch] Fetch comprehensive details for a specific biomedical record. This tool retrieves full information for articles, clinical trials, or genetic variants using their unique identifiers. It returns data in a standardized format suitable for detailed analysis and research. ## IDENTIFIER FORMATS: - Articles: PMID (PubMed ID) 
+    args: id*:string; domain:any (Domain of the record (auto-detected if not provided)); call_benefit:any (Brief explanation of why this fetch is being performed and e); detail:any
+[biomcp::search] Search biomedical literature, clinical trials, and genetic variants. ⚠️ IMPORTANT: Have you used the 'think' tool first? If not, STOP and use it NOW! The 'think' tool is REQUIRED for proper research planning and should be your FIRST step. This tool provides access to biomedical data from PubMed/PubTator3, ClinicalTrial
+    args: query*:string; call_benefit:any (Brief explanation of why this search is being performed and ); domain:any (Domain to search: 'article' for papers/literature ABOUT gene); genes:any; diseases:any; variants:any; chemicals:any; keywords:any; conditions:any; interventions:any; recruiting_status:any; phase:any
+[biomcp::think] REQUIRED FIRST STEP: Perform structured sequential thinking for ANY biomedical research task. 🚨 IMPORTANT: You MUST use this tool BEFORE any search or fetch operations when: - Researching ANY biomedical topic (genes, diseases, variants, trials) - Planning to use multiple BioMCP tools - Answering questions that require 
+    args: thought*:string (Current thinking step for analysis); thoughtNumber*:integer (Current thought number, starting at 1); totalThoughts*:integer (Estimated total thoughts needed for complete analysis); nextThoughtNeeded:boolean (Whether more thinking steps are needed after this one)
+[biomcp::trial_getter] Fetch comprehensive details for a specific clinical trial. Retrieves all available information for a clinical trial by its NCT ID. This includes protocol details, locations, outcomes, and references. For specific sections only, use the specialized getter tools: - trial_protocol_getter: Core protocol information - trial
+    args: nct_id*:string (NCT ID (e.g., 'NCT06524388'))
+[biomcp::trial_locations_getter] Fetch contact and location details for a clinical trial. Retrieves all study locations including: - Facility names and addresses - Principal investigator information - Contact details (when recruiting) - Recruitment status by site Useful for finding trials near specific locations or contacting study teams.
+    args: nct_id*:string (NCT ID (e.g., 'NCT06524388'))
+[biomcp::trial_outcomes_getter] Fetch outcome measures and results for a clinical trial. Retrieves detailed outcome information including: - Primary outcome measures - Secondary outcome measures - Results data (if available) - Adverse events (if reported) Note: Results are only available for completed trials that have posted data.
+    args: nct_id*:string (NCT ID (e.g., 'NCT06524388'))
+[biomcp::trial_protocol_getter] Fetch core protocol information for a clinical trial. Retrieves essential protocol details including: - Official title and brief summary - Study status and sponsor information - Study design (type, phase, allocation, masking) - Eligibility criteria - Primary completion date
+    args: nct_id*:string (NCT ID (e.g., 'NCT06524388'))
+[biomcp::trial_references_getter] Fetch publications and references for a clinical trial. Retrieves all linked publications including: - Published results papers - Background literature - Protocol publications - Related analyses Includes PubMed IDs when available for easy cross-referencing.
+    args: nct_id*:string (NCT ID (e.g., 'NCT06524388'))
+[biomcp::trial_searcher] Search ClinicalTrials.gov for clinical studies. ⚠️ PREREQUISITE: Use the 'think' tool FIRST to plan your research strategy! Comprehensive search tool for finding clinical trials based on multiple criteria. Supports filtering by conditions, interventions, location, phase, and eligibility. Location search notes: - Use ei
+    args: conditions:any (Medical conditions to search for); interventions:any (Treatment interventions to search for); other_terms:any (Additional search terms); recruiting_status:any (Filter by recruiting status); phase:any (Filter by clinical trial phase); location:any (Location term for geographic filtering); lat:any (Latitude for location-based search. AI agents should geocode); long:any (Longitude for location-based search. AI agents should geocod); distance:any (Distance in miles from lat/long coordinates); age_group:any (Filter by age group); sex:any (Filter by biological sex); healthy_volunteers:any (Filter by healthy volunteer eligibility)
+[biomcp::variant_getter] Fetch comprehensive details for a specific genetic variant. Retrieves all available information for a variant including: - Gene location and consequences - Population frequencies across databases - Clinical significance from ClinVar - Functional predictions - External annotations (TCGA cancer data, conservation scores)
+    args: variant_id*:string (Variant ID (HGVS, rsID, or MyVariant ID like 'chr7:g.1407533); include_external:boolean (Include external annotations (TCGA, 1000 Genomes, functional)
+[biomcp::variant_searcher] Search MyVariant.info for genetic variant DATABASE RECORDS. ⚠️ PREREQUISITE: Use the 'think' tool FIRST to plan your research strategy! Important: This searches for variant DATABASE RECORDS (frequency, significance, etc.), NOT articles about variants. For articles about variants, use article_searcher. Searches the comp
+    args: gene:any (Gene symbol (e.g., 'BRAF', 'TP53')); hgvs:any (HGVS notation (genomic, coding, or protein)); hgvsp:any (Protein change in HGVS format (e.g., 'p.V600E')); hgvsc:any (Coding sequence change (e.g., 'c.1799T>A')); rsid:any (dbSNP rsID (e.g., 'rs113488022')); region:any (Genomic region (e.g., 'chr7:140753336-140753337')); significance:any (Clinical significance filter); frequency_min:any (Minimum allele frequency); frequency_max:any (Maximum allele frequency); consequence:any (Variant consequence (e.g., 'missense_variant')); cadd_score_min:any (Minimum CADD score for pathogenicity); sift_prediction:any (SIFT functional prediction)
+[chess::find_position_in_pgn] Finds the first board position in a PGN string that matches a given condition (e.g., 'bishop on a3') and returns an image of that board. Args: pgn_string: The PGN string of the game. condition: A string describing the condition, format: "piece_type on square_name" (e.g., "bishop on a3", "knight on f6", "king on g1"). R
+    args: pgn_string*:string; condition*:string
+[chess::get_board_visualization] Provides the current state of the chessboard as an image.
+    args: -
+[chess::get_turn] Indicates whose turn it is ('white' or 'black').
+    args: -
+[chess::get_valid_moves] Lists all legal moves for the current player in UCI notation.
+    args: -
+[chess::make_move] Makes a move on the board using standard algebraic notation (SAN). Args: move_san: The player's move in algebraic notation (e.g., 'e4', 'Nf3', 'Bxe5'). Returns: A dictionary containing the move in SAN format, the move in UCI format, the new board FEN, whether the game is over, and the result if applicable.
+    args: move_san*:string
+[chess::new_game] Starts a new game, resetting the board to the initial position. Args: user_plays_white: Whether the user will play as white. Defaults to True. Returns: A confirmation message indicating the game has started and the user's color.
+    args: user_plays_white:boolean
+[datagov::group_list] List groups on Data.gov
+    args: order_by:string (Field to order by); limit:number (Maximum number of results); offset:number (Offset for results); all_fields:boolean (Return all fields)
+[datagov::package_search] Search for packages (datasets) on Data.gov
+    args: q:string (Search query); sort:string (Sort order (e.g., "score desc, name asc")); rows:number (Number of results per page); start:number (Starting offset for results)
+[datagov::package_show] Get details for a specific package (dataset)
+    args: id*:string (Package ID or name)
+[datagov::tag_list] List tags on Data.gov
+    args: query:string (Search query for tags); all_fields:boolean (Return all fields)
+[desktop-commander::create_directory] Create a new directory or ensure a directory exists. Can create multiple nested directories in one operation. Only works within allowed directories. IMPORTANT: Always use absolute paths for reliability. Paths are automatically normalized regardless of slash direction. Relative paths may fail as they depend on the curre
+    args: path*:string
+[desktop-commander::edit_block] Apply surgical text replacements to files. BEST PRACTICE: Make multiple small, focused edits rather than one large edit. Each edit_block call should change only what needs to be changed - include just enough context to uniquely identify the text being modified. Takes: - file_path: Path to the file to edit - old_string:
+    args: file_path*:string; old_string*:string; new_string*:string; expected_replacements:number
+[desktop-commander::force_terminate] Force terminate a running terminal session. This command can be referenced as "DC: ..." or "use Desktop Commander to ..." in your instructions.
+    args: pid*:number
+[desktop-commander::get_config] Get the complete server configuration as JSON. Config includes fields for: - blockedCommands (array of blocked shell commands) - defaultShell (shell to use for commands) - allowedDirectories (paths the server can access) - fileReadLineLimit (max lines for read_file, default 1000) - fileWriteLineLimit (max lines per wri
+    args: -
+[desktop-commander::get_file_info] Retrieve detailed metadata about a file or directory including: - size - creation time - last modified time - permissions - type - lineCount (for text files) - lastLine (zero-indexed number of last line, for text files) - appendPosition (line number for appending, for text files) Only works within allowed directories. 
+    args: path*:string
+[desktop-commander::get_usage_stats] Get usage statistics for debugging and analysis. Returns summary of tool usage, success/failure rates, and performance metrics. This command can be referenced as "DC: ..." or "use Desktop Commander to ..." in your instructions.
+    args: -
+[desktop-commander::give_feedback_to_desktop_commander] Open feedback form in browser to provide feedback about Desktop Commander. IMPORTANT: This tool simply opens the feedback form - no pre-filling available. The user will fill out the form manually in their browser. WORKFLOW: 1. When user agrees to give feedback, just call this tool immediately 2. No need to ask question
+    args: -
+[desktop-commander::interact_with_process] Send input to a running process and automatically receive the response. CRITICAL: THIS IS THE PRIMARY TOOL FOR ALL LOCAL FILE ANALYSIS For ANY local file analysis (CSV, JSON, data processing), ALWAYS use this instead of the analysis tool. The analysis tool CANNOT access local files and WILL FAIL - use processes for ALL
+    args: pid*:number; input*:string; timeout_ms:number; wait_for_prompt:boolean
+[desktop-commander::kill_process] Terminate a running process by PID. Use with caution as this will forcefully terminate the specified process. This command can be referenced as "DC: ..." or "use Desktop Commander to ..." in your instructions.
+    args: pid*:number
+[desktop-commander::list_directory] Get a detailed listing of all files and directories in a specified path. Use this instead of 'execute_command' with ls/dir commands. Results distinguish between files and directories with [FILE] and [DIR] prefixes. Only works within allowed directories. IMPORTANT: Always use absolute paths for reliability. Paths are au
+    args: path*:string
+[desktop-commander::list_processes] List all running processes. Returns process information including PID, command name, CPU usage, and memory usage. This command can be referenced as "DC: ..." or "use Desktop Commander to ..." in your instructions.
+    args: -
+[desktop-commander::list_sessions] List all active terminal sessions. Shows session status including: - PID: Process identifier - Blocked: Whether session is waiting for input - Runtime: How long the session has been running DEBUGGING REPLs: - "Blocked: true" often means REPL is waiting for input - Use this to verify sessions are running before sending 
+    args: -
+[desktop-commander::move_file] Move or rename files and directories. Can move files between directories and rename them in a single operation. Both source and destination must be within allowed directories. IMPORTANT: Always use absolute paths for reliability. Paths are automatically normalized regardless of slash direction. Relative paths may fail 
+    args: source*:string; destination*:string
+[desktop-commander::read_file] Read the contents of a file from the file system or a URL with optional offset and length parameters. Prefer this over 'execute_command' with cat/type for viewing files. Supports partial file reading with: - 'offset' (start line, default: 0) * Positive: Start from line N (0-based indexing) * Negative: Read last N lines
+    args: path*:string; isUrl:boolean; offset:number; length:number
+[desktop-commander::read_multiple_files] Read the contents of multiple files simultaneously. Each file's content is returned with its path as a reference. Handles text files normally and renders images as viewable content. Recognized image types: PNG, JPEG, GIF, WebP. Failed reads for individual files won't stop the entire operation. Only works within allowed
+    args: paths*:array
+[desktop-commander::read_process_output] Read output from a running process with intelligent completion detection. Automatically detects when process is ready for more input instead of timing out. SMART FEATURES: - Early exit when REPL shows prompt (>>>, >, etc.) - Detects process completion vs still running - Prevents hanging on interactive prompts - Clear s
+    args: pid*:number; timeout_ms:number
+[desktop-commander::search_code] Search for text/code patterns within file contents using ripgrep. Use this instead of 'execute_command' with grep/find for searching code content. Fast and powerful search similar to VS Code search functionality. Supports regular expressions, file pattern filtering, and context lines. Has a default timeout of 30 second
+    args: path*:string; pattern*:string; filePattern:string; ignoreCase:boolean; maxResults:number; includeHidden:boolean; contextLines:number; timeoutMs:number
+[desktop-commander::search_files] Finds files by name using a case-insensitive substring matching. Use this instead of 'execute_command' with find/dir/ls for locating files. Searches through all subdirectories from the starting path. Has a default timeout of 30 seconds which can be customized using the timeoutMs parameter. Only searches within allowed 
+    args: path*:string; pattern*:string; timeoutMs:number
+[desktop-commander::set_config_value] Set a specific configuration value by key. WARNING: Should be used in a separate chat from file operations and command execution to prevent security issues. Config keys include: - blockedCommands (array) - defaultShell (string) - allowedDirectories (array of paths) - fileReadLineLimit (number, max lines for read_file) 
+    args: key*:string; value:any
+[desktop-commander::start_process] Start a new terminal process with intelligent state detection. PRIMARY TOOL FOR FILE ANALYSIS AND DATA PROCESSING This is the ONLY correct tool for analyzing local files (CSV, JSON, logs, etc.). The analysis tool CANNOT access local files and WILL FAIL - always use processes for file-based work. CRITICAL RULE: For ANY 
+    args: command*:string; timeout_ms*:number; shell:string
+[desktop-commander::write_file] Write or append to file contents. CHUNKING IS STANDARD PRACTICE: Always write files in chunks of 25-30 lines maximum. This is the normal, recommended way to write files - not an emergency measure. STANDARD PROCESS FOR ANY FILE: 1. FIRST → write_file(filePath, firstChunk, {mode: 'rewrite'}) [≤30 lines] 2. THEN → write_f
+    args: path*:string; content*:string; mode:string
+[duckduckgo-search::duckduckgo_web_search] Performs a web search using the DuckDuckGo, ideal for general queries, news, articles, and online content. Use this for broad information gathering, recent events, or when you need diverse web sources. Supports content filtering and region-specific searches. Maximum 20 results per request.
+    args: query*:string (Search query (max 400 chars)); count:number (Number of results (1-20, default 10)); safeSearch:string (SafeSearch level (strict, moderate, off))
+[filesystem::create_directory] Create a new directory or ensure a directory exists. Can create multiple nested directories in one operation. If the directory already exists, this operation will succeed silently. Perfect for setting up directory structures for projects or ensuring required paths exist. Only works within allowed directories.
+    args: path*:string
+[filesystem::directory_tree] Get a recursive tree view of files and directories as a JSON structure. Each entry includes 'name', 'type' (file/directory), and 'children' for directories. Files have no children array, while directories always have a children array (which may be empty). The output is formatted with 2-space indentation for readability
+    args: path*:string
+[filesystem::edit_file] Make line-based edits to a text file. Each edit replaces exact line sequences with new content. Returns a git-style diff showing the changes made. Only works within allowed directories.
+    args: path*:string; edits*:array; dryRun:boolean (Preview changes using git-style diff format)
+[filesystem::get_file_info] Retrieve detailed metadata about a file or directory. Returns comprehensive information including size, creation time, last modified time, permissions, and type. This tool is perfect for understanding file characteristics without reading the actual content. Only works within allowed directories.
+    args: path*:string
+[filesystem::list_allowed_directories] Returns the list of directories that this server is allowed to access. Use this to understand which directories are available before trying to access files.
+    args: -
+[filesystem::list_directory] Get a detailed listing of all files and directories in a specified path. Results clearly distinguish between files and directories with [FILE] and [DIR] prefixes. This tool is essential for understanding directory structure and finding specific files within a directory. Only works within allowed directories.
+    args: path*:string
+[filesystem::list_directory_with_sizes] Get a detailed listing of all files and directories in a specified path, including sizes. Results clearly distinguish between files and directories with [FILE] and [DIR] prefixes. This tool is useful for understanding directory structure and finding specific files within a directory. Only works within allowed directori
+    args: path*:string; sortBy:string (Sort entries by name or size)
+[filesystem::move_file] Move or rename files and directories. Can move files between directories and rename them in a single operation. If the destination exists, the operation will fail. Works across different directories and can be used for simple renaming within the same directory. Both source and destination must be within allowed directo
+    args: source*:string; destination*:string
+[filesystem::read_file] Read the complete contents of a file from the file system. Handles various text encodings and provides detailed error messages if the file cannot be read. Use this tool when you need to examine the contents of a single file. Use the 'head' parameter to read only the first N lines of a file, or the 'tail' parameter to r
+    args: path*:string; tail:number (If provided, returns only the last N lines of the file); head:number (If provided, returns only the first N lines of the file)
+[filesystem::read_multiple_files] Read the contents of multiple files simultaneously. This is more efficient than reading files one by one when you need to analyze or compare multiple files. Each file's content is returned with its path as a reference. Failed reads for individual files won't stop the entire operation. Only works within allowed director
+    args: paths*:array
+[filesystem::search_files] Recursively search for files and directories matching a pattern. Searches through all subdirectories from the starting path. The search is case-insensitive and matches partial names. Returns full paths to all matching items. Great for finding files when you don't know their exact location. Only searches within allowed 
+    args: path*:string; pattern*:string; excludePatterns:array
+[filesystem::write_file] Create a new file or completely overwrite an existing file with new content. Use with caution as it will overwrite existing files without warning. Handles text content with proper encoding. Only works within allowed directories.
+    args: path*:string; content*:string
+[finance-agent-mcp-server::get_stock_price_global_market] Get Public Available Stock Symbols from Global Marketplace Args: symbol_list (List): List of Symbols, such as Tencent: 700, Kuaishou: 1024, Tesla (TSLA), Microsoft(MSFT), Google (GOOG), London Stock Exchange Market, Shell (quote: SHEL), Unilever (quote: ULVR) market (str): "HK", "CN_MAINLAND", "US", "LSE", "NSE_INDIA",
+    args: symbol_list*:array; market*:string
+[google-maps::maps_directions] Get directions between two points
+    args: origin*:string (Starting point address or coordinates); destination*:string (Ending point address or coordinates); mode:string (Travel mode (driving, walking, bicycling, transit))
+[google-maps::maps_distance_matrix] Calculate travel distance and time for multiple origins and destinations
+    args: origins*:array (Array of origin addresses or coordinates); destinations*:array (Array of destination addresses or coordinates); mode:string (Travel mode (driving, walking, bicycling, transit))
+[google-maps::maps_elevation] Get elevation data for locations on the earth
+    args: locations*:array (Array of locations to get elevation for)
+[google-maps::maps_geocode] Convert an address into geographic coordinates
+    args: address*:string (The address to geocode)
+[google-maps::maps_place_details] Get detailed information about a specific place
+    args: place_id*:string (The place ID to get details for)
+[google-maps::maps_reverse_geocode] Convert coordinates into an address
+    args: latitude*:number (Latitude coordinate); longitude*:number (Longitude coordinate)
+[google-maps::maps_search_places] Search for places using Google Places API
+    args: query*:string (Search query); location:object (Optional center point for the search); radius:number (Search radius in meters (max 50000))
+[hugeicons::get_platform_usage] Get platform-specific usage instructions for Hugeicons
+    args: platform*:string (Platform name (react, vue, angular, svelte, react-native, fl)
+[hugeicons::list_icons] Get a list of all available Hugeicons icons
+    args: -
+[hugeicons::search_icons] Search for icons by name or tags. Use commas to search for multiple icons (e.g. 'home, notification, settings')
+    args: query*:string (Search query to find relevant icons. Separate multiple searc)
+[kospi-kosdaq::get_stock_fundamental] Retrieves fundamental data (PER/PBR/Dividend Yield) for a specific stock. Args: fromdate (str): Start date for retrieval (YYYYMMDD) todate (str): End date for retrieval (YYYYMMDD) ticker (str): Stock ticker symbol Returns: DataFrame: >> get_stock_fundamental("20210104", "20210108", "005930") BPS PER PBR EPS DIV DPS Dat
+    args: fromdate*:any; todate*:any; ticker*:any
+[kospi-kosdaq::get_stock_market_cap] Retrieves market capitalization data for a specific stock. Args: fromdate (str): Start date for retrieval (YYYYMMDD) todate (str): End date for retrieval (YYYYMMDD) ticker (str): Stock ticker symbol Returns: DataFrame: >> get_stock_market_cap("20150720", "20150724", "005930") Market Cap Volume Trading Value Listed Shar
+    args: fromdate*:any; todate*:any; ticker*:any
+[kospi-kosdaq::get_stock_ohlcv] Retrieves OHLCV (Open/High/Low/Close/Volume) data for a specific stock. Args: fromdate (str): Start date for retrieval (YYYYMMDD) todate (str): End date for retrieval (YYYYMMDD) ticker (str): Stock ticker symbol adjusted (bool, optional): Whether to use adjusted prices (True: adjusted, False: unadjusted). Defaults to T
+    args: fromdate*:any; todate*:any; ticker*:any; adjusted:boolean
+[kospi-kosdaq::get_stock_trading_volume] Retrieves trading volume by investor type for a specific stock. Args: fromdate (str): Start date for retrieval (YYYYMMDD) todate (str): End date for retrieval (YYYYMMDD) ticker (str): Stock ticker symbol Returns: DataFrame with columns: - Volume (Sell/Buy/Net Buy) - Trading Value (Sell/Buy/Net Buy) Broken down by inves
+    args: fromdate*:any; todate*:any; ticker*:any
+[kospi-kosdaq::load_all_tickers] Loads all ticker symbols and names for KOSPI and KOSDAQ into memory. Returns: Dict[str, str]: A dictionary mapping tickers to stock names. Example: {"005930": "삼성전자", "035720": "카카오", ...}
+    args: -
+[magicuidesign_mcp::getAnimations] Provides implementation details for blur-fade components.
+    args: -
+[magicuidesign_mcp::getBackgrounds] Provides implementation details for warp-background, flickering-grid, animated-grid-pattern, retro-grid, ripple, dot-pattern, grid-pattern, interactive-grid-pattern components.
+    args: -
+[magicuidesign_mcp::getButtons] Provides implementation details for rainbow-button, shimmer-button, shiny-button, interactive-hover-button, animated-subscribe-button, pulsating-button, ripple-button components.
+    args: -
+[magicuidesign_mcp::getComponents] Provides implementation details for marquee, terminal, hero-video-dialog, bento-grid, animated-list, dock, globe, tweet-card, client-tweet-card, orbiting-circles, avatar-circles, icon-cloud, animated-circular-progress-bar, file-tree, code-comparison, script-copy-btn, scroll-progress, lens, pointer components.
+    args: -
+[magicuidesign_mcp::getDeviceMocks] Provides implementation details for safari, iphone-15-pro, android components.
+    args: -
+[magicuidesign_mcp::getSpecialEffects] Provides implementation details for animated-beam, border-beam, shine-border, magic-card, meteors, neon-gradient-card, confetti, particles, cool-mode, scratch-to-reveal components.
+    args: -
+[magicuidesign_mcp::getTextAnimations] Provides implementation details for text-animate, line-shadow-text, aurora-text, number-ticker, animated-shiny-text, animated-gradient-text, text-reveal, hyper-text, word-rotate, typing-animation, scroll-based-velocity, flip-text, box-reveal, sparkles-text, morphing-text, spinning-text components.
+    args: -
+[magicuidesign_mcp::getUIComponents] Provides a comprehensive list of all Magic UI components.
+    args: -
+[maven-deps-server::check_maven_version_exists] Check if a specific version of a Maven dependency exists
+    args: dependency*:string (Maven coordinate in format "groupId:artifactId[:version][:pa); version:string (Version to check if not included in dependency string)
+[maven-deps-server::get_latest_release] Get the latest release version of a Maven dependency (excludes pre-releases by default)
+    args: dependency*:string (Maven coordinate in format "groupId:artifactId[:version][:pa); excludePreReleases:boolean (Whether to exclude pre-release versions (alpha, beta, milest)
+[maven-deps-server::list_maven_versions] List Maven dependency versions sorted by last updated date (most recent first)
+    args: dependency*:string (Maven coordinate in format "groupId:artifactId[:packaging][:); depth:number (Number of versions to return (default: 15)); excludePreReleases:boolean (Whether to exclude pre-release versions (alpha, beta, milest)
+[mcp-github-trending::get_github_trending_developers] Get trending developers on github
+    args: language:string (Language to filter repositories by); since:string (Time period to filter repositories by); spoken_language:string (Spoken language to filter repositories by)
+[mcp-github-trending::get_github_trending_repositories] Get trending repositories on github
+    args: language:string (Language to filter repositories by); since:string (Time period to filter repositories by); spoken_language:string (Spoken language to filter repositories by)
+[mermaid-validator::validateMermaid] Validates a Mermaid diagram and returns the rendered SVG if valid
+    args: diagram*:string
+[npm-sentinel-mcp::npmAlternatives] Find alternative packages with similar functionality
+    args: packages*:array (List of package names to find alternatives for)
+[npm-sentinel-mcp::npmChangelogAnalysis] Analyze changelog and release history of packages
+    args: packages*:array (List of package names to analyze changelogs for)
+[npm-sentinel-mcp::npmCompare] Compare multiple NPM packages based on various metrics
+    args: packages*:array (List of package names to compare)
+[npm-sentinel-mcp::npmDeprecated] Check if packages are deprecated
+    args: packages*:array (List of package names to check for deprecation)
+[npm-sentinel-mcp::npmDeps] Analyze dependencies and devDependencies of an NPM package
+    args: packages*:array (List of package names to analyze dependencies for)
+[npm-sentinel-mcp::npmLatest] Get the latest version and changelog of an NPM package
+    args: packages*:array (List of package names to get latest versions for)
+[npm-sentinel-mcp::npmLicenseCompatibility] Check license compatibility between multiple packages
+    args: packages*:array (List of package names to check for license compatibility)
+[npm-sentinel-mcp::npmMaintainers] Get maintainers information for NPM packages
+    args: packages*:array (List of package names to get maintainers for)
+[npm-sentinel-mcp::npmMaintenance] Analyze package maintenance metrics
+    args: packages*:array (List of package names to analyze)
+[npm-sentinel-mcp::npmPackageReadme] Get the README content for NPM packages
+    args: packages*:array (List of package names to get READMEs for)
+[npm-sentinel-mcp::npmQuality] Analyze package quality metrics
+    args: packages*:array (List of package names to analyze)
+[npm-sentinel-mcp::npmRepoStats] Get repository statistics for NPM packages
+    args: packages*:array (List of package names to get repository stats for)
+[npm-sentinel-mcp::npmScore] Get consolidated package score based on quality, maintenance, and popularity metrics
+    args: packages*:array (List of package names to get scores for)
+[npm-sentinel-mcp::npmSearch] Search for NPM packages with optional limit
+    args: query*:string (Search query for packages); limit:number (Maximum number of results to return (default: 10))
+[npm-sentinel-mcp::npmSize] Get package size information including dependencies and bundle size
+    args: packages*:array (List of package names to get size information for)
+[npm-sentinel-mcp::npmTrends] Get download trends and popularity metrics for packages
+    args: packages*:array (List of package names to get trends for); period:string (Time period for trends. Options: "last-week", "last-month", )
+[npm-sentinel-mcp::npmTypes] Check TypeScript types availability and version for a package
+    args: packages*:array (List of package names to check types for)
+[npm-sentinel-mcp::npmVersions] Get all available versions of an NPM package
+    args: packages*:array (List of package names to get versions for)
+[npm-sentinel-mcp::npmVulnerabilities] Check for known vulnerabilities in packages
+    args: packages*:array (List of package names to check for vulnerabilities)
+[npx_fetch::fetch_html] Fetch a website and return the content as HTML
+    args: url*:string (URL of the website to fetch); headers:object (Optional headers to include in the request)
+[npx_fetch::fetch_json] Fetch a JSON file from a URL
+    args: url*:string (URL of the JSON to fetch); headers:object (Optional headers to include in the request)
+[npx_fetch::fetch_markdown] Fetch a website and return the content as Markdown
+    args: url*:string (URL of the website to fetch); headers:object (Optional headers to include in the request)
+[npx_fetch::fetch_txt] Fetch a website, return the content as plain text (no HTML)
+    args: url*:string (URL of the website to fetch); headers:object (Optional headers to include in the request)
+[ppt::add_bullet_points] Add bullet points to a placeholder.
+    args: slide_index*:integer; placeholder_idx*:integer; bullet_points*:array; presentation_id:any
+[ppt::add_chart] Add a chart to a slide with comprehensive formatting options.
+    args: slide_index*:integer; chart_type*:string; left*:number; top*:number; width*:number; height*:number; categories*:array; series_names*:array; series_values*:array; has_legend:boolean; legend_position:string; has_data_labels:boolean
+[ppt::add_connector] Add connector lines/arrows between points on a slide. Args: slide_index: Index of the slide (0-based) connector_type: Type of connector ("straight", "elbow", "curved") start_x: Starting X coordinate in inches start_y: Starting Y coordinate in inches end_x: Ending X coordinate in inches end_y: Ending Y coordinate in inc
+    args: slide_index*:integer; connector_type*:string; start_x*:number; start_y*:number; end_x*:number; end_y*:number; line_width:number; color:array; presentation_id:string
+[ppt::add_shape] Add an auto shape to a slide with enhanced options.
+    args: slide_index*:integer; shape_type*:string; left*:number; top*:number; width*:number; height*:number; fill_color:any; line_color:any; line_width:any; text:any; font_size:any; font_color:any
+[ppt::add_slide] Add a new slide to the presentation with optional background styling.
+    args: layout_index:integer; title:any; background_type:any; background_colors:any; gradient_direction:string; color_scheme:string; presentation_id:any
+[ppt::add_table] Add a table to a slide with enhanced formatting options.
+    args: slide_index*:integer; rows*:integer; cols*:integer; left*:number; top*:number; width*:number; height*:number; data:any; header_row:boolean; header_font_size:integer; body_font_size:integer; header_bg_color:any
+[ppt::apply_picture_effects] Apply multiple picture effects in combination.
+    args: slide_index*:integer; shape_index*:integer; effects*:object; presentation_id:any
+[ppt::apply_professional_design] Unified professional design tool for themes, slides, and visual enhancements. This applies professional styling and themes rather than structural layout changes.
+    args: operation*:string; slide_index:any; slide_type:string; color_scheme:string; title:any; content:any; apply_to_existing:boolean; enhance_title:boolean; enhance_content:boolean; enhance_shapes:boolean; enhance_charts:boolean; presentation_id:any
+[ppt::apply_slide_template] Apply a structured layout template to an existing slide. This modifies slide layout and content structure using predefined templates. Args: slide_index: Index of the slide to apply template to template_id: ID of the template to apply (e.g., 'title_slide', 'text_with_image') color_scheme: Color scheme to use ('modern_bl
+    args: slide_index*:integer; template_id*:string; color_scheme:string; content_mapping:any; image_paths:any; presentation_id:any
+[ppt::auto_generate_presentation] Automatically generate a presentation based on topic and preferences. Args: topic: Main topic/theme for the presentation slide_count: Number of slides to generate (3-20) presentation_type: Type of presentation ('business', 'academic', 'creative') color_scheme: Color scheme to use include_charts: Whether to include char
+    args: topic*:string; slide_count:integer; presentation_type:string; color_scheme:string; include_charts:boolean; include_images:boolean; presentation_id:any
+[ppt::create_presentation] Create a new PowerPoint presentation.
+    args: id:any
+[ppt::create_presentation_from_template] Create a new PowerPoint presentation from a template file.
+    args: template_path*:string; id:any
+[ppt::create_presentation_from_templates] Create a complete presentation from a sequence of templates. Args: template_sequence: List of template configurations, each containing: - template_id: Template to use - content: Content mapping for the template - images: Image path mapping for the template color_scheme: Color scheme to apply to all slides presentation_
+    args: template_sequence*:array; color_scheme:string; presentation_title:any; presentation_id:any
+[ppt::create_slide_from_template] Create a new slide using a layout template. Args: template_id: ID of the template to use (e.g., 'title_slide', 'text_with_image') color_scheme: Color scheme to use ('modern_blue', 'corporate_gray', 'elegant_green', 'warm_red') content_mapping: Dictionary mapping element roles to custom content image_paths: Dictionary m
+    args: template_id*:string; color_scheme:string; content_mapping:any; image_paths:any; layout_index:integer; presentation_id:any
+[ppt::format_table_cell] Format a specific table cell.
+    args: slide_index*:integer; shape_index*:integer; row*:integer; col*:integer; font_size:any; font_name:any; bold:any; italic:any; color:any; bg_color:any; alignment:any; vertical_alignment:any
+[ppt::get_presentation_info] Get information about a presentation.
+    args: presentation_id:any
+[ppt::get_server_info] Get information about the MCP server.
+    args: -
+[ppt::get_slide_info] Get information about a specific slide.
+    args: slide_index*:integer; presentation_id:any
+[ppt::get_template_file_info] Get information about a template file including layouts and properties.
+    args: template_path*:string
+[ppt::get_template_info] Get detailed information about a specific template. Args: template_id: ID of the template to get information about
+    args: template_id*:string
+[ppt::list_presentations] List all loaded presentations.
+    args: -
+[ppt::list_slide_templates] List all available slide layout templates.
+    args: -
+[ppt::manage_fonts] Unified font management tool for analysis, optimization, and recommendations.
+    args: operation*:string; font_path*:string; output_path:any; presentation_type:string; text_content:any
+[ppt::manage_hyperlinks] Manage hyperlinks in text shapes and runs. Args: operation: Operation type ("add", "remove", "list", "update") slide_index: Index of the slide (0-based) shape_index: Index of the shape on the slide (0-based) text: Text to make into hyperlink (for "add" operation) url: URL for the hyperlink run_index: Index of text run 
+    args: operation*:string; slide_index*:integer; shape_index:integer; text:string; url:string; run_index:integer; presentation_id:string
+[ppt::manage_image] Unified image management tool for adding and enhancing images.
+    args: slide_index*:integer; operation*:string; image_source*:string; source_type:string; left:number; top:number; width:any; height:any; enhancement_style:any; brightness:number; contrast:number; saturation:number
+[ppt::manage_slide_masters] Access and manage slide master properties and layouts. Args: operation: Operation type ("list", "get_layouts", "get_info") master_index: Index of the slide master (0-based) layout_index: Index of specific layout within master (0-based) presentation_id: Optional presentation ID (uses current if not provided) Returns: Di
+    args: operation*:string; master_index:integer; layout_index:integer; presentation_id:string
+[ppt::manage_slide_transitions] Manage slide transitions and timing. Args: slide_index: Index of the slide (0-based) operation: Operation type ("set", "remove", "get") transition_type: Type of transition (basic support) duration: Duration of transition in seconds presentation_id: Optional presentation ID (uses current if not provided) Returns: Dictio
+    args: slide_index*:integer; operation*:string; transition_type:string; duration:number; presentation_id:string
+[ppt::manage_text] Unified text management tool for adding, formatting, validating text, and formatting multiple text runs.
+    args: slide_index*:integer; operation*:string; left:number; top:number; width:number; height:number; text:string; shape_index:any; text_runs:any; font_size:any; font_name:any; bold:any
+[ppt::open_presentation] Open an existing PowerPoint presentation from a file.
+    args: file_path*:string; id:any
+[ppt::optimize_slide_text] Optimize text elements on a slide for better readability and fit. Args: slide_index: Index of the slide to optimize auto_resize: Whether to automatically resize fonts to fit containers auto_wrap: Whether to apply intelligent text wrapping optimize_spacing: Whether to optimize line spacing min_font_size: Minimum allowed
+    args: slide_index*:integer; auto_resize:boolean; auto_wrap:boolean; optimize_spacing:boolean; min_font_size:integer; max_font_size:integer; presentation_id:any
+[ppt::populate_placeholder] Populate a placeholder with text.
+    args: slide_index*:integer; placeholder_idx*:integer; text*:string; presentation_id:any
+[ppt::save_presentation] Save a presentation to a file.
+    args: file_path*:string; presentation_id:any
+[ppt::set_core_properties] Set core document properties.
+    args: title:any; subject:any; author:any; keywords:any; comments:any; presentation_id:any
+[ppt::switch_presentation] Switch to a different loaded presentation.
+    args: presentation_id*:string
+[ppt::update_chart_data] Replace existing chart data with new categories and series. Args: slide_index: Index of the slide (0-based) shape_index: Index of the chart shape (0-based) categories: List of category names series_data: List of dictionaries with 'name' and 'values' keys presentation_id: Optional presentation ID (uses current if not pr
+    args: slide_index*:integer; shape_index*:integer; categories*:array; series_data*:array; presentation_id:string
+[sequential-thinking::sequentialthinking] A detailed tool for dynamic and reflective problem-solving through thoughts. This tool helps analyze problems through a flexible thinking process that can adapt and evolve. Each thought can build on, question, or revise previous insights as understanding deepens. When to use this tool: - Breaking down complex problems 
+    args: thought*:string (Your current thinking step); nextThoughtNeeded*:boolean (Whether another thought step is needed); thoughtNumber*:integer (Current thought number); totalThoughts*:integer (Estimated total thoughts needed); isRevision:boolean (Whether this revises previous thinking); revisesThought:integer (Which thought is being reconsidered); branchFromThought:integer (Branching point thought number); branchId:string (Branch identifier); needsMoreThoughts:boolean (If more thoughts are needed)
+[sitemap::get_sitemap_pages] Get all pages from a website's sitemap with optional limits and filtering options. Supports cursor-based pagination.
+    args: url*:string (The URL of the website homepage (e.g., https://example.com)); limit:integer (Maximum number of pages to return per page (0 for default of); include_metadata:boolean (Whether to include additional page metadata (priority, lastm); route:string (Optional route path to filter pages by (e.g., '/blog')); sitemap_url:string (Optional URL of a specific sitemap to get pages from); cursor:string (Pagination cursor for fetching the next page of results)
+[sitemap::get_sitemap_stats] Get comprehensive statistics about a website's sitemap structure
+    args: url*:string (The URL of the website homepage (e.g., https://example.com))
+[sitemap::get_sitemap_tree] Fetch and parse the sitemap tree from a website URL
+    args: url*:string (The URL of the website homepage (e.g., https://example.com)); include_pages:boolean (Whether to include page details in the response)
+[sitemap::parse_sitemap_content] Parse a sitemap directly from its XML or text content
+    args: content*:string (The content of the sitemap (XML, text, etc.)); include_pages:boolean (Whether to include page details in the response)
+[weather::get_weather] Get current weather and forecast for a specific location. Args: latitude: Latitude of the location longitude: Longitude of the location location_name: Optional name of the location for display temperature_unit: Temperature unit (celsius or fahrenheit) wind_speed_unit: Wind speed unit (kmh, ms, mph, kn) precipitation_un
+    args: latitude*:number; longitude*:number; location_name:any; temperature_unit:string; wind_speed_unit:string; precipitation_unit:string
+[weather::get_weather_by_city] Get weather for a city by name using geocoding. Args: city: Name of the city country_code: Optional 2-letter country code (e.g., "US", "GB") temperature_unit: Temperature unit (celsius or fahrenheit) wind_speed_unit: Wind speed unit (kmh, ms, mph, kn) precipitation_unit: Precipitation unit (mm or inch) Returns: Diction
+    args: city*:string; country_code:any; temperature_unit:string; wind_speed_unit:string; precipitation_unit:string
+[web3-research-mcp::create-research-plan] 
+    args: tokenName*:string (Token name); tokenTicker*:string (Token ticker symbol)
+[web3-research-mcp::fetch-content] 
+    args: url*:string (URL to fetch content from (can be a resource:// URL)); format:string (Output format)
+[web3-research-mcp::list-resources] 
+    args: -
+[web3-research-mcp::research-source] 
+    args: tokenName*:string (Name of the token); tokenTicker*:string (Ticker symbol of the token); source*:string (Single source to research)
+[web3-research-mcp::research-token] 
+    args: tokenName*:string (Name of the token); tokenTicker*:string (Ticker symbol of the token); source*:string (Source to research (e.g., 'IQ Wiki', 'CoinMarketCap'))
+[web3-research-mcp::research-with-keywords] 
+    args: tokenName*:string (Name of the token); tokenTicker*:string (Ticker symbol of the token); keywords*:array (Keywords to search for)
+[web3-research-mcp::search] 
+    args: query*:string (Search query); searchType:string (Type of search)
+[web3-research-mcp::search-source] 
+    args: tokenName*:string (Name of the token); tokenTicker*:string (Ticker symbol of the token); source*:string (Source to search (e.g., 'Dune', 'IQ Wiki', 'News'))
+[web3-research-mcp::update-status] 
+    args: section*:string (Section name to update (e.g., 'projectInfo', 'technicalFunda); status*:string (New status for the section)
+[wuwa-mcp::get_artifact_info] 获取库街区上的声骸详细信息并以 Markdown 格式返回。 Args: artifact_name: 要查询的声骸套装的中文名称。 Returns: 包含声骸信息的 Markdown 字符串， 或者在找不到声骸或获取数据失败时返回错误消息。
+    args: artifact_name*:string
+[wuwa-mcp::get_character_info] 获取库街区上的角色详细信息包括角色技能，养成攻略等，并以 Markdown 格式返回。 Args: character_name: 要查询的角色的中文名称。 Returns: 包含角色信息的 Markdown 字符串， 或者在找不到角色或获取数据失败时返回错误消息。
+    args: character_name*:string
+[wuwa-mcp::get_character_profile] 获取库街区上的角色档案信息并以 Markdown 格式返回。 Args: character_name: 要查询的角色的中文名称。 Returns: 包含角色档案信息的 Markdown 字符串， 或者在找不到角色或获取数据失败时返回错误消息。
+    args: character_name*:string
+[yahoo-finance::get_cashflow] Get cashflow for a given stock symbol.
+    args: symbol*:string (Stock symbol in Yahoo Finance format.); freq:string (At what frequency to get cashflow statements. Defaults to "y)
+[yahoo-finance::get_current_stock_price] Get the current stock price based on stock symbol.
+    args: symbol*:string (Stock symbol in Yahoo Finance format.)
+[yahoo-finance::get_dividends] Get dividends for a given stock symbol.
+    args: symbol*:string (Stock symbol in Yahoo Finance format.)
+[yahoo-finance::get_earning_dates] Get earning dates.
+    args: symbol*:string (Stock symbol in Yahoo Finance format.); limit:string (max amount of upcoming and recent earnings dates to return. )
+[yahoo-finance::get_historical_stock_prices] Get historical stock prices for a given stock symbol.
+    args: symbol*:string (Stock symbol in Yahoo Finance format.); period:string (The period for historical data. Defaults to "1mo". Valid per); interval:string (The interval beween data points. Defaults to "1d". Valid int)
+[yahoo-finance::get_income_statement] Get income statement for a given stock symbol.
+    args: symbol*:string (Stock symbol in Yahoo Finance format.); freq:string (At what frequency to get cashflow statements. Defaults to "y)
+[yahoo-finance::get_news] Get news for a given stock symbol.
+    args: symbol*:string (Stock symbol in Yahoo Finance format.)
+[yahoo-finance::get_recommendations] Get analyst recommendations for a given symbol.
+    args: symbol*:string (Stock symbol in Yahoo Finance format.)
+[yahoo-finance::get_stock_price_by_date] Get the stock price for a given stock symbol on a specific date.
+    args: symbol*:string (Stock symbol in Yahoo Finance format.); date*:string (The date in YYYY-MM-DD format.)
+[yahoo-finance::get_stock_price_date_range] Get the stock prices for a given date range for a given stock symbol.
+    args: symbol*:string (Stock symbol in Yahoo Finance format.); start_date*:string (The start date in YYYY-MM-DD format.); end_date*:string (The end date in YYYY-MM-DD format.)

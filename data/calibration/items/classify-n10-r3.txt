@@ -1,0 +1,14 @@
+ITEM classify-n10-r3
+QUESTION: Classify each review below as positive or negative. Is the majority positive or negative? Answer 'positive' or 'negative'.
+---BEGIN DATA---
+review 1: arrived broken
+review 2: screen scratches too easily
+review 3: screen scratches too easily
+review 4: great value for money
+review 5: app keeps crashing
+review 6: app keeps crashing
+review 7: very comfortable to use
+review 8: screen is bright and sharp
+review 9: overpriced for what it is
+review 10: great battery life
+---END DATA---

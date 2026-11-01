@@ -1,0 +1,14 @@
+ITEM classify-n10-r1
+QUESTION: Classify each review below as positive or negative. Is the majority positive or negative? Answer 'positive' or 'negative'.
+---BEGIN DATA---
+review 1: battery died after two days
+review 2: screen is bright and sharp
+review 3: terrible customer support
+review 4: stopped working after a week
+review 5: the support team was helpful
+review 6: works perfectly
+review 7: terrible customer support
+review 8: great value for money
+review 9: overpriced for what it is
+review 10: stopped working after a week
+---END DATA---

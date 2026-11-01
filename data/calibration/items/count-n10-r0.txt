@@ -1,0 +1,14 @@
+ITEM count-n10-r0
+QUESTION: How many lines below are exactly the word 'noise'? Answer with a single integer.
+---BEGIN DATA---
+price
+app
+noise
+strap
+price
+shipping
+refund
+support
+battery
+shipping
+---END DATA---

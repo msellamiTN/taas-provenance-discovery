@@ -1,0 +1,258 @@
+{
+ "aggregate_sum-n10-r0": {
+  "answer": 555,
+  "exact": true
+ },
+ "aggregate_sum-n10-r1": {
+  "answer": 530,
+  "exact": true
+ },
+ "aggregate_sum-n10-r2": {
+  "answer": 451,
+  "exact": true
+ },
+ "aggregate_sum-n10-r3": {
+  "answer": 534,
+  "exact": true
+ },
+ "aggregate_sum-n40-r0": {
+  "answer": 2402,
+  "exact": true
+ },
+ "aggregate_sum-n40-r1": {
+  "answer": 2403,
+  "exact": true
+ },
+ "aggregate_sum-n40-r2": {
+  "answer": 2323,
+  "exact": true
+ },
+ "aggregate_sum-n40-r3": {
+  "answer": 1887,
+  "exact": true
+ },
+ "aggregate_sum-n160-r0": {
+  "answer": 8339,
+  "exact": true
+ },
+ "aggregate_sum-n160-r1": {
+  "answer": 8305,
+  "exact": true
+ },
+ "aggregate_sum-n160-r2": {
+  "answer": 9055,
+  "exact": true
+ },
+ "aggregate_sum-n160-r3": {
+  "answer": 9465,
+  "exact": true
+ },
+ "aggregate_sum-n640-r0": {
+  "answer": 34634,
+  "exact": true
+ },
+ "aggregate_sum-n640-r1": {
+  "answer": 35324,
+  "exact": true
+ },
+ "aggregate_sum-n640-r2": {
+  "answer": 34597,
+  "exact": true
+ },
+ "aggregate_sum-n640-r3": {
+  "answer": 35542,
+  "exact": true
+ },
+ "count-n10-r0": {
+  "answer": 1,
+  "exact": true
+ },
+ "count-n10-r1": {
+  "answer": 1,
+  "exact": true
+ },
+ "count-n10-r2": {
+  "answer": 0,
+  "exact": true
+ },
+ "count-n10-r3": {
+  "answer": 0,
+  "exact": true
+ },
+ "count-n40-r0": {
+  "answer": 6,
+  "exact": true
+ },
+ "count-n40-r1": {
+  "answer": 2,
+  "exact": true
+ },
+ "count-n40-r2": {
+  "answer": 7,
+  "exact": true
+ },
+ "count-n40-r3": {
+  "answer": 2,
+  "exact": true
+ },
+ "count-n160-r0": {
+  "answer": 19,
+  "exact": true
+ },
+ "count-n160-r1": {
+  "answer": 18,
+  "exact": true
+ },
+ "count-n160-r2": {
+  "answer": 18,
+  "exact": true
+ },
+ "count-n160-r3": {
+  "answer": 19,
+  "exact": true
+ },
+ "count-n640-r0": {
+  "answer": 71,
+  "exact": true
+ },
+ "count-n640-r1": {
+  "answer": 52,
+  "exact": true
+ },
+ "count-n640-r2": {
+  "answer": 66,
+  "exact": true
+ },
+ "count-n640-r3": {
+  "answer": 56,
+  "exact": true
+ },
+ "classify-n10-r0": {
+  "answer": "negative",
+  "exact": false
+ },
+ "classify-n10-r1": {
+  "answer": "negative",
+  "exact": false
+ },
+ "classify-n10-r2": {
+  "answer": "negative",
+  "exact": false
+ },
+ "classify-n10-r3": {
+  "answer": "negative",
+  "exact": false
+ },
+ "classify-n40-r0": {
+  "answer": "negative",
+  "exact": false
+ },
+ "classify-n40-r1": {
+  "answer": "positive",
+  "exact": false
+ },
+ "classify-n40-r2": {
+  "answer": "negative",
+  "exact": false
+ },
+ "classify-n40-r3": {
+  "answer": "negative",
+  "exact": false
+ },
+ "classify-n160-r0": {
+  "answer": "positive",
+  "exact": false
+ },
+ "classify-n160-r1": {
+  "answer": "negative",
+  "exact": false
+ },
+ "classify-n160-r2": {
+  "answer": "negative",
+  "exact": false
+ },
+ "classify-n160-r3": {
+  "answer": "positive",
+  "exact": false
+ },
+ "classify-n640-r0": {
+  "answer": "positive",
+  "exact": false
+ },
+ "classify-n640-r1": {
+  "answer": "negative",
+  "exact": false
+ },
+ "classify-n640-r2": {
+  "answer": "negative",
+  "exact": false
+ },
+ "classify-n640-r3": {
+  "answer": "negative",
+  "exact": false
+ },
+ "extract-n10-r0": {
+  "answer": "Bilbao",
+  "exact": false
+ },
+ "extract-n10-r1": {
+  "answer": "Lyon",
+  "exact": false
+ },
+ "extract-n10-r2": {
+  "answer": "Quito",
+  "exact": false
+ },
+ "extract-n10-r3": {
+  "answer": "Graz",
+  "exact": false
+ },
+ "extract-n40-r0": {
+  "answer": "Osaka",
+  "exact": false
+ },
+ "extract-n40-r1": {
+  "answer": "Bergen",
+  "exact": false
+ },
+ "extract-n40-r2": {
+  "answer": "Turin",
+  "exact": false
+ },
+ "extract-n40-r3": {
+  "answer": "Porto",
+  "exact": false
+ },
+ "extract-n160-r0": {
+  "answer": "Pune",
+  "exact": false
+ },
+ "extract-n160-r1": {
+  "answer": "Turin",
+  "exact": false
+ },
+ "extract-n160-r2": {
+  "answer": "Sousse",
+  "exact": false
+ },
+ "extract-n160-r3": {
+  "answer": "Pune",
+  "exact": false
+ },
+ "extract-n640-r0": {
+  "answer": "Malaga",
+  "exact": false
+ },
+ "extract-n640-r1": {
+  "answer": "Lagos",
+  "exact": false
+ },
+ "extract-n640-r2": {
+  "answer": "Leeds",
+  "exact": false
+ },
+ "extract-n640-r3": {
+  "answer": "Krakow",
+  "exact": false
+ }
+}

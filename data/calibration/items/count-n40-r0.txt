@@ -1,0 +1,44 @@
+ITEM count-n40-r0
+QUESTION: How many lines below are exactly the word 'price'? Answer with a single integer.
+---BEGIN DATA---
+noise
+delay
+support
+delay
+refund
+refund
+delay
+noise
+price
+support
+price
+refund
+shipping
+app
+noise
+support
+support
+battery
+support
+shipping
+screen
+support
+noise
+screen
+screen
+screen
+price
+price
+shipping
+support
+price
+noise
+delay
+app
+price
+screen
+battery
+screen
+battery
+refund
+---END DATA---

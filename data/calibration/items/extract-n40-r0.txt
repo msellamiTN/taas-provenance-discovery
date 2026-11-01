@@ -1,0 +1,44 @@
+ITEM extract-n40-r0
+QUESTION: In the records below, which city belongs to the record with id K7386030? Answer with the city name.
+---BEGIN DATA---
+id=K5365000 | name=Wafa Kaya | city=Tunis
+id=K2793001 | name=Hana Kral | city=Porto
+id=K6219002 | name=Ana Moreau | city=Sfax
+id=K4140003 | name=Wafa Haddad | city=Izmir
+id=K3341004 | name=Omar Trabelsi | city=Lagos
+id=K6728005 | name=Dora Ben Ali | city=Tunis
+id=K3447006 | name=Taha Dupont | city=Leeds
+id=K2336007 | name=Karim Mansour | city=Turin
+id=K2407008 | name=Bilel Horvat | city=Lagos
+id=K9773009 | name=Pia Horvat | city=Quito
+id=K9790010 | name=Chen Okafor | city=Cork
+id=K3189011 | name=Hana Trabelsi | city=Izmir
+id=K9822012 | name=Chen Sato | city=Quito
+id=K8739013 | name=Sara Rossi | city=Bergen
+id=K1351014 | name=Hana Bauer | city=Izmir
+id=K7812015 | name=Karim Ben Ali | city=Osaka
+id=K1369016 | name=Ana Horvat | city=Leeds
+id=K2806017 | name=Lea Petrov | city=Izmir
+id=K2109018 | name=Rami Moreau | city=Bilbao
+id=K3231019 | name=Yara Petrov | city=Tunis
+id=K2540020 | name=Victor Costa | city=Bilbao
+id=K9803021 | name=Lea Dupont | city=Osaka
+id=K8868022 | name=Jana Mansour | city=Porto
+id=K8288023 | name=Ana Haddad | city=Porto
+id=K2022024 | name=Taha Costa | city=Tunis
+id=K9907025 | name=Taha Horvat | city=Bergen
+id=K3763026 | name=Zied Bauer | city=Tunis
+id=K7896027 | name=Sara Ben Ali | city=Krakow
+id=K6087028 | name=Yara Mansour | city=Bilbao
+id=K9961029 | name=Yara Petrov | city=Porto
+id=K7386030 | name=Sara Rossi | city=Osaka
+id=K9463031 | name=Bilel Kaya | city=Bilbao
+id=K9487032 | name=Nora Dupont | city=Utrecht
+id=K1342033 | name=Goran Dupont | city=Sousse
+id=K1144034 | name=Emeka Rossi | city=Utrecht
+id=K9050035 | name=Malik Novak | city=Cork
+id=K1322036 | name=Una Petrov | city=Osaka
+id=K6010037 | name=Bilel Trabelsi | city=Lagos
+id=K1103038 | name=Sara Costa | city=Sousse
+id=K2470039 | name=Farah Rossi | city=Malaga
+---END DATA---

@@ -1,0 +1,14 @@
+ITEM extract-n10-r2
+QUESTION: In the records below, which city belongs to the record with id K1602001? Answer with the city name.
+---BEGIN DATA---
+id=K5843000 | name=Victor Horvat | city=Tunis
+id=K1602001 | name=Goran Jensen | city=Quito
+id=K4963002 | name=Wafa Trabelsi | city=Turin
+id=K6390003 | name=Nora Kral | city=Krakow
+id=K1018004 | name=Ivo Haddad | city=Quito
+id=K1111005 | name=Wafa Wang | city=Lagos
+id=K3632006 | name=Zied Moreau | city=Utrecht
+id=K2703007 | name=Jana Horvat | city=Leeds
+id=K6319008 | name=Dora Wang | city=Utrecht
+id=K2910009 | name=Emeka Dupont | city=Lyon
+---END DATA---

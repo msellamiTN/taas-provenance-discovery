@@ -1,0 +1,44 @@
+ITEM classify-n40-r2
+QUESTION: Classify each review below as positive or negative. Is the majority positive or negative? Answer 'positive' or 'negative'.
+---BEGIN DATA---
+review 1: the strap is uncomfortable
+review 2: very comfortable to use
+review 3: overpriced for what it is
+review 4: very comfortable to use
+review 5: terrible customer support
+review 6: screen is bright and sharp
+review 7: great value for money
+review 8: screen scratches too easily
+review 9: app keeps crashing
+review 10: very comfortable to use
+review 11: terrible customer support
+review 12: great value for money
+review 13: battery died after two days
+review 14: battery died after two days
+review 15: battery died after two days
+review 16: screen is bright and sharp
+review 17: excellent build quality
+review 18: stopped working after a week
+review 19: stopped working after a week
+review 20: app keeps crashing
+review 21: screen is bright and sharp
+review 22: excellent build quality
+review 23: fast delivery and well packed
+review 24: arrived broken
+review 25: screen scratches too easily
+review 26: stopped working after a week
+review 27: fast delivery and well packed
+review 28: terrible customer support
+review 29: the support team was helpful
+review 30: app keeps crashing
+review 31: arrived broken
+review 32: stopped working after a week
+review 33: fast delivery and well packed
+review 34: the strap is uncomfortable
+review 35: the strap is uncomfortable
+review 36: overpriced for what it is
+review 37: app keeps crashing
+review 38: excellent build quality
+review 39: screen scratches too easily
+review 40: very comfortable to use
+---END DATA---

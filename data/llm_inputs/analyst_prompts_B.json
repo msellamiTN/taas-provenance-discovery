@@ -1,0 +1,555 @@
+[
+ {
+  "id": "31086c2d-e183-42c3-9ee7-7c1278c4317f",
+  "source": "LiveMCPBench",
+  "category": "Lifestyle",
+  "query": "What files are in my /root/music folder?",
+  "context": ""
+ },
+ {
+  "id": "cf6ea2ca-5011-46ec-96a6-a15c46178de9",
+  "source": "LiveMCPBench",
+  "category": "Lifestyle",
+  "query": "Tell me what's the big news in AI today.",
+  "context": ""
+ },
+ {
+  "id": "2293b5eb-3af1-4f5f-9eaf-138c27885544",
+  "source": "LiveMCPBench",
+  "category": "Travel",
+  "query": "Give me a two-day tour of Beijing based on the recent weather, and my hotel is in the Haidian District",
+  "context": ""
+ },
+ {
+  "id": "84326f9f-d4b7-4dc8-b9e0-3c8868a3f79f",
+  "source": "LiveMCPBench",
+  "category": "Lifestyle",
+  "query": "Read the comments on hacker news story 44490510 and help me summarize the views in the comments.",
+  "context": ""
+ },
+ {
+  "id": "d1ea5598-27d2-4a21-ae9d-be30ec099ee3",
+  "source": "LiveMCPBench",
+  "category": "Finance",
+  "query": "Get today's bbc news, reserved for finance related content.",
+  "context": ""
+ },
+ {
+  "id": "15aa8d9b-330c-48eb-9b2a-e732f85021aa",
+  "source": "LiveMCPBench",
+  "category": "Shopping",
+  "query": "I want to buy a 34-inch curved monitor, please help me recommend some items with prices and links to buy.",
+  "context": ""
+ },
+ {
+  "id": "665e1166-1062-444f-81e3-df207d0f975b",
+  "source": "LiveMCPBench",
+  "category": "Lifestyle",
+  "query": "Read the Wikipedia article on Llullaillaco, which briefly describes the content of this article, saved to /root/markdown/Llullaillaco.md",
+  "context": ""
+ },
+ {
+  "id": "49cdaab7-39f0-4556-a3bb-7bd523916b32",
+  "source": "LiveMCPBench",
+  "category": "Leisure",
+  "query": "We have organized an online raffle with the following list of participants: [‘Alice’, ‘Bob’, ‘Charlie’, ‘David’, ‘Eve’]. Please choose one lucky winner at random from this list.",
+  "context": ""
+ },
+ {
+  "id": "423f89ba-be77-4f93-99d7-936548513eef",
+  "source": "LiveMCPBench",
+  "category": "Office",
+  "query": "Help me create an example word that needs to have headings, tables, body, footnotes and insert clock.png under /root/picture and save it in /root/word/example.docx",
+  "context": ""
+ },
+ {
+  "id": "36d95b6f-8cc6-40d0-bb64-77d3fa162f8d",
+  "source": "LiveMCPBench",
+  "category": "Lifestyle",
+  "query": "I received an email from amaz0n.com asking me to click on a link to enter my account information. Is this site official for Amazon?",
+  "context": ""
+ },
+ {
+  "id": "2e190c2a-8aab-44e1-896d-671cb3fcc495",
+  "source": "LiveMCPBench",
+  "category": "Office",
+  "query": "What are the changes in my log files /root/txt/log_today.txt and /root/txt/log_yesterday.txt, help me to find out all the different lines which contain 'ERROR' ?",
+  "context": ""
+ },
+ {
+  "id": "80bb6782-58c0-4d5e-9022-5173be685833",
+  "source": "LiveMCPBench",
+  "category": "Finance",
+  "query": "My after-tax income last month was 15,000 CNY, and my main expenses were 3,000 CNY for rent, 2,500 CNY for meals, 500 CNY for transportation, and 1,200 CNY for shopping. Please help me calculate what my balance was last month. And visualize these data in a pie chart. Also, please take the current exchange rate of RMB to USD and calculate how much my balance is converted to USD?",
+  "context": ""
+ },
+ {
+  "id": "39c4c9fc-9074-474a-850f-4b088d499d8c",
+  "source": "LiveMCPBench",
+  "category": "Finance",
+  "query": "Tell me the price of nvidia's stock right now.",
+  "context": ""
+ },
+ {
+  "id": "4cbd9682-cce7-444e-a878-36283a865b2a",
+  "source": "LiveMCPBench",
+  "category": "Office",
+  "query": "I am writing a popular science article on ‘Causes of the Fall of the Roman Empire’. Please help me to list at least three main causes that are generally recognized by historians and find one authoritative reference for each. Finally, organize all this information into a structured document and save it to /root/markdown/Rome.md.",
+  "context": ""
+ },
+ {
+  "id": "0dafdf66-af3a-4110-ab79-d9c037f7bc62",
+  "source": "LiveMCPBench",
+  "category": "Travel",
+  "query": "Find the earliest available high-speed train from Beijing South to Shanghai South for tomorrow. What's the departure time and ticket price?",
+  "context": ""
+ },
+ {
+  "id": "614189f6-b70d-4144-87ad-f27209f0ec14",
+  "source": "LiveMCPBench",
+  "category": "Lifestyle",
+  "query": "What's on the zhihu and bilibili trendings today? Help me recommend something tech related!",
+  "context": ""
+ },
+ {
+  "id": "ffd5f6fb-051c-4c0f-9b82-90038b4cdb84",
+  "source": "LiveMCPBench",
+  "category": "Leisure",
+  "query": "I need you to pull up the Chinese almanac and find me the best dates to get married in the near future. Give me a list of the most auspicious Gregorian dates for a wedding in the next months.",
+  "context": ""
+ },
+ {
+  "id": "b050f277-0a92-4cfc-933b-5f01430e77dd",
+  "source": "LiveMCPBench",
+  "category": "Office",
+  "query": "Convert /root/word/CV.docx and /root/word/Report_Card.docx to PDF, merge the two resulting files, and save the final combined document as /root/pdf/full_cv.pdf.",
+  "context": ""
+ },
+ {
+  "id": "38c156c5-ff2c-4cf4-9a23-984d761b8bcb",
+  "source": "LiveMCPBench",
+  "category": "Finance",
+  "query": "Help me do a full investment analysis on Nvidia's stock",
+  "context": ""
+ },
+ {
+  "id": "96aaa4aa-b7da-4484-a979-b924b749448e",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "How can I drag an element with the class 'item-to-move' to the target location with the class 'target-area' on a webpage?",
+  "context": ""
+ },
+ {
+  "id": "a75e3a7c-99b6-4c6c-ba92-f02909028d50",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Execute JavaScript code alert('test') in the browser console.",
+  "context": ""
+ },
+ {
+  "id": "1252f830-633d-4a59-aeb6-aab161ed657a",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "How can I click on the element with the class 'search-input' within the iframe that has the class 'iframe-container' on the webpage?",
+  "context": ""
+ },
+ {
+  "id": "7315917c-2c98-47c9-80a4-98626a4e9e04",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Please click the element with the selector #subscribe-now on the webpage.",
+  "context": ""
+ },
+ {
+  "id": "c2ac8b81-e908-498a-beec-93ff3ebc920f",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Start a new code generation session with the output path set to /opt/tests, test name prefix as GeneratedTest, and include comments set to True.",
+  "context": ""
+ },
+ {
+  "id": "bbabb454-902f-4266-a7a1-fd2ff2af570d",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "How can I drag the element with selector #item1 to the target with selector #container?",
+  "context": ""
+ },
+ {
+  "id": "a12aab41-83b8-473c-accb-388c1984bcc2",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Fetch the content from the URL https://www.qq.com using an HTTP GET request.",
+  "context": ""
+ },
+ {
+  "id": "7d31f202-029c-40b9-b537-4b2ee79adfc2",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "How can I drag an element from one location to another on a webpage?",
+  "context": ""
+ },
+ {
+  "id": "bb96ebd3-0379-4d7d-8b39-e0813bee5736",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Execute the JavaScript code alert('test') in the browser console.",
+  "context": ""
+ },
+ {
+  "id": "91ab09b8-9ad1-49ae-b140-1c72c7e13c0c",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Execute JavaScript code to scroll to the bottom of the page in the browser console.",
+  "context": ""
+ },
+ {
+  "id": "bb38bd99-941d-45c6-ac30-1eabe8aa7f9b",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Edit the file located at ./test_project_root/data/test_file_txt_1.txt by replacing 'Sample text' with 'Example content'.",
+  "context": ""
+ },
+ {
+  "id": "45abac06-0cc9-4d44-b1bd-384be23cf335",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "List all files and directories in the path ./test_project_root/src, clearly distinguishing between files and directories.",
+  "context": ""
+ },
+ {
+  "id": "a4cef0af-54d6-46c5-b3d4-78e2c408f10e",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "What are the files and directories in the path ./test_project_root/tests with their types indicated?",
+  "context": ""
+ },
+ {
+  "id": "2c411662-2f2b-4451-8086-20a67e9a2f72",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Ensure the directory structure test_project_root/src/config exists in the project.",
+  "context": ""
+ },
+ {
+  "id": "5783bf45-82a7-4a93-a394-07b8eda40fb4",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "List all files and directories in the path ./test_project_root/data with their sizes, sorted by name.",
+  "context": ""
+ },
+ {
+  "id": "e1ebe891-9bad-4697-87c9-ce5193a4417e",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Edit the file located at ./test_project_root/src/main.py by changing the text 'def main' to 'def start'.",
+  "context": ""
+ },
+ {
+  "id": "22013b6c-aea3-4a92-9800-665c62050b35",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "What is the detailed metadata of the file or directory located at ./test_project_root/src/utils/file_utils.py?",
+  "context": ""
+ },
+ {
+  "id": "c20bdb8a-1dac-4bfd-8da3-56a5bb6c9a40",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "What are the files and directories in the path ./test_project_root/docs with detailed prefixes?",
+  "context": ""
+ },
+ {
+  "id": "edab5d83-9cde-45df-ab76-154b126f79f8",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "List all files and directories in the path ./test_project_root/tests with their sizes, sorted by name.",
+  "context": ""
+ },
+ {
+  "id": "4e04f1cf-e709-4d65-82c7-9eec8d8df286",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Ensure the directory structure exists at the path ./test_project_root/data.",
+  "context": ""
+ },
+ {
+  "id": "cc7d234c-d1ee-4d4b-a95c-f8b45c0e3ec4",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Microsoft?",
+  "context": ""
+ },
+ {
+  "id": "ed0cae47-7ca6-4d6e-b2a1-ff5d800d51e1",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Tianjin Development Holdings Limited?",
+  "context": ""
+ },
+ {
+  "id": "40ae06be-403c-47c3-ad29-e4ce28fe9c5a",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Eli Lilly in the US market?",
+  "context": ""
+ },
+ {
+  "id": "85593c28-b2b9-4ebb-ada5-6db0d9e30c74",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Meta?",
+  "context": ""
+ },
+ {
+  "id": "35a9931a-c4cb-4058-bcb9-4e8d1d3d87ee",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Tesla in the US market?",
+  "context": ""
+ },
+ {
+  "id": "28a98d3e-eba6-4d5a-a88d-5bea72386913",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Amazon?",
+  "context": ""
+ },
+ {
+  "id": "8a8a4504-8579-4ee7-9d1d-e3271c98f194",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Vanke A?",
+  "context": ""
+ },
+ {
+  "id": "b37cd2e4-8d8d-4d66-a798-35ffc004267c",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Thermo Fisher Scientific?",
+  "context": ""
+ },
+ {
+  "id": "da3b76c5-fa4d-41aa-8d01-e2745433d868",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Midea Group?",
+  "context": ""
+ },
+ {
+  "id": "9211d913-b23c-49a7-83fd-1bffe3cfb9f0",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Xiaomi Corporation?",
+  "context": ""
+ },
+ {
+  "id": "6be61fc5-7bac-4ba1-8591-668d768bdc40",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Plan a bicycling route from the coordinates 121.473701,31.230416 to 121.499809,31.239691 considering bridges, one-way streets, and road closures.",
+  "context": ""
+ },
+ {
+  "id": "4e6bd7f5-8739-49d8-a28c-2140b25273f2",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "请告诉我IP地址172.16.254.1的具体位置信息和城市名称。",
+  "context": ""
+ },
+ {
+  "id": "a20e9688-16f7-4b51-be5e-4a86a97765ac",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What are the driving directions from New York, NY to Denver, CO?",
+  "context": ""
+ },
+ {
+  "id": "aa8a187f-4785-4eef-bc00-5f82fd360bc5",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "広島駅から平和記念公園までの徒歩ルートと、福岡駅から太宰府天満宮までの自転車ルートを教えてください。",
+  "context": ""
+ },
+ {
+  "id": "f2130440-b345-4598-a035-d114ce98b9ea",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the address for the location with latitude 35.6895 and longitude -118.2437?",
+  "context": ""
+ },
+ {
+  "id": "30071abb-b346-4c05-b485-5ff0059cb687",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Quels sont les points d'intérêt autour de la tour Eiffel à Paris?",
+  "context": ""
+ },
+ {
+  "id": "908644cf-1176-41d9-81ca-af23a5f4e3d1",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "¿Dónde se encuentra la ubicación de la dirección IP 10.0.0.2?",
+  "context": ""
+ },
+ {
+  "id": "78098d05-4c1f-458c-8948-b6550918fedf",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the address and administrative division for the coordinates at latitude 48.8566 and longitude -0.1278?",
+  "context": ""
+ },
+ {
+  "id": "6cf50c8d-4113-4055-b9ed-0779070e4631",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Generate a navigation URI for the destination at longitude 121.473701 and latitude -33.868820.",
+  "context": ""
+ },
+ {
+  "id": "e249b5d8-ffaa-49d6-afcf-de9684c36c31",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the administrative address for the coordinates 116.407526, 39.90403?",
+  "context": ""
+ },
+ {
+  "id": "d7afdb95-1314-4029-903b-b4f8b1c9e569",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a shipment tracking for transaction ID 7KL12345GHI67890 with tracking number 123456789012.",
+  "context": ""
+ },
+ {
+  "id": "767e0e87-476b-4947-9c25-9af00cb1687d",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create an order for 3 Headphones with a total cost of 300.0 USD.",
+  "context": ""
+ },
+ {
+  "id": "1ad06682-8c88-4281-809d-6ec78369f49e",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Initiate a refund for the capture ID CAPTURE12345 with the amount USD 50.00 and note Refund for overcharge.",
+  "context": ""
+ },
+ {
+  "id": "e64b0500-0997-4dc7-b928-0923c2416404",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a subscription plan for the product with the name Student Plan and billing cycle details.",
+  "context": ""
+ },
+ {
+  "id": "04a9da6d-88a9-469b-82eb-17e6f75b2fea",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Initiate a refund for the capture ID CAPTURE54321 with a partial amount of 75.00 GBP and note Refund for late delivery.",
+  "context": ""
+ },
+ {
+  "id": "2405193e-3b4b-4f02-97d7-822b3f9fe293",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Initiate a refund for the capture ID CAPTURE54321 with a partial amount of 20.00 GBP and note Refund for late delivery.",
+  "context": ""
+ },
+ {
+  "id": "b04582e0-8936-46b5-aadd-e3a98ac53ab7",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a PayPal order for a USB-C Hub with a quantity of 3 and an item cost of 20.0 USD. The total item cost is 60.0 USD.",
+  "context": ""
+ },
+ {
+  "id": "01235d16-2c71-4052-90c1-ed36be8687da",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a PayPal order for USB-C Adapter with a quantity of 5 and a cost of 9.99 USD each, shipping to 321 Maple Lane, Austin, Texas, 73301, US.",
+  "context": ""
+ },
+ {
+  "id": "ce274650-d2d8-46a7-8d8e-11c6f78c8953",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create an invoice for Green Thumb Landscaping for Garden Maintenance costing 150.00 USD.",
+  "context": ""
+ },
+ {
+  "id": "94d38b3c-6fa4-45ea-8409-53b28d194bc4",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a shipment tracking for transaction ID 7GH23456JKL78901 with tracking number 4567890123.",
+  "context": ""
+ },
+ {
+  "id": "54446a09-1171-4727-a0a6-3e3ba0a9daa2",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you extract the content from the New York Times website with basic depth and text format?",
+  "context": ""
+ },
+ {
+  "id": "69f2dfac-8a18-445a-a50c-f3aacc174de5",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Extract web content from the BBC News website with basic depth and in markdown format, including images.",
+  "context": ""
+ },
+ {
+  "id": "1025ccd4-b5b8-410a-bf49-0b55e7c04483",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find information about artificial intelligence developments.",
+  "context": ""
+ },
+ {
+  "id": "3ec01417-4ad2-404f-ab17-7fa7ee01e90f",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you extract the content from the URL https://www.wikipedia.org with basic depth and markdown format?",
+  "context": ""
+ },
+ {
+  "id": "c8c1327f-c293-45ff-b6d6-d29ffc96289a",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you map the website structure starting from the Apple website?",
+  "context": ""
+ },
+ {
+  "id": "48b27300-93f2-4596-901b-877ab5cca0df",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news on technology advancements in Japan.",
+  "context": ""
+ },
+ {
+  "id": "5273030e-e323-4ccd-8713-9295ba2c5347",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find recent news about healthcare advancements in the United Kingdom.",
+  "context": ""
+ },
+ {
+  "id": "2f575ea9-10bd-476a-bee6-be1265da9382",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest sports news in Brazil.",
+  "context": ""
+ },
+ {
+  "id": "bbf4384e-28b8-434c-9ef3-5299aa84e8ed",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Extract content from the following URLs: https://www.nytimes.com, https://www.reuters.com, using advanced depth and text format.",
+  "context": ""
+ },
+ {
+  "id": "8edc1141-22ab-4e92-9d20-442e93180e5f",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find information about global warming.",
+  "context": ""
+ }
+]

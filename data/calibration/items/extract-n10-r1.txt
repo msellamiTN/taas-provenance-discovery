@@ -1,0 +1,14 @@
+ITEM extract-n10-r1
+QUESTION: In the records below, which city belongs to the record with id K8640006? Answer with the city name.
+---BEGIN DATA---
+id=K8839000 | name=Farah Horvat | city=Tunis
+id=K9750001 | name=Dora Bauer | city=Malaga
+id=K5512002 | name=Karim Kral | city=Cork
+id=K6917003 | name=Ivo Haddad | city=Pune
+id=K7193004 | name=Malik Petrov | city=Turin
+id=K2061005 | name=Victor Trabelsi | city=Porto
+id=K8640006 | name=Wafa Kral | city=Lyon
+id=K9995007 | name=Malik Horvat | city=Krakow
+id=K5317008 | name=Goran Trabelsi | city=Sousse
+id=K4802009 | name=Wafa Trabelsi | city=Porto
+---END DATA---

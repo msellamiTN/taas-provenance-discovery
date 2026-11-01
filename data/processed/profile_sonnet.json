@@ -1,0 +1,138 @@
+{
+ "model_id": "claude-sonnet",
+ "tau": 0.9,
+ "exact_n_max": 20,
+ "strict": true,
+ "priors": {
+  "summarise": 0.92,
+  "write": 0.95,
+  "plan": 0.93,
+  "synthesise": 0.92,
+  "translate": 0.93,
+  "convert_format": 0.95,
+  "compare": 0.9,
+  "answer": 0.9
+ },
+ "classes": {
+  "extract": {
+   "buckets": [
+    10,
+    40,
+    160,
+    640
+   ],
+   "acc": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "raw": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "count": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "langs": [
+    "en"
+   ],
+   "source": "measured"
+  },
+  "aggregate_sum": {
+   "buckets": [
+    10,
+    40,
+    160,
+    640
+   ],
+   "acc": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "raw": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "count": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "langs": [
+    "en"
+   ],
+   "source": "measured"
+  },
+  "classify": {
+   "buckets": [
+    10,
+    40,
+    160,
+    640
+   ],
+   "acc": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "raw": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "count": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "langs": [
+    "en"
+   ],
+   "source": "measured"
+  },
+  "count": {
+   "buckets": [
+    10,
+    40,
+    160,
+    640
+   ],
+   "acc": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "raw": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "count": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "langs": [
+    "en"
+   ],
+   "source": "measured"
+  }
+ }
+}

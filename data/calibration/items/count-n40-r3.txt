@@ -1,0 +1,44 @@
+ITEM count-n40-r3
+QUESTION: How many lines below are exactly the word 'refund'? Answer with a single integer.
+---BEGIN DATA---
+delay
+battery
+support
+noise
+refund
+shipping
+shipping
+price
+screen
+strap
+delay
+shipping
+price
+support
+price
+shipping
+strap
+strap
+shipping
+shipping
+shipping
+app
+price
+refund
+battery
+app
+noise
+strap
+battery
+noise
+screen
+shipping
+delay
+shipping
+delay
+support
+battery
+screen
+support
+strap
+---END DATA---
