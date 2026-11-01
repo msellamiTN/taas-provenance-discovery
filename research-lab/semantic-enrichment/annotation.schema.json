@@ -6,6 +6,7 @@
   "additionalProperties": false,
   "required": [
     "schema_version",
+    "task_id",
     "tool_id",
     "definition_hash",
     "annotator_session_id",
@@ -28,6 +29,7 @@
   ],
   "properties": {
     "schema_version": {"const": "taas-semantic-tool-annotation/1.0"},
+    "task_id": {"type": "string", "minLength": 3},
     "tool_id": {"type": "string", "minLength": 3},
     "definition_hash": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
     "annotator_session_id": {"type": "string", "minLength": 1},
