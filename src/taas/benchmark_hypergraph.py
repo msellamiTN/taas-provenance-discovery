@@ -174,7 +174,7 @@ def build_benchmark_hypergraph(
             "n_servers": len(server_ids),
             "n_required_argument_occurrences": sum(len(e["tail"]) for e in hyperedges),
             "n_optional_arguments": sum(
-                sum(not a["required"] for a in c.args) for c in contracts
+                sum(not a.required for a in c.args) for c in contracts
             ),
             "n_forbidden_pairs": len(H.forbidden),
             "servers": server_ids,
