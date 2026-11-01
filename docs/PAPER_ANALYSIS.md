@@ -99,8 +99,8 @@ union of members' effects. The **flow** part depends on how (L) propagates label
 propagated only along the reach graph recorded by the composition (the "derivation" reading suggested
 by Fig. 3, where the revenue table is declassified by aggregation before egress), the claim fails: in
 MCP every tool result returns to the model's context and the model can write any context content into
-any text argument of an egress tool. E4 measures this directly — over ~43k simulated call sequences on
-certified toolkits, **0** effect violations in both readings, but **≈17% of sequences realise a
+any text argument of an egress tool. E4 measures this directly — over ≈84k simulated call sequences on
+certified toolkits (≈41k per reading), **0** effect violations in both readings, but **≈17% of sequences realise a
 forbidden flow under the derivation reading and 0% under the conservative reading** (context label =
 join of everything read; every text-renderable argument, required or optional, can carry it). We
 therefore implement the conservative reading as the default and recommend stating it in the paper.
@@ -123,7 +123,7 @@ Cost: O(|G| · |≺|).
 
 ### Algorithm 2 — evidence-carrying toolkit discovery
 
-1. Elig by bitmap intersection, O((|P|+1)⌈n/w⌉) word operations (E7: 4 µs at 10⁵ tools vs 133 ms
+1. Elig by bitmap intersection, O((|P|+1)⌈n/w⌉) word operations (E7: 4 µs at 10⁵ tools vs 149 ms
    for a scan).
 2. Per gap goal, top-K eligible edges with H(e) <: out(g) by RRF of lexical, dense and structural
    scores (Eqs. 4–5, k0 = 60).
@@ -141,7 +141,7 @@ Cost: O(|G| · |≺|).
 (A) maps each failed check to one χ type and one operator, records refined specs as blocking clauses,
 abstains after k iterations. (B) handles `list_changed` as delete-then-insert on a changed hash,
 restores obs/att evidence only for (t, h) pairs seen before, and invalidates caches by Prop. 3.
-E7: incremental update 31 ms vs 4.8 s full rebuild; a rug-pulled definition loses its obs evidence
+E7: incremental update 32 ms vs 3.0 s full rebuild (wall-clock, varies by run); a rug-pulled definition loses its obs evidence
 (strength 0.73 → 0.25) and regains it only when reverted to the verified hash.
 
 ---

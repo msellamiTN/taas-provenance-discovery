@@ -1,0 +1,450 @@
+[
+ {
+  "class": "extract",
+  "n": 160,
+  "correct": true,
+  "answer": "Pune",
+  "gold": "Pune"
+ },
+ {
+  "class": "extract",
+  "n": 40,
+  "correct": true,
+  "answer": "Osaka",
+  "gold": "Osaka"
+ },
+ {
+  "class": "aggregate_sum",
+  "n": 10,
+  "correct": true,
+  "answer": 555,
+  "gold": 555
+ },
+ {
+  "class": "extract",
+  "n": 160,
+  "correct": true,
+  "answer": "Pune",
+  "gold": "Pune"
+ },
+ {
+  "class": "aggregate_sum",
+  "n": 160,
+  "correct": true,
+  "answer": 9055,
+  "gold": 9055
+ },
+ {
+  "class": "extract",
+  "n": 40,
+  "correct": true,
+  "answer": "Bergen",
+  "gold": "Bergen"
+ },
+ {
+  "class": "classify",
+  "n": 40,
+  "correct": true,
+  "answer": "negative",
+  "gold": "negative"
+ },
+ {
+  "class": "extract",
+  "n": 640,
+  "correct": true,
+  "answer": "Malaga",
+  "gold": "Malaga"
+ },
+ {
+  "class": "count",
+  "n": 40,
+  "correct": true,
+  "answer": 2,
+  "gold": 2
+ },
+ {
+  "class": "extract",
+  "n": 160,
+  "correct": true,
+  "answer": "Sousse",
+  "gold": "Sousse"
+ },
+ {
+  "class": "count",
+  "n": 640,
+  "correct": true,
+  "answer": 71,
+  "gold": 71
+ },
+ {
+  "class": "classify",
+  "n": 640,
+  "correct": true,
+  "answer": "negative",
+  "gold": "negative"
+ },
+ {
+  "class": "classify",
+  "n": 160,
+  "correct": true,
+  "answer": "positive",
+  "gold": "positive"
+ },
+ {
+  "class": "aggregate_sum",
+  "n": 640,
+  "correct": true,
+  "answer": 34597,
+  "gold": 34597
+ },
+ {
+  "class": "classify",
+  "n": 40,
+  "correct": true,
+  "answer": "negative",
+  "gold": "negative"
+ },
+ {
+  "class": "count",
+  "n": 160,
+  "correct": true,
+  "answer": 18,
+  "gold": 18
+ },
+ {
+  "class": "classify",
+  "n": 160,
+  "correct": true,
+  "answer": "negative",
+  "gold": "negative"
+ },
+ {
+  "class": "classify",
+  "n": 160,
+  "correct": true,
+  "answer": "positive",
+  "gold": "positive"
+ },
+ {
+  "class": "count",
+  "n": 640,
+  "correct": true,
+  "answer": 56,
+  "gold": 56
+ },
+ {
+  "class": "count",
+  "n": 640,
+  "correct": true,
+  "answer": 52,
+  "gold": 52
+ },
+ {
+  "class": "count",
+  "n": 10,
+  "correct": true,
+  "answer": 1,
+  "gold": 1
+ },
+ {
+  "class": "classify",
+  "n": 10,
+  "correct": true,
+  "answer": "negative",
+  "gold": "negative"
+ },
+ {
+  "class": "classify",
+  "n": 160,
+  "correct": true,
+  "answer": "negative",
+  "gold": "negative"
+ },
+ {
+  "class": "aggregate_sum",
+  "n": 640,
+  "correct": true,
+  "answer": 35324,
+  "gold": 35324
+ },
+ {
+  "class": "count",
+  "n": 10,
+  "correct": true,
+  "answer": 0,
+  "gold": 0
+ },
+ {
+  "class": "aggregate_sum",
+  "n": 160,
+  "correct": true,
+  "answer": 8305,
+  "gold": 8305
+ },
+ {
+  "class": "extract",
+  "n": 40,
+  "correct": true,
+  "answer": "Porto",
+  "gold": "Porto"
+ },
+ {
+  "class": "aggregate_sum",
+  "n": 40,
+  "correct": true,
+  "answer": 2323,
+  "gold": 2323
+ },
+ {
+  "class": "aggregate_sum",
+  "n": 160,
+  "correct": true,
+  "answer": 8339,
+  "gold": 8339
+ },
+ {
+  "class": "count",
+  "n": 40,
+  "correct": true,
+  "answer": 6,
+  "gold": 6
+ },
+ {
+  "class": "count",
+  "n": 10,
+  "correct": true,
+  "answer": 1,
+  "gold": 1
+ },
+ {
+  "class": "extract",
+  "n": 640,
+  "correct": true,
+  "answer": "Krakow",
+  "gold": "Krakow"
+ },
+ {
+  "class": "classify",
+  "n": 10,
+  "correct": true,
+  "answer": "negative",
+  "gold": "negative"
+ },
+ {
+  "class": "count",
+  "n": 40,
+  "correct": true,
+  "answer": 2,
+  "gold": 2
+ },
+ {
+  "class": "classify",
+  "n": 640,
+  "correct": true,
+  "answer": "negative",
+  "gold": "negative"
+ },
+ {
+  "class": "extract",
+  "n": 10,
+  "correct": true,
+  "answer": "Graz",
+  "gold": "Graz"
+ },
+ {
+  "class": "aggregate_sum",
+  "n": 40,
+  "correct": true,
+  "answer": 1887,
+  "gold": 1887
+ },
+ {
+  "class": "aggregate_sum",
+  "n": 40,
+  "correct": true,
+  "answer": 2402,
+  "gold": 2402
+ },
+ {
+  "class": "aggregate_sum",
+  "n": 160,
+  "correct": true,
+  "answer": 9465,
+  "gold": 9465
+ },
+ {
+  "class": "aggregate_sum",
+  "n": 10,
+  "correct": true,
+  "answer": 451,
+  "gold": 451
+ },
+ {
+  "class": "extract",
+  "n": 10,
+  "correct": true,
+  "answer": "Lyon",
+  "gold": "Lyon"
+ },
+ {
+  "class": "count",
+  "n": 160,
+  "correct": true,
+  "answer": 18,
+  "gold": 18
+ },
+ {
+  "class": "classify",
+  "n": 640,
+  "correct": true,
+  "answer": "negative",
+  "gold": "negative"
+ },
+ {
+  "class": "classify",
+  "n": 10,
+  "correct": true,
+  "answer": "negative",
+  "gold": "negative"
+ },
+ {
+  "class": "count",
+  "n": 640,
+  "correct": true,
+  "answer": 66,
+  "gold": 66
+ },
+ {
+  "class": "count",
+  "n": 40,
+  "correct": true,
+  "answer": 7,
+  "gold": 7
+ },
+ {
+  "class": "extract",
+  "n": 10,
+  "correct": true,
+  "answer": "Quito",
+  "gold": "Quito"
+ },
+ {
+  "class": "classify",
+  "n": 40,
+  "correct": true,
+  "answer": "positive",
+  "gold": "positive"
+ },
+ {
+  "class": "aggregate_sum",
+  "n": 10,
+  "correct": true,
+  "answer": 530,
+  "gold": 530
+ },
+ {
+  "class": "count",
+  "n": 10,
+  "correct": true,
+  "answer": 0,
+  "gold": 0
+ },
+ {
+  "class": "aggregate_sum",
+  "n": 640,
+  "correct": true,
+  "answer": 35542,
+  "gold": 35542
+ },
+ {
+  "class": "extract",
+  "n": 160,
+  "correct": true,
+  "answer": "Turin",
+  "gold": "Turin"
+ },
+ {
+  "class": "extract",
+  "n": 640,
+  "correct": true,
+  "answer": "Lagos",
+  "gold": "Lagos"
+ },
+ {
+  "class": "extract",
+  "n": 40,
+  "correct": true,
+  "answer": "Turin",
+  "gold": "Turin"
+ },
+ {
+  "class": "aggregate_sum",
+  "n": 40,
+  "correct": true,
+  "answer": 2403,
+  "gold": 2403
+ },
+ {
+  "class": "classify",
+  "n": 40,
+  "correct": true,
+  "answer": "negative",
+  "gold": "negative"
+ },
+ {
+  "class": "classify",
+  "n": 640,
+  "correct": true,
+  "answer": "positive",
+  "gold": "positive"
+ },
+ {
+  "class": "count",
+  "n": 160,
+  "correct": true,
+  "answer": 19,
+  "gold": 19
+ },
+ {
+  "class": "count",
+  "n": 160,
+  "correct": true,
+  "answer": 19,
+  "gold": 19
+ },
+ {
+  "class": "extract",
+  "n": 640,
+  "correct": true,
+  "answer": "Leeds",
+  "gold": "Leeds"
+ },
+ {
+  "class": "classify",
+  "n": 10,
+  "correct": true,
+  "answer": "negative",
+  "gold": "negative"
+ },
+ {
+  "class": "aggregate_sum",
+  "n": 10,
+  "correct": true,
+  "answer": 534,
+  "gold": 534
+ },
+ {
+  "class": "extract",
+  "n": 10,
+  "correct": true,
+  "answer": "Bilbao",
+  "gold": "Bilbao"
+ },
+ {
+  "class": "aggregate_sum",
+  "n": 640,
+  "correct": true,
+  "answer": 34634,
+  "gold": 34634
+ }
+]
