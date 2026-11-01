@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://taas-provenance-discovery.local/schemas/semantic-tool-annotation-1.0.json",
+  "title": "TaaS semantic MCP tool annotation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "tool_id",
+    "definition_hash",
+    "annotator_session_id",
+    "model_id",
+    "perspective",
+    "primary_capability",
+    "secondary_capabilities",
+    "domain",
+    "operation",
+    "input_semantics",
+    "output_semantics",
+    "effect_claims",
+    "state_mutation",
+    "data_sensitivity",
+    "prerequisites",
+    "composition",
+    "confidence",
+    "evidence",
+    "uncertainties"
+  ],
+  "properties": {
+    "schema_version": {"const": "taas-semantic-tool-annotation/1.0"},
+    "task_id": {"type": "string", "minLength": 3},
+    "tool_id": {"type": "string", "minLength": 3},
+    "definition_hash": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+    "annotator_session_id": {"type": "string", "minLength": 1},
+    "model_id": {"type": "string", "minLength": 1},
+    "perspective": {"enum": ["capability_semantics", "operational_security"]},
+    "primary_capability": {
+      "type": "string",
+      "enum": ["retrieve", "search", "create", "update", "delete", "execute", "transform", "analyze", "communicate", "plan", "render", "monitor", "configure", "manage", "authenticate", "other", "unknown"]
+    },
+    "secondary_capabilities": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "domain": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "operation": {"type": "string"},
+    "input_semantics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["argument", "semantic_type", "confidence", "evidence"],
+        "properties": {
+          "argument": {"type": "string"},
+          "semantic_type": {"type": "string"},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "evidence": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "output_semantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["semantic_type", "confidence", "evidence"],
+      "properties": {
+        "semantic_type": {"type": "string"},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "evidence": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "effect_claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["effect", "scope", "status", "confidence", "evidence"],
+        "properties": {
+          "effect": {"enum": ["read", "write", "delete", "execute", "egress", "money", "session", "unknown"]},
+          "scope": {"type": "string"},
+          "status": {"enum": ["explicit_annotation", "schema_implied", "description_claim", "lexical_inference", "unknown"]},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "evidence": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "state_mutation": {"enum": ["yes", "no_explicitly_claimed", "unknown"]},
+    "data_sensitivity": {"enum": ["public", "internal", "confidential", "credential", "personal", "special_category", "unknown"]},
+    "prerequisites": {"type": "array", "items": {"type": "string"}},
+    "composition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["likely_input_types", "likely_output_types", "notes"],
+      "properties": {
+        "likely_input_types": {"type": "array", "items": {"type": "string"}},
+        "likely_output_types": {"type": "array", "items": {"type": "string"}},
+        "notes": {"type": "string"}
+      }
+    },
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source_field", "verbatim_span", "supports"],
+        "properties": {
+          "source_field": {"enum": ["name", "description", "input_schema", "output_schema", "annotations", "category"]},
+          "verbatim_span": {"type": "string", "minLength": 1},
+          "supports": {"type": "string"}
+        }
+      }
+    },
+    "uncertainties": {"type": "array", "items": {"type": "string"}}
+  }
+}
