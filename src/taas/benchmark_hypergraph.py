@@ -6,7 +6,9 @@ separately for evaluation and are NEVER used to infer tool capabilities or effec
 """
 from __future__ import annotations
 
+import hashlib
 import json
+import os
 from collections import Counter
 from dataclasses import asdict
 from pathlib import Path
@@ -223,7 +225,16 @@ def build_from_processed_registry() -> tuple[Hypergraph, dict[str, Any], dict[st
         "LiveMCPBench": data.get("tasks_livemcpbench", []),
         "MCPToolBench++": data.get("tasks_mcptoolbenchpp", []),
     }
-    return build_benchmark_hypergraph(tools, tasks, data.get("stats", {}))
+    H, graph, benchmark, report = build_benchmark_hypergraph(tools, tasks, data.get("stats", {}))
+    snapshot = Path(__file__).resolve().parents[2] / "data" / "processed" / "registry_merged.json"
+    raw_bytes = snapshot.read_bytes()
+    report["input_snapshot"] = {
+        "path": "data/processed/registry_merged.json",
+        "sha256": hashlib.sha256(raw_bytes).hexdigest(),
+        "size_bytes": len(raw_bytes),
+        "git_revision": os.environ.get("GITHUB_SHA"),
+    }
+    return H, graph, benchmark, report
 
 
 def write_bundle(out_dir: str | Path, graph: dict[str, Any], benchmark: dict[str, Any],
