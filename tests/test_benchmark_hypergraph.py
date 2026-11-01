@@ -65,7 +65,7 @@ def test_benchmark_gold_mappings_are_separate_and_preserve_ambiguity():
     }
     _, graph, benchmark, _ = build_benchmark_hypergraph(_tools(), tasks)
     task = benchmark["tasks"][0]
-    assert task["gold_tool_alternatives"] == [["files::read_file"]]
+    assert task["gold_tool_alternatives"] == [["files::read_file", "other::read_file"]]
     assert task["unresolved_gold_tool_ids"] == ["other::read_file"]
     assert task["gold_unresolved_names"] == ["unknown_tool"]
     assert task["usage"] == "evaluation_only_not_used_for_capability_inference"
