@@ -71,12 +71,13 @@ mappings.
 
 ```python
 from taas.mcpbench import TaaSMCPBenchAdapter
+from taas.mcpbench_analyst import MCPBenchGoalAnalyst
 from taas.model_profile import ModelProfile
 from taas.policy import Policy
 
 adapter = TaaSMCPBenchAdapter(
     profile=ModelProfile.load("data/processed/profile_sonnet.json"),
-    goal_spec_factory=goal_spec_factory,
+    goal_spec_factory=MCPBenchGoalAnalyst(mcpbench_llm_provider),
     policy=Policy.make("benchmark-default"),
 )
 selection = adapter.select(task_description, server_manager.all_tools)
