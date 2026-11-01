@@ -93,7 +93,7 @@ def build_workpacks(registry_path: Path, outdir: Path, workers: int = 8) -> dict
                 f.write(json.dumps(task, ensure_ascii=False, sort_keys=True) + "\n")
     manifest = {
         "schema_version": SCHEMA_VERSION,
-        "registry_path": str(registry_path.relative_to(ROOT)),
+        "registry_path": (registry_path.resolve().relative_to(ROOT.resolve()).as_posix() if registry_path.resolve().is_relative_to(ROOT.resolve()) else str(registry_path.resolve())),
         "registry_sha256": snapshot_hash,
         "n_tools": len(tools),
         "n_perspectives": len(PERSPECTIVES),
