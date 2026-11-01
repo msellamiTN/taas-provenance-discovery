@@ -112,7 +112,13 @@ def build_benchmark_hypergraph(
     """
     tools = list(raw_tools)
     policy = policy or Policy(name="benchmark-build-default")
-    contracts = [extract_contract(t, typing=None, store=None) for t in tools]
+    contracts = []
+    for t in tools:
+        contract = extract_contract(t, typing=None, store=None)
+        # Keep the benchmark's provider category as descriptive metadata, not as verified
+        # semantic typing or an independently established capability claim.
+        contract.srv["category"] = t.category
+        contracts.append(contract)
 
     H = Hypergraph()
     for c in contracts:
@@ -148,7 +154,7 @@ def build_benchmark_hypergraph(
     ]
     server_ids = sorted({c.server for c in contracts})
     source_counts = Counter(c.srv.get("source", "") for c in contracts)
-    category_counts = Counter(next((t.category for t in tools if t.id == c.tool), "") for c in contracts)
+    category_counts = Counter(c.srv.get("category", "") for c in contracts)
 
     graph = {
         "schema_version": SCHEMA_VERSION,
