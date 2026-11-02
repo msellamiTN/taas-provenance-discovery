@@ -31,9 +31,13 @@ MCP-Bench behavior is unchanged.
 5. The native evaluator still receives the complete catalogue in
    `result["available_tools"]`.
 6. A TaaS abstention returns `status="abstained"` before agent execution and before
-   the native evaluator. It is not scored as ordinary task success.
+   the native evaluator. It is not scored as ordinary task success or execution failure.
 7. The TaaS trace is attached as `result["taas"]` for successful executions and as a
    top-level `taas` field for abstentions.
+8. Aggregation reports `completed_tasks`, `failed_tasks`, and `abstained_tasks`
+   separately; completion rate is completed / total.
+9. When no task was evaluated, judge and accuracy metrics are `null` (unavailable),
+   not numeric zero. Multi-file task counts are summed, not averaged.
 
 ## Validation boundary
 
@@ -44,3 +48,17 @@ repository was unavailable during authoring. Treat successful application and
 runner-level smoke tests as mandatory gates before benchmark runs.
 
 The patch does not claim that a live MCP server has been executed.
+
+## Abstention accounting semantics
+
+For a run with `C` completed, `F` failed, and `A` abstained tasks:
+
+- `total_tasks = C + F + A`
+- `completion_rate = C / total_tasks` (zero when there are no tasks)
+- `failed_tasks = F`; abstentions are never folded into failures
+- `abstained_tasks = A`
+- Judge metrics are `null` when `C = 0`, because no judge observations exist
+- Across task files, task counts are summed and the completion rate is recomputed
+  from the summed counts (not averaged from per-file rates)
+
+Legacy result files without `abstained_tasks` are treated as having zero abstentions.
