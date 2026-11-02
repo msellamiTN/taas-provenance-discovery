@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import hmac
 import os
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -15,7 +16,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, ConfigDict, Field
 
 from taas.contracts import extract_contract
-from taas.data.registries import RawTool
+from taas.data.registries import RawTool, load_processed
 from taas.engine import DiscoveryEngine, EngineConfig
 from taas.model_profile import EXTERNAL_CLASSES, MODEL_CLASSES, ModelProfile
 from taas.goals import SIGMAS, parse_goal_spec
@@ -224,6 +225,117 @@ def model_memory_estimate(request: ModelMemoryEstimateRequest) -> dict[str, Any]
         )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+
+@lru_cache(maxsize=1)
+def _bench_data() -> dict[str, Any]:
+    """Load the repository-retained benchmark snapshot once per Studio process."""
+    return load_processed()
+
+
+_BENCH_TASK_KEYS = {
+    "livemcpbench": "tasks_livemcpbench",
+    "mcptoolbenchpp": "tasks_mcptoolbenchpp",
+}
+
+
+@app.get("/api/v1/bench/datasets", dependencies=[Depends(require_api_token)])
+def bench_datasets() -> dict[str, Any]:
+    """List locally retained benchmark datasets and aggregate registry statistics."""
+    data = _bench_data()
+    stats = data.get("stats", {})
+    datasets = []
+    for dataset_id, task_key in _BENCH_TASK_KEYS.items():
+        tasks = data.get(task_key, [])
+        categories = sorted({str(item.get("category", "")) for item in tasks if item.get("category")})
+        datasets.append({
+            "id": dataset_id,
+            "task_count": len(tasks),
+            "categories": categories,
+            "source": "repository-retained snapshot",
+        })
+    return {
+        "datasets": datasets,
+        "registry": stats,
+        "data_origin": "local repository files",
+        "upstream_fetch_performed": False,
+    }
+
+
+@app.get("/api/v1/bench/tasks", dependencies=[Depends(require_api_token)])
+def bench_tasks(
+    dataset: str = Query("livemcpbench", pattern="^(livemcpbench|mcptoolbenchpp)$"),
+    q: str | None = Query(None, max_length=500),
+    category: str | None = Query(None, max_length=100),
+    offset: int = Query(0, ge=0),
+    limit: int = Query(25, ge=1, le=100),
+) -> dict[str, Any]:
+    """Browse benchmark task prompts without exposing gold tool labels to the analyst."""
+    task_key = _BENCH_TASK_KEYS[dataset]
+    all_tasks = _bench_data().get(task_key, [])
+    filtered = all_tasks
+    if category:
+        filtered = [item for item in filtered if str(item.get("category", "")).casefold() == category.casefold()]
+    if q:
+        needle = q.casefold()
+        filtered = [item for item in filtered if needle in str(item.get("query", "")).casefold()]
+    page = filtered[offset:offset + limit]
+    # Deliberately omit gold_tools and gold_unresolved. These belong to evaluation only.
+    return {
+        "dataset": dataset,
+        "total": len(filtered),
+        "offset": offset,
+        "limit": limit,
+        "tasks": [{
+            "id": item.get("id"),
+            "query": item.get("query", ""),
+            "category": item.get("category", ""),
+            "source": item.get("source", dataset),
+            "n_steps": item.get("n_steps", 1),
+        } for item in page],
+        "gold_labels_exposed": False,
+    }
+
+
+@app.get("/api/v1/bench/tools", dependencies=[Depends(require_api_token)])
+def bench_tools(
+    source: str = Query("LiveMCPTool", pattern="^(LiveMCPTool|MCPToolBench\\+\\+|all)$"),
+    q: str | None = Query(None, max_length=300),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+) -> dict[str, Any]:
+    """Browse the retained tool registry; annotations remain metadata, not trusted evidence."""
+    registry = _bench_data().get("registry", [])
+    filtered = registry
+    if source != "all":
+        filtered = [item for item in filtered if item.get("source") == source]
+    if q:
+        needle = q.casefold()
+        filtered = [item for item in filtered if needle in " ".join((
+            str(item.get("server", "")), str(item.get("name", "")),
+            str(item.get("description", "")),
+        )).casefold()]
+    page = filtered[offset:offset + limit]
+    return {
+        "source": source,
+        "total": len(filtered),
+        "offset": offset,
+        "limit": limit,
+        "tools": [{
+            "id": item.get("id") or f'{item.get("server", "")}::{item.get("name", "")}',
+            "server": item.get("server", ""),
+            "name": item.get("name", ""),
+            "description": item.get("description", ""),
+            "input_schema": item.get("input_schema", {}),
+            "output_schema": item.get("output_schema"),
+            "annotations": item.get("annotations"),
+            "source": item.get("source", ""),
+            "category": item.get("category", ""),
+            "definition_hash": item.get("hash"),
+        } for item in page],
+        "annotations_are_trusted_evidence": False,
+    }
 
 
 @app.post("/api/v1/discover", dependencies=[Depends(require_api_token)])
