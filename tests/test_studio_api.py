@@ -483,3 +483,60 @@ def test_studio_goal_metrics_distinguish_gap_model_and_tool_bindings():
     assert 'goal.sigma === "native"' in html
     assert "selectedTools.has(target)" in html
     assert "boundGoals.length" not in html
+
+
+def test_benchmark_dataset_catalog_requires_authentication(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    assert client.get("/api/v1/bench/datasets").status_code == 401
+
+
+def test_benchmark_dataset_catalog_uses_local_snapshot(monkeypatch):
+    from taas.studio import api
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    monkeypatch.setattr(api, "_bench_data", lambda: {
+        "stats": {"merged": {"servers": 76, "tools": 569}},
+        "tasks_livemcpbench": [{"category": "Office"}, {"category": "Travel"}],
+        "tasks_mcptoolbenchpp": [{"category": "Travel"}],
+    })
+    response = client.get("/api/v1/bench/datasets", headers={"Authorization": "Bearer test-token"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["registry"]["merged"]["tools"] == 569
+    assert data["upstream_fetch_performed"] is False
+    assert {item["id"] for item in data["datasets"]} == {"livemcpbench", "mcptoolbenchpp"}
+
+
+def test_benchmark_task_browser_hides_gold_labels(monkeypatch):
+    from taas.studio import api
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    monkeypatch.setattr(api, "_bench_data", lambda: {
+        "tasks_livemcpbench": [
+            {"id": "t1", "query": "Create a PDF report", "category": "Office",
+             "source": "LiveMCPBench", "n_steps": 3, "gold_tools": ["hidden-tool"]},
+            {"id": "t2", "query": "Find a hotel", "category": "Travel",
+             "source": "LiveMCPBench", "n_steps": 2, "gold_tools": ["hidden-hotel"]},
+        ]
+    })
+    response = client.get("/api/v1/bench/tasks", params={"dataset": "livemcpbench", "category": "Office"},
+                          headers={"Authorization": "Bearer test-token"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] == 1
+    assert data["tasks"][0]["id"] == "t1"
+    assert data["gold_labels_exposed"] is False
+    assert "gold_tools" not in data["tasks"][0]
+
+
+def test_benchmark_tool_browser_marks_annotations_untrusted(monkeypatch):
+    from taas.studio import api
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    monkeypatch.setattr(api, "_bench_data", lambda: {"registry": [{
+        "id": "GitHub::search", "server": "GitHub", "name": "search",
+        "description": "Search repositories", "input_schema": {"type": "object"},
+        "annotations": {"readOnlyHint": True}, "source": "LiveMCPTool", "hash": "abc123",
+    }]})
+    response = client.get("/api/v1/bench/tools", params={"source": "LiveMCPTool", "q": "github"},
+                          headers={"Authorization": "Bearer test-token"})
+    assert response.status_code == 200
+    assert response.json()["tools"][0]["id"] == "GitHub::search"
+    assert response.json()["annotations_are_trusted_evidence"] is False
