@@ -196,3 +196,70 @@ def test_model_memory_estimate_rejects_unsupported_quantization(monkeypatch):
         json={"parameters_billion": 7, "quantization": "bf16"},
     )
     assert response.status_code == 422
+
+
+def test_huggingface_model_search_returns_normalized_metadata(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    monkeypatch.setattr(api, "search_models", lambda *args, **kwargs: [{
+        "model_id": "org/example-7b",
+        "url": "https://huggingface.co/org/example-7b",
+        "pipeline_tag": "text-generation",
+        "library_name": "transformers",
+        "downloads": 1234,
+        "likes": 56,
+        "last_modified": "2026-10-01T00:00:00Z",
+        "gated": False,
+        "private": False,
+        "license": "apache-2.0",
+        "tags": ["text-generation", "license:apache-2.0"],
+        "safetensors": True,
+        "parameter_count": 7_000_000_000,
+    }])
+    response = client.get(
+        "/api/v1/models/search",
+        params={"q": "example", "limit": 5},
+        headers={"Authorization": "Bearer test-token"},
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["count"] == 1
+    assert data["models"][0]["model_id"] == "org/example-7b"
+    assert data["weights_downloaded"] is False
+
+
+def test_huggingface_model_search_requires_authentication(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.get("/api/v1/models/search", params={"q": "llama"})
+    assert response.status_code == 401
+
+
+def test_huggingface_model_search_bounds_limit(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.get(
+        "/api/v1/models/search",
+        params={"q": "llama", "limit": 100},
+        headers={"Authorization": "Bearer test-token"},
+    )
+    assert response.status_code == 422
+
+
+def test_model_catalog_normalizes_parameter_count():
+    from taas.studio.models import normalize_model
+
+    model = normalize_model({
+        "id": "org/model",
+        "tags": ["license:apache-2.0", "text-generation"],
+        "safetensors": {"parameters": {"BF16": 6_000_000_000, "F16": 1_000_000_000}},
+    })
+    assert model["parameter_count"] == 7_000_000_000
+    assert model["license"] == "apache-2.0"
+
+
+def test_model_catalog_does_not_require_parameter_metadata():
+    from taas.studio.models import normalize_model
+
+    model = normalize_model({"id": "org/model", "tags": []})
+    assert model["parameter_count"] is None
+    assert model["safetensors"] is False
