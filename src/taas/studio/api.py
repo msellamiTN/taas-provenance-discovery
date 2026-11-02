@@ -68,12 +68,14 @@ def require_api_token(
 
 
 def load_profile() -> ModelProfile:
-    configured = os.environ.get("TAAS_MODEL_PROFILE", "")
+    """Load optional calibration; otherwise use an explicitly uncalibrated, fail-closed profile.
+
+    This default permits Studio startup and discovery without pretending that model
+    capability measurements exist. Unknown native capabilities remain rho=0.
+    """
+    configured = os.environ.get("TAAS_MODEL_PROFILE", "").strip()
     if not configured:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Set TAAS_MODEL_PROFILE to a reviewed ModelProfile JSON file",
-        )
+        return ModelProfile(model_id="uncalibrated-default", strict=True)
     path = Path(configured).expanduser().resolve()
     if not path.is_file():
         raise HTTPException(status_code=503, detail="Configured model profile file does not exist")
@@ -92,9 +94,9 @@ def health() -> dict[str, str]:
 def ready() -> dict[str, str]:
     if not os.environ.get("TAAS_STUDIO_API_TOKEN"):
         raise HTTPException(status_code=503, detail="API token is not configured")
-    if not os.environ.get("TAAS_MODEL_PROFILE"):
-        raise HTTPException(status_code=503, detail="Model profile is not configured")
-    return {"status": "ready"}
+    # Calibration is optional at startup. Discovery uses a strict, uncalibrated
+    # profile until an operator configures a measured profile in Studio.
+    return {"status": "ready", "calibration": "configured" if os.environ.get("TAAS_MODEL_PROFILE") else "uncalibrated"}
 
 
 @app.post("/api/v1/discover", dependencies=[Depends(require_api_token)])
@@ -161,6 +163,11 @@ def discover(request: DiscoverRequest) -> dict[str, Any]:
         },
         "discovery_time_seconds": result.time_s,
         "execution_performed": False,
+        "model_profile": {
+            "model_id": profile.model_id,
+            "calibration": "configured" if os.environ.get("TAAS_MODEL_PROFILE") else "uncalibrated",
+            "strict": profile.strict,
+        },
     }
 
 @app.get("/", include_in_schema=False)
