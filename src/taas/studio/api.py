@@ -21,7 +21,8 @@ from taas.model_profile import EXTERNAL_CLASSES, MODEL_CLASSES, ModelProfile
 from taas.goals import SIGMAS, parse_goal_spec
 from taas.policy import Policy
 from taas.provenance import DEFAULT_TRUST
-from taas.studio.models import ModelCatalogError, search_models\nfrom taas.studio.runtime import estimate_model_memory, probe_hardware
+from taas.studio.models import ModelCatalogError, get_model_details, search_models
+from taas.studio.runtime import estimate_model_memory, probe_hardware
 
 app = FastAPI(
     title="TaaS Core Studio API",
@@ -177,6 +178,19 @@ def model_search(
     except ModelCatalogError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
     return {"query": q, "count": len(models), "models": models, "weights_downloaded": False}
+
+
+@app.get("/api/v1/models/detail", dependencies=[Depends(require_api_token)])
+def model_detail(
+    model_id: str = Query(..., min_length=3, max_length=256),
+) -> dict[str, Any]:
+    """Return safe HF model/config metadata; does not download or execute artifacts."""
+    try:
+        return get_model_details(model_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except ModelCatalogError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
 
 
 @app.post("/api/v1/models/estimate-memory", dependencies=[Depends(require_api_token)])
