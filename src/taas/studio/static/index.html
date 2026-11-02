@@ -275,8 +275,10 @@
   const SEMANTIC_KINDS = ["text","document","table","record","media","credential","identifier","location","number","url","path","query","code","datetime","boolean","none"];
   let goalSpecState = null;
   const splitList = value => value.split(/[,\n]/).map(x=>x.trim()).filter(Boolean);
+  let goalJsonManuallyEdited=false;
   const readRequest = () => JSON.parse($("payload").value);
-  const writeRequest = body => { $("payload").value=JSON.stringify(body,null,2); };
+  const writeRequest = body => { $("payload").value=JSON.stringify(body,null,2); goalJsonManuallyEdited=false; };
+  $("payload").addEventListener("input",()=>{goalJsonManuallyEdited=true;$("goal-validation").className="goal-validation";$("goal-validation").textContent="Advanced JSON was edited. Reload the visual editor before validating or running discovery.";});
   const getGoalSpec = () => {
     const body=readRequest(); body.goal_spec=body.goal_spec||{};
     body.goal_spec.prompt=goalSpecState.prompt||"";
@@ -384,7 +386,7 @@
     try{
       const gs=readRequest().goal_spec||{};
       goalSpecState={prompt:gs.prompt||"",prompt_inputs_text:(gs.prompt_inputs||["text"]).join(", "),goals:Array.isArray(gs.goals)?gs.goals.map(g=>({...g,in:[...(g.in||[])],eff:[...(g.eff||[])],deps:[...(g.deps||[])]})):[]};
-      renderGoalEditor();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Visual editor reloaded from the JSON payload.";
+      goalJsonManuallyEdited=false;renderGoalEditor();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Visual editor reloaded from the JSON payload.";
     }catch(e){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent="Cannot reload editor: "+e.message;}
   });
   try{
@@ -464,6 +466,7 @@
     let body;
     try { body = JSON.parse($("payload").value); }
     catch (e) { $("status").textContent = "Invalid JSON: " + e.message; return; }
+    if(goalJsonManuallyEdited){$("status").textContent="Reload the visual editor from the advanced JSON before validation or discovery.";return;}
     const token = $("token").value.trim();
     if (!token) { $("status").textContent = "Enter the Studio API token first."; return; }
     const goalErrors=validateGoalSpecLocal();
