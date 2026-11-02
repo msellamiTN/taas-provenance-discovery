@@ -129,3 +129,30 @@ def test_studio_goal_spec_rejects_invalid_class():
         })
     assert exc.value.status_code == 422
     assert "supported model or external goal classes" in exc.value.detail
+
+
+def test_studio_goal_spec_preserves_natural_language_prompt():
+    from taas.studio.api import parse_studio_goal_spec
+
+    parsed = parse_studio_goal_spec({
+        "prompt": "List the available orders",
+        "goals": [{
+            "id": "g1",
+            "class": "retrieve",
+            "in": [],
+            "out": "record[]",
+            "eff": ["read(*)"],
+            "sigma": "data",
+            "desc": "Retrieve available orders",
+            "deps": [],
+        }],
+    })
+    assert parsed.prompt == "List the available orders"
+
+
+def test_studio_home_explains_model_delegation_and_toolkit_coverage():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "Model-delegated goals" in response.text
+    assert "Toolkit-bound goals" in response.text
+    assert "not runtime execution verification" in response.text
