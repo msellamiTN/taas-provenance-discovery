@@ -162,3 +162,13 @@ def discover(request: DiscoverRequest) -> dict[str, Any]:
         "discovery_time_seconds": result.time_s,
         "execution_performed": False,
     }
+
+@app.get("/", include_in_schema=False)
+def studio_home():
+    """Serve the same-origin browser workspace."""
+    from fastapi.responses import FileResponse
+
+    page = Path(__file__).parent / "static" / "index.html"
+    if not page.is_file():
+        raise HTTPException(status_code=404, detail="Studio frontend is not installed")
+    return FileResponse(page, media_type="text/html")
