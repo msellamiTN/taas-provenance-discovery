@@ -703,3 +703,12 @@ def test_studio_frontend_renders_structured_certificate_and_goal_coverage_panels
         "This certifies the discovery model's pre-execution conditions, not runtime behavior.",
     ):
         assert marker in page
+
+
+def test_studio_frontend_keeps_counterexample_visible_without_certificate():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    assert "certPanel.hidden=!cert&&!data.counterexample" in page
+    assert "No certificate produced" in page
+    assert "absence of a certificate is not a pass" in page
