@@ -49,7 +49,13 @@ class Certificate:
 
     @property
     def valid(self) -> bool:
-        return all(self.checks[k] for k in ("S", "C", "P", "E", "L", "V"))
+        """Whether mandatory pre-execution safety/correctness checks all pass.
+
+        M (inclusion-minimality) and B (bridge diagnostics) are reported separately;
+        neither is currently part of the validity predicate. Missing or non-true mandatory
+        checks fail closed rather than raising KeyError or accepting truthy non-booleans.
+        """
+        return all(self.checks.get(k) is True for k in ("S", "C", "P", "E", "L", "V"))
 
     def to_dict(self) -> dict:
         return asdict(self)
