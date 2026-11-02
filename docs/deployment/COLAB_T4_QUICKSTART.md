@@ -131,7 +131,7 @@ The authenticated endpoint `POST /api/v1/models/estimate-memory` provides an ear
 
 Supported weight-storage assumptions are FP16 (2 bytes/parameter), INT8 (1 byte/parameter), and INT4 (0.5 byte/parameter). The estimate adds a configurable overhead fraction and runtime reserve, and compares the result with currently observed free GPU memory when available.
 
-**This is not a model compatibility or load guarantee.** The current estimate excludes KV cache, activations, CUDA workspaces, allocator fragmentation and backend-specific quantization metadata. Context length and architecture-aware KV-cache estimation must be incorporated before this estimate is used to approve a model load. No model is downloaded or loaded by this endpoint.
+**This is not a model compatibility or load guarantee.** When architecture inputs are supplied, the estimator adds decoder KV cache using `2 × layers × KV heads × head dimension × context length × batch size × bytes per element`. Supported cache dtypes are FP16, INT8 and FP32. If any architecture dimension is supplied, all four dimensions are required. Without them, KV cache is reported as unknown and is not included in the total. The estimate still excludes activations, CUDA workspaces, allocator fragmentation and backend-specific quantization metadata. No model is downloaded or loaded by this endpoint.
 
 
 ## Read-only Hugging Face model catalog
@@ -152,3 +152,21 @@ Operational properties:
 - Parameter counts may be absent. Safetensors metadata is not a substitute for inspecting a specific downloadable artifact and its quantization format.
 
 The next compatibility milestone must combine verified artifact metadata, architecture-specific KV-cache estimates, context length and the selected inference backend before allowing a download or load operation.
+
+
+Example architecture inputs for a decoder model:
+
+```json
+{
+  "parameters_billion": 7,
+  "quantization": "int4",
+  "num_hidden_layers": 32,
+  "num_key_value_heads": 8,
+  "head_dim": 128,
+  "context_length": 4096,
+  "batch_size": 1,
+  "kv_cache_dtype": "fp16"
+}
+```
+
+For those illustrative architecture values, the KV cache estimate is 0.5 GiB. These values are not inferred from the Hugging Face search result; they must be obtained from the selected model's verified configuration. The formula assumes a conventional decoder attention cache with separate key and value tensors. Architectures with sliding-window, latent, hybrid or otherwise nonstandard attention require a model-specific estimator.
