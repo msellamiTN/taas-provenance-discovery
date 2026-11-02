@@ -336,7 +336,7 @@
   const validateGoalSpecLocal = () => {
     const errors=[], ids=new Set(), goals=goalSpecState.goals;
     if(!goalSpecState.prompt.trim())errors.push("Natural-language objective is empty.");
-    splitList(goalSpecState.prompt_inputs_text||"").forEach(t=>{const m=/^([a-z_]+)(?::[a-z0-9_-]+)?(\\[\\])?$/.exec(t);if(!m||!SEMANTIC_KINDS.includes(m[1]))errors.push("Invalid prompt context semantic type "+t+".");});
+    splitList(goalSpecState.prompt_inputs_text||"").forEach(t=>{const m=/^([a-z_]+)(?::[a-z0-9_-]+)?(\[\])?$/.exec(t);if(!m||!SEMANTIC_KINDS.includes(m[1]))errors.push("Invalid prompt context semantic type "+t+".");});
     if(!goals.length)errors.push("At least one goal is required.");
     goals.forEach((g,i)=>{
       const p="Goal "+(i+1)+" ("+(g.id||"no ID")+")";
