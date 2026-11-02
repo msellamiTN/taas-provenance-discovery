@@ -5,6 +5,7 @@ on:
     branches:
       - feature/benchmark-capability-hypergraph
       - feature/taas-mcpbench-integration
+      - feature/colab-t4-core-studio
   pull_request:
     branches:
       - main
@@ -24,7 +25,7 @@ jobs:
           python-version: "3.11"
           cache: pip
       - name: Install package and test dependencies
-        run: python -m pip install -e ".[test]"
+        run: python -m pip install -e ".[test,studio]"
       - name: Validate benchmark hypergraph builder
         run: pytest -q tests/test_benchmark_hypergraph.py
       - name: Run full regression suite
