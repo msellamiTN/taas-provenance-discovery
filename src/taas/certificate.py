@@ -177,10 +177,6 @@ def certify(H: Hypergraph, K: Iterable[str], goals: list[GoalContract], prompt_i
         if all(goal_reached(rr2, g, H, uncertain) for g in req_goals):
             removable.append(t)
     M = not removable
-    # Binding integrity: '-' is accepted only for an explicit prompt derivation.
-    binding_violations = _binding_integrity(H, K, req_goals, s_w, bindings, rr, model_edges)
-    S = S and not binding_violations
-
     # (B) bridge ratio: share of goal outputs reached through model hyperedges
     bindings, via_model, prod = {}, 0, 1.0
     for g in req_goals:
@@ -198,6 +194,10 @@ def certify(H: Hypergraph, K: Iterable[str], goals: list[GoalContract], prompt_i
         if d and d.kind == "model":
             via_model += 1
             prod *= d.rho
+
+    # Binding integrity: '-' is accepted only for an explicit prompt derivation.
+    binding_violations = _binding_integrity(H, K, req_goals, s_w, bindings, rr, model_edges)
+    S = S and not binding_violations
     for b in rr.bridges:
         prod *= b.rho
     beta = via_model / max(1, len(req_goals))
