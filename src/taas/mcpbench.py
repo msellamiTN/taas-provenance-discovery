@@ -82,6 +82,16 @@ def selected_task_executor_scope(
     finally:
         server_manager.all_tools = original
 
+@contextmanager
+def selected_tool_catalogue_scope(
+    server_manager: Any,
+    selected_tools: Mapping[str, Mapping[str, Any]],
+) -> Iterator[None]:
+    """Backward-compatible catalogue scope for existing MCP-Bench integrations."""
+    with selected_task_executor_scope(server_manager, selected_tools):
+        yield
+
+
 class TaaSMCPBenchAdapter:
     """Pre-execution discovery stage for MCP-Bench.
 
