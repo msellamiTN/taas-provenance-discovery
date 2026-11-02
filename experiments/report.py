@@ -149,6 +149,24 @@ def main() -> None:
       f"({mt['rug_pull']['evidence_after']}); after reverting to the verified definition: "
       f"{mt['rug_pull']['evidence_after_revert']}.\n")
     w("![latency](../results/figures/eligibility_latency.png)\n")
+    # E8 (optional: present when experiments/e8_mcpbench_adapter.py has been run)
+    e8 = {lab: L(f"e8_mcpbench_adapter_{lab}") for lab in ("codex", "fixed")
+          if (RESULTS / f"e8_mcpbench_adapter_{lab}.json").exists()}
+    if e8:
+        w("## E8 — MCP-Bench integration path, offline (TaaSMCPBenchAdapter.select)\n")
+        w("525-tool LiveMCPTool catalogue in MCP-Bench's tool-map shape, 95 LiveMCPBench tasks, recorded "
+          "analyst runs (Claude Sonnet). *Abstain* follows the runner patch: an engine abstention or an "
+          "empty selection skips the agent. Recall counts an abstained task as 0. RO = the 57 tasks whose "
+          "gold tools are all read-only (silver labels).\n")
+        w("| Code | Analyst | Contract typing | Policy | abstain | gold recall | recall when run | |K| when run | "
+          "RO abstain | RO recall |\n|---|---|---|---|---|---|---|---|---|---|")
+        for lab, d in e8.items():
+            for k, m in d["summary"].items():
+                an, ty, po = k.split("|")
+                w(f"| {lab} | {an} | {ty} | {po} | {m['runner_abstain']:.2f} | {f3(m['recall'])} | "
+                  f"{f3(m['recall_when_run'])} | {m['size_when_run']:.2f} | {m['read_only_runner_abstain']:.2f} | "
+                  f"{f3(m['read_only_recall'])} |")
+        w("")
     (ROOT / "docs" / "RESULTS.md").write_text("\n".join(out) + "\n")
     print("wrote docs/RESULTS.md")
 

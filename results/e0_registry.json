@@ -50,8 +50,8 @@
  },
  "closed_world_ann_filters": 0,
  "silver_effect_classes": {
-  "egress": 310,
   "read": 457,
+  "egress": 310,
   "write": 122,
   "session": 41,
   "delete": 11,

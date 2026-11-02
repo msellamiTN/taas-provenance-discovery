@@ -7,6 +7,7 @@ strongest available evidence.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass, field
 from typing import Iterable
@@ -187,7 +188,8 @@ def make_contract(tool: str, in_types: dict[str, str], out: str, eff: Iterable[s
     rec = ProvenanceRecord(evidence, signer if evidence == "att" else ("sandbox" if evidence == "obs" else None),
                            kappa, "spec")
     args = tuple(Arg(a, parse_type(ty), a not in set(optional)) for a, ty in in_types.items())
-    h = str(abs(hash((tool, tuple(in_types.items()), out, tuple(sorted(map(str, effs)))))))[:16]
+    h = hashlib.sha256(json.dumps([tool, sorted(in_types.items()), out, sorted(map(str, effs))]).encode()
+                       ).hexdigest()[:32]  # stable across processes (hash() is salted)
     return CapabilityContract(
         tool=tool, name=name, server=server, description=description or name.replace("_", " "), args=args,
         out=TypeAssignment(parse_type(out), 1.0, "spec"), eff=effs, eff_record=rec,

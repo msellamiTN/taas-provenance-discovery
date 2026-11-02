@@ -22,6 +22,7 @@ cannot — the order-independence of (L) needs the conservative reading.
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import random
 
@@ -123,7 +124,8 @@ def main(fars=(0.0, 0.05), p_follow=0.5) -> dict:
             systems.setdefault("all-tools", {})[(p["id"], s)] = (pool, need)
     for name, m in systems.items():
         for (pid, s), (K, need) in m.items():
-            rng = random.Random(hash((name, pid, s)) & 0xFFFF)
+            # stable per-(system, task, seed) stream; Python's hash() is salted per process
+            rng = random.Random(int(hashlib.sha256(f"{name}|{pid}|{s}".encode()).hexdigest()[:12], 16))
             G = gold_sets(gold[pid].gold_tools)
             for a in ATTACKS:
                 scope = "in" if in_scope(a, need) else "out"

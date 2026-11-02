@@ -15,8 +15,8 @@
     "n": 48
    },
    "time_s": {
-    "mean": 0.00996127400005283,
-    "ci95": 0.0009285754398243133,
+    "mean": 0.01214388339583176,
+    "ci95": 0.0009599661469952049,
     "n": 48
    }
   },
@@ -35,8 +35,8 @@
     "n": 48
    },
    "time_s": {
-    "mean": 0.009915470520885114,
-    "ci95": 0.0009314684879959448,
+    "mean": 0.011531019124940181,
+    "ci95": 0.0008856988526809137,
     "n": 48
    }
   },
@@ -55,8 +55,8 @@
     "n": 48
    },
    "time_s": {
-    "mean": 0.004396956625043913,
-    "ci95": 0.00026296855126928644,
+    "mean": 0.005165059562491099,
+    "ci95": 0.00027452262724136266,
     "n": 48
    }
   },
@@ -90,7 +90,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.0071622410005147685,
+   "time_s": 0.0082140489998892,
    "cost": 3.9724967077525264,
    "K": [
     "srv0::make_summit",
@@ -107,7 +107,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.006361542999911762,
+   "time_s": 0.008262203999947815,
    "cost": 3.9724967077525264,
    "K": [
     "srv0::make_summit",
@@ -124,7 +124,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.003371925999999803,
+   "time_s": 0.003990517999682197,
    "cost": null,
    "K": [],
    "opt_size": 2
@@ -154,7 +154,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.00664846600011515,
+   "time_s": 0.010133782000139036,
    "cost": 3.9807222556067376,
    "K": [
     "srv0::make_lantern",
@@ -171,7 +171,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.00651036099952762,
+   "time_s": 0.011900247000085074,
    "cost": 3.9807222556067376,
    "K": [
     "srv0::make_lantern",
@@ -188,7 +188,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.003370250000443775,
+   "time_s": 0.005270548000225972,
    "cost": null,
    "K": [],
    "opt_size": 2
@@ -218,7 +218,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.006245348999982525,
+   "time_s": 0.012445523999758734,
    "cost": 3.55511757287727,
    "K": [
     "srv0::make_relay",
@@ -235,7 +235,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.006509350000669656,
+   "time_s": 0.01023566399999254,
    "cost": 3.55511757287727,
    "K": [
     "srv0::make_relay",
@@ -252,7 +252,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.003387260000636161,
+   "time_s": 0.003959759999816015,
    "cost": null,
    "K": [],
    "opt_size": 2
@@ -282,7 +282,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.0073421770002823905,
+   "time_s": 0.01681867700017392,
    "cost": 4.111244972728434,
    "K": [
     "srv0::make_pixel",
@@ -299,7 +299,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.006970620999709354,
+   "time_s": 0.010537831999954506,
    "cost": 4.111244972728434,
    "K": [
     "srv0::make_pixel",
@@ -316,7 +316,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.003415766999751213,
+   "time_s": 0.00520428699974218,
    "cost": null,
    "K": [],
    "opt_size": 2
@@ -346,7 +346,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.006651513999713643,
+   "time_s": 0.013116529999933846,
    "cost": 3.601328867091735,
    "K": [
     "srv0::make_anchor",
@@ -363,7 +363,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.006535092999911285,
+   "time_s": 0.009224362000168185,
    "cost": 3.601328867091735,
    "K": [
     "srv0::make_anchor",
@@ -380,7 +380,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.0033432769996579736,
+   "time_s": 0.0038202439995984605,
    "cost": null,
    "K": [],
    "opt_size": 2
@@ -410,7 +410,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.006482013999629999,
+   "time_s": 0.012035233000005974,
    "cost": 3.7147283721956468,
    "K": [
     "srv0::make_tariff",
@@ -427,7 +427,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.010064975999739545,
+   "time_s": 0.010403301999758696,
    "cost": 3.7147283721956468,
    "K": [
     "srv0::make_tariff",
@@ -444,7 +444,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.004451476999747683,
+   "time_s": 0.0042154400002800685,
    "cost": null,
    "K": [],
    "opt_size": 2
@@ -474,7 +474,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.008009045000108017,
+   "time_s": 0.00916923599970687,
    "cost": 3.7198748006140576,
    "K": [
     "srv0::make_relay",
@@ -491,7 +491,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.007307173000299372,
+   "time_s": 0.007736463999663101,
    "cost": 3.7198748006140576,
    "K": [
     "srv0::make_relay",
@@ -508,7 +508,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.0039629479997529415,
+   "time_s": 0.004678624000007403,
    "cost": null,
    "K": [],
    "opt_size": 2
@@ -538,7 +538,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.00701260200003162,
+   "time_s": 0.009213520999765024,
    "cost": 3.7863631663237802,
    "K": [
     "srv0::make_prism",
@@ -555,7 +555,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.0064224839998132666,
+   "time_s": 0.00908592999985558,
    "cost": 3.7863631663237802,
    "K": [
     "srv0::make_prism",
@@ -572,7 +572,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.0038040839999666787,
+   "time_s": 0.004520555999988574,
    "cost": null,
    "K": [],
    "opt_size": 2
@@ -602,7 +602,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.007087801000125182,
+   "time_s": 0.008127276999857713,
    "cost": 2.500811525350705,
    "K": [
     "srv0::make_lantern",
@@ -619,7 +619,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.008777912999903492,
+   "time_s": 0.008111695000025065,
    "cost": 2.500811525350705,
    "K": [
     "srv0::make_lantern",
@@ -636,7 +636,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.003959405999921728,
+   "time_s": 0.007425417999911588,
    "cost": 2.500811525350705,
    "K": [
     "srv0::make_lantern",
@@ -670,7 +670,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.007434170000124141,
+   "time_s": 0.008160834999671351,
    "cost": 2.323102867174299,
    "K": [
     "srv0::make_canyon",
@@ -687,7 +687,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.007239207000566239,
+   "time_s": 0.008271057999991172,
    "cost": 2.323102867174299,
    "K": [
     "srv0::make_canyon",
@@ -704,7 +704,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.005664892000822874,
+   "time_s": 0.004095191000033083,
    "cost": null,
    "K": [],
    "opt_size": 2
@@ -734,7 +734,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.006694848000734055,
+   "time_s": 0.008435008000105881,
    "cost": 2.3688929406608845,
    "K": [
     "srv0::make_nectar",
@@ -751,7 +751,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.007306342999982007,
+   "time_s": 0.007881294999606325,
    "cost": 2.3688929406608845,
    "K": [
     "srv0::make_nectar",
@@ -768,7 +768,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.0035994199997730902,
+   "time_s": 0.004142918999605172,
    "cost": null,
    "K": [],
    "opt_size": 2
@@ -798,7 +798,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.006747878999703971,
+   "time_s": 0.008914365000237012,
    "cost": 2.643684900889447,
    "K": [
     "srv0::make_relay",
@@ -815,7 +815,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.006553939999321301,
+   "time_s": 0.00867111700017631,
    "cost": 2.643684900889447,
    "K": [
     "srv0::make_relay",
@@ -832,7 +832,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.0035914890004278277,
+   "time_s": 0.00552929800005586,
    "cost": null,
    "K": [],
    "opt_size": 2
@@ -862,7 +862,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.00627539600009186,
+   "time_s": 0.0086143019998417,
    "cost": 2.408459134605272,
    "K": [
     "srv0::make_prism",
@@ -879,7 +879,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.006247287999940454,
+   "time_s": 0.00882538999985627,
    "cost": 2.408459134605272,
    "K": [
     "srv0::make_prism",
@@ -896,7 +896,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.00476216300012311,
+   "time_s": 0.00519520099987858,
    "cost": 2.408459134605272,
    "K": [
     "srv0::make_prism",
@@ -930,7 +930,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.007141496000258485,
+   "time_s": 0.012908875999983138,
    "cost": 2.4161020882151383,
    "K": [
     "srv0::make_meadow",
@@ -947,7 +947,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.006896388000313891,
+   "time_s": 0.011186587999873154,
    "cost": 2.4161020882151383,
    "K": [
     "srv0::make_meadow",
@@ -964,7 +964,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.0037513250008487375,
+   "time_s": 0.004206547000194405,
    "cost": null,
    "K": [],
    "opt_size": 2
@@ -994,7 +994,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.007445983999787131,
+   "time_s": 0.007996355000159383,
    "cost": 2.3305472994976277,
    "K": [
     "srv0::make_relay",
@@ -1011,7 +1011,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.007150578999244317,
+   "time_s": 0.007974066999850038,
    "cost": 2.3305472994976277,
    "K": [
     "srv0::make_relay",
@@ -1028,7 +1028,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.0046012709999558865,
+   "time_s": 0.00399482300008458,
    "cost": null,
    "K": [],
    "opt_size": 2
@@ -1058,7 +1058,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.007314815999961866,
+   "time_s": 0.008543610000288027,
    "cost": 2.655374747390142,
    "K": [
     "srv0::make_meadow",
@@ -1075,7 +1075,7 @@
    "valid": true,
    "abstain": false,
    "size": 2,
-   "time_s": 0.006848323999292916,
+   "time_s": 0.008045008999943093,
    "cost": 2.655374747390142,
    "K": [
     "srv0::make_meadow",
@@ -1092,7 +1092,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.0037160460005907225,
+   "time_s": 0.004179534000286367,
    "cost": null,
    "K": [],
    "opt_size": 2
@@ -1122,7 +1122,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.0070286259997374145,
+   "time_s": 0.007971185999849695,
    "cost": 5.785955798099037,
    "K": [
     "srv0::make_cipher",
@@ -1140,7 +1140,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.007482365000214486,
+   "time_s": 0.008007749000171316,
    "cost": 5.785955798099037,
    "K": [
     "srv0::make_cipher",
@@ -1158,7 +1158,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.004145453999626625,
+   "time_s": 0.005114777000017057,
    "cost": 5.785955798099037,
    "K": [
     "srv0::make_cipher",
@@ -1194,7 +1194,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.007789622999553103,
+   "time_s": 0.009210273000007874,
    "cost": 5.808661760475992,
    "K": [
     "srv0::make_summit",
@@ -1212,7 +1212,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.00781744800042361,
+   "time_s": 0.009674591000020882,
    "cost": 5.808661760475992,
    "K": [
     "srv0::make_summit",
@@ -1230,7 +1230,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.0034789319997798884,
+   "time_s": 0.004056576000039058,
    "cost": null,
    "K": [],
    "opt_size": 3
@@ -1261,7 +1261,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.008934844000577868,
+   "time_s": 0.009689115000128368,
    "cost": 5.584996804107066,
    "K": [
     "srv0::make_pixel",
@@ -1279,7 +1279,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.009365933000481164,
+   "time_s": 0.00948280300008264,
    "cost": 5.584996804107066,
    "K": [
     "srv0::make_pixel",
@@ -1297,7 +1297,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.003723609999724431,
+   "time_s": 0.0045709480000368785,
    "cost": null,
    "K": [],
    "opt_size": 3
@@ -1328,7 +1328,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.008118276999994123,
+   "time_s": 0.011066868999932922,
    "cost": 5.773084589144968,
    "K": [
     "srv0::make_canyon",
@@ -1346,7 +1346,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.008514152000316244,
+   "time_s": 0.010401554000054603,
    "cost": 5.773084589144968,
    "K": [
     "srv0::make_canyon",
@@ -1364,7 +1364,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.0037339749997045146,
+   "time_s": 0.005610219000118377,
    "cost": null,
    "K": [],
    "opt_size": 3
@@ -1395,7 +1395,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.009606514000552124,
+   "time_s": 0.01365672000019913,
    "cost": 5.39824001585786,
    "K": [
     "srv0::make_lantern",
@@ -1413,7 +1413,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.008349905000613944,
+   "time_s": 0.009790872999928979,
    "cost": 5.39824001585786,
    "K": [
     "srv0::make_lantern",
@@ -1431,7 +1431,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.0035817929992845166,
+   "time_s": 0.004348507000031532,
    "cost": null,
    "K": [],
    "opt_size": 3
@@ -1462,7 +1462,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.007975470000019413,
+   "time_s": 0.010031560999777867,
    "cost": 5.8251961383063495,
    "K": [
     "srv0::make_lantern",
@@ -1480,7 +1480,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.007737886000541039,
+   "time_s": 0.00948350799990294,
    "cost": 5.8251961383063495,
    "K": [
     "srv0::make_lantern",
@@ -1498,7 +1498,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.0036620820001189713,
+   "time_s": 0.006468720999691868,
    "cost": null,
    "K": [],
    "opt_size": 3
@@ -1529,7 +1529,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.00788261199977569,
+   "time_s": 0.010517771000195353,
    "cost": 5.243377164801179,
    "K": [
     "srv0::make_glacier",
@@ -1547,7 +1547,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.008543850000023667,
+   "time_s": 0.012392175999593746,
    "cost": 5.243377164801179,
    "K": [
     "srv0::make_glacier",
@@ -1565,7 +1565,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.0035543789999792352,
+   "time_s": 0.005391900999711652,
    "cost": null,
    "K": [],
    "opt_size": 3
@@ -1596,7 +1596,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.008324463000462856,
+   "time_s": 0.010619144999964192,
    "cost": 5.870947355738701,
    "K": [
     "srv0::make_ledger",
@@ -1614,7 +1614,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.00792490200001339,
+   "time_s": 0.010198430999935226,
    "cost": 5.870947355738701,
    "K": [
     "srv0::make_ledger",
@@ -1632,7 +1632,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.0036608760001399787,
+   "time_s": 0.004316769000070053,
    "cost": null,
    "K": [],
    "opt_size": 3
@@ -1663,7 +1663,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.011367838999831292,
+   "time_s": 0.010880066000027,
    "cost": 3.721732516295237,
    "K": [
     "srv0::make_cipher",
@@ -1681,7 +1681,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.014548340000146709,
+   "time_s": 0.010331192999728955,
    "cost": 3.721732516295237,
    "K": [
     "srv0::make_cipher",
@@ -1699,7 +1699,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.006157646000247041,
+   "time_s": 0.004783061000125599,
    "cost": null,
    "K": [],
    "opt_size": 3
@@ -1730,7 +1730,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.014869472000100359,
+   "time_s": 0.010640919999787002,
    "cost": 3.565625054987234,
    "K": [
     "srv0::make_relay",
@@ -1748,7 +1748,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.014529638000567502,
+   "time_s": 0.010177109999858658,
    "cost": 3.565625054987234,
    "K": [
     "srv0::make_relay",
@@ -1766,7 +1766,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.006422994999411458,
+   "time_s": 0.0059169910000491655,
    "cost": null,
    "K": [],
    "opt_size": 3
@@ -1797,7 +1797,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.014655863999905705,
+   "time_s": 0.010490364999895974,
    "cost": 3.7485491791780734,
    "K": [
     "srv0::make_quartz",
@@ -1815,7 +1815,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.01325511400045798,
+   "time_s": 0.010560081999756221,
    "cost": 3.7485491791780734,
    "K": [
     "srv0::make_quartz",
@@ -1833,7 +1833,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.004928117999952519,
+   "time_s": 0.004878755999925488,
    "cost": null,
    "K": [],
    "opt_size": 3
@@ -1864,7 +1864,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.01109165099933307,
+   "time_s": 0.011970824999934848,
    "cost": 3.7569041303753186,
    "K": [
     "srv0::make_tariff",
@@ -1882,7 +1882,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.008673816999362316,
+   "time_s": 0.010814225000103761,
    "cost": 3.7569041303753186,
    "K": [
     "srv0::make_tariff",
@@ -1900,7 +1900,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.004103057000065746,
+   "time_s": 0.004445532000318053,
    "cost": null,
    "K": [],
    "opt_size": 3
@@ -1931,7 +1931,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.009614421000151196,
+   "time_s": 0.010784368999793514,
    "cost": 3.817509778497752,
    "K": [
     "srv0::make_cipher",
@@ -1949,7 +1949,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.009385262000250805,
+   "time_s": 0.014271263999944495,
    "cost": 3.817509778497752,
    "K": [
     "srv0::make_cipher",
@@ -1967,7 +1967,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.00584613699993497,
+   "time_s": 0.006001492999985203,
    "cost": null,
    "K": [],
    "opt_size": 3
@@ -1998,7 +1998,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.009055014999830746,
+   "time_s": 0.011037289000341843,
    "cost": 3.7442921874527997,
    "K": [
     "srv0::make_tariff",
@@ -2016,7 +2016,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.010397722000561771,
+   "time_s": 0.010180615000081161,
    "cost": 3.7442921874527997,
    "K": [
     "srv0::make_tariff",
@@ -2034,7 +2034,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.00387295600012294,
+   "time_s": 0.004998628000066674,
    "cost": null,
    "K": [],
    "opt_size": 3
@@ -2065,7 +2065,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.010015302999818232,
+   "time_s": 0.010626273000070796,
    "cost": 3.8449237060036516,
    "K": [
     "srv0::make_ledger",
@@ -2083,7 +2083,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.009418151999852853,
+   "time_s": 0.010118171999693004,
    "cost": 3.8449237060036516,
    "K": [
     "srv0::make_ledger",
@@ -2101,7 +2101,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.0042415540001456975,
+   "time_s": 0.005345746999864787,
    "cost": null,
    "K": [],
    "opt_size": 3
@@ -2132,7 +2132,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.009822192999308754,
+   "time_s": 0.010568618999968749,
    "cost": 3.6261536579893052,
    "K": [
     "srv0::make_prism",
@@ -2150,7 +2150,7 @@
    "valid": true,
    "abstain": false,
    "size": 3,
-   "time_s": 0.011367209000127332,
+   "time_s": 0.010095830999944155,
    "cost": 3.6261536579893052,
    "K": [
     "srv0::make_prism",
@@ -2168,7 +2168,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.004384286999993492,
+   "time_s": 0.004464542999812693,
    "cost": null,
    "K": [],
    "opt_size": 3
@@ -2199,7 +2199,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.010007836999648134,
+   "time_s": 0.00984383400009392,
    "cost": 7.931004411676465,
    "K": [
     "srv0::make_nectar",
@@ -2218,7 +2218,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.010418421999929706,
+   "time_s": 0.014668729999812058,
    "cost": 7.931004411676465,
    "K": [
     "srv0::make_nectar",
@@ -2237,7 +2237,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.004355459000180417,
+   "time_s": 0.0072075210000548395,
    "cost": null,
    "K": [],
    "opt_size": 4
@@ -2268,7 +2268,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.012600587000633823,
+   "time_s": 0.01703320300021005,
    "cost": 7.503132379440094,
    "K": [
     "srv0::make_fable",
@@ -2287,7 +2287,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.011678326000037487,
+   "time_s": 0.017577195999820105,
    "cost": 7.503132379440094,
    "K": [
     "srv0::make_fable",
@@ -2306,7 +2306,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.004441461999704188,
+   "time_s": 0.006865409000056388,
    "cost": null,
    "K": [],
    "opt_size": 4
@@ -2337,7 +2337,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.011957491999964986,
+   "time_s": 0.01648017199977403,
    "cost": 7.871240594480409,
    "K": [
     "srv0::make_nectar",
@@ -2356,7 +2356,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.012917852999635215,
+   "time_s": 0.017565083999670605,
    "cost": 7.871240594480409,
    "K": [
     "srv0::make_nectar",
@@ -2375,7 +2375,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.004645336000066891,
+   "time_s": 0.0056941990001178056,
    "cost": null,
    "K": [],
    "opt_size": 4
@@ -2406,7 +2406,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.012437415999556833,
+   "time_s": 0.016965699000138557,
    "cost": 7.2628249579768145,
    "K": [
     "srv0::make_anchor",
@@ -2425,7 +2425,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.010804976999679639,
+   "time_s": 0.017811510999763414,
    "cost": 7.2628249579768145,
    "K": [
     "srv0::make_anchor",
@@ -2444,7 +2444,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.0050592190000315895,
+   "time_s": 0.006649780999850918,
    "cost": null,
    "K": [],
    "opt_size": 4
@@ -2475,7 +2475,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.010281118000420975,
+   "time_s": 0.017242550999981177,
    "cost": 6.8454168055023645,
    "K": [
     "srv0::make_harvest",
@@ -2494,7 +2494,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.010666661999493954,
+   "time_s": 0.01774584099985077,
    "cost": 6.8454168055023645,
    "K": [
     "srv0::make_harvest",
@@ -2513,7 +2513,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.004000525000265043,
+   "time_s": 0.006566228000338015,
    "cost": null,
    "K": [],
    "opt_size": 4
@@ -2544,7 +2544,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.010075751999465865,
+   "time_s": 0.017722235999826808,
    "cost": 7.578006246617097,
    "K": [
     "srv0::make_pixel",
@@ -2563,7 +2563,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.010323409000193351,
+   "time_s": 0.016836905000218394,
    "cost": 7.578006246617097,
    "K": [
     "srv0::make_pixel",
@@ -2582,7 +2582,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.003893520999554312,
+   "time_s": 0.007182161999935488,
    "cost": null,
    "K": [],
    "opt_size": 4
@@ -2613,7 +2613,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.011246129000028304,
+   "time_s": 0.017398813999989216,
    "cost": 7.77062265851537,
    "K": [
     "srv0::make_relay",
@@ -2632,7 +2632,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.01109966500007431,
+   "time_s": 0.017509197999970638,
    "cost": 7.77062265851537,
    "K": [
     "srv0::make_relay",
@@ -2651,7 +2651,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.0058711100000437,
+   "time_s": 0.006142509999790491,
    "cost": null,
    "K": [],
    "opt_size": 4
@@ -2682,7 +2682,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.014561066999704053,
+   "time_s": 0.01683351500014396,
    "cost": 7.191574430292474,
    "K": [
     "srv0::make_fable",
@@ -2701,7 +2701,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.015584972000397102,
+   "time_s": 0.016648250999878655,
    "cost": 7.191574430292474,
    "K": [
     "srv0::make_fable",
@@ -2720,7 +2720,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.005743102000451472,
+   "time_s": 0.0062510120001206815,
    "cost": null,
    "K": [],
    "opt_size": 4
@@ -2751,7 +2751,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.014728673000718118,
+   "time_s": 0.0133420870001828,
    "cost": 5.15153151753861,
    "K": [
     "srv0::make_ember",
@@ -2770,7 +2770,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.013572464000390028,
+   "time_s": 0.014292593999925884,
    "cost": 5.15153151753861,
    "K": [
     "srv0::make_ember",
@@ -2789,7 +2789,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.004746115000671125,
+   "time_s": 0.004494761999922048,
    "cost": null,
    "K": [],
    "opt_size": 4
@@ -2820,7 +2820,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.012760390000039479,
+   "time_s": 0.013222751999819593,
    "cost": 5.140235134613519,
    "K": [
     "srv0::make_harvest",
@@ -2839,7 +2839,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.011435196000093129,
+   "time_s": 0.012235092000082659,
    "cost": 5.140235134613519,
    "K": [
     "srv0::make_harvest",
@@ -2858,7 +2858,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.004368135000731854,
+   "time_s": 0.0049181690001205425,
    "cost": null,
    "K": [],
    "opt_size": 4
@@ -2889,7 +2889,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.014043521000530745,
+   "time_s": 0.021639090000007855,
    "cost": 4.773543071460443,
    "K": [
     "srv0::make_quartz",
@@ -2908,7 +2908,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.011201829000128782,
+   "time_s": 0.013065905000075873,
    "cost": 4.773543071460443,
    "K": [
     "srv0::make_quartz",
@@ -2927,7 +2927,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.004494900000281632,
+   "time_s": 0.005265212999802316,
    "cost": null,
    "K": [],
    "opt_size": 4
@@ -2958,7 +2958,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.020107172999814793,
+   "time_s": 0.01410910899994633,
    "cost": 4.994009551412619,
    "K": [
     "srv0::make_canyon",
@@ -2977,7 +2977,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.019927882999581925,
+   "time_s": 0.01337921100002859,
    "cost": 4.994009551412619,
    "K": [
     "srv0::make_canyon",
@@ -2996,7 +2996,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.007454372000211151,
+   "time_s": 0.00525352800013934,
    "cost": null,
    "K": [],
    "opt_size": 4
@@ -3027,7 +3027,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.011060691000238876,
+   "time_s": 0.012611224000011134,
    "cost": 5.018545147020576,
    "K": [
     "srv0::make_pixel",
@@ -3046,7 +3046,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.009617593999792007,
+   "time_s": 0.010760013999970397,
    "cost": 5.018545147020576,
    "K": [
     "srv0::make_pixel",
@@ -3065,7 +3065,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.004656789999899047,
+   "time_s": 0.005024199000217777,
    "cost": null,
    "K": [],
    "opt_size": 4
@@ -3096,7 +3096,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.011988916000518657,
+   "time_s": 0.013226556000063283,
    "cost": 4.9543994566034995,
    "K": [
     "srv0::make_prism",
@@ -3115,7 +3115,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.011630245000560535,
+   "time_s": 0.011879872000008618,
    "cost": 4.9543994566034995,
    "K": [
     "srv0::make_prism",
@@ -3134,7 +3134,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.004383784000310698,
+   "time_s": 0.00457578099985767,
    "cost": null,
    "K": [],
    "opt_size": 4
@@ -3165,7 +3165,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.018197347000750597,
+   "time_s": 0.01874351700007537,
    "cost": 4.999414494269994,
    "K": [
     "srv0::make_quartz",
@@ -3184,7 +3184,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.01979042600032699,
+   "time_s": 0.016902260000279057,
    "cost": 4.999414494269994,
    "K": [
     "srv0::make_quartz",
@@ -3203,7 +3203,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.005704546999368176,
+   "time_s": 0.006120649999957095,
    "cost": null,
    "K": [],
    "opt_size": 4
@@ -3234,7 +3234,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.01423905800038483,
+   "time_s": 0.013883498000268446,
    "cost": 4.89029216913937,
    "K": [
     "srv0::make_relay",
@@ -3253,7 +3253,7 @@
    "valid": true,
    "abstain": false,
    "size": 4,
-   "time_s": 0.014259384000069986,
+   "time_s": 0.012278853000225354,
    "cost": 4.89029216913937,
    "K": [
     "srv0::make_relay",
@@ -3272,7 +3272,7 @@
    "valid": false,
    "abstain": true,
    "size": 0,
-   "time_s": 0.004984688999684295,
+   "time_s": 0.004569658000036725,
    "cost": null,
    "K": [],
    "opt_size": 4

@@ -95,8 +95,8 @@ certified(deriv,FAR=0.0)               0.000      0.000   0.243    1.3  exfiltra
 certified(cons,FAR=0.05)               0.000      0.000   0.189    1.2  exfiltrate=0.00 destroy=0.00 execute=0.00 pay=0.00 tamper=0.00
 certified(deriv,FAR=0.05)              0.000      0.000   0.244    1.3  exfiltrate=0.00 destroy=0.00 execute=0.00 pay=0.00 tamper=0.00
 per-subtask                            0.032      0.007   0.321    2.1  exfiltrate=0.01 destroy=0.00 execute=0.00 pay=0.01 tamper=0.20
-rag-top5                               0.081      0.015   0.393    5.0  exfiltrate=0.07 destroy=0.03 execute=0.00 pay=0.05 tamper=0.33
-mcp-zero                               0.035      0.010   0.253    2.1  exfiltrate=0.05 destroy=0.00 execute=0.00 pay=0.01 tamper=0.16
+rag-top5                               0.081      0.016   0.393    5.0  exfiltrate=0.07 destroy=0.03 execute=0.00 pay=0.05 tamper=0.33
+mcp-zero                               0.035      0.013   0.253    2.1  exfiltrate=0.05 destroy=0.00 execute=0.00 pay=0.01 tamper=0.16
 all-tools                              1.000      0.030   1.000  569.0  exfiltrate=1.00 destroy=1.00 execute=1.00 pay=1.00 tamper=1.00
 
 Property 1 (random call sequences over certified toolkits, true effects):
@@ -108,13 +108,13 @@ Property 1 (random call sequences over certified toolkits, true effects):
 ==============================================================================
 E5 / RQ3: synthetic typed registries — validity, optimality, closure and sharing (graded by an independent checker; optimum by brute force)
 ==============================================================================
-ours-exact       valid=1.000 optimal=1.000 cost/opt=1.000 |K|=3.00 abstain=0.00 t=10.0ms
-ours-greedy      valid=1.000 optimal=1.000 cost/opt=1.000 |K|=3.00 abstain=0.00 t=9.9ms
-ours-no-closure  valid=0.062 optimal=0.062 cost/opt=1.000 |K|=0.15 abstain=0.94 t=4.4ms
+ours-exact       valid=1.000 optimal=1.000 cost/opt=1.000 |K|=3.00 abstain=0.00 t=12.1ms
+ours-greedy      valid=1.000 optimal=1.000 cost/opt=1.000 |K|=3.00 abstain=0.00 t=11.5ms
+ours-no-closure  valid=0.062 optimal=0.062 cost/opt=1.000 |K|=0.15 abstain=0.94 t=5.2ms
 per-subtask      valid=0.667 optimal=0.667 cost/opt=1.000 |K|=2.67 abstain=0.00 t=0.0ms
-  L=2: exact valid=1.00 t=7.0ms
-  L=3: exact valid=1.00 t=9.8ms
-  L=4: exact valid=1.00 t=13.1ms
+  L=2: exact valid=1.00 t=10.2ms
+  L=3: exact valid=1.00 t=10.6ms
+  L=4: exact valid=1.00 t=15.6ms
 
 ==============================================================================
 E6: ablations — retrieval components, request-path components, manifest sanitisation
@@ -141,14 +141,14 @@ C. manifest sanitisation (does rewriting from the contract remove description-bo
 ==============================================================================
 E7 / RQ4: eligibility cost, exact cache invalidation (Prop. 3), Lemma 1, maintenance & rug pulls
 ==============================================================================
-n=   1000: bitmap       1.5 µs  naive scan      1115.1 µs  ×   741  (index build 0.02s)
-n=  10000: bitmap       1.7 µs  naive scan     19582.2 µs  × 11664  (index build 0.17s)
-n= 100000: bitmap       4.1 µs  naive scan    149291.2 µs  × 36202  (index build 2.57s)
+n=   1000: bitmap       1.9 µs  naive scan      1517.0 µs  ×   815  (index build 0.02s)
+n=  10000: bitmap       2.4 µs  naive scan     18966.9 µs  ×  7784  (index build 0.20s)
+n= 100000: bitmap       5.4 µs  naive scan    174805.2 µs  × 32527  (index build 2.97s)
 Prop. 3 over 600 events × 16 cached sets: {'changed&invalidated': 3615, 'changed&kept': 0, 'same&invalidated': 0, 'same&kept': 5985}; stale answers served: 0
 Lemma 1: E_V ≠ E ∩ V in 0/300 random trials
-maintenance: incremental list_changed 31.8 ms vs full rebuild 3.04 s (×95); rug pull on filesystem::write_file: evidence 0.73→0.25 (lex), restored after revert: obs
-figures written to /home/claude/taas-provenance-discovery/results/figures
+maintenance: incremental list_changed 29.9 ms vs full rebuild 3.64 s (×122); rug pull on filesystem::write_file: evidence 0.73→0.25 (lex), restored after revert: obs
+figures written to /home/claude/wt-fix/results/figures
 
 ==============================================================================
-all experiments finished in 905.5 s
+all experiments finished in 1205.3 s
 ==============================================================================

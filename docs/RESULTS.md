@@ -104,10 +104,10 @@ Worst-case success of injected actions whose effect class the task does not need
 | certified(deriv,FAR=0.0) | 0.000 | 0.000 | 0.243 | 1.3 |
 | certified(cons,FAR=0.05) | 0.000 | 0.000 | 0.189 | 1.2 |
 | certified(deriv,FAR=0.05) | 0.000 | 0.000 | 0.244 | 1.3 |
-| per-subtask | 0.032 | 0.007 | 0.321 | 2.1 |
+| per-subtask | 0.032 | 0.011 | 0.321 | 2.1 |
 | rag-top5 | 0.081 | 0.015 | 0.393 | 5.0 |
 | mcp-zero | 0.035 | 0.010 | 0.253 | 2.1 |
-| all-tools | 1.000 | 0.030 | 1.000 | 569.0 |
+| all-tools | 1.000 | 0.035 | 1.000 | 569.0 |
 
 Property 1 — random call sequences over certified toolkits, true effects:
 
@@ -126,9 +126,9 @@ Independent checker; optimum by brute force; 48 tasks (L ∈ {2,3,4} × distract
 
 | System | valid | optimal | cost / optimum | |K| | abstain | time (ms) |
 |---|---|---|---|---|---|---|
-| ours-exact | 1.000 | 1.000 | 1.000 | 3.00 | 0.00 | 10.0 |
-| ours-greedy | 1.000 | 1.000 | 1.000 | 3.00 | 0.00 | 9.9 |
-| ours-no-closure | 0.062 | 0.062 | 1.000 | 0.15 | 0.94 | 4.4 |
+| ours-exact | 1.000 | 1.000 | 1.000 | 3.00 | 0.00 | 12.1 |
+| ours-greedy | 1.000 | 1.000 | 1.000 | 3.00 | 0.00 | 11.5 |
+| ours-no-closure | 0.062 | 0.062 | 1.000 | 0.15 | 0.94 | 5.2 |
 | per-subtask | 0.667 | 0.667 | 1.000 | 2.67 | 0.00 | 0.0 |
 
 ## E6 — Ablations
@@ -163,13 +163,42 @@ Independent checker; optimum by brute force; 48 tasks (L ∈ {2,3,4} × distract
 
 | Tools | bitmap eligibility (µs) | naive scan (µs) | speed-up |
 |---|---|---|---|
-| 1,000 | 1.5 | 1115 | ×741 |
-| 10,000 | 1.7 | 19582 | ×11664 |
-| 100,000 | 4.1 | 149291 | ×36202 |
+| 1,000 | 1.9 | 1517 | ×815 |
+| 10,000 | 2.4 | 18967 | ×7784 |
+| 100,000 | 5.4 | 174805 | ×32527 |
 
 * Prop. 3: changed & invalidated 3615, changed & kept 0, unchanged & invalidated 0, unchanged & kept 5985; stale answers 0.
 * Lemma 1: 0/300 violations.
-* Maintenance: incremental `list_changed` 31.8 ms vs full rebuild 3.04 s. Rug pull on `filesystem::write_file`: evidence strength 0.73 → 0.25 (lex); after reverting to the verified definition: obs.
+* Maintenance: incremental `list_changed` 29.9 ms vs full rebuild 3.64 s. Rug pull on `filesystem::write_file`: evidence strength 0.73 → 0.25 (lex); after reverting to the verified definition: obs.
 
 ![latency](../results/figures/eligibility_latency.png)
+
+## E8 — MCP-Bench integration path, offline (TaaSMCPBenchAdapter.select)
+
+525-tool LiveMCPTool catalogue in MCP-Bench's tool-map shape, 95 LiveMCPBench tasks, recorded analyst runs (Claude Sonnet). *Abstain* follows the runner patch: an engine abstention or an empty selection skips the agent. Recall counts an abstained task as 0. RO = the 57 tasks whose gold tools are all read-only (silver labels).
+
+| Code | Analyst | Contract typing | Policy | abstain | gold recall | recall when run | |K| when run | RO abstain | RO recall |
+|---|---|---|---|---|---|---|---|---|---|
+| codex | guide | lexical | default | 0.99 | 0.000 | 0.000 | 1.00 | 0.98 | 0.000 |
+| codex | guide | lexical | open | 0.98 | 0.000 | 0.000 | 1.00 | 0.96 | 0.000 |
+| codex | prompt-1.0 | lexical | default | 0.99 | 0.000 | 0.000 | 1.00 | 0.98 | 0.000 |
+| codex | prompt-1.0 | lexical | open | 0.95 | 0.000 | 0.000 | 1.00 | 0.98 | 0.000 |
+| codex | prompt-1.1 | lexical | default | 0.95 | 0.006 | 0.117 | 1.00 | 0.91 | 0.010 |
+| codex | prompt-1.1 | lexical | open | 0.95 | 0.006 | 0.117 | 1.00 | 0.91 | 0.010 |
+| fixed | guide | lexical | default | 0.92 | 0.004 | 0.042 | 1.12 | 0.86 | 0.006 |
+| fixed | guide | lexical | open | 0.85 | 0.007 | 0.050 | 1.14 | 0.82 | 0.006 |
+| fixed | guide | llm | default | 0.52 | 0.083 | 0.171 | 1.30 | 0.35 | 0.124 |
+| fixed | guide | llm | open | 0.09 | 0.181 | 0.198 | 1.55 | 0.11 | 0.195 |
+| fixed | prompt-1.0 | lexical | default | 0.99 | 0.000 | 0.000 | 1.00 | 0.98 | 0.000 |
+| fixed | prompt-1.0 | lexical | open | 0.95 | 0.000 | 0.000 | 1.00 | 0.98 | 0.000 |
+| fixed | prompt-1.0 | llm | default | 0.94 | 0.000 | 0.000 | 1.00 | 0.89 | 0.000 |
+| fixed | prompt-1.0 | llm | open | 0.86 | 0.004 | 0.026 | 1.31 | 0.89 | 0.000 |
+| fixed | prompt-1.1 | lexical | default | 0.93 | 0.006 | 0.083 | 1.00 | 0.88 | 0.010 |
+| fixed | prompt-1.1 | lexical | open | 0.93 | 0.006 | 0.083 | 1.00 | 0.88 | 0.010 |
+| fixed | prompt-1.1 | llm | default | 0.69 | 0.036 | 0.117 | 1.14 | 0.58 | 0.051 |
+| fixed | prompt-1.1 | llm | open | 0.51 | 0.064 | 0.129 | 1.40 | 0.49 | 0.074 |
+| fixed | prompt-1.1+theta | lexical | default | 0.95 | 0.000 | 0.000 | 1.00 | 0.91 | 0.000 |
+| fixed | prompt-1.1+theta | lexical | open | 0.94 | 0.000 | 0.000 | 1.33 | 0.91 | 0.000 |
+| fixed | prompt-1.1+theta | llm | default | 0.62 | 0.044 | 0.114 | 1.28 | 0.46 | 0.072 |
+| fixed | prompt-1.1+theta | llm | open | 0.36 | 0.098 | 0.151 | 1.59 | 0.28 | 0.135 |
 
