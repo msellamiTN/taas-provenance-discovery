@@ -39,8 +39,23 @@ uvicorn taas.studio.api:app --host 127.0.0.1 --port 8000
 - Health: `GET /health`
 - Readiness: `GET /ready`
 - Discovery: `POST /api/v1/discover`
+- Retained benchmark catalog: `GET /api/v1/bench/datasets`
+- Benchmark task browser: `GET /api/v1/bench/tasks`
+- Retained tool registry browser: `GET /api/v1/bench/tools`
 
 Discovery requires `Authorization: Bearer <TAAS_STUDIO_API_TOKEN>`.
+
+## Repository-retained MCP benchmark data
+
+Studio browses the benchmark snapshot already committed in this repository. It does not clone or fetch an upstream benchmark repository.
+
+- `GET /api/v1/bench/datasets` returns dataset counts, categories and merged registry statistics.
+- `GET /api/v1/bench/tasks?dataset=livemcpbench&limit=25` pages through task prompts.
+- `GET /api/v1/bench/tools?source=LiveMCPTool&limit=50` pages through retained tool metadata.
+
+The task browser deliberately omits `gold_tools` and `gold_unresolved`. Gold labels are evaluator-only and must not be exposed to the goal analyst or discovery process. Registry annotations are returned as metadata and are not treated as trusted provenance evidence.
+
+Supported dataset identifiers are `livemcpbench` and `mcptoolbenchpp`. Supported tool sources are `LiveMCPTool`, `MCPToolBench++` and `all`.
 
 ## Request shape
 
