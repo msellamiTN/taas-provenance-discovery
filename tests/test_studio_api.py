@@ -686,3 +686,20 @@ def test_studio_goal_editor_requires_reload_after_advanced_json_edit():
     page = response.text
     assert "goalJsonManuallyEdited" in page
     assert "Reload the visual editor from the advanced JSON" in page
+
+
+def test_studio_frontend_renders_structured_certificate_and_goal_coverage_panels():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    for marker in (
+        'id="certificate-panel"',
+        'id="certificate-checks"',
+        'id="goal-coverage"',
+        'id="counterexample-panel"',
+        'id="certificate-witnesses"',
+        "Pre-execution certificate valid",
+        "M (minimality) and B (bridge ratio) are diagnostics",
+        "This certifies the discovery model's pre-execution conditions, not runtime behavior.",
+    ):
+        assert marker in page
