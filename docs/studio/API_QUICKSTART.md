@@ -107,3 +107,7 @@ The interface is **discovery-only**. It does not execute MCP tools or run an age
 ## Google Colab
 
 The pinned notebook at [`notebooks/colab/taas_core_studio_colab.ipynb`](../../notebooks/colab/taas_core_studio_colab.ipynb) runs TaaS Studio on the Colab VM, validates health/readiness, and opens the app through Colab's port proxy. Optional Cloudflare Tunnel support is disabled by default and requires a named tunnel plus Access policy. Colab sessions are ephemeral; this milestone does not yet provide durable run storage or MCP execution.
+
+## Operator instructions for Colab T4
+
+Follow the dedicated [Colab T4 step-by-step guide](../deployment/COLAB_T4_QUICKSTART.md) every time you start a fresh Colab runtime. It covers GPU allocation, Secrets, ModelProfile preparation, installation, app launch, browser access, optional protected team access, troubleshooting and shutdown. The notebook also contains cell-by-cell instructions.
