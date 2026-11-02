@@ -33,7 +33,7 @@ def test_colab_notebook_uses_pinned_revision_and_safe_bind_address() -> None:
         for cell in notebook["cells"]
         if cell["cell_type"] == "code"
     )
-    assert 'TAAS_COMMIT = "2f2db5a75458dfb69d5967205ed8a09f0c54258a"' in source
+    assert 'TAAS_COMMIT = "6b4ca19c78896159bd4140370fe87e8205840c42"' in source
     assert 'APP_HOST, APP_PORT = "127.0.0.1", 8000' in source
     assert "google.colab.kernel.proxyPort" in source
     assert "trycloudflare.com" not in source
