@@ -145,6 +145,37 @@ def certify(H: Hypergraph, K: Iterable[str], goals: list[GoalContract], prompt_i
         if all(goal_reached(rr2, g, H, uncertain) for g in req_goals):
             removable.append(t)
     M = not removable
+    # Binding integrity: every required goal must resolve to a traceable derivation.
+    # Tool bindings must name a selected toolkit member; model bindings must name the
+    # actual model edge recorded by the reach graph. '-' is reserved for prompt-sourced
+    # outputs only, never as a generic fallback for missing provenance.
+    model_edge_ids = {m.id for m in model_edges}
+    binding_violations: list[dict] = []
+    for g in req_goals:
+        witness = s_w.get(g.id)
+        if witness is None:
+            binding_violations.append({"goal": g.id, "reason": "missing_witness"})
+            continue
+        typ = witness[1:] if witness.startswith("~") else witness
+        binding = bindings.get(g.id)
+        derivation = rr.derivations.get(typ)
+        if typ in H.contracts:
+            if typ not in K or binding != typ:
+                binding_violations.append({"goal": g.id, "reason": "tool_binding_not_selected", "binding": binding})
+        elif typ in rr.tool_types:
+            producer = rr.tool_types[typ]
+            if producer not in K or binding != producer or derivation is None or derivation.kind != "tool" or derivation.edge != producer:
+                binding_violations.append({"goal": g.id, "reason": "tool_witness_provenance_mismatch", "binding": binding, "producer": producer})
+        elif derivation is not None and derivation.kind == "model":
+            if derivation.edge not in model_edge_ids or binding != derivation.edge:
+                binding_violations.append({"goal": g.id, "reason": "model_binding_provenance_mismatch", "binding": binding, "edge": derivation.edge})
+        elif derivation is not None and derivation.kind == "prompt":
+            if binding != "-":
+                binding_violations.append({"goal": g.id, "reason": "prompt_binding_must_be_dash", "binding": binding})
+        else:
+            binding_violations.append({"goal": g.id, "reason": "untraceable_witness", "binding": binding})
+    S = S and not binding_violations
+
     # (B) bridge ratio: share of goal outputs reached through model hyperedges
     bindings, via_model, prod = {}, 0, 1.0
     for g in req_goals:
@@ -171,7 +202,7 @@ def certify(H: Hypergraph, K: Iterable[str], goals: list[GoalContract], prompt_i
                                                        "forbidden_pairs": pairs},
                    "L": {"violations": fl, "labels": rr.labels, "mode": "conservative" if conservative_flow else "derivation"},
                    "V": v_w, "M": {"removable": removable},
-                   "uncertain_goals": [k for k, v in s_w.items() if v and v.startswith("~")],
+                   "uncertain_goals": [k for k, v in s_w.items() if v and v.startswith("~")],\n                   "binding_integrity": {"valid": not binding_violations, "violations": binding_violations},
                    "B": {"bridge_ratio": beta, "rho_product": prod,
                          "bridges": [asdict(b) for b in rr.bridges]}},
         regime=regime, cost=cost, util=util, bridge_ratio=beta, bindings=bindings)
