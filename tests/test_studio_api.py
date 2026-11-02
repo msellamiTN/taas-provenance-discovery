@@ -721,3 +721,15 @@ def test_visual_goal_editor_defaults_missing_cardinality_on_load_and_json_reload
     # Older/hand-authored GoalSpecs may omit n; the visual editor must hydrate
     # the canonical default (1) both at initial load and after JSON reload.
     assert page.count("n:g.n??1") == 2
+
+
+def test_benchmark_task_import_clears_stale_demo_goal_before_authoring():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    handler = page.split('$("bench-use-task").addEventListener("click",()=>{', 1)[1].split(
+        '\\n  $("bench-add-tools")', 1
+    )[0]
+    assert "goalSpecState.goals=[]" in handler
+    assert "example goals were cleared" in handler
+    assert "author semantic goal contracts" in handler
