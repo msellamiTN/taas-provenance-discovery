@@ -82,8 +82,6 @@ def selected_task_executor_scope(
     finally:
         server_manager.all_tools = original
 
-
-
 class TaaSMCPBenchAdapter:
     """Pre-execution discovery stage for MCP-Bench.
 
