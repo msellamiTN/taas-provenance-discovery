@@ -102,6 +102,26 @@
     @media(max-width:720px) { .goal-editor .goal-grid { grid-template-columns:1fr 1fr; } }
     @media(max-width:480px) { .goal-editor .goal-grid { grid-template-columns:1fr; } }
 
+
+    .certificate-panel { margin-top:16px; padding:14px; border:1px solid #dfe6f0; border-radius:10px; background:#fbfcfe; }
+    .certificate-head { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .certificate-head h3 { margin:0; font-size:13px; }
+    .certificate-state { display:inline-flex; padding:5px 9px; border-radius:99px; font-size:11px; font-weight:750; background:#edf1f6; color:#52627a; }
+    .certificate-state.valid { background:#eaf7f0; color:#176b49; }
+    .certificate-state.invalid { background:#fff0ed; color:#a13f2e; }
+    .certificate-checks { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin:12px 0; }
+    .certificate-check { border:1px solid #e3e8ef; border-radius:8px; background:#fff; padding:9px; min-width:0; }
+    .certificate-check strong { display:block; font-size:11px; }
+    .certificate-check small { display:block; color:#66758b; font-size:10px; margin-top:4px; }
+    .certificate-check.pass { border-color:#cde7d8; }
+    .certificate-check.fail { border-color:#f0d0ca; }
+    .coverage-table { width:100%; border-collapse:collapse; font-size:11px; margin-top:8px; }
+    .coverage-table th,.coverage-table td { padding:8px; border-bottom:1px solid #e7ecf2; text-align:left; vertical-align:top; overflow-wrap:anywhere; }
+    .coverage-table th { color:#52627a; font-weight:700; }
+    .certificate-panel details { margin-top:10px; }
+    .certificate-panel summary { cursor:pointer; font-size:11px; font-weight:700; color:#52627a; }
+    @media(max-width:720px) { .certificate-checks { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+
   </style>
 </head>
 <body>
@@ -231,6 +251,21 @@
       <p id="explanation" class="muted" aria-live="polite">Run a request to see why TaaS selected a toolkit or abstained.</p>
       <h2>Selected toolkit</h2>
       <pre id="toolkit">No discovery result yet.</pre>
+
+      <section class="certificate-panel" id="certificate-panel" hidden>
+        <div class="certificate-head"><h3>Trust &amp; certificate</h3><span id="certificate-state" class="certificate-state">Not evaluated</span></div>
+        <p id="certificate-summary" class="subtle">Certificate checks and goal bindings will appear after discovery.</p>
+        <div id="certificate-checks" class="certificate-checks"></div>
+        <h3 style="font-size:12px;margin:14px 0 4px">Goal coverage &amp; provenance binding</h3>
+        <div style="overflow-x:auto"><table class="coverage-table"><thead><tr><th>Goal</th><th>Classification</th><th>Witness</th><th>Binding</th></tr></thead><tbody id="goal-coverage"></tbody></table></div>
+        <div id="counterexample-panel" hidden>
+          <h3 style="font-size:12px;margin:14px 0 4px">Counterexample</h3>
+          <p id="counterexample-summary" class="subtle"></p>
+          <pre id="counterexample-detail"></pre>
+        </div>
+        <details><summary>Inspect certificate witnesses and evidence</summary><pre id="certificate-witnesses">No certificate evidence.</pre></details>
+      </section>
+
       <h2>Full response · certificate · counterexample</h2>
       <pre id="response">The API response will appear here.</pre>
     </section>
@@ -528,6 +563,53 @@
             (witness.eligible !== undefined ? "Eligible tools: " + witness.eligible + ". " : "")
           : "");
       $("explanation").textContent = reason;
+
+      // Render trust evidence as structured UI. Mandatory validity gates are distinct
+      // from diagnostics; no runtime execution claim is inferred from a valid certificate.
+      const cert=data.certificate||null;
+      const certPanel=$("certificate-panel");
+      certPanel.hidden=!cert;
+      if(cert){
+        const mandatory=["S","C","P","E","L","V"];
+        const diagnostic=["M","B"];
+        const checks=cert.checks||{};
+        const valid=mandatory.every(k=>checks[k]===true);
+        $("certificate-state").className="certificate-state "+(valid?"valid":"invalid");
+        $("certificate-state").textContent=valid?"Pre-execution certificate valid":"Certificate invalid";
+        $("certificate-summary").textContent=
+          "Mandatory gates "+mandatory.filter(k=>checks[k]===true).length+"/"+mandatory.length+" passed. " +
+          "M (minimality) and B (bridge ratio) are diagnostics, not validity gates. " +
+          "This certifies the discovery model's pre-execution conditions, not runtime behavior.";
+        const labels={
+          S:["S","Goal sufficiency"],C:["C","Output consumability"],P:["P","Input producibility"],
+          E:["E","Effect and policy bounds"],L:["L","Information-flow bounds"],V:["V","Evidence threshold"],
+          M:["M","Toolkit minimality · diagnostic"],B:["B","Bridge ratio · diagnostic"]
+        };
+        const checkRoot=$("certificate-checks");checkRoot.replaceChildren();
+        [...mandatory,...diagnostic].forEach(k=>{
+          const item=document.createElement("div");item.className="certificate-check "+(checks[k]===true?"pass":checks[k]===false?"fail":"");
+          const title=document.createElement("strong");title.textContent=labels[k][0]+" · "+labels[k][1];
+          const state=document.createElement("small");state.textContent=checks[k]===true?"PASS":checks[k]===false?"FAIL":"NOT REPORTED";
+          item.append(title,state);checkRoot.append(item);
+        });
+        const body=$("goal-coverage");body.replaceChildren();
+        const witnesses=(cert.witnesses&&cert.witnesses.S)||{};
+        goals.forEach(goal=>{
+          const row=document.createElement("tr");
+          const status=goal.optional?"Optional":gapGoals.has(goal.id)?"Toolkit required":goal.sigma==="native"?"Model-delegated":"Coverage not certified";
+          const values=[goal.id+" · "+(goal.desc||goal.class),status,witnesses[goal.id]||"No witness",bindings[goal.id]||"—"];
+          values.forEach(value=>{const cell=document.createElement("td");cell.textContent=String(value);row.append(cell);});
+          body.append(row);
+        });
+        $("certificate-witnesses").textContent=JSON.stringify(cert.witnesses||{},null,2);
+      }
+      const counter=data.counterexample;
+      $("counterexample-panel").hidden=!counter;
+      if(counter){
+        $("counterexample-summary").textContent=(counter.name||counter.kind)+" · goal "+(counter.goal||"unspecified")+" · check "+(counter.check||"unspecified");
+        $("counterexample-detail").textContent=JSON.stringify(counter.witness||{},null,2);
+      }
+
       $("response").textContent = JSON.stringify(data, null, 2);
     } catch (e) {
       $("status").textContent = "Request failed: " + e.message;
