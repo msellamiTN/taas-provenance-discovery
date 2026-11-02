@@ -79,6 +79,11 @@ adapter = TaaSMCPBenchAdapter(
     profile=ModelProfile.load("data/processed/profile_sonnet.json"),
     goal_spec_factory=MCPBenchGoalAnalyst(mcpbench_llm_provider),
     policy=Policy.make("benchmark-default"),
+    # Optional but strongly recommended: LLM-assisted contract typing of the discovered
+    # catalogue (Section 6.1), produced offline and keyed by "server::name", each entry
+    # {"in": {...}, "out": "...", "class": "...", "hash": h(t)}. Without it every contract is
+    # typed lexically and most goals find no type-compatible tool (see E8).
+    typing=catalogue_typing,
 )
 selection = adapter.select(task_description, server_manager.all_tools)
 agent_tools = selection.tools
@@ -157,6 +162,17 @@ baseline-compatible result files.
 ## Implementation boundary
 
 The adapter converts discovered MCP metadata to TaaS contracts, runs the existing
-discovery engine, and returns the selected tool map and trace. It is not yet wired into
-a pinned MCP-Bench checkout, and live end-to-end runs have not been performed. The next
-step is a thin runner hook and a smoke test against one safe MCP server.
+discovery engine, and returns the selected tool map and trace. The runner patch applies to
+the pinned checkout, but live end-to-end runs have not been performed. The adapter path has
+been evaluated offline on the LiveMCPTool catalogue in MCP-Bench's tool-map shape
+(`experiments/e8_mcpbench_adapter.py`, `docs/research/CODEX_VERSION_REVIEW.md`). Three
+properties of the live path matter for any MCP-Bench run:
+
+1. MCP-Bench does not forward MCP `annotations` or `outputSchema`, so contracts carry only
+   lexical evidence and lexical effects.
+2. With `Policy.make("benchmark-default")` (read, egress, session) a tool whose name or first
+   description verb looks like a write is excluded even when it is read-only.
+3. The trace's `goal_spec_vocabulary` lists analyst types and effects outside the engine's
+   vocabulary; prompt version 1.1 aligns the analyst with it.
+
+The next step is a smoke test against one safe MCP server.

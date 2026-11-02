@@ -9,13 +9,14 @@ returns to the model's context, we add the outputs of *all* predecessor goals to
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from typing import Iterable
 
-from .effects import Effect, parse_effect
+from .effects import EFFECT_CLASSES, Effect, parse_effect
 from .hypergraph import EXTRACT_TARGETS, FREE_KINDS
 from .model_profile import EXTERNAL_CLASSES, ModelProfile
-from .types import SemType, parse_type, subtype
+from .types import _TYPE_RE, KINDS, SemType, parse_type, subtype
 
 SIGMAS = ("native", "data", "effect", "unreliable")
 GENERATIVE = frozenset({"write", "plan", "summarise", "synthesise", "translate", "convert_format", "classify",
@@ -40,6 +41,7 @@ class GoalContract:
     desc: str = ""
     sigma_claimed: str = ""
     sigma_reason: str = ""
+    dropped_effects: list[str] = field(default_factory=list)
 
     def rendering(self) -> str:
         """r(g): natural-language rendering (class, output kind, domain terms)."""
@@ -75,15 +77,64 @@ class GoalSpec:
         return out if len(out) == len(self.goals) else None
 
 
+# Effect classes LLM analysts commonly write for the engine's closed set (Section 5). Only
+# unambiguous synonyms are mapped; anything else is kept in GoalContract.dropped_effects so the
+# loss is visible in traces instead of silent.
+EFFECT_ALIASES = {"execute": "exec", "execution": "exec", "run": "exec", "shell": "exec",
+                  "transact": "money", "transaction": "money", "pay": "money", "payment": "money",
+                  "purchase": "money"}
+_EFF_WORD = re.compile(r"^\s*([A-Za-z_]+)\s*(?:\(([^)]*)\))?\s*$")
+
+
+def normalise_effect(e: str) -> Effect | None:
+    """Parse an effect label, mapping known synonyms (execute(*) -> exec, transact(*) -> money)."""
+    try:
+        return parse_effect(e)
+    except ValueError:
+        pass
+    m = _EFF_WORD.match(str(e))
+    if not m:
+        return None
+    cls = EFFECT_ALIASES.get(m.group(1).lower())
+    if cls is None:
+        return None
+    scope = (m.group(2) or "*").strip() or "*"
+    return Effect(cls, "*" if cls in ("exec", "money", "session") else scope)
+
+
+def vocabulary_report(d: dict) -> dict:
+    """Which parts of an analyst GoalSpec fall outside the engine's vocabulary.
+
+    ``aliased_effects`` were mapped by EFFECT_ALIASES; ``unknown_effects`` are dropped;
+    ``unknown_type_kinds`` parse to ``text:<word>`` (collection markers are lost) and will rarely
+    match a tool's head type."""
+    aliased, unknown, kinds = [], [], []
+    types = list(d.get("prompt_inputs", []) or [])
+    for g in d.get("goals", []) or []:
+        for e in g.get("eff", []) or []:
+            try:
+                parse_effect(e)
+            except ValueError:
+                (aliased if normalise_effect(e) is not None else unknown).append(str(e))
+        types += list(g.get("in", []) or []) + [g.get("out", "text")]
+    for t in types:
+        m = _TYPE_RE.match(str(t or "none").strip().lower().replace(" ", "_"))
+        if not m or m.group("kind") not in KINDS:
+            kinds.append(str(t))
+    return {"aliased_effects": aliased, "unknown_effects": unknown, "unknown_type_kinds": kinds,
+            "effect_classes": list(EFFECT_CLASSES), "type_kinds": list(KINDS)}
+
+
 def parse_goal_spec(d: dict, prompt: str = "") -> GoalSpec:
     goals = []
     for i, g in enumerate(d.get("goals", [])):
-        effs = []
+        effs, dropped = [], []
         for e in g.get("eff", []) or []:
-            try:
-                effs.append(parse_effect(e))
-            except ValueError:
-                continue
+            x = normalise_effect(e)
+            if x is None:
+                dropped.append(str(e))
+            else:
+                effs.append(x)
         sigma = g.get("sigma", "native")
         sigma = sigma if sigma in SIGMAS else "data"
         goals.append(GoalContract(
@@ -91,7 +142,8 @@ def parse_goal_spec(d: dict, prompt: str = "") -> GoalSpec:
             inputs=[parse_type(t) for t in g.get("in", []) or []], out=parse_type(g.get("out", "text")),
             eff_plus=effs, sigma=sigma, n=int(g.get("n", 1) or 1), exactness=g.get("exactness", "tolerant"),
             lang=g.get("lang", "en"), deps=[str(x) for x in g.get("deps", []) or []],
-            optional=bool(g.get("optional", False)), desc=g.get("desc", ""), sigma_claimed=sigma))
+            optional=bool(g.get("optional", False)), desc=g.get("desc", ""), sigma_claimed=sigma,
+            dropped_effects=dropped))
     pin = [parse_type(t) for t in d.get("prompt_inputs", ["text"])] or [SemType("text")]
     if SemType("text") not in pin:
         pin.append(SemType("text"))

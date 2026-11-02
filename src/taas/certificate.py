@@ -100,10 +100,28 @@ def consumable(c: CapabilityContract, multimodal: bool) -> bool:
     return True
 
 
+# Prompt-derived witnesses: certify() records the derivation edge ("prompt"); "-" is kept for
+# callers that mark a prompt binding explicitly.
+PROMPT_BINDINGS = frozenset({"-", "prompt"})
+
+
 def _binding_integrity(H: Hypergraph, K: list[str], req_goals: list[GoalContract],
                        s_w: dict[str, str | None], bindings: dict[str, str], rr: ReachResult,
                        model_edges: list[ModelEdge]) -> list[dict]:
-    """Validate that every required-goal witness has a provenance-backed binding."""
+    """Validate that every required-goal witness has a provenance-backed binding.
+
+    Dispatch on the source certify() recorded for the goal and cross-check it against the reach
+    graph:
+
+    * effect witness (the witness is the tool itself): the tool is selected and bound to itself;
+    * tool-produced data: the binding is a selected tool and ``rr.tool_types`` records it as the
+      producer of the witness type. ``tool_types`` is authoritative here, not ``derivations``:
+      ``Hypergraph.reach`` keeps a type's first derivation, so a type the prompt already supplies
+      keeps its "prompt" derivation even when a selected tool also produces it;
+    * model edge: one of this request's model edges, and the recorded derivation of the type;
+    * prompt: only for goals the model covers (σ = native). A gap goal must be discharged by a
+      tool, never by the prompt's own input.
+    """
     model_edge_ids = {m.id for m in model_edges}
     violations_found: list[dict] = []
     for g in req_goals:
@@ -114,21 +132,29 @@ def _binding_integrity(H: Hypergraph, K: list[str], req_goals: list[GoalContract
         typ = witness[1:] if witness.startswith("~") else witness
         binding = bindings.get(g.id)
         derivation = rr.derivations.get(typ)
+        sigma = getattr(g, "sigma", "native")
         if typ in H.contracts:
             if typ not in K or binding != typ:
                 violations_found.append({"goal": g.id, "reason": "tool_binding_not_selected", "binding": binding})
-        elif typ in rr.tool_types:
-            producer = rr.tool_types[typ]
-            if producer not in K or binding != producer or derivation is None or derivation.kind != "tool" or derivation.edge != producer:
-                violations_found.append({"goal": g.id, "reason": "tool_witness_provenance_mismatch", "binding": binding, "producer": producer})
-        elif derivation is not None and derivation.kind == "model":
-            if derivation.edge not in model_edge_ids or binding != derivation.edge:
-                violations_found.append({"goal": g.id, "reason": "model_binding_provenance_mismatch", "binding": binding, "edge": derivation.edge})
-        elif derivation is not None and derivation.kind == "prompt":
-            if binding != "-":
-                violations_found.append({"goal": g.id, "reason": "prompt_binding_must_be_dash", "binding": binding})
+        elif binding in H.contracts or binding in K:
+            producer = rr.tool_types.get(typ)
+            if binding not in K or producer != binding:
+                violations_found.append({"goal": g.id, "reason": "tool_witness_provenance_mismatch",
+                                         "binding": binding, "producer": producer})
+        elif binding in model_edge_ids:
+            if derivation is None or derivation.kind != "model" or derivation.edge != binding:
+                violations_found.append({"goal": g.id, "reason": "model_binding_provenance_mismatch",
+                                         "binding": binding, "edge": getattr(derivation, "edge", None)})
+        elif binding in PROMPT_BINDINGS:
+            if derivation is None or derivation.kind != "prompt":
+                violations_found.append({"goal": g.id, "reason": "untraceable_witness", "binding": binding})
+            elif sigma != "native":
+                violations_found.append({"goal": g.id, "reason": "gap_goal_bound_to_prompt", "binding": binding})
         else:
-            violations_found.append({"goal": g.id, "reason": "untraceable_witness", "binding": binding})
+            kind = getattr(derivation, "kind", None)
+            reason = {"tool": "tool_witness_provenance_mismatch", "model": "model_binding_provenance_mismatch",
+                      "prompt": "prompt_binding_must_be_dash"}.get(kind, "untraceable_witness")
+            violations_found.append({"goal": g.id, "reason": reason, "binding": binding})
     return violations_found
 
 

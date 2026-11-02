@@ -37,10 +37,12 @@ MCP-Bench behavior is unchanged.
 
 ## Validation boundary
 
-The patch is based on source inspection of the pinned upstream runner and executor.
-It has **not** been applied with `git apply --check` or executed against a local
-upstream checkout in this environment. Network access to clone the upstream
-repository was unavailable during authoring. Treat successful application and
-runner-level smoke tests as mandatory gates before benchmark runs.
+The patch was regenerated with `git diff` from the pinned upstream checkout
+(`7a8eaeae83a842a2949080acc5473f65e1569daf`) and verified there with
+`git apply --check`; the patched `benchmark/runner.py` compiles (`python -m py_compile`).
+The earlier hand-written version had one line of leading and no trailing context per hunk,
+which `git apply` rejects (it treats such hunks as anchored to the end of the file);
+`tests/test_runner_patch_format.py` now checks hunk consistency offline. The runner has not
+been executed, and runner-level smoke tests remain a mandatory gate before benchmark runs.
 
 The patch does not claim that a live MCP server has been executed.

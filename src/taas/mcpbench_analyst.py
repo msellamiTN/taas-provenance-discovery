@@ -20,10 +20,13 @@ Each goal has:
   navigate_browser, render_media, create_document, edit_document, classify, extract,
   summarise, translate, convert_format, write, plan, synthesise, aggregate, compute_exact,
   count, compare, answer, random
-- in: array of semantic input type strings
-- out: semantic output type string
-- eff: array of scoped effects, using forms such as read(*), write(document), delete(*),
-  egress(*), execute(*), transact(*), or session
+- in: array of semantic input types (see "Semantic types" below)
+- out: semantic output type (see "Semantic types" below); use none when the goal's purpose
+  is an effect and it returns no artefact
+- eff: array of scoped effects, exactly in these forms: read(src), write(r), delete(r), exec,
+  egress(dst), money, session. Examples: read(api), read(fs), write(fs), write(github),
+  delete(fs), egress(*), egress(slack), exec, money. Use exec for running code or commands and
+  money for payments, orders, refunds or invoices.
 - sigma: native, data, effect, or unreliable
 - n: estimated number of records/items, default 1
 - exactness: tolerant or exact
@@ -40,16 +43,23 @@ Goal decomposition rules:
    present in the task context; never assume tools or hidden data.
 4. Use unreliable only when the task explicitly requires a model capability beyond
    ordinary reliable generation (for example exact large-scale computation).
-5. Describe required data types with domain qualifiers where supported, e.g. repository[],
-   openapi_spec, weather_observation[], document, structured_report, json.
+5. Describe required data types with domain qualifiers where supported, e.g. record:repo[],
+   document:openapi, record:weather[], document:report, record.
 6. Add effects only when explicitly required by the task. Do not infer hidden side effects.
 7. Do not create dependencies merely because goals are listed in sequence.
 8. prompt_inputs should normally contain text plus any explicitly supplied input types.
 9. If the task is underspecified, represent the uncertainty in a goal description rather
    than inventing missing facts.
 
+Semantic types are written kind, kind:domain, or kind:domain[] for a collection.
+kind is exactly one of: text, document, table, record, media, credential, identifier,
+location, number, url, path, query, code, datetime, boolean, none.
+domain is a short lowercase singular noun for what the data is about (repo, issue, weather,
+stock, paper, place, route, file, message, report, sales, ...). Examples: record:repo[],
+record:weather, table:sales, document:report, media:chart, identifier:stock, path:file, query.
+
 JSON shape:
-{"prompt_inputs":["text"],"goals":[{"id":"g1","class":"search","in":["query"],"out":"repository[]","eff":["read(*)"],"sigma":"data","n":1,"exactness":"tolerant","lang":"en","deps":[],"optional":false,"desc":"..."}]}
+{"prompt_inputs":["text"],"goals":[{"id":"g1","class":"search","in":["query"],"out":"record:repo[]","eff":["read(api)","egress(api)"],"sigma":"data","n":1,"exactness":"tolerant","lang":"en","deps":[],"optional":false,"desc":"..."}]}
 """
 
 
@@ -70,7 +80,7 @@ class MCPBenchGoalAnalyst:
         self.max_tokens = max_tokens
         self.last_response: str | None = None
         self.last_usage: dict[str, Any] = {}
-        self.prompt_version = "taas-goal-spec-analyst/1.0"
+        self.prompt_version = "taas-goal-spec-analyst/1.1"
 
     def __call__(self, task: str) -> dict[str, Any]:
         prompt = "TASK (the only information source):\n" + task + (

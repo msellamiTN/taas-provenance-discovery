@@ -14,6 +14,7 @@ from typing import Any, Callable, Iterator, Mapping
 from .contracts import extract_contract
 from .data.registries import RawTool
 from .engine import DiscoveryEngine, DiscoveryResult, EngineConfig
+from .goals import vocabulary_report
 from .model_profile import ModelProfile
 from .policy import Policy
 from .provenance import DEFAULT_TRUST, TrustPolicy
@@ -106,12 +107,19 @@ class TaaSMCPBenchAdapter:
         policy: Policy,
         trust: TrustPolicy = DEFAULT_TRUST,
         engine_config: EngineConfig | None = None,
+        typing: Mapping[str, Mapping[str, Any]] | None = None,
     ) -> None:
+        """``typing`` is the LLM-assisted contract typing of Section 6.1 (``in``, ``out``, ``class``)
+        keyed by TaaS tool id ``server::name``, produced offline for the discovered catalogue.
+        An entry carrying ``hash`` is used only while it matches the live definition hash h(t);
+        a changed definition falls back to lexical typing (the rug-pull rule of Algorithm 3B).
+        Without ``typing`` every contract is typed lexically, which rarely matches analyst types."""
         self.profile = profile
         self.goal_spec_factory = goal_spec_factory
         self.policy = policy
         self.trust = trust
         self.engine_config = engine_config or EngineConfig()
+        self.typing = dict(typing or {})
 
     def select(self, task: str, all_tools: Mapping[str, Mapping[str, Any]]) -> MCPBenchSelection:
         raw_tools, key_by_id = raw_tools_from_mcpbench(all_tools)
@@ -123,7 +131,14 @@ class TaaSMCPBenchAdapter:
         if not isinstance(goal_spec, dict) or not isinstance(goal_spec.get("goals"), list):
             raise ValueError("goal_spec_factory must return a GoalSpec dictionary with a goals array")
 
-        contracts = [extract_contract(t) for t in raw_tools]
+        contracts, typed, stale = [], 0, []
+        for t in raw_tools:
+            ty = self.typing.get(t.id)
+            if ty is not None and ty.get("hash") not in (None, t.definition_hash()):
+                stale.append(t.id)
+                ty = None
+            typed += ty is not None
+            contracts.append(extract_contract(t, dict(ty) if ty is not None else None))
         engine = DiscoveryEngine(contracts, self.profile, trust=self.trust, cfg=self.engine_config)
         result = engine.discover(goal_spec, self.policy)
         if result.abstained:
@@ -147,6 +162,8 @@ class TaaSMCPBenchAdapter:
             "discovery_time_s": result.time_s,
             "taas_pre_execution_time_s": analyst_time_s + result.time_s,
             "goal_spec": goal_spec,
+            "goal_spec_vocabulary": vocabulary_report(goal_spec),
+            "contract_typing": {"llm_typed": typed, "lexical": len(raw_tools) - typed, "stale_hash": stale},
             "gap": [g.id for g in result.gap.gap],
             "gap_shrink": [g.id for g in result.gap.shrink],
             "rho": result.gap.rho,

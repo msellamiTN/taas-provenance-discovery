@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from typing import Iterable
 
 from .bitmap_index import BitmapIndex
-from .certificate import Certificate, Counterexample
+from .certificate import CHI_PRIORITY, Certificate, Counterexample
 from .composer import ComposeResult, Composer, ComposerConfig
 from .contracts import CapabilityContract
 from .goals import GapResult, GoalSpec, gap_analysis, parse_goal_spec
@@ -104,9 +104,17 @@ class DiscoveryEngine:
             failed = (["missing_certificate"] if cr.certificate is None else
                       [name for name in ("S", "C", "P", "E", "L", "V")
                        if cr.certificate.checks.get(name) is not True])
-            chi = Counterexample("chi1", None, "CERTIFICATE", {
+            # Type the counterexample by the failed check (Section 6.4) instead of reporting every
+            # rejection as an uncovered capability: E/V -> χ2 (policy-blocked), L -> χ5 (flow),
+            # S/C/P or a missing certificate -> χ1. The highest-priority kind wins.
+            kinds = {"E": "chi2", "V": "chi2", "L": "chi5"}
+            kind = max((kinds.get(name, "chi1") for name in failed), key=lambda k: CHI_PRIORITY[k])
+            violations = (cr.certificate.witnesses.get("binding_integrity", {}).get("violations", [])
+                          if cr.certificate is not None else [])
+            chi = Counterexample(kind, violations[0]["goal"] if violations else None, "CERTIFICATE", {
                 "reason": "selection requires a valid pre-execution certificate",
                 "failed_checks": failed,
+                "binding_violations": violations,
             })
             cr = ComposeResult(None, cr.certificate, chi, cr.candidates, cr.regime,
                                cr.stats | {"selection_rejected": "invalid_certificate"})
