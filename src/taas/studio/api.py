@@ -185,6 +185,14 @@ def validate_studio_goal_spec(spec: dict[str, Any]) -> None:
             raise HTTPException(status_code=422, detail=f"{prefix}.n must be a positive integer")
         if goal.get("exactness", "tolerant") not in ("tolerant", "exact"):
             raise HTTPException(status_code=422, detail=f"{prefix}.exactness must be tolerant or exact")
+    prompt_inputs = spec.get("prompt_inputs", ["text"])
+    if not isinstance(prompt_inputs, list) or any(not isinstance(item, str) for item in prompt_inputs):
+        raise HTTPException(status_code=422, detail="goal_spec.prompt_inputs must be an array of semantic type strings")
+    for item in prompt_inputs:
+        if not valid_semantic_type(item):
+            raise HTTPException(status_code=422, detail=f"goal_spec.prompt_inputs contains invalid semantic type {item!r}")
+    if "prompt" in spec and not isinstance(spec["prompt"], str):
+        raise HTTPException(status_code=422, detail="goal_spec.prompt must be a string")
     known_ids = set(ids)
     for index, goal in enumerate(goals):
         for dep in goal.get("deps", []):
