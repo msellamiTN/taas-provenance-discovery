@@ -540,3 +540,34 @@ def test_benchmark_tool_browser_marks_annotations_untrusted(monkeypatch):
     assert response.status_code == 200
     assert response.json()["tools"][0]["id"] == "GitHub::search"
     assert response.json()["annotations_are_trusted_evidence"] is False
+
+
+def test_studio_frontend_integrates_benchmark_and_tool_registry_workspace():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    for marker in (
+        'id="workspace"',
+        'id="bench-datasets"',
+        'id="bench-tasks"',
+        'id="bench-tools"',
+        'id="bench-use-task"',
+        'id="bench-add-tools"',
+        'id="discovery"',
+        'id="models"',
+        'id="runtime"',
+        "Gold labels reserved for evaluation",
+        "no automatic LLM interpretation is available in this build",
+    ):
+        assert marker in page
+
+
+def test_studio_frontend_keeps_benchmark_gold_labels_out_of_browser_contract():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    # Browser task selection is based only on the prompt and public task metadata.
+    assert "gold_tools" not in page
+    assert "gold_unresolved" not in page
+    assert "/api/v1/bench/tasks?" in page
+    assert "/api/v1/bench/tools?" in page
