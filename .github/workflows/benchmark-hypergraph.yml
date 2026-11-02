@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - feature/benchmark-capability-hypergraph
-      - feature/taas-mcpbench-integration
       - feature/colab-t4-core-studio
   pull_request:
     branches:
