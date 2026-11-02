@@ -64,9 +64,10 @@ evidence, and runtime execution.
 
 Implemented in this milestone: retained dataset/task browser, retained tool registry browser,
 task/tool handoff to the discovery request, visual GoalSpec editor, local structural checks,
-authenticated server-side GoalSpec validation and advanced JSON synchronization guard.
+authenticated server-side GoalSpec validation, advanced JSON synchronization guard, and
+structured certificate checks, goal coverage/binding and counterexample panels.
 
-Next: certificate/evidence detail panels, persistent discovery sessions and experiment
+Next: richer provenance evidence drill-down, persistent discovery sessions and experiment
 history, followed by the analyst provider interface and isolated MCP runtime. The analyst
 provider and runtime must remain explicitly unavailable until their implementations and
 tests are present.
