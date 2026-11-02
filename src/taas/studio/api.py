@@ -26,6 +26,7 @@ from taas.policy import Policy
 from taas.provenance import DEFAULT_TRUST
 from taas.studio.models import ModelCatalogError, get_model_details, inspect_model_artifacts, search_models
 from taas.studio.runtime import estimate_model_memory, probe_hardware
+from taas.types import KINDS
 
 app = FastAPI(
     title="TaaS Core Studio API",
@@ -133,7 +134,11 @@ def validate_studio_goal_spec(spec: dict[str, Any]) -> None:
     allowed_classes = set(MODEL_CLASSES) | set(EXTERNAL_CLASSES)
     legacy = {"output", "reason", "dependencies"}
     ids: list[str] = []
-    type_pattern = re.compile(r"^[a-z_]+(?::[a-z0-9_-]+)?(?:\\[\\])?$")
+    type_pattern = re.compile(r"^([a-z_]+)(?::[a-z0-9_-]+)?(\[\])?$")
+    def valid_semantic_type(value: str) -> bool:
+        match = type_pattern.fullmatch(value)
+        return bool(match and match.group(1) in KINDS)
+
     for index, goal in enumerate(goals):
         prefix = f"goal_spec.goals[{index}]"
         if not isinstance(goal, dict):
@@ -157,7 +162,7 @@ def validate_studio_goal_spec(spec: dict[str, Any]) -> None:
                 detail=f"{prefix}.class must be one of the supported model or external goal classes; got {cls!r}",
             )
         out_type = goal.get("out")
-        if not isinstance(out_type, str) or not type_pattern.fullmatch(out_type):
+        if not isinstance(out_type, str) or not valid_semantic_type(out_type):
             raise HTTPException(status_code=422, detail=f"{prefix}.out must be a semantic type string")
         if goal.get("sigma", "native") not in SIGMAS:
             raise HTTPException(status_code=422, detail=f"{prefix}.sigma must be one of {SIGMAS}")
@@ -168,7 +173,7 @@ def validate_studio_goal_spec(spec: dict[str, Any]) -> None:
             if any(not isinstance(item, str) for item in goal.get(field_name, [])):
                 raise HTTPException(status_code=422, detail=f"{prefix}.{field_name} must contain strings")
         for input_type in goal.get("in", []):
-            if not type_pattern.fullmatch(input_type):
+            if not valid_semantic_type(input_type):
                 raise HTTPException(status_code=422, detail=f"{prefix}.in contains invalid semantic type {input_type!r}")
         for effect in goal.get("eff", []):
             try:
