@@ -28,6 +28,57 @@
     .metric { background:#f3f6fb; border-radius:8px; padding:11px; }
     .metric strong { display:block; font-size:19px; margin-top:4px; }
     @media(max-width:800px) { .grid { grid-template-columns:1fr; } .result-grid { grid-template-columns:1fr; } }
+
+    /* TaaS Studio product shell */
+    :root { --ink:#15243b; --muted:#66758b; --line:#e4eaf2; --surface:#fff; --canvas:#f5f7fb; --navy:#10213d; --blue:#315fce; --blue-soft:#edf3ff; --green:#16845b; --amber:#a86a12; }
+    body { background:var(--canvas); color:var(--ink); font-size:14px; }
+    header { padding:18px max(24px, calc((100vw - 1440px)/2)); display:flex; align-items:center; justify-content:space-between; gap:20px; border-bottom:1px solid #263754; }
+    header h1 { font-size:22px; letter-spacing:-.4px; }
+    header p { font-size:12px; }
+    main { max-width:1440px; margin:22px auto; padding:0 24px 56px; }
+    section { border-radius:14px; border-color:var(--line); box-shadow:0 2px 8px rgba(22,39,67,.035); padding:20px; }
+    h2 { font-size:15px; letter-spacing:-.1px; }
+    button { background:var(--blue); border-radius:8px; padding:9px 14px; font-size:13px; transition:filter .15s ease; }
+    button:hover { filter:brightness(.94); }
+    input,textarea,select { border-color:#d4dce8; border-radius:8px; background:#fff; }
+    pre { background:#132039; border:1px solid #263754; }
+    .studio-nav { display:flex; gap:8px; flex-wrap:wrap; margin:0 0 18px; padding:8px; background:#fff; border:1px solid var(--line); border-radius:12px; }
+    .studio-nav a { color:#4c5d75; text-decoration:none; font-size:12px; font-weight:650; padding:9px 12px; border-radius:7px; }
+    .studio-nav a:hover { color:#214fb4; background:var(--blue-soft); }
+    .hero { display:flex; justify-content:space-between; align-items:flex-start; gap:18px; margin:0 0 18px; }
+    .eyebrow { color:#315fce; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:1.1px; }
+    .hero h2 { font-size:22px; margin:5px 0 7px; }
+    .hero p { color:var(--muted); margin:0; max-width:760px; line-height:1.55; }
+    .pill { display:inline-flex; align-items:center; gap:6px; padding:5px 9px; border:1px solid var(--line); border-radius:99px; color:#53647d; background:#fff; font-size:11px; font-weight:650; white-space:nowrap; }
+    .pill-dot { width:7px; height:7px; border-radius:50%; background:#d49a35; }
+    .workspace-grid { display:grid; grid-template-columns:minmax(220px,.8fr) minmax(300px,1.25fr) minmax(300px,1.25fr); gap:14px; align-items:start; }
+    .panel-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+    .panel-head h3 { font-size:13px; margin:0; }
+    .count { color:#315fce; background:var(--blue-soft); border-radius:7px; padding:4px 7px; font-size:11px; font-weight:750; }
+    .field { margin:10px 0; }
+    .field label { margin:0 0 6px; color:#50617a; font-size:11px; }
+    .field input,.field select { font:12px Inter,system-ui,sans-serif; padding:9px 10px; }
+    .listbox { border:1px solid var(--line); border-radius:9px; overflow:auto; max-height:340px; background:#fff; }
+    .list-item { display:block; width:100%; margin:0; padding:11px 12px; text-align:left; color:var(--ink); background:#fff; border:0; border-bottom:1px solid #edf0f5; border-radius:0; font-weight:500; }
+    .list-item:last-child { border-bottom:0; }
+    .list-item:hover,.list-item.active { background:#f1f5ff; filter:none; }
+    .list-item strong { display:block; font-size:12px; margin-bottom:4px; }
+    .list-item small { display:block; color:var(--muted); font-size:10px; line-height:1.45; font-weight:400; }
+    .tool-row { display:flex; gap:9px; align-items:flex-start; padding:10px 11px; border-bottom:1px solid #edf0f5; }
+    .tool-row input { width:auto; margin:3px 0 0; }
+    .tool-row strong { font-size:11px; display:block; }
+    .tool-row small { color:var(--muted); font-size:10px; line-height:1.4; display:block; margin-top:3px; }
+    .subtle { color:var(--muted); font-size:11px; line-height:1.5; }
+    .inline-actions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:10px; }
+    .secondary { color:#315fce; background:#edf3ff; border:1px solid #dbe6ff; }
+    .secondary:hover { background:#e3ecff; }
+    .workspace-foot { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; padding:13px 16px; margin-top:14px; background:#f7f9fc; border:1px solid var(--line); border-radius:10px; }
+    .status { font-size:12px; }
+    .section-anchor { scroll-margin-top:18px; }
+    .grid > section { min-width:0; }
+    @media(max-width:1050px) { .workspace-grid { grid-template-columns:1fr 1fr; } .workspace-grid section:first-child { grid-column:1/-1; } }
+    @media(max-width:700px) { header { align-items:flex-start; flex-direction:column; } main { padding:0 12px 36px; } .workspace-grid { grid-template-columns:1fr; } .workspace-grid section:first-child { grid-column:auto; } .hero { flex-direction:column; } }
+
   </style>
 </head>
 <body>
@@ -62,7 +113,46 @@
     <div id="artifact-status" class="status" aria-live="polite">No artifact inspection performed.</div>
     <pre id="artifact-results">Artifact metadata will appear here.</pre>
   </section>
-  <div class="grid">
+
+  <nav class="studio-nav" aria-label="Studio navigation">
+    <a href="#workspace">Workspace</a><a href="#discovery">Discovery</a><a href="#models">Model catalog</a><a href="#runtime">Runtime diagnostics</a>
+  </nav>
+  <div class="hero">
+    <div><div class="eyebrow">Toolkit-as-a-Service · Control plane</div><h2>Discovery workspace</h2><p>Move from benchmark intent to a reviewed GoalSpec, select candidate tools from the retained registry, and inspect a provenance-aware discovery decision—all in one guided workspace.</p></div>
+    <span class="pill"><span class="pill-dot"></span> Discovery preview · execution disabled</span>
+  </div>
+  <section id="workspace" class="section-anchor" style="margin-bottom:18px">
+    <div class="panel-head"><div><div class="eyebrow">01 · Explore</div><h2 style="margin:4px 0">Benchmark &amp; tool workspace</h2></div><span class="pill">Repository-retained data · no upstream fetch</span></div>
+    <div class="workspace-grid">
+      <section style="box-shadow:none;padding:14px">
+        <div class="panel-head"><h3>Benchmark datasets</h3><span class="count" id="bench-dataset-count">—</span></div>
+        <div id="bench-datasets" class="listbox" style="max-height:210px"><div class="subtle" style="padding:12px">Load datasets after entering your Studio token.</div></div>
+        <div class="field"><label for="bench-category">Category filter</label><select id="bench-category" style="width:100%"><option value="">All categories</option></select></div>
+        <div class="subtle" id="bench-data-origin">Dataset catalog has not been loaded.</div>
+      </section>
+      <section style="box-shadow:none;padding:14px">
+        <div class="panel-head"><h3>Task browser</h3><span class="count" id="bench-task-count">0 tasks</span></div>
+        <div class="field"><label for="bench-task-search">Search task prompts</label><input id="bench-task-search" type="search" placeholder="Search by task intent…" style="width:100%"></div>
+        <div id="bench-tasks" class="listbox"><div class="subtle" style="padding:12px">Choose a dataset to browse tasks.</div></div>
+        <div class="inline-actions"><button id="bench-task-prev" class="secondary" type="button">Previous</button><button id="bench-task-next" class="secondary" type="button">Next</button><span class="subtle" id="bench-task-page">Page 1</span></div>
+        <div class="field"><label for="bench-task-prompt">Selected task prompt · gold labels are never shown</label><textarea id="bench-task-prompt" rows="3" style="min-height:76px" readonly placeholder="Select a task to inspect its prompt."></textarea></div>
+        <div class="inline-actions"><button id="bench-use-task" type="button" class="secondary">Use prompt in GoalSpec</button></div>
+      </section>
+      <section style="box-shadow:none;padding:14px">
+        <div class="panel-head"><h3>Tool registry</h3><span class="count" id="bench-tool-count">0 tools</span></div>
+        <div class="field"><label for="bench-tool-source">Registry source</label><select id="bench-tool-source" style="width:100%"><option value="LiveMCPTool">LiveMCPTool</option><option value="MCPToolBench++">MCPToolBench++</option><option value="all">All sources</option></select></div>
+        <div class="field"><label for="bench-tool-search">Search servers, tools and descriptions</label><input id="bench-tool-search" type="search" placeholder="Search tool registry…" style="width:100%"></div>
+        <div id="bench-tools" class="listbox"><div class="subtle" style="padding:12px">Tool registry has not been loaded.</div></div>
+        <div class="inline-actions"><button id="bench-tool-prev" class="secondary" type="button">Previous</button><button id="bench-tool-next" class="secondary" type="button">Next</button><span class="subtle" id="bench-tool-page">Page 1</span></div>
+        <div class="inline-actions"><button id="bench-add-tools" type="button">Add selected tools to discovery</button><span class="subtle" id="bench-selected-count">0 selected</span></div>
+        <p class="subtle">Registry descriptions, schemas and annotations are declarations—not proof of runtime behavior or trusted provenance.</p>
+      </section>
+    </div>
+    <div class="workspace-foot"><div><strong style="font-size:12px">Guided workflow</strong><div class="subtle">Select a task → review its intent → author/verify GoalSpec → select tools → run discovery.</div></div><span class="pill">Gold labels reserved for evaluation</span></div>
+    <div id="bench-status" class="status subtle" aria-live="polite" style="margin-top:12px">Enter the Studio API token below, then load the benchmark workspace.</div>
+  </section>
+
+  <div class="grid" id="discovery">
     <section>
       <h2>1 · Request configuration</h2>
       <label for="token">Studio API bearer token (kept in this page's memory only)</label>
@@ -275,6 +365,97 @@
       $("response").textContent = "";
     } finally { run.disabled = false; }
   });
+
+  // Integrated benchmark workspace: task prompts and tool metadata are browsed locally.
+  const bench = { dataset:"livemcpbench", taskOffset:0, toolOffset:0, taskTotal:0, toolTotal:0, taskLimit:12, toolLimit:15, selectedTask:null, selectedTools:new Map(), datasets:[] };
+  const tokenValue = () => $("token").value.trim();
+  const apiGet = async (path) => {
+    const token=tokenValue(); if(!token) throw new Error("Enter the Studio API token in Discovery request configuration first.");
+    const r=await fetch(path,{headers:{"Authorization":"Bearer "+token}});
+    const d=await r.json(); if(!r.ok) throw new Error(d.detail||("HTTP "+r.status)); return d;
+  };
+  const loadDatasets = async () => {
+    const d=await apiGet("/api/v1/bench/datasets"); bench.datasets=d.datasets||[];
+    $("bench-dataset-count").textContent=bench.datasets.length+" datasets";
+    $("bench-datasets").innerHTML="";
+    bench.datasets.forEach((item,i)=>{
+      const b=document.createElement("button"); b.type="button"; b.className="list-item"+(item.id===bench.dataset?" active":"");
+      const title=document.createElement("strong"); title.textContent=item.id;
+      const meta=document.createElement("small"); meta.textContent=item.task_count+" tasks · "+(item.categories||[]).length+" categories";
+      b.append(title,meta); b.addEventListener("click",()=>{bench.dataset=item.id;bench.taskOffset=0;loadDatasets();loadTasks();}); $("bench-datasets").append(b);
+    });
+    $("bench-data-origin").textContent=d.data_origin+" · upstream fetch: "+(d.upstream_fetch_performed?"yes":"no");
+    const cats=[...new Set(bench.datasets.find(x=>x.id===bench.dataset)?.categories||[])];
+    $("bench-category").innerHTML='<option value="">All categories</option>';
+    cats.forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;$("bench-category").append(o);});
+    await loadTasks();
+  };
+  const loadTasks = async () => {
+    const p=new URLSearchParams({dataset:bench.dataset,offset:String(bench.taskOffset),limit:String(bench.taskLimit)});
+    if($("bench-task-search").value.trim())p.set("q",$("bench-task-search").value.trim());
+    if($("bench-category").value)p.set("category",$("bench-category").value);
+    const d=await apiGet("/api/v1/bench/tasks?"+p);bench.taskTotal=d.total||0;
+    $("bench-task-count").textContent=bench.taskTotal+" tasks";$("bench-task-page").textContent="Page "+(Math.floor(bench.taskOffset/bench.taskLimit)+1);
+    $("bench-tasks").innerHTML="";
+    (d.tasks||[]).forEach(t=>{
+      const b=document.createElement("button");b.type="button";b.className="list-item"+(bench.selectedTask?.id===t.id?" active":"");
+      const title=document.createElement("strong");title.textContent=t.id||"Task";
+      const meta=document.createElement("small");meta.textContent=(t.category||"Uncategorized")+" · "+(t.n_steps||1)+" step(s) · "+t.query;
+      b.append(title,meta);b.addEventListener("click",()=>{bench.selectedTask=t;$("bench-task-prompt").value=t.query||"";[...$("bench-tasks").children].forEach(x=>x.classList.remove("active"));b.classList.add("active");});
+      $("bench-tasks").append(b);
+    });
+    if(!d.tasks?.length)$("bench-tasks").innerHTML='<div class="subtle" style="padding:12px">No tasks match these filters.</div>';
+    $("bench-task-prev").disabled=bench.taskOffset===0;$("bench-task-next").disabled=bench.taskOffset+bench.taskLimit>=bench.taskTotal;
+  };
+  const loadTools = async () => {
+    const p=new URLSearchParams({source:$("bench-tool-source").value,offset:String(bench.toolOffset),limit:String(bench.toolLimit)});
+    if($("bench-tool-search").value.trim())p.set("q",$("bench-tool-search").value.trim());
+    const d=await apiGet("/api/v1/bench/tools?"+p);bench.toolTotal=d.total||0;
+    $("bench-tool-count").textContent=bench.toolTotal+" tools";$("bench-tool-page").textContent="Page "+(Math.floor(bench.toolOffset/bench.toolLimit)+1);
+    $("bench-tools").innerHTML="";
+    (d.tools||[]).forEach(t=>{
+      const row=document.createElement("label");row.className="tool-row";row.style.margin=0;
+      const cb=document.createElement("input");cb.type="checkbox";cb.checked=bench.selectedTools.has(t.id);
+      cb.addEventListener("change",()=>{if(cb.checked)bench.selectedTools.set(t.id,t);else bench.selectedTools.delete(t.id);$("bench-selected-count").textContent=bench.selectedTools.size+" selected";});
+      const wrap=document.createElement("span");const strong=document.createElement("strong");strong.textContent=t.server+"/"+t.name;
+      const small=document.createElement("small");small.textContent=(t.description||"No description")+" · "+(t.source||"unknown source");
+      wrap.append(strong,small);row.append(cb,wrap);$("bench-tools").append(row);
+    });
+    if(!d.tools?.length)$("bench-tools").innerHTML='<div class="subtle" style="padding:12px">No tools match this search.</div>';
+    $("bench-tool-prev").disabled=bench.toolOffset===0;$("bench-tool-next").disabled=bench.toolOffset+bench.toolLimit>=bench.toolTotal;
+    $("bench-selected-count").textContent=bench.selectedTools.size+" selected";
+  };
+  $("bench-task-prev").addEventListener("click",()=>{bench.taskOffset=Math.max(0,bench.taskOffset-bench.taskLimit);loadTasks().catch(showBenchError);});
+  $("bench-task-next").addEventListener("click",()=>{bench.taskOffset+=bench.taskLimit;loadTasks().catch(showBenchError);});
+  $("bench-tool-prev").addEventListener("click",()=>{bench.toolOffset=Math.max(0,bench.toolOffset-bench.toolLimit);loadTools().catch(showBenchError);});
+  $("bench-tool-next").addEventListener("click",()=>{bench.toolOffset+=bench.toolLimit;loadTools().catch(showBenchError);});
+  $("bench-category").addEventListener("change",()=>{bench.taskOffset=0;loadTasks().catch(showBenchError);});
+  $("bench-task-search").addEventListener("keydown",e=>{if(e.key==="Enter"){bench.taskOffset=0;loadTasks().catch(showBenchError);}});
+  $("bench-tool-search").addEventListener("keydown",e=>{if(e.key==="Enter"){bench.toolOffset=0;loadTools().catch(showBenchError);}});
+  $("bench-tool-source").addEventListener("change",()=>{bench.toolOffset=0;loadTools().catch(showBenchError);});
+  $("bench-use-task").addEventListener("click",()=>{
+    if(!bench.selectedTask){$("bench-status").textContent="Select a task first.";return;}
+    try{const body=JSON.parse($("payload").value);body.goal_spec=body.goal_spec||{};body.goal_spec.prompt=bench.selectedTask.query||"";
+      $("payload").value=JSON.stringify(body,null,2);
+      $("bench-status").textContent="Task prompt copied into GoalSpec. Review and author semantic goals before discovery; no automatic LLM interpretation is available in this build.";
+      document.querySelector("#discovery").scrollIntoView({behavior:"smooth",block:"start"});
+    }catch(e){$("bench-status").textContent="Cannot update GoalSpec: discovery request JSON is invalid.";}
+  });
+  $("bench-add-tools").addEventListener("click",()=>{
+    try{const body=JSON.parse($("payload").value);const existing=new Map((body.tools||[]).map(t=>[t.server+"::"+t.name,t]));
+      bench.selectedTools.forEach(t=>existing.set(t.server+"::"+t.name,{server:t.server,name:t.name,description:t.description||"",input_schema:t.input_schema||{},output_schema:t.output_schema||null,annotations:t.annotations||null,source:t.source||"benchmark-registry",category:t.category||""}));
+      body.tools=[...existing.values()];$("payload").value=JSON.stringify(body,null,2);
+      $("bench-status").textContent=bench.selectedTools.size+" selected registry tool(s) merged into the discovery request. Review the GoalSpec and policy before running.";
+    }catch(e){$("bench-status").textContent="Cannot add tools: discovery request JSON is invalid.";}
+  });
+  function showBenchError(e){$("bench-status").textContent="Workspace request failed: "+e.message;}
+  const originalRunHandler = run.onclick;
+  // Load benchmark catalogs on explicit user action to avoid background requests before authentication.
+  const loadBtn=document.createElement("button");loadBtn.type="button";loadBtn.textContent="Load benchmark workspace";loadBtn.style.marginTop="12px";
+  loadBtn.addEventListener("click",async()=>{loadBtn.disabled=true;$("bench-status").textContent="Loading retained benchmark datasets…";try{await loadDatasets();await loadTools();$("bench-status").textContent="Benchmark workspace loaded from the repository-retained snapshot. Gold labels remain hidden.";}catch(e){showBenchError(e);}finally{loadBtn.disabled=false;}});
+  $("bench-status").append(document.createTextNode(" "));
+  $("bench-status").append(loadBtn);
+
 })();
 </script>
 </body>
