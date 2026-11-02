@@ -307,3 +307,85 @@ def test_kv_cache_estimate_rejects_unsupported_dtype():
             context_length=4096,
             kv_cache_dtype="bf16",
         )
+
+
+
+def test_huggingface_model_detail_endpoint_returns_safe_metadata(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    monkeypatch.setattr(api, "get_model_details", lambda model_id: {
+        "model_id": model_id,
+        "architecture": {
+            "model_type": "llama",
+            "num_hidden_layers": 32,
+            "num_key_value_heads": 8,
+            "head_dim": 128,
+            "max_position_embeddings": 8192,
+            "kv_cache_dimensions_complete": True,
+            "context_limit_reported": True,
+        },
+        "architecture_source": "Hugging Face model API config",
+        "architecture_complete_for_kv_estimate": True,
+        "weights_downloaded": False,
+        "model_code_executed": False,
+    })
+    response = client.get(
+        "/api/v1/models/detail",
+        params={"model_id": "org/example-7b"},
+        headers={"Authorization": "Bearer test-token"},
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["architecture"]["num_hidden_layers"] == 32
+    assert data["architecture_complete_for_kv_estimate"] is True
+    assert data["weights_downloaded"] is False
+    assert data["model_code_executed"] is False
+
+
+def test_huggingface_model_detail_requires_authentication(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.get(
+        "/api/v1/models/detail",
+        params={"model_id": "org/example"},
+    )
+    assert response.status_code == 401
+
+
+def test_huggingface_model_detail_rejects_invalid_repository_id(monkeypatch):
+    from taas.studio.models import get_model_details
+
+    with pytest.raises(ValueError, match="namespace/repository"):
+        get_model_details("../../etc/passwd")
+
+
+def test_huggingface_model_detail_uses_only_reported_architecture(monkeypatch):
+    from taas.studio import models
+
+    class FakeResponse:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return {
+                "id": "org/example",
+                "tags": ["license:apache-2.0"],
+                "config": {
+                    "model_type": "llama",
+                    "architectures": ["LlamaForCausalLM"],
+                    "num_hidden_layers": 32,
+                    "num_attention_heads": 32,
+                    "num_key_value_heads": 8,
+                    "hidden_size": 4096,
+                    "max_position_embeddings": 8192,
+                },
+            }
+
+    monkeypatch.setattr(models.httpx, "get", lambda *args, **kwargs: FakeResponse())
+    details = models.get_model_details("org/example")
+    assert details["architecture"]["num_hidden_layers"] == 32
+    assert details["architecture"]["num_key_value_heads"] == 8
+    # head_dim is deliberately not inferred from hidden_size / attention heads.
+    assert "head_dim" not in details["architecture"]
+    assert details["architecture_complete_for_kv_estimate"] is False
+    assert details["weights_downloaded"] is False
