@@ -58,6 +58,7 @@ Important contract rules:
 - `eff` is an array of effect expressions, e.g. `["read(*)"]`, not a scalar string.
 - `sigma` is one of `native`, `data`, `effect`, or `unreliable`.
 - Semantic output types must agree with the tool contract. The demo uses `record[]` on both sides.
+- The demo policy uses `lmin: ann` because its synthetic read-only evidence comes from an MCP annotation; an `obs` threshold would correctly exclude annotation-only evidence.
 - A successful discovery response returns the canonical parsed GoalSpec, including `in`, `out`, `eff`, `desc`, and `deps`.
 
 An `abstained` result remains a valid safety outcome. Inspect `counterexample`, `gap`, `composition.stats.per_goal`, and the eligible/candidate counts; do not weaken policy or type checks merely to obtain a selected toolkit.
