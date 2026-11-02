@@ -91,39 +91,46 @@ tools and does not replace MCP-Bench's evaluator.
 
 ### Runner hook (pinned MCP-Bench revision)
 
-At the pinned revision, BenchmarkRunner creates TaskExecutor from
-conn_mgr.server_manager; the executor reads server_manager.all_tools to construct
-its prompt catalogue and validate planned tool calls. The narrow hook is to scope
-that mapping only around agent execution:
+At the pinned revision, `TaskExecutor.__init__` snapshots
+`server_manager.all_tools` into `self.all_tools`. The correct integration point
+is immediately before constructing the executor, not only around
+`executor.execute()`. The manager's live catalogue must be restored before actual
+tool calls: `PersistentMultiServerManager.call_tool()` validates names against
+`server_manager.all_tools`.
+
+Use the following narrow hook in `BenchmarkRunner.execute_single_task_with_model`
+after `ConnectionManager` has connected servers and before native executor creation:
 
 ```python
-from taas.mcpbench import selected_tool_catalogue_scope
+from taas.mcpbench import selected_task_executor_scope
 
 selection = taas_adapter.select(task_description, conn_mgr.all_tools)
 taas_trace = selection.trace
 
-with selected_tool_catalogue_scope(conn_mgr.server_manager, selection.tools):
+with selected_task_executor_scope(conn_mgr.server_manager, selection.tools):
     executor = TaskExecutor(
         llm_provider,
         conn_mgr.server_manager,
         self.concurrent_summarization,
     )
-    result = await asyncio.wait_for(
-        executor.execute(task_description),
-        timeout=timeout_seconds,
-    )
 
-# The context manager has restored the complete live catalogue here.
-# Keep MCP-Bench's evaluator inputs and native result schema unchanged.
-result["available_tools"] = conn_mgr.all_tools
+# The executor retained the filtered snapshot. The persistent server manager
+# has the complete catalogue again so its call_tool() can dispatch selected calls.
+result = await asyncio.wait_for(
+    executor.execute(task_description),
+    timeout=timeout_seconds,
+)
+result["available_tools"] = conn_mgr.all_tools  # full catalogue for evaluator parity
 result["taas"] = taas_trace
 ```
 
-The scope rejects keys not present in the live catalogue, derives metadata from the
-live catalogue rather than caller-supplied selection metadata, and restores the full
-catalogue on normal return, exceptions, and cancellation. The runner integration is
-a small patch to the pinned MCP-Bench checkout; this repository does not vendor or
-modify the upstream benchmark code.
+The scope rejects unknown tool keys, derives selected metadata from the live
+catalogue, restores the manager in `finally`, and preserves the executor's selected
+snapshot. This hook does not alter MCP-Bench task files, execution loop, evaluator,
+judge or aggregation. A zero-tool selection must be explicitly marked as TaaS
+abstention by the runner; do not pass an empty catalogue into an executor that may
+still synthesize an answer and have it counted as ordinary success. The live runner
+patch and a real MCP smoke test remain separate validation steps.
 
 ## Paired-run controls
 
