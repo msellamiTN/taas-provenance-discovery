@@ -5,7 +5,7 @@ MCP-Bench revision.
 
 - Upstream: https://github.com/Accenture/mcp-bench
 - Required revision: `7a8eaeae83a842a2949080acc5473f65e1569daf`
-- Target file: `benchmark/runner.py`
+- Target files: `benchmark/runner.py`, `benchmark/results_aggregator.py`
 - TaaS adapter: `src/taas/mcpbench.py`
 
 ## Apply
