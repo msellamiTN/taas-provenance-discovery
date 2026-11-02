@@ -44,6 +44,15 @@
     <div id="gpu-status" class="status" aria-live="polite">Not checked yet. Enter the Studio token, then run diagnostics.</div>
     <pre id="gpu-details">No hardware diagnostics yet.</pre>
   </section>
+  <section style="margin-bottom:18px">
+    <h2>Model catalog · Hugging Face</h2>
+    <p class="muted">Search model repository metadata. This is a read-only catalog: it does not download weights, execute repository code or load a model.</p>
+    <label for="model-query">Model search</label>
+    <input id="model-query" type="text" maxlength="120" value="small language model" placeholder="e.g. Qwen 2.5 3B">
+    <button id="model-search" type="button">Search Hugging Face</button>
+    <div id="model-status" class="status" aria-live="polite">No search performed.</div>
+    <pre id="model-results">Model catalog results will appear here.</pre>
+  </section>
   <div class="grid">
     <section>
       <h2>1 · Request configuration</h2>
@@ -119,6 +128,28 @@
 (() => {
   const $ = (id) => document.getElementById(id);
   const run = $("run");
+  $("model-search").addEventListener("click", async () => {
+    const token = $("token").value.trim();
+    const query = $("model-query").value.trim();
+    if (!token) { $("model-status").textContent = "Enter the Studio API token first."; return; }
+    if (!query) { $("model-status").textContent = "Enter a model search query."; return; }
+    const button = $("model-search");
+    button.disabled = true;
+    $("model-status").textContent = "Searching Hugging Face model metadata…";
+    try {
+      const params = new URLSearchParams({ q: query, limit: "10", sort: "downloads" });
+      const response = await fetch("/api/v1/models/search?" + params.toString(), {
+        headers: { "Authorization": "Bearer " + token }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
+      $("model-status").textContent = data.count + " model metadata record(s). Weights downloaded: no.";
+      $("model-results").textContent = JSON.stringify(data.models || [], null, 2);
+    } catch (e) {
+      $("model-status").textContent = "Model search failed: " + e.message;
+      $("model-results").textContent = "";
+    } finally { button.disabled = false; }
+  });
   $("gpu-check").addEventListener("click", async () => {
     const token = $("token").value.trim();
     if (!token) { $("gpu-status").textContent = "Enter the Studio API token first."; return; }
