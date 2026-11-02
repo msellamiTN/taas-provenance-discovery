@@ -166,6 +166,7 @@
       </div>
       <details class="advanced-json">
         <summary>Advanced · inspect or edit the complete discovery JSON</summary>
+        <button id="goal-reload-json" type="button" class="secondary" style="margin:8px 0">Reload visual editor from JSON</button>
         <label for="payload">Discovery request (JSON)</label>
 
       <textarea id="payload" spellcheck="false">{
@@ -360,10 +361,28 @@
   $("goal-prompt").addEventListener("input",()=>{goalSpecState.prompt=$("goal-prompt").value;syncGoalSpec();});
   $("goal-prompt-inputs").addEventListener("input",()=>{goalSpecState.prompt_inputs_text=$("goal-prompt-inputs").value;syncGoalSpec();});
   $("goal-add").addEventListener("click",()=>{goalSpecState.goals.push(defaultGoal(goalSpecState.goals.length+1));renderGoalEditor();syncGoalSpec();});
-  $("goal-validate").addEventListener("click",()=>{
+  $("goal-validate").addEventListener("click",async()=>{
     const errors=validateGoalSpecLocal(),box=$("goal-validation");
-    box.className="goal-validation "+(errors.length?"invalid":"valid");
-    box.textContent=errors.length?errors.join(" "):"Local structural validation passed: "+goalSpecState.goals.length+" goal(s), unique IDs, supported types/classes/effects, valid dependencies and acyclic graph. Semantic correctness still requires expert review.";
+    if(errors.length){box.className="goal-validation invalid";box.textContent=errors.join(" ");return;}
+    const token=$("token").value.trim();
+    if(!token){box.className="goal-validation invalid";box.textContent="Local checks passed. Enter the Studio API token for server-side contract validation.";return;}
+    const button=$("goal-validate");button.disabled=true;box.className="goal-validation";box.textContent="Validating the canonical GoalSpec contract and dependency graph on the Studio API…";
+    try{
+      getGoalSpec();
+      const body=readRequest();
+      const response=await fetch("/api/v1/goals/validate",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify(body.goal_spec)});
+      const data=await response.json();if(!response.ok)throw new Error(data.detail||("HTTP "+response.status));
+      box.className="goal-validation valid";
+      box.textContent="Server validation passed · "+data.goal_count+" goal(s) · topological order: "+data.goal_order.join(" → ")+". Structural validity only; semantic correctness is not automatically verified.";
+    }catch(e){box.className="goal-validation invalid";box.textContent="Server validation failed: "+e.message;}
+    finally{button.disabled=false;}
+  });
+  $("goal-reload-json").addEventListener("click",()=>{
+    try{
+      const gs=readRequest().goal_spec||{};
+      goalSpecState={prompt:gs.prompt||"",prompt_inputs_text:(gs.prompt_inputs||["text"]).join(", "),goals:Array.isArray(gs.goals)?gs.goals.map(g=>({...g,in:[...(g.in||[])],eff:[...(g.eff||[])],deps:[...(g.deps||[])]})):[]};
+      renderGoalEditor();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Visual editor reloaded from the JSON payload.";
+    }catch(e){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent="Cannot reload editor: "+e.message;}
   });
   try{
     const initial=readRequest();const gs=initial.goal_spec||{};
