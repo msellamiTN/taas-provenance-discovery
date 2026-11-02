@@ -86,6 +86,13 @@ _QUANTIZATION_BYTES = {
     "int4": 0.5,
 }
 
+# Bytes per KV-cache element; independent of weight quantization.
+_KV_CACHE_BYTES = {
+    "fp16": 2.0,
+    "int8": 1.0,
+    "fp32": 4.0,
+}
+
 
 def estimate_model_memory(
     parameters_billion: float,
