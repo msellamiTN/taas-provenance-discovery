@@ -1,7 +1,10 @@
 diff --git a/benchmark/runner.py b/benchmark/runner.py
 --- a/benchmark/runner.py
 +++ b/benchmark/runner.py
-@@ -487,5 +487,43 @@
+@@ -486,11 +486,47 @@
+                             }
+                     
+                     # Create executor and execute task
 -                    executor = TaskExecutor(
 -                        llm_provider, 
 -                        conn_mgr.server_manager, 
@@ -20,8 +23,7 @@ diff --git a/benchmark/runner.py b/benchmark/runner.py
 +                        )
 +                        taas_trace = taas_selection.trace
 +
-+                        # Abstention is a first-class outcome. Do not invoke the
-+                        # agent or evaluator as if this were a successful execution.
++                        # Abstention is a first-class outcome.
 +                        if taas_trace.get("abstained") or not taas_selection.tools:
 +                            return {
 +                                "task_id": task_id,
@@ -33,9 +35,8 @@ diff --git a/benchmark/runner.py b/benchmark/runner.py
 +                                "taas": taas_trace,
 +                            }
 +
-+                        # TaskExecutor snapshots server_manager.all_tools in its
-+                        # constructor. Restore the full live catalogue immediately
-+                        # afterwards so selected calls still dispatch normally.
++                        # TaskExecutor snapshots the catalogue in its constructor.
++                        # Restore the full manager catalogue after construction.
 +                        with selected_task_executor_scope(
 +                            conn_mgr.server_manager, taas_selection.tools
 +                        ):
@@ -50,8 +51,16 @@ diff --git a/benchmark/runner.py b/benchmark/runner.py
 +                            conn_mgr.server_manager,
 +                            self.concurrent_summarization,
 +                        )
-@@ -513,1 +551,4 @@
+                     
+                     
+                     task_execution_start_time = time.time()
+@@ -511,6 +547,9 @@
+                         
+                         # Add available tools to result
                          result['available_tools'] = conn_mgr.all_tools
 +                        # Keep TaaS evidence separate from evaluator inputs.
 +                        if taas_trace is not None:
 +                            result["taas"] = taas_trace
+                         
+                         # Successful execution, prepare return result
+                         execution_result = {
