@@ -132,3 +132,23 @@ The authenticated endpoint `POST /api/v1/models/estimate-memory` provides an ear
 Supported weight-storage assumptions are FP16 (2 bytes/parameter), INT8 (1 byte/parameter), and INT4 (0.5 byte/parameter). The estimate adds a configurable overhead fraction and runtime reserve, and compares the result with currently observed free GPU memory when available.
 
 **This is not a model compatibility or load guarantee.** The current estimate excludes KV cache, activations, CUDA workspaces, allocator fragmentation and backend-specific quantization metadata. Context length and architecture-aware KV-cache estimation must be incorporated before this estimate is used to approve a model load. No model is downloaded or loaded by this endpoint.
+
+
+## Read-only Hugging Face model catalog
+
+The Studio **Model catalog · Hugging Face** panel calls the authenticated endpoint:
+
+`GET /api/v1/models/search?q=...&limit=10&sort=downloads`
+
+The adapter queries the fixed Hugging Face model metadata API and returns a bounded subset of repository metadata: model ID, model page, task tag, library, downloads, likes, last modification time, gated/private flags, license tag, tags, safetensors presence and parameter count when supplied by the catalog.
+
+Operational properties:
+
+- Search limit is capped at 30 records; request timeout is 12 seconds.
+- An optional `HF_TOKEN` environment variable can be used for access to metadata that requires authentication. It is never returned by the API.
+- The Studio bearer token is required for the endpoint.
+- Repository IDs and metadata are treated as untrusted display data. No model card code, custom Python, or repository file is executed.
+- Search does **not** download weights, inspect all weight shards, load a model, or certify T4 compatibility.
+- Parameter counts may be absent. Safetensors metadata is not a substitute for inspecting a specific downloadable artifact and its quantization format.
+
+The next compatibility milestone must combine verified artifact metadata, architecture-specific KV-cache estimates, context length and the selected inference backend before allowing a download or load operation.
