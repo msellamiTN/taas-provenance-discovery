@@ -285,11 +285,13 @@
     writeRequest(body);
   };
   const defaultGoal = (i) => ({id:"g"+i,class:"retrieve",in:[],out:"record[]",eff:["read(*)"],sigma:"data",desc:"Describe the required operation",deps:[],n:1,exactness:"tolerant",lang:"en",optional:false});
+  let goalFieldCounter=0;
   const makeField = (labelText, value, onChange, options=null, multiline=false) => {
     const wrap=document.createElement("div");wrap.className="field";
-    const label=document.createElement("label");label.textContent=labelText;wrap.append(label);
+    const label=document.createElement("label");const fieldId="goal-field-"+(++goalFieldCounter);label.htmlFor=fieldId;label.textContent=labelText;wrap.append(label);
     const control=multiline?document.createElement("textarea"):(options?document.createElement("select"):document.createElement("input"));
     if(options){options.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;control.append(o);});}
+    control.id=fieldId;
     if(multiline)control.value=value||"";
     else if(control.tagName==="SELECT")control.value=value||options[0];
     else control.value=value??"";
@@ -334,6 +336,7 @@
   const validateGoalSpecLocal = () => {
     const errors=[], ids=new Set(), goals=goalSpecState.goals;
     if(!goalSpecState.prompt.trim())errors.push("Natural-language objective is empty.");
+    splitList(goalSpecState.prompt_inputs_text||"").forEach(t=>{const m=/^([a-z_]+)(?::[a-z0-9_-]+)?(\\[\\])?$/.exec(t);if(!m||!SEMANTIC_KINDS.includes(m[1]))errors.push("Invalid prompt context semantic type "+t+".");});
     if(!goals.length)errors.push("At least one goal is required.");
     goals.forEach((g,i)=>{
       const p="Goal "+(i+1)+" ("+(g.id||"no ID")+")";
