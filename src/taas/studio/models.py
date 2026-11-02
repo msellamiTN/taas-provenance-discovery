@@ -185,3 +185,146 @@ def get_model_details(model_id: str) -> dict[str, Any]:
         "weights_downloaded": False,
         "model_code_executed": False,
     }
+
+
+
+def inspect_model_artifacts(model_id: str) -> dict[str, Any]:
+    """Inspect HF repository file metadata without downloading any artifact.
+
+    File sizes are reported only when the Hub API supplies them. Backend labels
+    are candidates based on file extensions, not proof of runtime compatibility.
+    """
+    import re
+    from urllib.parse import quote
+
+    model_id = model_id.strip()
+    if len(model_id) > 256 or not re.fullmatch(
+        r"[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*",
+        model_id,
+    ):
+        raise ValueError("model_id must be a Hugging Face namespace/repository identifier")
+
+    headers = {"User-Agent": "TaaS-Studio/0.1"}
+    token = os.environ.get("HF_TOKEN", "").strip()
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+
+    try:
+        response = httpx.get(
+            f"{HF_MODELS_API}/{quote(model_id, safe='/')}",
+            params={"blobs": "true"},
+            headers=headers,
+            timeout=12.0,
+        )
+        response.raise_for_status()
+        item = response.json()
+    except (httpx.HTTPError, ValueError) as exc:
+        raise ModelCatalogError(
+            f"Hugging Face artifact metadata request failed: {type(exc).__name__}"
+        ) from exc
+
+    if not isinstance(item, dict):
+        raise ModelCatalogError("Hugging Face returned an unexpected artifact metadata response")
+
+    siblings = item.get("siblings")
+    if not isinstance(siblings, list):
+        siblings = []
+
+    files: list[dict[str, Any]] = []
+    total_known_bytes = 0
+    size_complete = True
+    formats: set[str] = set()
+    quantization_hints: set[str] = set()
+    for sibling in siblings[:1000]:
+        if not isinstance(sibling, dict):
+            continue
+        name = sibling.get("rfilename")
+        if not isinstance(name, str) or not name or len(name) > 512:
+            continue
+        lower = name.lower()
+        if lower.endswith(".safetensors"):
+            fmt = "safetensors"
+        elif lower.endswith((".gguf", ".ggml")):
+            fmt = "gguf" if lower.endswith(".gguf") else "ggml"
+        elif lower.endswith((".bin", ".pt", ".pth")):
+            fmt = "pytorch"
+        elif lower.endswith(".onnx"):
+            fmt = "onnx"
+        elif lower.endswith((".h5", ".hdf5")):
+            fmt = "hdf5"
+        elif lower.endswith((".json", ".model", ".txt", ".md", ".py")):
+            fmt = "metadata_or_code"
+        else:
+            fmt = "other"
+        if fmt in {"safetensors", "gguf", "ggml", "pytorch", "onnx", "hdf5"}:
+            formats.add(fmt)
+
+        size = sibling.get("size")
+        lfs = sibling.get("lfs")
+        if not isinstance(size, int) or size < 0:
+            size = lfs.get("size") if isinstance(lfs, dict) else None
+        if isinstance(size, int) and size >= 0:
+            total_known_bytes += size
+        else:
+            size_complete = False
+
+        for hint in ("awq", "gptq", "exl2", "bnb", "bitsandbytes", "int4", "int8", "fp8"):
+            if hint in lower:
+                quantization_hints.add(hint)
+        files.append({
+            "name": name,
+            "format": fmt,
+            "size_bytes": size if isinstance(size, int) and size >= 0 else None,
+            "sha256": (
+                lfs.get("oid")
+                if isinstance(lfs, dict)
+                and isinstance(lfs.get("oid"), str)
+                and re.fullmatch(r"[0-9a-fA-F]{64}", lfs["oid"])
+                else None
+            ),
+        })
+
+    backend_candidates = []
+    if "gguf" in formats:
+        backend_candidates.append({
+            "backend": "llama.cpp",
+            "evidence": "Repository contains GGUF file(s)",
+            "compatibility": "candidate_only",
+        })
+    if formats.intersection({"safetensors", "pytorch"}):
+        backend_candidates.append({
+            "backend": "Transformers",
+            "evidence": "Repository contains Safetensors or PyTorch weight file(s)",
+            "compatibility": "candidate_only",
+        })
+    if "onnx" in formats:
+        backend_candidates.append({
+            "backend": "ONNX Runtime",
+            "evidence": "Repository contains ONNX file(s)",
+            "compatibility": "candidate_only",
+        })
+
+    return {
+        "model_id": model_id,
+        "file_count": len(files),
+        "files": files[:200],
+        "files_truncated": len(files) > 200,
+        "formats": sorted(formats),
+        "quantization_filename_hints": sorted(quantization_hints),
+        "known_artifact_bytes": total_known_bytes,
+        "artifact_size_complete": size_complete and len(siblings) <= 1000,
+        "backend_candidates": backend_candidates,
+        "t4_assessment": {
+            "gpu": "Tesla T4",
+            "compute_capability": "7.5",
+            "status": "not_verified",
+            "reason": (
+                "Repository metadata alone cannot establish T4 compatibility. "
+                "Backend version, kernels, quantization implementation, model architecture "
+                "and runtime memory must be validated by an actual load and inference test."
+            ),
+        },
+        "weights_downloaded": False,
+        "model_code_executed": False,
+        "metadata_source": "Hugging Face model API siblings (blobs=true)",
+    }
