@@ -97,3 +97,13 @@ Use the deployment guide at `docs/deployment/COLAB_T4_CORE_STUDIO.md`. For this 
 - No SSE/WebSocket event stream yet.
 - No rate limiting or full production threat model.
 - Model profile is configured server-side; callers cannot choose arbitrary filesystem paths.
+
+## Browser workspace
+
+The same-origin browser interface is available at `http://127.0.0.1:8000/` after starting the API. Enter `TAAS_STUDIO_API_TOKEN` in the password field and submit a JSON discovery request. The token is held only in page memory and is not written to local storage. The page displays the selected toolkit, abstention status, coverage gap, discovery latency and complete API response.
+
+The interface is **discovery-only**. It does not execute MCP tools or run an agent. Treat tool metadata as untrusted input and do not submit secrets or sensitive arguments. The root page and health endpoints are not authenticated; for remote access, protect the entire service with an authenticated tunnel or identity-aware proxy.
+
+## Google Colab
+
+A pinned starter notebook is provided at [`notebooks/colab/taas_core_studio_colab.ipynb`](../../notebooks/colab/taas_core_studio_colab.ipynb). It installs the Studio extra, loads the API token from Colab Secrets, accepts a reviewed ModelProfile JSON file, and binds Uvicorn to loopback. It intentionally does not create a public tunnel. Remote access requires a separately configured authenticated access layer. Colab sessions are ephemeral; persist experiment records outside the runtime.
