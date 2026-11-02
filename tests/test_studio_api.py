@@ -712,3 +712,12 @@ def test_studio_frontend_keeps_counterexample_visible_without_certificate():
     assert "certPanel.hidden=!cert&&!data.counterexample" in page
     assert "No certificate produced" in page
     assert "absence of a certificate is not a pass" in page
+
+
+def test_visual_goal_editor_defaults_missing_cardinality_on_load_and_json_reload():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    # Older/hand-authored GoalSpecs may omit n; the visual editor must hydrate
+    # the canonical default (1) both at initial load and after JSON reload.
+    assert page.count("n:g.n??1") == 2
