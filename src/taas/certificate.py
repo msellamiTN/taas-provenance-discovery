@@ -207,7 +207,8 @@ def certify(H: Hypergraph, K: Iterable[str], goals: list[GoalContract], prompt_i
                                                        "forbidden_pairs": pairs},
                    "L": {"violations": fl, "labels": rr.labels, "mode": "conservative" if conservative_flow else "derivation"},
                    "V": v_w, "M": {"removable": removable},
-                   "uncertain_goals": [k for k, v in s_w.items() if v and v.startswith("~")],\n                   "binding_integrity": {"valid": not binding_violations, "violations": binding_violations},
+                   "uncertain_goals": [k for k, v in s_w.items() if v and v.startswith("~")],
+                   "binding_integrity": {"valid": not binding_violations, "violations": binding_violations},
                    "B": {"bridge_ratio": beta, "rho_product": prod,
                          "bridges": [asdict(b) for b in rr.bridges]}},
         regime=regime, cost=cost, util=util, bridge_ratio=beta, bindings=bindings)
