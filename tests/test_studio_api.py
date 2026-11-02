@@ -1,3 +1,5 @@
+import pytest
+
 from fastapi.testclient import TestClient
 
 from taas.studio.api import app
@@ -75,3 +77,55 @@ def test_hardware_diagnostics_returns_probe(monkeypatch):
     )
     assert response.status_code == 200
     assert response.json() == expected
+
+
+def test_studio_goal_spec_rejects_legacy_field_names():
+    from fastapi import HTTPException
+    from taas.studio.api import validate_studio_goal_spec
+
+    with pytest.raises(HTTPException) as exc:
+        validate_studio_goal_spec({
+            "goals": [{
+                "id": "g1",
+                "class": "read",
+                "output": "text",
+                "reason": "legacy",
+                "dependencies": [],
+            }]
+        })
+    assert exc.value.status_code == 422
+    assert "legacy field" in exc.value.detail
+
+
+def test_studio_goal_spec_accepts_core_contract():
+    from taas.studio.api import validate_studio_goal_spec
+
+    validate_studio_goal_spec({
+        "prompt": "List orders",
+        "goals": [{
+            "id": "g1",
+            "class": "retrieve",
+            "in": [],
+            "out": "record[]",
+            "eff": ["read(*)"],
+            "sigma": "data",
+            "desc": "Retrieve orders",
+            "deps": [],
+        }],
+    })
+
+
+def test_studio_goal_spec_rejects_invalid_class():
+    from fastapi import HTTPException
+    from taas.studio.api import validate_studio_goal_spec
+
+    with pytest.raises(HTTPException) as exc:
+        validate_studio_goal_spec({
+            "goals": [{
+                "id": "g1",
+                "class": "read",
+                "out": "text",
+            }]
+        })
+    assert exc.value.status_code == 422
+    assert "supported model or external goal classes" in exc.value.detail
