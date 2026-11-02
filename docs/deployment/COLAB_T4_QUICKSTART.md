@@ -29,6 +29,39 @@ This PR milestone launches the existing **TaaS discovery workspace**. It does no
 
 The Colab notebook installs the package into the active interpreter and verifies the taas import before starting Uvicorn. If installation fails, it prints the pip output and stops instead of continuing into a misleading profile-import error.
 
+## Valid discovery example
+
+The browser workspace ships with a runnable, read-only metadata example. Its GoalSpec follows the parser contract:
+
+```json
+{
+  "prompt": "List the available orders",
+  "goals": [{
+    "id": "g1",
+    "class": "retrieve",
+    "in": [],
+    "out": "record[]",
+    "eff": ["read(*)"],
+    "sigma": "data",
+    "desc": "Retrieve the available orders",
+    "deps": []
+  }]
+}
+```
+
+The accompanying demo tool is named `demo-orders::list_orders`, declares an array output schema, and has the MCP `readOnlyHint` annotation. This is synthetic metadata supplied to the discovery engine; it is not a live MCP connection and does not execute the tool.
+
+Important contract rules:
+
+- Use `out`, `desc`, and `deps`; the API rejects the legacy aliases `output`, `reason`, and `dependencies`.
+- Goal `class` must be a supported model or external class. `read` is an effect, not a goal class.
+- `eff` is an array of effect expressions, e.g. `["read(*)"]`, not a scalar string.
+- `sigma` is one of `native`, `data`, `effect`, or `unreliable`.
+- Semantic output types must agree with the tool contract. The demo uses `record[]` on both sides.
+- A successful discovery response returns the canonical parsed GoalSpec, including `in`, `out`, `eff`, `desc`, and `deps`.
+
+An `abstained` result remains a valid safety outcome. Inspect `counterexample`, `gap`, `composition.stats.per_goal`, and the eligible/candidate counts; do not weaken policy or type checks merely to obtain a selected toolkit.
+
 ## Default calibration mode
 
 Studio starts without TAAS_MODEL_PROFILE. The API creates an explicit uncalibrated-default profile with strict=True. Unknown model-native capabilities therefore receive rho=0; the system does not invent calibration measurements or claim calibrated model competence.
