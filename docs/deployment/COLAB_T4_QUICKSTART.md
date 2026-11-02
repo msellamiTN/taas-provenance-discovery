@@ -114,3 +114,21 @@ Studio distinguishes model delegation from external-tool coverage:
 - `rho` is the model capability estimate. A zero value in an uncalibrated strict profile is not a tool quality score.
 
 Studio preserves the natural-language `goal_spec.prompt` when parsing and returning the canonical GoalSpec.
+
+
+## Model Manager foundation: VRAM estimation
+
+The authenticated endpoint `POST /api/v1/models/estimate-memory` provides an early model-size filter. Example:
+
+```json
+{
+  "parameters_billion": 7,
+  "quantization": "int4",
+  "overhead_fraction": 0.2,
+  "runtime_reserve_gib": 2.0
+}
+```
+
+Supported weight-storage assumptions are FP16 (2 bytes/parameter), INT8 (1 byte/parameter), and INT4 (0.5 byte/parameter). The estimate adds a configurable overhead fraction and runtime reserve, and compares the result with currently observed free GPU memory when available.
+
+**This is not a model compatibility or load guarantee.** The current estimate excludes KV cache, activations, CUDA workspaces, allocator fragmentation and backend-specific quantization metadata. Context length and architecture-aware KV-cache estimation must be incorporated before this estimate is used to approve a model load. No model is downloaded or loaded by this endpoint.
