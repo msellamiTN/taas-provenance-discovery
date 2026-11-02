@@ -102,7 +102,8 @@
       <div id="status" class="status" aria-live="polite">Waiting for a request.</div>
       <div class="result-grid">
         <div class="metric"><span class="muted">Selected tools</span><strong id="selected">—</strong></div>
-        <div class="metric"><span class="muted">Coverage gap</span><strong id="gap">—</strong></div>
+        <div class="metric"><span class="muted">Model-delegated goals</span><strong id="gap">—</strong></div>
+        <div class="metric"><span class="muted">Toolkit-bound goals</span><strong id="covered">—</strong></div>
         <div class="metric"><span class="muted">Discovery time</span><strong id="latency">—</strong></div>
       </div>
       <h2>Discovery explanation</h2>
@@ -151,15 +152,29 @@
       $("status").textContent = "Discovery status: " + data.status + " · MCP execution: not performed";
       $("selected").textContent = (data.selected_tools || []).length;
       $("gap").textContent = (data.gap || []).length;
+      const bindings = (data.certificate && data.certificate.bindings) || {};
+      const boundGoals = Object.keys(bindings);
+      $("covered").textContent = boundGoals.length;
       $("latency").textContent = Number(data.discovery_time_seconds || 0).toFixed(3) + " s";
       $("toolkit").textContent = JSON.stringify(data.selected_tools || [], null, 2);
+      const checkResults = (data.certificate && data.certificate.checks) || {};
+      const checkSummary = Object.keys(checkResults).length
+        ? "Certificate checks: " + Object.entries(checkResults).map(([key, value]) => key + "=" + (value ? "pass" : "fail")).join(" · ") + ". "
+        : "No certificate was produced. ";
+      const goalSummary = boundGoals.length
+        ? "Toolkit bindings cover " + boundGoals.length + " goal(s): " + boundGoals.join(", ") + ". "
+        : "No goal-to-tool binding was certified. ";
       const chi = data.counterexample || {};
       const witness = chi.witness || {};
-      const reason = chi.name
-        ? "Abstention: " + chi.name + " (goal " + (chi.goal || "unspecified") + ", check " + (chi.check || "n/a") + "). " +
-          (witness.goal_out ? "Required output: " + witness.goal_out + ". " : "") +
-          (witness.eligible !== undefined ? "Eligible tools: " + witness.eligible + ". " : "")
-        : (data.status === "selected" ? "A toolkit was selected and a certificate was produced." : "No counterexample details were returned.");
+      const reason = (data.status === "selected"
+        ? "Discovery selected a metadata-compatible toolkit. This is not runtime execution verification. "
+        : "Discovery abstained; no toolkit is certified for the requested goals. ") +
+        checkSummary + goalSummary +
+        (chi.name
+          ? "Counterexample: " + chi.name + " (goal " + (chi.goal || "unspecified") + ", check " + (chi.check || "n/a") + "). " +
+            (witness.goal_out ? "Required output: " + witness.goal_out + ". " : "") +
+            (witness.eligible !== undefined ? "Eligible tools: " + witness.eligible + ". " : "")
+          : "");
       $("explanation").textContent = reason;
       $("response").textContent = JSON.stringify(data, null, 2);
     } catch (e) {
