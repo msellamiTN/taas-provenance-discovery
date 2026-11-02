@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TaaS Core Studio</title>
+  <style>
+    :root { color-scheme: light; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+    body { margin: 0; background: #f4f6fa; color: #172033; }
+    header { background: #111b32; color: white; padding: 22px max(22px, calc((100vw - 1180px)/2)); }
+    header h1 { margin: 0 0 5px; font-size: 23px; }
+    header p { margin: 0; color: #c7d2e5; }
+    main { max-width: 1180px; margin: 24px auto; padding: 0 18px 40px; }
+    .notice { border: 1px solid #e7c978; background: #fff8e7; border-radius: 10px; padding: 12px 15px; margin-bottom: 18px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    section { background: white; border: 1px solid #e1e6ef; border-radius: 12px; padding: 17px; min-width: 0; }
+    h2 { font-size: 16px; margin: 0 0 13px; }
+    label { display: block; font-size: 13px; font-weight: 650; margin: 12px 0 6px; }
+    input, textarea { box-sizing: border-box; width: 100%; border: 1px solid #cbd4e2; border-radius: 8px; padding: 10px; font: 13px ui-monospace, monospace; background: #fbfcfe; color: #172033; }
+    textarea { min-height: 310px; resize: vertical; line-height: 1.45; }
+    #token { min-height: auto; }
+    button { margin-top: 13px; background: #2458c6; color: white; border: 0; border-radius: 8px; padding: 10px 16px; font-weight: 650; cursor: pointer; }
+    button:disabled { opacity: .55; cursor: wait; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #101827; color: #dce7f7; border-radius: 9px; padding: 14px; min-height: 240px; overflow: auto; font-size: 12px; }
+    .status { font-weight: 700; margin: 10px 0; }
+    .muted { color: #64748b; font-size: 12px; }
+    .result-grid { display:grid; grid-template-columns: repeat(5,1fr); gap:10px; margin: 12px 0; }
+    .metric { background:#f3f6fb; border-radius:8px; padding:11px; }
+    .metric strong { display:block; font-size:19px; margin-top:4px; }
+    @media(max-width:800px) { .grid { grid-template-columns:1fr; } .result-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<header>
+  <h1>TaaS Core Studio</h1>
+  <p>Discover. Compose. Explain. — experimental discovery workspace</p>
+</header>
+<main>
+  <div class="notice"><strong>Discovery-only preview.</strong> This workspace calls <code>/api/v1/discover</code>. It does not invoke MCP tools, run an agent, or evaluate task completion. Use only trusted tool metadata; do not paste secrets or sensitive arguments.</div>
+  <section style="margin-bottom:18px">
+    <h2>Runtime · GPU diagnostics</h2>
+    <p class="muted">Host GPU visibility and CUDA inference readiness are separate checks. A detected GPU does not mean a model runtime is installed or loaded.</p>
+    <button id="gpu-check" type="button">Check GPU and CUDA</button>
+    <div id="gpu-status" class="status" aria-live="polite">Not checked yet. Enter the Studio token, then run diagnostics.</div>
+    <pre id="gpu-details">No hardware diagnostics yet.</pre>
+  </section>
+  <section style="margin-bottom:18px">
+    <h2>Model catalog · Hugging Face</h2>
+    <p class="muted">Search model repository metadata. This is a read-only catalog: it does not download weights, execute repository code or load a model.</p>
+    <label for="model-query">Model search</label>
+    <input id="model-query" type="text" maxlength="120" value="small language model" placeholder="e.g. Qwen 2.5 3B">
+    <button id="model-search" type="button">Search Hugging Face</button>
+    <div id="model-status" class="status" aria-live="polite">No search performed.</div>
+    <pre id="model-results">Model catalog results will appear here.</pre>
+  </section>
+  <section style="margin-bottom:18px">
+    <h2>Model artifacts · compatibility preflight</h2>
+    <p class="muted">Inspect repository file names, reported sizes, weight formats and quantization hints. Metadata only: no files are downloaded and T4 compatibility is not certified.</p>
+    <label for="artifact-model-id">Hugging Face repository ID</label>
+    <input id="artifact-model-id" type="text" maxlength="256" placeholder="e.g. Qwen/Qwen2.5-3B-Instruct">
+    <button id="artifact-inspect" type="button">Inspect model artifacts</button>
+    <div id="artifact-status" class="status" aria-live="polite">No artifact inspection performed.</div>
+    <pre id="artifact-results">Artifact metadata will appear here.</pre>
+  </section>
+  <div class="grid">
+    <section>
+      <h2>1 · Request configuration</h2>
+      <label for="token">Studio API bearer token (kept in this page's memory only)</label>
+      <input id="token" type="password" autocomplete="off" placeholder="Enter TAAS_STUDIO_API_TOKEN">
+      <label for="payload">Discovery request (JSON)</label>
+      <textarea id="payload" spellcheck="false">{
+  "goal_spec": {
+    "prompt": "List the available orders",
+    "goals": [
+      {
+        "id": "g1",
+        "class": "retrieve",
+        "in": [],
+        "out": "record[]",
+        "eff": ["read(*)"],
+        "sigma": "data",
+        "desc": "Retrieve the available orders",
+        "deps": []
+      }
+    ]
+  },
+  "tools": [
+    {
+      "server": "demo-orders",
+      "name": "list_orders",
+      "description": "List all orders and return the order records",
+      "input_schema": {
+        "type": "object",
+        "properties": {}
+      },
+      "output_schema": {
+        "type": "array",
+        "items": {"type": "object"}
+      },
+      "annotations": {"readOnlyHint": true},
+      "source": "studio-demo",
+      "category": "orders"
+    }
+  ],
+  "policy": {
+    "name": "studio-read-only",
+    "required": [],
+    "allowed": ["read(*)", "session"],
+    "lmin": "ann",
+    "forbidden": [],
+    "encoding": "positive"
+  },
+  "engine": {}
+}</textarea>
+      <button id="run">Run TaaS discovery</button>
+      <p class="muted">Runnable read-only example: GoalSpec uses the core contract fields (class, in, out, eff, sigma, desc, deps). The demo tool is metadata only; no MCP server is contacted or invoked. Its read-only annotation is admitted by the example policy minimum evidence level (ann).</p>
+    </section>
+    <section>
+      <h2>2 · Discovery result</h2>
+      <div id="status" class="status" aria-live="polite">Waiting for a request.</div>
+      <div class="result-grid">
+        <div class="metric"><span class="muted">Selected tools</span><strong id="selected">—</strong></div>
+        <div class="metric"><span class="muted">Toolkit-required goals</span><strong id="gap">—</strong></div>
+        <div class="metric"><span class="muted">Model-delegated goals</span><strong id="delegated">—</strong></div>
+        <div class="metric"><span class="muted">Toolkit-bound goals</span><strong id="covered">—</strong></div>
+        <div class="metric"><span class="muted">Discovery time</span><strong id="latency">—</strong></div>
+      </div>
+      <h2>Discovery explanation</h2>
+      <p id="explanation" class="muted" aria-live="polite">Run a request to see why TaaS selected a toolkit or abstained.</p>
+      <h2>Selected toolkit</h2>
+      <pre id="toolkit">No discovery result yet.</pre>
+      <h2>Full response · certificate · counterexample</h2>
+      <pre id="response">The API response will appear here.</pre>
+    </section>
+  </div>
+</main>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const run = $("run");
+  $("model-search").addEventListener("click", async () => {
+    const token = $("token").value.trim();
+    const query = $("model-query").value.trim();
+    if (!token) { $("model-status").textContent = "Enter the Studio API token first."; return; }
+    if (!query) { $("model-status").textContent = "Enter a model search query."; return; }
+    const button = $("model-search");
+    button.disabled = true;
+    $("model-status").textContent = "Searching Hugging Face model metadata…";
+    try {
+      const params = new URLSearchParams({ q: query, limit: "10", sort: "downloads" });
+      const response = await fetch("/api/v1/models/search?" + params.toString(), {
+        headers: { "Authorization": "Bearer " + token }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
+      $("model-status").textContent = data.count + " model metadata record(s). Weights downloaded: no.";
+      $("model-results").textContent = JSON.stringify(data.models || [], null, 2);
+    } catch (e) {
+      $("model-status").textContent = "Model search failed: " + e.message;
+      $("model-results").textContent = "";
+    } finally { button.disabled = false; }
+  });
+
+  $("artifact-inspect").addEventListener("click", async () => {
+    const token = $("token").value.trim();
+    const modelId = $("artifact-model-id").value.trim();
+    if (!token) { $("artifact-status").textContent = "Enter the Studio API token first."; return; }
+    if (!modelId) { $("artifact-status").textContent = "Enter a Hugging Face namespace/repository ID."; return; }
+    const button = $("artifact-inspect");
+    button.disabled = true;
+    $("artifact-status").textContent = "Inspecting repository artifact metadata…";
+    try {
+      const params = new URLSearchParams({ model_id: modelId });
+      const response = await fetch("/api/v1/models/artifacts?" + params.toString(), {
+        headers: { "Authorization": "Bearer " + token }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
+      $("artifact-status").textContent =
+        data.file_count + " repository file(s) inspected · weights downloaded: no · T4 compatibility: not verified.";
+      $("artifact-results").textContent = JSON.stringify(data, null, 2);
+    } catch (e) {
+      $("artifact-status").textContent = "Artifact inspection failed: " + e.message;
+      $("artifact-results").textContent = "";
+    } finally { button.disabled = false; }
+  });
+
+  $("gpu-check").addEventListener("click", async () => {
+    const token = $("token").value.trim();
+    if (!token) { $("gpu-status").textContent = "Enter the Studio API token first."; return; }
+    $("gpu-status").textContent = "Checking host GPU and CUDA…";
+    try {
+      const response = await fetch("/api/v1/runtime/hardware", { headers: { "Authorization": "Bearer " + token } });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
+      const backendAvailable = data.cuda_available === true && data.torch_installed === true;
+      $("gpu-status").textContent = backendAvailable
+        ? "CUDA backend available · model not loaded · inference not executed"
+        : (data.gpu_detected ? "GPU detected · CUDA backend unavailable" : "No NVIDIA GPU verified");
+      $("gpu-details").textContent = JSON.stringify({
+        ...data,
+        model_loaded: false,
+        inference_executed: false,
+        readiness_scope: "Host/CUDA diagnostics only; no model load or inference was attempted."
+      }, null, 2);
+    } catch (e) { $("gpu-status").textContent = "Diagnostics failed: " + e.message; }
+  });
+  run.addEventListener("click", async () => {
+    let body;
+    try { body = JSON.parse($("payload").value); }
+    catch (e) { $("status").textContent = "Invalid JSON: " + e.message; return; }
+    const token = $("token").value.trim();
+    if (!token) { $("status").textContent = "Enter the Studio API token first."; return; }
+    run.disabled = true;
+    $("status").textContent = "Running discovery…";
+    $("toolkit").textContent = "Waiting for API response…";
+    $("response").textContent = "";
+    try {
+      const response = await fetch("/api/v1/discover", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+        body: JSON.stringify(body)
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
+      $("status").textContent = "Discovery status: " + data.status + " · MCP execution: not performed";
+      $("selected").textContent = (data.selected_tools || []).length;
+      $("gap").textContent = (data.gap || []).length;
+      const bindings = (data.certificate && data.certificate.bindings) || {};
+      const selectedTools = new Set(data.selected_tools || []);
+      const goals = (data.goal_spec && data.goal_spec.goals) || [];
+      const gapGoals = new Set(data.gap || []);
+      // Keep the three categories disjoint: gap = toolkit-required;
+      // native outside the gap = model-delegated; certified selected binding = toolkit-bound.
+      const delegatedGoals = goals.filter(goal =>
+        !goal.optional && goal.sigma === "native" && !gapGoals.has(goal.id)
+      );
+      const toolkitBindings = Object.entries(bindings).filter(([goalId, target]) =>
+        gapGoals.has(goalId) && selectedTools.has(target)
+      );
+      $("covered").textContent = toolkitBindings.length;
+      $("delegated").textContent = delegatedGoals.length;
+      $("latency").textContent = Number(data.discovery_time_seconds || 0).toFixed(3) + " s";
+      $("toolkit").textContent = JSON.stringify(data.selected_tools || [], null, 2);
+      const checkResults = (data.certificate && data.certificate.checks) || {};
+      const mandatoryChecks = ["S", "C", "P", "E", "L", "V"];
+      const diagnosticChecks = ["M", "B"];
+      const checkSummary = Object.keys(checkResults).length
+        ? "Mandatory certificate checks (S,C,P,E,L,V): " +
+          mandatoryChecks.map(key => key + "=" + (checkResults[key] === true ? "pass" : "fail/missing")).join(" · ") +
+          ". Diagnostic checks (not validity gates): " +
+          diagnosticChecks.map(key => key + "=" + (checkResults[key] === true ? "pass" : checkResults[key] === false ? "fail" : "not reported")).join(" · ") + ". "
+        : "No certificate was produced. ";
+      const goalSummary =
+        "Model-delegated goals (native after gap analysis): " + delegatedGoals.length + ". " +
+        (toolkitBindings.length
+          ? "Toolkit bindings: " + toolkitBindings.map(([goal, tool]) => goal + " → " + tool).join(", ") + ". "
+          : "No goal-to-tool binding was certified. ");
+      const chi = data.counterexample || {};
+      const witness = chi.witness || {};
+      const reason = (data.status === "selected"
+        ? "Discovery selected a metadata-compatible toolkit. This is not runtime execution verification. "
+        : "Discovery abstained; no toolkit is certified for the requested goals. ") +
+        checkSummary + goalSummary +
+        (chi.name
+          ? "Counterexample: " + chi.name + " (goal " + (chi.goal || "unspecified") + ", check " + (chi.check || "n/a") + "). " +
+            (witness.goal_out ? "Required output: " + witness.goal_out + ". " : "") +
+            (witness.eligible !== undefined ? "Eligible tools: " + witness.eligible + ". " : "")
+          : "");
+      $("explanation").textContent = reason;
+      $("response").textContent = JSON.stringify(data, null, 2);
+    } catch (e) {
+      $("status").textContent = "Request failed: " + e.message;
+      $("toolkit").textContent = "No toolkit returned.";
+      $("response").textContent = "";
+    } finally { run.disabled = false; }
+  });
+})();
+</script>
+</body>
+</html>
