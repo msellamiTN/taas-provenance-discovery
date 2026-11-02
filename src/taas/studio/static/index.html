@@ -24,7 +24,7 @@
     pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #101827; color: #dce7f7; border-radius: 9px; padding: 14px; min-height: 240px; overflow: auto; font-size: 12px; }
     .status { font-weight: 700; margin: 10px 0; }
     .muted { color: #64748b; font-size: 12px; }
-    .result-grid { display:grid; grid-template-columns: repeat(4,1fr); gap:10px; margin: 12px 0; }
+    .result-grid { display:grid; grid-template-columns: repeat(5,1fr); gap:10px; margin: 12px 0; }
     .metric { background:#f3f6fb; border-radius:8px; padding:11px; }
     .metric strong { display:block; font-size:19px; margin-top:4px; }
     @media(max-width:800px) { .grid { grid-template-columns:1fr; } .result-grid { grid-template-columns:1fr; } }
@@ -121,7 +121,8 @@
       <div class="result-grid">
         <div class="metric"><span class="muted">Selected tools</span><strong id="selected">—</strong></div>
         <div class="metric"><span class="muted">Toolkit-required goals</span><strong id="gap">—</strong></div>
-        <div class="metric"><span class="muted">Model-delegated goals</span><strong id="covered">—</strong></div>
+        <div class="metric"><span class="muted">Model-delegated goals</span><strong id="delegated">—</strong></div>
+        <div class="metric"><span class="muted">Toolkit-bound goals</span><strong id="covered">—</strong></div>
         <div class="metric"><span class="muted">Discovery time</span><strong id="latency">—</strong></div>
       </div>
       <h2>Discovery explanation</h2>
