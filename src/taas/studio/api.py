@@ -156,10 +156,10 @@ def parse_studio_goal_spec(spec: dict[str, Any]):
 
 @app.get("/api/v1/models/search", dependencies=[Depends(require_api_token)])
 def model_search(
-    q: str = Field(min_length=1, max_length=120),
-    limit: int = 10,
-    sort: str = "downloads",
-    pipeline_tag: str | None = None,
+    q: str = Query(..., min_length=1, max_length=120),
+    limit: int = Query(10, ge=1, le=30),
+    sort: str = Query("downloads"),
+    pipeline_tag: str | None = Query(None, max_length=80),
 ) -> dict[str, Any]:
     """Search public Hugging Face model metadata; never downloads or loads weights."""
     if not 1 <= limit <= 30:
