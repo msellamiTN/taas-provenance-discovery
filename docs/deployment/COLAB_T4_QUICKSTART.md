@@ -101,3 +101,16 @@ A measured model profile can be configured later through a dedicated Studio conf
 5. Observable run timeline, decision certificates and persistent trace storage.
 
 The benchmark-native execution adapters remain separate from interactive Studio chat so that interactive features do not alter benchmark protocols.
+
+
+## Interpreting discovery results
+
+Studio distinguishes model delegation from external-tool coverage:
+
+- **Model-delegated goals** is the core engine's `gap`: goals not handled natively by the configured model profile and therefore passed to tool composition. It is not, by itself, a remaining coverage failure.
+- **Toolkit-bound goals** counts goal bindings in a successful composition certificate.
+- **Selected tools** lists metadata contracts chosen by composition.
+- A selected result and certificate establish compatibility under the supplied metadata, provenance and policy assumptions. They do not establish that a live MCP server is reachable or that executing a tool will return correct data.
+- `rho` is the model capability estimate. A zero value in an uncalibrated strict profile is not a tool quality score.
+
+Studio preserves the natural-language `goal_spec.prompt` when parsing and returning the canonical GoalSpec.
