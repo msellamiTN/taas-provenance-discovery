@@ -1,0 +1,8 @@
+{
+  "model_id": "unconfigured-no-calibration",
+  "tau": 0.9,
+  "exact_n_max": 20,
+  "strict": true,
+  "priors": {},
+  "classes": {}
+}
