@@ -18,7 +18,7 @@ from taas.contracts import extract_contract
 from taas.data.registries import RawTool
 from taas.engine import DiscoveryEngine, EngineConfig
 from taas.model_profile import EXTERNAL_CLASSES, MODEL_CLASSES, ModelProfile
-from taas.goals import SIGMAS
+from taas.goals import SIGMAS, parse_goal_spec
 from taas.policy import Policy
 from taas.provenance import DEFAULT_TRUST
 from taas.studio.runtime import probe_hardware
@@ -170,7 +170,13 @@ def discover(request: DiscoverRequest) -> dict[str, Any]:
             trust=DEFAULT_TRUST,
             cfg=engine_config,
         )
-        result = engine.discover(request.goal_spec, policy)
+        # Preserve the natural-language prompt: the core parser accepts it as
+        # a separate argument rather than reading goal_spec["prompt"] itself.
+        parsed_spec = parse_goal_spec(
+            request.goal_spec,
+            prompt=str(request.goal_spec.get("prompt", "")),
+        )
+        result = engine.discover(parsed_spec, policy)
     except (TypeError, ValueError, KeyError) as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
