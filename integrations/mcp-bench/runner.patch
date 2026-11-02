@@ -1,0 +1,66 @@
+diff --git a/benchmark/runner.py b/benchmark/runner.py
+--- a/benchmark/runner.py
++++ b/benchmark/runner.py
+@@ -486,11 +486,47 @@
+                             }
+                     
+                     # Create executor and execute task
+-                    executor = TaskExecutor(
+-                        llm_provider, 
+-                        conn_mgr.server_manager, 
+-                        self.concurrent_summarization
+-                    )
++                    # Optional TaaS pre-execution selection. The adapter is injected
++                    # by the experiment harness; baseline runs remain unchanged.
++                    taas_selection = None
++                    taas_trace = None
++                    taas_adapter = getattr(self, "taas_adapter", None)
++                    if taas_adapter is not None:
++                        from taas.mcpbench import selected_task_executor_scope
++
++                        taas_selection = taas_adapter.select(
++                            task_description, conn_mgr.all_tools
++                        )
++                        taas_trace = taas_selection.trace
++
++                        # Abstention is a first-class outcome.
++                        if taas_trace.get("abstained") or not taas_selection.tools:
++                            return {
++                                "task_id": task_id,
++                                "server_name": task_execution_info["server_name"],
++                                "model_name": model_name,
++                                "status": "abstained",
++                                "abstention_reason": "taas_no_eligible_toolkit",
++                                "execution_time": time.time() - start_time,
++                                "taas": taas_trace,
++                            }
++
++                        # TaskExecutor snapshots the catalogue in its constructor.
++                        # Restore the full manager catalogue after construction.
++                        with selected_task_executor_scope(
++                            conn_mgr.server_manager, taas_selection.tools
++                        ):
++                            executor = TaskExecutor(
++                                llm_provider,
++                                conn_mgr.server_manager,
++                                self.concurrent_summarization,
++                            )
++                    else:
++                        executor = TaskExecutor(
++                            llm_provider,
++                            conn_mgr.server_manager,
++                            self.concurrent_summarization,
++                        )
+                     
+                     
+                     task_execution_start_time = time.time()
+@@ -511,6 +547,9 @@
+                         
+                         # Add available tools to result
+                         result['available_tools'] = conn_mgr.all_tools
++                        # Keep TaaS evidence separate from evaluator inputs.
++                        if taas_trace is not None:
++                            result["taas"] = taas_trace
+                         
+                         # Successful execution, prepare return result
+                         execution_result = {
