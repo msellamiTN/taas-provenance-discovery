@@ -571,3 +571,95 @@ def test_studio_frontend_keeps_benchmark_gold_labels_out_of_browser_contract():
     assert "gold_unresolved" not in page
     assert "/api/v1/bench/tasks?" in page
     assert "/api/v1/bench/tools?" in page
+
+
+def test_goal_spec_validation_endpoint_requires_authentication(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.post("/api/v1/goals/validate", json={
+        "prompt": "List orders",
+        "goals": [{"id": "g1", "class": "retrieve", "out": "record[]", "eff": ["read(*)"]}],
+    })
+    assert response.status_code == 401
+
+
+def test_goal_spec_validation_endpoint_returns_topological_order(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.post(
+        "/api/v1/goals/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json={
+            "prompt": "Retrieve orders and summarize them",
+            "prompt_inputs": ["text"],
+            "goals": [
+                {"id": "g1", "class": "retrieve", "in": [], "out": "record:order[]",
+                 "eff": ["read(*)"], "sigma": "data", "deps": []},
+                {"id": "g2", "class": "summarise", "in": ["record:order[]"], "out": "text",
+                 "eff": [], "sigma": "native", "deps": ["g1"]},
+            ],
+        },
+    )
+    assert response.status_code == 200
+    assert response.json()["valid"] is True
+    assert response.json()["goal_order"] == ["g1", "g2"]
+    assert response.json()["semantic_correctness_verified"] is False
+
+
+@pytest.mark.parametrize(
+    ("goals", "message"),
+    [
+        (
+            [
+                {"id": "g1", "class": "retrieve", "out": "record[]"},
+                {"id": "g1", "class": "answer", "out": "text"},
+            ],
+            "duplicate goal id",
+        ),
+        (
+            [{"id": "g1", "class": "retrieve", "out": "record[]", "deps": ["missing"]}],
+            "unknown dependency",
+        ),
+        (
+            [
+                {"id": "g1", "class": "retrieve", "out": "record[]", "deps": ["g2"]},
+                {"id": "g2", "class": "answer", "out": "text", "deps": ["g1"]},
+            ],
+            "contains a cycle",
+        ),
+        (
+            [{"id": "g1", "class": "retrieve", "out": "record[]", "eff": ["launch rocket"]}],
+            "invalid effect",
+        ),
+        (
+            [{"id": "g1", "class": "retrieve", "out": "made_up_type"}],
+            "semantic type string",
+        ),
+    ],
+)
+def test_goal_spec_validation_rejects_invalid_contracts(monkeypatch, goals, message):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.post(
+        "/api/v1/goals/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json={"prompt": "Validate this plan", "goals": goals},
+    )
+    assert response.status_code == 422
+    assert message in response.json()["detail"]
+
+
+def test_studio_frontend_exposes_visual_goalspec_editor_and_server_validation():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    for marker in (
+        'id="goal-editor"',
+        'id="goal-prompt"',
+        'id="goal-prompt-inputs"',
+        'id="goal-cards"',
+        'id="goal-add"',
+        'id="goal-validate"',
+        'id="goal-reload-json"',
+        "/api/v1/goals/validate",
+        "semantic correctness is not automatically verified",
+        "Dependency graph contains a cycle.",
+    ):
+        assert marker in page
