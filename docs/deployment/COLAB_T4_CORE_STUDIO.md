@@ -11,7 +11,7 @@ The target is similar to a notebook-launched web studio:
 1. Open the TaaS Colab notebook.
 2. Select **Runtime → Change runtime type → T4 GPU** (subject to Colab availability).
 3. Run notebook cells from top to bottom.
-4. The notebook checks out a pinned TaaS revision, installs Studio, verifies GPU visibility and starts the web application on the Colab VM.
+4. The notebook checks out a pinned TaaS revision, installs Studio into the active interpreter, verifies package imports and GPU visibility, generates a temporary API token, and starts the web application on the Colab VM. No profile upload or provider configuration is needed to launch.
 5. Open the Studio UI through Colab's port proxy.
 6. Optionally configure a named Cloudflare Tunnel plus Cloudflare Access to share a protected hostname.
 
@@ -20,7 +20,7 @@ This is not a remote API client calling an unrelated Studio host. The FastAPI se
 ## 2. Current TaaS capabilities vs target
 
 The current PR implementation has:
-- FastAPI health/readiness endpoints.
+- FastAPI health/readiness endpoints (readiness does not require calibration).
 - Bearer-authenticated discovery endpoint.
 - Same-origin browser UI for GoalSpec and tool-catalogue submission.
 - Selection/abstention, coverage gap, discovery latency, certificate and composition output.
@@ -44,7 +44,7 @@ The application runs on the Colab VM:
 
 T4 presence is checked with `nvidia-smi`. The existing discovery engine (contract extraction, hypergraph construction, provenance/policy checks and toolkit composition) is CPU-oriented; the notebook does not claim it is GPU-accelerated.
 
-A T4 is a constrained GPU. Choose quantized models and batch sizes compatible with available VRAM. A local model endpoint must be independently installed, started and configured before the TaaS ModelProfile can use it.
+A T4 is a constrained GPU. Choose quantized models and batch sizes compatible with available VRAM. A Hugging Face model manager and local inference backend are not yet implemented in this milestone.
 
 ## 4. Access paths
 
@@ -67,7 +67,9 @@ The notebook downloads the Cloudflare binary from its latest release in the opti
 ## 5. Credentials
 
 - Store `TAAS_STUDIO_API_TOKEN` and any model provider keys in Colab Secrets.
-- Upload only a reviewed ModelProfile JSON. Do not upload API key values inside the profile.
+- The notebook generates a temporary API bearer token for the active runtime; treat its printed value as sensitive.
+- ModelProfile calibration is optional at startup. Without one, the API uses a strict uncalibrated profile and does not assume unmeasured model capabilities.
+- Provider credentials and model settings must be managed separately from calibration data when the model-provider interface is implemented.
 - Do not print secrets or place them in source cells, Git, Drive, logs or experiment manifests.
 - Do not submit private user arguments or secrets in discovery request JSON.
 - The API token protects discovery POSTs; it does not replace tunnel-level access control.
@@ -126,7 +128,7 @@ A Colab deployment can be called ready for interactive discovery when:
 - [ ] Secrets are absent from notebook output and logs.
 - [ ] Runtime shutdown behavior is tested.
 
-A **full agent Studio** additionally requires MCP execution, agent orchestration, live trace stream, durable run persistence, user/workspace isolation and execution safety. Those are separate milestones.
+A **full agent Studio** additionally requires Hugging Face model management, model-backed chat, agent orchestration, MCP execution, live trace stream, durable run persistence, user/workspace isolation and execution safety. Those are separate milestones.
 
 ## 10. Related materials
 
