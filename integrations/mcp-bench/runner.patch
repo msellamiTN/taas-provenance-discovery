@@ -140,3 +140,48 @@ diff --git a/benchmark/results_aggregator.py b/benchmark/results_aggregator.py
 +                'avg_parallelism_efficiency_score': None,
 +                'avg_llm_judge_combined': None
              },
+
+diff --git a/benchmark/results_aggregator.py b/benchmark/results_aggregator.py
+--- a/benchmark/results_aggregator.py
++++ b/benchmark/results_aggregator.py
+@@ -400,20 +400,20 @@ class ResultsAggregator:
+     def _get_empty_current_metrics(self) -> Dict[str, Any]:
+         """Get empty current metrics for when no tasks completed"""
+         return {
+-            'task_completion_score': 0.0,
+-            'tool_selection_score': 0.0,
+-            'planning_effectiveness_and_efficiency_score': 0.0,
+-            'task_fulfillment': 0.0,
+-            'completeness': 0.0,
+-            'grounding': 0.0,
+-            'relevance': 0.0,
+-            'tool_appropriateness': 0.0,
+-            'intent_alignment': 0.0,
+-            'output_integration': 0.0,
+-            'structural_coherence': 0.0,
+-            'dependency_awareness': 0.0,
+-            'parallelism_and_efficiency': 0.0,
+-            'input_schema_compliance': 0.0,
+-            'valid_tool_name_rate': 0.0,
+-            'execution_success_rate': 0.0,
+-            'execution_dependency_chain_compliance': 0.0,
+-            'avg_execution_time': 0.0
++            'task_completion_score': None,
++            'tool_selection_score': None,
++            'planning_effectiveness_and_efficiency_score': None,
++            'task_fulfillment': None,
++            'completeness': None,
++            'grounding': None,
++            'relevance': None,
++            'tool_appropriateness': None,
++            'intent_alignment': None,
++            'output_integration': None,
++            'structural_coherence': None,
++            'dependency_awareness': None,
++            'parallelism_and_efficiency': None,
++            'input_schema_compliance': None,
++            'valid_tool_name_rate': None,
++            'execution_success_rate': None,
++            'execution_dependency_chain_compliance': None,
++            'avg_execution_time': None
+         }
