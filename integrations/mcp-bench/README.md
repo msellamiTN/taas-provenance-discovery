@@ -1,64 +1,50 @@
-# MCP-Bench runner integration patch
+# MCP-Bench integration — repository-retained mode
 
-This directory contains the runner-side integration patch for the pinned upstream
-MCP-Bench revision.
+TaaS uses the benchmark assets retained inside this repository as its source of truth.
+The Studio benchmark browser reads local repository data through `taas.data.registries`;
+it does not clone, fetch, or depend on a live MCP-Bench upstream checkout.
 
-- Upstream: https://github.com/Accenture/mcp-bench
-- Required revision: `7a8eaeae83a842a2949080acc5473f65e1569daf`
-- Target files: `benchmark/runner.py`, `benchmark/results_aggregator.py`
-- TaaS adapter: `src/taas/mcpbench.py`
+## Retained assets
 
-## Apply
+- `data/raw/livemcpbench/tools.json`
+- `data/raw/livemcpbench/all_annotations.json`
+- `data/raw/SOURCES.txt`
+- `data/calibration/`
+- `data/processed/`
+- `data/llm_records/`
 
-From a checkout of the exact upstream revision, with this repository available on disk:
+The repository's processed registries are loaded by the TaaS data layer. Benchmark task
+browsing intentionally omits gold tool labels. Gold labels belong only in the evaluation
+stage after discovery has completed; they must not be sent to the analyst or discovery
+request.
 
-```bash
-git checkout 7a8eaeae83a842a2949080acc5473f65e1569daf
-git apply --check /path/to/taas-provenance-discovery/integrations/mcp-bench/runner.patch
-git apply /path/to/taas-provenance-discovery/integrations/mcp-bench/runner.patch
-```
+## Studio workflow
 
-The patch is intentionally opt-in. The experiment harness injects the configured
-adapter with `runner.taas_adapter = adapter`. If that attribute is absent, native
-MCP-Bench behavior is unchanged.
+1. Open the authenticated Studio benchmark workspace.
+2. Browse the retained dataset and select a task prompt.
+3. Review the prompt and author or validate a structured GoalSpec.
+4. Search the retained tool registry and select candidate tools.
+5. Run discovery and inspect the selected toolkit, capability gaps, abstention reasons,
+   trust decisions, and certificate checks.
+6. Evaluate the discovery result against benchmark gold labels in the separate evaluator.
 
-## Behavior
+## Runner integration boundary
 
-1. TaaS discovery runs after MCP server connection and tool discovery.
-2. A non-empty selected subset is used to construct the native `TaskExecutor`.
-3. The live server manager is restored before execution, preserving native dispatch.
-4. The executor retains its selected tool snapshot.
-5. The native evaluator still receives the complete catalogue in
-   `result["available_tools"]`.
-6. A TaaS abstention returns `status="abstained"` before agent execution and before
-   the native evaluator. It is not scored as ordinary task success or execution failure.
-7. The TaaS trace is attached as `result["taas"]` for successful executions and as a
-   top-level `taas` field for abstentions.
-8. Aggregation reports `completed_tasks`, `failed_tasks`, and `abstained_tasks`
-   separately; completion rate is completed / total.
-9. When no task was evaluated, judge and accuracy metrics are `null` (unavailable),
-   not numeric zero. Multi-file task counts are summed, not averaged.
+`src/taas/mcpbench.py` contains the repository-side adapter and result semantics.
+`integrations/mcp-bench/runner.patch` is retained as a historical integration artifact
+for source review only. It is not applied automatically and is not part of the Studio
+workflow.
 
-## Validation boundary
+Do not clone or fetch a live upstream repository as part of this project workflow.
+Do not run `git apply --check` or apply the historical patch against any checkout.
+Any future runner integration must be implemented and validated against code and data
+retained in this repository, with explicit tests and an auditable local fixture.
 
-The patch is based on source inspection of the pinned upstream runner and executor.
-It has **not** been applied with `git apply --check` or executed against a local
-upstream checkout in this environment. Network access to clone the upstream
-repository was unavailable during authoring. Treat successful application and
-runner-level smoke tests as mandatory gates before benchmark runs.
+## Evaluation semantics
 
-The patch does not claim that a live MCP server has been executed.
+- Completed, failed, and abstained tasks remain distinct.
+- Abstentions are not counted as execution failures or successful completions.
+- Judge and accuracy metrics are unavailable (`null`) when no task was evaluated.
+- Multi-file task counts are summed; aggregate rates are recomputed from summed counts.
 
-## Abstention accounting semantics
-
-For a run with `C` completed, `F` failed, and `A` abstained tasks:
-
-- `total_tasks = C + F + A`
-- `completion_rate = C / total_tasks` (zero when there are no tasks)
-- `failed_tasks = F`; abstentions are never folded into failures
-- `abstained_tasks = A`
-- Judge metrics are `null` when `C = 0`, because no judge observations exist
-- Across task files, task counts are summed and the completion rate is recomputed
-  from the summed counts (not averaged from per-file rates)
-
-Legacy result files without `abstained_tasks` are treated as having zero abstentions.
+No live MCP server execution or benchmark run is implied by the retained integration code.
