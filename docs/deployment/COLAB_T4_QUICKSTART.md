@@ -1,106 +1,55 @@
-# TaaS Core Studio on Google Colab T4 — step-by-step guide
+# TaaS Studio on Google Colab T4 — quickstart
 
-This is the operator runbook for launching the **TaaS discovery workspace inside the Colab VM**. Repeat it for each fresh runtime.
+## One-click launch
 
-> **Scope:** this milestone accepts a GoalSpec and tool metadata and runs the TaaS discovery engine. It does not connect to an LLM provider, invoke MCP tools, execute an agent loop, stream live execution events, or persist run history.
+1. Open [the Colab notebook](../../notebooks/colab/taas_core_studio_colab.ipynb).
+2. Select **Runtime → Change runtime type → T4 GPU** when available.
+3. Run the notebook cells from top to bottom.
+4. Wait for the package import and /health + /ready checks.
+5. Open the generated **TaaS Studio** browser link.
+6. Copy the temporary API token printed by the launch cell into the Studio token field when submitting discovery requests.
 
-## 1. Open the notebook
+No ModelProfile upload, Hugging Face token, model endpoint or manual provider configuration is required to launch the current Studio.
 
-Open [the Colab notebook](../../notebooks/colab/taas_core_studio_colab.ipynb) in Google Colab. Use **File → Save a copy in Drive** for a personal working copy. A saved Colab copy is not automatically synchronized with later repository changes.
+## Current capability boundary
 
-## 2. Allocate a T4 runtime
+This PR milestone launches the existing **TaaS discovery workspace**. It does not yet provide Hugging Face model search/download/load, model-backed chat, agent orchestration, MCP server invocation, live execution streaming or persistent run history. These must be implemented and tested before being advertised as available.
 
-1. Select **Runtime → Change runtime type**.
-2. Choose **T4 GPU** under Hardware accelerator, if available.
-3. Save and reconnect/restart.
-4. Run the notebook checkout and GPU-check cells.
-5. Confirm that `nvidia-smi` reports an NVIDIA Tesla T4.
+The Colab notebook installs the package into the active interpreter and verifies the taas import before starting Uvicorn. If installation fails, it prints the pip output and stops instead of continuing into a misleading profile-import error.
 
-The Studio API and TaaS discovery core run on CPU. A visible T4 does not accelerate this discovery code; a CUDA model backend is not included in this milestone. Colab GPU availability and session limits depend on account/service conditions.
+## Default calibration mode
 
-## 3. Configure Colab Secrets
+Studio starts without TAAS_MODEL_PROFILE. The API creates an explicit uncalibrated-default profile with strict=True. Unknown model-native capabilities therefore receive rho=0; the system does not invent calibration measurements or claim calibrated model competence.
 
-Open the Colab **Secrets** panel and add:
+A measured model profile can be configured later through a dedicated Studio configuration interface. It must be produced from actual calibration observations and validated using ModelProfile.load(path). Model-provider configuration (Hugging Face repository, quantization, inference runtime and generation parameters) is separate from this calibration profile.
 
-| Secret | Required? | Purpose |
-|---|---:|---|
-| `TAAS_STUDIO_API_TOKEN` | Yes | Bearer token for discovery API calls |
-| `CF_TUNNEL_TOKEN` | No | Only for a preconfigured named Cloudflare Tunnel |
+## Runtime and security
 
-Grant the notebook access to the required secret. Do not hardcode credentials in cells, JSON, Git, notebook metadata, logs, or screenshots. No LLM provider key is consumed by the current API.
-
-## 4. Prepare the TaaS ModelProfile
-
-The API's `TAAS_MODEL_PROFILE` setting is **not an LLM connection configuration**. It loads TaaS capability-calibration data used by the discovery engine: model identifier, threshold, strictness and per-class calibration measurements.
-
-A deliberately conservative example is provided at [strict-empty.json](../../examples/model_profiles/strict-empty.json). It is syntactically valid but contains no measured classes. In strict mode, unknown capabilities receive `rho = 0`; this is useful for validating startup and fail-closed behavior, **not** for demonstrating successful model-native task coverage.
-
-For a meaningful experiment:
-1. Create a profile from actual, documented calibration observations for the intended model/version.
-2. Populate per-class buckets with measured accuracy, sample counts, language coverage and provenance.
-3. Do not invent measurements or copy the example's empty profile and label it calibrated.
-4. Validate it with `ModelProfile.load(path)` before upload.
-5. Upload the reviewed JSON when the notebook requests it.
-
-See `src/taas/model_profile.py` for the exact schema and interpolation/strictness semantics. Provider URLs, inference credentials, temperature and generation settings belong to a future, separate model-provider configuration layer.
-
-## 5. Install the Studio
-
-Run the notebook installation cell. It installs the repository's `studio` optional dependencies in editable mode and imports `taas.studio.api`.
-
-Expected message: `Studio imports OK`.
-
-If installation fails, inspect the first package/build error, confirm the Python version meets `pyproject.toml`, restart the runtime and retry from checkout. Avoid arbitrary NumPy/SciPy upgrades.
-
-## 6. Start the web application
-
-Run the launch cell. Uvicorn binds to `127.0.0.1:8000`. The notebook checks `GET /health` and the browser page at `GET /`. The `/ready` endpoint checks that the API token and ModelProfile path are configured; it does not verify an LLM provider.
-
-Keep the server process running while using the UI.
-
-## 7. Open the browser UI
-
-Run the proxy cell and click **Open TaaS Core Studio**. The URL belongs to the active Colab runtime/session and is not permanent.
-
-1. Enter the `TAAS_STUDIO_API_TOKEN` in the password field.
-2. Review the sample JSON.
-3. Submit a synthetic GoalSpec and trusted tool metadata.
-4. Click **Run TaaS discovery**.
-5. Inspect selected tools, abstention, coverage gap, discovery time, certificate and response.
-6. Confirm `execution_performed: false`: no MCP tool was invoked.
-
-The bundled UI example is illustrative. Use request shapes accepted by the current TaaS GoalSpec parser and engine.
-
-## 8. Optional team sharing
-
-Only enable the optional tunnel cell after configuring a **named Cloudflare Tunnel** and a **Cloudflare Access application/policy**:
-1. Create the named tunnel in Cloudflare Zero Trust.
-2. Route a public hostname to `http://127.0.0.1:8000`.
-3. Protect the entire hostname with an Access application and restrictive allow policy.
-4. Store its tunnel token in Colab Secrets as `CF_TUNNEL_TOKEN`.
-5. Enable the optional cell and verify authentication from a separate browser/session.
-
-**Do not use an unauthenticated quick tunnel.** Tunnel connectivity is not user authentication. Keep the Studio bearer token enabled as a second layer.
-
-## 9. Stop and reset
-
-Run the notebook shutdown cell. Colab runtimes are ephemeral; files under `/content`, processes and RAM/VRAM state can disappear when the runtime ends. Do not treat this notebook as durable experiment storage. Rotate credentials if a notebook/runtime was unintentionally shared.
+- The API binds to 127.0.0.1:8000 and is opened through Colab's proxyPort helper.
+- The notebook creates a temporary bearer token per runtime. Treat the notebook output as sensitive; do not share it.
+- Colab is ephemeral. Model weights, process state and files under /content may disappear when the runtime ends.
+- A visible T4 does not accelerate the current CPU-oriented discovery engine. It is intended for a future local inference backend.
+- Do not expose the service through an unauthenticated public tunnel. Team sharing requires a named tunnel and an identity-aware access policy protecting the complete hostname.
 
 ## Troubleshooting
 
-| Symptom | Checks / remedy |
+| Symptom | Action |
 |---|---|
-| No GPU / `nvidia-smi` unavailable | Re-select T4 if available, reconnect and rerun hardware check; CPU discovery remains possible |
-| Git checkout fails | Check network/repository access and pinned revision |
-| Editable install fails | Inspect first pip error, check Python version, restart and retry |
-| API exits | Inspect `/content/taas-studio.log`; check dependencies and port 8000 |
-| `/ready` returns 503 | Check API token Secret and uploaded ModelProfile path in this runtime |
-| UI discovery returns 401 | Enter the exact API token in the UI |
-| Profile returns 503 | Validate JSON using `ModelProfile.load`; check required `model_id`, `tau` and `classes` fields |
-| Discovery returns 422 | Check GoalSpec, policy and engine fields against current core interfaces |
-| Colab proxy fails | Confirm runtime is connected; rerun proxy cell and check `/health` |
-| Public hostname bypasses Access | Disable tunnel immediately and fix Access policy before sharing |
+| Repository checkout fails | Check network access and pinned commit availability. |
+| taas import fails | Confirm the install cell completed; inspect its pip stdout/stderr and verify src/taas exists in the checked-out repository. |
+| GPU not visible | Select T4 if available; CPU discovery can still launch. |
+| API exits | Inspect /content/taas-studio.log. |
+| /ready returns 503 | Confirm the generated API token is present in the notebook runtime and rerun launch. |
+| Discovery returns 401 | Paste the current runtime's token into the Studio token field. |
+| Discovery returns 422 | Check GoalSpec, policy and engine fields against the current TaaS core contract. |
+| Colab proxy fails | Confirm the runtime remains connected and rerun the proxy-link cell. |
 
-## 10. What remains before this is a full agent Studio
+## Next product milestones
 
-The next increments are a distinct model-provider/agent configuration layer, explicit MCP server registration and sandboxed invocation, observable execution events, durable experiment storage, and benchmark-native execution adapters. Each requires implementation, automated tests, operator instructions and a live Colab smoke test before being described as operational.
+1. Hugging Face Model Manager with T4-aware memory estimation and load/unload.
+2. Model-backed chat and a bounded agent runtime.
+3. MCP server/tool registry and controlled invocation.
+4. TaaS-governed tool selection, approval and execution enforcement.
+5. Observable run timeline, decision certificates and persistent trace storage.
+
+The benchmark-native execution adapters remain separate from interactive Studio chat so that interactive features do not alter benchmark protocols.
