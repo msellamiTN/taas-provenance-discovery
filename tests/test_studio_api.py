@@ -29,3 +29,10 @@ def test_discovery_fails_closed_without_profile(monkeypatch):
         },
     )
     assert response.status_code == 503
+
+
+def test_studio_home_serves_browser_workspace():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "TaaS Core Studio" in response.text
+    assert "/api/v1/discover" in response.text
