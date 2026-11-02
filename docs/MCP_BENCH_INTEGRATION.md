@@ -89,6 +89,42 @@ Pass agent_tools to the same MCP-Bench TaskExecutor path used by the baseline.
 Persist taas_trace next to the native per-task result. The adapter does not execute
 tools and does not replace MCP-Bench's evaluator.
 
+### Runner hook (pinned MCP-Bench revision)
+
+At the pinned revision, BenchmarkRunner creates TaskExecutor from
+conn_mgr.server_manager; the executor reads server_manager.all_tools to construct
+its prompt catalogue and validate planned tool calls. The narrow hook is to scope
+that mapping only around agent execution:
+
+```python
+from taas.mcpbench import selected_tool_catalogue_scope
+
+selection = taas_adapter.select(task_description, conn_mgr.all_tools)
+taas_trace = selection.trace
+
+with selected_tool_catalogue_scope(conn_mgr.server_manager, selection.tools):
+    executor = TaskExecutor(
+        llm_provider,
+        conn_mgr.server_manager,
+        self.concurrent_summarization,
+    )
+    result = await asyncio.wait_for(
+        executor.execute(task_description),
+        timeout=timeout_seconds,
+    )
+
+# The context manager has restored the complete live catalogue here.
+# Keep MCP-Bench's evaluator inputs and native result schema unchanged.
+result["available_tools"] = conn_mgr.all_tools
+result["taas"] = taas_trace
+```
+
+The scope rejects keys not present in the live catalogue, derives metadata from the
+live catalogue rather than caller-supplied selection metadata, and restores the full
+catalogue on normal return, exceptions, and cancellation. The runner integration is
+a small patch to the pinned MCP-Bench checkout; this repository does not vendor or
+modify the upstream benchmark code.
+
 ## Paired-run controls
 
 1. Same task IDs and task-file SHA-256.
