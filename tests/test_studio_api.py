@@ -663,3 +663,26 @@ def test_studio_frontend_exposes_visual_goalspec_editor_and_server_validation():
         "Dependency graph contains a cycle.",
     ):
         assert marker in page
+
+
+def test_goal_spec_validation_rejects_unknown_prompt_context_type(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.post(
+        "/api/v1/goals/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json={
+            "prompt": "Inspect records",
+            "prompt_inputs": ["imaginary_kind"],
+            "goals": [{"id": "g1", "class": "retrieve", "out": "record[]"}],
+        },
+    )
+    assert response.status_code == 422
+    assert "prompt_inputs contains invalid semantic type" in response.json()["detail"]
+
+
+def test_studio_goal_editor_requires_reload_after_advanced_json_edit():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    assert "goalJsonManuallyEdited" in page
+    assert "Reload the visual editor from the advanced JSON" in page
