@@ -97,7 +97,20 @@ class DiscoveryEngine:
         trace = None
         if cr.counterexample is not None and refine_on_failure and self.cfg.refine_k > 0:
             cr, trace = refine(self.composer, gr, policy, self.profile, cr, self.cfg.refine_k, self.assistant)
-        man = manifest(self.H, cr.certificate) if cr.certificate is not None else None
+        # Fail closed: a toolkit is selectable only when composition returned a complete,
+        # valid pre-execution certificate. An empty list is valid for model-only coverage;
+        # None remains the abstention sentinel.
+        if cr.toolkit is not None and (cr.certificate is None or not cr.certificate.valid):
+            failed = (["missing_certificate"] if cr.certificate is None else
+                      [name for name in ("S", "C", "P", "E", "L", "V")
+                       if cr.certificate.checks.get(name) is not True])
+            chi = Counterexample("chi1", None, "CERTIFICATE", {
+                "reason": "selection requires a valid pre-execution certificate",
+                "failed_checks": failed,
+            })
+            cr = ComposeResult(None, cr.certificate, chi, cr.candidates, cr.regime,
+                               cr.stats | {"selection_rejected": "invalid_certificate"})
+        man = manifest(self.H, cr.certificate) if cr.toolkit is not None and cr.certificate is not None else None
         toolkit = cr.toolkit
         if toolkit is not None and "sessions" in cr.stats:
             toolkit = sorted({t for s in cr.stats["sessions"] for t in s})

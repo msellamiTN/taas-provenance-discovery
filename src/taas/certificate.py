@@ -49,7 +49,13 @@ class Certificate:
 
     @property
     def valid(self) -> bool:
-        return all(self.checks[k] for k in ("S", "C", "P", "E", "L", "V"))
+        """Whether mandatory pre-execution safety/correctness checks all pass.
+
+        M (inclusion-minimality) and B (bridge diagnostics) are reported separately;
+        neither is currently part of the validity predicate. Missing or non-true mandatory
+        checks fail closed rather than raising KeyError or accepting truthy non-booleans.
+        """
+        return all(self.checks.get(k) is True for k in ("S", "C", "P", "E", "L", "V"))
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -92,6 +98,38 @@ def consumable(c: CapabilityContract, multimodal: bool) -> bool:
     if c.head.kind == "media":
         return multimodal or any(e.cls == "write" for e in c.eff)
     return True
+
+
+def _binding_integrity(H: Hypergraph, K: list[str], req_goals: list[GoalContract],
+                       s_w: dict[str, str | None], bindings: dict[str, str], rr: ReachResult,
+                       model_edges: list[ModelEdge]) -> list[dict]:
+    """Validate that every required-goal witness has a provenance-backed binding."""
+    model_edge_ids = {m.id for m in model_edges}
+    violations_found: list[dict] = []
+    for g in req_goals:
+        witness = s_w.get(g.id)
+        if witness is None:
+            violations_found.append({"goal": g.id, "reason": "missing_witness"})
+            continue
+        typ = witness[1:] if witness.startswith("~") else witness
+        binding = bindings.get(g.id)
+        derivation = rr.derivations.get(typ)
+        if typ in H.contracts:
+            if typ not in K or binding != typ:
+                violations_found.append({"goal": g.id, "reason": "tool_binding_not_selected", "binding": binding})
+        elif typ in rr.tool_types:
+            producer = rr.tool_types[typ]
+            if producer not in K or binding != producer or derivation is None or derivation.kind != "tool" or derivation.edge != producer:
+                violations_found.append({"goal": g.id, "reason": "tool_witness_provenance_mismatch", "binding": binding, "producer": producer})
+        elif derivation is not None and derivation.kind == "model":
+            if derivation.edge not in model_edge_ids or binding != derivation.edge:
+                violations_found.append({"goal": g.id, "reason": "model_binding_provenance_mismatch", "binding": binding, "edge": derivation.edge})
+        elif derivation is not None and derivation.kind == "prompt":
+            if binding != "-":
+                violations_found.append({"goal": g.id, "reason": "prompt_binding_must_be_dash", "binding": binding})
+        else:
+            violations_found.append({"goal": g.id, "reason": "untraceable_witness", "binding": binding})
+    return violations_found
 
 
 def certify(H: Hypergraph, K: Iterable[str], goals: list[GoalContract], prompt_inputs: list[SemType],
@@ -156,6 +194,10 @@ def certify(H: Hypergraph, K: Iterable[str], goals: list[GoalContract], prompt_i
         if d and d.kind == "model":
             via_model += 1
             prod *= d.rho
+
+    # Binding integrity: '-' is accepted only for an explicit prompt derivation.
+    binding_violations = _binding_integrity(H, K, req_goals, s_w, bindings, rr, model_edges)
+    S = S and not binding_violations
     for b in rr.bridges:
         prod *= b.rho
     beta = via_model / max(1, len(req_goals))
@@ -166,6 +208,7 @@ def certify(H: Hypergraph, K: Iterable[str], goals: list[GoalContract], prompt_i
                    "L": {"violations": fl, "labels": rr.labels, "mode": "conservative" if conservative_flow else "derivation"},
                    "V": v_w, "M": {"removable": removable},
                    "uncertain_goals": [k for k, v in s_w.items() if v and v.startswith("~")],
+                   "binding_integrity": {"valid": not binding_violations, "violations": binding_violations},
                    "B": {"bridge_ratio": beta, "rho_product": prod,
                          "bridges": [asdict(b) for b in rr.bridges]}},
         regime=regime, cost=cost, util=util, bridge_ratio=beta, bindings=bindings)
