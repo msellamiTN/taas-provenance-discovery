@@ -86,6 +86,53 @@ def selected_tool_catalogue_scope(
         server_manager.all_tools = original
 
 
+@contextmanager
+def selected_task_executor_scope(
+    server_manager: Any,
+    selected_tools: Mapping[str, Mapping[str, Any]],
+) -> Iterator[dict[str, Any]]:
+    """Scope the executor's server catalogue while preserving evaluator visibility.
+
+    MCP-Bench's TaskExecutor snapshots server_manager.all_tools in __init__.
+    Construct it inside this scope. The connection manager's all_tools snapshot
+    remains untouched, and the server manager is restored even on errors.
+    """
+    original = server_manager.all_tools
+    unknown = set(selected_tools) - set(original)
+    if unknown:
+        raise ValueError(f"Selection contains tools absent from live catalogue: {sorted(unknown)}")
+    filtered = {key: original[key] for key in selected_tools}
+    server_manager.all_tools = filtered
+    try:
+        yield filtered
+    finally:
+        server_manager.all_tools = original
+
+
+def execute_with_taas_selection(
+    adapter: "TaaSMCPBenchAdapter",
+    task_description: str,
+    conn_mgr: Any,
+    executor_factory: Callable[[], Any],
+    *,
+    timeout_seconds: float,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Synchronous selection wrapper; runner awaits executor_factory result separately.
+
+    This helper intentionally does not run an event loop or execute tools. It runs
+    discovery, scopes the server catalogue, constructs the native executor while
+    the filtered map is visible, then restores the server manager. Since the native
+    executor captures all_tools at construction, its own snapshot remains filtered.
+    """
+    selection = adapter.select(task_description, conn_mgr.all_tools)
+    with selected_task_executor_scope(conn_mgr.server_manager, selection.tools):
+        executor = executor_factory()
+    # The executor's snapshot is now fixed to the approved subset. Actual execution
+    # happens after the manager has been restored, so server_manager.call_tool must
+    # continue to operate against the full live tool map.
+    return {"executor": executor, "selection": selection}, selection.trace
+
+
 class TaaSMCPBenchAdapter:
     """Pre-execution discovery stage for MCP-Bench.
 
