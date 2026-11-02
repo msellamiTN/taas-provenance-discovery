@@ -365,7 +365,7 @@
   };
   $("goal-prompt").addEventListener("input",()=>{goalSpecState.prompt=$("goal-prompt").value;syncGoalSpec();});
   $("goal-prompt-inputs").addEventListener("input",()=>{goalSpecState.prompt_inputs_text=$("goal-prompt-inputs").value;syncGoalSpec();});
-  $("goal-add").addEventListener("click",()=>{goalSpecState.goals.push(defaultGoal(goalSpecState.goals.length+1));renderGoalEditor();syncGoalSpec();});
+  $("goal-add").addEventListener("click",()=>{let nextId=1;while(goalSpecState.goals.some(g=>g.id==="g"+nextId))nextId++;goalSpecState.goals.push(defaultGoal(nextId));renderGoalEditor();syncGoalSpec();});
   $("goal-validate").addEventListener("click",async()=>{
     const errors=validateGoalSpecLocal(),box=$("goal-validation");
     if(errors.length){box.className="goal-validation invalid";box.textContent=errors.join(" ");return;}
