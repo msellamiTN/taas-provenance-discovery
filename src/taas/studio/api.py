@@ -156,7 +156,7 @@ def validate_studio_goal_spec(spec: dict[str, Any]) -> None:
             raise HTTPException(status_code=422, detail=f"duplicate goal id: {goal_id}")
         ids.append(goal_id)
         cls = goal.get("class")
-        if cls not in allowed_classes:
+        if not isinstance(cls, str) or cls not in allowed_classes:
             raise HTTPException(
                 status_code=422,
                 detail=f"{prefix}.class must be one of the supported model or external goal classes; got {cls!r}",
