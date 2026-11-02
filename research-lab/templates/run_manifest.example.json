@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "run_id": "20261101T000000Z_<short-commit>_E00",
+  "experiment_id": "E0",
+  "status": "COMPLETED_UNVERIFIED",
+  "started_at_utc": "2026-11-01T00:00:00Z",
+  "finished_at_utc": null,
+  "git_commit": "<full-git-commit-sha>",
+  "git_branch": "<branch-name>",
+  "working_tree_clean": true,
+  "environment": {
+    "os": "<OS and version>",
+    "python": "<python --version>",
+    "codex_cli": "<codex --version>",
+    "hardware": "<CPU, RAM, accelerator if any>",
+    "dependencies": "<lockfile or pip freeze artifact path>"
+  },
+  "dataset_fingerprints": [
+    {
+      "path": "data/processed/<dataset-file>",
+      "sha256": "<sha256>"
+    }
+  ],
+  "config_path": "config/experiment.yaml",
+  "config_sha256": "<sha256>",
+  "seed": 17,
+  "command": "python <experiment-entrypoint> --config config/experiment.yaml",
+  "exit_code": 0,
+  "artifacts": [
+    {
+      "path": "logs/stdout.log",
+      "sha256": "<sha256>"
+    },
+    {
+      "path": "logs/stderr.log",
+      "sha256": "<sha256>"
+    },
+    {
+      "path": "raw/observations.jsonl",
+      "sha256": "<sha256>"
+    }
+  ],
+  "limitations": [],
+  "deviations": [],
+  "costs": {
+    "api_calls": 0,
+    "estimated_usd": 0.0,
+    "notes": "No external paid API used."
+  },
+  "verification": {
+    "state": "NOT_VERIFIED",
+    "auditor": null,
+    "date": null,
+    "commit": null,
+    "notes": "Awaiting independent reproduction."
+  }
+}

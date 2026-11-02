@@ -1,0 +1,114 @@
+schema_version: "1.0"
+repository: "msellamiTN/taas-provenance-discovery"
+runtime: "Codex CLI"
+preservation:
+  historical_paths_read_only:
+    - data/
+    - results/
+    - docs/RESULTS.md
+    - data/llm_records/
+  new_run_root: results/runs/
+  never_overwrite_run_id: true
+states: [PLANNED, INSPECTED, READY, RUNNING, BLOCKED, FAILED, COMPLETED_UNVERIFIED, VERIFIED, REJECTED]
+experiments:
+  - id: E0
+    name: baseline-data-integrity
+    family: reproduction
+    status: PLANNED
+    dependencies: []
+    questions: [registry counts, dataset integrity, historical artifact provenance]
+    outputs: [registry_inventory.json, dataset_hashes.json, baseline_report.md]
+  - id: E1
+    name: baseline-scenario-consistency
+    family: reproduction
+    status: PLANNED
+    dependencies: [E0]
+    questions: [scenario reproducibility, baseline pipeline determinism]
+    outputs: [scenario_traces.jsonl, scenario_metrics.json]
+  - id: E2
+    name: provenance-eligibility
+    family: reproduction
+    status: PLANNED
+    dependencies: [E0]
+    questions: [false-accept sensitivity, forged annotation exposure, unknown evidence handling]
+    outputs: [attack_observations.jsonl, far_sensitivity.json]
+  - id: E3
+    name: model-conditioned-gap-and-retrieval
+    family: reproduction
+    status: PLANNED
+    dependencies: [E0, E1]
+    questions: [capability-gap quality, toolkit size, recall, task success, abstention]
+    outputs: [retrieval_metrics.json, per_task_results.jsonl]
+  - id: E4
+    name: certificate-effect-safety
+    family: reproduction
+    status: PLANNED
+    dependencies: [E1]
+    questions: [effect closure, arbitrary call-order assumptions, counterexample traces]
+    outputs: [trace_safety.jsonl, certificate_checks.json]
+  - id: E5
+    name: composition-optimality
+    family: reproduction
+    status: PLANNED
+    dependencies: [E1]
+    questions: [feasibility, exact-vs-heuristic objective, brute-force oracle agreement]
+    outputs: [optimality_cases.jsonl, composition_metrics.json]
+  - id: E6
+    name: relevance-ablation
+    family: reproduction
+    status: PLANNED
+    dependencies: [E3]
+    questions: [Eq. 6 vs relevance term, held-out generalization, leakage]
+    outputs: [ablation_metrics.json, split_manifest.json]
+  - id: E7
+    name: scalability-and-evolution
+    family: reproduction
+    status: PLANNED
+    dependencies: [E0]
+    questions: [latency, memory, cache invalidation, incremental maintenance equivalence]
+    outputs: [scale_observations.jsonl, update_metrics.json]
+  - id: E8
+    name: real-mcp-interoperability
+    family: extension
+    status: PLANNED
+    dependencies: [E0, E1]
+    questions: [discovery, schema compatibility, invocation success, transport and timeout behaviour]
+    outputs: [mcp_traces.jsonl, interoperability_metrics.json]
+    safety: isolated disposable testbed; no production services
+  - id: E9
+    name: runtime-policy-and-information-flow
+    family: extension
+    status: PLANNED
+    dependencies: [E4, E8]
+    questions: [per-invocation authorization, runtime flow enforcement, monitor overhead]
+    outputs: [runtime_policy_traces.jsonl, enforcement_metrics.json]
+    safety: fake data and simulated side effects only
+  - id: E10
+    name: provenance-adversarial-attacks
+    family: extension
+    status: PLANNED
+    dependencies: [E2, E8]
+    questions: [forgery, stale evidence, revocation, implementation substitution]
+    outputs: [attack_matrix.json, attack_results.jsonl]
+    safety: controlled test identities and disposable servers
+  - id: E11
+    name: model-calibration-robustness
+    family: extension
+    status: PLANNED
+    dependencies: [E3]
+    questions: [held-out calibration, confidence bounds, model/version and task shift]
+    outputs: [calibration_metrics.json, calibration_curves.csv]
+  - id: E12
+    name: dynamic-registry-and-certificate-freshness
+    family: extension
+    status: PLANNED
+    dependencies: [E7, E10]
+    questions: [concurrent updates, evidence revocation, invalidation latency, stale certificate rejection]
+    outputs: [registry_events.jsonl, freshness_metrics.json]
+  - id: E13
+    name: multiobjective-composition
+    family: extension
+    status: PLANNED
+    dependencies: [E5, E7]
+    questions: [cost-latency-reliability-security trade-offs, Pareto quality, optimality gap]
+    outputs: [pareto_front.json, multiobjective_metrics.json]
