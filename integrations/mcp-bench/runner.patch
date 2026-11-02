@@ -185,3 +185,21 @@ diff --git a/benchmark/results_aggregator.py b/benchmark/results_aggregator.py
 +            'execution_dependency_chain_compliance': None,
 +            'avg_execution_time': None
          }
+
+diff --git a/benchmark/results_aggregator.py b/benchmark/results_aggregator.py
+--- a/benchmark/results_aggregator.py
++++ b/benchmark/results_aggregator.py
+@@ -354,11 +354,11 @@ class ResultsAggregator:
+             },
+             'accuracy_metrics': {
+-                'avg_input_schema_compliance': 0.0,
+-                'avg_valid_tool_name_rate': 0.0,
+-                'avg_execution_success_rate': 0.0,
+-                'avg_valid_call_failure_rate': 0.0,
+-                'avg_dependency_chain_compliance': 0.0
++                'avg_input_schema_compliance': None,
++                'avg_valid_tool_name_rate': None,
++                'avg_execution_success_rate': None,
++                'avg_valid_call_failure_rate': None,
++                'avg_dependency_chain_compliance': None
+             },
