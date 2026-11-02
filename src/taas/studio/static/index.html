@@ -688,8 +688,14 @@
   $("bench-tool-source").addEventListener("change",()=>{bench.toolOffset=0;loadTools().catch(showBenchError);});
   $("bench-use-task").addEventListener("click",()=>{
     if(!bench.selectedTask){$("bench-status").textContent="Select a task first.";return;}
-    try{goalSpecState.prompt=bench.selectedTask.query||"";renderGoalEditor();getGoalSpec();
-      $("bench-status").textContent="Task prompt copied into GoalSpec. Review and author semantic goals before discovery; no automatic LLM interpretation is available in this build.";
+    try{
+      goalSpecState.prompt=bench.selectedTask.query||"";
+      // A benchmark prompt is not a semantic GoalSpec. Remove the demo/default
+      // goal so stale example intent cannot be submitted as if it described
+      // the selected benchmark task. The user must author at least one goal.
+      goalSpecState.goals=[];
+      renderGoalEditor();getGoalSpec();
+      $("bench-status").textContent="Task prompt copied. The example goals were cleared: author semantic goal contracts that match this task, then select compatible tools. No automatic LLM interpretation is available in this build.";
       document.querySelector("#discovery").scrollIntoView({behavior:"smooth",block:"start"});
     }catch(e){$("bench-status").textContent="Cannot update GoalSpec: discovery request JSON is invalid.";}
   });
