@@ -11,6 +11,18 @@
 
 No ModelProfile upload, Hugging Face token, model endpoint or manual provider configuration is required to launch the current Studio.
 
+## GPU diagnostics milestone
+
+The Studio includes an authenticated **Runtime · GPU diagnostics** panel. Enter the current runtime token and select **Check GPU and CUDA**.
+
+- `gpu_detected` and `nvidia_smi_available` report host-level NVIDIA visibility.
+- `cuda_available` reports whether the installed PyTorch build can access CUDA.
+- `inference_ready` is true only when PyTorch reports CUDA and a device can be queried.
+- GPU memory is reported in MiB when available.
+- A visible T4 with `inference_ready=false` is not yet a working inference runtime.
+
+This endpoint is diagnostic only. It does not install CUDA, PyTorch, model weights or an inference engine, and it does not allocate GPU memory or run a model.
+
 ## Current capability boundary
 
 This PR milestone launches the existing **TaaS discovery workspace**. It does not yet provide Hugging Face model search/download/load, model-backed chat, agent orchestration, MCP server invocation, live execution streaming or persistent run history. These must be implemented and tested before being advertised as available.
@@ -37,7 +49,9 @@ A measured model profile can be configured later through a dedicated Studio conf
 |---|---|
 | Repository checkout fails | Check network access and pinned commit availability. |
 | taas import fails | Confirm the install cell completed; inspect its pip stdout/stderr and verify src/taas exists in the checked-out repository. |
-| GPU not visible | Select T4 if available; CPU discovery can still launch. |
+| GPU not visible | Select T4 if available; check `nvidia-smi` in Colab. |
+| GPU visible, CUDA unavailable | A CUDA-compatible PyTorch build and inference backend are not yet configured; host visibility alone is insufficient. |
+| Hardware diagnostics return 401 | Enter the current runtime token in Studio. |
 | API exits | Inspect /content/taas-studio.log. |
 | /ready returns 503 | Confirm the generated API token is present in the notebook runtime and rerun launch. |
 | Discovery returns 401 | Paste the current runtime's token into the Studio token field. |
