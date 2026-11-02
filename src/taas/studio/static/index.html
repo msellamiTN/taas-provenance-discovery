@@ -193,8 +193,16 @@
       const response = await fetch("/api/v1/runtime/hardware", { headers: { "Authorization": "Bearer " + token } });
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
-      $("gpu-status").textContent = data.inference_ready ? "CUDA inference backend detected" : (data.gpu_detected ? "GPU detected · CUDA inference not ready" : "No NVIDIA GPU verified");
-      $("gpu-details").textContent = JSON.stringify(data, null, 2);
+      const backendAvailable = data.cuda_available === true && data.torch_installed === true;
+      $("gpu-status").textContent = backendAvailable
+        ? "CUDA backend available · model not loaded · inference not executed"
+        : (data.gpu_detected ? "GPU detected · CUDA backend unavailable" : "No NVIDIA GPU verified");
+      $("gpu-details").textContent = JSON.stringify({
+        ...data,
+        model_loaded: false,
+        inference_executed: false,
+        readiness_scope: "Host/CUDA diagnostics only; no model load or inference was attempted."
+      }, null, 2);
     } catch (e) { $("gpu-status").textContent = "Diagnostics failed: " + e.message; }
   });
   run.addEventListener("click", async () => {
@@ -220,16 +228,28 @@
       $("gap").textContent = (data.gap || []).length;
       const bindings = (data.certificate && data.certificate.bindings) || {};
       const selectedTools = new Set(data.selected_tools || []);
-      const toolkitBindings = Object.entries(bindings).filter(([, target]) => selectedTools.has(target));
       const goals = (data.goal_spec && data.goal_spec.goals) || [];
-      const delegatedGoals = goals.filter(goal => !goal.optional && goal.sigma === "native");
+      const gapGoals = new Set(data.gap || []);
+      // Keep the three categories disjoint: gap = toolkit-required;
+      // native outside the gap = model-delegated; certified selected binding = toolkit-bound.
+      const delegatedGoals = goals.filter(goal =>
+        !goal.optional && goal.sigma === "native" && !gapGoals.has(goal.id)
+      );
+      const toolkitBindings = Object.entries(bindings).filter(([goalId, target]) =>
+        gapGoals.has(goalId) && selectedTools.has(target)
+      );
       $("covered").textContent = toolkitBindings.length;
       $("delegated").textContent = delegatedGoals.length;
       $("latency").textContent = Number(data.discovery_time_seconds || 0).toFixed(3) + " s";
       $("toolkit").textContent = JSON.stringify(data.selected_tools || [], null, 2);
       const checkResults = (data.certificate && data.certificate.checks) || {};
+      const mandatoryChecks = ["S", "C", "P", "E", "L", "V"];
+      const diagnosticChecks = ["M", "B"];
       const checkSummary = Object.keys(checkResults).length
-        ? "Certificate checks: " + Object.entries(checkResults).map(([key, value]) => key + "=" + (value ? "pass" : "fail")).join(" · ") + ". "
+        ? "Mandatory certificate checks (S,C,P,E,L,V): " +
+          mandatoryChecks.map(key => key + "=" + (checkResults[key] === true ? "pass" : "fail/missing")).join(" · ") +
+          ". Diagnostic checks (not validity gates): " +
+          diagnosticChecks.map(key => key + "=" + (checkResults[key] === true ? "pass" : checkResults[key] === false ? "fail" : "not reported")).join(" · ") + ". "
         : "No certificate was produced. ";
       const goalSummary =
         "Model-delegated goals (native after gap analysis): " + delegatedGoals.length + ". " +
