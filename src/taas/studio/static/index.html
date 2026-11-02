@@ -53,6 +53,15 @@
     <div id="model-status" class="status" aria-live="polite">No search performed.</div>
     <pre id="model-results">Model catalog results will appear here.</pre>
   </section>
+  <section style="margin-bottom:18px">
+    <h2>Model artifacts · compatibility preflight</h2>
+    <p class="muted">Inspect repository file names, reported sizes, weight formats and quantization hints. Metadata only: no files are downloaded and T4 compatibility is not certified.</p>
+    <label for="artifact-model-id">Hugging Face repository ID</label>
+    <input id="artifact-model-id" type="text" maxlength="256" placeholder="e.g. Qwen/Qwen2.5-3B-Instruct">
+    <button id="artifact-inspect" type="button">Inspect model artifacts</button>
+    <div id="artifact-status" class="status" aria-live="polite">No artifact inspection performed.</div>
+    <pre id="artifact-results">Artifact metadata will appear here.</pre>
+  </section>
   <div class="grid">
     <section>
       <h2>1 · Request configuration</h2>
@@ -150,7 +159,31 @@
       $("model-results").textContent = "";
     } finally { button.disabled = false; }
   });
-  $("gpu-check").addEventListener("click", async () => {
+
+  $("artifact-inspect").addEventListener("click", async () => {
+    const token = $("token").value.trim();
+    const modelId = $("artifact-model-id").value.trim();
+    if (!token) { $("artifact-status").textContent = "Enter the Studio API token first."; return; }
+    if (!modelId) { $("artifact-status").textContent = "Enter a Hugging Face namespace/repository ID."; return; }
+    const button = $("artifact-inspect");
+    button.disabled = true;
+    $("artifact-status").textContent = "Inspecting repository artifact metadata…";
+    try {
+      const params = new URLSearchParams({ model_id: modelId });
+      const response = await fetch("/api/v1/models/artifacts?" + params.toString(), {
+        headers: { "Authorization": "Bearer " + token }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
+      $("artifact-status").textContent =
+        data.file_count + " repository file(s) inspected · weights downloaded: no · T4 compatibility: not verified.";
+      $("artifact-results").textContent = JSON.stringify(data, null, 2);
+    } catch (e) {
+      $("artifact-status").textContent = "Artifact inspection failed: " + e.message;
+      $("artifact-results").textContent = "";
+    } finally { button.disabled = false; }
+  });
+\n  $("gpu-check").addEventListener("click", async () => {
     const token = $("token").value.trim();
     if (!token) { $("gpu-status").textContent = "Enter the Studio API token first."; return; }
     $("gpu-status").textContent = "Checking host GPU and CUDA…";
