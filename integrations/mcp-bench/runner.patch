@@ -1,8 +1,7 @@
 diff --git a/benchmark/runner.py b/benchmark/runner.py
 --- a/benchmark/runner.py
 +++ b/benchmark/runner.py
-@@ -488,6 +488,45 @@
-                     # Create executor and execute task
+@@ -487,6 +487,43 @@
 -                    executor = TaskExecutor(
 -                        llm_provider, 
 -                        conn_mgr.server_manager, 
@@ -22,8 +21,7 @@ diff --git a/benchmark/runner.py b/benchmark/runner.py
 +                        taas_trace = taas_selection.trace
 +
 +                        # Abstention is a first-class outcome. Do not invoke the
-+                        # agent, native executor, or evaluator as if this were a
-+                        # successful tool-using execution.
++                        # agent or evaluator as if this were a successful execution.
 +                        if taas_trace.get("abstained") or not taas_selection.tools:
 +                            return {
 +                                "task_id": task_id,
@@ -52,7 +50,7 @@ diff --git a/benchmark/runner.py b/benchmark/runner.py
 +                            conn_mgr.server_manager,
 +                            self.concurrent_summarization,
 +                        )
-@@ -513,1 +552,4 @@
+@@ -513,1 +550,4 @@
                          result['available_tools'] = conn_mgr.all_tools
 +                        # Keep TaaS evidence separate from evaluator inputs.
 +                        if taas_trace is not None:
