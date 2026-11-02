@@ -151,6 +151,13 @@ Operational properties:
 - Search does **not** download weights, inspect all weight shards, load a model, or certify T4 compatibility.
 - Parameter counts may be absent. Safetensors metadata is not a substitute for inspecting a specific downloadable artifact and its quantization format.
 
+
+The authenticated detail endpoint is:
+
+`GET /api/v1/models/detail?model_id=namespace/repository`
+
+It returns a whitelist of configuration fields explicitly reported by the Hugging Face model API, including model type, architecture names, layer/head counts, explicit head dimension and reported context-limit fields when present. It does not infer missing architecture values from the model name or from unrelated dimensions. The response marks whether the reported dimensions are sufficient for the current conventional decoder KV-cache estimator. It does not inspect downloadable weight artifacts, download files, execute model code or establish backend compatibility.
+
 The next compatibility milestone must combine verified artifact metadata, architecture-specific KV-cache estimates, context length and the selected inference backend before allowing a download or load operation.
 
 
