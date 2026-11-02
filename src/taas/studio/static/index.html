@@ -52,15 +52,17 @@
       <label for="payload">Discovery request (JSON)</label>
       <textarea id="payload" spellcheck="false">{
   "goal_spec": {
-    "prompt": "Find customer orders and summarize their current status",
+    "prompt": "List the available orders",
     "goals": [
       {
         "id": "g1",
-        "class": "read",
-        "output": "customer_order_status",
-        "sigma": 0.8,
-        "reason": "Required to answer the user's request",
-        "dependencies": []
+        "class": "retrieve",
+        "in": [],
+        "out": "record[]",
+        "eff": ["read(*)"],
+        "sigma": "data",
+        "desc": "Retrieve the available orders",
+        "deps": []
       }
     ]
   },
@@ -68,9 +70,15 @@
     {
       "server": "demo-orders",
       "name": "list_orders",
-      "description": "Read customer orders and their current status",
-      "input_schema": {"type": "object", "properties": {}},
-      "output_schema": {"type": "object", "properties": {"orders": {"type": "array"}}},
+      "description": "List all orders and return the order records",
+      "input_schema": {
+        "type": "object",
+        "properties": {}
+      },
+      "output_schema": {
+        "type": "array",
+        "items": {"type": "object"}
+      },
       "annotations": {"readOnlyHint": true},
       "source": "studio-demo",
       "category": "orders"
@@ -87,7 +95,7 @@
   "engine": {}
 }</textarea>
       <button id="run">Run TaaS discovery</button>
-      <p class="muted">The example is illustrative. Adapt GoalSpec fields and tool metadata to the contract expected by the checked-out TaaS core.</p>
+      <p class="muted">Runnable read-only example: GoalSpec uses the core contract fields (class, in, out, eff, sigma, desc, deps). The demo tool is metadata only; no MCP server is contacted or invoked.</p>
     </section>
     <section>
       <h2>2 · Discovery result</h2>
@@ -97,6 +105,8 @@
         <div class="metric"><span class="muted">Coverage gap</span><strong id="gap">—</strong></div>
         <div class="metric"><span class="muted">Discovery time</span><strong id="latency">—</strong></div>
       </div>
+      <h2>Discovery explanation</h2>
+      <p id="explanation" class="muted" aria-live="polite">Run a request to see why TaaS selected a toolkit or abstained.</p>
       <h2>Selected toolkit</h2>
       <pre id="toolkit">No discovery result yet.</pre>
       <h2>Full response · certificate · counterexample</h2>
@@ -143,6 +153,14 @@
       $("gap").textContent = (data.gap || []).length;
       $("latency").textContent = Number(data.discovery_time_seconds || 0).toFixed(3) + " s";
       $("toolkit").textContent = JSON.stringify(data.selected_tools || [], null, 2);
+      const chi = data.counterexample || {};
+      const witness = chi.witness || {};
+      const reason = chi.name
+        ? "Abstention: " + chi.name + " (goal " + (chi.goal || "unspecified") + ", check " + (chi.check || "n/a") + "). " +
+          (witness.goal_out ? "Required output: " + witness.goal_out + ". " : "") +
+          (witness.eligible !== undefined ? "Eligible tools: " + witness.eligible + ". " : "")
+        : (data.status === "selected" ? "A toolkit was selected and a certificate was produced." : "No counterexample details were returned.");
+      $("explanation").textContent = reason;
       $("response").textContent = JSON.stringify(data, null, 2);
     } catch (e) {
       $("status").textContent = "Request failed: " + e.message;
