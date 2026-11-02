@@ -1,22 +1,50 @@
-# MCP-Bench TaaS runner integration
+# MCP-Bench integration — repository-retained mode
 
-Target upstream repository: https://github.com/Accenture/mcp-bench
-Pinned upstream revision: 7a8eaeae83a842a2949080acc5473f65e1569daf
-Target file: benchmark/runner.py
+TaaS uses the benchmark assets retained inside this repository as its source of truth.
+The Studio benchmark browser reads local repository data through `taas.data.registries`;
+it does not clone, fetch, or depend on a live MCP-Bench upstream checkout.
 
-IMPORTANT: runner.patch.template is illustrative and is NOT directly applicable.
-It contains placeholder line/context hunks. Resolve exact context against the pinned
-checkout, generate a real diff, then validate it with git apply --check. Do not apply
-with fuzz or to a different upstream revision.
+## Retained assets
 
-Intended behavior:
-- Opt-in only; runner.taas_adapter defaults to None.
-- Discovery runs after server connection and before TaskExecutor construction.
-- TaskExecutor snapshots only the selected catalogue.
-- The live server manager is restored before execute(), so call_tool can dispatch.
-- Abstentions bypass execution and judge scoring, and are returned as status=abstained.
-- The complete available_tools catalogue remains available to the evaluator.
-- The TaaS trace is attached as a sidecar; task and gold data are not modified.
+- `data/raw/livemcpbench/tools.json`
+- `data/raw/livemcpbench/all_annotations.json`
+- `data/raw/SOURCES.txt`
+- `data/calibration/`
+- `data/processed/`
+- `data/llm_records/`
 
-Configure runner.taas_adapter with a TaaSMCPBenchAdapter instance containing a
-GoalSpec factory, model profile, and policy. No default analyst or policy is invented.
+The repository's processed registries are loaded by the TaaS data layer. Benchmark task
+browsing intentionally omits gold tool labels. Gold labels belong only in the evaluation
+stage after discovery has completed; they must not be sent to the analyst or discovery
+request.
+
+## Studio workflow
+
+1. Open the authenticated Studio benchmark workspace.
+2. Browse the retained dataset and select a task prompt.
+3. Review the prompt and author or validate a structured GoalSpec.
+4. Search the retained tool registry and select candidate tools.
+5. Run discovery and inspect the selected toolkit, capability gaps, abstention reasons,
+   trust decisions, and certificate checks.
+6. Evaluate the discovery result against benchmark gold labels in the separate evaluator.
+
+## Runner integration boundary
+
+`src/taas/mcpbench.py` contains the repository-side adapter and result semantics.
+`integrations/mcp-bench/runner.patch` is retained as a historical integration artifact
+for source review only. It is not applied automatically and is not part of the Studio
+workflow.
+
+Do not clone or fetch a live upstream repository as part of this project workflow.
+Do not run `git apply --check` or apply the historical patch against any checkout.
+Any future runner integration must be implemented and validated against code and data
+retained in this repository, with explicit tests and an auditable local fixture.
+
+## Evaluation semantics
+
+- Completed, failed, and abstained tasks remain distinct.
+- Abstentions are not counted as execution failures or successful completions.
+- Judge and accuracy metrics are unavailable (`null`) when no task was evaluated.
+- Multi-file task counts are summed; aggregate rates are recomputed from summed counts.
+
+No live MCP server execution or benchmark run is implied by the retained integration code.

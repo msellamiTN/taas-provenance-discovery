@@ -1,0 +1,208 @@
+diff --git a/benchmark/runner.py b/benchmark/runner.py
+--- a/benchmark/runner.py
++++ b/benchmark/runner.py
+@@ -486,11 +486,47 @@
+                             }
+                     
+                     # Create executor and execute task
+-                    executor = TaskExecutor(
+-                        llm_provider, 
+-                        conn_mgr.server_manager, 
+-                        self.concurrent_summarization
+-                    )
++                    # Optional TaaS pre-execution selection. The adapter is injected
++                    # by the experiment harness; baseline runs remain unchanged.
++                    taas_selection = None
++                    taas_trace = None
++                    taas_adapter = getattr(self, "taas_adapter", None)
++                    if taas_adapter is not None:
++                        from taas.mcpbench import selected_task_executor_scope
++
++                        taas_selection = taas_adapter.select(
++                            task_description, conn_mgr.all_tools
++                        )
++                        taas_trace = taas_selection.trace
++
++                        # Abstention is a first-class outcome.
++                        if taas_trace.get("abstained") or not taas_selection.tools:
++                            return {
++                                "task_id": task_id,
++                                "server_name": task_execution_info["server_name"],
++                                "model_name": model_name,
++                                "status": "abstained",
++                                "abstention_reason": "taas_no_eligible_toolkit",
++                                "execution_time": time.time() - start_time,
++                                "taas": taas_trace,
++                            }
++
++                        # TaskExecutor snapshots the catalogue in its constructor.
++                        # Restore the full manager catalogue after construction.
++                        with selected_task_executor_scope(
++                            conn_mgr.server_manager, taas_selection.tools
++                        ):
++                            executor = TaskExecutor(
++                                llm_provider,
++                                conn_mgr.server_manager,
++                                self.concurrent_summarization,
++                            )
++                    else:
++                        executor = TaskExecutor(
++                            llm_provider,
++                            conn_mgr.server_manager,
++                            self.concurrent_summarization,
++                        )
+                     
+                     
+                     task_execution_start_time = time.time()
+@@ -511,6 +547,9 @@
+                         
+                         # Add available tools to result
+                         result['available_tools'] = conn_mgr.all_tools
++                        # Keep TaaS evidence separate from evaluator inputs.
++                        if taas_trace is not None:
++                            result["taas"] = taas_trace
+                         
+                         # Successful execution, prepare return result
+                         execution_result = {
+
+diff --git a/benchmark/results_aggregator.py b/benchmark/results_aggregator.py
+--- a/benchmark/results_aggregator.py
++++ b/benchmark/results_aggregator.py
+@@ -31,5 +31,10 @@ class ResultsAggregator:
+         
+         completed_results = [r for r in results if r.get('status') == 'completed']
+         total_results = len(results)
++        abstained_results = [r for r in results if r.get('status') == 'abstained']
++        failed_results = [r for r in results if r.get('status') == 'failed']
+         
+         if not completed_results:
+-            return self._get_empty_model_summary(total_results)
++            summary = self._get_empty_model_summary(total_results)
++            summary['task_statistics']['abstained_tasks'] = len(abstained_results)
++            summary['task_statistics']['failed_tasks'] = len(failed_results)
++            return summary
+@@ -127,9 +129,11 @@ class ResultsAggregator:
+             'task_statistics': {
+                 'total_tasks': total_results,
+                 'completed_tasks': len(completed_results),
+-                'failed_tasks': total_results - len(completed_results),
++                'failed_tasks': len(failed_results),
++                'abstained_tasks': len(abstained_results),
+                 'completion_rate': len(completed_results) / total_results if total_results > 0 else 0.0
+             },
+@@ -281,6 +285,20 @@ class ResultsAggregator:
+         for key in all_keys:
+             values = []
+             nested_dicts = []
++
++            # Task counts are additive across task files; averaging them would
++            # produce fractional and incorrect benchmark totals. Recompute the
++            # completion rate from the summed counts instead.
++            if key == 'task_statistics':
++                stats = [m[key] for m in model_metrics
++                         if isinstance(m, dict) and isinstance(m.get(key), dict)]
++                total = sum(int(s.get('total_tasks', 0) or 0) for s in stats)
++                completed = sum(int(s.get('completed_tasks', 0) or 0) for s in stats)
++                failed = sum(int(s.get('failed_tasks', 0) or 0) for s in stats)
++                abstained = sum(int(s.get('abstained_tasks', 0) or 0) for s in stats)
++                avg_metrics[key] = {
++                    'total_tasks': total,
++                    'completed_tasks': completed,
++                    'failed_tasks': failed,
++                    'abstained_tasks': abstained,
++                    'completion_rate': completed / total if total else 0.0
++                }
++                continue
+             
+             for metrics in model_metrics:
+                 if isinstance(metrics, dict) and key in metrics:
+@@ -324,13 +342,13 @@ class ResultsAggregator:
+                 'total_tasks': total_results,
+                 'completed_tasks': 0,
+-                'failed_tasks': total_results,
++                'failed_tasks': total_results,
++                'abstained_tasks': 0,
+                 'completion_rate': 0.0
+             },
+             'llm_judge_metrics': {
+-                'avg_task_fulfillment_score': 0.0,
+-                'avg_grounding_score': 0.0,
+-                'avg_tool_appropriateness_score': 0.0,
+-                'avg_parameter_accuracy_score': 0.0,
+-                'avg_dependency_awareness_score': 0.0,
+-                'avg_parallelism_efficiency_score': 0.0,
+-                'avg_llm_judge_combined': 0.0
++                'avg_task_fulfillment_score': None,
++                'avg_grounding_score': None,
++                'avg_tool_appropriateness_score': None,
++                'avg_parameter_accuracy_score': None,
++                'avg_dependency_awareness_score': None,
++                'avg_parallelism_efficiency_score': None,
++                'avg_llm_judge_combined': None
+             },
+
+diff --git a/benchmark/results_aggregator.py b/benchmark/results_aggregator.py
+--- a/benchmark/results_aggregator.py
++++ b/benchmark/results_aggregator.py
+@@ -400,20 +400,20 @@ class ResultsAggregator:
+     def _get_empty_current_metrics(self) -> Dict[str, Any]:
+         """Get empty current metrics for when no tasks completed"""
+         return {
+-            'task_completion_score': 0.0,
+-            'tool_selection_score': 0.0,
+-            'planning_effectiveness_and_efficiency_score': 0.0,
+-            'task_fulfillment': 0.0,
+-            'completeness': 0.0,
+-            'grounding': 0.0,
+-            'relevance': 0.0,
+-            'tool_appropriateness': 0.0,
+-            'intent_alignment': 0.0,
+-            'output_integration': 0.0,
+-            'structural_coherence': 0.0,
+-            'dependency_awareness': 0.0,
+-            'parallelism_and_efficiency': 0.0,
+-            'input_schema_compliance': 0.0,
+-            'valid_tool_name_rate': 0.0,
+-            'execution_success_rate': 0.0,
+-            'execution_dependency_chain_compliance': 0.0,
+-            'avg_execution_time': 0.0
++            'task_completion_score': None,
++            'tool_selection_score': None,
++            'planning_effectiveness_and_efficiency_score': None,
++            'task_fulfillment': None,
++            'completeness': None,
++            'grounding': None,
++            'relevance': None,
++            'tool_appropriateness': None,
++            'intent_alignment': None,
++            'output_integration': None,
++            'structural_coherence': None,
++            'dependency_awareness': None,
++            'parallelism_and_efficiency': None,
++            'input_schema_compliance': None,
++            'valid_tool_name_rate': None,
++            'execution_success_rate': None,
++            'execution_dependency_chain_compliance': None,
++            'avg_execution_time': None
+         }
+
+diff --git a/benchmark/results_aggregator.py b/benchmark/results_aggregator.py
+--- a/benchmark/results_aggregator.py
++++ b/benchmark/results_aggregator.py
+diff --git a/benchmark/results_aggregator.py b/benchmark/results_aggregator.py
+--- a/benchmark/results_aggregator.py
++++ b/benchmark/results_aggregator.py
+@@ -354,11 +354,11 @@ class ResultsAggregator:
+             },
+             'accuracy_metrics': {
+-                'avg_input_schema_compliance': 0.0,
+-                'avg_valid_tool_name_rate': 0.0,
+-                'avg_execution_success_rate': 0.0,
+-                'avg_valid_call_failure_rate': 0.0,
+-                'avg_dependency_chain_compliance': 0.0
++                'avg_input_schema_compliance': None,
++                'avg_valid_tool_name_rate': None,
++                'avg_execution_success_rate': None,
++                'avg_valid_call_failure_rate': None,
++                'avg_dependency_chain_compliance': None
+             },
