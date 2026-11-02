@@ -420,13 +420,13 @@
   $("goal-reload-json").addEventListener("click",()=>{
     try{
       const gs=readRequest().goal_spec||{};
-      goalSpecState={prompt:gs.prompt||"",prompt_inputs_text:(gs.prompt_inputs||["text"]).join(", "),goals:Array.isArray(gs.goals)?gs.goals.map(g=>({...g,in:[...(g.in||[])],eff:[...(g.eff||[])],deps:[...(g.deps||[])]})):[]};
+      goalSpecState={prompt:gs.prompt||"",prompt_inputs_text:(gs.prompt_inputs||["text"]).join(", "),goals:Array.isArray(gs.goals)?gs.goals.map(g=>({...g,n:g.n??1,in:[...(g.in||[])],eff:[...(g.eff||[])],deps:[...(g.deps||[])]})):[]};
       goalJsonManuallyEdited=false;renderGoalEditor();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Visual editor reloaded from the JSON payload.";
     }catch(e){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent="Cannot reload editor: "+e.message;}
   });
   try{
     const initial=readRequest();const gs=initial.goal_spec||{};
-    goalSpecState={prompt:gs.prompt||"",prompt_inputs_text:(gs.prompt_inputs||["text"]).join(", "),goals:Array.isArray(gs.goals)?gs.goals.map(g=>({...g,in:[...(g.in||[])],eff:[...(g.eff||[])],deps:[...(g.deps||[])]})):[]};
+    goalSpecState={prompt:gs.prompt||"",prompt_inputs_text:(gs.prompt_inputs||["text"]).join(", "),goals:Array.isArray(gs.goals)?gs.goals.map(g=>({...g,n:g.n??1,in:[...(g.in||[])],eff:[...(g.eff||[])],deps:[...(g.deps||[])]})):[]};
     renderGoalEditor();
   }catch(e){goalSpecState={prompt:"",prompt_inputs_text:"text",goals:[defaultGoal(1)]};renderGoalEditor();}
 
