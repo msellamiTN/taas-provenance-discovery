@@ -389,3 +389,64 @@ def test_huggingface_model_detail_uses_only_reported_architecture(monkeypatch):
     assert "head_dim" not in details["architecture"]
     assert details["architecture_complete_for_kv_estimate"] is False
     assert details["weights_downloaded"] is False
+
+
+def test_huggingface_artifact_inspection_reports_formats_without_download(monkeypatch):
+    from taas.studio import models
+
+    class FakeResponse:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return {
+                "id": "org/example",
+                "siblings": [
+                    {"rfilename": "model.safetensors", "size": 1024},
+                    {"rfilename": "model-Q4_K_M.gguf", "size": 2048,
+                     "lfs": {"size": 2048, "oid": "a" * 64}},
+                    {"rfilename": "config.json"},
+                ],
+            }
+
+    monkeypatch.setattr(models.httpx, "get", lambda *args, **kwargs: FakeResponse())
+    result = models.inspect_model_artifacts("org/example")
+    assert result["formats"] == ["gguf", "safetensors"]
+    assert result["known_artifact_bytes"] == 3072
+    assert result["weights_downloaded"] is False
+    assert result["model_code_executed"] is False
+    assert result["t4_assessment"]["status"] == "not_verified"
+    assert {item["backend"] for item in result["backend_candidates"]} == {"llama.cpp", "Transformers"}
+
+
+def test_huggingface_artifact_inspection_rejects_invalid_repository_id():
+    from taas.studio.models import inspect_model_artifacts
+
+    with pytest.raises(ValueError, match="namespace/repository"):
+        inspect_model_artifacts("../outside")
+
+
+def test_huggingface_artifact_endpoint_requires_authentication(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.get("/api/v1/models/artifacts", params={"model_id": "org/example"})
+    assert response.status_code == 401
+
+
+def test_huggingface_artifact_endpoint_returns_metadata(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    monkeypatch.setattr(api, "inspect_model_artifacts", lambda model_id: {
+        "model_id": model_id,
+        "file_count": 1,
+        "formats": ["safetensors"],
+        "weights_downloaded": False,
+        "t4_assessment": {"status": "not_verified"},
+    })
+    response = client.get(
+        "/api/v1/models/artifacts",
+        params={"model_id": "org/example"},
+        headers={"Authorization": "Bearer test-token"},
+    )
+    assert response.status_code == 200
+    assert response.json()["weights_downloaded"] is False
