@@ -83,29 +83,6 @@ def selected_task_executor_scope(
         server_manager.all_tools = original
 
 
-def execute_with_taas_selection(
-    adapter: "TaaSMCPBenchAdapter",
-    task_description: str,
-    conn_mgr: Any,
-    executor_factory: Callable[[], Any],
-    *,
-    timeout_seconds: float,
-) -> tuple[dict[str, Any], dict[str, Any]]:
-    """Synchronous selection wrapper; runner awaits executor_factory result separately.
-
-    This helper intentionally does not run an event loop or execute tools. It runs
-    discovery, scopes the server catalogue, constructs the native executor while
-    the filtered map is visible, then restores the server manager. Since the native
-    executor captures all_tools at construction, its own snapshot remains filtered.
-    """
-    selection = adapter.select(task_description, conn_mgr.all_tools)
-    with selected_task_executor_scope(conn_mgr.server_manager, selection.tools):
-        executor = executor_factory()
-    # The executor's snapshot is now fixed to the approved subset. Actual execution
-    # happens after the manager has been restored, so server_manager.call_tool must
-    # continue to operate against the full live tool map.
-    return {"executor": executor, "selection": selection}, selection.trace
-
 
 class TaaSMCPBenchAdapter:
     """Pre-execution discovery stage for MCP-Bench.
