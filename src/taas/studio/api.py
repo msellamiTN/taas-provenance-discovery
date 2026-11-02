@@ -17,7 +17,8 @@ from pydantic import BaseModel, ConfigDict, Field
 from taas.contracts import extract_contract
 from taas.data.registries import RawTool
 from taas.engine import DiscoveryEngine, EngineConfig
-from taas.model_profile import ModelProfile
+from taas.model_profile import EXTERNAL_CLASSES, MODEL_CLASSES, ModelProfile
+from taas.goals import SIGMAS
 from taas.policy import Policy
 from taas.provenance import DEFAULT_TRUST
 from taas.studio.runtime import probe_hardware
@@ -106,9 +107,44 @@ def runtime_hardware() -> dict[str, Any]:
     return probe_hardware()
 
 
+def validate_studio_goal_spec(spec: dict[str, Any]) -> None:
+    """Fail early on the legacy/malformed UI payload instead of silently defaulting fields."""
+    goals = spec.get("goals")
+    if not isinstance(goals, list) or not goals:
+        raise HTTPException(status_code=422, detail="goal_spec.goals must be a non-empty array")
+    allowed_classes = set(MODEL_CLASSES) | set(EXTERNAL_CLASSES)
+    legacy = {"output", "reason", "dependencies"}
+    for index, goal in enumerate(goals):
+        prefix = f"goal_spec.goals[{index}]"
+        if not isinstance(goal, dict):
+            raise HTTPException(status_code=422, detail=f"{prefix} must be an object")
+        old = sorted(legacy.intersection(goal))
+        if old:
+            raise HTTPException(
+                status_code=422,
+                detail=f"{prefix} uses legacy field(s) {old}; use out, desc and deps",
+            )
+        cls = goal.get("class")
+        if cls not in allowed_classes:
+            raise HTTPException(
+                status_code=422,
+                detail=f"{prefix}.class must be one of the supported model or external goal classes; got {cls!r}",
+            )
+        if not isinstance(goal.get("out"), str) or not goal["out"].strip():
+            raise HTTPException(status_code=422, detail=f"{prefix}.out must be a semantic type string")
+        if goal.get("sigma", "native") not in SIGMAS:
+            raise HTTPException(status_code=422, detail=f"{prefix}.sigma must be one of {SIGMAS}")
+        for field_name in ("in", "eff", "deps"):
+            if field_name in goal and not isinstance(goal[field_name], list):
+                raise HTTPException(status_code=422, detail=f"{prefix}.{field_name} must be an array")
+        if any(not isinstance(item, str) for item in goal.get("in", []) + goal.get("eff", []) + goal.get("deps", [])):
+            raise HTTPException(status_code=422, detail=f"{prefix}.in, eff and deps must contain strings")
+
+
 @app.post("/api/v1/discover", dependencies=[Depends(require_api_token)])
 def discover(request: DiscoverRequest) -> dict[str, Any]:
     """Run TaaS discovery only; this endpoint does not invoke MCP tools."""
+    validate_studio_goal_spec(request.goal_spec)
     profile = load_profile()
     raw_tools = [RawTool(**tool.model_dump()) for tool in request.tools]
     contracts = [extract_contract(tool) for tool in raw_tools]
