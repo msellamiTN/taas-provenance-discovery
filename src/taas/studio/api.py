@@ -21,7 +21,7 @@ from taas.model_profile import EXTERNAL_CLASSES, MODEL_CLASSES, ModelProfile
 from taas.goals import SIGMAS, parse_goal_spec
 from taas.policy import Policy
 from taas.provenance import DEFAULT_TRUST
-from taas.studio.runtime import probe_hardware
+from taas.studio.runtime import estimate_model_memory, probe_hardware
 
 app = FastAPI(
     title="TaaS Core Studio API",
@@ -41,6 +41,14 @@ class ToolInput(BaseModel):
     annotations: dict[str, Any] | None = None
     source: str = "studio-user"
     category: str = ""
+
+
+class ModelMemoryEstimateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    parameters_billion: float = Field(gt=0, le=200)
+    quantization: str = Field(default="int4", pattern="^(fp16|int8|int4)$")
+    overhead_fraction: float = Field(default=0.20, ge=0, le=1)
+    runtime_reserve_gib: float = Field(default=2.0, ge=0, le=64)
 
 
 class DiscoverRequest(BaseModel):
@@ -144,6 +152,20 @@ def validate_studio_goal_spec(spec: dict[str, Any]) -> None:
 def parse_studio_goal_spec(spec: dict[str, Any]):
     """Parse the core GoalSpec while preserving the Studio natural-language prompt."""
     return parse_goal_spec(spec, prompt=str(spec.get("prompt", "")))
+
+
+@app.post("/api/v1/models/estimate-memory", dependencies=[Depends(require_api_token)])
+def model_memory_estimate(request: ModelMemoryEstimateRequest) -> dict[str, Any]:
+    """Return a conservative weight-memory estimate; never downloads or loads a model."""
+    try:
+        return estimate_model_memory(
+            parameters_billion=request.parameters_billion,
+            quantization=request.quantization,
+            overhead_fraction=request.overhead_fraction,
+            runtime_reserve_gib=request.runtime_reserve_gib,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
 @app.post("/api/v1/discover", dependencies=[Depends(require_api_token)])
