@@ -1,0 +1,181 @@
+"""Minimal HTTP boundary for the existing TaaS discovery core.
+
+This is an experimental API, not a production-hardened multi-tenant service.
+Protect it behind an authenticated tunnel/reverse proxy and keep it bound to loopback.
+"""
+from __future__ import annotations
+
+import hmac
+import os
+from pathlib import Path
+from typing import Any
+
+from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from pydantic import BaseModel, ConfigDict, Field
+
+from taas.contracts import extract_contract
+from taas.data.registries import RawTool
+from taas.engine import DiscoveryEngine, EngineConfig
+from taas.model_profile import ModelProfile
+from taas.policy import Policy
+from taas.provenance import DEFAULT_TRUST
+
+app = FastAPI(
+    title="TaaS Core Studio API",
+    version="0.1.0",
+    description="Experimental API wrapper around the existing TaaS discovery engine.",
+)
+bearer = HTTPBearer(auto_error=False)
+
+
+class ToolInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    server: str = Field(min_length=1, max_length=256)
+    name: str = Field(min_length=1, max_length=256)
+    description: str = ""
+    input_schema: dict[str, Any] = Field(default_factory=dict)
+    output_schema: dict[str, Any] | None = None
+    annotations: dict[str, Any] | None = None
+    source: str = "studio-user"
+    category: str = ""
+
+
+class DiscoverRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    goal_spec: dict[str, Any]
+    tools: list[ToolInput] = Field(min_length=1, max_length=500)
+    policy: dict[str, Any] = Field(default_factory=dict)
+    engine: dict[str, Any] = Field(default_factory=dict)
+
+
+def require_api_token(
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer),
+) -> None:
+    expected = os.environ.get("TAAS_STUDIO_API_TOKEN", "")
+    if not expected:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Studio API token is not configured",
+        )
+    supplied = credentials.credentials if credentials else ""
+    if not hmac.compare_digest(supplied, expected):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing bearer token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+def load_profile() -> ModelProfile:
+    """Load optional calibration; otherwise use an explicitly uncalibrated, fail-closed profile.
+
+    This default permits Studio startup and discovery without pretending that model
+    capability measurements exist. Unknown native capabilities remain rho=0.
+    """
+    configured = os.environ.get("TAAS_MODEL_PROFILE", "").strip()
+    if not configured:
+        return ModelProfile(model_id="uncalibrated-default", strict=True)
+    path = Path(configured).expanduser().resolve()
+    if not path.is_file():
+        raise HTTPException(status_code=503, detail="Configured model profile file does not exist")
+    try:
+        return ModelProfile.load(path)
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"Unable to load model profile: {type(exc).__name__}") from exc
+
+
+@app.get("/health")
+def health() -> dict[str, str]:
+    return {"status": "ok", "service": "taas-core-studio-api"}
+
+
+@app.get("/ready")
+def ready() -> dict[str, str]:
+    if not os.environ.get("TAAS_STUDIO_API_TOKEN"):
+        raise HTTPException(status_code=503, detail="API token is not configured")
+    # Calibration is optional at startup. Discovery uses a strict, uncalibrated
+    # profile until an operator configures a measured profile in Studio.
+    return {"status": "ready", "calibration": "configured" if os.environ.get("TAAS_MODEL_PROFILE") else "uncalibrated"}
+
+
+@app.post("/api/v1/discover", dependencies=[Depends(require_api_token)])
+def discover(request: DiscoverRequest) -> dict[str, Any]:
+    """Run TaaS discovery only; this endpoint does not invoke MCP tools."""
+    profile = load_profile()
+    raw_tools = [RawTool(**tool.model_dump()) for tool in request.tools]
+    contracts = [extract_contract(tool) for tool in raw_tools]
+
+    policy_data = request.policy
+    try:
+        policy = Policy.make(
+            name=str(policy_data.get("name", "studio-default")),
+            required=policy_data.get("required", []),
+            allowed=policy_data.get("allowed", ["read(*)", "egress(*)", "session"]),
+            lmin=policy_data.get("lmin", "obs"),
+            forbidden=policy_data.get("forbidden", []),
+            encoding=policy_data.get("encoding", "positive"),
+        )
+        engine_config = EngineConfig()
+        for key, value in request.engine.items():
+            if not hasattr(engine_config, key):
+                raise ValueError(f"Unknown engine setting: {key}")
+            setattr(engine_config, key, value)
+        engine = DiscoveryEngine(
+            contracts,
+            profile,
+            trust=DEFAULT_TRUST,
+            cfg=engine_config,
+        )
+        result = engine.discover(request.goal_spec, policy)
+    except (TypeError, ValueError, KeyError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    certificate = result.certificate.to_dict() if result.certificate is not None else None
+    counterexample = (
+        result.counterexample.to_dict() if result.counterexample is not None else None
+    )
+    return {
+        "status": "abstained" if result.abstained else "selected",
+        "selected_tools": result.toolkit or [],
+        "goal_spec": {
+            "prompt": result.spec.prompt,
+            "goals": [
+                {
+                    "id": goal.id,
+                    "class": goal.cls,
+                    "output": str(goal.out),
+                    "sigma": goal.sigma,
+                    "reason": goal.sigma_reason,
+                    "dependencies": goal.deps,
+                }
+                for goal in result.spec.goals
+            ],
+        },
+        "gap": [goal.id for goal in result.gap.gap],
+        "rho": result.gap.rho,
+        "certificate": certificate,
+        "counterexample": counterexample,
+        "composition": {
+            "candidates": result.compose.candidates,
+            "regime": result.compose.regime,
+            "stats": result.compose.stats,
+        },
+        "discovery_time_seconds": result.time_s,
+        "execution_performed": False,
+        "model_profile": {
+            "model_id": profile.model_id,
+            "calibration": "configured" if os.environ.get("TAAS_MODEL_PROFILE") else "uncalibrated",
+            "strict": profile.strict,
+        },
+    }
+
+@app.get("/", include_in_schema=False)
+def studio_home():
+    """Serve the same-origin browser workspace."""
+    from fastapi.responses import FileResponse
+
+    page = Path(__file__).parent / "static" / "index.html"
+    if not page.is_file():
+        raise HTTPException(status_code=404, detail="Studio frontend is not installed")
+    return FileResponse(page, media_type="text/html")
