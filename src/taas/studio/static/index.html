@@ -79,6 +79,29 @@
     @media(max-width:1050px) { .workspace-grid { grid-template-columns:1fr 1fr; } .workspace-grid section:first-child { grid-column:1/-1; } }
     @media(max-width:700px) { header { align-items:flex-start; flex-direction:column; } main { padding:0 12px 36px; } .workspace-grid { grid-template-columns:1fr; } .workspace-grid section:first-child { grid-column:auto; } .hero { flex-direction:column; } }
 
+
+    .goal-editor { margin:14px 0 16px; padding:15px; border:1px solid #dfe6f0; border-radius:11px; background:#f9fbfe; }
+    .goal-editor-head { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+    .goal-editor-head h3 { margin:0; font-size:14px; }
+    .goal-editor .field { margin:9px 0; }
+    .goal-editor .field label { display:block; margin:0 0 5px; color:#50617a; font-size:11px; }
+    .goal-editor input,.goal-editor select,.goal-editor textarea { width:100%; box-sizing:border-box; padding:8px 9px; border:1px solid #d4dce8; border-radius:7px; background:#fff; color:#172033; font:12px Inter,system-ui,sans-serif; }
+    .goal-editor textarea { min-height:52px; resize:vertical; }
+    .goal-editor .goal-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px 10px; }
+    .goal-card { margin-top:11px; padding:12px; border:1px solid #e1e7f0; border-radius:9px; background:#fff; }
+    .goal-card-head { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:5px; }
+    .goal-card-head strong { font-size:12px; }
+    .goal-card .remove-goal { margin:0; padding:5px 8px; background:#fff1f1; color:#a33; border:1px solid #f1d4d4; }
+    .goal-editor .goal-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .goal-editor .goal-actions button { margin:0; }
+    .goal-validation { margin-top:10px; padding:9px 11px; border-radius:8px; background:#f1f5fa; color:#52627a; font-size:11px; line-height:1.5; }
+    .goal-validation.invalid { background:#fff3f0; color:#9a3c2b; }
+    .goal-validation.valid { background:#eef8f3; color:#176b49; }
+    .advanced-json { margin-top:12px; border-top:1px solid #e5eaf1; padding-top:10px; }
+    .advanced-json summary { color:#50617a; cursor:pointer; font-size:12px; font-weight:700; }
+    @media(max-width:720px) { .goal-editor .goal-grid { grid-template-columns:1fr 1fr; } }
+    @media(max-width:480px) { .goal-editor .goal-grid { grid-template-columns:1fr; } }
+
   </style>
 </head>
 <body>
@@ -131,7 +154,20 @@
       <h2>1 · Request configuration</h2>
       <label for="token">Studio API bearer token (kept in this page's memory only)</label>
       <input id="token" type="password" autocomplete="off" placeholder="Enter TAAS_STUDIO_API_TOKEN">
-      <label for="payload">Discovery request (JSON)</label>
+
+      <div class="goal-editor" id="goal-editor">
+        <div class="goal-editor-head"><div><div class="eyebrow">02 · Specify</div><h3>Visual GoalSpec editor</h3><p class="subtle" style="margin:4px 0 0">Define intent, semantic inputs and outputs, effects, and dependencies. The editor writes the canonical GoalSpec into the discovery request.</p></div><span class="pill">Core contract · editable</span></div>
+        <div class="field"><label for="goal-prompt">Natural-language objective</label><textarea id="goal-prompt" rows="2" placeholder="Describe the outcome the toolkit must support"></textarea></div>
+        <div class="field"><label for="goal-prompt-inputs">Prompt-provided semantic context · comma-separated types</label><input id="goal-prompt-inputs" value="text" placeholder="text, record:customer[]"></div>
+        <div class="panel-head" style="margin:12px 0 4px"><h3>Goal contracts</h3><span class="count" id="goal-count">0 goals</span></div>
+        <div id="goal-cards"></div>
+        <div class="goal-actions"><button id="goal-add" type="button" class="secondary">Add goal</button><button id="goal-validate" type="button" class="secondary">Validate GoalSpec</button><span class="subtle">Validation checks structure, types, references and dependency cycles; it does not generate or prove goal semantics.</span></div>
+        <div id="goal-validation" class="goal-validation" role="status" aria-live="polite">GoalSpec has not been validated.</div>
+      </div>
+      <details class="advanced-json">
+        <summary>Advanced · inspect or edit the complete discovery JSON</summary>
+        <label for="payload">Discovery request (JSON)</label>
+
       <textarea id="payload" spellcheck="false">{
   "goal_spec": {
     "prompt": "List the available orders",
@@ -176,6 +212,7 @@
   },
   "engine": {}
 }</textarea>
+      </details>
       <button id="run">Run TaaS discovery</button>
       <p class="muted">Runnable read-only example: GoalSpec uses the core contract fields (class, in, out, eff, sigma, desc, deps). The demo tool is metadata only; no MCP server is contacted or invoked. Its read-only annotation is admitted by the example policy minimum evidence level (ann).</p>
     </section>
@@ -230,6 +267,110 @@
 (() => {
   const $ = (id) => document.getElementById(id);
   const run = $("run");
+
+  // Visual GoalSpec editor. The JSON request remains the canonical transport payload.
+  const GOAL_CLASSES = ["classify","extract","summarise","translate","convert_format","write","plan","synthesise","aggregate","compute_exact","count","compare","answer","retrieve","search","fetch_web","store","send","transact","execute","navigate_browser","render_media","create_document","edit_document","random"];
+  const GOAL_SIGMAS = ["native","data","effect","unreliable"];
+  const SEMANTIC_KINDS = ["text","document","table","record","media","credential","identifier","location","number","url","path","query","code","datetime","boolean","none"];
+  let goalSpecState = null;
+  const splitList = value => value.split(/[,\n]/).map(x=>x.trim()).filter(Boolean);
+  const readRequest = () => JSON.parse($("payload").value);
+  const writeRequest = body => { $("payload").value=JSON.stringify(body,null,2); };
+  const getGoalSpec = () => {
+    const body=readRequest(); body.goal_spec=body.goal_spec||{};
+    body.goal_spec.prompt=goalSpecState.prompt||"";
+    body.goal_spec.prompt_inputs=splitList(goalSpecState.prompt_inputs_text||"text");
+    body.goal_spec.goals=goalSpecState.goals;
+    writeRequest(body);
+  };
+  const defaultGoal = (i) => ({id:"g"+i,class:"retrieve",in:[],out:"record[]",eff:["read(*)"],sigma:"data",desc:"Describe the required operation",deps:[],n:1,exactness:"tolerant",lang:"en",optional:false});
+  const makeField = (labelText, value, onChange, options=null, multiline=false) => {
+    const wrap=document.createElement("div");wrap.className="field";
+    const label=document.createElement("label");label.textContent=labelText;wrap.append(label);
+    const control=multiline?document.createElement("textarea"):(options?document.createElement("select"):document.createElement("input"));
+    if(options){options.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;control.append(o);});}
+    if(multiline)control.value=value||"";
+    else if(control.tagName==="SELECT")control.value=value||options[0];
+    else control.value=value??"";
+    control.addEventListener("input",()=>onChange(control.value));
+    control.addEventListener("change",()=>onChange(control.value));
+    wrap.append(control);return wrap;
+  };
+  const renderGoalEditor = () => {
+    $("goal-prompt").value=goalSpecState.prompt||"";
+    $("goal-prompt-inputs").value=goalSpecState.prompt_inputs_text||"text";
+    $("goal-count").textContent=goalSpecState.goals.length+" goals";
+    const root=$("goal-cards");root.replaceChildren();
+    goalSpecState.goals.forEach((g,index)=>{
+      const card=document.createElement("div");card.className="goal-card";
+      const head=document.createElement("div");head.className="goal-card-head";
+      const title=document.createElement("strong");title.textContent=(g.id||"Goal "+(index+1))+" · "+(g.class||"unclassified");
+      const remove=document.createElement("button");remove.type="button";remove.className="remove-goal";remove.textContent="Remove";
+      remove.addEventListener("click",()=>{goalSpecState.goals.splice(index,1);renderGoalEditor();syncGoalSpec();});
+      head.append(title,remove);card.append(head);
+      const grid=document.createElement("div");grid.className="goal-grid";
+      const fields=[
+        makeField("Goal ID",g.id,v=>{g.id=v;title.textContent=v+" · "+g.class;syncGoalSpec();}),
+        makeField("Operation class",g.class,v=>{g.class=v;title.textContent=g.id+" · "+v;syncGoalSpec();},GOAL_CLASSES),
+        makeField("Output semantic type",g.out,v=>{g.out=v;syncGoalSpec();}),
+        makeField("Input types · comma-separated",(g.in||[]).join(", "),v=>{g.in=splitList(v);syncGoalSpec();}),
+        makeField("Effects · comma-separated",(g.eff||[]).join(", "),v=>{g.eff=splitList(v);syncGoalSpec();}),
+        makeField("Sigma / delegation",g.sigma,v=>{g.sigma=v;syncGoalSpec();},GOAL_SIGMAS),
+        makeField("Dependencies · goal IDs",(g.deps||[]).join(", "),v=>{g.deps=splitList(v);syncGoalSpec();}),
+        makeField("Expected cardinality n",String(g.n??1),v=>{g.n=v===""?1:Number(v);syncGoalSpec();}),
+        makeField("Exactness",g.exactness||"tolerant",v=>{g.exactness=v;syncGoalSpec();},["tolerant","exact"]),
+        makeField("Language",g.lang||"en",v=>{g.lang=v;syncGoalSpec();}),
+      ];
+      fields.forEach(x=>grid.append(x));card.append(grid);
+      const desc=makeField("Goal description",g.desc||"",v=>{g.desc=v;syncGoalSpec();},null,true);card.append(desc);
+      const optionalWrap=document.createElement("label");optionalWrap.style.display="flex";optionalWrap.style.alignItems="center";optionalWrap.style.gap="8px";optionalWrap.style.fontSize="11px";
+      const optional=document.createElement("input");optional.type="checkbox";optional.style.width="auto";optional.checked=Boolean(g.optional);
+      optional.addEventListener("change",()=>{g.optional=optional.checked;syncGoalSpec();});
+      optionalWrap.append(optional,document.createTextNode("Optional goal (not a mandatory coverage requirement)"));card.append(optionalWrap);
+      root.append(card);
+    });
+  };
+  const validateGoalSpecLocal = () => {
+    const errors=[], ids=new Set(), goals=goalSpecState.goals;
+    if(!goalSpecState.prompt.trim())errors.push("Natural-language objective is empty.");
+    if(!goals.length)errors.push("At least one goal is required.");
+    goals.forEach((g,i)=>{
+      const p="Goal "+(i+1)+" ("+(g.id||"no ID")+")";
+      if(!g.id||! /^[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(g.id))errors.push(p+": ID must start with a letter and contain only letters, digits, _ or -.");
+      else if(ids.has(g.id))errors.push(p+": duplicate goal ID."); else ids.add(g.id);
+      if(!GOAL_CLASSES.includes(g.class))errors.push(p+": unsupported operation class.");
+      const validType=t=>{const m=/^([a-z_]+)(?::([a-z0-9_-]+))?(\[\])?$/.exec(t);return Boolean(m&&SEMANTIC_KINDS.includes(m[1]));};
+      if(typeof g.out!=="string"||!validType(g.out))errors.push(p+": output type must use a supported semantic kind (optionally :domain and []).");
+      (g.in||[]).forEach(t=>{if(!validType(t))errors.push(p+": invalid input type "+t+".");});
+      (g.eff||[]).forEach(e=>{if(!/^(read|write|delete|exec|egress|money|session)(\([^)]*\))?$/.test(e))errors.push(p+": invalid effect "+e+".");});
+      if(!GOAL_SIGMAS.includes(g.sigma))errors.push(p+": invalid sigma.");
+      if(!Number.isInteger(Number(g.n))||Number(g.n)<1)errors.push(p+": n must be a positive integer.");
+      if(!["tolerant","exact"].includes(g.exactness||"tolerant"))errors.push(p+": exactness must be tolerant or exact.");
+    });
+    goals.forEach(g=>(g.deps||[]).forEach(d=>{if(!ids.has(d))errors.push("Goal "+g.id+": dependency "+d+" does not exist.");if(d===g.id)errors.push("Goal "+g.id+": self-dependency is not allowed.");}));
+    const byId=new Map(goals.map(g=>[g.id,g])), visiting=new Set(), visited=new Set();
+    const visit=id=>{if(visiting.has(id))return false;if(visited.has(id))return true;visiting.add(id);for(const d of byId.get(id)?.deps||[]){if(byId.has(d)&&!visit(d))return false;}visiting.delete(id);visited.add(id);return true;};
+    for(const id of byId.keys())if(!visit(id)){errors.push("Dependency graph contains a cycle.");break;}
+    return errors;
+  };
+  const syncGoalSpec = () => {
+    try{getGoalSpec();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Draft updated. Validate before discovery.";}
+    catch(e){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent="Cannot sync editor: "+e.message;}
+  };
+  $("goal-prompt").addEventListener("input",()=>{goalSpecState.prompt=$("goal-prompt").value;syncGoalSpec();});
+  $("goal-prompt-inputs").addEventListener("input",()=>{goalSpecState.prompt_inputs_text=$("goal-prompt-inputs").value;syncGoalSpec();});
+  $("goal-add").addEventListener("click",()=>{goalSpecState.goals.push(defaultGoal(goalSpecState.goals.length+1));renderGoalEditor();syncGoalSpec();});
+  $("goal-validate").addEventListener("click",()=>{
+    const errors=validateGoalSpecLocal(),box=$("goal-validation");
+    box.className="goal-validation "+(errors.length?"invalid":"valid");
+    box.textContent=errors.length?errors.join(" "):"Local structural validation passed: "+goalSpecState.goals.length+" goal(s), unique IDs, supported types/classes/effects, valid dependencies and acyclic graph. Semantic correctness still requires expert review.";
+  });
+  try{
+    const initial=readRequest();const gs=initial.goal_spec||{};
+    goalSpecState={prompt:gs.prompt||"",prompt_inputs_text:(gs.prompt_inputs||["text"]).join(", "),goals:Array.isArray(gs.goals)?gs.goals.map(g=>({...g,in:[...(g.in||[])],eff:[...(g.eff||[])],deps:[...(g.deps||[])]})):[]};
+    renderGoalEditor();
+  }catch(e){goalSpecState={prompt:"",prompt_inputs_text:"text",goals:[defaultGoal(1)]};renderGoalEditor();}
+
   $("model-search").addEventListener("click", async () => {
     const token = $("token").value.trim();
     const query = $("model-query").value.trim();
@@ -303,6 +444,8 @@
     catch (e) { $("status").textContent = "Invalid JSON: " + e.message; return; }
     const token = $("token").value.trim();
     if (!token) { $("status").textContent = "Enter the Studio API token first."; return; }
+    const goalErrors=validateGoalSpecLocal();
+    if(goalErrors.length){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent=goalErrors.join(" ");$("status").textContent="Correct the GoalSpec validation errors before discovery.";return;}
     run.disabled = true;
     $("status").textContent = "Running discovery…";
     $("toolkit").textContent = "Waiting for API response…";
@@ -437,8 +580,7 @@
   $("bench-tool-source").addEventListener("change",()=>{bench.toolOffset=0;loadTools().catch(showBenchError);});
   $("bench-use-task").addEventListener("click",()=>{
     if(!bench.selectedTask){$("bench-status").textContent="Select a task first.";return;}
-    try{const body=JSON.parse($("payload").value);body.goal_spec=body.goal_spec||{};body.goal_spec.prompt=bench.selectedTask.query||"";
-      $("payload").value=JSON.stringify(body,null,2);
+    try{goalSpecState.prompt=bench.selectedTask.query||"";renderGoalEditor();getGoalSpec();
       $("bench-status").textContent="Task prompt copied into GoalSpec. Review and author semantic goals before discovery; no automatic LLM interpretation is available in this build.";
       document.querySelector("#discovery").scrollIntoView({behavior:"smooth",block:"start"});
     }catch(e){$("bench-status").textContent="Cannot update GoalSpec: discovery request JSON is invalid.";}
