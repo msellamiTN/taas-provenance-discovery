@@ -20,6 +20,7 @@ from taas.engine import DiscoveryEngine, EngineConfig
 from taas.model_profile import ModelProfile
 from taas.policy import Policy
 from taas.provenance import DEFAULT_TRUST
+from taas.studio.runtime import probe_hardware
 
 app = FastAPI(
     title="TaaS Core Studio API",
@@ -97,6 +98,12 @@ def ready() -> dict[str, str]:
     # Calibration is optional at startup. Discovery uses a strict, uncalibrated
     # profile until an operator configures a measured profile in Studio.
     return {"status": "ready", "calibration": "configured" if os.environ.get("TAAS_MODEL_PROFILE") else "uncalibrated"}
+
+
+@app.get("/api/v1/runtime/hardware", dependencies=[Depends(require_api_token)])
+def runtime_hardware() -> dict[str, Any]:
+    """Report host GPU and CUDA readiness; does not load or execute a model."""
+    return probe_hardware()
 
 
 @app.post("/api/v1/discover", dependencies=[Depends(require_api_token)])

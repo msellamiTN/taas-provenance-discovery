@@ -37,6 +37,13 @@
 </header>
 <main>
   <div class="notice"><strong>Discovery-only preview.</strong> This workspace calls <code>/api/v1/discover</code>. It does not invoke MCP tools, run an agent, or evaluate task completion. Use only trusted tool metadata; do not paste secrets or sensitive arguments.</div>
+  <section style="margin-bottom:18px">
+    <h2>Runtime · GPU diagnostics</h2>
+    <p class="muted">Host GPU visibility and CUDA inference readiness are separate checks. A detected GPU does not mean a model runtime is installed or loaded.</p>
+    <button id="gpu-check" type="button">Check GPU and CUDA</button>
+    <div id="gpu-status" class="status" aria-live="polite">Not checked yet. Enter the Studio token, then run diagnostics.</div>
+    <pre id="gpu-details">No hardware diagnostics yet.</pre>
+  </section>
   <div class="grid">
     <section>
       <h2>1 · Request configuration</h2>
@@ -101,6 +108,18 @@
 (() => {
   const $ = (id) => document.getElementById(id);
   const run = $("run");
+  $("gpu-check").addEventListener("click", async () => {
+    const token = $("token").value.trim();
+    if (!token) { $("gpu-status").textContent = "Enter the Studio API token first."; return; }
+    $("gpu-status").textContent = "Checking host GPU and CUDA…";
+    try {
+      const response = await fetch("/api/v1/runtime/hardware", { headers: { "Authorization": "Bearer " + token } });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
+      $("gpu-status").textContent = data.inference_ready ? "CUDA inference backend detected" : (data.gpu_detected ? "GPU detected · CUDA inference not ready" : "No NVIDIA GPU verified");
+      $("gpu-details").textContent = JSON.stringify(data, null, 2);
+    } catch (e) { $("gpu-status").textContent = "Diagnostics failed: " + e.message; }
+  });
   run.addEventListener("click", async () => {
     let body;
     try { body = JSON.parse($("payload").value); }

@@ -40,3 +40,38 @@ def test_studio_home_serves_browser_workspace():
     assert response.status_code == 200
     assert "TaaS Core Studio" in response.text
     assert "/api/v1/discover" in response.text
+
+
+
+def test_hardware_diagnostics_requires_token(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.get("/api/v1/runtime/hardware")
+    assert response.status_code == 401
+
+
+def test_hardware_diagnostics_returns_probe(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    expected = {
+        "gpu_detected": True,
+        "gpu": {
+            "name": "Tesla T4",
+            "memory_total_mib": 15360,
+            "memory_free_mib": 14000,
+            "driver_version": "test",
+            "compute_capability": "7.5",
+        },
+        "nvidia_smi_available": True,
+        "torch_installed": False,
+        "cuda_available": False,
+        "inference_ready": False,
+        "notes": ["PyTorch is not installed; CUDA inference has not been configured."],
+    }
+    monkeypatch.setattr(api, "probe_hardware", lambda: expected)
+    response = client.get(
+        "/api/v1/runtime/hardware",
+        headers={"Authorization": "Bearer test-token"},
+    )
+    assert response.status_code == 200
+    assert response.json() == expected
