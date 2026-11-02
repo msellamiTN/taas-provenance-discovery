@@ -100,6 +100,38 @@ def consumable(c: CapabilityContract, multimodal: bool) -> bool:
     return True
 
 
+def _binding_integrity(H: Hypergraph, K: list[str], req_goals: list[GoalContract],
+                       s_w: dict[str, str | None], bindings: dict[str, str], rr: ReachResult,
+                       model_edges: list[ModelEdge]) -> list[dict]:
+    """Validate that every required-goal witness has a provenance-backed binding."""
+    model_edge_ids = {m.id for m in model_edges}
+    violations_found: list[dict] = []
+    for g in req_goals:
+        witness = s_w.get(g.id)
+        if witness is None:
+            violations_found.append({"goal": g.id, "reason": "missing_witness"})
+            continue
+        typ = witness[1:] if witness.startswith("~") else witness
+        binding = bindings.get(g.id)
+        derivation = rr.derivations.get(typ)
+        if typ in H.contracts:
+            if typ not in K or binding != typ:
+                violations_found.append({"goal": g.id, "reason": "tool_binding_not_selected", "binding": binding})
+        elif typ in rr.tool_types:
+            producer = rr.tool_types[typ]
+            if producer not in K or binding != producer or derivation is None or derivation.kind != "tool" or derivation.edge != producer:
+                violations_found.append({"goal": g.id, "reason": "tool_witness_provenance_mismatch", "binding": binding, "producer": producer})
+        elif derivation is not None and derivation.kind == "model":
+            if derivation.edge not in model_edge_ids or binding != derivation.edge:
+                violations_found.append({"goal": g.id, "reason": "model_binding_provenance_mismatch", "binding": binding, "edge": derivation.edge})
+        elif derivation is not None and derivation.kind == "prompt":
+            if binding != "-":
+                violations_found.append({"goal": g.id, "reason": "prompt_binding_must_be_dash", "binding": binding})
+        else:
+            violations_found.append({"goal": g.id, "reason": "untraceable_witness", "binding": binding})
+    return violations_found
+
+
 def certify(H: Hypergraph, K: Iterable[str], goals: list[GoalContract], prompt_inputs: list[SemType],
             policy: Policy, model_edges: list[ModelEdge], profile: ModelProfile | None, *, regime: str,
             cost: float, util: float, multimodal: bool = True, conservative_flow: bool = True,
@@ -145,35 +177,8 @@ def certify(H: Hypergraph, K: Iterable[str], goals: list[GoalContract], prompt_i
         if all(goal_reached(rr2, g, H, uncertain) for g in req_goals):
             removable.append(t)
     M = not removable
-    # Binding integrity: every required goal must resolve to a traceable derivation.
-    # Tool bindings must name a selected toolkit member; model bindings must name the
-    # actual model edge recorded by the reach graph. '-' is reserved for prompt-sourced
-    # outputs only, never as a generic fallback for missing provenance.
-    model_edge_ids = {m.id for m in model_edges}
-    binding_violations: list[dict] = []
-    for g in req_goals:
-        witness = s_w.get(g.id)
-        if witness is None:
-            binding_violations.append({"goal": g.id, "reason": "missing_witness"})
-            continue
-        typ = witness[1:] if witness.startswith("~") else witness
-        binding = bindings.get(g.id)
-        derivation = rr.derivations.get(typ)
-        if typ in H.contracts:
-            if typ not in K or binding != typ:
-                binding_violations.append({"goal": g.id, "reason": "tool_binding_not_selected", "binding": binding})
-        elif typ in rr.tool_types:
-            producer = rr.tool_types[typ]
-            if producer not in K or binding != producer or derivation is None or derivation.kind != "tool" or derivation.edge != producer:
-                binding_violations.append({"goal": g.id, "reason": "tool_witness_provenance_mismatch", "binding": binding, "producer": producer})
-        elif derivation is not None and derivation.kind == "model":
-            if derivation.edge not in model_edge_ids or binding != derivation.edge:
-                binding_violations.append({"goal": g.id, "reason": "model_binding_provenance_mismatch", "binding": binding, "edge": derivation.edge})
-        elif derivation is not None and derivation.kind == "prompt":
-            if binding != "-":
-                binding_violations.append({"goal": g.id, "reason": "prompt_binding_must_be_dash", "binding": binding})
-        else:
-            binding_violations.append({"goal": g.id, "reason": "untraceable_witness", "binding": binding})
+    # Binding integrity: '-' is accepted only for an explicit prompt derivation.
+    binding_violations = _binding_integrity(H, K, req_goals, s_w, bindings, rr, model_edges)
     S = S and not binding_violations
 
     # (B) bridge ratio: share of goal outputs reached through model hyperedges
