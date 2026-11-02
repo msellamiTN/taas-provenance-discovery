@@ -1,6 +1,6 @@
 # PR #4 integration audit — TaaS / MCP-Bench
 
-**Audited revision:** `58f83c00c7f6e14c846a6174ced482a02d9de98f`  
+**Updated audit revision:** `cec7e9ae5a320dd03dcaa7551e313cd131ea996c` (pre-runner-hook review)  
 **Pull request:** [#4 — Integrate TaaS discovery into MCP-Bench](https://github.com/msellamiTN/taas-provenance-discovery/pull/4)  
 **Audit date:** 2026-11-02  
 **Scope:** static source inspection and GitHub Actions status; no live MCP-Bench execution performed.
@@ -122,17 +122,35 @@ Therefore:
 
 See `docs/deployment/COLAB_T4_CORE_STUDIO.md` for the deployment profile and acceptance gates.
 
-## 5. Recommended next implementation order
+## 5. Updated implementation status after run #92
 
-1. Inspect and pin the exact MCP-Bench runner API at the documented commit.
-2. Add a thin runner hook that filters only the agent-visible tool catalogue.
-3. Verify native empty-tool/abstention behavior.
-4. Add one deterministic live MCP server smoke test.
-5. Measure provenance eligibility and validate benchmark policy settings.
-6. Strengthen GoalSpec validation and sidecar redaction.
-7. Run paired baseline/TaaS tasks through the unchanged native evaluator.
-8. Expose the same core through a minimal FastAPI service.
-9. Build the Studio UI and Colab launcher on top of the service.
+### Verified
+
+- The pinned upstream source at `7a8eaeae83a842a2949080acc5473f65e1569daf` was re-inspected.
+- `TaskExecutor.__init__` assigns `self.all_tools = server_manager.all_tools`, so the executor snapshots the visible catalogue at construction time.
+- The manager must be restored before execution because `PersistentMultiServerManager.call_tool()` checks the live `server_manager.all_tools` mapping.
+- A corrected context manager, `selected_task_executor_scope`, now scopes the catalogue only while the native executor is constructed. The executor retains the filtered dictionary; the persistent server manager returns to the complete catalogue before calls are dispatched.
+- Focused tests cover snapshot retention, restoration, and rejection of unknown selected keys.
+- Documentation now shows the correct placement of the hook.
+
+### Still blocking empirical claims
+
+- The upstream MCP-Bench `benchmark/runner.py` has not been modified or vendored in this repository.
+- The actual runner has not loaded the TaaS adapter or a concrete GoalSpec analyst.
+- Empty-tool abstention has not been tested through the native runner/evaluator.
+- No live MCP server smoke task has been executed.
+- No paired baseline/TaaS benchmark result is available.
+
+## 6. Next implementation order
+
+1. Add the runner hook as a small patch against the exact pinned MCP-Bench checkout, preserving its execution and evaluator code.
+2. Add a runner-level test proving the native executor sees only selected keys while the server manager dispatches calls against the full connected catalogue.
+3. Define an explicit abstention result path before executor construction; abstentions must not be recorded as ordinary agent successes.
+4. Run a deterministic safe MCP server smoke test.
+5. Measure evidence-level distribution and eligibility on the exact MCP-Bench tool snapshot; justify the benchmark policy.
+6. Harden GoalSpec validation (supported classes/types, numeric fields and dependency acyclicity), and redact analyst raw responses before persistence.
+7. Run paired baseline/TaaS tasks through the unchanged evaluator, with analyst cost/latency included.
+
 
 ## 6. Audit conclusion
 
