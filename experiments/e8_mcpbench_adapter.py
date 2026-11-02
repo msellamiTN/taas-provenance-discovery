@@ -12,6 +12,7 @@ EngineConfig, and the runner rule that an abstention *or an empty selection* ski
 Factors
   code     codex (feature/taas-mcpbench-integration) | fixed (this branch)   [--src selects code]
   analyst  prompt-1.0 (Codex MCPBenchGoalAnalyst) | prompt-1.1 (vocabulary-aligned) |
+           prompt-1.1+theta (1.1 plus the typed catalogue's domains Θ, Algorithm 1 line 2) |
            guide (docs/ANALYST_GUIDE.md, the analyst used in E3)
   typing   lexical (adapter default) | llm (silver τ of Section 6.1, hash-bound; fixed code only)
   policy   benchmark-default (documented: read(*), egress(*), session) | open (all effect classes,
@@ -53,6 +54,7 @@ from taas.policy import Policy  # noqa: E402
 REC = ROOT / "data" / "llm_records"
 ANALYSTS = {"prompt-1.0": [REC / "analyst_mcpbench_prompt_v1_0_sonnet.jsonl"],
             "prompt-1.1": [REC / "analyst_mcpbench_prompt_v1_1_sonnet.jsonl"],
+            "prompt-1.1+theta": [REC / "analyst_mcpbench_prompt_v1_1_theta_sonnet.jsonl"],
             "guide": [REC / "analyst_sonnet_A.jsonl", REC / "analyst_sonnet_B.jsonl"]}
 
 

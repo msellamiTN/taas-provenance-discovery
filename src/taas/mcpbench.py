@@ -93,6 +93,24 @@ def selected_tool_catalogue_scope(
         yield
 
 
+def catalogue_theta(contracts) -> list[str]:
+    """Θ's domain terms as used by the (typed) catalogue: domains of every head and tail type."""
+    doms = set()
+    for c in contracts:
+        for ty in (c.head, *[a.type for a in c.args]):
+            if ty.domain:
+                doms.add(ty.domain)
+    return sorted(doms)
+
+
+def _accepts_theta(factory) -> bool:
+    import inspect
+    try:
+        return "theta" in inspect.signature(factory).parameters
+    except (TypeError, ValueError):
+        return False
+
+
 class TaaSMCPBenchAdapter:
     """Pre-execution discovery stage for MCP-Bench.
 
@@ -125,12 +143,6 @@ class TaaSMCPBenchAdapter:
         raw_tools, key_by_id = raw_tools_from_mcpbench(all_tools)
         if not raw_tools:
             raise ValueError("MCP-Bench supplied an empty tool catalogue")
-        analyst_started = time.perf_counter()
-        goal_spec = self.goal_spec_factory(task)
-        analyst_time_s = time.perf_counter() - analyst_started
-        if not isinstance(goal_spec, dict) or not isinstance(goal_spec.get("goals"), list):
-            raise ValueError("goal_spec_factory must return a GoalSpec dictionary with a goals array")
-
         contracts, typed, stale = [], 0, []
         for t in raw_tools:
             ty = self.typing.get(t.id)
@@ -139,6 +151,19 @@ class TaaSMCPBenchAdapter:
                 ty = None
             typed += ty is not None
             contracts.append(extract_contract(t, dict(ty) if ty is not None else None))
+        # Algorithm 1, line 2: the analyst writes G over the closed type vocabulary Θ of the
+        # registry. Θ is passed to factories that accept it; it holds type domains only, never
+        # tool names or identifiers.
+        theta = catalogue_theta(contracts)
+        analyst_started = time.perf_counter()
+        if _accepts_theta(self.goal_spec_factory):
+            goal_spec = self.goal_spec_factory(task, theta=theta)
+        else:
+            goal_spec = self.goal_spec_factory(task)
+        analyst_time_s = time.perf_counter() - analyst_started
+        if not isinstance(goal_spec, dict) or not isinstance(goal_spec.get("goals"), list):
+            raise ValueError("goal_spec_factory must return a GoalSpec dictionary with a goals array")
+
         engine = DiscoveryEngine(contracts, self.profile, trust=self.trust, cfg=self.engine_config)
         result = engine.discover(goal_spec, self.policy)
         if result.abstained:
@@ -163,6 +188,7 @@ class TaaSMCPBenchAdapter:
             "taas_pre_execution_time_s": analyst_time_s + result.time_s,
             "goal_spec": goal_spec,
             "goal_spec_vocabulary": vocabulary_report(goal_spec),
+            "theta_domains": theta if _accepts_theta(self.goal_spec_factory) else None,
             "contract_typing": {"llm_typed": typed, "lexical": len(raw_tools) - typed, "stale_hash": stale},
             "gap": [g.id for g in result.gap.gap],
             "gap_shrink": [g.id for g in result.gap.shrink],

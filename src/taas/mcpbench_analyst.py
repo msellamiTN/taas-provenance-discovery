@@ -63,6 +63,16 @@ JSON shape:
 """
 
 
+def user_prompt(task: str, theta: list[str] | None = None) -> str:
+    """The analyst's user message. ``theta`` lists the registry's type domains (Algorithm 1,
+    line 2); it names data domains only, never tools."""
+    msg = "TASK (the only information source):\n" + task
+    if theta:
+        msg += ("\n\nTYPE DOMAINS used by the registry (prefer these for kind:domain types; use a new "
+                "lowercase singular noun only if none fits): " + ", ".join(theta))
+    return msg + "\n\nReturn the GoalSpec JSON object. Do not include tool names or tool IDs."
+
+
 class CompletionProvider(Protocol):
     def get_completion(self, system_prompt: str, user_prompt: str, max_tokens: int, **kwargs) -> Any: ...
     def clean_and_parse_json(self, raw_json: str) -> Any: ...
@@ -82,10 +92,8 @@ class MCPBenchGoalAnalyst:
         self.last_usage: dict[str, Any] = {}
         self.prompt_version = "taas-goal-spec-analyst/1.1"
 
-    def __call__(self, task: str) -> dict[str, Any]:
-        prompt = "TASK (the only information source):\n" + task + (
-            "\n\nReturn the GoalSpec JSON object. Do not include tool names or tool IDs."
-        )
+    def __call__(self, task: str, theta: list[str] | None = None) -> dict[str, Any]:
+        prompt = user_prompt(task, theta)
         try:
             response = self.llm.get_completion(SYSTEM_PROMPT, prompt, self.max_tokens, return_usage=True)
         except TypeError:
