@@ -1,191 +1,135 @@
-# Colab T4 deployment profile for TaaS Core Studio
+# Colab-hosted TaaS Core Studio (T4 profile)
 
-**Status:** deployment design / implementation gate  
-**Target:** Google Colab runtime with NVIDIA T4 when available  
-**Repository:** `msellamiTN/taas-provenance-discovery`  
-**Purpose:** reproducible research/demo runtime, not a persistent production host
+**Status:** experimental deployment guide  
+**Target:** Google Colab runtime with T4 GPU when available  
+**Deployment model:** the TaaS Studio web application itself runs inside the Colab VM and is opened through Colab's notebook port proxy. Optional remote sharing uses a named Cloudflare Tunnel protected by Cloudflare Access.
 
-## 1. Deployment decision
+## 1. Intended user experience
 
-Colab T4 is a supported *ephemeral compute profile*. It is not the system of record and it is not the production hosting tier.
+The target is similar to a notebook-launched web studio:
 
-Separate the platform into:
+1. Open the TaaS Colab notebook.
+2. Select **Runtime → Change runtime type → T4 GPU** (subject to Colab availability).
+3. Run notebook cells from top to bottom.
+4. The notebook checks out a pinned TaaS revision, installs Studio, verifies GPU visibility and starts the web application on the Colab VM.
+5. Open the Studio UI through Colab's port proxy.
+6. Optionally configure a named Cloudflare Tunnel plus Cloudflare Access to share a protected hostname.
 
-- **Studio control plane:** browser UI, API, authentication, experiment metadata, configuration and trace query APIs.
-- **TaaS core:** contract extraction, capability hypergraph, provenance/policy checks, toolkit composition, certificates and discovery.
-- **Optional GPU workers:** embedding generation, reranking, local model inference or other explicitly GPU-backed extensions.
-- **Persistent services:** PostgreSQL/object storage or an equivalent durable backend, hosted outside the Colab runtime.
+This is not a remote API client calling an unrelated Studio host. The FastAPI server and browser UI execute on the Colab runtime.
 
-The current TaaS core dependencies are NumPy, SciPy, scikit-learn and Matplotlib. The inspected discovery engine does not currently require CUDA. A T4 therefore does **not** automatically accelerate the existing core. Use it only when an enabled extension actually uses CUDA; otherwise the Colab CPU runtime is sufficient.
+## 2. Current TaaS capabilities vs target
 
-## 2. Supported profiles
+The current PR implementation has:
+- FastAPI health/readiness endpoints.
+- Bearer-authenticated discovery endpoint.
+- Same-origin browser UI for GoalSpec and tool-catalogue submission.
+- Selection/abstention, coverage gap, discovery latency, certificate and composition output.
 
-| Profile | Compute | Persistence | Intended use |
-|---|---|---|---|
-| Local development | Docker / CPU | Local volumes | Engineering |
-| Colab CPU | Colab CPU | External durable store | Functional demos and smoke tests |
-| Colab T4 | T4 GPU + CPU | External durable store | GPU-backed semantic enrichment and demos |
-| Hosted Studio | VM/container service | Managed database and object storage | Team/reviewer access and continuous use |
+Not implemented yet:
+- MCP tool invocation and isolated MCP worker execution.
+- Agent loop/model chat orchestration inside Studio.
+- Live execution-event streaming.
+- Persistent multi-run database and trace browser.
+- Multi-user/workspace access control.
 
-The notebook must detect the actual accelerator. It must not assume that a T4 was allocated merely because the user selected a GPU runtime.
+The notebook must not imply those capabilities are available. It currently launches the discovery workspace, not a complete agent execution product.
 
-## 3. Colab notebook workflow
+## 3. Colab runtime model
 
-The eventual notebook `notebooks/colab/taas_core_studio_t4.ipynb` should contain these ordered sections:
+The application runs on the Colab VM:
+- Uvicorn listens on `127.0.0.1:8000`.
+- Browser traffic is forwarded through the Colab notebook's port proxy.
+- TaaS CPU discovery runs in the same Python runtime.
+- A future or separately configured local model backend can use the T4 for inference, embeddings or reranking.
 
-1. **Runtime inspection**
-   - Python version, RAM, disk and GPU availability.
-   - Run `nvidia-smi` when available.
-   - Record runtime metadata in the experiment environment manifest.
-2. **Pinned checkout**
-   - Clone the TaaS repository.
-   - Checkout an explicit commit SHA supplied by the release configuration.
-   - Never install from an unpinned moving branch for a reported experiment.
-3. **Environment setup**
-   - Install the project and its declared extras.
-   - Install the Studio server/UI dependencies from a lock file once those services exist.
-   - Run dependency and import checks.
-4. **Persistent storage**
-   - Mount Google Drive only for user-owned demo artifacts if desired.
-   - Prefer external PostgreSQL and S3-compatible storage for shared/persistent experiments.
-   - Do not keep the authoritative database only in Colab's local filesystem.
-5. **Secrets**
-   - Read API keys and tunnel credentials from Colab Secrets or a user-supplied secret manager.
-   - Never write credentials to notebooks, output cells, manifests or Git.
-   - Do not print environment variables.
-6. **TaaS core validation**
-   - Load a pinned model profile and tool registry.
-   - Run deterministic unit/smoke tests.
-   - Persist the exact commit, profile hash, policy and registry snapshot.
-7. **Optional GPU extension**
-   - Verify CUDA and GPU memory.
-   - Load only a configured embedding/reranking model.
-   - Fall back to CPU or disable the extension if CUDA is unavailable.
-   - Record device, model revision, precision and batch size.
-8. **Studio launch**
-   - Start the FastAPI backend and built frontend when the Studio application is implemented.
-   - Bind to loopback, not an unrestricted public interface.
-   - Expose it through an authenticated, short-lived tunnel.
-   - Display the session URL only after the tunnel has actually started.
-9. **Run and persist**
-   - Execute a small interactive task.
-   - Persist manifest, discovery decision, event trace and redacted outputs outside the runtime.
-10. **Shutdown**
-   - Stop child processes.
-   - Flush pending events and artifacts.
-   - Revoke/expire the tunnel and release runtime resources.
+T4 presence is checked with `nvidia-smi`. The existing discovery engine (contract extraction, hypergraph construction, provenance/policy checks and toolkit composition) is CPU-oriented; the notebook does not claim it is GPU-accelerated.
 
-## 4. Security requirements
+A T4 is a constrained GPU. Choose quantized models and batch sizes compatible with available VRAM. A local model endpoint must be independently installed, started and configured before the TaaS ModelProfile can use it.
 
-- Never expose an unauthenticated FastAPI, Gradio or notebook server to the public internet.
-- Prefer an authenticated tunnel with a short lifetime; do not use a public share URL as an authentication mechanism.
-- Require application authentication even when a tunnel has access controls.
-- Restrict MCP server egress with an explicit allowlist. Validate DNS resolution and resolved IP ranges to mitigate SSRF and DNS rebinding.
-- Do not allow arbitrary user-provided URLs to be fetched by a privileged worker.
-- Run MCP tools in isolated workers; do not execute untrusted server code inside the notebook kernel.
-- Redact credentials, authorization headers, private arguments and sensitive outputs before trace persistence.
-- Keep benchmark gold labels and evaluator-only metadata out of the interactive TaaS worker.
-- Store secrets in Colab Secrets or an external secret manager, not in Drive files or notebook source.
+## 4. Access paths
 
-Colab is a shared, ephemeral research environment. It must not host sensitive production credentials or high-trust workloads.
+### Owner-only notebook access
 
-## 5. Persistence contract
+The notebook uses Colab's `google.colab.kernel.proxyPort(8000)` helper to open the application through the notebook origin. Access is governed by the Colab notebook/runtime session and Google account permissions. Do not publish the notebook with secrets embedded.
 
-Every run should produce a durable bundle containing:
+### Optional protected public hostname
 
-- `experiment_manifest.json`
-- `environment.json` (Python, OS, accelerator, package versions, commit SHA)
-- `taas_profile.json`
-- `registry_snapshot.json` or a content-addressed registry reference
-- `goal_spec.json`
-- `discovery_decision.json`
-- `decision_certificate.json`, when produced
-- `events.jsonl`
-- `evaluation.json`, when an evaluator is configured
-- redacted output artifacts and checksums
+For team access, use a named Cloudflare Tunnel and a Cloudflare Access application/policy:
+- Configure the tunnel's origin as `http://127.0.0.1:8000`.
+- Apply an Access policy that restricts permitted identities.
+- Add the tunnel token as a Colab Secret named `CF_TUNNEL_TOKEN`.
+- Enable the optional tunnel cell only after the hostname and Access policy are provisioned.
 
-Use stable experiment IDs and content hashes. A Colab runtime restart must not destroy already completed experiment records.
+A tunnel token provides tunnel connectivity, not end-user authorization by itself. A random quick-tunnel URL is not an authentication mechanism. Do not expose the service without Access protection and application authentication. The current root UI and health endpoints are public at the origin, so the external Access layer must protect the whole hostname.
 
-## 6. GPU usage policy
+The notebook downloads the Cloudflare binary from its latest release in the optional branch. For reproducible or production use, pin the cloudflared version and verify its checksum before deployment.
 
-GPU acceleration is optional and component-specific.
+## 5. Credentials
 
-| Component | Default device | T4 usage |
-|---|---|---|
-| Contract extraction | CPU | Not required |
-| Hypergraph construction | CPU | Not required |
-| Policy/provenance evaluation | CPU | Not required |
-| Toolkit composition | CPU | Not required by current implementation |
-| Embedding model | CPU by default | Optional CUDA acceleration |
-| Cross-encoder reranker | CPU by default | Optional CUDA acceleration |
-| Local LLM inference | External API by default | Optional, subject to model memory/quantization |
-| GUI/API | CPU | No GPU benefit |
+- Store `TAAS_STUDIO_API_TOKEN` and any model provider keys in Colab Secrets.
+- Upload only a reviewed ModelProfile JSON. Do not upload API key values inside the profile.
+- Do not print secrets or place them in source cells, Git, Drive, logs or experiment manifests.
+- Do not submit private user arguments or secrets in discovery request JSON.
+- The API token protects discovery POSTs; it does not replace tunnel-level access control.
 
-A GPU-enabled run must record whether the GPU was actually used. Merely running in a T4 runtime is not evidence of GPU acceleration.
+## 6. Persistence and lifecycle
 
-## 7. Studio service topology in Colab
+Colab runtimes are ephemeral and can be recycled. Files under `/content`, the process and model weights in RAM/VRAM are temporary.
 
-For the first Studio prototype, use a single-origin deployment:
+For this milestone:
+- Treat the runtime as disposable.
+- Store reviewed model artifacts in a user-controlled durable model cache or re-download them.
+- Persist experiment outputs externally only after the durable run-store milestone is implemented.
+- Stop Studio and tunnel processes when finished.
 
-```text
-Browser
-  |
-Authenticated short-lived tunnel
-  |
-Colab loopback listener
-  |
-FastAPI (API + built frontend)
-  |             |                 |
-TaaS Core    Worker adapter    Trace service
-  |             |                 |
-CPU discovery  Optional GPU     External PostgreSQL
-               extensions      + object storage
-```
+Do not treat Google Drive mounting as a substitute for a transactional experiment database.
 
-Do not start a separate public frontend and API with independent unauthenticated tunnel URLs. A single origin simplifies CORS, session handling and access control.
+## 7. Reproducibility
 
-## 8. Readiness gate: current code vs Studio
+The notebook checks out an explicit Git commit. For published experiments, also record:
+- TaaS commit SHA.
+- Python and dependency versions.
+- Actual GPU model/VRAM reported by `nvidia-smi`.
+- Model name/revision, quantization, precision and inference server version (if enabled).
+- ModelProfile and policy hashes.
+- Tool registry snapshot/hash and GoalSpec.
+- Seed, sampling parameters and prompt version for model calls.
+- Colab runtime timestamps and any restart/reconnect event.
 
-The inspected repository currently contains the Python TaaS discovery package and a draft MCP-Bench adapter. It does **not** yet contain the complete FastAPI Studio, frontend, persistent experiment service or Colab notebook launcher.
+Do not publish a result as GPU-accelerated without verifying the model process actually used CUDA.
 
-Therefore, the Colab deployment profile is an approved target architecture, not a claim that the full Studio is already deployable today.
+## 8. Security constraints
 
-Before publishing the one-click notebook, implement and test:
+- Never bind an unauthenticated service to `0.0.0.0`.
+- Do not use public quick-tunnel URLs for sensitive work.
+- Use a named tunnel with a restrictive Access policy for team sharing.
+- Retain application bearer-token authentication for discovery requests.
+- Restrict outbound MCP access to an explicit server allowlist when execution is added.
+- Do not execute arbitrary server code inside the notebook process.
+- Treat MCP metadata as declarations rather than proof of tool behavior.
+- Redact credentials, authorization headers, sensitive tool arguments and outputs from logs.
+- Do not load unreviewed notebooks or packages into a runtime containing credentials.
 
-- [ ] FastAPI application and health/readiness endpoints.
-- [ ] Studio frontend build and same-origin serving.
-- [ ] Experiment create/run/status APIs.
-- [ ] Trace/event persistence and redaction.
-- [ ] Secret references (no secret values in experiment payloads).
-- [ ] Authenticated short-lived tunnel workflow.
-- [ ] Runtime cleanup and persistence flush.
-- [ ] CPU-only smoke test.
-- [ ] T4 smoke test with an explicitly GPU-backed extension.
-- [ ] Colab runtime disconnect/restart recovery test.
+## 9. Deployment acceptance gates
 
-## 9. Acceptance criteria
+A Colab deployment can be called ready for interactive discovery when:
+- [ ] A clean T4 runtime checks out the pinned commit.
+- [ ] Dependencies install successfully.
+- [ ] `nvidia-smi` reports the allocated GPU (or notebook clearly falls back to CPU).
+- [ ] Studio imports and starts without errors.
+- [ ] `/health`, `/ready` and browser `/` respond.
+- [ ] Discovery API rejects requests with missing/invalid bearer tokens.
+- [ ] A valid GoalSpec/tool fixture returns a discovery decision.
+- [ ] Browser UI displays that decision and does not claim tool execution.
+- [ ] Colab port proxy opens for the notebook owner.
+- [ ] Optional public endpoint is gated by a configured Cloudflare Access policy.
+- [ ] Secrets are absent from notebook output and logs.
+- [ ] Runtime shutdown behavior is tested.
 
-A Colab release is acceptable when:
+A **full agent Studio** additionally requires MCP execution, agent orchestration, live trace stream, durable run persistence, user/workspace isolation and execution safety. Those are separate milestones.
 
-1. The notebook checks out a pinned TaaS commit.
-2. The environment can be rebuilt from a clean runtime.
-3. The TaaS core smoke test passes on CPU.
-4. The notebook correctly reports whether a T4 is present.
-5. No component claims GPU acceleration unless CUDA execution is observed.
-6. A user can launch the Studio through an authenticated, temporary endpoint.
-7. The user can execute a task and inspect discovery and execution traces.
-8. Experiment records survive runtime termination.
-9. No secrets appear in notebook outputs, logs or persisted artifacts.
-10. The notebook documents Colab disconnection and session-duration limitations.
+## 10. Related materials
 
-## 10. Engineering sequence
-
-- **C0:** Core import, registry/profile loading and deterministic smoke test in Colab.
-- **C1:** FastAPI service with health/readiness and discovery endpoint.
-- **C2:** Minimal Studio GUI and live trace viewer.
-- **C3:** Durable experiment/event persistence and redaction.
-- **C4:** Authenticated tunnel and notebook launcher.
-- **C5:** Optional GPU-backed embedding/reranking extension and T4 validation.
-- **C6:** Full interactive demo, followed by benchmark adapter integration.
-
-Do not couple the benchmark's native evaluator or runner to the Colab UI. The benchmark adapter should call the same versioned TaaS service/core interface, while benchmark execution remains reproducible and independently runnable.
+- Notebook: `notebooks/colab/taas_core_studio_colab.ipynb`
+- API and browser UI: `src/taas/studio/`
+- Quickstart: `docs/studio/API_QUICKSTART.md`
