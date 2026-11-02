@@ -141,6 +141,11 @@ def validate_studio_goal_spec(spec: dict[str, Any]) -> None:
             raise HTTPException(status_code=422, detail=f"{prefix}.in, eff and deps must contain strings")
 
 
+def parse_studio_goal_spec(spec: dict[str, Any]):
+    """Parse the core GoalSpec while preserving the Studio natural-language prompt."""
+    return parse_goal_spec(spec, prompt=str(spec.get("prompt", "")))
+
+
 @app.post("/api/v1/discover", dependencies=[Depends(require_api_token)])
 def discover(request: DiscoverRequest) -> dict[str, Any]:
     """Run TaaS discovery only; this endpoint does not invoke MCP tools."""
@@ -172,10 +177,7 @@ def discover(request: DiscoverRequest) -> dict[str, Any]:
         )
         # Preserve the natural-language prompt: the core parser accepts it as
         # a separate argument rather than reading goal_spec["prompt"] itself.
-        parsed_spec = parse_goal_spec(
-            request.goal_spec,
-            prompt=str(request.goal_spec.get("prompt", "")),
-        )
+        parsed_spec = parse_studio_goal_spec(request.goal_spec)
         result = engine.discover(parsed_spec, policy)
     except (TypeError, ValueError, KeyError) as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
