@@ -97,3 +97,91 @@ def search_models(
             except ValueError:
                 continue
     return results
+
+
+
+def get_model_details(model_id: str) -> dict[str, Any]:
+    """Fetch a bounded, non-executable model detail record from the HF API.
+
+    Only a strict repository-ID form is accepted. The function returns a
+    whitelist of configuration metadata and never fetches repository files.
+    """
+    import re
+
+    from urllib.parse import quote
+
+    model_id = model_id.strip()
+    if len(model_id) > 256 or not re.fullmatch(
+        r"[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*",
+        model_id,
+    ):
+        raise ValueError("model_id must be a Hugging Face namespace/repository identifier")
+
+    headers = {"User-Agent": "TaaS-Studio/0.1"}
+    token = os.environ.get("HF_TOKEN", "").strip()
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+
+    try:
+        response = httpx.get(
+            f"{HF_MODELS_API}/{quote(model_id, safe='/')}",
+            params={"blobs": "false"},
+            headers=headers,
+            timeout=12.0,
+        )
+        response.raise_for_status()
+        item = response.json()
+    except (httpx.HTTPError, ValueError) as exc:
+        raise ModelCatalogError(
+            f"Hugging Face model detail request failed: {type(exc).__name__}"
+        ) from exc
+
+    if not isinstance(item, dict):
+        raise ModelCatalogError("Hugging Face returned an unexpected model detail response")
+
+    normalized = normalize_model(item)
+    raw_config = item.get("config")
+    raw_config = raw_config if isinstance(raw_config, dict) else {}
+    nested = raw_config.get("text_config")
+    if isinstance(nested, dict):
+        # Preserve both the top-level and text config values, preferring explicit
+        # text_config values for decoder dimensions in multimodal repositories.
+        config = {**raw_config, **nested}
+    else:
+        config = raw_config
+
+    architecture_fields = (
+        "model_type",
+        "architectures",
+        "num_hidden_layers",
+        "num_attention_heads",
+        "num_key_value_heads",
+        "hidden_size",
+        "head_dim",
+        "max_position_embeddings",
+        "max_sequence_length",
+        "vocab_size",
+        "torch_dtype",
+    )
+    architecture = {
+        key: config[key]
+        for key in architecture_fields
+        if key in config and isinstance(config[key], (str, int, float, list))
+    }
+    # Do not infer attention dimensions or context limits from model names.
+    kv_complete = all(
+        isinstance(architecture.get(key), int) and architecture[key] > 0
+        for key in ("num_hidden_layers", "num_key_value_heads", "head_dim")
+    )
+    context = architecture.get("max_position_embeddings") or architecture.get("max_sequence_length")
+    architecture["kv_cache_dimensions_complete"] = kv_complete
+    architecture["context_limit_reported"] = isinstance(context, int) and context > 0
+
+    return {
+        **normalized,
+        "architecture": architecture,
+        "architecture_source": "Hugging Face model API config",
+        "architecture_complete_for_kv_estimate": kv_complete,
+        "weights_downloaded": False,
+        "model_code_executed": False,
+    }
