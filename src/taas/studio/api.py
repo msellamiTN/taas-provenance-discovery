@@ -145,16 +145,26 @@ def discover(request: DiscoverRequest) -> dict[str, Any]:
     return {
         "status": "abstained" if result.abstained else "selected",
         "selected_tools": result.toolkit or [],
+        # Return the canonical GoalSpec vocabulary accepted by parse_goal_spec.
+        # Do not rename out/desc/deps/eff to presentation-only aliases.
         "goal_spec": {
             "prompt": result.spec.prompt,
+            "prompt_inputs": [str(item) for item in result.spec.prompt_inputs],
             "goals": [
                 {
                     "id": goal.id,
                     "class": goal.cls,
-                    "output": str(goal.out),
+                    "in": [str(item) for item in goal.inputs],
+                    "out": str(goal.out),
+                    "eff": sorted(str(effect) for effect in goal.eff_plus),
                     "sigma": goal.sigma,
-                    "reason": goal.sigma_reason,
-                    "dependencies": goal.deps,
+                    "sigma_reason": goal.sigma_reason,
+                    "n": goal.n,
+                    "exactness": goal.exactness,
+                    "lang": goal.lang,
+                    "deps": goal.deps,
+                    "optional": goal.optional,
+                    "desc": goal.desc,
                 }
                 for goal in result.spec.goals
             ],
