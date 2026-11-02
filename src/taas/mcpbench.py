@@ -61,32 +61,6 @@ def raw_tools_from_mcpbench(tool_map: Mapping[str, Mapping[str, Any]]) -> tuple[
 
 
 @contextmanager
-def selected_tool_catalogue_scope(
-    server_manager: Any,
-    selected_tools: Mapping[str, Mapping[str, Any]],
-) -> Iterator[None]:
-    """Temporarily expose only selected tools to MCP-Bench's TaskExecutor.
-
-    The executor reads server_manager.all_tools to build its prompt catalogue
-    and validate tool calls. The evaluator should still see the complete
-    catalogue, so restore the original mapping even on errors or cancellation.
-
-    Only keys from the live catalogue are accepted; metadata comes from that
-    catalogue rather than being trusted from the selection object.
-    """
-    original = server_manager.all_tools
-    unknown = set(selected_tools) - set(original)
-    if unknown:
-        raise ValueError(f"Selection contains tools absent from live catalogue: {sorted(unknown)}")
-    filtered = {key: original[key] for key in selected_tools}
-    server_manager.all_tools = filtered
-    try:
-        yield
-    finally:
-        server_manager.all_tools = original
-
-
-@contextmanager
 def selected_task_executor_scope(
     server_manager: Any,
     selected_tools: Mapping[str, Mapping[str, Any]],
