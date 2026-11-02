@@ -122,3 +122,27 @@ def test_selected_task_executor_scope_rejects_unknown_tool_and_restores():
         with selected_task_executor_scope(manager, {"S:write": {}}):
             pass
     assert manager.all_tools is full
+
+
+def test_executor_constructed_in_scope_keeps_filtered_snapshot_after_manager_restore():
+    from types import SimpleNamespace
+    from taas.mcpbench import selected_task_executor_scope
+
+    full = {
+        'S:read': {'server': 'S', 'name': 'read'},
+        'S:delete': {'server': 'S', 'name': 'delete'},
+    }
+    manager = SimpleNamespace(all_tools=full)
+
+    class FakeTaskExecutor:
+        def __init__(self, server_manager):
+            self.all_tools = server_manager.all_tools
+
+    selected = {'S:read': full['S:read']}
+    with selected_task_executor_scope(manager, selected):
+        executor = FakeTaskExecutor(manager)
+
+    assert set(executor.all_tools) == {'S:read'}
+    assert manager.all_tools is full
+    assert set(manager.all_tools) == {'S:read', 'S:delete'}
+    assert executor.all_tools['S:read'] is full['S:read']
