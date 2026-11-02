@@ -21,7 +21,7 @@ from taas.model_profile import EXTERNAL_CLASSES, MODEL_CLASSES, ModelProfile
 from taas.goals import SIGMAS, parse_goal_spec
 from taas.policy import Policy
 from taas.provenance import DEFAULT_TRUST
-from taas.studio.runtime import estimate_model_memory, probe_hardware
+from taas.studio.models import ModelCatalogError, search_models\nfrom taas.studio.runtime import estimate_model_memory, probe_hardware
 
 app = FastAPI(
     title="TaaS Core Studio API",
@@ -152,6 +152,25 @@ def validate_studio_goal_spec(spec: dict[str, Any]) -> None:
 def parse_studio_goal_spec(spec: dict[str, Any]):
     """Parse the core GoalSpec while preserving the Studio natural-language prompt."""
     return parse_goal_spec(spec, prompt=str(spec.get("prompt", "")))
+
+
+@app.get("/api/v1/models/search", dependencies=[Depends(require_api_token)])
+def model_search(
+    q: str = Field(min_length=1, max_length=120),
+    limit: int = 10,
+    sort: str = "downloads",
+    pipeline_tag: str | None = None,
+) -> dict[str, Any]:
+    """Search public Hugging Face model metadata; never downloads or loads weights."""
+    if not 1 <= limit <= 30:
+        raise HTTPException(status_code=422, detail="limit must be between 1 and 30")
+    try:
+        models = search_models(q, limit=limit, sort=sort, pipeline_tag=pipeline_tag)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except ModelCatalogError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    return {"query": q, "count": len(models), "models": models, "weights_downloaded": False}
 
 
 @app.post("/api/v1/models/estimate-memory", dependencies=[Depends(require_api_token)])
