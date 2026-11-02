@@ -105,7 +105,7 @@ def estimate_model_memory(
     * batch * bytes per element. Activations, CUDA workspaces, fragmentation and
     backend-specific quantization metadata remain excluded. This is not a load
     guarantee.
-    ""
+    """
     import math
 
     if not math.isfinite(parameters_billion) or parameters_billion <= 0 or parameters_billion > 200:
