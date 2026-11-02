@@ -49,6 +49,12 @@ class ModelMemoryEstimateRequest(BaseModel):
     quantization: str = Field(default="int4", pattern="^(fp16|int8|int4)$")
     overhead_fraction: float = Field(default=0.20, ge=0, le=1)
     runtime_reserve_gib: float = Field(default=2.0, ge=0, le=64)
+    num_hidden_layers: int | None = Field(default=None, gt=0, le=512)
+    num_key_value_heads: int | None = Field(default=None, gt=0, le=512)
+    head_dim: int | None = Field(default=None, gt=0, le=16384)
+    context_length: int | None = Field(default=None, gt=0, le=1000000)
+    batch_size: int = Field(default=1, ge=1, le=128)
+    kv_cache_dtype: str = Field(default="fp16", pattern="^(fp16|int8|fp32)$")
 
 
 class DiscoverRequest(BaseModel):
@@ -182,6 +188,12 @@ def model_memory_estimate(request: ModelMemoryEstimateRequest) -> dict[str, Any]
             quantization=request.quantization,
             overhead_fraction=request.overhead_fraction,
             runtime_reserve_gib=request.runtime_reserve_gib,
+            num_hidden_layers=request.num_hidden_layers,
+            num_key_value_heads=request.num_key_value_heads,
+            head_dim=request.head_dim,
+            context_length=request.context_length,
+            batch_size=request.batch_size,
+            kv_cache_dtype=request.kv_cache_dtype,
         )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
