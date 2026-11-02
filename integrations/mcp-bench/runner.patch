@@ -68,7 +68,7 @@ diff --git a/benchmark/runner.py b/benchmark/runner.py
 diff --git a/benchmark/results_aggregator.py b/benchmark/results_aggregator.py
 --- a/benchmark/results_aggregator.py
 +++ b/benchmark/results_aggregator.py
-@@ -31,6 +31,8 @@ class ResultsAggregator:
+@@ -31,5 +31,10 @@ class ResultsAggregator:
          
          completed_results = [r for r in results if r.get('status') == 'completed']
          total_results = len(results)
@@ -186,6 +186,9 @@ diff --git a/benchmark/results_aggregator.py b/benchmark/results_aggregator.py
 +            'avg_execution_time': None
          }
 
+diff --git a/benchmark/results_aggregator.py b/benchmark/results_aggregator.py
+--- a/benchmark/results_aggregator.py
++++ b/benchmark/results_aggregator.py
 diff --git a/benchmark/results_aggregator.py b/benchmark/results_aggregator.py
 --- a/benchmark/results_aggregator.py
 +++ b/benchmark/results_aggregator.py
