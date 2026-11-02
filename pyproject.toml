@@ -13,6 +13,7 @@ dependencies = ["numpy>=1.24", "scipy>=1.10", "scikit-learn>=1.3", "matplotlib>=
 test = ["pytest>=7", "hypothesis>=6"]
 llm = ["anthropic>=0.40"]
 probe = ["mcp>=1.0"]
+studio = ["fastapi>=0.110", "uvicorn[standard]>=0.27", "httpx>=0.27"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
