@@ -34,7 +34,7 @@ def test_discover_abstains_when_composition_has_no_certificate(monkeypatch):
     result = ComposeResult(["tool-a"], None, None)
     engine = engine_for(monkeypatch, result, SimpleNamespace(clarify=None, gap=[object()]))
 
-    found = engine.discover(object(), policy=object())
+    found = engine.discover(SimpleNamespace(goals=[], prompt_inputs=[]), policy=object())
 
     assert found.abstained
     assert found.toolkit is None
@@ -48,7 +48,7 @@ def test_discover_abstains_when_mandatory_certificate_check_fails(monkeypatch):
     result = ComposeResult(["tool-a"], certificate(valid=False), None)
     engine = engine_for(monkeypatch, result, SimpleNamespace(clarify=None, gap=[object()]))
 
-    found = engine.discover(object(), policy=object())
+    found = engine.discover(SimpleNamespace(goals=[], prompt_inputs=[]), policy=object())
 
     assert found.abstained
     assert found.toolkit is None
@@ -60,7 +60,7 @@ def test_discover_preserves_legitimate_empty_toolkit_with_valid_certificate(monk
     result = ComposeResult([], certificate(valid=True), None)
     engine = engine_for(monkeypatch, result, SimpleNamespace(clarify=None, gap=[]))
 
-    found = engine.discover(object(), policy=object())
+    found = engine.discover(SimpleNamespace(goals=[], prompt_inputs=[]), policy=object())
 
     assert not found.abstained
     assert found.toolkit == []
