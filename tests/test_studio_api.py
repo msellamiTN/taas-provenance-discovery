@@ -450,3 +450,17 @@ def test_huggingface_artifact_endpoint_returns_metadata(monkeypatch):
     )
     assert response.status_code == 200
     assert response.json()["weights_downloaded"] is False
+
+
+def test_studio_goal_metrics_distinguish_gap_model_and_tool_bindings():
+    from pathlib import Path
+    from taas.studio import api
+
+    page = Path(api.__file__).parent / "static" / "index.html"
+    html = page.read_text(encoding="utf-8")
+    assert "Toolkit-required goals" in html
+    assert "Model-delegated goals" in html
+    assert "Toolkit-bound goals" in html
+    assert 'goal.sigma === "native"' in html
+    assert "selectedTools.has(target)" in html
+    assert "boundGoals.length" not in html
