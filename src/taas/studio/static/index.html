@@ -88,32 +88,6 @@
 </header>
 <main>
   <div class="notice"><strong>Discovery-only preview.</strong> This workspace calls <code>/api/v1/discover</code>. It does not invoke MCP tools, run an agent, or evaluate task completion. Use only trusted tool metadata; do not paste secrets or sensitive arguments.</div>
-  <section style="margin-bottom:18px">
-    <h2>Runtime · GPU diagnostics</h2>
-    <p class="muted">Host GPU visibility and CUDA inference readiness are separate checks. A detected GPU does not mean a model runtime is installed or loaded.</p>
-    <button id="gpu-check" type="button">Check GPU and CUDA</button>
-    <div id="gpu-status" class="status" aria-live="polite">Not checked yet. Enter the Studio token, then run diagnostics.</div>
-    <pre id="gpu-details">No hardware diagnostics yet.</pre>
-  </section>
-  <section style="margin-bottom:18px">
-    <h2>Model catalog · Hugging Face</h2>
-    <p class="muted">Search model repository metadata. This is a read-only catalog: it does not download weights, execute repository code or load a model.</p>
-    <label for="model-query">Model search</label>
-    <input id="model-query" type="text" maxlength="120" value="small language model" placeholder="e.g. Qwen 2.5 3B">
-    <button id="model-search" type="button">Search Hugging Face</button>
-    <div id="model-status" class="status" aria-live="polite">No search performed.</div>
-    <pre id="model-results">Model catalog results will appear here.</pre>
-  </section>
-  <section style="margin-bottom:18px">
-    <h2>Model artifacts · compatibility preflight</h2>
-    <p class="muted">Inspect repository file names, reported sizes, weight formats and quantization hints. Metadata only: no files are downloaded and T4 compatibility is not certified.</p>
-    <label for="artifact-model-id">Hugging Face repository ID</label>
-    <input id="artifact-model-id" type="text" maxlength="256" placeholder="e.g. Qwen/Qwen2.5-3B-Instruct">
-    <button id="artifact-inspect" type="button">Inspect model artifacts</button>
-    <div id="artifact-status" class="status" aria-live="polite">No artifact inspection performed.</div>
-    <pre id="artifact-results">Artifact metadata will appear here.</pre>
-  </section>
-
   <nav class="studio-nav" aria-label="Studio navigation">
     <a href="#workspace">Workspace</a><a href="#discovery">Discovery</a><a href="#models">Model catalog</a><a href="#runtime">Runtime diagnostics</a>
   </nav>
@@ -223,6 +197,34 @@
       <pre id="response">The API response will appear here.</pre>
     </section>
   </div>
+
+  <section id="runtime" class="section-anchor" style="margin-bottom:18px">
+    <h2>Runtime · GPU diagnostics</h2>
+    <p class="muted">Host GPU visibility and CUDA inference readiness are separate checks. A detected GPU does not mean a model runtime is installed or loaded.</p>
+    <button id="gpu-check" type="button">Check GPU and CUDA</button>
+    <div id="gpu-status" class="status" aria-live="polite">Not checked yet. Enter the Studio token, then run diagnostics.</div>
+    <pre id="gpu-details">No hardware diagnostics yet.</pre>
+  </section>
+  <section id="models" class="section-anchor" style="margin-bottom:18px">
+    <h2>Model catalog · Hugging Face</h2>
+    <p class="muted">Search model repository metadata. This is a read-only catalog: it does not download weights, execute repository code or load a model.</p>
+    <label for="model-query">Model search</label>
+    <input id="model-query" type="text" maxlength="120" value="small language model" placeholder="e.g. Qwen 2.5 3B">
+    <button id="model-search" type="button">Search Hugging Face</button>
+    <div id="model-status" class="status" aria-live="polite">No search performed.</div>
+    <pre id="model-results">Model catalog results will appear here.</pre>
+  </section>
+  <section style="margin-bottom:18px">
+    <h2>Model artifacts · compatibility preflight</h2>
+    <p class="muted">Inspect repository file names, reported sizes, weight formats and quantization hints. Metadata only: no files are downloaded and T4 compatibility is not certified.</p>
+    <label for="artifact-model-id">Hugging Face repository ID</label>
+    <input id="artifact-model-id" type="text" maxlength="256" placeholder="e.g. Qwen/Qwen2.5-3B-Instruct">
+    <button id="artifact-inspect" type="button">Inspect model artifacts</button>
+    <div id="artifact-status" class="status" aria-live="polite">No artifact inspection performed.</div>
+    <pre id="artifact-results">Artifact metadata will appear here.</pre>
+  </section>
+
+
 </main>
 <script>
 (() => {
