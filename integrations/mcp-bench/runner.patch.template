@@ -1,0 +1,54 @@
+diff --git a/benchmark/runner.py b/benchmark/runner.py
+index 0000000..1111111 100644
+--- a/benchmark/runner.py
++++ b/benchmark/runner.py
+@@ -34,6 +34,11 @@ from utils.local_server_config import LocalServerConfigLoader
+ import config.config_loader as config_loader
++
++# Optional TaaS integration; MCP-Bench remains usable without TaaS installed.
++try:
++    from taas.mcpbench import selected_task_executor_scope
++except ImportError:  # pragma: no cover - upstream-only installations
++    selected_task_executor_scope = None
+@@ -309,6 +314,7 @@ class BenchmarkRunner:
+         self.aggregator = ResultsAggregator()
+         self.formatter = ResultsFormatter()
++        self.taas_adapter = None  # Set a configured TaaSMCPBenchAdapter to enable discovery
+@@ -520,11 +526,35 @@ async def execute_single_task_with_model(...):
+-                    executor = TaskExecutor(llm_provider, conn_mgr.server_manager, self.concurrent_summarization)
++                    taas_trace = None
++                    if self.taas_adapter is not None:
++                        if selected_task_executor_scope is None:
++                            raise RuntimeError('TaaS adapter configured but TaaS package is unavailable')
++                        selection = self.taas_adapter.select(task_description, conn_mgr.all_tools)
++                        taas_trace = selection.trace
++                        if selection.discovery.abstained or not selection.tools:
++                            execution_result = {
++                                'status': 'abstained',
++                                'result': {'available_tools': conn_mgr.all_tools, 'taas': taas_trace, 'abstained': True},
++                                'execution_time': time.time() - start_time,
++                                'agent_execution_time': 0.0,
++                                'task_execution_start_time': time.time(),
++                            }
++                            break
++                        with selected_task_executor_scope(conn_mgr.server_manager, selection.tools):
++                            executor = TaskExecutor(llm_provider, conn_mgr.server_manager, self.concurrent_summarization)
++                    else:
++                        executor = TaskExecutor(llm_provider, conn_mgr.server_manager, self.concurrent_summarization)
+@@ -555,6 +585,8 @@ async def execute_single_task_with_model(...):
+                         result['available_tools'] = conn_mgr.all_tools
++                        if taas_trace is not None:
++                            result['taas'] = taas_trace
+@@ -620,6 +652,16 @@ async def execute_single_task_with_model(...):
+         final_result = await self._evaluate_task_result(
++        if execution_result.get('status') == 'abstained':
++            return {
++                'task_id': task_execution_info['task_id'],
++                'server_name': task_execution_info['server_name'],
++                'model_name': model_name,
++                'status': 'abstained',
++                'result': execution_result['result'],
++                'execution_time': execution_result['execution_time'],
++                'agent_execution_time': 0.0,
++                'taas': execution_result['result'].get('taas'),
++            }
