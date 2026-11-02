@@ -44,6 +44,25 @@ def test_studio_home_serves_browser_workspace():
     assert "/api/v1/discover" in response.text
 
 
+def test_studio_frontend_keeps_goal_metrics_disjoint_and_runtime_claims_precise():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+
+    # A goal in the toolkit gap must not also be counted as model-delegated.
+    assert 'goal.sigma === "native" && !gapGoals.has(goal.id)' in page
+    assert 'gapGoals.has(goalId) && selectedTools.has(target)' in page
+
+    # CUDA availability is not evidence of a loaded model or executed inference.
+    assert "model not loaded · inference not executed" in page
+    assert "model_loaded: false" in page
+    assert "inference_executed: false" in page
+
+    # Separate mandatory validity gates from non-gating diagnostics.
+    assert 'const mandatoryChecks = ["S", "C", "P", "E", "L", "V"]' in page
+    assert 'const diagnosticChecks = ["M", "B"]' in page
+
+
 
 def test_hardware_diagnostics_requires_token(monkeypatch):
     monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
