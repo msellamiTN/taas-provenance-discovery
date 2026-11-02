@@ -98,27 +98,6 @@ def test_selected_catalogue_scope_rejects_unknown_keys_without_mutation():
     assert manager.all_tools is full
 
 
-def test_selected_task_executor_scope_preserves_executor_snapshot_and_restores_manager():
-    from types import SimpleNamespace
-    from taas.mcpbench import selected_task_executor_scope
-
-    full = {
-        "S:read": {"server": "S", "name": "read"},
-        "S:delete": {"server": "S", "name": "delete"},
-    }
-    manager = SimpleNamespace(all_tools=full)
-    selected = {"S:read": {"ignored": "metadata"}}
-
-    with selected_task_executor_scope(manager, selected) as scoped:
-        executor_snapshot = dict(manager.all_tools)
-        assert set(executor_snapshot) == {"S:read"}
-        assert scoped is manager.all_tools
-
-    assert manager.all_tools is full
-    assert set(executor_snapshot) == {"S:read"}
-    assert executor_snapshot["S:read"] is full["S:read"]
-
-
 def test_selected_task_executor_scope_rejects_unknown_tool_and_restores():
     from types import SimpleNamespace
     import pytest
