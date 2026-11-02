@@ -263,3 +263,47 @@ def test_model_catalog_does_not_require_parameter_metadata():
     model = normalize_model({"id": "org/model", "tags": []})
     assert model["parameter_count"] is None
     assert model["safetensors"] is False
+
+
+def test_kv_cache_memory_estimate_uses_decoder_architecture():
+    from taas.studio.runtime import estimate_model_memory
+
+    result = estimate_model_memory(
+        parameters_billion=7,
+        quantization="int4",
+        overhead_fraction=0,
+        runtime_reserve_gib=0,
+        num_hidden_layers=32,
+        num_key_value_heads=8,
+        head_dim=128,
+        context_length=4096,
+        batch_size=1,
+        kv_cache_dtype="fp16",
+    )
+    assert result["kv_cache_memory_gib"] == 0.5
+    assert result["estimated_memory_gib"] == round(result["weight_memory_gib"] + 0.5, 3)
+    assert result["load_guaranteed"] is False
+
+
+def test_kv_cache_estimate_requires_complete_architecture():
+    from taas.studio.runtime import estimate_model_memory
+
+    with pytest.raises(ValueError, match="all KV-cache dimensions"):
+        estimate_model_memory(
+            parameters_billion=7,
+            num_hidden_layers=32,
+        )
+
+
+def test_kv_cache_estimate_rejects_unsupported_dtype():
+    from taas.studio.runtime import estimate_model_memory
+
+    with pytest.raises(ValueError, match="kv_cache_dtype"):
+        estimate_model_memory(
+            parameters_billion=7,
+            num_hidden_layers=32,
+            num_key_value_heads=8,
+            head_dim=128,
+            context_length=4096,
+            kv_cache_dtype="bf16",
+        )
