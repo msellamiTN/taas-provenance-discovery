@@ -84,9 +84,9 @@ Discovery requires `Authorization: Bearer <TAAS_STUDIO_API_TOKEN>`.
 
 This is a minimal API contract and the GoalSpec must conform to the current `taas.goals.parse_goal_spec` implementation. Tool schemas and descriptions are treated as declarations, not runtime proof.
 
-## Colab
+## Colab-hosted Studio
 
-Use the deployment guide at `docs/deployment/COLAB_T4_CORE_STUDIO.md`. For this API milestone, use Colab CPU unless an explicitly GPU-backed extension is enabled. Bind the server to loopback and use an authenticated short-lived tunnel. Never expose this API without authentication.
+Use `notebooks/colab/taas_core_studio_colab.ipynb` to run the Studio application inside a Colab VM. Select a T4 GPU runtime, run the notebook top-to-bottom, and open the UI through Colab's notebook port proxy. The app listens on loopback inside the runtime. For external team access, configure a named Cloudflare Tunnel and a restrictive Cloudflare Access policy first; a tunnel URL alone is not authentication. See `docs/deployment/COLAB_T4_CORE_STUDIO.md`.
 
 ## Current limitations
 
@@ -106,4 +106,4 @@ The interface is **discovery-only**. It does not execute MCP tools or run an age
 
 ## Google Colab
 
-A pinned starter notebook is provided at [`notebooks/colab/taas_core_studio_colab.ipynb`](../../notebooks/colab/taas_core_studio_colab.ipynb). It installs the Studio extra, loads the API token from Colab Secrets, accepts a reviewed ModelProfile JSON file, and binds Uvicorn to loopback. It intentionally does not create a public tunnel. Remote access requires a separately configured authenticated access layer. Colab sessions are ephemeral; persist experiment records outside the runtime.
+The pinned notebook at [`notebooks/colab/taas_core_studio_colab.ipynb`](../../notebooks/colab/taas_core_studio_colab.ipynb) runs TaaS Studio on the Colab VM, validates health/readiness, and opens the app through Colab's port proxy. Optional Cloudflare Tunnel support is disabled by default and requires a named tunnel plus Access policy. Colab sessions are ephemeral; this milestone does not yet provide durable run storage or MCP execution.
