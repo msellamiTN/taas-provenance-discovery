@@ -193,6 +193,19 @@ def model_detail(
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
 
+@app.get("/api/v1/models/artifacts", dependencies=[Depends(require_api_token)])
+def model_artifacts(
+    model_id: str = Query(..., min_length=3, max_length=256),
+) -> dict[str, Any]:
+    """Inspect repository artifact metadata only; never downloads model files."""
+    try:
+        return inspect_model_artifacts(model_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except ModelCatalogError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
 @app.post("/api/v1/models/estimate-memory", dependencies=[Depends(require_api_token)])
 def model_memory_estimate(request: ModelMemoryEstimateRequest) -> dict[str, Any]:
     """Return a conservative weight-memory estimate; never downloads or loads a model."""
