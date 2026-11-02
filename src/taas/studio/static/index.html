@@ -120,8 +120,8 @@
       <div id="status" class="status" aria-live="polite">Waiting for a request.</div>
       <div class="result-grid">
         <div class="metric"><span class="muted">Selected tools</span><strong id="selected">—</strong></div>
-        <div class="metric"><span class="muted">Model-delegated goals</span><strong id="gap">—</strong></div>
-        <div class="metric"><span class="muted">Toolkit-bound goals</span><strong id="covered">—</strong></div>
+        <div class="metric"><span class="muted">Toolkit-required goals</span><strong id="gap">—</strong></div>
+        <div class="metric"><span class="muted">Model-delegated goals</span><strong id="covered">—</strong></div>
         <div class="metric"><span class="muted">Discovery time</span><strong id="latency">—</strong></div>
       </div>
       <h2>Discovery explanation</h2>
@@ -218,17 +218,23 @@
       $("selected").textContent = (data.selected_tools || []).length;
       $("gap").textContent = (data.gap || []).length;
       const bindings = (data.certificate && data.certificate.bindings) || {};
-      const boundGoals = Object.keys(bindings);
-      $("covered").textContent = boundGoals.length;
+      const selectedTools = new Set(data.selected_tools || []);
+      const toolkitBindings = Object.entries(bindings).filter(([, target]) => selectedTools.has(target));
+      const goals = (data.goal_spec && data.goal_spec.goals) || [];
+      const delegatedGoals = goals.filter(goal => !goal.optional && goal.sigma === "native");
+      $("covered").textContent = toolkitBindings.length;
+      $("delegated").textContent = delegatedGoals.length;
       $("latency").textContent = Number(data.discovery_time_seconds || 0).toFixed(3) + " s";
       $("toolkit").textContent = JSON.stringify(data.selected_tools || [], null, 2);
       const checkResults = (data.certificate && data.certificate.checks) || {};
       const checkSummary = Object.keys(checkResults).length
         ? "Certificate checks: " + Object.entries(checkResults).map(([key, value]) => key + "=" + (value ? "pass" : "fail")).join(" · ") + ". "
         : "No certificate was produced. ";
-      const goalSummary = boundGoals.length
-        ? "Toolkit bindings cover " + boundGoals.length + " goal(s): " + boundGoals.join(", ") + ". "
-        : "No goal-to-tool binding was certified. ";
+      const goalSummary =
+        "Model-delegated goals (native after gap analysis): " + delegatedGoals.length + ". " +
+        (toolkitBindings.length
+          ? "Toolkit bindings: " + toolkitBindings.map(([goal, tool]) => goal + " → " + tool).join(", ") + ". "
+          : "No goal-to-tool binding was certified. ");
       const chi = data.counterexample || {};
       const witness = chi.witness || {};
       const reason = (data.status === "selected"
