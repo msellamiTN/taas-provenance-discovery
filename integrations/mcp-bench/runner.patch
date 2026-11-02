@@ -1,9 +1,8 @@
 diff --git a/benchmark/runner.py b/benchmark/runner.py
-index 0000000..0000000 100644
 --- a/benchmark/runner.py
 +++ b/benchmark/runner.py
-@@
--                    # Create executor and execute task
+@@ -488,6 +488,35 @@
+                     # Create executor and execute task
 -                    executor = TaskExecutor(
 -                        llm_provider, 
 -                        conn_mgr.server_manager, 
@@ -53,11 +52,8 @@ index 0000000..0000000 100644
 +                            conn_mgr.server_manager,
 +                            self.concurrent_summarization,
 +                        )
-@@
-                         # Add available tools to result
+@@ -513,1 +542,4 @@
                          result['available_tools'] = conn_mgr.all_tools
-+                        # Keep TaaS evidence as a sibling sidecar field; the
-+                        # evaluator continues to receive the complete native tool
-+                        # catalogue through available_tools.
++                        # Keep TaaS evidence separate from evaluator inputs.
 +                        if taas_trace is not None:
 +                            result["taas"] = taas_trace
