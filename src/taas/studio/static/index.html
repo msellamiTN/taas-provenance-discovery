@@ -569,7 +569,8 @@
       const cert=data.certificate||null;
       const certPanel=$("certificate-panel");
       certPanel.hidden=!cert&&!data.counterexample;
-      if(!cert){$("certificate-state").className="certificate-state";$("certificate-state").textContent="No certificate produced";$("certificate-summary").textContent="Discovery did not produce a pre-execution certificate. Inspect the counterexample below; absence of a certificate is not a pass.";$("certificate-checks").replaceChildren();$("goal-coverage").replaceChildren();$("certificate-witnesses").textContent="No certificate evidence was produced.";}\n      if(cert){
+      if(!cert){$("certificate-state").className="certificate-state";$("certificate-state").textContent="No certificate produced";$("certificate-summary").textContent="Discovery did not produce a pre-execution certificate. Inspect the counterexample below; absence of a certificate is not a pass.";$("certificate-checks").replaceChildren();$("goal-coverage").replaceChildren();$("certificate-witnesses").textContent="No certificate evidence was produced.";}
+      if(cert){
         const mandatory=["S","C","P","E","L","V"];
         const diagnostic=["M","B"];
         const checks=cert.checks||{};
