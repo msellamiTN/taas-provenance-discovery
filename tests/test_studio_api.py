@@ -156,3 +156,43 @@ def test_studio_home_explains_model_delegation_and_toolkit_coverage():
     assert "Model-delegated goals" in response.text
     assert "Toolkit-bound goals" in response.text
     assert "not runtime execution verification" in response.text
+
+
+def test_model_memory_estimate_endpoint(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    monkeypatch.setattr(api, "estimate_model_memory", lambda **kwargs: {
+        "parameters_billion": kwargs["parameters_billion"],
+        "quantization": kwargs["quantization"],
+        "estimated_memory_gib": 4.5,
+        "fits_observed_free_memory": True,
+        "load_guaranteed": False,
+    })
+    response = client.post(
+        "/api/v1/models/estimate-memory",
+        headers={"Authorization": "Bearer test-token"},
+        json={"parameters_billion": 7, "quantization": "int4"},
+    )
+    assert response.status_code == 200
+    assert response.json()["estimated_memory_gib"] == 4.5
+    assert response.json()["load_guaranteed"] is False
+
+
+def test_model_memory_estimate_requires_authentication(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.post(
+        "/api/v1/models/estimate-memory",
+        json={"parameters_billion": 7, "quantization": "int4"},
+    )
+    assert response.status_code == 401
+
+
+def test_model_memory_estimate_rejects_unsupported_quantization(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.post(
+        "/api/v1/models/estimate-memory",
+        headers={"Authorization": "Bearer test-token"},
+        json={"parameters_billion": 7, "quantization": "bf16"},
+    )
+    assert response.status_code == 422
