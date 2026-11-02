@@ -183,7 +183,8 @@
       $("artifact-results").textContent = "";
     } finally { button.disabled = false; }
   });
-\n  $("gpu-check").addEventListener("click", async () => {
+
+  $("gpu-check").addEventListener("click", async () => {
     const token = $("token").value.trim();
     if (!token) { $("gpu-status").textContent = "Enter the Studio API token first."; return; }
     $("gpu-status").textContent = "Checking host GPU and CUDA…";
