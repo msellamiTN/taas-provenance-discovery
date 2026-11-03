@@ -802,6 +802,9 @@ def test_benchmark_task_switch_invalidates_previous_goal_and_tool_context():
     assert '$("bench-goal-review").checked=false' in page
     assert 'syncBenchmarkToolsToRequest()' in page
     assert 'selectBenchmarkTask(t)' in page
+    assert '$("goal-editor").addEventListener("input"' in page
+    assert '$("goal-editor").addEventListener("change"' in page
+    assert 'if(bench.selectedTask)$("bench-goal-review").checked=false' in page
 
 
 def test_benchmark_discovery_requires_explicit_goal_spec_review():
