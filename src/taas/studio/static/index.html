@@ -1389,6 +1389,28 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     document.querySelector("#goal-editor").scrollIntoView({behavior:"smooth",block:"start"});
   });
 
+  const agentManifestExample=$("agent-manifest-json").value;
+  $("agent-manifest-reset").addEventListener("click",()=>{
+    $("agent-manifest-json").value=agentManifestExample;
+    $("agent-manifest-status").textContent="Example manifest restored · not yet validated.";
+    $("agent-manifest-result").textContent="Validation result will appear here.";
+  });
+  $("agent-manifest-validate").addEventListener("click",async()=>{
+    const button=$("agent-manifest-validate");button.disabled=true;
+    $("agent-manifest-status").textContent="Validating Agent manifest against the v1alpha1 contract…";
+    try{
+      let manifest;
+      try{manifest=JSON.parse($("agent-manifest-json").value);}
+      catch(error){throw new Error("Invalid JSON: "+error.message);}
+      const result=await runtimePost("/api/v1/agents/validate",manifest);
+      $("agent-manifest-result").textContent=JSON.stringify(result,null,2);
+      $("agent-manifest-status").textContent="Manifest structurally valid · draft only · not saved, authorized or executable.";
+    }catch(error){
+      $("agent-manifest-result").textContent=error.message;
+      $("agent-manifest-status").textContent="Manifest validation failed. Correct the schema errors and retry.";
+    }finally{button.disabled=false;}
+  });
+
   let inspectedMcpTools=[];let selectedMcpToolKeys=new Set();
   const refreshMcpServers=async()=>{
     const status=$("mcp-server-status");status.textContent="Loading operator-configured MCP servers…";
