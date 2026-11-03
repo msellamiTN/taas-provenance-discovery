@@ -280,10 +280,10 @@ PR #25 introduces `taas.ai/v1alpha1` Agent manifests, strict metadata/model/tool
 - **Tests added:** API authentication; duplicate-version conflict; exact version retrieval; monotonic lifecycle; publication gating; audit events and manifest hashes; database immutability triggers; POSIX owner-only file permissions; truthful UI actions with execution disabled.
 - **Storage configuration:** `TAAS_AGENT_REGISTRY_PATH`; default `~/.taas/studio/agents.sqlite3`.
 - **Trust limits:** local single-service SQLite only; no tenant isolation, encryption-at-rest, backup/restore, external human identity attribution, signed audit, secret broker, model admission, tool registry snapshot binding, authorization or execution.
-- **CI:** run #41675370864 was in progress when this tracker entry was written; no pass/fail conclusion recorded. Exact-head evidence must be checked before acceptance.
+- **CI:** run #41675370864 — **success on exact head**; **198 passed, 3 warnings**; hypergraph build (31 vertices, 569 hyperedges) and artifact upload succeeded. This is CI evidence only, not browser/Colab/GPU/production validation.
 - **Next:** verify PR #26 CI, then design production registry evolution (tenant identity, encrypted persistence, migrations, backup/restore, external audit sink) and immutable MCP registry snapshots before enabling any governed tool execution.
 
 ### Change log addendum
 
 - **2026-11-03:** PR #25 exact final head `f9430971531992307d528e40740c89a0e46eabf1` passed run #41674346126: 190 passed, 3 warnings; hypergraph build and artifact upload succeeded.
-- **2026-11-03:** PR #26 opened with immutable Agent registry and lifecycle implementation. Run #41675370864 was still in progress at the time of this update; no CI result is claimed.
+- **2026-11-03:** PR #26 opened with immutable Agent registry and lifecycle implementation. Run #41675370864 passed on exact PR #26 head: 198 passed, 3 warnings; hypergraph build and artifact upload succeeded. No browser/Colab/GPU/production validation is claimed.
