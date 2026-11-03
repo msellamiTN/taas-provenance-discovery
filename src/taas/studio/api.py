@@ -126,6 +126,12 @@ def runtime_hardware() -> dict[str, Any]:
     return probe_hardware()
 
 
+@app.get("/api/v1/runtime/status", dependencies=[Depends(require_api_token)])
+def runtime_status() -> dict[str, Any]:
+    """Report process, host, storage and GPU state; does not load or execute a model."""
+    return probe_runtime()
+
+
 def validate_studio_goal_spec(spec: dict[str, Any]) -> None:
     """Fail early on the legacy/malformed UI payload instead of silently defaulting fields."""
     goals = spec.get("goals")
