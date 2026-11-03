@@ -208,6 +208,12 @@ def build_authorization_preflight(
     if not checks["tool_definition_resolved"]:
         reasons.append("exact_tool_definition_not_resolved")
 
+    # The schema is captured, but no JSON Schema validator is wired into this gate yet.
+    checks["tool_arguments_schema_validated"] = False
+    reasons.append("tool_argument_schema_validation_not_integrated")
+    checks["human_approval_workflow_available"] = False
+    reasons.append("human_approval_workflow_not_integrated")
+
     configured_principal = (
         trusted_config.principal if trusted_config is not None
         else os.environ.get("TAAS_STUDIO_PRINCIPAL", "").strip()
