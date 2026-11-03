@@ -199,7 +199,13 @@ For each task:
 | 2026-11-03 | Studio regression test repair | [PR #23](https://github.com/msellamiTN/taas-provenance-discovery/pull/23) / `1ce2a01ca62ab07c8890ba7ad7ceed13b9a20c5c` | [GitHub Actions run #41663531105](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/41663531105) — **success** | **180 passed, 3 warnings**; hypergraph build succeeded; artifact uploaded | Test-only patch; no runtime product code changed | PR #23 is green; integrate it into PR #21 before treating PR #21 as green |
 | 2026-11-03 | Benchmark hypergraph build | PR #23 CI run #41663531105 | **Passed** | Build report: 31 vertices, 569 hyperedges, 76 servers, 736 required argument occurrences, 821 optional arguments | GitHub-hosted CI execution; not a production runtime deployment | Inspect benchmark artifact and preserve reproducibility metadata
 
-## 6. Immediate next actions
+## 6. Mandatory Colab validation gate
+
+Every PR must be executed in Google Colab against its exact head SHA. GitHub Actions and static notebook checks are necessary but not sufficient. The level-based procedure, current PR matrix, evidence template and PASS/FAIL/BLOCKED semantics are defined in [COLAB_PR_VALIDATION_PROTOCOL.md](COLAB_PR_VALIDATION_PROTOCOL.md).
+
+**Current decision:** PRs #20–#23 have no recorded Colab execution evidence and therefore remain **NOT RUN** for Colab. PR #20 requires Studio/API smoke and actual model load/inference on a T4 (or a documented hardware block); PR #21 requires opening the notebook from its own branch and running it top-to-bottom; PR #22 and #23 require the applicable clean-runtime and regression checks, with product/hardware levels marked N/A only for the documented reasons.
+
+## 7. Immediate next actions
 
 1. Obtain the detailed failing output for PR #21 run #184 and reproduce the failure.
 2. Fix the regression with a targeted test.
@@ -208,7 +214,9 @@ For each task:
 5. Once the integration chain is stable, implement the TaaS Professional shell (P1) on a branch based on the latest validated stack head.
 6. Continue one focused PR per milestone; update this tracker in every PR that changes task status.
 
-## 7. Change log
+## 8. Change log
 
 - **2026-11-03:** Initial tracker created from the audited repository and PR #20/#21 state; submitted as draft PR #22. No unverified feature is marked Done.
 - **2026-11-03:** Diagnosed PR #21 CI failures from full job logs; test-only repair in draft PR #23 passed CI (180 tests) and benchmark hypergraph build. PR #21 itself still needs the repair integrated.
+
+- **2026-11-03:** Added mandatory exact-SHA Colab validation protocol for every PR. Current PRs #20–#23 are explicitly marked NOT RUN in Colab; CI success is not treated as Colab evidence.
