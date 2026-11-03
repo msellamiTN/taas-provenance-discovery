@@ -29,6 +29,11 @@ from taas.provenance import DEFAULT_TRUST
 from taas.studio.models import ModelCatalogError, get_model_details, inspect_model_artifacts, search_models
 from taas.studio.agent_spec import validate_agent_manifest
 from taas.studio import agent_registry
+from taas.studio.authorization_preflight import (
+    AuthorizationConfigurationError,
+    build_authorization_preflight,
+    load_trusted_authorization_config,
+)
 from taas.studio.runtime import estimate_model_memory, probe_hardware, probe_runtime
 from taas.studio.model_runtime import ModelRuntimeError, get_model_runtime
 from taas.studio.mcp_registry import MCPRegistryError, inspect_server as inspect_mcp_server, list_servers as list_mcp_servers
@@ -102,6 +107,14 @@ class AgentPublishRequest(BaseModel):
     registry_snapshot_id: str | None = Field(
         default=None, pattern=r"^[0-9a-f]{64}$"
     )
+
+
+class AgentAuthorizationPreflightRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    server_id: str = Field(min_length=1, max_length=128, pattern=r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
+    tool_name: str = Field(min_length=1, max_length=128, pattern=r"^[A-Za-z][A-Za-z0-9_.-]{0,127}$")
+    arguments: dict[str, Any]
+    goal_spec: dict[str, Any]
 
 
 def require_api_token(
@@ -849,6 +862,52 @@ def mcp_inspect(server_id: str) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except MCPRegistryError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+@app.post(
+    "/api/v1/agents/{agent_id}/versions/{version}/authorization/preflight",
+    dependencies=[Depends(require_api_token)],
+)
+def agent_authorization_preflight(
+    agent_id: str,
+    version: str,
+    request: AgentAuthorizationPreflightRequest,
+) -> dict[str, Any]:
+    """Evaluate trusted preconditions only; this route never authorizes or invokes tools."""
+    try:
+        agent = agent_registry.get_version(agent_id, version)
+    except agent_registry.AgentRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    validate_studio_goal_spec(request.goal_spec)
+
+    snapshot = None
+    if agent.get("registry_snapshot_id"):
+        try:
+            snapshot = agent_registry.get_mcp_snapshot(agent["registry_snapshot_id"])
+        except agent_registry.AgentRegistryError:
+            snapshot = None
+
+    trusted_config = None
+    configuration_error = None
+    try:
+        trusted_config = load_trusted_authorization_config()
+    except AuthorizationConfigurationError as exc:
+        configuration_error = str(exc)
+
+    try:
+        return build_authorization_preflight(
+            agent=agent,
+            snapshot=snapshot,
+            server_id=request.server_id,
+            tool_name=request.tool_name,
+            arguments=request.arguments,
+            goal_spec=request.goal_spec,
+            trusted_config=trusted_config,
+            configuration_error=configuration_error,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
 
 @app.get("/", include_in_schema=False)
 def studio_home():
