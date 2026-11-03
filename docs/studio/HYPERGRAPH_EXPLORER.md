@@ -44,3 +44,10 @@ GitHub Actions regression tests verify navigation, schema gating, field consumpt
 `tests/test_studio_hypergraph_explorer.py::test_live_studio_api_projects_real_core_discovery` exercises the real FastAPI application and real `DiscoveryEngine` using a local synthetic tool contract. It verifies the served Studio Explorer mount points, bearer-token rejection, authenticated Discovery response, Core-generated projection, reachable output type and `execution_performed=false`.
 
 The fixture is contract metadata only. No MCP server is contacted and no tool is invoked. The maintained Colab notebook pins the integrated Studio revision and is used to validate the actual workspace through the existing Colab proxy. This is production-like integration acceptance, not a claim of production deployment.
+
+
+## Refresh and navigation state
+
+After a successful Discovery response, the Studio keeps a bounded, versioned snapshot in browser `sessionStorage` for the current tab. On page refresh, it restores the last response and re-renders the result panels and Hypergraph Explorer from that exact response. It does **not** rerun Discovery and does not synthesize a graph.
+
+The snapshot is ephemeral tab UI state, not durable run history. It is scoped to the browser origin and tab and is discarded when the tab's session ends. The Studio bearer token is never included in the snapshot. If browser session storage is unavailable or the snapshot is invalid/too large, the Studio falls back to its normal empty state; it never fabricates a result. A missing or invalid Core projection still produces no graph.
