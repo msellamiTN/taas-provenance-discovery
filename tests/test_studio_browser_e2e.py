@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urlparse
 
 import pytest
 
@@ -39,8 +39,8 @@ def test_hypergraph_explorer_on_live_colab_studio(viewport, tmp_path: Path):
 
     try:
         from playwright.sync_api import sync_playwright
-    except ImportError as exc:
-        pytest.skip("Install Playwright + Chromium in the Colab Runtime first.") from exc
+    except ImportError:
+        pytest.skip("Install Playwright + Chromium in the Colab Runtime first.")
 
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(
