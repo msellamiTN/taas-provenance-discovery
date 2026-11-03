@@ -36,10 +36,19 @@ jobs:
         run: pytest -q
       - name: Build hypergraph from the pinned benchmark registry
         run: python scripts/build_benchmark_hypergraph.py --outdir /tmp/taas-benchmark-hypergraph
+      - name: Run leakage-separated retrieval evaluation
+        run: python experiments/e1_registry_retrieval.py --output /tmp/taas-retrieval-evaluation/e1_registry_retrieval.json
       - name: Upload benchmark hypergraph bundle
         uses: actions/upload-artifact@v5
         with:
           name: taas-benchmark-capability-hypergraph
           path: /tmp/taas-benchmark-hypergraph/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload retrieval evaluation metrics
+        uses: actions/upload-artifact@v5
+        with:
+          name: taas-retrieval-evaluation
+          path: /tmp/taas-retrieval-evaluation/
           if-no-files-found: error
           retention-days: 30
