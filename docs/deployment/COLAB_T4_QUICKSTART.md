@@ -7,7 +7,7 @@
 3. Run the notebook cells from top to bottom.
 4. Wait for the package import and /health + /ready checks.
 5. Open the generated **TaaS Studio** browser link.
-6. Copy the temporary API token printed by the launch cell into the Studio token field when submitting discovery requests.
+6. Copy the temporary API token printed by the launch cell into the persistent **Studio authentication** control in the application header, then select **Connect**. The header verifies the token against the current runtime and keeps it in page memory only; Discovery, GoalSpec validation, Model Studio and Agent Studio reuse the authenticated session.
 
 No ModelProfile upload, Hugging Face token, model endpoint or manual provider configuration is required to launch the current Studio.
 
@@ -71,7 +71,7 @@ A measured model profile can be configured later through a dedicated Studio conf
 
 ## Runtime and security
 
-- The API binds to 127.0.0.1:8000 and is opened through Colab's proxyPort helper.
+- Uvicorn binds to 0.0.0.0:8000 inside the ephemeral Colab runtime so Colab's proxy can reach it. Readiness checks use 127.0.0.1:8000. API routes remain bearer-token protected; no unauthenticated public tunnel is created.
 - The notebook creates a temporary bearer token per runtime. Treat the notebook output as sensitive; do not share it.
 - Colab is ephemeral. Model weights, process state and files under /content may disappear when the runtime ends.
 - A visible T4 does not accelerate the current CPU-oriented discovery engine. It is intended for a future local inference backend.
@@ -90,7 +90,8 @@ A measured model profile can be configured later through a dedicated Studio conf
 | /ready returns 503 | Confirm the generated API token is present in the notebook runtime and rerun launch. |
 | Discovery returns 401 | Paste the current runtime's token into the Studio token field. |
 | Discovery returns 422 | Check GoalSpec, policy and engine fields against the current TaaS core contract. |
-| Colab proxy fails | Confirm the runtime remains connected and rerun the proxy-link cell. |
+| Colab proxy returns `RpcError(NOT_FOUND)` | Confirm `/health` and `/ready` passed, then verify Uvicorn binds to `0.0.0.0:8000`, not loopback-only. Rerun the proxy-link cell after the server is ready. |
+| Colab proxy fails for another reason | Confirm the runtime remains connected and rerun the proxy-link cell. |
 
 ## Next product milestones
 
@@ -177,3 +178,18 @@ Example architecture inputs for a decoder model:
 ```
 
 For those illustrative architecture values, the KV cache estimate is 0.5 GiB. These values are not inferred from the Hugging Face search result; they must be obtained from the selected model's verified configuration. The formula assumes a conventional decoder attention cache with separate key and value tensors. Architectures with sliding-window, latent, hybrid or otherwise nonstandard attention require a model-specific estimator.
+
+
+## 9. Clean-runtime validation procedure
+
+For a reproducible operator check:
+
+1. In Colab, select **Runtime → Disconnect and delete runtime** to remove stale server processes and proxy state.
+2. Reopen the maintained notebook from the PR link and run every cell from the top.
+3. Confirm the printed commit equals `4a3e4e460f2556f6556b1ef4736f991337cf32c2`.
+4. Confirm installation/import checks complete, then verify both health and readiness return HTTP 200.
+5. Open the generated proxy URL and connect with the ephemeral token from that runtime only.
+6. Record runtime type, Python version, GPU allocation, model repository/revision, device, precision, load outcome, inference outcome, latency and peak memory when an actual model test is performed.
+7. Keep the Colab output and logs private if they contain the temporary bearer token.
+
+A CPU-only launch validates the Studio API and discovery workflow; it does not validate GPU model loading. A T4 allocation alone is not model inference evidence. Report each validation level independently and do not label a notebook as passed until its cells have actually run.
