@@ -125,7 +125,7 @@ def test_preflight_denies_unpublished_agent_unbound_snapshot_and_unlisted_tool()
     assert "agent_version_not_published" in result["deny_reasons"]
     assert "agent_version_has_no_bound_mcp_snapshot" in result["deny_reasons"]
     assert "tool_not_declared_in_agent_allowlist" in result["deny_reasons"]
-    assert "trusted_authorization_configuration_unavailable" in result["deny_reasons"]
+    assert "TAAS_STUDIO_POLICY_JSON is not configured" in result["deny_reasons"]
 
 
 def test_preflight_request_rejects_client_supplied_authority_fields():
