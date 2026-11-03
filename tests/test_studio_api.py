@@ -1021,3 +1021,76 @@ def test_huggingface_model_id_validation_is_strict():
     assert HuggingFaceModelRuntime._validate_model_id("Qwen/Qwen2.5-0.5B-Instruct") == "Qwen/Qwen2.5-0.5B-Instruct"
     with pytest.raises(ValueError):
         HuggingFaceModelRuntime._validate_model_id("../local-code")
+
+
+
+def test_mcp_server_registry_lists_only_safe_metadata(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    monkeypatch.setattr(api, "list_mcp_servers", lambda: {
+        "count": 1,
+        "servers": [{"id": "local_docs", "name": "Local Docs", "transport": "stdio",
+                     "configured": True, "credentials_configured": True}],
+    })
+    response = client.get("/api/v1/mcp/servers",
+                          headers={"Authorization": "Bearer test-token"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["count"] == 1
+    assert data["servers"][0]["id"] == "local_docs"
+    assert "command" not in data["servers"][0]
+    assert "env" not in data["servers"][0]
+
+
+def test_mcp_inspection_endpoint_never_executes_tool_calls(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    monkeypatch.setattr(api, "inspect_mcp_server", lambda server_id: {
+        "server_id": server_id, "tool_count": 1,
+        "tools": [{"server": server_id, "name": "search", "description": "Search",
+                   "input_schema": {"type": "object", "properties": {}},
+                   "source": "mcp-live-inspection"}],
+        "inspection_only": True, "tool_execution_performed": False,
+    })
+    response = client.post("/api/v1/mcp/servers/local_docs/inspect",
+                           headers={"Authorization": "Bearer test-token"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["tools"][0]["name"] == "search"
+    assert data["inspection_only"] is True
+    assert data["tool_execution_performed"] is False
+
+
+def test_mcp_inspection_unknown_server_returns_404(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+
+    def unknown(_server_id):
+        raise ValueError("Unknown MCP server id")
+
+    monkeypatch.setattr(api, "inspect_mcp_server", unknown)
+    response = client.post("/api/v1/mcp/servers/missing/inspect",
+                           headers={"Authorization": "Bearer test-token"})
+    assert response.status_code == 404
+
+
+def test_mcp_registry_rejects_duplicate_and_invalid_server_ids(monkeypatch):
+    from taas.studio.mcp_registry import MCPRegistryError, _load_config
+
+    monkeypatch.setenv("TAAS_MCP_SERVERS_JSON", '[{"id":"bad id","name":"X","command":"python"}]')
+    with pytest.raises(MCPRegistryError):
+        _load_config()
+    monkeypatch.setenv("TAAS_MCP_SERVERS_JSON", '[{"id":"ok","name":"X","command":"python"},{"id":"ok","name":"Y","command":"python"}]')
+    with pytest.raises(MCPRegistryError):
+        _load_config()
+
+
+def test_mcp_registry_never_accepts_inline_secret_values(monkeypatch):
+    from taas.studio.mcp_registry import MCPRegistryError, _load_config
+
+    monkeypatch.setenv("TAAS_MCP_SERVERS_JSON", '[{"id":"ok","name":"X","command":"python","env":{"API_KEY":"secret"}}]')
+    with pytest.raises(MCPRegistryError):
+        _load_config()
