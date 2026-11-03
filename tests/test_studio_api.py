@@ -592,9 +592,9 @@ def test_goal_spec_validation_endpoint_returns_topological_order(monkeypatch):
             "prompt_inputs": ["text"],
             "goals": [
                 {"id": "g1", "class": "retrieve", "in": [], "out": "record:order[]",
-                 "eff": ["read(*)"], "sigma": "data", "deps": []},
+                 "eff": ["read(*)"], "sigma": "data", "deps": [], "desc": "Retrieve orders"},
                 {"id": "g2", "class": "summarise", "in": ["record:order[]"], "out": "text",
-                 "eff": [], "sigma": "native", "deps": ["g1"]},
+                 "eff": [], "sigma": "native", "deps": ["g1"], "desc": "Summarise retrieved orders"},
             ],
         },
     )
@@ -609,28 +609,28 @@ def test_goal_spec_validation_endpoint_returns_topological_order(monkeypatch):
     [
         (
             [
-                {"id": "g1", "class": "retrieve", "out": "record[]"},
-                {"id": "g1", "class": "answer", "out": "text"},
+                {"id": "g1", "class": "retrieve", "out": "record[]", "desc": "Retrieve records"},
+                {"id": "g1", "class": "answer", "out": "text", "desc": "Answer the question"},
             ],
             "duplicate goal id",
         ),
         (
-            [{"id": "g1", "class": "retrieve", "out": "record[]", "deps": ["missing"]}],
+            [{"id": "g1", "class": "retrieve", "out": "record[]", "deps": ["missing"], "desc": "Retrieve records"}],
             "unknown dependency",
         ),
         (
             [
-                {"id": "g1", "class": "retrieve", "out": "record[]", "deps": ["g2"]},
-                {"id": "g2", "class": "answer", "out": "text", "deps": ["g1"]},
+                {"id": "g1", "class": "retrieve", "out": "record[]", "deps": ["g2"], "desc": "Retrieve records"},
+                {"id": "g2", "class": "answer", "out": "text", "deps": ["g1"], "desc": "Answer the question"},
             ],
             "contains a cycle",
         ),
         (
-            [{"id": "g1", "class": "retrieve", "out": "record[]", "eff": ["launch rocket"]}],
+            [{"id": "g1", "class": "retrieve", "out": "record[]", "eff": ["launch rocket"], "desc": "Retrieve records"}],
             "invalid effect",
         ),
         (
-            [{"id": "g1", "class": "retrieve", "out": "made_up_type"}],
+            [{"id": "g1", "class": "retrieve", "out": "made_up_type", "desc": "Retrieve records"}],
             "semantic type string",
         ),
     ],
@@ -686,7 +686,7 @@ def test_goal_spec_validation_rejects_unknown_prompt_context_type(monkeypatch):
         json={
             "prompt": "Inspect records",
             "prompt_inputs": ["imaginary_kind"],
-            "goals": [{"id": "g1", "class": "retrieve", "out": "record[]"}],
+            "goals": [{"id": "g1", "class": "retrieve", "out": "record[]", "desc": "Retrieve records"}],
         },
     )
     assert response.status_code == 422
