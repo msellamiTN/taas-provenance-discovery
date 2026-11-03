@@ -37,8 +37,10 @@ for e in extra:
     walk(e.get("summary", {}))
 # derived quantities the text states explicitly
 S = N["e3_summary"]
+RAW = N["e3_raw_tokens"]
 derived = {
-    "tokens reduction vs per-subtask (63%)": 1 - S["LiveMCPBench|ours"]["tokens"] / S["LiveMCPBench|per-subtask"]["tokens"],
+    "raw-token reduction vs per-subtask (36%)": 1 - RAW["LiveMCPBench|ours"] / RAW["LiveMCPBench|per-subtask"],
+    "raw-token reduction vs no gap (17%)": 1 - RAW["LiveMCPBench|ours"] / RAW["LiveMCPBench|ours-nogap"],
     "fewer tools vs per-subtask (1.15)": S["LiveMCPBench|per-subtask"]["size"] - S["LiveMCPBench|ours"]["size"],
     "gap tools removed (0.54)": S["LiveMCPBench|ours-nogap"]["size"] - S["LiveMCPBench|ours"]["size"],
     "Haiku analyst |K| diff": N["e6"]["path"]["Haiku analyst"]["size"] - N["e6"]["path"]["full (dev-tuned)"]["size"],
@@ -49,7 +51,7 @@ derived = {
     "property1 deriv FAR0 seq": N["e4_property1"]["certified(deriv,FAR=0.0)"]["sequences"],
     "E8 RO skips default (20)": round(N["e8"]["guide|llm|default"]["read_only_runner_abstain"] * 57),
     "E8 chi2 among RO skips (13)": 13,  # counted in results/e8_mcpbench_adapter_fixed.json rows (see notes)
-    "rag ratio of tokens (ten times)": S["LiveMCPBench|rag-top5"]["tokens"] / S["LiveMCPBench|ours"]["tokens"],
+    "rag ratio of raw tokens (5.7 times)": RAW["LiveMCPBench|rag-top5"] / RAW["LiveMCPBench|ours"],
     "attest share (30%)": 0.30, "calibration items per cell": 4,
 }
 vals += list(derived.values())
@@ -115,6 +117,8 @@ def main() -> None:
             if not matches(abs(x), dec, pct):
                 bad.append((f.name, raw, ctx))
     ps = [t["wilcoxon_p"] for t in N["e3_tests"].values()]
+    ps += [t["wilcoxon_p"] for t in N["e3_raw_token_tests"].values()]
+    ps += [h["holm"] for h in N["e3_holm"].values()]
     for p in PVALS:
         ok = any(abs(p - q) <= 0.05 * q for q in ps)
         print(f"p-value {p:.2g} in text: {'matches' if ok else 'NO MATCH'}")

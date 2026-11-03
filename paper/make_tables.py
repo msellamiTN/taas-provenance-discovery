@@ -27,26 +27,29 @@ def r3(x: float) -> str:
 
 
 def tab_h3() -> None:
-    rows = [("ours", "TaaS"), ("ours-nogap", "\\quad no gap analysis"), ("ours-strict", "\\quad strict rule 2"),
-            ("per-subtask", "Per-subtask"), ("per-subtask-gap", "\\quad gap goals only"),
+    rows = [("ours", "TaaS"), ("ours-nogap", "\\quad no gap analysis"), ("per-subtask", "Per-subtask"), ("per-subtask-gap", "\\quad gap goals only"),
             ("rag-top3", "RAG-MCP top-3"), ("rag-top5", "RAG-MCP top-5"), ("mcp-zero", "MCP-Zero"),
             ("all-tools", "Full catalogue")]
     S = N["e3_summary"]
+    RAW = N["e3_raw_tokens"]
     lines = []
     for key, name in rows:
         cells = []
         for src in ("LiveMCPBench", "MCPToolBench++"):
             m = S[f"{src}|{key}"]
             ci = "" if key == "all-tools" else f"\\,$\\pm$\\,{r3(m['recall_ci95'])}"
-            cells += [f"{m['size']:.2f}", f"{m['tokens']:,.0f}".replace(",", "{,}"), f"{r3(m['recall'])}{ci}"]
+            tok = RAW[f"{src}|{key}"]  # raw definitions for every system (same basis)
+            cells += [f"{m['size']:.2f}", f"{tok:,.0f}".replace(",", "{,}"), f"{r3(m['recall'])}{ci}"]
         lines.append(f"{name} & " + " & ".join(cells) + " \\\\")
-        if key == "ours-strict":
+        if key == "ours-nogap":
             lines.append("\\addlinespace[2pt]")
     body = "\n".join(lines)
+    MAN = f"{S['LiveMCPBench|ours']['tokens']:.0f} and {S['MCPToolBench++|ours']['tokens']:.0f} tokens"
     tex = r"""\begin{table}[t]
-\caption{Toolkit size, context cost and gold-tool recall (H3). Means over tasks; recall with its 95\% confidence
-interval. LMB: LiveMCPBench, 95 tasks (test). TB++: MCPToolBench++, 60 queries (development). Tok.: tokens of the
-exposed tool definitions.}
+\caption{Toolkit size, context cost and gold-tool recall (H3): means over tasks, recall with 95\% CI. LMB:
+LiveMCPBench test split (95 tasks; recall over the 94 with a resolvable gold tool). TB++: MCPToolBench++
+development split (60 queries). Tok.: tokens of the raw definitions (name, description, schema) for every
+system; TaaS's sanitised manifest needs """ + MAN + r""".}
 \label{tab:eval-h3}
 \centering\footnotesize\setlength{\tabcolsep}{2.2pt}
 \begin{tabular}{@{}lrrlrrl@{}}
@@ -72,8 +75,7 @@ ABL = [("full (dev-tuned)", "Reference (dev-tuned)"),
        ("strict profile (rule 2)", "Strict rule~2"),
        ("rule 1 off (exact_n_max=1e9)", "Rule~1 off"),
        ("Haiku profile", "Haiku $\\rho_{\\mathrm{LLM}}$ profile"),
-       ("Haiku analyst", "Haiku analyst"),
-       ("derivation-mode flow", "(L) along derivations")]
+       ("Haiku analyst", "Haiku analyst")]
 
 
 def tab_ablation() -> None:

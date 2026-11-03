@@ -99,6 +99,11 @@ def main() -> None:
                              "precision": v["precision"]["mean"], "abstain": v["abstain_rate"], "valid": v["valid_rate"],
                              "time_s": v["time_s"]["mean"]} for k, v in e3["summary"].items()}
     rows = e3["rows"]
+    raw_rows = [dict(r, tokens=r["raw_tokens"]) for r in rows]
+    out["e3_raw_tokens"] = {f"{src}|{sy}": float(np.mean([r["raw_tokens"] for r in rows if r["source"] == src and r["system"] == sy]))
+                            for src in ("LiveMCPBench", "MCPToolBench++") for sy in {r["system"] for r in rows}}
+    out["e3_raw_token_tests"] = {f"{src}|ours|{b}|raw_tokens": paired(raw_rows, src, "ours", b, "tokens")
+                                 for src in ("LiveMCPBench", "MCPToolBench++") for b in ("per-subtask", "ours-nogap", "rag-top5")}
     out["e3_tests"] = {}
     for src in ("LiveMCPBench", "MCPToolBench++"):
         for a, b, m in (("ours", "ours-nogap", "size"), ("ours", "ours-nogap", "recall"),
@@ -107,6 +112,48 @@ def main() -> None:
                         ("ours", "rag-top5", "recall"), ("ours", "mcp-zero", "recall"),
                         ("ours", "ours-strict", "size"), ("ours", "per-subtask-gap", "recall")):
             out["e3_tests"][f"{src}|{a}|{b}|{m}"] = paired(rows, src, a, b, m)
+    reported = ["LiveMCPBench|ours|ours-nogap|size", "LiveMCPBench|ours|ours-nogap|recall",
+                "LiveMCPBench|ours|per-subtask|recall", "LiveMCPBench|ours|mcp-zero|recall",
+                "LiveMCPBench|ours|rag-top5|recall", "MCPToolBench++|ours|per-subtask|recall",
+                "MCPToolBench++|ours|rag-top5|recall"]
+    tests = {k: out["e3_tests"][k]["wilcoxon_p"] for k in reported}
+    for k in ("LiveMCPBench|ours|per-subtask|raw_tokens", "LiveMCPBench|ours|ours-nogap|raw_tokens",
+              "MCPToolBench++|ours|per-subtask|raw_tokens"):
+        tests[k] = out["e3_raw_token_tests"][k]["wilcoxon_p"]
+    ks = sorted(tests, key=tests.get)
+    holm, run = {}, 0.0
+    for rank, k in enumerate(ks):
+        run = max(run, min(1.0, (len(ks) - rank) * tests[k]))
+        holm[k] = run
+    out["e3_holm"] = {k: {"p": tests[k], "holm": holm[k]} for k in tests}
+    import copy as _copy
+    import sys as _sys
+    _sys.path.insert(0, str(ROOT / "src"))
+    from taas.goals import gap_analysis, parse_goal_spec
+    from taas.model_profile import ModelProfile
+    prof = ModelProfile.load(ROOT / "data/processed/profile_sonnet.json")
+    prof.strict = False
+    recs = {}
+    for f in ("analyst_sonnet_A.jsonl", "analyst_sonnet_B.jsonl"):
+        for line in open(ROOT / "data/llm_records" / f):
+            if line.strip():
+                x = json.loads(line)
+                recs[x["id"]] = x
+    clar = req_n = opt_n = gap_n = nat_n = 0
+    for t in lt:
+        gs = parse_goal_spec(_copy.deepcopy(recs[t["id"]]))
+        gr = gap_analysis(gs, prof)
+        if gr.clarify:
+            clar += 1
+            continue
+        req = [g for g in gs.goals if not g.optional]
+        req_n += len(req)
+        opt_n += len(gs.goals) - len(req)
+        gap_n += len(gr.gap)
+        nat_n += sum(1 for g in req if g.sigma == "native")
+    out["e3_alg1_live"] = {"clarify": clar, "tasks": len(lt) - clar, "required_goals": req_n, "optional_goals": opt_n,
+                           "gap_goals": gap_n, "native_goals": nat_n, "native_share": nat_n / req_n,
+                           "goals_per_task": req_n / (len(lt) - clar), "gap_per_task": gap_n / (len(lt) - clar)}
     bet = [r["beta"] for r in rows if r["system"] == "ours" and r["source"] == "LiveMCPBench" and r["beta"] == r["beta"]]
     out["e3_bridge_ratio_live"] = {"mean": float(np.mean(bet)), "n": len(bet), "share_zero": float(np.mean([b == 0 for b in bet]))}
     gaps = [r for r in rows if r["system"] == "ours" and r["source"] == "LiveMCPBench"]
@@ -124,6 +171,12 @@ def main() -> None:
         sel = [r for r in e4["rows"] if r["system"] == name and r["scope"] == "out"]
         k = sum(r["worst"] for r in sel)
         ks = sum(r["stoch"] for r in sel)
+        seeds = sorted({r["seed"] for r in sel})
+        per_seed = {sd: (sum(r["worst"] for r in sel if r["seed"] == sd), sum(1 for r in sel if r["seed"] == sd))
+                    for sd in seeds}
+        k0, n0 = per_seed[seeds[0]]
+        out.setdefault("e4_per_seed", {})[name] = {"k": k0, "n": n0, "wilson": wilson(k0, n0),
+                                                    "identical_across_seeds": len(set(per_seed.values())) == 1}
         out["e4"][name] = {"n_out": len(sel), "worst_k": k, "worst": k / len(sel), "worst_wilson": wilson(k, len(sel)),
                            "stoch": ks / len(sel), "stoch_wilson": wilson(ks, len(sel)),
                            "by_attack": {a: sum(r["worst"] for r in sel if r["attack"] == a) /

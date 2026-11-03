@@ -55,9 +55,10 @@ The evaluation on the 569 tools of two public registries (Section~\ref{sec:eval}
 claims and qualifies three of them. Verified evidence keeps unsafe services out under forged and missing
 metadata, with exposure governed by the verifier's false-accept rate, whereas MCP's default reading of
 annotations admits half of the unsafe tools when half of the servers forge their hints. Gap analysis
-removes about a quarter of the tools of each toolkit without a measurable loss of gold-tool recall, and
-certified toolkits left none of 2,136 out-of-scope injected actions executable, against up to 8.1\% for
-retrieval-based discovery. The cost of Eq.~(6) needs a relevance term, Algorithm~1 should admit the
+removes about a quarter of the tools and a sixth of the context of each toolkit; no loss of gold-tool
+recall is significant, although the point estimates favour the retrieval baselines. Certified toolkits
+left none of 712 out-of-scope injected actions executable, against up to 8.1\% for retrieval-based
+discovery. The cost of Eq.~(6) needs a relevance term, Algorithm~1 should admit the
 outputs of all predecessor goals into the context, and the flow bound of Property~1 holds for any call
 order only under conservative label propagation. Sandbox-observed effects, end-to-end task success and
 live runs in an execution benchmark remain to be measured.
@@ -73,8 +74,10 @@ live runs in an execution benchmark remain to be measured.
   Section 8.5 measures leakage and tokens, **not** selection accuracy. Reword accordingly.
 - Section 6.1: "probing applies to runnable, credential-free servers, which the evaluation will count" —
   not counted (no server executed); the coverage sweep of Section 8.3 is the nearest result.
-- Section 5: "Typing quality is measured against manually typed samples." — not done; typing came from an
-  LLM pass. Either drop the sentence or add a manual sample before submission.
+- Section 5: "Typing quality is measured against manually typed samples." — not done; τ came from the
+  LLM labelling pass (Section 8.1 lists this as the first of three deviations). Either drop the sentence or
+  type a manual sample (e.g. 50 tools) before submission and report agreement.
+- Section 6.1: "the evaluation will count" runnable, credential-free servers — not counted (see above).
 
 **Changes to the model that the results call for** (each is reported as a finding in Section 8; making
 them in Sections 5–6 keeps the paper consistent):
@@ -86,10 +89,27 @@ them in Sections 5–6 keeps the paper consistent):
 3. *Property 1*: add the condition "with (L) checked under conservative label propagation, every tool
    result entering the model's context" — Section 8.5 shows the property fails for flows without it.
 
-**Table 1 and Section 2.2.** The public MCPToolBench++ release has 1,509 requests (1,470 distinct
-queries) against 1,429 in Table 1; state the release used. The 27.8% share of state-modifying tools
+**Table 1 and Section 2.2.** The public LiveMCPBench release has 95 tasks against 94 in Table 1, and the
+public MCPToolBench++ release has 1,509 requests (1,470 distinct queries) against 1,429; Section 8.1 states
+both differences. Update Table 1 or state the release it counts. The 27.8% share of state-modifying tools
 (Section 2.2) lies between the 23.0% of the LLM labels and the 32.2% of the lexical labeller; name the
 labelling method.
+
+**Corrections made after an independent check of the draft** (all from existing results; no experiment
+was re-run):
+- Token counts in Table 8 and the text use the raw tool definitions for every system (the earlier draft
+  compared TaaS's sanitised manifest with raw baseline definitions); TaaS's saving against per-subtask
+  retrieval is 36%, not 63%.
+- p-values of the ten paired H3 comparisons are Holm-adjusted; RAG-MCP top-5's recall advantage on
+  LiveMCPBench is not significant after adjustment ($p_H=0.098$), the development-split one is ($p_H=0.045$).
+- H4 intervals use the 712 distinct task–attack instances (outcomes are identical over the three verifier
+  seeds); the Wilson upper bound for certified toolkits is 0.54%, not 0.2%.
+- The share of goals left to the model is 36.8% of the 266 required goals (93 tasks, 2 CLARIFY), replayed
+  through Algorithm 1.
+- Disclosed: J reaches the engine through the verifier, so flow results assume truthful labels; H3 runs
+  under an open policy (certificate checks S, C, P, M only); distractor kinds in RQ3; greedy = exact means
+  the synthetic registries do not separate the regimes; LLM typing as a deviation; single-run E8 prompt
+  variants; what of RQ4 is untested; correlated errors from one model family.
 
 ## 4. Page budget (please check before submitting)
 
@@ -119,7 +139,9 @@ section (about half a page), Figs. 4, 6 and 7, Table 4 and the related-work pros
 
 `paper/evaluation_numbers.py` reads every cited number (and computes the Wilcoxon tests, bootstrap
 intervals and Wilson intervals) from `results/*.json`; `paper/make_tables.py` generates the tables;
-`paper/check_numbers.py` checks each number in the section against those values (all 422 match; the four it
-lists are a negative interval bound, a table difference and two µs→ms conversions, checked by hand).
+`paper/check_numbers.py` checks each number in the section against those values (424 of 428 match; the four it
+lists are two mentions of a negative interval bound and two µs→ms conversions, checked by hand). Every
+p-value in the text matches a raw or Holm-adjusted value in `evaluation_numbers.json` (`e3_tests`,
+`e3_raw_token_tests`, `e3_holm`).
 Rebuild: `python paper/evaluation_numbers.py && python paper/make_tables.py && python paper/check_numbers.py`,
 then `cd paper && latexmk -pdf evaluation_preview.tex`.

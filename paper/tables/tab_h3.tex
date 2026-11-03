@@ -1,7 +1,8 @@
 \begin{table}[t]
-\caption{Toolkit size, context cost and gold-tool recall (H3). Means over tasks; recall with its 95\% confidence
-interval. LMB: LiveMCPBench, 95 tasks (test). TB++: MCPToolBench++, 60 queries (development). Tok.: tokens of the
-exposed tool definitions.}
+\caption{Toolkit size, context cost and gold-tool recall (H3): means over tasks, recall with 95\% CI. LMB:
+LiveMCPBench test split (95 tasks; recall over the 94 with a resolvable gold tool). TB++: MCPToolBench++
+development split (60 queries). Tok.: tokens of the raw definitions (name, description, schema) for every
+system; TaaS's sanitised manifest needs 126 and 88 tokens.}
 \label{tab:eval-h3}
 \centering\footnotesize\setlength{\tabcolsep}{2.2pt}
 \begin{tabular}{@{}lrrlrrl@{}}
@@ -10,9 +11,8 @@ exposed tool definitions.}
 \cmidrule(lr){2-4}\cmidrule(l){5-7}
 System & $|K|$ & Tok. & Recall & $|K|$ & Tok. & Recall\\
 \midrule
-TaaS & 1.42 & 126 & .186\,$\pm$\,.054 & 1.00 & 88 & .383\,$\pm$\,.124 \\
-\quad no gap analysis & 1.96 & 165 & .175\,$\pm$\,.054 & 0.90 & 84 & .367\,$\pm$\,.123 \\
-\quad strict rule 2 & 1.92 & 162 & .182\,$\pm$\,.056 & 1.05 & 94 & .367\,$\pm$\,.123 \\
+TaaS & 1.42 & 218 & .186\,$\pm$\,.054 & 1.00 & 174 & .383\,$\pm$\,.124 \\
+\quad no gap analysis & 1.96 & 265 & .175\,$\pm$\,.054 & 0.90 & 177 & .367\,$\pm$\,.123 \\
 \addlinespace[2pt]
 Per-subtask & 2.57 & 343 & .249\,$\pm$\,.066 & 1.32 & 252 & .433\,$\pm$\,.126 \\
 \quad gap goals only & 1.72 & 219 & .202\,$\pm$\,.061 & 1.05 & 236 & .417\,$\pm$\,.126 \\
