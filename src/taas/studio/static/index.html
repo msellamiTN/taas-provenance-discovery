@@ -417,7 +417,8 @@
   $("token").addEventListener("change", () => {
     if ($("token").value.trim()) refreshRuntimeOverview();
   });
-\n  const run = $("run");
+
+  const run = $("run");
 
   // Visual GoalSpec editor. The JSON request remains the canonical transport payload.
   const GOAL_CLASSES = ["classify","extract","summarise","translate","convert_format","write","plan","synthesise","aggregate","compute_exact","count","compare","answer","retrieve","search","fetch_web","store","send","transact","execute","navigate_browser","render_media","create_document","edit_document","random"];
