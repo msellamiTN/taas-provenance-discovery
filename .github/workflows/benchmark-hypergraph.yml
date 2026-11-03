@@ -9,6 +9,7 @@ on:
     branches:
       - main
       - feature/benchmark-capability-hypergraph
+      - feature/integrated-studio-colab-runtime
   workflow_dispatch:
 
 # Avoid spending runner time on obsolete commits when newer work is pushed.
