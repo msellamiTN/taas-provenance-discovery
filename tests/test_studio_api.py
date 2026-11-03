@@ -1,3 +1,5 @@
+import re
+
 import pytest
 
 from fastapi.testclient import TestClient
@@ -557,7 +559,7 @@ def test_studio_frontend_integrates_benchmark_and_tool_registry_workspace():
         'id="models"',
         'id="runtime"',
         "Gold labels reserved for evaluation",
-        "no automatic LLM interpretation is available in this build",
+        "Structural validation does not verify semantic alignment",
     ):
         assert marker in page
 
@@ -571,3 +573,274 @@ def test_studio_frontend_keeps_benchmark_gold_labels_out_of_browser_contract():
     assert "gold_unresolved" not in page
     assert "/api/v1/bench/tasks?" in page
     assert "/api/v1/bench/tools?" in page
+
+
+def test_goal_spec_validation_endpoint_requires_authentication(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.post("/api/v1/goals/validate", json={
+        "prompt": "List orders",
+        "goals": [{"id": "g1", "class": "retrieve", "out": "record[]", "eff": ["read(*)"]}],
+    })
+    assert response.status_code == 401
+
+
+def test_goal_spec_validation_endpoint_returns_topological_order(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.post(
+        "/api/v1/goals/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json={
+            "prompt": "Retrieve orders and summarize them",
+            "prompt_inputs": ["text"],
+            "goals": [
+                {"id": "g1", "class": "retrieve", "in": [], "out": "record:order[]",
+                 "eff": ["read(*)"], "sigma": "data", "deps": [], "desc": "Retrieve orders"},
+                {"id": "g2", "class": "summarise", "in": ["record:order[]"], "out": "text",
+                 "eff": [], "sigma": "native", "deps": ["g1"], "desc": "Summarise retrieved orders"},
+            ],
+        },
+    )
+    assert response.status_code == 200
+    assert response.json()["valid"] is True
+    assert response.json()["goal_order"] == ["g1", "g2"]
+    assert response.json()["semantic_correctness_verified"] is False
+
+
+@pytest.mark.parametrize(
+    ("goals", "message"),
+    [
+        (
+            [
+                {"id": "g1", "class": "retrieve", "out": "record[]", "desc": "Retrieve records"},
+                {"id": "g1", "class": "answer", "out": "text", "desc": "Answer the question"},
+            ],
+            "duplicate goal id",
+        ),
+        (
+            [{"id": "g1", "class": "retrieve", "out": "record[]", "deps": ["missing"], "desc": "Retrieve records"}],
+            "unknown dependency",
+        ),
+        (
+            [
+                {"id": "g1", "class": "retrieve", "out": "record[]", "deps": ["g2"], "desc": "Retrieve records"},
+                {"id": "g2", "class": "answer", "out": "text", "deps": ["g1"], "desc": "Answer the question"},
+            ],
+            "contains a cycle",
+        ),
+        (
+            [{"id": "g1", "class": "retrieve", "out": "record[]", "eff": ["launch rocket"], "desc": "Retrieve records"}],
+            "invalid effect",
+        ),
+        (
+            [{"id": "g1", "class": "retrieve", "out": "made_up_type", "desc": "Retrieve records"}],
+            "semantic type string",
+        ),
+    ],
+)
+def test_goal_spec_validation_rejects_invalid_contracts(monkeypatch, goals, message):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.post(
+        "/api/v1/goals/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json={"prompt": "Validate this plan", "goals": goals},
+    )
+    assert response.status_code == 422
+    assert message in response.json()["detail"]
+
+
+def test_studio_frontend_exposes_visual_goalspec_editor_and_server_validation():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    for marker in (
+        'id="goal-editor"',
+        'id="goal-prompt"',
+        'id="goal-prompt-inputs"',
+        'id="goal-cards"',
+        'id="goal-add"',
+        'id="goal-validate"',
+        'id="goal-reload-json"',
+        "/api/v1/goals/validate",
+        "semantic correctness is not automatically verified",
+        "Dependency graph contains a cycle.",
+    ):
+        assert marker in page
+
+
+def test_goal_spec_validation_rejects_missing_goal_description(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.post(
+        "/api/v1/goals/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json={"prompt": "Get BBC finance news", "goals": [
+            {"id": "g1", "class": "retrieve", "out": "record[]", "desc": ""}
+        ]},
+    )
+    assert response.status_code == 422
+    assert ".desc must be a non-empty authored goal description" in response.json()["detail"]
+
+
+def test_goal_spec_validation_rejects_unknown_prompt_context_type(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.post(
+        "/api/v1/goals/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json={
+            "prompt": "Inspect records",
+            "prompt_inputs": ["imaginary_kind"],
+            "goals": [{"id": "g1", "class": "retrieve", "out": "record[]", "desc": "Retrieve records"}],
+        },
+    )
+    assert response.status_code == 422
+    assert "prompt_inputs contains invalid semantic type" in response.json()["detail"]
+
+
+def test_studio_goal_editor_requires_reload_after_advanced_json_edit():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    assert "goalJsonManuallyEdited" in page
+    assert "Reload the visual editor from the advanced JSON" in page
+
+
+def test_studio_frontend_renders_structured_certificate_and_goal_coverage_panels():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    for marker in (
+        'id="certificate-panel"',
+        'id="certificate-checks"',
+        'id="goal-coverage"',
+        'id="counterexample-panel"',
+        'id="certificate-witnesses"',
+        "Pre-execution certificate valid",
+        "M (minimality) and B (bridge ratio) are diagnostics",
+        "This certifies the discovery model's pre-execution conditions, not runtime behavior.",
+    ):
+        assert marker in page
+
+
+def test_studio_frontend_keeps_counterexample_visible_without_certificate():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    assert "certPanel.hidden=!cert&&!data.counterexample" in page
+    assert "No certificate produced" in page
+    assert "absence of a certificate is not a pass" in page
+
+
+def test_visual_goal_editor_defaults_missing_cardinality_on_load_and_json_reload():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    # Older/hand-authored GoalSpecs may omit n; the visual editor must hydrate
+    # the canonical default (1) both at initial load and after JSON reload.
+    assert page.count("n:g.n??1") == 2
+
+
+def test_benchmark_task_import_clears_stale_demo_goal_before_authoring():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    handler = page.split('$("bench-use-task").addEventListener("click",()=>{', 1)[1].split(
+        '\n  $("bench-add-tools")', 1
+    )[0]
+    assert "if(goalSpecState.prompt!==prompt){goalSpecState.goals=[]" in handler
+    assert "Task prompt copied to GoalSpec" in handler
+    assert "Author and review task-specific semantic goal contracts" in handler
+
+
+def test_benchmark_tool_import_replaces_demo_tools_instead_of_merging():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    handler = page.split('$("bench-add-tools").addEventListener("click",()=>{', 1)[1].split(
+        '\n  function showBenchError', 1
+    )[0]
+    assert "syncBenchmarkToolsToRequest()" in handler
+    assert "const syncBenchmarkToolsToRequest = () =>" in page
+    assert "body.tools=[...bench.selectedTools.values()]" in page
+    assert "Demo/sample tools were removed" in page
+    assert "new Map((body.tools||[])" not in handler
+
+
+def test_benchmark_task_import_synchronizes_registry_selection_and_clears_demo_tools():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    task_handler = page.split('$("bench-use-task").addEventListener("click",()=>{', 1)[1].split(
+        '\n  $("bench-add-tools")', 1
+    )[0]
+    assert "const importedToolCount=syncBenchmarkToolsToRequest()" in task_handler
+    assert "selectBenchmarkTask(t)" in page
+    assert "goalSpecState.goals=[]" in page
+    assert "Structural validation does not verify semantic alignment" in task_handler
+
+
+def test_benchmark_registry_selection_stays_synchronized_and_blocks_stale_demo_discovery():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    assert "if(bench.selectedTask)" in page
+    assert 'if(bench.selectedTask){\n          $("bench-goal-review").checked=false;' in page
+    assert "syncBenchmarkToolsToRequest()" in page
+    assert "Benchmark discovery blocked: select at least one registry tool" in page
+    assert "registry selections are not synchronized with the request" in page
+    assert "benchmark task NOT evaluated" in page
+    assert "semantic alignment with the task prompt is not verified" in page
+    assert "Sync selected tools to discovery" in page
+    assert "Benchmark discovery blocked: review the GoalSpec against the selected task prompt" in page
+
+def test_benchmark_task_switch_invalidates_previous_goal_and_tool_context():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    assert 'selectedTaskKey:null' in page
+    assert "const invalidateBenchmarkTaskContext = (message) =>" in page
+    assert "const selectBenchmarkTask = (task) =>" in page
+    assert 'bench.selectedTools.clear()' in page
+    assert 'goalSpecState.prompt=task.query||"";goalSpecState.goals=[]' in page
+    assert '$("bench-goal-review").checked=false' in page
+    assert 'syncBenchmarkToolsToRequest()' in page
+    assert 'selectBenchmarkTask(t)' in page
+    assert '$("goal-editor").addEventListener("input"' in page
+    assert '$("goal-editor").addEventListener("change"' in page
+    assert 'if(bench.selectedTask)$("bench-goal-review").checked=false' in page
+
+
+def test_benchmark_discovery_requires_explicit_goal_spec_review():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    assert 'id="bench-goal-review" type="checkbox"' in page
+    run_handler = page.split('run.addEventListener("click", async () => {', 1)[1].split(
+        '\n  // Integrated benchmark workspace', 1
+    )[0]
+    assert 'if(!$("bench-goal-review").checked)' in run_handler
+    assert "review the GoalSpec against the selected task prompt" in run_handler
+
+
+
+def test_visual_goal_editor_requires_authored_goal_description():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "goal description is required; describe the intended operation" in response.text
+
+
+
+def test_studio_navigation_shell_has_valid_targets_and_accessible_skip_link():
+    from pathlib import Path
+    from taas.studio import api
+
+    page = Path(api.__file__).parent / "static" / "index.html"
+    html = page.read_text(encoding="utf-8")
+    ids = set(re.findall(r'id="([^"]+)"', html))
+    nav = re.search(r'<nav class="studio-nav".*?</nav>', html, re.DOTALL)
+    assert nav is not None
+    targets = set(re.findall(r'href="#([^"]+)"', nav.group(0)))
+    assert targets <= ids
+    assert 'class="skip-link" href="#overview"' in html
+    assert 'id="overview"' in html
+    assert 'aria-label="Studio sections"' in html
+    assert ".studio-layout" in html
+    assert "@media(max-width:900px)" in html

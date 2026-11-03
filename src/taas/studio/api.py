@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import hmac
 import os
+import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -16,6 +17,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, ConfigDict, Field
 
 from taas.contracts import extract_contract
+from taas.effects import parse_effect
 from taas.data.registries import RawTool, load_processed
 from taas.engine import DiscoveryEngine, EngineConfig
 from taas.model_profile import EXTERNAL_CLASSES, MODEL_CLASSES, ModelProfile
@@ -24,6 +26,7 @@ from taas.policy import Policy
 from taas.provenance import DEFAULT_TRUST
 from taas.studio.models import ModelCatalogError, get_model_details, inspect_model_artifacts, search_models
 from taas.studio.runtime import estimate_model_memory, probe_hardware
+from taas.types import KINDS
 
 app = FastAPI(
     title="TaaS Core Studio API",
@@ -130,6 +133,12 @@ def validate_studio_goal_spec(spec: dict[str, Any]) -> None:
         raise HTTPException(status_code=422, detail="goal_spec.goals must be a non-empty array")
     allowed_classes = set(MODEL_CLASSES) | set(EXTERNAL_CLASSES)
     legacy = {"output", "reason", "dependencies"}
+    ids: list[str] = []
+    type_pattern = re.compile(r"^([a-z_]+)(?::[a-z0-9_-]+)?(\[\])?$")
+    def valid_semantic_type(value: str) -> bool:
+        match = type_pattern.fullmatch(value)
+        return bool(match and match.group(1) in KINDS)
+
     for index, goal in enumerate(goals):
         prefix = f"goal_spec.goals[{index}]"
         if not isinstance(goal, dict):
@@ -140,26 +149,87 @@ def validate_studio_goal_spec(spec: dict[str, Any]) -> None:
                 status_code=422,
                 detail=f"{prefix} uses legacy field(s) {old}; use out, desc and deps",
             )
+        goal_id = goal.get("id")
+        if not isinstance(goal_id, str) or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]{0,63}", goal_id):
+            raise HTTPException(status_code=422, detail=f"{prefix}.id must be a valid non-empty goal identifier")
+        if goal_id in ids:
+            raise HTTPException(status_code=422, detail=f"duplicate goal id: {goal_id}")
+        ids.append(goal_id)
         cls = goal.get("class")
-        if cls not in allowed_classes:
+        if not isinstance(cls, str) or cls not in allowed_classes:
             raise HTTPException(
                 status_code=422,
                 detail=f"{prefix}.class must be one of the supported model or external goal classes; got {cls!r}",
             )
-        if not isinstance(goal.get("out"), str) or not goal["out"].strip():
+        out_type = goal.get("out")
+        if not isinstance(out_type, str) or not valid_semantic_type(out_type):
             raise HTTPException(status_code=422, detail=f"{prefix}.out must be a semantic type string")
         if goal.get("sigma", "native") not in SIGMAS:
             raise HTTPException(status_code=422, detail=f"{prefix}.sigma must be one of {SIGMAS}")
         for field_name in ("in", "eff", "deps"):
             if field_name in goal and not isinstance(goal[field_name], list):
                 raise HTTPException(status_code=422, detail=f"{prefix}.{field_name} must be an array")
-        if any(not isinstance(item, str) for item in goal.get("in", []) + goal.get("eff", []) + goal.get("deps", [])):
-            raise HTTPException(status_code=422, detail=f"{prefix}.in, eff and deps must contain strings")
+        for field_name in ("in", "eff", "deps"):
+            if any(not isinstance(item, str) for item in goal.get(field_name, [])):
+                raise HTTPException(status_code=422, detail=f"{prefix}.{field_name} must contain strings")
+        for input_type in goal.get("in", []):
+            if not valid_semantic_type(input_type):
+                raise HTTPException(status_code=422, detail=f"{prefix}.in contains invalid semantic type {input_type!r}")
+        for effect in goal.get("eff", []):
+            try:
+                parse_effect(effect)
+            except ValueError as exc:
+                raise HTTPException(status_code=422, detail=f"{prefix}.eff contains invalid effect {effect!r}") from exc
+        n = goal.get("n", 1)
+        if isinstance(n, bool) or not isinstance(n, int) or n < 1:
+            raise HTTPException(status_code=422, detail=f"{prefix}.n must be a positive integer")
+        if goal.get("exactness", "tolerant") not in ("tolerant", "exact"):
+            raise HTTPException(status_code=422, detail=f"{prefix}.exactness must be tolerant or exact")
+        if "optional" in goal and not isinstance(goal["optional"], bool):
+            raise HTTPException(status_code=422, detail=f"{prefix}.optional must be a boolean")
+        if "lang" in goal and (not isinstance(goal["lang"], str) or not goal["lang"].strip()):
+            raise HTTPException(status_code=422, detail=f"{prefix}.lang must be a non-empty string")
+        if not isinstance(goal.get("desc"), str) or not goal["desc"].strip():
+            raise HTTPException(status_code=422, detail=f"{prefix}.desc must be a non-empty authored goal description")
+    prompt_inputs = spec.get("prompt_inputs", ["text"])
+    if not isinstance(prompt_inputs, list) or any(not isinstance(item, str) for item in prompt_inputs):
+        raise HTTPException(status_code=422, detail="goal_spec.prompt_inputs must be an array of semantic type strings")
+    for item in prompt_inputs:
+        if not valid_semantic_type(item):
+            raise HTTPException(status_code=422, detail=f"goal_spec.prompt_inputs contains invalid semantic type {item!r}")
+    if "prompt" in spec and not isinstance(spec["prompt"], str):
+        raise HTTPException(status_code=422, detail="goal_spec.prompt must be a string")
+    known_ids = set(ids)
+    for index, goal in enumerate(goals):
+        for dep in goal.get("deps", []):
+            if dep not in known_ids:
+                raise HTTPException(status_code=422, detail=f"goal {ids[index]} references unknown dependency {dep!r}")
+            if dep == ids[index]:
+                raise HTTPException(status_code=422, detail=f"goal {ids[index]} cannot depend on itself")
+    parsed = parse_goal_spec(spec, prompt=str(spec.get("prompt", "")))
+    if parsed.order() is None:
+        raise HTTPException(status_code=422, detail="goal_spec dependency graph contains a cycle")
 
 
 def parse_studio_goal_spec(spec: dict[str, Any]):
     """Parse the core GoalSpec while preserving the Studio natural-language prompt."""
     return parse_goal_spec(spec, prompt=str(spec.get("prompt", "")))
+
+
+
+@app.post("/api/v1/goals/validate", dependencies=[Depends(require_api_token)])
+def validate_goal_spec_endpoint(payload: dict[str, Any]) -> dict[str, Any]:
+    """Validate the canonical GoalSpec contract and dependency DAG; performs no discovery."""
+    validate_studio_goal_spec(payload)
+    parsed = parse_studio_goal_spec(payload)
+    order = parsed.order() or []
+    return {
+        "valid": True,
+        "goal_count": len(parsed.goals),
+        "goal_order": [goal.id for goal in order],
+        "prompt_inputs": [str(item) for item in parsed.prompt_inputs],
+        "semantic_correctness_verified": False,
+    }
 
 
 @app.get("/api/v1/models/search", dependencies=[Depends(require_api_token)])

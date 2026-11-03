@@ -114,3 +114,22 @@ For Colab-hosted operation, follow the [Colab T4 step-by-step guide](../deployme
 - Single-process experimental API; no multi-tenant authorization or production threat model.
 - The browser page and health endpoints are unauthenticated at the application layer; remote access must protect the entire hostname with an authenticated proxy/tunnel.
 - Tool metadata and schemas are declarations; this endpoint does not prove runtime behavior.
+
+
+### GoalSpec validation
+
+Use `POST /api/v1/goals/validate` with the same bearer token as discovery. The endpoint
+checks the canonical GoalSpec fields, supported semantic type kinds, effect syntax,
+unique goal IDs, dependency references, and acyclic dependency order. It returns the
+topological goal order and explicitly reports that semantic correctness is not verified.
+It performs validation only; it does not call an LLM, discover tools, or execute MCP tools.
+
+The Studio UI provides a visual GoalSpec editor for the natural-language objective,
+prompt context types, goal class, input/output types, effects, delegation class, goal
+dependencies, cardinality, exactness, language, and optionality. The complete JSON
+request remains available in the advanced editor. Reload the visual editor after making
+manual JSON edits so both representations are synchronized.
+
+Local validation is a convenience for immediate feedback; server-side validation is
+the authoritative structural check before discovery. Neither validation layer proves
+that a GoalSpec faithfully captures the user's intent.
