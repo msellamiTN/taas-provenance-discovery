@@ -843,7 +843,7 @@
       const loc = Array.isArray(item?.loc) ? item.loc.join(".") : "";
       const msg = item?.msg || item?.message || JSON.stringify(item);
       return loc ? loc + ": " + msg : msg;
-    }).join("\\n");
+    }).join("\n");
     if (detail && typeof detail === "object") {
       if (typeof detail.message === "string") return detail.message;
       if (typeof detail.detail === "string") return detail.detail;
