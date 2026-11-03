@@ -79,6 +79,69 @@
     @media(max-width:1050px) { .workspace-grid { grid-template-columns:1fr 1fr; } .workspace-grid section:first-child { grid-column:1/-1; } }
     @media(max-width:700px) { header { align-items:flex-start; flex-direction:column; } main { padding:0 12px 36px; } .workspace-grid { grid-template-columns:1fr; } .workspace-grid section:first-child { grid-column:auto; } .hero { flex-direction:column; } }
 
+
+    .goal-editor { margin:14px 0 16px; padding:15px; border:1px solid #dfe6f0; border-radius:11px; background:#f9fbfe; }
+    .goal-editor-head { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+    .goal-editor-head h3 { margin:0; font-size:14px; }
+    .goal-editor .field { margin:9px 0; }
+    .goal-editor .field label { display:block; margin:0 0 5px; color:#50617a; font-size:11px; }
+    .goal-editor input,.goal-editor select,.goal-editor textarea { width:100%; box-sizing:border-box; padding:8px 9px; border:1px solid #d4dce8; border-radius:7px; background:#fff; color:#172033; font:12px Inter,system-ui,sans-serif; }
+    .goal-editor textarea { min-height:52px; resize:vertical; }
+    .goal-editor .goal-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px 10px; }
+    .goal-card { margin-top:11px; padding:12px; border:1px solid #e1e7f0; border-radius:9px; background:#fff; }
+    .goal-card-head { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:5px; }
+    .goal-card-head strong { font-size:12px; }
+    .goal-card .remove-goal { margin:0; padding:5px 8px; background:#fff1f1; color:#a33; border:1px solid #f1d4d4; }
+    .goal-editor .goal-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .goal-editor .goal-actions button { margin:0; }
+    .goal-validation { margin-top:10px; padding:9px 11px; border-radius:8px; background:#f1f5fa; color:#52627a; font-size:11px; line-height:1.5; }
+    .goal-validation.invalid { background:#fff3f0; color:#9a3c2b; }
+    .goal-validation.valid { background:#eef8f3; color:#176b49; }
+    .advanced-json { margin-top:12px; border-top:1px solid #e5eaf1; padding-top:10px; }
+    .advanced-json summary { color:#50617a; cursor:pointer; font-size:12px; font-weight:700; }
+    @media(max-width:720px) { .goal-editor .goal-grid { grid-template-columns:1fr 1fr; } }
+    @media(max-width:480px) { .goal-editor .goal-grid { grid-template-columns:1fr; } }
+
+
+    .certificate-panel { margin-top:16px; padding:14px; border:1px solid #dfe6f0; border-radius:10px; background:#fbfcfe; }
+    .certificate-head { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .certificate-head h3 { margin:0; font-size:13px; }
+    .certificate-state { display:inline-flex; padding:5px 9px; border-radius:99px; font-size:11px; font-weight:750; background:#edf1f6; color:#52627a; }
+    .certificate-state.valid { background:#eaf7f0; color:#176b49; }
+    .certificate-state.invalid { background:#fff0ed; color:#a13f2e; }
+    .certificate-checks { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin:12px 0; }
+    .certificate-check { border:1px solid #e3e8ef; border-radius:8px; background:#fff; padding:9px; min-width:0; }
+    .certificate-check strong { display:block; font-size:11px; }
+    .certificate-check small { display:block; color:#66758b; font-size:10px; margin-top:4px; }
+    .certificate-check.pass { border-color:#cde7d8; }
+    .certificate-check.fail { border-color:#f0d0ca; }
+    .coverage-table { width:100%; border-collapse:collapse; font-size:11px; margin-top:8px; }
+    .coverage-table th,.coverage-table td { padding:8px; border-bottom:1px solid #e7ecf2; text-align:left; vertical-align:top; overflow-wrap:anywhere; }
+    .coverage-table th { color:#52627a; font-weight:700; }
+    .certificate-panel details { margin-top:10px; }
+    .certificate-panel summary { cursor:pointer; font-size:11px; font-weight:700; color:#52627a; }
+    @media(max-width:720px) { .certificate-checks { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+
+    /* UX-1: persistent, capability-aware Studio navigation shell */
+    .skip-link { position:absolute; left:-10000px; top:8px; z-index:100; padding:10px 14px; background:#fff; color:#17315c; border:2px solid var(--blue); border-radius:8px; }
+    .skip-link:focus { left:12px; }
+    .studio-layout { display:grid; grid-template-columns:208px minmax(0,1fr); gap:20px; align-items:start; }
+    .studio-nav { position:sticky; top:16px; display:flex; flex-direction:column; gap:4px; margin:0; padding:12px; border-radius:13px; }
+    .studio-nav a { display:block; padding:10px 11px; border-radius:8px; color:#53647d; font-size:12px; }
+    .studio-nav a[aria-current="page"], .studio-nav a:hover { color:#214fb4; background:var(--blue-soft); }
+    .studio-nav a:focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
+    .nav-brand { display:flex; align-items:center; gap:10px; padding:7px 5px 14px; margin-bottom:8px; border-bottom:1px solid var(--line); }
+    .nav-mark { display:grid; place-items:center; width:34px; height:34px; border-radius:10px; color:white; background:#18345e; font-weight:800; font-size:17px; }
+    .nav-brand strong,.nav-brand small { display:block; }
+    .nav-brand strong { font-size:12px; color:var(--ink); }
+    .nav-brand small { margin-top:3px; color:var(--muted); font-size:10px; }
+    .nav-label { margin:12px 9px 3px; color:#8793a5; font-size:9px; font-weight:800; letter-spacing:1px; }
+    .nav-foot { display:flex; gap:9px; align-items:flex-start; margin-top:18px; padding:12px 8px 4px; border-top:1px solid var(--line); color:#50617a; font-size:10px; line-height:1.5; }
+    .nav-foot small { color:var(--muted); }
+    .nav-status-dot { flex:0 0 7px; width:7px; height:7px; margin-top:4px; border-radius:50%; background:#d49a35; }
+    .studio-content { min-width:0; }
+    @media(max-width:900px) { .studio-layout { grid-template-columns:1fr; gap:12px; } .studio-nav { position:static; display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; } .nav-brand { width:100%; } .nav-label,.nav-foot { display:none; } .studio-nav a { padding:8px 9px; } }
+    @media(max-width:560px) { .studio-nav { gap:2px; } .studio-nav a { font-size:11px; padding:7px; } }
   </style>
 </head>
 <body>
@@ -88,10 +151,25 @@
 </header>
 <main>
   <div class="notice"><strong>Discovery-only preview.</strong> This workspace calls <code>/api/v1/discover</code>. It does not invoke MCP tools, run an agent, or evaluate task completion. Use only trusted tool metadata; do not paste secrets or sensitive arguments.</div>
-  <nav class="studio-nav" aria-label="Studio navigation">
-    <a href="#workspace">Workspace</a><a href="#discovery">Discovery</a><a href="#models">Model catalog</a><a href="#runtime">Runtime diagnostics</a>
-  </nav>
-  <div class="hero">
+  <a class="skip-link" href="#overview">Skip to Studio workspace</a>
+  <div class="studio-layout">
+    <nav class="studio-nav" aria-label="Studio sections">
+      <div class="nav-brand"><span class="nav-mark">T</span><span><strong>TaaS Studio</strong><small>Discovery control plane</small></span></div>
+      <span class="nav-label">WORKSPACE</span>
+      <a href="#overview" aria-current="page">Overview</a>
+      <a href="#workspace">Benchmark workspace</a>
+      <a href="#goal-editor">Goal design</a>
+      <a href="#bench-tools">Tool registry</a>
+      <span class="nav-label">ANALYSIS</span>
+      <a href="#discovery">Discovery</a>
+      <a href="#certificate-panel">Assurance</a>
+      <span class="nav-label">RESOURCES</span>
+      <a href="#models">Model catalog</a>
+      <a href="#runtime">Host diagnostics</a>
+      <div class="nav-foot"><span class="nav-status-dot"></span><span>Execution disabled<br><small>Discovery-only preview</small></span></div>
+    </nav>
+    <div class="studio-content">
+  <div class="hero" id="overview">
     <div><div class="eyebrow">Toolkit-as-a-Service · Control plane</div><h2>Discovery workspace</h2><p>Move from benchmark intent to a reviewed GoalSpec, select candidate tools from the retained registry, and inspect a provenance-aware discovery decision—all in one guided workspace.</p></div>
     <span class="pill"><span class="pill-dot"></span> Discovery preview · execution disabled</span>
   </div>
@@ -118,12 +196,16 @@
         <div class="field"><label for="bench-tool-search">Search servers, tools and descriptions</label><input id="bench-tool-search" type="search" placeholder="Search tool registry…" style="width:100%"></div>
         <div id="bench-tools" class="listbox"><div class="subtle" style="padding:12px">Tool registry has not been loaded.</div></div>
         <div class="inline-actions"><button id="bench-tool-prev" class="secondary" type="button">Previous</button><button id="bench-tool-next" class="secondary" type="button">Next</button><span class="subtle" id="bench-tool-page">Page 1</span></div>
-        <div class="inline-actions"><button id="bench-add-tools" type="button">Add selected tools to discovery</button><span class="subtle" id="bench-selected-count">0 selected</span></div>
+        <div class="inline-actions"><button id="bench-add-tools" type="button">Sync selected tools to discovery</button><span class="subtle" id="bench-selected-count">0 selected</span></div>
         <p class="subtle">Registry descriptions, schemas and annotations are declarations—not proof of runtime behavior or trusted provenance.</p>
       </section>
     </div>
     <div class="workspace-foot"><div><strong style="font-size:12px">Guided workflow</strong><div class="subtle">Select a task → review its intent → author/verify GoalSpec → select tools → run discovery.</div></div><span class="pill">Gold labels reserved for evaluation</span></div>
     <div id="bench-status" class="status subtle" aria-live="polite" style="margin-top:12px">Enter the Studio API token below, then load the benchmark workspace.</div>
+    <label style="display:flex;align-items:flex-start;gap:9px;font-weight:500">
+      <input id="bench-goal-review" type="checkbox" style="width:auto;margin-top:2px">
+      <span>I reviewed the GoalSpec and selected registry tools against the benchmark prompt. Structural validation alone does not establish semantic alignment.</span>
+    </label>
   </section>
 
   <div class="grid" id="discovery">
@@ -131,7 +213,21 @@
       <h2>1 · Request configuration</h2>
       <label for="token">Studio API bearer token (kept in this page's memory only)</label>
       <input id="token" type="password" autocomplete="off" placeholder="Enter TAAS_STUDIO_API_TOKEN">
-      <label for="payload">Discovery request (JSON)</label>
+
+      <div class="goal-editor" id="goal-editor">
+        <div class="goal-editor-head"><div><div class="eyebrow">02 · Specify</div><h3>Visual GoalSpec editor</h3><p class="subtle" style="margin:4px 0 0">Define intent, semantic inputs and outputs, effects, and dependencies. The editor writes the canonical GoalSpec into the discovery request.</p></div><span class="pill">Core contract · editable</span></div>
+        <div class="field"><label for="goal-prompt">Natural-language objective</label><textarea id="goal-prompt" rows="2" placeholder="Describe the outcome the toolkit must support"></textarea></div>
+        <div class="field"><label for="goal-prompt-inputs">Prompt-provided semantic context · comma-separated types</label><input id="goal-prompt-inputs" value="text" placeholder="text, record:customer[]"></div>
+        <div class="panel-head" style="margin:12px 0 4px"><h3>Goal contracts</h3><span class="count" id="goal-count">0 goals</span></div>
+        <div id="goal-cards"></div>
+        <div class="goal-actions"><button id="goal-add" type="button" class="secondary">Add goal</button><button id="goal-validate" type="button" class="secondary">Validate GoalSpec</button><span class="subtle">Validation checks structure, types, references and dependency cycles; it does not generate or prove goal semantics.</span></div>
+        <div id="goal-validation" class="goal-validation" role="status" aria-live="polite">GoalSpec has not been validated.</div>
+      </div>
+      <details class="advanced-json">
+        <summary>Advanced · inspect or edit the complete discovery JSON</summary>
+        <button id="goal-reload-json" type="button" class="secondary" style="margin:8px 0">Reload visual editor from JSON</button>
+        <label for="payload">Discovery request (JSON)</label>
+
       <textarea id="payload" spellcheck="false">{
   "goal_spec": {
     "prompt": "List the available orders",
@@ -176,6 +272,7 @@
   },
   "engine": {}
 }</textarea>
+      </details>
       <button id="run">Run TaaS discovery</button>
       <p class="muted">Runnable read-only example: GoalSpec uses the core contract fields (class, in, out, eff, sigma, desc, deps). The demo tool is metadata only; no MCP server is contacted or invoked. Its read-only annotation is admitted by the example policy minimum evidence level (ann).</p>
     </section>
@@ -193,6 +290,21 @@
       <p id="explanation" class="muted" aria-live="polite">Run a request to see why TaaS selected a toolkit or abstained.</p>
       <h2>Selected toolkit</h2>
       <pre id="toolkit">No discovery result yet.</pre>
+
+      <section class="certificate-panel" id="certificate-panel" hidden>
+        <div class="certificate-head"><h3>Trust &amp; certificate</h3><span id="certificate-state" class="certificate-state">Not evaluated</span></div>
+        <p id="certificate-summary" class="subtle">Certificate checks and goal bindings will appear after discovery.</p>
+        <div id="certificate-checks" class="certificate-checks"></div>
+        <h3 style="font-size:12px;margin:14px 0 4px">Goal coverage &amp; provenance binding</h3>
+        <div style="overflow-x:auto"><table class="coverage-table"><thead><tr><th>Goal</th><th>Classification</th><th>Witness</th><th>Binding</th></tr></thead><tbody id="goal-coverage"></tbody></table></div>
+        <div id="counterexample-panel" hidden>
+          <h3 style="font-size:12px;margin:14px 0 4px">Counterexample</h3>
+          <p id="counterexample-summary" class="subtle"></p>
+          <pre id="counterexample-detail"></pre>
+        </div>
+        <details><summary>Inspect certificate witnesses and evidence</summary><pre id="certificate-witnesses">No certificate evidence.</pre></details>
+      </section>
+
       <h2>Full response · certificate · counterexample</h2>
       <pre id="response">The API response will appear here.</pre>
     </section>
@@ -225,11 +337,141 @@
   </section>
 
 
+    </div>
+  </div>
 </main>
 <script>
 (() => {
   const $ = (id) => document.getElementById(id);
   const run = $("run");
+
+  // Visual GoalSpec editor. The JSON request remains the canonical transport payload.
+  const GOAL_CLASSES = ["classify","extract","summarise","translate","convert_format","write","plan","synthesise","aggregate","compute_exact","count","compare","answer","retrieve","search","fetch_web","store","send","transact","execute","navigate_browser","render_media","create_document","edit_document","random"];
+  const GOAL_SIGMAS = ["native","data","effect","unreliable"];
+  const SEMANTIC_KINDS = ["text","document","table","record","media","credential","identifier","location","number","url","path","query","code","datetime","boolean","none"];
+  let goalSpecState = null;
+  const splitList = value => value.split(/[,\n]/).map(x=>x.trim()).filter(Boolean);
+  let goalJsonManuallyEdited=false;
+  const readRequest = () => JSON.parse($("payload").value);
+  const writeRequest = body => { $("payload").value=JSON.stringify(body,null,2); goalJsonManuallyEdited=false; };
+  $("payload").addEventListener("input",()=>{goalJsonManuallyEdited=true;$("goal-validation").className="goal-validation";$("goal-validation").textContent="Advanced JSON was edited. Reload the visual editor before validating or running discovery.";});
+  const getGoalSpec = () => {
+    const body=readRequest(); body.goal_spec=body.goal_spec||{};
+    body.goal_spec.prompt=goalSpecState.prompt||"";
+    body.goal_spec.prompt_inputs=splitList(goalSpecState.prompt_inputs_text||"text");
+    body.goal_spec.goals=goalSpecState.goals;
+    writeRequest(body);
+  };
+  const defaultGoal = (i) => ({id:"g"+i,class:"retrieve",in:[],out:"record[]",eff:["read(*)"],sigma:"data",desc:"",deps:[],n:1,exactness:"tolerant",lang:"en",optional:false});
+  let goalFieldCounter=0;
+  const makeField = (labelText, value, onChange, options=null, multiline=false) => {
+    const wrap=document.createElement("div");wrap.className="field";
+    const label=document.createElement("label");const fieldId="goal-field-"+(++goalFieldCounter);label.htmlFor=fieldId;label.textContent=labelText;wrap.append(label);
+    const control=multiline?document.createElement("textarea"):(options?document.createElement("select"):document.createElement("input"));
+    if(options){options.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;control.append(o);});}
+    control.id=fieldId;
+    if(multiline)control.value=value||"";
+    else if(control.tagName==="SELECT")control.value=value||options[0];
+    else control.value=value??"";
+    control.addEventListener("input",()=>onChange(control.value));
+    control.addEventListener("change",()=>onChange(control.value));
+    wrap.append(control);return wrap;
+  };
+  const renderGoalEditor = () => {
+    $("goal-prompt").value=goalSpecState.prompt||"";
+    $("goal-prompt-inputs").value=goalSpecState.prompt_inputs_text||"text";
+    $("goal-count").textContent=goalSpecState.goals.length+" goals";
+    const root=$("goal-cards");root.replaceChildren();
+    goalSpecState.goals.forEach((g,index)=>{
+      const card=document.createElement("div");card.className="goal-card";
+      const head=document.createElement("div");head.className="goal-card-head";
+      const title=document.createElement("strong");title.textContent=(g.id||"Goal "+(index+1))+" · "+(g.class||"unclassified");
+      const remove=document.createElement("button");remove.type="button";remove.className="remove-goal";remove.textContent="Remove";
+      remove.addEventListener("click",()=>{goalSpecState.goals.splice(index,1);renderGoalEditor();syncGoalSpec();});
+      head.append(title,remove);card.append(head);
+      const grid=document.createElement("div");grid.className="goal-grid";
+      const fields=[
+        makeField("Goal ID",g.id,v=>{g.id=v;title.textContent=v+" · "+g.class;syncGoalSpec();}),
+        makeField("Operation class",g.class,v=>{g.class=v;title.textContent=g.id+" · "+v;syncGoalSpec();},GOAL_CLASSES),
+        makeField("Output semantic type",g.out,v=>{g.out=v;syncGoalSpec();}),
+        makeField("Input types · comma-separated",(g.in||[]).join(", "),v=>{g.in=splitList(v);syncGoalSpec();}),
+        makeField("Effects · comma-separated",(g.eff||[]).join(", "),v=>{g.eff=splitList(v);syncGoalSpec();}),
+        makeField("Sigma / delegation",g.sigma,v=>{g.sigma=v;syncGoalSpec();},GOAL_SIGMAS),
+        makeField("Dependencies · goal IDs",(g.deps||[]).join(", "),v=>{g.deps=splitList(v);syncGoalSpec();}),
+        makeField("Expected cardinality n",String(g.n??1),v=>{g.n=v===""?1:Number(v);syncGoalSpec();}),
+        makeField("Exactness",g.exactness||"tolerant",v=>{g.exactness=v;syncGoalSpec();},["tolerant","exact"]),
+        makeField("Language",g.lang||"en",v=>{g.lang=v;syncGoalSpec();}),
+      ];
+      fields.forEach(x=>grid.append(x));card.append(grid);
+      const desc=makeField("Goal description",g.desc||"",v=>{g.desc=v;syncGoalSpec();},null,true);card.append(desc);
+      const optionalWrap=document.createElement("label");optionalWrap.style.display="flex";optionalWrap.style.alignItems="center";optionalWrap.style.gap="8px";optionalWrap.style.fontSize="11px";
+      const optional=document.createElement("input");optional.type="checkbox";optional.style.width="auto";optional.checked=Boolean(g.optional);
+      optional.addEventListener("change",()=>{g.optional=optional.checked;syncGoalSpec();});
+      optionalWrap.append(optional,document.createTextNode("Optional goal (not a mandatory coverage requirement)"));card.append(optionalWrap);
+      root.append(card);
+    });
+  };
+  const validateGoalSpecLocal = () => {
+    const errors=[], ids=new Set(), goals=goalSpecState.goals;
+    if(!goalSpecState.prompt.trim())errors.push("Natural-language objective is empty.");
+    splitList(goalSpecState.prompt_inputs_text||"").forEach(t=>{const m=/^([a-z_]+)(?::[a-z0-9_-]+)?(\[\])?$/.exec(t);if(!m||!SEMANTIC_KINDS.includes(m[1]))errors.push("Invalid prompt context semantic type "+t+".");});
+    if(!goals.length)errors.push("At least one goal is required.");
+    goals.forEach((g,i)=>{
+      const p="Goal "+(i+1)+" ("+(g.id||"no ID")+")";
+      if(!g.id||! /^[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(g.id))errors.push(p+": ID must start with a letter and contain only letters, digits, _ or -.");
+      else if(ids.has(g.id))errors.push(p+": duplicate goal ID."); else ids.add(g.id);
+      if(!GOAL_CLASSES.includes(g.class))errors.push(p+": unsupported operation class.");
+      if(typeof g.desc!=="string"||!g.desc.trim())errors.push(p+": goal description is required; describe the intended operation.");
+      const validType=t=>{const m=/^([a-z_]+)(?::([a-z0-9_-]+))?(\[\])?$/.exec(t);return Boolean(m&&SEMANTIC_KINDS.includes(m[1]));};
+      if(typeof g.out!=="string"||!validType(g.out))errors.push(p+": output type must use a supported semantic kind (optionally :domain and []).");
+      (g.in||[]).forEach(t=>{if(!validType(t))errors.push(p+": invalid input type "+t+".");});
+      (g.eff||[]).forEach(e=>{if(!/^(read|write|delete|exec|egress|money|session)(\([^)]*\))?$/.test(e))errors.push(p+": invalid effect "+e+".");});
+      if(!GOAL_SIGMAS.includes(g.sigma))errors.push(p+": invalid sigma.");
+      if(!Number.isInteger(Number(g.n))||Number(g.n)<1)errors.push(p+": n must be a positive integer.");
+      if(!["tolerant","exact"].includes(g.exactness||"tolerant"))errors.push(p+": exactness must be tolerant or exact.");
+    });
+    goals.forEach(g=>(g.deps||[]).forEach(d=>{if(!ids.has(d))errors.push("Goal "+g.id+": dependency "+d+" does not exist.");if(d===g.id)errors.push("Goal "+g.id+": self-dependency is not allowed.");}));
+    const byId=new Map(goals.map(g=>[g.id,g])), visiting=new Set(), visited=new Set();
+    const visit=id=>{if(visiting.has(id))return false;if(visited.has(id))return true;visiting.add(id);for(const d of byId.get(id)?.deps||[]){if(byId.has(d)&&!visit(d))return false;}visiting.delete(id);visited.add(id);return true;};
+    for(const id of byId.keys())if(!visit(id)){errors.push("Dependency graph contains a cycle.");break;}
+    return errors;
+  };
+  const syncGoalSpec = () => {
+    try{getGoalSpec();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Draft updated. Validate before discovery.";}
+    catch(e){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent="Cannot sync editor: "+e.message;}
+  };
+  $("goal-prompt").addEventListener("input",()=>{goalSpecState.prompt=$("goal-prompt").value;syncGoalSpec();});
+  $("goal-prompt-inputs").addEventListener("input",()=>{goalSpecState.prompt_inputs_text=$("goal-prompt-inputs").value;syncGoalSpec();});
+  $("goal-add").addEventListener("click",()=>{let nextId=1;while(goalSpecState.goals.some(g=>g.id==="g"+nextId))nextId++;goalSpecState.goals.push(defaultGoal(nextId));renderGoalEditor();syncGoalSpec();});
+  $("goal-validate").addEventListener("click",async()=>{
+    const errors=validateGoalSpecLocal(),box=$("goal-validation");
+    if(errors.length){box.className="goal-validation invalid";box.textContent=errors.join(" ");return;}
+    const token=$("token").value.trim();
+    if(!token){box.className="goal-validation invalid";box.textContent="Local checks passed. Enter the Studio API token for server-side contract validation.";return;}
+    const button=$("goal-validate");button.disabled=true;box.className="goal-validation";box.textContent="Validating the canonical GoalSpec contract and dependency graph on the Studio API…";
+    try{
+      getGoalSpec();
+      const body=readRequest();
+      const response=await fetch("/api/v1/goals/validate",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify(body.goal_spec)});
+      const data=await response.json();if(!response.ok)throw new Error(data.detail||("HTTP "+response.status));
+      box.className="goal-validation valid";
+      box.textContent="Server validation passed · "+data.goal_count+" goal(s) · topological order: "+data.goal_order.join(" → ")+". Structural validity only; semantic correctness is not automatically verified.";
+    }catch(e){box.className="goal-validation invalid";box.textContent="Server validation failed: "+e.message;}
+    finally{button.disabled=false;}
+  });
+  $("goal-reload-json").addEventListener("click",()=>{
+    try{
+      const gs=readRequest().goal_spec||{};
+      goalSpecState={prompt:gs.prompt||"",prompt_inputs_text:(gs.prompt_inputs||["text"]).join(", "),goals:Array.isArray(gs.goals)?gs.goals.map(g=>({...g,n:g.n??1,in:[...(g.in||[])],eff:[...(g.eff||[])],deps:[...(g.deps||[])]})):[]};
+      goalJsonManuallyEdited=false;if(bench.selectedTask)$("bench-goal-review").checked=false;renderGoalEditor();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Visual editor reloaded from the JSON payload.";
+    }catch(e){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent="Cannot reload editor: "+e.message;}
+  });
+  try{
+    const initial=readRequest();const gs=initial.goal_spec||{};
+    goalSpecState={prompt:gs.prompt||"",prompt_inputs_text:(gs.prompt_inputs||["text"]).join(", "),goals:Array.isArray(gs.goals)?gs.goals.map(g=>({...g,n:g.n??1,in:[...(g.in||[])],eff:[...(g.eff||[])],deps:[...(g.deps||[])]})):[]};
+    renderGoalEditor();
+  }catch(e){goalSpecState={prompt:"",prompt_inputs_text:"text",goals:[defaultGoal(1)]};renderGoalEditor();}
+
   $("model-search").addEventListener("click", async () => {
     const token = $("token").value.trim();
     const query = $("model-query").value.trim();
@@ -301,8 +543,30 @@
     let body;
     try { body = JSON.parse($("payload").value); }
     catch (e) { $("status").textContent = "Invalid JSON: " + e.message; return; }
+    if(goalJsonManuallyEdited){$("status").textContent="Reload the visual editor from the advanced JSON before validation or discovery.";return;}
+    if(bench.selectedTask){
+      if(!$("bench-goal-review").checked){
+        $("status").textContent="Benchmark discovery blocked: review the GoalSpec against the selected task prompt and confirm the review checkbox.";
+        return;
+      }
+      const selected=[...bench.selectedTools.values()];
+      const requestTools=Array.isArray(body.tools)?body.tools:[];
+      const key=t=>(t.server||"")+"::"+(t.name||"");
+      const expected=new Set(selected.map(key));
+      const actual=new Set(requestTools.map(key));
+      if(!selected.length){
+        $("status").textContent="Benchmark discovery blocked: select at least one registry tool. The demo tool is not valid evidence for this task.";
+        return;
+      }
+      if(expected.size!==actual.size||[...expected].some(k=>!actual.has(k))){
+        $("status").textContent="Benchmark discovery blocked: registry selections are not synchronized with the request. Click “Add selected tools to discovery” and retry.";
+        return;
+      }
+    }
     const token = $("token").value.trim();
     if (!token) { $("status").textContent = "Enter the Studio API token first."; return; }
+    const goalErrors=validateGoalSpecLocal();
+    if(goalErrors.length){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent=goalErrors.join(" ");$("status").textContent="Correct the GoalSpec validation errors before discovery.";return;}
     run.disabled = true;
     $("status").textContent = "Running discovery…";
     $("toolkit").textContent = "Waiting for API response…";
@@ -315,7 +579,7 @@
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
-      $("status").textContent = "Discovery status: " + data.status + " · MCP execution: not performed";
+      $("status").textContent = "Discovery status: " + data.status + (bench.selectedTask ? " · benchmark task NOT evaluated" : "") + " · MCP execution: not performed";
       $("selected").textContent = (data.selected_tools || []).length;
       $("gap").textContent = (data.gap || []).length;
       const bindings = (data.certificate && data.certificate.bindings) || {};
@@ -353,6 +617,9 @@
       const reason = (data.status === "selected"
         ? "Discovery selected a metadata-compatible toolkit. This is not runtime execution verification. "
         : "Discovery abstained; no toolkit is certified for the requested goals. ") +
+        (bench.selectedTask
+          ? "Benchmark task evaluation was NOT performed. GoalSpec is human-authored; semantic alignment with the task prompt is not verified. "
+          : "") +
         checkSummary + goalSummary +
         (chi.name
           ? "Counterexample: " + chi.name + " (goal " + (chi.goal || "unspecified") + ", check " + (chi.check || "n/a") + "). " +
@@ -360,6 +627,54 @@
             (witness.eligible !== undefined ? "Eligible tools: " + witness.eligible + ". " : "")
           : "");
       $("explanation").textContent = reason;
+
+      // Render trust evidence as structured UI. Mandatory validity gates are distinct
+      // from diagnostics; no runtime execution claim is inferred from a valid certificate.
+      const cert=data.certificate||null;
+      const certPanel=$("certificate-panel");
+      certPanel.hidden=!cert&&!data.counterexample;
+      if(!cert){$("certificate-state").className="certificate-state";$("certificate-state").textContent="No certificate produced";$("certificate-summary").textContent="Discovery did not produce a pre-execution certificate. Inspect the counterexample below; absence of a certificate is not a pass.";$("certificate-checks").replaceChildren();$("goal-coverage").replaceChildren();$("certificate-witnesses").textContent="No certificate evidence was produced.";}
+      if(cert){
+        const mandatory=["S","C","P","E","L","V"];
+        const diagnostic=["M","B"];
+        const checks=cert.checks||{};
+        const valid=mandatory.every(k=>checks[k]===true);
+        $("certificate-state").className="certificate-state "+(valid?"valid":"invalid");
+        $("certificate-state").textContent=valid?"Pre-execution certificate valid":"Certificate invalid";
+        $("certificate-summary").textContent=
+          "Mandatory gates "+mandatory.filter(k=>checks[k]===true).length+"/"+mandatory.length+" passed. " +
+          "M (minimality) and B (bridge ratio) are diagnostics, not validity gates. " +
+          "This certifies the discovery model's pre-execution conditions, not runtime behavior.";
+        const labels={
+          S:["S","Goal sufficiency"],C:["C","Output consumability"],P:["P","Input producibility"],
+          E:["E","Effect and policy bounds"],L:["L","Information-flow bounds"],V:["V","Evidence threshold"],
+          M:["M","Toolkit minimality · diagnostic"],B:["B","Bridge ratio · diagnostic"]
+        };
+        const checkRoot=$("certificate-checks");checkRoot.replaceChildren();
+        [...mandatory,...diagnostic].forEach(k=>{
+          const item=document.createElement("div");item.className="certificate-check "+(checks[k]===true?"pass":checks[k]===false?"fail":"");
+          const title=document.createElement("strong");title.textContent=labels[k][0]+" · "+labels[k][1];
+          const state=document.createElement("small");state.textContent=checks[k]===true?"PASS":checks[k]===false?"FAIL":"NOT REPORTED";
+          item.append(title,state);checkRoot.append(item);
+        });
+        const body=$("goal-coverage");body.replaceChildren();
+        const witnesses=(cert.witnesses&&cert.witnesses.S)||{};
+        goals.forEach(goal=>{
+          const row=document.createElement("tr");
+          const status=goal.optional?"Optional":gapGoals.has(goal.id)?"Toolkit required":goal.sigma==="native"?"Model-delegated":"Coverage not certified";
+          const values=[goal.id+" · "+(goal.desc||goal.class),status,witnesses[goal.id]||"No witness",bindings[goal.id]||"—"];
+          values.forEach(value=>{const cell=document.createElement("td");cell.textContent=String(value);row.append(cell);});
+          body.append(row);
+        });
+        $("certificate-witnesses").textContent=JSON.stringify(cert.witnesses||{},null,2);
+      }
+      const counter=data.counterexample;
+      $("counterexample-panel").hidden=!counter;
+      if(counter){
+        $("counterexample-summary").textContent=(counter.name||counter.kind)+" · goal "+(counter.goal||"unspecified")+" · check "+(counter.check||"unspecified");
+        $("counterexample-detail").textContent=JSON.stringify(counter.witness||{},null,2);
+      }
+
       $("response").textContent = JSON.stringify(data, null, 2);
     } catch (e) {
       $("status").textContent = "Request failed: " + e.message;
@@ -369,7 +684,39 @@
   });
 
   // Integrated benchmark workspace: task prompts and tool metadata are browsed locally.
-  const bench = { dataset:"livemcpbench", taskOffset:0, toolOffset:0, taskTotal:0, toolTotal:0, taskLimit:12, toolLimit:15, selectedTask:null, selectedTools:new Map(), datasets:[] };
+  const bench = { dataset:"livemcpbench", taskOffset:0, toolOffset:0, taskTotal:0, toolTotal:0, taskLimit:12, toolLimit:15, selectedTask:null, selectedTaskKey:null, selectedTools:new Map(), datasets:[] };
+  // Any subsequent GoalSpec edit invalidates the user's previous review acknowledgement.
+  $("goal-editor").addEventListener("input",()=>{if(bench.selectedTask)$("bench-goal-review").checked=false;});
+  $("goal-editor").addEventListener("change",()=>{if(bench.selectedTask)$("bench-goal-review").checked=false;});
+  const syncBenchmarkToolsToRequest = () => {
+    const body=JSON.parse($("payload").value);
+    body.tools=[...bench.selectedTools.values()].map(t=>({
+      server:t.server,name:t.name,description:t.description||"",
+      input_schema:t.input_schema||{},output_schema:t.output_schema||null,
+      annotations:t.annotations||null,source:t.source||"benchmark-registry",
+      category:t.category||""
+    }));
+    $("payload").value=JSON.stringify(body,null,2);
+    return body.tools.length;
+  };
+  const invalidateBenchmarkTaskContext = (message) => {
+    bench.selectedTask=null;bench.selectedTaskKey=null;bench.selectedTools.clear();
+    $("bench-tools").querySelectorAll('input[type="checkbox"]').forEach(cb=>{cb.checked=false;});
+    $("bench-selected-count").textContent="0 selected";$("bench-task-prompt").value="";
+    $("bench-goal-review").checked=false;goalSpecState.prompt="";goalSpecState.goals=[];
+    renderGoalEditor();getGoalSpec();syncBenchmarkToolsToRequest();$("bench-status").textContent=message;
+  };
+  const selectBenchmarkTask = (task) => {
+    const key=bench.dataset+"::"+(task.id||task.query||"");
+    if(bench.selectedTaskKey===key){bench.selectedTask=task;return false;}
+    bench.selectedTask=task;bench.selectedTaskKey=key;bench.selectedTools.clear();
+    $("bench-tools").querySelectorAll('input[type="checkbox"]').forEach(cb=>{cb.checked=false;});
+    $("bench-selected-count").textContent="0 selected";$("bench-task-prompt").value=task.query||"";
+    $("bench-goal-review").checked=false;goalSpecState.prompt=task.query||"";goalSpecState.goals=[];
+    renderGoalEditor();getGoalSpec();syncBenchmarkToolsToRequest();
+    $("bench-status").textContent="Task changed: previous GoalSpec and tool selections were invalidated. Author task-specific semantic goals, select relevant registry tools, then confirm your GoalSpec review.";
+    return true;
+  };
   const tokenValue = () => $("token").value.trim();
   const apiGet = async (path) => {
     const token=tokenValue(); if(!token) throw new Error("Enter the Studio API token in Discovery request configuration first.");
@@ -384,7 +731,7 @@
       const b=document.createElement("button"); b.type="button"; b.className="list-item"+(item.id===bench.dataset?" active":"");
       const title=document.createElement("strong"); title.textContent=item.id;
       const meta=document.createElement("small"); meta.textContent=item.task_count+" tasks · "+(item.categories||[]).length+" categories";
-      b.append(title,meta); b.addEventListener("click",()=>{bench.dataset=item.id;bench.taskOffset=0;loadDatasets();loadTasks();}); $("bench-datasets").append(b);
+      b.append(title,meta); b.addEventListener("click",()=>{if(item.id!==bench.dataset)invalidateBenchmarkTaskContext("Dataset changed: previous task context, GoalSpec and tool selections were cleared.");bench.dataset=item.id;bench.taskOffset=0;loadDatasets();loadTasks();}); $("bench-datasets").append(b);
     });
     $("bench-data-origin").textContent=d.data_origin+" · upstream fetch: "+(d.upstream_fetch_performed?"yes":"no");
     const cats=[...new Set(bench.datasets.find(x=>x.id===bench.dataset)?.categories||[])];
@@ -403,7 +750,7 @@
       const b=document.createElement("button");b.type="button";b.className="list-item"+(bench.selectedTask?.id===t.id?" active":"");
       const title=document.createElement("strong");title.textContent=t.id||"Task";
       const meta=document.createElement("small");meta.textContent=(t.category||"Uncategorized")+" · "+(t.n_steps||1)+" step(s) · "+t.query;
-      b.append(title,meta);b.addEventListener("click",()=>{bench.selectedTask=t;$("bench-task-prompt").value=t.query||"";[...$("bench-tasks").children].forEach(x=>x.classList.remove("active"));b.classList.add("active");});
+      b.append(title,meta);b.addEventListener("click",()=>{selectBenchmarkTask(t);[...$("bench-tasks").children].forEach(x=>x.classList.remove("active"));b.classList.add("active");});
       $("bench-tasks").append(b);
     });
     if(!d.tasks?.length)$("bench-tasks").innerHTML='<div class="subtle" style="padding:12px">No tasks match these filters.</div>';
@@ -418,7 +765,21 @@
     (d.tools||[]).forEach(t=>{
       const row=document.createElement("label");row.className="tool-row";row.style.margin=0;
       const cb=document.createElement("input");cb.type="checkbox";cb.checked=bench.selectedTools.has(t.id);
-      cb.addEventListener("change",()=>{if(cb.checked)bench.selectedTools.set(t.id,t);else bench.selectedTools.delete(t.id);$("bench-selected-count").textContent=bench.selectedTools.size+" selected";});
+      cb.addEventListener("change",()=>{
+        if(cb.checked)bench.selectedTools.set(t.id,t);else bench.selectedTools.delete(t.id);
+        $("bench-selected-count").textContent=bench.selectedTools.size+" selected";
+        // Once a benchmark task is active, keep the request toolset synchronized
+        // with the selection basket; never leave the demo tool silently attached.
+        if(bench.selectedTask){
+          $("bench-goal-review").checked=false;
+          try{
+            const count=syncBenchmarkToolsToRequest();
+            $("bench-status").textContent=count
+              ? count+" selected registry tool(s) are now in the discovery request. Demo/sample tools are excluded."
+              : "No registry tools selected. The demo toolset was cleared; select compatible registry tools before discovery.";
+          }catch(e){$("bench-status").textContent="Cannot synchronize registry selection: "+e.message;}
+        }
+      });
       const wrap=document.createElement("span");const strong=document.createElement("strong");strong.textContent=t.server+"/"+t.name;
       const small=document.createElement("small");small.textContent=(t.description||"No description")+" · "+(t.source||"unknown source");
       wrap.append(strong,small);row.append(cb,wrap);$("bench-tools").append(row);
@@ -437,18 +798,23 @@
   $("bench-tool-source").addEventListener("change",()=>{bench.toolOffset=0;loadTools().catch(showBenchError);});
   $("bench-use-task").addEventListener("click",()=>{
     if(!bench.selectedTask){$("bench-status").textContent="Select a task first.";return;}
-    try{const body=JSON.parse($("payload").value);body.goal_spec=body.goal_spec||{};body.goal_spec.prompt=bench.selectedTask.query||"";
-      $("payload").value=JSON.stringify(body,null,2);
-      $("bench-status").textContent="Task prompt copied into GoalSpec. Review and author semantic goals before discovery; no automatic LLM interpretation is available in this build.";
+    try{
+      const prompt=bench.selectedTask.query||"";
+      if(goalSpecState.prompt!==prompt){goalSpecState.goals=[];$("bench-goal-review").checked=false;}
+      goalSpecState.prompt=prompt;renderGoalEditor();getGoalSpec();
+      const importedToolCount=syncBenchmarkToolsToRequest();
+      $("bench-status").textContent="Task prompt copied to GoalSpec. "+
+        (importedToolCount?importedToolCount+" selected registry tool(s) synchronized; review their relevance. ":"No registry tools selected; choose tools relevant to this task. ")+
+        "Author and review task-specific semantic goal contracts. Structural validation does not verify semantic alignment.";
       document.querySelector("#discovery").scrollIntoView({behavior:"smooth",block:"start"});
     }catch(e){$("bench-status").textContent="Cannot update GoalSpec: discovery request JSON is invalid.";}
   });
   $("bench-add-tools").addEventListener("click",()=>{
-    try{const body=JSON.parse($("payload").value);const existing=new Map((body.tools||[]).map(t=>[t.server+"::"+t.name,t]));
-      bench.selectedTools.forEach(t=>existing.set(t.server+"::"+t.name,{server:t.server,name:t.name,description:t.description||"",input_schema:t.input_schema||{},output_schema:t.output_schema||null,annotations:t.annotations||null,source:t.source||"benchmark-registry",category:t.category||""}));
-      body.tools=[...existing.values()];$("payload").value=JSON.stringify(body,null,2);
-      $("bench-status").textContent=bench.selectedTools.size+" selected registry tool(s) merged into the discovery request. Review the GoalSpec and policy before running.";
-    }catch(e){$("bench-status").textContent="Cannot add tools: discovery request JSON is invalid.";}
+    try{
+      const count=syncBenchmarkToolsToRequest();
+      if(!count)throw new Error("Select at least one registry tool before importing.");
+      $("bench-status").textContent=count+" selected registry tool(s) synchronized with the discovery request. Demo/sample tools were removed. Review GoalSpec alignment before running.";
+    }catch(e){$("bench-status").textContent="Cannot add tools: "+e.message;}
   });
   function showBenchError(e){$("bench-status").textContent="Workspace request failed: "+e.message;}
   const originalRunHandler = run.onclick;
