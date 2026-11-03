@@ -22,5 +22,6 @@ def test_studio_controls_have_visible_focus_and_reduced_motion_support():
 
 def test_visual_refresh_does_not_claim_execution_capability():
     html = STUDIO_HTML.read_text(encoding="utf-8")
-    assert "Execution disabled" in html
-    assert "does not invoke MCP tools" in html
+    assert "MCP invocation not enabled" in html
+    assert "do not invoke MCP tools" in html
+    assert "isolated workers" in html
