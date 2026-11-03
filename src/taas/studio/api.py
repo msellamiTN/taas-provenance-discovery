@@ -5,10 +5,13 @@ Protect it behind an authenticated tunnel/reverse proxy and keep it bound to loo
 """
 from __future__ import annotations
 
+import hashlib
 import hmac
+import json
 import os
 import re
 from functools import lru_cache
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -93,6 +96,13 @@ class AgentDecomposeRequest(BaseModel):
     prompt: str = Field(min_length=1, max_length=12000)
     context: str = Field(default="", max_length=8000)
     max_new_tokens: int = Field(default=1200, ge=1, le=2048)
+
+
+class AgentPublishRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    registry_snapshot_id: str | None = Field(
+        default=None, pattern=r"^[0-9a-f]{64}$"
+    )
 
 
 def require_api_token(
@@ -660,10 +670,49 @@ def agent_validate_saved_version(agent_id: str, version: str) -> dict[str, Any]:
 
 
 @app.post("/api/v1/agents/{agent_id}/versions/{version}/publish", dependencies=[Depends(require_api_token)])
-def agent_publish_version(agent_id: str, version: str) -> dict[str, Any]:
-    """Publish an immutable configuration version; publication does not enable execution."""
+def agent_publish_version(
+    agent_id: str,
+    version: str,
+    request: AgentPublishRequest | None = None,
+) -> dict[str, Any]:
+    """Publish configuration; tool grants must resolve against an immutable MCP snapshot."""
     try:
-        resource = agent_registry.transition(agent_id, version, "published")
+        current = agent_registry.get_version(agent_id, version)
+        grants = current["manifest"]["spec"].get("tool_allowlist", [])
+        snapshot_id = request.registry_snapshot_id if request else None
+        resolved_grants = []
+        if grants and not snapshot_id:
+            raise HTTPException(
+                status_code=422,
+                detail="A read-only MCP registry snapshot is required to publish an Agent with tool grants",
+            )
+        if snapshot_id:
+            snapshot = agent_registry.get_mcp_snapshot(snapshot_id)
+            available = {}
+            for server in snapshot["snapshot"].get("servers", []):
+                for tool in server.get("tools", []):
+                    available[(server.get("server_id"), tool.get("name"))] = tool.get("definition_sha256")
+            missing = [
+                {"server_id": grant["server_id"], "tool_name": grant["tool_name"]}
+                for grant in grants
+                if (grant["server_id"], grant["tool_name"]) not in available
+            ]
+            if missing:
+                raise HTTPException(
+                    status_code=409,
+                    detail={"message": "Agent tool grants do not resolve in the selected MCP registry snapshot", "missing_grants": missing},
+                )
+            resolved_grants = [
+                {
+                    "server_id": grant["server_id"],
+                    "tool_name": grant["tool_name"],
+                    "tool_definition_sha256": available[(grant["server_id"], grant["tool_name"])],
+                }
+                for grant in grants
+            ]
+        resource = agent_registry.transition(
+            agent_id, version, "published", registry_snapshot_id=snapshot_id
+        )
     except agent_registry.AgentRegistryNotFound as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except agent_registry.AgentRegistryConflict as exc:
@@ -671,6 +720,7 @@ def agent_publish_version(agent_id: str, version: str) -> dict[str, Any]:
     return {
         **resource,
         "published_as_configuration": True,
+        "resolved_tool_grants": resolved_grants,
         "semantic_correctness_verified": False,
         "tools_authorized": False,
         "execution_enabled": False,
@@ -681,6 +731,77 @@ def agent_publish_version(agent_id: str, version: str) -> dict[str, Any]:
 def agent_events(agent_id: str | None = Query(default=None, max_length=63),
                  limit: int = Query(default=200, ge=1, le=1000)) -> dict[str, Any]:
     return agent_registry.list_events(agent_id=agent_id, limit=limit)
+
+
+@app.post("/api/v1/mcp/registry/snapshots/inspect", dependencies=[Depends(require_api_token)])
+def mcp_registry_snapshot_inspect() -> dict[str, Any]:
+    """Capture an immutable snapshot from operator-configured MCP servers using tools/list only."""
+    try:
+        configured = list_mcp_servers()
+        if not configured.get("servers"):
+            raise HTTPException(status_code=422, detail="No operator-configured MCP servers are available to inspect")
+        servers = []
+        for configured_server in sorted(configured["servers"], key=lambda item: item["id"]):
+            inspected = inspect_mcp_server(configured_server["id"])
+            if inspected.get("inspection_only") is not True or inspected.get("tool_execution_performed") is not False:
+                raise HTTPException(status_code=502, detail=f"MCP inspection for {configured_server['id']} did not prove read-only behavior")
+            if inspected.get("server_id") != configured_server["id"]:
+                raise HTTPException(status_code=502, detail="MCP inspection returned a mismatched server identity")
+            normalized_tools = []
+            seen = set()
+            for tool in inspected.get("tools", []):
+                name = tool.get("name")
+                schema = tool.get("input_schema")
+                if not isinstance(name, str) or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_.-]{0,127}", name):
+                    raise HTTPException(status_code=502, detail=f"MCP server {configured_server['id']} returned an invalid tool name")
+                if name in seen or not isinstance(schema, dict):
+                    raise HTTPException(status_code=502, detail=f"MCP server {configured_server['id']} returned duplicate tools or an invalid input schema")
+                seen.add(name)
+                definition = {
+                    "server_id": configured_server["id"],
+                    "name": name,
+                    "description": tool.get("description") or "",
+                    "input_schema": schema,
+                    "output_schema": tool.get("output_schema"),
+                    "annotations": tool.get("annotations"),
+                }
+                canonical = json.dumps(definition, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+                definition["definition_sha256"] = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+                normalized_tools.append(definition)
+            servers.append({
+                "server_id": configured_server["id"],
+                "server_name": inspected.get("server_name") or configured_server["name"],
+                "server_info": inspected.get("server_info"),
+                "protocol_version": inspected.get("protocol_version"),
+                "tools": sorted(normalized_tools, key=lambda item: item["name"]),
+                "inspection_only": True,
+                "tool_execution_performed": False,
+            })
+        snapshot = {
+            "schema_version": "taas.mcp.registry/v1",
+            "capture_mode": "configured_stdio_tools_list",
+            "servers": servers,
+        }
+        return agent_registry.store_mcp_snapshot(snapshot)
+    except MCPRegistryError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
+@app.get("/api/v1/mcp/registry/snapshots", dependencies=[Depends(require_api_token)])
+def mcp_registry_snapshots(limit: int = Query(default=100, ge=1, le=500)) -> dict[str, Any]:
+    return agent_registry.list_mcp_snapshots(limit=limit)
+
+
+@app.get("/api/v1/mcp/registry/snapshots/{snapshot_id}", dependencies=[Depends(require_api_token)])
+def mcp_registry_snapshot_get(snapshot_id: str) -> dict[str, Any]:
+    if not re.fullmatch(r"[0-9a-f]{64}", snapshot_id):
+        raise HTTPException(status_code=422, detail="snapshot_id must be a lowercase SHA-256 hex digest")
+    try:
+        return agent_registry.get_mcp_snapshot(snapshot_id)
+    except agent_registry.AgentRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except agent_registry.AgentRegistryError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
 @app.get("/api/v1/mcp/servers", dependencies=[Depends(require_api_token)])
