@@ -212,6 +212,29 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 .studio-nav a[aria-current=page]{font-weight:750}
 @media(min-width:1100px){#model-runtime-panel,#agent-chat-panel,#agent-goal-panel{max-width:1100px}}
 
+
+.model-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:11px;margin:14px 0}
+.model-card{display:flex;flex-direction:column;gap:9px;padding:14px;border:1px solid var(--line);border-radius:11px;background:#fff;min-width:0}
+.model-card h3{font-size:13px;line-height:1.4;overflow-wrap:anywhere;margin:0}
+.model-card .model-meta{display:flex;flex-wrap:wrap;gap:5px}
+.model-card .model-meta span{font-size:10px;color:#52627a;background:#f3f6fa;border-radius:5px;padding:4px 6px}
+.model-card p{font-size:11px;color:var(--muted);margin:0}
+.model-card button{align-self:flex-start;margin-top:auto}
+.model-selected-panel{margin-top:16px;border:1px solid #cfdaee;border-radius:12px;background:#fbfcff;padding:18px}
+.model-selected-panel[hidden]{display:none}
+.model-selected-panel h3{font-size:17px;margin:4px 0}
+.model-actions{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
+.model-detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin:12px 0}
+.model-detail-item{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px;min-width:0}
+.model-detail-item small{display:block;color:var(--muted);font-size:10px}
+.model-detail-item strong{display:block;margin-top:4px;font-size:12px;overflow-wrap:anywhere}
+.model-preflight{display:grid;grid-template-columns:minmax(150px,1fr) 130px 130px auto;gap:10px;align-items:end;margin:16px 0;padding:14px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.model-preflight h4{margin:0 0 4px;font-size:13px}.model-preflight p{margin:0}
+.model-preflight label{margin:0;font-size:11px}
+.model-preflight button{margin:0}
+.model-preflight pre{grid-column:1/-1;min-height:70px}
+@media(max-width:720px){.model-preflight{grid-template-columns:1fr 1fr}.model-preflight>div:first-child,.model-preflight pre{grid-column:1/-1}}
+
   </style>
 </head>
 <body>
@@ -424,7 +447,22 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     <input id="model-query" type="text" maxlength="120" value="small language model" placeholder="e.g. Qwen 2.5 3B">
     <button id="model-search" type="button">Search Hugging Face</button>
     <div id="model-status" class="status" aria-live="polite">No search performed.</div>
-    <pre id="model-results">Model catalog results will appear here.</pre>
+    <div id="model-cards" class="model-cards" aria-live="polite"><p class="muted">Search to browse model repositories. Select a result to inspect its configuration and artifacts.</p></div>
+    <details class="advanced-json"><summary>Raw catalog response</summary><pre id="model-results">Model catalog results will appear here.</pre></details>
+    <section id="model-selected-panel" class="model-selected-panel" hidden>
+      <div class="panel-head"><div><div class="eyebrow">Selected repository</div><h3 id="model-selected-title">No model selected</h3><p id="model-selected-subtitle" class="muted"></p></div><span id="model-selected-state" class="pill">Metadata only</span></div>
+      <div class="model-actions"><button id="model-use-runtime" type="button">Use in Model Runtime</button><button id="model-inspect-artifacts" type="button" class="secondary">Inspect weight artifacts</button></div>
+      <div id="model-selected-details" class="model-detail-grid"></div>
+      <div class="model-preflight">
+        <div><h4>Memory planning</h4><p class="muted">Estimate uses reported parameter count and optional KV-cache dimensions. It is a planning estimate, not a guarantee of successful loading.</p></div>
+        <label for="model-quantization">Weight precision</label><select id="model-quantization"><option value="fp16">FP16</option><option value="int8">INT8</option><option value="int4" selected>INT4</option></select>
+        <label for="model-context-length">Context length</label><input id="model-context-length" type="number" min="1" max="1000000" value="4096">
+        <button id="model-estimate-memory" type="button" class="secondary">Estimate memory</button>
+        <div id="model-memory-status" class="status" role="status" aria-live="polite">Select a model with reported parameter metadata.</div><pre id="model-memory-results">No estimate performed.</pre>
+      </div>
+      <details><summary>Architecture and repository metadata</summary><pre id="model-selected-raw"></pre></details>
+      <details><summary>Artifact and backend evidence</summary><pre id="model-selected-artifacts">Artifact inspection has not been performed.</pre></details>
+    </section>
   </section>
   <section style="margin-bottom:18px">
     <h2>Model artifacts · compatibility preflight</h2>
@@ -714,12 +752,116 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
-      $("model-status").textContent = data.count + " model metadata record(s). Weights downloaded: no.";
-      $("model-results").textContent = JSON.stringify(data.models || [], null, 2);
+      const models = data.models || [];
+      $("model-status").textContent = data.count + " model metadata record(s). Repository metadata only; weights downloaded: no.";
+      $("model-results").textContent = JSON.stringify(models, null, 2);
+      const cards = $("model-cards"); cards.replaceChildren();
+      if (!models.length) { const empty=document.createElement("p");empty.className="muted";empty.textContent="No matching repositories. Try a broader query.";cards.append(empty); }
+      models.forEach(model => {
+        const card=document.createElement("article");card.className="model-card";
+        const title=document.createElement("h3");title.textContent=model.model_id;
+        const meta=document.createElement("div");meta.className="model-meta";
+        const values=[model.pipeline_tag,model.library_name,model.license,model.safetensors?"Safetensors":"No Safetensors metadata",model.gated===true?"Gated":null,model.parameter_count?((model.parameter_count/1e9).toFixed(2)+"B params"):null].filter(Boolean);
+        values.forEach(value=>{const chip=document.createElement("span");chip.textContent=String(value);meta.append(chip);});
+        const stats=document.createElement("p");stats.textContent=(model.downloads==null?"Downloads n/a":Number(model.downloads).toLocaleString()+" downloads")+" · "+(model.likes==null?"likes n/a":Number(model.likes).toLocaleString()+" likes");
+        const action=document.createElement("button");action.type="button";action.className="secondary";action.textContent="Inspect repository";
+        action.addEventListener("click",()=>selectModel(model.model_id));
+        card.append(title,meta,stats,action);cards.append(card);
+      });
     } catch (e) {
       $("model-status").textContent = "Model search failed: " + e.message;
       $("model-results").textContent = "";
     } finally { button.disabled = false; }
+  });
+
+
+  let selectedModelRecord=null;
+  let selectedModelArtifacts=null;
+  const renderModelFact=(label,value)=>{
+    const item=document.createElement("div");item.className="model-detail-item";
+    const key=document.createElement("small");key.textContent=label;
+    const val=document.createElement("strong");val.textContent=value==null||value===""?"Not reported":String(value);
+    item.append(key,val);return item;
+  };
+  const selectModel=async(modelId)=>{
+    const token=$("token").value.trim();
+    if(!token){$("model-status").textContent="Enter the Studio API token before inspecting a model.";return;}
+    $("model-selected-panel").hidden=false;
+    $("model-selected-title").textContent=modelId;
+    $("model-selected-subtitle").textContent="Fetching configuration metadata from Hugging Face…";
+    $("model-selected-state").textContent="Inspecting";
+    $("model-selected-details").replaceChildren();
+    selectedModelRecord=null;selectedModelArtifacts=null;
+    $("model-memory-status").textContent="Waiting for model metadata.";
+    try{
+      const response=await fetch("/api/v1/models/detail?"+new URLSearchParams({model_id:modelId}),{headers:{"Authorization":"Bearer "+token}});
+      const data=await response.json();if(!response.ok)throw new Error(data.detail||("HTTP "+response.status));
+      selectedModelRecord=data;
+      $("model-selected-subtitle").textContent=[data.pipeline_tag,data.library_name,data.license].filter(Boolean).join(" · ")||"Repository metadata";
+      $("model-selected-state").textContent="Metadata inspected · weights not downloaded";
+      const arch=data.architecture||{};
+      const facts=[
+        ["Parameters",data.parameter_count?((data.parameter_count/1e9).toFixed(3)+" billion"):null],
+        ["Architecture",arch.model_type],
+        ["Model class",Array.isArray(arch.architectures)?arch.architectures.join(", "):null],
+        ["Layers",arch.num_hidden_layers],
+        ["Attention heads",arch.num_attention_heads],
+        ["KV heads",arch.num_key_value_heads],
+        ["Hidden size",arch.hidden_size],
+        ["Head dimension",arch.head_dim],
+        ["Reported context",arch.max_position_embeddings||arch.max_sequence_length],
+        ["Safetensors",data.safetensors?"Reported":"Not reported"],
+        ["License",data.license],
+        ["Gated repository",data.gated]
+      ];
+      facts.forEach(([label,value])=>$("model-selected-details").append(renderModelFact(label,value)));
+      $("model-selected-raw").textContent=JSON.stringify(data,null,2);
+      $("model-memory-status").textContent=data.parameter_count?"Parameter count reported. Run a planning estimate; KV cache may be partial if architecture dimensions are missing.":"No parameter count reported; memory estimate unavailable.";
+      $("model-estimate-memory").disabled=!data.parameter_count;
+      $("model-use-runtime").disabled=false;
+      $("model-inspect-artifacts").disabled=false;
+      $("runtime-model-id").value=modelId;
+      $("artifact-model-id").value=modelId;
+    }catch(e){
+      $("model-selected-state").textContent="Inspection failed";
+      $("model-selected-subtitle").textContent=e.message;
+      $("model-memory-status").textContent="Cannot estimate without valid model metadata.";
+    }
+  };
+  $("model-use-runtime").addEventListener("click",()=>{
+    if(!selectedModelRecord)return;
+    $("runtime-model-id").value=selectedModelRecord.model_id;
+    const link=studioLinks.find(item=>item.getAttribute("href")==="#model-runtime-panel");
+    if(link)showStudioWorkspace(link);
+  });
+  $("model-inspect-artifacts").addEventListener("click",async()=>{
+    if(!selectedModelRecord)return;
+    const button=$("model-inspect-artifacts");button.disabled=true;
+    $("model-selected-artifacts").textContent="Inspecting repository files metadata…";
+    try{
+      const response=await fetch("/api/v1/models/artifacts?"+new URLSearchParams({model_id:selectedModelRecord.model_id}),{headers:{"Authorization":"Bearer "+$("token").value.trim()}});
+      const data=await response.json();if(!response.ok)throw new Error(data.detail||("HTTP "+response.status));
+      selectedModelArtifacts=data;
+      $("model-selected-artifacts").textContent=JSON.stringify(data,null,2);
+      $("model-selected-state").textContent="Artifacts inspected · runtime compatibility unverified";
+    }catch(e){$("model-selected-artifacts").textContent="Artifact inspection failed: "+e.message;}
+    finally{button.disabled=false;}
+  });
+  $("model-estimate-memory").addEventListener("click",async()=>{
+    if(!selectedModelRecord?.parameter_count)return;
+    const button=$("model-estimate-memory");button.disabled=true;$("model-memory-status").textContent="Calculating memory estimate…";
+    try{
+      const arch=selectedModelRecord.architecture||{};
+      const body={parameters_billion:selectedModelRecord.parameter_count/1e9,quantization:$("model-quantization").value};
+      const context=Number($("model-context-length").value);
+      if(Number.isInteger(context)&&context>0)body.context_length=context;
+      for(const key of ["num_hidden_layers","num_key_value_heads","head_dim"])if(Number.isInteger(arch[key])&&arch[key]>0)body[key]=arch[key];
+      const response=await fetch("/api/v1/models/estimate-memory",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+$("token").value.trim()},body:JSON.stringify(body)});
+      const data=await response.json();if(!response.ok)throw new Error(data.detail||("HTTP "+response.status));
+      $("model-memory-results").textContent=JSON.stringify(data,null,2);
+      $("model-memory-status").textContent="Estimate calculated from reported parameter count"+(data.kv_cache_included?" and KV-cache dimensions.":"; KV-cache coverage may be incomplete.");
+    }catch(e){$("model-memory-status").textContent="Memory estimate failed: "+e.message;}
+    finally{button.disabled=false;}
   });
 
   $("artifact-inspect").addEventListener("click", async () => {
