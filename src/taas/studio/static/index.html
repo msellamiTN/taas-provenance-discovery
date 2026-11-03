@@ -1497,7 +1497,8 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     $("agent-manifest-status").textContent="Publishing immutable configuration version…";
     try{
       const path="/api/v1/agents/"+encodeURIComponent(savedAgentVersion.id)+"/versions/"+encodeURIComponent(savedAgentVersion.version)+"/publish";
-      const result=await runtimePost(path,{});
+      const snapshotId=$("agent-registry-snapshot-select").value;
+      const result=await runtimePost(path,snapshotId?{registry_snapshot_id:snapshotId}:{});
       $("agent-manifest-result").textContent=JSON.stringify(result,null,2);
       $("agent-manifest-status").textContent="Published configuration "+result.agent_id+"@"+result.version+" · execution remains disabled.";
     }catch(error){
