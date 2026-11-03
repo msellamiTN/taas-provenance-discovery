@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from typing import Any, Mapping
 
 from taas.policy import Declassification, Policy
+from taas.provenance import LEVELS
 from taas.studio.execution_gateway import GatewayDenied, canonical_hash, policy_fingerprint
 
 
@@ -50,6 +51,10 @@ def load_trusted_authorization_config(
         raise AuthorizationConfigurationError("TAAS_STUDIO_POLICY_JSON must be valid JSON") from exc
     if not isinstance(payload, dict):
         raise AuthorizationConfigurationError("TAAS_STUDIO_POLICY_JSON must contain an object")
+    try:
+        json.dumps(payload, allow_nan=False)
+    except (TypeError, ValueError) as exc:
+        raise AuthorizationConfigurationError("Policy configuration must contain finite JSON values") from exc
 
     allowed_keys = {
         "name", "allowed", "required", "forbidden", "encoding", "lmin",
@@ -81,6 +86,12 @@ def load_trusted_authorization_config(
         for pair in pairs
     ):
         raise AuthorizationConfigurationError("Policy forbidden_pairs must be pairs of strings")
+    encoding = payload.get("encoding", "positive")
+    if encoding not in {"positive", "closed_world"}:
+        raise AuthorizationConfigurationError("Policy encoding must be positive or closed_world")
+    egress_threshold = payload.get("egress_threshold", "internal")
+    if egress_threshold not in LEVELS:
+        raise AuthorizationConfigurationError("Policy egress_threshold is not a recognized information label")
     rules = payload.get("declass", [])
     if not isinstance(rules, list):
         raise AuthorizationConfigurationError("Policy declass must be an array")
@@ -89,13 +100,25 @@ def load_trusted_authorization_config(
         if not isinstance(rule, dict):
             raise AuthorizationConfigurationError("Each declassification rule must be an object")
         try:
+            min_evidence = rule.get("min_evidence", "obs")
+            min_records = int(rule.get("min_records", 10))
+            if min_evidence not in LEVELS or min_records < 1:
+                raise ValueError("Invalid evidence threshold or record count")
+            if rule["label_from"] not in LEVELS or rule["label_to"] not in LEVELS:
+                raise ValueError("Invalid declassification labels")
+            tool_classes = rule.get("tool_classes", ["aggregate"])
+            tools = rule.get("tools", [])
+            if not isinstance(tool_classes, list) or any(not isinstance(x, str) for x in tool_classes):
+                raise ValueError("Invalid tool_classes")
+            if not isinstance(tools, list) or any(not isinstance(x, str) for x in tools):
+                raise ValueError("Invalid tools")
             declass.append(Declassification(
                 label_from=rule["label_from"],
                 label_to=rule["label_to"],
-                tool_classes=frozenset(rule.get("tool_classes", ["aggregate"])),
-                tools=frozenset(rule.get("tools", [])),
-                min_evidence=rule.get("min_evidence", "obs"),
-                min_records=int(rule.get("min_records", 10)),
+                tool_classes=frozenset(tool_classes),
+                tools=frozenset(tools),
+                min_evidence=min_evidence,
+                min_records=min_records,
             ))
         except (KeyError, TypeError, ValueError) as exc:
             raise AuthorizationConfigurationError("Invalid policy declassification rule") from exc
@@ -109,7 +132,7 @@ def load_trusted_authorization_config(
             encoding=str(payload.get("encoding", "positive")),
             visible=frozenset(visible) if visible is not None else None,
             declass=tuple(declass),
-            egress_threshold=str(payload.get("egress_threshold", "internal")),
+            egress_threshold=str(egress_threshold),
             forbidden_pairs=tuple(tuple(pair) for pair in pairs),
             prompt_label=str(payload.get("prompt_label", "public")),
             credentials=frozenset(credentials) if credentials is not None else None,
@@ -118,7 +141,7 @@ def load_trusted_authorization_config(
             "policy_version": version,
             "policy_fingerprint": policy_fingerprint(policy),
         })
-    except (TypeError, ValueError, KeyError) as exc:
+    except (TypeError, ValueError, KeyError, GatewayDenied) as exc:
         raise AuthorizationConfigurationError("Policy configuration could not be normalized") from exc
     return TrustedAuthorizationConfig(principal, version, policy, fingerprint)
 
@@ -187,10 +210,15 @@ def build_authorization_preflight(
     if not checks["tool_definition_resolved"]:
         reasons.append("exact_tool_definition_not_resolved")
 
-    checks["trusted_service_principal_configured"] = trusted_config is not None
+    configured_principal = os.environ.get("TAAS_STUDIO_PRINCIPAL", "").strip()
+    checks["trusted_service_principal_configured"] = bool(
+        re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:@/-]{0,127}", configured_principal)
+    )
     checks["server_policy_configured"] = trusted_config is not None
+    if not checks["trusted_service_principal_configured"]:
+        reasons.append("trusted_service_principal_not_configured")
     if trusted_config is None:
-        reasons.append(configuration_error or "trusted_authorization_configuration_unavailable")
+        reasons.append(configuration_error or "trusted_server_policy_not_configured")
 
     # No trusted effect-assessment or assurance-evidence store is integrated yet.
     # Client-supplied effects/evidence are intentionally not accepted as substitutes.
