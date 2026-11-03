@@ -597,6 +597,9 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     }
   }
 }</textarea>
+      <div class="inline-actions"><button id="agent-registry-snapshot-refresh" type="button" class="secondary">Load stored MCP snapshots</button><button id="agent-registry-snapshot-inspect" type="button" class="secondary">Inspect configured MCP servers</button><select id="agent-registry-snapshot-select" aria-label="MCP registry snapshot"><option value="">No MCP snapshot selected</option></select></div>
+      <div id="agent-registry-snapshot-status" class="status" role="status" aria-live="polite">Tool-free agents do not require an MCP snapshot. Agents with tool grants must be published against a selected snapshot.</div>
+      <pre id="agent-registry-snapshot-result">MCP schema snapshots are created through read-only tools/list inspection. No tool is invoked.</pre>
       <div class="inline-actions"><button id="agent-manifest-validate" type="button">Validate manifest</button><button id="agent-manifest-save" type="button" class="secondary">Save immutable draft</button><button id="agent-manifest-validate-saved" type="button" class="secondary" disabled>Validate saved version</button><button id="agent-manifest-publish" type="button" class="secondary" disabled>Publish version</button><button id="agent-manifest-reset" type="button" class="secondary">Reset example</button></div>
       <div id="agent-manifest-status" class="status" role="status" aria-live="polite">Manifest has not been validated.</div>
       <pre id="agent-manifest-result">Validation and registry responses will appear here. Publication does not authorize or execute this agent.</pre>
@@ -1423,7 +1426,8 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     $("agent-manifest-status").textContent="Revalidating the exact stored Agent version…";
     try{
       const path="/api/v1/agents/"+encodeURIComponent(savedAgentVersion.id)+"/versions/"+encodeURIComponent(savedAgentVersion.version)+"/validate";
-      const result=await runtimePost(path,{});
+      const snapshotId=$("agent-registry-snapshot-select").value;
+      const result=await runtimePost(path,snapshotId?{registry_snapshot_id:snapshotId}:{});
       agentPublishButton.disabled=false;
       $("agent-manifest-result").textContent=JSON.stringify(result,null,2);
       $("agent-manifest-status").textContent="Stored version structurally validated · semantic correctness and execution remain unverified.";
@@ -1433,6 +1437,48 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       agentValidateSavedButton.disabled=false;
     }
   });
+  $("agent-registry-snapshot-refresh").addEventListener("click",async()=>{
+    const button=$("agent-registry-snapshot-refresh");button.disabled=true;
+    $("agent-registry-snapshot-status").textContent="Loading stored MCP registry snapshots…";
+    try{
+      const data=await apiGet("/api/v1/mcp/registry/snapshots");
+      const select=$("agent-registry-snapshot-select");select.innerHTML="";
+      select.add(new Option("No MCP snapshot selected",""));
+      (data.snapshots||[]).forEach(item=>{
+        select.add(new Option(item.snapshot_id.slice(0,12)+"… · "+item.server_count+" servers · "+item.tool_count+" tools",item.snapshot_id));
+      });
+      $("agent-registry-snapshot-status").textContent=data.count+" immutable MCP snapshot(s) available. Select one to bind tool grants at publication.";
+    }catch(error){$("agent-registry-snapshot-status").textContent="Unable to load MCP snapshots: "+error.message;}
+    finally{button.disabled=false;}
+  });
+  $("agent-registry-snapshot-inspect").addEventListener("click",async()=>{
+    const button=$("agent-registry-snapshot-inspect");button.disabled=true;
+    $("agent-registry-snapshot-status").textContent="Inspecting configured MCP servers with tools/list only…";
+    try{
+      const result=await runtimePost("/api/v1/mcp/registry/snapshots/inspect",{});
+      const select=$("agent-registry-snapshot-select");
+      let option=[...select.options].find(item=>item.value===result.snapshot_id);
+      if(!option){option=new Option(result.snapshot_id.slice(0,12)+"… · "+result.server_count+" servers · "+result.tool_count+" tools",result.snapshot_id);select.add(option);}
+      select.value=result.snapshot_id;
+      $("agent-registry-snapshot-result").textContent=JSON.stringify({
+        snapshot_id:result.snapshot_id,
+        created_at:result.created_at,
+        server_count:result.server_count,
+        tool_count:result.tool_count,
+        servers:result.snapshot.servers.map(server=>({
+          server_id:server.server_id,
+          server_name:server.server_name,
+          tool_names:server.tools.map(tool=>tool.name),
+          inspection_only:server.inspection_only,
+          tool_execution_performed:server.tool_execution_performed
+        }))
+      },null,2);
+      $("agent-registry-snapshot-status").textContent="Read-only MCP snapshot captured and selected. Review its ID and schemas before publishing.";
+    }catch(error){
+      $("agent-registry-snapshot-status").textContent="Snapshot inspection failed; no partial snapshot was stored: "+error.message;
+    }finally{button.disabled=false;}
+  });
+
   agentPublishButton.addEventListener("click",async()=>{
     if(!savedAgentVersion)return;
     agentPublishButton.disabled=true;
