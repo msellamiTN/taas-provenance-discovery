@@ -1194,3 +1194,15 @@ def test_agent_manifest_rejects_mutable_or_malformed_model_revision(monkeypatch)
         json=payload,
     )
     assert response.status_code == 422
+
+
+def test_agent_manifest_requires_full_model_commit_sha(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    payload = _valid_agent_manifest()
+    payload["spec"]["model"]["revision"] = "1234567"
+    response = client.post(
+        "/api/v1/agents/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json=payload,
+    )
+    assert response.status_code == 422
