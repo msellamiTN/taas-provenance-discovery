@@ -171,11 +171,13 @@
       <a href="#workspace">Benchmark workspace</a>
       <a href="#goal-editor">Goal design</a>
       <a href="#bench-tools">Tool registry</a>
+      <a href="#mcp-studio">MCP connections</a>
       <span class="nav-label">ANALYSIS</span>
       <a href="#discovery">Discovery</a>
       <a href="#certificate-panel">Assurance</a>
       <span class="nav-label">RESOURCES</span>
       <a href="#models">Model catalog</a>
+      <a href="#agent-studio">Model runtime &amp; Agent Studio</a>
       <a href="#runtime">Host diagnostics</a>
       <div class="nav-foot"><span class="nav-status-dot"></span><span>Execution disabled<br><small>Discovery-only preview</small></span></div>
     </nav>
@@ -232,6 +234,17 @@
       <input id="bench-goal-review" type="checkbox" style="width:auto;margin-top:2px">
       <span>I reviewed the GoalSpec and selected registry tools against the benchmark prompt. Structural validation alone does not establish semantic alignment.</span>
     </label>
+  </section>
+
+  
+  <section id="mcp-studio" class="section-anchor" style="margin:0 0 18px">
+    <div class="panel-head"><div><div class="eyebrow">Tools &amp; MCP</div><h2 style="margin:4px 0">MCP server connections</h2></div><span class="pill">Live schema inspection · no tool calls</span></div>
+    <p class="muted">Connect to operator-configured local stdio MCP servers, inspect their declared tools and schemas, then add selected metadata to the TaaS discovery request. Server commands and credentials are configured on the API host, never supplied by this browser.</p>
+    <div class="inline-actions"><button id="mcp-refresh-servers" type="button" class="secondary">Refresh configured servers</button><select id="mcp-server-select" style="min-width:240px;padding:9px;border:1px solid #d4dce8;border-radius:8px"><option value="">Load configured servers…</option></select><button id="mcp-inspect-server" type="button">Inspect server tools</button></div>
+    <div id="mcp-server-status" class="status subtle" role="status" aria-live="polite">MCP registry has not been loaded.</div><div id="mcp-server-info" class="subtle"></div>
+    <div id="mcp-tool-list" class="listbox" style="margin-top:12px;max-height:360px"><div class="subtle" style="padding:12px">No MCP tools inspected yet.</div></div>
+    <div class="inline-actions"><button id="mcp-import-tools" type="button" disabled>Add selected MCP tools to discovery</button><span id="mcp-selected-count" class="subtle">0 selected</span></div>
+    <p class="subtle">MCP annotations and JSON Schemas are server declarations. TaaS discovery evaluates the supplied metadata; this panel does not establish tool correctness, trustworthiness, policy approval or task fulfillment. Tool execution remains disabled.</p>
   </section>
 
   <div class="grid" id="discovery">
@@ -365,6 +378,36 @@
 
     </div>
   </div>
+
+  <section id="agent-studio" class="section-anchor" style="margin-bottom:18px">
+    <div class="panel-head"><div><div class="eyebrow">Model &amp; Agent workspace</div><h2 style="margin:4px 0">Load a model and build an agent</h2></div><span class="pill">Real local inference · authenticated API</span></div>
+    <p class="muted">The selected Hugging Face model is downloaded and loaded by the same process that runs this Studio API. If that process runs inside Colab, inference runs in that Colab runtime. This does not remotely connect Studio to a separate Colab session.</p>
+    <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px">
+      <section style="box-shadow:none;padding:14px">
+        <h2>1 · Model runtime</h2><label for="runtime-model-id">Hugging Face model ID</label>
+        <input id="runtime-model-id" value="Qwen/Qwen2.5-0.5B-Instruct" maxlength="257" autocomplete="off">
+        <label for="runtime-device">Execution device</label>
+        <select id="runtime-device" style="width:100%;padding:9px;border:1px solid #d4dce8;border-radius:8px"><option value="auto">Automatic · CUDA when available, otherwise CPU</option><option value="cpu">CPU</option><option value="cuda">CUDA GPU · require CUDA</option></select>
+        <div class="inline-actions"><button id="runtime-model-load" type="button">Download &amp; load model</button><button id="runtime-model-refresh" type="button" class="secondary">Refresh model state</button></div>
+        <div id="runtime-model-status" class="status" role="status" aria-live="polite">No model loaded by this process.</div><pre id="runtime-model-details">Model runtime state has not been queried.</pre>
+        <p class="subtle">Remote repository code execution is disabled (<code>trust_remote_code=false</code>). CPU uses FP32; CUDA uses BF16 when supported, otherwise FP16. A successful load is not inferred from catalog metadata.</p>
+      </section>
+      <section style="box-shadow:none;padding:14px">
+        <h2>2 · Agent chat</h2><label for="agent-system">Agent instructions</label>
+        <textarea id="agent-system" rows="3" style="min-height:75px">You are a precise assistant. Be explicit about uncertainty and do not claim to have executed tools.</textarea>
+        <label for="agent-message">Message</label><textarea id="agent-message" rows="4" style="min-height:110px" placeholder="Ask the loaded model a question…"></textarea>
+        <label for="agent-max-tokens">Maximum new tokens</label><input id="agent-max-tokens" type="number" min="1" max="2048" value="512">
+        <button id="agent-chat-send" type="button">Run inference</button><div id="agent-chat-status" class="status" role="status" aria-live="polite">Load a model before sending a message.</div><pre id="agent-chat-result">Inference output will appear here.</pre>
+      </section>
+    </div>
+    <section style="box-shadow:none;padding:14px;margin-top:14px">
+      <h2>3 · Goal-oriented agent design</h2><p class="muted">Ask the loaded model to decompose a natural-language objective into the canonical TaaS GoalSpec. The result is a proposal, not a semantic correctness proof and not an execution plan authorization.</p>
+      <label for="agent-goal-prompt">Agent objective</label><textarea id="agent-goal-prompt" rows="3" style="min-height:90px" placeholder="Find current information, summarize it, and save a Markdown report…"></textarea>
+      <button id="agent-decompose" type="button">Decompose objective with loaded model</button><div id="agent-decompose-status" class="status" role="status" aria-live="polite">No decomposition requested.</div><pre id="agent-decompose-result">The model's GoalSpec proposal will appear here.</pre>
+      <div class="inline-actions"><button id="agent-apply-goals" type="button" class="secondary" disabled>Apply proposal to GoalSpec editor</button><span class="subtle">Applying replaces the current visual GoalSpec draft; review and validate it before discovery.</span></div>
+    </section>
+  </section>
+
 </main>
 <script>
 (() => {
@@ -898,6 +941,79 @@
   loadBtn.addEventListener("click",async()=>{loadBtn.disabled=true;$("bench-status").textContent="Loading retained benchmark datasets…";try{await loadDatasets();await loadTools();$("bench-status").textContent="Benchmark workspace loaded from the repository-retained snapshot. Gold labels remain hidden.";}catch(e){showBenchError(e);}finally{loadBtn.disabled=false;}});
   $("bench-status").append(document.createTextNode(" "));
   $("bench-status").append(loadBtn);
+
+  // Real Hugging Face model runtime and agent operations. No mock inference path.
+  const runtimePost = async (path, body) => {
+    const token=tokenValue(); if(!token) throw new Error("Enter the Studio API token in Discovery request configuration first.");
+    const response=await fetch(path,{method:"POST",headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const data=await response.json(); if(!response.ok) throw new Error(data.detail||("HTTP "+response.status)); return data;
+  };
+  const refreshLoadedModel = async () => {
+    const state=await apiGet("/api/v1/models/runtime");$("runtime-model-details").textContent=JSON.stringify(state,null,2);
+    $("runtime-model-status").textContent=state.model_loaded ? "Loaded · "+state.model_id+" · "+state.device+" · "+state.dtype : "No model loaded by this process.";return state;
+  };
+  $("runtime-model-refresh").addEventListener("click",async()=>{ $("runtime-model-status").textContent="Reading model runtime state…";try{await refreshLoadedModel();}catch(e){$("runtime-model-status").textContent="Status request failed: "+e.message;} });
+  $("runtime-model-load").addEventListener("click",async()=>{
+    const button=$("runtime-model-load");button.disabled=true;$("runtime-model-status").textContent="Loading model weights. The first load may take time and download model files…";
+    try{const state=await runtimePost("/api/v1/models/load",{model_id:$("runtime-model-id").value.trim(),device:$("runtime-device").value});$("runtime-model-details").textContent=JSON.stringify(state,null,2);$("runtime-model-status").textContent="Model loaded · "+state.model_id+" · "+state.device+" · "+state.dtype;}
+    catch(e){$("runtime-model-status").textContent="Model load failed: "+e.message;}finally{button.disabled=false;}
+  });
+  $("agent-chat-send").addEventListener("click",async()=>{
+    const button=$("agent-chat-send");button.disabled=true;$("agent-chat-status").textContent="Generating with the loaded model…";
+    try{const result=await runtimePost("/api/v1/models/chat",{message:$("agent-message").value,system:$("agent-system").value,max_new_tokens:Number($("agent-max-tokens").value||512),temperature:0.2});
+      $("agent-chat-result").textContent=result.text+"\n\n"+JSON.stringify({model_id:result.model_id,device:result.device,dtype:result.dtype,latency_seconds:result.latency_seconds,input_tokens:result.input_tokens,output_tokens:result.output_tokens},null,2);
+      $("agent-chat-status").textContent="Inference completed · "+result.latency_seconds+"s · "+result.output_tokens+" generated tokens.";
+    }catch(e){$("agent-chat-status").textContent="Inference failed: "+e.message;}finally{button.disabled=false;}
+  });
+  let pendingAgentGoalSpec=null;
+  $("agent-decompose").addEventListener("click",async()=>{
+    const button=$("agent-decompose");button.disabled=true;$("agent-decompose-status").textContent="Decomposing objective with the loaded model…";$("agent-apply-goals").disabled=true;pendingAgentGoalSpec=null;
+    try{const result=await runtimePost("/api/v1/agents/decompose",{prompt:$("agent-goal-prompt").value,max_new_tokens:1200});$("agent-decompose-result").textContent=JSON.stringify(result,null,2);
+      if(result.json_valid&&result.structural_validation?.valid){pendingAgentGoalSpec=result.goal_spec;$("agent-apply-goals").disabled=false;$("agent-decompose-status").textContent="GoalSpec proposal parsed and structurally valid. Semantic correctness is not verified.";}
+      else{$("agent-decompose-status").textContent="Model response is not an acceptable GoalSpec. Inspect the response and refine the objective.";}
+    }catch(e){$("agent-decompose-status").textContent="Agent decomposition failed: "+e.message;}finally{button.disabled=false;}
+  });
+  $("agent-apply-goals").addEventListener("click",()=>{
+    if(!pendingAgentGoalSpec)return;const spec=pendingAgentGoalSpec;goalSpecState.prompt=spec.prompt||$("agent-goal-prompt").value.trim();
+    goalSpecState.prompt_inputs_text=(spec.prompt_inputs||["text"]).join(", ");
+    goalSpecState.goals=(spec.goals||[]).map(g=>({id:g.id,class:g.class,in:g.in||[],out:g.out,eff:g.eff||[],sigma:g.sigma||"native",desc:g.desc||"",deps:g.deps||[],n:g.n||1,exactness:g.exactness||"tolerant",lang:g.lang||"en",optional:Boolean(g.optional)}));
+    renderGoalEditor();getGoalSpec();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Agent proposal applied. Review semantic intent and validate before discovery.";
+    document.querySelector("#goal-editor").scrollIntoView({behavior:"smooth",block:"start"});
+  });
+
+  let inspectedMcpTools=[];let selectedMcpToolKeys=new Set();
+  const refreshMcpServers=async()=>{
+    const status=$("mcp-server-status");status.textContent="Loading operator-configured MCP servers…";
+    try{const data=await apiGet("/api/v1/mcp/servers");const select=$("mcp-server-select");select.innerHTML="";
+      if(!data.servers?.length){select.add(new Option("No configured servers",""));status.textContent="No MCP servers configured on the API host. See MCP setup documentation.";return;}
+      data.servers.forEach(server=>select.add(new Option(server.name+" · "+server.transport+(server.credentials_configured?"":" · missing env"),server.id)));
+      status.textContent=data.count+" configured MCP server(s). Credentials are not returned to the browser.";
+    }catch(e){status.textContent="MCP registry request failed: "+e.message;}
+  };
+  $("mcp-refresh-servers").addEventListener("click",refreshMcpServers);
+  $("mcp-inspect-server").addEventListener("click",async()=>{
+    const id=$("mcp-server-select").value;if(!id){$("mcp-server-status").textContent="Select a configured MCP server first.";return;}
+    const button=$("mcp-inspect-server");button.disabled=true;$("mcp-server-status").textContent="Starting configured stdio process and requesting tools/list…";
+    $("mcp-tool-list").innerHTML="";inspectedMcpTools=[];selectedMcpToolKeys.clear();$("mcp-import-tools").disabled=true;
+    try{const data=await runtimePost("/api/v1/mcp/servers/"+encodeURIComponent(id)+"/inspect",{});
+      inspectedMcpTools=data.tools||[];$("mcp-server-info").textContent="Server: "+(data.server_info?.name||data.server_name)+" · Protocol: "+(data.protocol_version||"not reported")+" · "+data.tool_count+" tool(s).";
+      inspectedMcpTools.forEach(tool=>{
+        const row=document.createElement("label");row.className="tool-row";row.style.margin=0;const cb=document.createElement("input");cb.type="checkbox";cb.checked=true;selectedMcpToolKeys.add(tool.server+"::"+tool.name);
+        cb.addEventListener("change",()=>{const key=tool.server+"::"+tool.name;if(cb.checked)selectedMcpToolKeys.add(key);else selectedMcpToolKeys.delete(key);$("mcp-selected-count").textContent=selectedMcpToolKeys.size+" selected";$("mcp-import-tools").disabled=selectedMcpToolKeys.size===0;});
+        const wrap=document.createElement("span");const title=document.createElement("strong");title.textContent=tool.name;const desc=document.createElement("small");desc.textContent=(tool.description||"No description")+" · "+Object.keys(tool.input_schema?.properties||{}).length+" input field(s)";
+        const schema=document.createElement("details");schema.style.marginTop="5px";const summary=document.createElement("summary");summary.textContent="Inspect input schema";const pre=document.createElement("pre");pre.textContent=JSON.stringify(tool.input_schema,null,2);pre.style.minHeight="0";pre.style.margin="6px 0";schema.append(summary,pre);wrap.append(title,desc,schema);row.append(cb,wrap);$("mcp-tool-list").append(row);
+      });
+      if(!inspectedMcpTools.length)$("mcp-tool-list").innerHTML='<div class="subtle" style="padding:12px">Server returned no tools.</div>';
+      $("mcp-selected-count").textContent=selectedMcpToolKeys.size+" selected";$("mcp-import-tools").disabled=selectedMcpToolKeys.size===0;$("mcp-server-status").textContent="Inspection completed. No tools/call request was made.";
+    }catch(e){$("mcp-server-status").textContent="MCP inspection failed: "+e.message;$("mcp-server-info").textContent="";}finally{button.disabled=false;}
+  });
+  $("mcp-import-tools").addEventListener("click",()=>{
+    try{const body=JSON.parse($("payload").value);const byKey=new Map((Array.isArray(body.tools)?body.tools:[]).map(t=>[(t.server||"")+"::"+(t.name||""),t]));let added=0;
+      inspectedMcpTools.filter(t=>selectedMcpToolKeys.has(t.server+"::"+t.name)).forEach(t=>{byKey.set(t.server+"::"+t.name,{server:t.server,name:t.name,description:t.description||"",input_schema:t.input_schema||{},output_schema:t.output_schema||null,annotations:t.annotations||null,source:"mcp-live-inspection",category:"mcp"});added++;});
+      body.tools=[...byKey.values()];$("payload").value=JSON.stringify(body,null,2);$("mcp-server-status").textContent=added+" MCP tool contract(s) added to discovery request. Review GoalSpec and policy before discovery.";
+      if(bench.selectedTask){$("bench-goal-review").checked=false;$("bench-status").textContent="MCP tools added. Review selected tools against the active task and reconfirm before discovery.";}
+    }catch(e){$("mcp-server-status").textContent="Could not update discovery request: "+e.message;}
+  });
 
 })();
 </script>

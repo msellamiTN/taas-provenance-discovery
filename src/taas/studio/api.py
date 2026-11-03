@@ -26,6 +26,8 @@ from taas.policy import Policy
 from taas.provenance import DEFAULT_TRUST
 from taas.studio.models import ModelCatalogError, get_model_details, inspect_model_artifacts, search_models
 from taas.studio.runtime import estimate_model_memory, probe_hardware, probe_runtime
+from taas.studio.model_runtime import ModelRuntimeError, get_model_runtime
+from taas.studio.mcp_registry import MCPRegistryError, inspect_server as inspect_mcp_server, list_servers as list_mcp_servers
 from taas.types import KINDS
 
 app = FastAPI(
@@ -68,6 +70,27 @@ class DiscoverRequest(BaseModel):
     tools: list[ToolInput] = Field(min_length=1, max_length=500)
     policy: dict[str, Any] = Field(default_factory=dict)
     engine: dict[str, Any] = Field(default_factory=dict)
+
+
+class ModelLoadRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    model_id: str = Field(min_length=3, max_length=257)
+    device: str = Field(default="auto", pattern="^(auto|cpu|cuda)$")
+
+
+class ModelChatRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    message: str = Field(min_length=1, max_length=12000)
+    system: str = Field(default="You are a helpful assistant.", max_length=4000)
+    max_new_tokens: int = Field(default=512, ge=1, le=2048)
+    temperature: float = Field(default=0.2, ge=0, le=2)
+
+
+class AgentDecomposeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    prompt: str = Field(min_length=1, max_length=12000)
+    context: str = Field(default="", max_length=8000)
+    max_new_tokens: int = Field(default=1200, ge=1, le=2048)
 
 
 def require_api_token(
@@ -498,6 +521,81 @@ def discover(request: DiscoverRequest) -> dict[str, Any]:
             "strict": profile.strict,
         },
     }
+
+
+@app.get("/api/v1/models/runtime", dependencies=[Depends(require_api_token)])
+def model_runtime_status() -> dict[str, Any]:
+    """Report the actual process-local model state, not catalog metadata."""
+    return get_model_runtime().status()
+
+
+@app.post("/api/v1/models/load", dependencies=[Depends(require_api_token)])
+def model_runtime_load(request: ModelLoadRequest) -> dict[str, Any]:
+    """Explicitly download/load a selected HF model in this API process."""
+    try:
+        return get_model_runtime().load(request.model_id, request.device)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except ModelRuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.post("/api/v1/models/chat", dependencies=[Depends(require_api_token)])
+def model_runtime_chat(request: ModelChatRequest) -> dict[str, Any]:
+    """Run a real inference request against the currently loaded model."""
+    try:
+        return get_model_runtime().chat(
+            request.message, request.system, request.max_new_tokens, request.temperature
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except ModelRuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.post("/api/v1/agents/decompose", dependencies=[Depends(require_api_token)])
+def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
+    """Use the selected Studio model to propose a GoalSpec; validate separately."""
+    try:
+        result = get_model_runtime().decompose(
+            request.prompt, request.context, request.max_new_tokens
+        )
+        if result.get("json_valid"):
+            try:
+                validate_studio_goal_spec(result["goal_spec"])
+                result["structural_validation"] = {"valid": True}
+            except HTTPException as exc:
+                result["structural_validation"] = {"valid": False, "detail": exc.detail}
+        else:
+            result["structural_validation"] = {
+                "valid": False,
+                "detail": "Model did not return a parseable GoalSpec JSON object",
+            }
+        return result
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except ModelRuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.get("/api/v1/mcp/servers", dependencies=[Depends(require_api_token)])
+def mcp_servers() -> dict[str, Any]:
+    """List operator-configured MCP stdio servers without exposing commands or secrets."""
+    try:
+        return list_mcp_servers()
+    except MCPRegistryError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.post("/api/v1/mcp/servers/{server_id}/inspect", dependencies=[Depends(require_api_token)])
+def mcp_inspect(server_id: str) -> dict[str, Any]:
+    """Connect to a configured MCP server and list tool schemas; never calls tools."""
+    try:
+        return inspect_mcp_server(server_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except MCPRegistryError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
 
 @app.get("/", include_in_schema=False)
 def studio_home():
