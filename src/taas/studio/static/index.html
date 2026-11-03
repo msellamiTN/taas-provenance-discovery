@@ -122,6 +122,26 @@
     .certificate-panel summary { cursor:pointer; font-size:11px; font-weight:700; color:#52627a; }
     @media(max-width:720px) { .certificate-checks { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 
+    /* UX-1: persistent, capability-aware Studio navigation shell */
+    .skip-link { position:absolute; left:-10000px; top:8px; z-index:100; padding:10px 14px; background:#fff; color:#17315c; border:2px solid var(--blue); border-radius:8px; }
+    .skip-link:focus { left:12px; }
+    .studio-layout { display:grid; grid-template-columns:208px minmax(0,1fr); gap:20px; align-items:start; }
+    .studio-nav { position:sticky; top:16px; display:flex; flex-direction:column; gap:4px; margin:0; padding:12px; border-radius:13px; }
+    .studio-nav a { display:block; padding:10px 11px; border-radius:8px; color:#53647d; font-size:12px; }
+    .studio-nav a[aria-current="page"], .studio-nav a:hover { color:#214fb4; background:var(--blue-soft); }
+    .studio-nav a:focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
+    .nav-brand { display:flex; align-items:center; gap:10px; padding:7px 5px 14px; margin-bottom:8px; border-bottom:1px solid var(--line); }
+    .nav-mark { display:grid; place-items:center; width:34px; height:34px; border-radius:10px; color:white; background:#18345e; font-weight:800; font-size:17px; }
+    .nav-brand strong,.nav-brand small { display:block; }
+    .nav-brand strong { font-size:12px; color:var(--ink); }
+    .nav-brand small { margin-top:3px; color:var(--muted); font-size:10px; }
+    .nav-label { margin:12px 9px 3px; color:#8793a5; font-size:9px; font-weight:800; letter-spacing:1px; }
+    .nav-foot { display:flex; gap:9px; align-items:flex-start; margin-top:18px; padding:12px 8px 4px; border-top:1px solid var(--line); color:#50617a; font-size:10px; line-height:1.5; }
+    .nav-foot small { color:var(--muted); }
+    .nav-status-dot { flex:0 0 7px; width:7px; height:7px; margin-top:4px; border-radius:50%; background:#d49a35; }
+    .studio-content { min-width:0; }
+    @media(max-width:900px) { .studio-layout { grid-template-columns:1fr; gap:12px; } .studio-nav { position:static; display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; } .nav-brand { width:100%; } .nav-label,.nav-foot { display:none; } .studio-nav a { padding:8px 9px; } }
+    @media(max-width:560px) { .studio-nav { gap:2px; } .studio-nav a { font-size:11px; padding:7px; } }
   </style>
 </head>
 <body>
@@ -131,10 +151,25 @@
 </header>
 <main>
   <div class="notice"><strong>Discovery-only preview.</strong> This workspace calls <code>/api/v1/discover</code>. It does not invoke MCP tools, run an agent, or evaluate task completion. Use only trusted tool metadata; do not paste secrets or sensitive arguments.</div>
-  <nav class="studio-nav" aria-label="Studio navigation">
-    <a href="#workspace">Workspace</a><a href="#discovery">Discovery</a><a href="#models">Model catalog</a><a href="#runtime">Runtime diagnostics</a>
-  </nav>
-  <div class="hero">
+  <a class="skip-link" href="#overview">Skip to Studio workspace</a>
+  <div class="studio-layout">
+    <nav class="studio-nav" aria-label="Studio sections">
+      <div class="nav-brand"><span class="nav-mark">T</span><span><strong>TaaS Studio</strong><small>Discovery control plane</small></span></div>
+      <span class="nav-label">WORKSPACE</span>
+      <a href="#overview" aria-current="page">Overview</a>
+      <a href="#workspace">Benchmark workspace</a>
+      <a href="#goal-editor">Goal design</a>
+      <a href="#bench-tools">Tool registry</a>
+      <span class="nav-label">ANALYSIS</span>
+      <a href="#discovery">Discovery</a>
+      <a href="#certificate-panel">Assurance</a>
+      <span class="nav-label">RESOURCES</span>
+      <a href="#models">Model catalog</a>
+      <a href="#runtime">Host diagnostics</a>
+      <div class="nav-foot"><span class="nav-status-dot"></span><span>Execution disabled<br><small>Discovery-only preview</small></span></div>
+    </nav>
+    <div class="studio-content">
+  <div class="hero" id="overview">
     <div><div class="eyebrow">Toolkit-as-a-Service · Control plane</div><h2>Discovery workspace</h2><p>Move from benchmark intent to a reviewed GoalSpec, select candidate tools from the retained registry, and inspect a provenance-aware discovery decision—all in one guided workspace.</p></div>
     <span class="pill"><span class="pill-dot"></span> Discovery preview · execution disabled</span>
   </div>
@@ -298,6 +333,8 @@
   </section>
 
 
+    </div>
+  </div>
 </main>
 <script>
 (() => {
