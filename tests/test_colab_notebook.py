@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 NOTEBOOK = ROOT / "notebooks" / "colab" / "taas_core_studio_colab.ipynb"
 GUIDE = ROOT / "docs" / "deployment" / "COLAB_T4_QUICKSTART.md"
 WORKFLOW = ROOT / ".github" / "workflows" / "benchmark-hypergraph.yml"
-INTEGRATED_STUDIO_COMMIT = "4a3e4e460f2556f6556b1ef4736f991337cf32c2"
+INTEGRATED_STUDIO_COMMIT = "f7fbe1ddf27e94ebabe267d5d417dab9da793f22"
 
 
 def notebook_source() -> tuple[dict, str, str]:
@@ -51,6 +51,7 @@ def test_colab_notebook_pins_the_integrated_model_agent_studio_revision() -> Non
     assert "TaaS tool discovery" in markdown
     assert "MCP inspection does not invoke tools" in markdown
     assert "discovery workspace" not in markdown.lower() or "integrated" in markdown.lower()
+    assert "Hypergraph Explorer" in markdown
 
 
 def test_colab_installs_and_verifies_optional_hugging_face_runtime() -> None:
@@ -104,3 +105,12 @@ def test_mcp_colab_notebook_pins_the_integrated_agent_mcp_revision() -> None:
     assert "/api/v1/mcp/registry/snapshots" in code
     assert "google.colab.kernel.proxyPort" in code
     assert "tool_execution_performed" not in code
+
+
+def test_colab_reuses_the_single_studio_runtime_and_proxy_without_browser_automation() -> None:
+    _, markdown, code = notebook_source()
+    assert "one checkout" in markdown
+    assert "one Studio process" in markdown
+    assert 'if "proxy_url" not in globals() or not proxy_url:' in code
+    assert "google.colab.kernel.proxyPort" in code
+    assert "playwright" not in code.lower()
