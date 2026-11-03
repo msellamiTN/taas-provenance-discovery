@@ -301,6 +301,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     .hg-entity-list{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}.hg-entity-list button{margin:0;padding:6px 9px;font-size:10px}
     .hg-empty{padding:28px 18px;text-align:center;color:var(--muted);font-size:12px}
     .hg-meta{font-size:10px;color:var(--muted)}.hg-status{padding:10px 14px;font-size:11px;color:var(--muted);background:#fbfcfe;border-top:1px solid var(--line)}
+    .hg-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.hg-actions button{margin:0;white-space:nowrap}.hg-actions .secondary{background:#fff}
     @media(max-width:850px){.hg-layout{grid-template-columns:1fr}.hg-inspector{border-left:0;border-top:1px solid var(--line)}}
 
 </style>
@@ -515,6 +516,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         <div class="hg-toolbar">
           <div><div class="eyebrow">DISCOVER · SEMANTIC GRAPH</div><h3 id="hg-title" style="margin:4px 0;font-size:14px">Hypergraph Explorer</h3><div id="hg-summary" class="hg-meta">Run discovery to load the authoritative Core projection.</div></div>
           <div class="field"><label for="hg-filter">Filter types and capabilities</label><input id="hg-filter" type="search" placeholder="Search semantic types, tools, effects…" disabled></div>
+          <div class="hg-actions"><button id="hg-run-discovery" type="button">Run discovery</button><button id="hg-edit-goal" class="secondary" type="button">Edit GoalSpec</button></div>
           <span id="hg-projection-state" class="pill">No projection</span>
         </div>
         <div id="hg-empty" class="hg-empty">No hypergraph projection is available yet. A graph is shown only when the Discovery API returns a server-generated projection.</div>
@@ -888,6 +890,16 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   });
 
   const run = $("run");
+  const hgRun = $("hg-run-discovery");
+  const setDiscoveryStatus = (message) => {
+    $("status").textContent = message;
+    $("hg-status").textContent = message;
+  };
+  hgRun.addEventListener("click", () => run.click());
+  $("hg-edit-goal").addEventListener("click", () => {
+    const link = studioLinks.find(item => item.getAttribute("href") === "#goal-editor");
+    if (link) showStudioWorkspace(link);
+  });
 
   // Visual GoalSpec editor. The JSON request remains the canonical transport payload.
   const GOAL_CLASSES = ["classify","extract","summarise","translate","convert_format","write","plan","synthesise","aggregate","compute_exact","count","compare","answer","retrieve","search","fetch_web","store","send","transact","execute","navigate_browser","render_media","create_document","edit_document","random"];
@@ -1192,11 +1204,11 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   run.addEventListener("click", async () => {
     let body;
     try { body = JSON.parse($("payload").value); }
-    catch (e) { $("status").textContent = "Invalid JSON: " + e.message; return; }
-    if(goalJsonManuallyEdited){$("status").textContent="Reload the visual editor from the advanced JSON before validation or discovery.";return;}
+    catch (e) { setDiscoveryStatus("Invalid JSON: " + e.message); return; }
+    if(goalJsonManuallyEdited){setDiscoveryStatus("Reload the visual editor from the advanced JSON before validation or discovery.");return;}
     if(bench.selectedTask){
       if(!$("bench-goal-review").checked){
-        $("status").textContent="Benchmark discovery blocked: review the GoalSpec against the selected task prompt and confirm the review checkbox.";
+        setDiscoveryStatus("Benchmark discovery blocked: review the GoalSpec against the selected task prompt and confirm the review checkbox.");
         return;
       }
       const selected=[...bench.selectedTools.values()];
@@ -1205,23 +1217,24 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       const expected=new Set(selected.map(key));
       const actual=new Set(requestTools.map(key));
       if(!selected.length){
-        $("status").textContent="Benchmark discovery blocked: select at least one registry tool. The demo tool is not valid evidence for this task.";
+        setDiscoveryStatus("Benchmark discovery blocked: select at least one registry tool. The demo tool is not valid evidence for this task.");
         return;
       }
       if(expected.size!==actual.size||[...expected].some(k=>!actual.has(k))){
-        $("status").textContent="Benchmark discovery blocked: registry selections are not synchronized with the request. Click “Add selected tools to discovery” and retry.";
+        setDiscoveryStatus("Benchmark discovery blocked: registry selections are not synchronized with the request. Click “Add selected tools to discovery” and retry.");
         return;
       }
     }
     const token = $("token").value.trim();
-    if (!token) { $("status").textContent = "Enter the Studio API token first."; return; }
+    if (!token) { setDiscoveryStatus("Enter the Studio API token first."); return; }
     const goalErrors=validateGoalSpecLocal();
-    if(goalErrors.length){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent=goalErrors.join(" ");$("status").textContent="Correct the GoalSpec validation errors before discovery.";return;}
+    if(goalErrors.length){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent=goalErrors.join(" ");setDiscoveryStatus("Correct the GoalSpec validation errors before discovery.");return;}
     run.disabled = true;
-    $("status").textContent = "Running discovery…";
+    hgRun.disabled = true;
+    setDiscoveryStatus("Running discovery through the existing TaaS Core runtime…");
     $("toolkit").textContent = "Waiting for API response…";
     $("response").textContent = "";
-    renderHypergraphProjection(null);
+    // Preserve the last successful Core projection until a fresh response arrives.
     try {
       const response = await fetch("/api/v1/discover", {
         method: "POST",
@@ -1230,7 +1243,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
-      $("status").textContent = "Discovery status: " + data.status + (bench.selectedTask ? " · benchmark task NOT evaluated" : "") + " · MCP execution: not performed";
+      setDiscoveryStatus("Discovery status: " + data.status + (bench.selectedTask ? " · benchmark task NOT evaluated" : "") + " · MCP execution: not performed");
       $("selected").textContent = (data.selected_tools || []).length;
       $("gap").textContent = (data.gap || []).length;
       const bindings = (data.certificate && data.certificate.bindings) || {};
@@ -1329,10 +1342,10 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       renderHypergraphProjection(data.hypergraph_projection_status === "available" ? data.hypergraph_projection : null);
       $("response").textContent = JSON.stringify(data, null, 2);
     } catch (e) {
-      $("status").textContent = "Request failed: " + e.message;
+      setDiscoveryStatus("Request failed: " + e.message + " · The previous projection, if any, is retained and may be stale.");
       $("toolkit").textContent = "No toolkit returned.";
       $("response").textContent = "";
-    } finally { run.disabled = false; }
+    } finally { run.disabled = false; hgRun.disabled = false; }
   });
 
   // Integrated benchmark workspace: task prompts and tool metadata are browsed locally.

@@ -115,3 +115,15 @@ def test_live_studio_api_projects_real_core_discovery(monkeypatch):
         vertex["semantic_type"] == "record[]" and vertex["reachable"] is True
         for vertex in projection["vertices"]
     )
+
+
+def test_hypergraph_explorer_actions_reuse_existing_discovery_and_goal_editor():
+    html = STUDIO_HTML.read_text(encoding="utf-8")
+    assert 'id="hg-run-discovery"' in html
+    assert 'id="hg-edit-goal"' in html
+    assert 'const hgRun = $("hg-run-discovery");' in html
+    assert 'hgRun.addEventListener("click", () => run.click());' in html
+    assert 'const setDiscoveryStatus = (message) =>' in html
+    assert '$("status").textContent = message;' in html
+    assert '$("hg-status").textContent = message;' in html
+    assert 'item.getAttribute("href") === "#goal-editor"' in html
