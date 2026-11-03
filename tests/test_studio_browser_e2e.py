@@ -84,9 +84,12 @@ def test_hypergraph_explorer_on_live_colab_studio(viewport, tmp_path: Path):
             page.locator("#studio-auth-connect").click()
             page.get_by_text("Connected · token verified for this runtime").wait_for(timeout=30000)
 
-            # Run the notebook-provided metadata-only demo discovery in the
-            # already-running Studio. No MCP server should be called.
-            page.locator("#run").click()
+            # Enter the Explorer workspace and launch discovery from its own
+            # action bar. This must use the same authenticated Studio/Core process.
+            page.locator('.studio-nav a[href="#hypergraph-explorer"]').click()
+            assert page.locator("#hg-run-discovery").is_visible()
+            assert page.locator("#hg-edit-goal").is_visible()
+            page.locator("#hg-run-discovery").click()
             page.wait_for_function(
                 """() => {
                   const status = document.querySelector('#hg-projection-state')?.textContent || '';
