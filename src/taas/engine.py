@@ -109,7 +109,8 @@ class DiscoveryEngine:
                 "failed_checks": failed,
             })
             cr = ComposeResult(None, cr.certificate, chi, cr.candidates, cr.regime,
-                               cr.stats | {"selection_rejected": "invalid_certificate"})
+                               cr.stats | {"selection_rejected": "invalid_certificate"},
+                               cr.reachability)
         man = manifest(self.H, cr.certificate) if cr.toolkit is not None and cr.certificate is not None else None
         toolkit = cr.toolkit
         if toolkit is not None and "sessions" in cr.stats:
