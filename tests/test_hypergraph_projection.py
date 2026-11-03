@@ -94,10 +94,12 @@ def test_projection_includes_model_edges_and_bridges():
         derivations={"text": Derivation(model.id, "text", ("record:order[]",), "model", 0.82)},
         bridges=[Derivation("LLM::extract", "identifier", ("text",), "bridge", 0.75)],
         labels={"record:order[]": "internal", "text": "internal"},
-        fired={model.id},
+        # Core ReachResult.fired filters LLM::* edges; derivations are authoritative here.
     )
     result = project_hypergraph(graph, reach, selected_tools=[], model_edges=[model])
     assert any(edge["kind"] == "model" and edge["goal_id"] == "g-summary"
                for edge in result["hyperedges"])
+    model_edge = next(edge for edge in result["hyperedges"] if edge["kind"] == "model")
+    assert model_edge["fired_in_reachability"] is True
     assert len(result["bridges"]) == 1
     assert result["bridges"][0]["operation"] == "LLM::extract"
