@@ -100,8 +100,8 @@ def test_expiry_and_timezone_are_validated(tmp_path):
             environ=env,
         )
     with pytest.raises(EvidenceError, match="later"):
-        from taas.studio.assurance_evidence import _unsigned_record
-        _unsigned_record(
+        from taas.studio.assurance_evidence import _unsigned
+        _unsigned(
             evidence_type="provenance_verification",
             subject_binding=_binding(),
             issuer="taas-studio",
