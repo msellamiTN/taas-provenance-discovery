@@ -540,6 +540,21 @@
     try { body = JSON.parse($("payload").value); }
     catch (e) { $("status").textContent = "Invalid JSON: " + e.message; return; }
     if(goalJsonManuallyEdited){$("status").textContent="Reload the visual editor from the advanced JSON before validation or discovery.";return;}
+    if(bench.selectedTask){
+      const selected=[...bench.selectedTools.values()];
+      const requestTools=Array.isArray(body.tools)?body.tools:[];
+      const key=t=>(t.server||"")+"::"+(t.name||"");
+      const expected=new Set(selected.map(key));
+      const actual=new Set(requestTools.map(key));
+      if(!selected.length){
+        $("status").textContent="Benchmark discovery blocked: select at least one registry tool. The demo tool is not valid evidence for this task.";
+        return;
+      }
+      if(expected.size!==actual.size||[...expected].some(k=>!actual.has(k))){
+        $("status").textContent="Benchmark discovery blocked: registry selections are not synchronized with the request. Click “Add selected tools to discovery” and retry.";
+        return;
+      }
+    }
     const token = $("token").value.trim();
     if (!token) { $("status").textContent = "Enter the Studio API token first."; return; }
     const goalErrors=validateGoalSpecLocal();
@@ -556,7 +571,7 @@
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
-      $("status").textContent = "Discovery status: " + data.status + " · MCP execution: not performed";
+      $("status").textContent = "Discovery status: " + data.status + (bench.selectedTask ? " · benchmark task NOT evaluated" : "") + " · MCP execution: not performed";
       $("selected").textContent = (data.selected_tools || []).length;
       $("gap").textContent = (data.gap || []).length;
       const bindings = (data.certificate && data.certificate.bindings) || {};
@@ -659,6 +674,18 @@
 
   // Integrated benchmark workspace: task prompts and tool metadata are browsed locally.
   const bench = { dataset:"livemcpbench", taskOffset:0, toolOffset:0, taskTotal:0, toolTotal:0, taskLimit:12, toolLimit:15, selectedTask:null, selectedTools:new Map(), datasets:[] };
+  const syncBenchmarkToolsToRequest = () => {
+    const body=JSON.parse($("payload").value);
+    body.tools=[...bench.selectedTools.values()].map(t=>({
+      server:t.server,name:t.name,description:t.description||"",
+      input_schema:t.input_schema||{},output_schema:t.output_schema||null,
+      annotations:t.annotations||null,source:t.source||"benchmark-registry",
+      category:t.category||""
+    }));
+    $("payload").value=JSON.stringify(body,null,2);
+    goalJsonManuallyEdited=false;
+    return body.tools.length;
+  };
   const tokenValue = () => $("token").value.trim();
   const apiGet = async (path) => {
     const token=tokenValue(); if(!token) throw new Error("Enter the Studio API token in Discovery request configuration first.");
@@ -707,7 +734,20 @@
     (d.tools||[]).forEach(t=>{
       const row=document.createElement("label");row.className="tool-row";row.style.margin=0;
       const cb=document.createElement("input");cb.type="checkbox";cb.checked=bench.selectedTools.has(t.id);
-      cb.addEventListener("change",()=>{if(cb.checked)bench.selectedTools.set(t.id,t);else bench.selectedTools.delete(t.id);$("bench-selected-count").textContent=bench.selectedTools.size+" selected";});
+      cb.addEventListener("change",()=>{
+        if(cb.checked)bench.selectedTools.set(t.id,t);else bench.selectedTools.delete(t.id);
+        $("bench-selected-count").textContent=bench.selectedTools.size+" selected";
+        // Once a benchmark task is active, keep the request toolset synchronized
+        // with the selection basket; never leave the demo tool silently attached.
+        if(bench.selectedTask){
+          try{
+            const count=syncBenchmarkToolsToRequest();
+            $("bench-status").textContent=count
+              ? count+" selected registry tool(s) are now in the discovery request. Demo/sample tools are excluded."
+              : "No registry tools selected. The demo toolset was cleared; select compatible registry tools before discovery.";
+          }catch(e){$("bench-status").textContent="Cannot synchronize registry selection: "+e.message;}
+        }
+      });
       const wrap=document.createElement("span");const strong=document.createElement("strong");strong.textContent=t.server+"/"+t.name;
       const small=document.createElement("small");small.textContent=(t.description||"No description")+" · "+(t.source||"unknown source");
       wrap.append(strong,small);row.append(cb,wrap);$("bench-tools").append(row);
@@ -733,24 +773,20 @@
       // the selected benchmark task. The user must author at least one goal.
       goalSpecState.goals=[];
       renderGoalEditor();getGoalSpec();
-      $("bench-status").textContent="Task prompt copied. The example goals were cleared: author semantic goal contracts that match this task, then select compatible tools. No automatic LLM interpretation is available in this build.";
+      const importedToolCount=syncBenchmarkToolsToRequest();
+      $("bench-status").textContent="Task prompt copied and example goals cleared. "+
+        (importedToolCount
+          ? importedToolCount+" selected registry tool(s) were synchronized; demo/sample tools were removed. "
+          : "The demo toolset was cleared; select registry tools before discovery. ")+
+        "Author semantic goal contracts that match this task. GoalSpec-to-prompt semantic alignment is not automatically verified.";
       document.querySelector("#discovery").scrollIntoView({behavior:"smooth",block:"start"});
     }catch(e){$("bench-status").textContent="Cannot update GoalSpec: discovery request JSON is invalid.";}
   });
   $("bench-add-tools").addEventListener("click",()=>{
     try{
-      const body=JSON.parse($("payload").value);
-      // Registry selection is authoritative for this workflow. Replace demo/sample
-      // tools rather than merging them, otherwise stale demo capabilities can win.
-      body.tools=[...bench.selectedTools.values()].map(t=>({
-        server:t.server,name:t.name,description:t.description||"",
-        input_schema:t.input_schema||{},output_schema:t.output_schema||null,
-        annotations:t.annotations||null,source:t.source||"benchmark-registry",
-        category:t.category||""
-      }));
-      if(!body.tools.length)throw new Error("Select at least one registry tool before importing.");
-      $("payload").value=JSON.stringify(body,null,2);
-      $("bench-status").textContent=body.tools.length+" selected registry tool(s) replaced the request tool set. Demo/sample tools were removed. Review the GoalSpec and policy before running.";
+      const count=syncBenchmarkToolsToRequest();
+      if(!count)throw new Error("Select at least one registry tool before importing.");
+      $("bench-status").textContent=count+" selected registry tool(s) synchronized with the discovery request. Demo/sample tools were removed. Review GoalSpec alignment before running.";
     }catch(e){$("bench-status").textContent="Cannot add tools: "+e.message;}
   });
   function showBenchError(e){$("bench-status").textContent="Workspace request failed: "+e.message;}
