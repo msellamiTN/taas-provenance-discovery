@@ -11,7 +11,6 @@ import json
 import os
 import re
 from functools import lru_cache
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -783,6 +782,8 @@ def mcp_registry_snapshot_inspect() -> dict[str, Any]:
             "servers": servers,
         }
         return agent_registry.store_mcp_snapshot(snapshot)
+    except ValueError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
     except MCPRegistryError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
