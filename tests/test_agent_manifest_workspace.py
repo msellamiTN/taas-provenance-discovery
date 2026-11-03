@@ -21,6 +21,12 @@ def test_agent_manifest_workspace_exposes_contract_and_truthful_lifecycle():
         'id="agent-manifest-validate-saved"',
         'id="agent-manifest-publish"',
         "/api/v1/agents/",
+        'id="agent-registry-snapshot-refresh"',
+        'id="agent-registry-snapshot-inspect"',
+        'id="agent-registry-snapshot-select"',
+        "/api/v1/mcp/registry/snapshots/inspect",
+        "tools/list only",
+        "registry_snapshot_id",
         "Save immutable draft",
         "Publish version",
     ):
@@ -48,3 +54,13 @@ def test_agent_manifest_workspace_uses_persisted_lifecycle_actions_not_fake_exec
     assert "Run agent" not in panel
     assert "Invoke tools" not in panel
     assert "execution remains disabled" in html
+
+def test_agent_manifest_workspace_supports_versioned_mcp_snapshot_binding():
+    html = PAGE.read_text(encoding="utf-8")
+    assert "Load stored MCP snapshots" in html
+    assert "Inspect configured MCP servers" in html
+    assert "No MCP snapshot selected" in html
+    assert '"/publish"' in html
+    assert "definition_sha256" in html
+    assert "input_schema" in html
+    assert "MCP schema snapshots are created through read-only tools/list inspection" in html
