@@ -74,7 +74,6 @@ def test_colab_notebook_uses_safe_loopback_proxy_and_ephemeral_token() -> None:
 def test_ci_covers_stacked_studio_pull_requests() -> None:
     workflow = WORKFLOW.read_text(encoding="utf-8")
     assert "pull_request:" in workflow
-    assert "feature/colab-model-agent-studio" in workflow
-    # A stacked PR may target another feature branch, not only main.
+    # A stacked PR may target any feature branch, not only historical bases.
     pull_request_block = workflow.split("  pull_request:", 1)[1].split("  workflow_dispatch:", 1)[0]
     assert "branches:" not in pull_request_block
