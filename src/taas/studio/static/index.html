@@ -269,11 +269,22 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     @media(max-width:900px){.studio-header{align-items:stretch;flex-direction:column}.studio-auth{flex-wrap:wrap}.studio-auth-copy{flex:1 1 100%}.studio-auth input{flex:1 1 190px;width:auto}}
     @media(max-width:520px){.studio-auth{align-items:stretch}.studio-auth input{flex:1 1 100%}.studio-auth button{flex:1}}
 
+
+    /* UX-2: make capability boundaries and navigation legible at a glance */
+    .notice[role="note"]{border-color:#d8e1ef;background:#f7f9fc;color:#43536b;line-height:1.55}
+    .notice[role="note"] strong{color:#243754}
+    .studio-nav .nav-label{margin-top:16px;padding-top:10px;border-top:1px solid #edf0f5}
+    .studio-nav .nav-label:first-of-type{margin-top:4px;padding-top:0;border-top:0}
+    .studio-nav a{transition:background .15s ease,color .15s ease}
+    .studio-nav a:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+    .studio-nav .nav-foot{margin-top:20px}
+    @media(min-width:901px){main{max-width:1500px}.studio-layout{grid-template-columns:224px minmax(0,1fr);gap:24px}.studio-nav{max-height:calc(100vh - 32px);overflow-y:auto}}
+    @media(max-width:900px){.studio-nav .nav-label{display:none}}
   </style>
 </head>
 <body>
 <header class="studio-header">
-  <div class="studio-header-brand"><h1>TaaS Studio</h1><p>Discover. Compose. Explain. — tool intelligence · governed AI infrastructure</p></div>
+  <div class="studio-header-brand"><h1>TaaS Studio</h1><p>Engineer AI systems. Discover tools. Assure decisions. — model, agent &amp; tool intelligence</p></div>
   <section id="studio-auth" class="studio-auth" aria-label="Studio authentication">
     <div class="studio-auth-copy"><strong>Studio authentication</strong><span id="studio-auth-status" role="status" aria-live="polite">Not connected · token stays in this page's memory</span></div>
     <label class="sr-only" for="token">Studio API bearer token</label>
@@ -284,27 +295,27 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   </section>
 </header>
 <main>
-  <div class="notice"><strong>Discovery-only preview.</strong> This workspace calls <code>/api/v1/discover</code>. It does not invoke MCP tools, run an agent, or evaluate task completion. Use only trusted tool metadata; do not paste secrets or sensitive arguments.</div>
+  <div class="notice" role="note"><strong>Execution safety boundary.</strong> Model and Agent workspaces can inspect models, run local inference when explicitly loaded, and draft GoalSpecs for review. Discovery and assurance inspect tool capability and evidence; they do not invoke MCP tools. Governed MCP execution, isolated workers, and durable run history are not enabled in this build.</div>
   <a class="skip-link" href="#overview">Skip to Studio workspace</a>
   <div class="studio-layout">
     <nav class="studio-nav" aria-label="Studio sections">
       <div class="nav-brand"><span class="nav-mark">T</span><span><strong>TaaS Studio</strong><small>Tool Intelligence Platform</small></span></div>
-      <span class="nav-label">WORKSPACE</span>
-      <a href="#overview" aria-current="page">Overview</a>
-      <a href="#workspace">Benchmark workspace</a>
-      <a href="#goal-editor">Goal design</a>
-      <a href="#bench-tools">Tool registry</a>
-      <a href="#mcp-studio">MCP connections</a>
-      <span class="nav-label">ANALYSIS</span>
-      <a href="#discovery">Discovery</a>
-      <a href="#certificate-panel">Assurance</a>
-      <span class="nav-label">RESOURCES</span>
+      <span class="nav-label">BUILD</span>
       <a href="#models">Model catalog</a>
       <a href="#model-runtime-panel">Model runtime</a>
-      <a href="#agent-chat-panel">Agent chat</a>
+      <a href="#agent-chat-panel">Agent workspace</a>
       <a href="#agent-goal-panel">Agent design</a>
-      <a href="#runtime">Host diagnostics</a>
-      <div class="nav-foot"><span class="nav-status-dot"></span><span>Execution disabled<br><small>Discovery-only preview</small></span></div>
+      <span class="nav-label">TOOLS &amp; DISCOVERY</span>
+      <a href="#bench-tools">Tool registry</a>
+      <a href="#mcp-studio">MCP connections</a>
+      <a href="#goal-editor">GoalSpec designer</a>
+      <a href="#discovery">Tool discovery</a>
+      <a href="#certificate-panel">Assurance center</a>
+      <span class="nav-label">OPERATE &amp; OBSERVE</span>
+      <a href="#workspace">Benchmark workspace</a>
+      <a href="#runtime">Runtime diagnostics</a>
+      <a href="#overview" aria-current="page">Overview</a>
+      <div class="nav-foot"><span class="nav-status-dot"></span><span>Governed execution<br><small>MCP invocation not enabled</small></span></div>
     </nav>
     <div class="studio-content">
   <section class="runtime-overview" aria-labelledby="runtime-overview-title">
