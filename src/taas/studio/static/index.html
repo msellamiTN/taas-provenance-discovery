@@ -196,7 +196,7 @@
         <div class="field"><label for="bench-tool-search">Search servers, tools and descriptions</label><input id="bench-tool-search" type="search" placeholder="Search tool registry…" style="width:100%"></div>
         <div id="bench-tools" class="listbox"><div class="subtle" style="padding:12px">Tool registry has not been loaded.</div></div>
         <div class="inline-actions"><button id="bench-tool-prev" class="secondary" type="button">Previous</button><button id="bench-tool-next" class="secondary" type="button">Next</button><span class="subtle" id="bench-tool-page">Page 1</span></div>
-        <div class="inline-actions"><button id="bench-add-tools" type="button">Add selected tools to discovery</button><span class="subtle" id="bench-selected-count">0 selected</span></div>
+        <div class="inline-actions"><button id="bench-add-tools" type="button">Sync selected tools to discovery</button><span class="subtle" id="bench-selected-count">0 selected</span></div>
         <p class="subtle">Registry descriptions, schemas and annotations are declarations—not proof of runtime behavior or trusted provenance.</p>
       </section>
     </div>
@@ -609,6 +609,9 @@
       const reason = (data.status === "selected"
         ? "Discovery selected a metadata-compatible toolkit. This is not runtime execution verification. "
         : "Discovery abstained; no toolkit is certified for the requested goals. ") +
+        (bench.selectedTask
+          ? "Benchmark task evaluation was NOT performed. GoalSpec is human-authored; semantic alignment with the task prompt is not verified. "
+          : "") +
         checkSummary + goalSummary +
         (chi.name
           ? "Counterexample: " + chi.name + " (goal " + (chi.goal || "unspecified") + ", check " + (chi.check || "n/a") + "). " +
