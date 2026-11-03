@@ -564,6 +564,44 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <button id="agent-decompose" type="button">Decompose objective with loaded model</button><div id="agent-decompose-status" class="status" role="status" aria-live="polite">No decomposition requested.</div><pre id="agent-decompose-result">The model's GoalSpec proposal will appear here.</pre>
       <div class="inline-actions"><button id="agent-apply-goals" type="button" class="secondary" disabled>Apply proposal to GoalSpec editor</button><span class="subtle">Applying replaces the current visual GoalSpec draft; review and validate it before discovery.</span></div>
     </section>
+    <section id="agent-manifest-panel" style="box-shadow:none;padding:22px;margin-top:14px;border:1px solid var(--line);border-radius:12px;background:#fff">
+      <div class="panel-head"><div><div class="eyebrow">Agent resource · v1alpha1</div><h2 style="margin:4px 0">Define an Agent manifest</h2></div><span class="pill">Draft · not published</span></div>
+      <p class="muted">Describe the agent's model, instructions, exact tool grants, resource budget and approval policy. Validate the contract before any future save or publish action.</p>
+      <label for="agent-manifest-json">Declarative manifest · JSON</label>
+      <textarea id="agent-manifest-json" rows="22" spellcheck="false" style="min-height:390px;width:100%;font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace">{
+  "apiVersion": "taas.ai/v1alpha1",
+  "kind": "Agent",
+  "metadata": {
+    "id": "support-assistant",
+    "name": "Support Assistant",
+    "version": "1.0.0",
+    "description": "Draft support workflow agent"
+  },
+  "spec": {
+    "model": {
+      "provider": "huggingface",
+      "model_id": "Qwen/Qwen2.5-0.5B-Instruct"
+    },
+    "instructions": "Help the operator summarize support requests.",
+    "goal_spec_template": null,
+    "tool_allowlist": [],
+    "resources": {
+      "max_new_tokens": 512,
+      "timeout_seconds": 90,
+      "max_tool_calls": 0
+    },
+    "approval": {
+      "require_human_approval": true,
+      "require_assurance": true,
+      "allow_side_effects": false
+    }
+  }
+}</textarea>
+      <div class="inline-actions"><button id="agent-manifest-validate" type="button">Validate manifest</button><button id="agent-manifest-reset" type="button" class="secondary">Reset example</button></div>
+      <div id="agent-manifest-status" class="status" role="status" aria-live="polite">Manifest has not been validated.</div>
+      <pre id="agent-manifest-result">Validation result will appear here. Validation does not save, authorize, or execute this agent.</pre>
+      <p class="subtle">Structural validation only. The agent remains an unpersisted draft; semantic correctness, live tool authorization and execution are not established.</p>
+    </section>
   </section>
 
     </div>
