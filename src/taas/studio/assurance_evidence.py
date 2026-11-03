@@ -265,3 +265,29 @@ def get_verified_evidence(evidence_id: str, *, expected_type: str,
     if observed > current + timedelta(minutes=2) or expires <= current:
         raise EvidenceError("Assurance evidence is not currently fresh")
     return record
+
+
+def inspect_verified_evidence(evidence_id: str, *,
+                              environ: Mapping[str, str] | None = None,
+                              now: datetime | None = None) -> dict[str, Any]:
+    """Return a record after verifying its stored binding, signature, digest and freshness.
+
+    The stored binding is the comparison target; callers cannot supply or replace it.
+    This proves record integrity and freshness, not assessor truth.
+    """
+    if not isinstance(evidence_id, str) or not _HASH.fullmatch(evidence_id):
+        raise EvidenceError("evidence_id must be a lowercase SHA-256 digest")
+    db = _connect(environ)
+    try:
+        row = db.execute(
+            "SELECT * FROM assurance_evidence WHERE evidence_id=?", (evidence_id,)
+        ).fetchone()
+    finally:
+        db.close()
+    if row is None:
+        raise EvidenceError("Assurance evidence was not found")
+    record = _record(row)
+    return get_verified_evidence(
+        evidence_id, expected_type=record["evidence_type"],
+        expected_binding=record["subject_binding"], environ=environ, now=now,
+    )
