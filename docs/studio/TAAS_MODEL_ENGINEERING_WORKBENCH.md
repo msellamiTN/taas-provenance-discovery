@@ -48,3 +48,12 @@ The model workbench is one stage in the broader TaaS pipeline:
 ## Validation status
 
 Static regression tests cover selectable model cards, detail/artifact/memory/load endpoint wiring, conditional KV-cache estimation, and non-claims. They must be executed in CI. Browser-level tests must additionally cover search, selection, detail failure, artifact inspection, resource estimation, navigation to Model Runtime, and mobile layout.
+
+
+## Colab operator entry point
+
+The maintained integrated Model & Agent Studio launcher is available in [Google Colab](https://colab.research.google.com/github/msellamiTN/taas-provenance-discovery/blob/feature/taas-model-engineering-workbench/notebooks/colab/taas_core_studio_colab.ipynb).
+
+The notebook checks out the immutable application revision `4a3e4e460f2556f6556b1ef4736f991337cf32c2`, installs the `studio,hf` extras, binds Uvicorn to `0.0.0.0:8000` for Colab proxy access, and keeps health/readiness probes on loopback. It uses a runtime-generated bearer token and does not persist it in browser storage.
+
+The notebook is an operator-run launch and API smoke test. GitHub Actions validates repository code and notebook structure; it does not establish that Colab ran, that a T4 was allocated, or that a model loaded and completed inference. Record those outcomes separately against the exact notebook-pinned revision.
