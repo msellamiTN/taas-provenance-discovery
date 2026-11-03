@@ -40,7 +40,7 @@ Every successful transition appends an event with event type, prior/new state, a
 
 - `validated` means only that the stored manifest satisfies the Pydantic schema and cross-field constraints. It does not establish semantic correctness or goal fidelity.
 - `published` means the immutable configuration version was published in this registry. It does not mean the model exists, can be loaded, or was evaluated.
-- Tool grants remain declarations. The registry does not resolve them against a live/versioned MCP registry, authorize calls, or invoke MCP tools.
+- Agent versions with tool grants must be published against an immutable MCP registry snapshot; each exact grant is resolved to a tool-definition hash. This is configuration binding only, not authorization or invocation. See [MCP Registry Snapshots](MCP_REGISTRY_SNAPSHOTS.md).
 - All API responses continue to state `tools_authorized: false` and `execution_enabled: false`.
 - The current actor is the service label `studio-api`, not an authenticated human identity. The bearer-token layer does not provide user attribution.
 - SQLite persistence is local to the configured service filesystem. Tenant isolation, encrypted-at-rest storage, backup/restore, distributed coordination, retention, signed audit records, and external identity integration are not implemented.

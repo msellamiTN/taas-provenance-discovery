@@ -77,3 +77,30 @@ def test_ci_covers_stacked_studio_pull_requests() -> None:
     # A stacked PR may target any feature branch, not only historical bases.
     pull_request_block = workflow.split("  pull_request:", 1)[1].split("  workflow_dispatch:", 1)[0]
     assert "branches:" not in pull_request_block
+
+
+PR27_NOTEBOOK = ROOT / "notebooks" / "colab" / "taas_agent_mcp_registry_pr27_colab.ipynb"
+PR27_VALIDATED_COMMIT = "8c2d38b0a2ec63ab1daddecdbf45178a2a71fa3a"
+
+
+def test_pr27_colab_notebook_pins_the_exact_ci_validated_agent_mcp_revision() -> None:
+    notebook = json.loads(PR27_NOTEBOOK.read_text(encoding="utf-8"))
+    markdown = "\\n".join(
+        "".join(cell.get("source", []))
+        for cell in notebook["cells"]
+        if cell["cell_type"] == "markdown"
+    )
+    code_cells = [cell for cell in notebook["cells"] if cell["cell_type"] == "code"]
+    code = "\\n".join("".join(cell.get("source", [])) for cell in code_cells)
+
+    assert notebook["nbformat"] == 4
+    assert code_cells
+    for index, cell in enumerate(code_cells):
+        compile("".join(cell.get("source", [])), f"pr27-colab-cell-{index}", "exec")
+
+    assert f'TAAS_COMMIT = "{PR27_VALIDATED_COMMIT}"' in code
+    assert "pull/27" in markdown
+    assert "/api/v1/agents" in code
+    assert "/api/v1/mcp/registry/snapshots" in code
+    assert "google.colab.kernel.proxyPort" in code
+    assert "tool_execution_performed" not in code
