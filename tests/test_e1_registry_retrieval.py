@@ -1,3 +1,10 @@
+from pathlib import Path
+import sys
+
+# The project installs the runtime package from src/, while experiments/ is a
+# repository-level research directory and is intentionally not part of the wheel.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 from experiments.e1_registry_retrieval import group_ranks, metrics_at_k, resolved_gold_groups, task_metrics
 
 
