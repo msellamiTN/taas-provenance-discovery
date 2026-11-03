@@ -1,56 +1,77 @@
-# Analyst role: goal specification (Algorithm 1, line 2)
+# Analyst role: GoalSpec decomposition
 
-This is the instruction given to the LLM in the **analyst role**. The analyst sees the prompt and the
-type vocabulary Θ only — never the tool registry. It writes goal contracts in a fixed JSON schema;
-the engine then verifies every self-assessment against the executing model's measured profile.
+The analyst receives the user's objective, optional user-provided context, and semantic type vocabulary Θ. It does not receive the tool registry. It proposes a declarative GoalSpec; it does not select tools, execute operations, or prove task fulfilment.
 
 ## Task
 
-Decompose the user prompt into the subtasks (goals) needed to fulfil it. For each goal give a
-class, typed inputs and output, permitted effects, an input-size estimate, an exactness requirement,
-dependencies, and your self-assessment of whether *you, the language model*, can do it natively
-from text in your context.
+Decompose the objective into the smallest useful sequence of goals (typically 1–6). Each goal describes one operation. Express dependencies when a goal consumes another goal's output. Do not invent external facts, tools, servers, permissions, or successful outcomes.
 
-## Output schema (one JSON object per prompt)
+## Canonical output contract
 
-```json
-{"id": "<prompt id>",
- "prompt_inputs": ["text", "identifier:repo", "path:file"],
- "goals": [
-   {"id": "g1", "desc": "retrieve the reviews", "class": "retrieve", "in": ["query"],
-    "out": "record:review[]", "eff": ["read(db)"], "sigma": "data", "n": 300,
-    "exactness": "tolerant", "lang": "en", "deps": [], "optional": false}
- ]}
-```
+Return exactly one JSON object with only these top-level keys:
+- prompt (optional string): preserve the user's objective faithfully.
+- prompt_inputs (required array): types supplied by the objective; always include text.
+- goals (required non-empty array): one operation per goal.
 
-* **prompt_inputs** — types the prompt itself provides (always include `text`; add identifiers, paths,
-  URLs, locations, dates or numbers that the prompt states explicitly).
-* **class** — model-side classes: `classify, extract, summarise, translate, convert_format, write, plan,
-  synthesise, aggregate, compute_exact, count, compare, answer`; boundary-crossing classes:
-  `retrieve, search, fetch_web, store, send, transact, execute, navigate_browser, render_media,
-  create_document, edit_document, random`.
-* **in / out** — semantic types `kind`, `kind:domain` or `kind:domain[]` from Θ below. For a goal whose
-  purpose is an effect (writing a file, sending a message) use the type of the artefact it creates if it
-  has one (`document:pdf`, `document:slide`, `path:file`), otherwise `none`.
-* **eff** — effects the goal legitimately requires: `read(src)`, `write(r)`, `delete(r)`, `exec`,
-  `egress(dst)`, `money`, `session`. Leave empty for pure reasoning.
-* **sigma** — your self-assessment: `native` (you can do it from text already in context, reliably),
-  `data` (needs external data not in context), `effect` (needs an external effect),
-  `unreliable` (you could attempt it but not reliably at this size/exactness).
-* **n** — expected number of input items/records the goal processes (1 if not applicable).
-* **exactness** — `exact` when an exact number/match is required, else `tolerant`.
-* **deps** — ids of goals whose output this goal consumes.
-* **optional** — true for nice-to-have goals not required by the prompt.
+Example:
 
-Keep goals at the granularity of one operation each (typically 1–6 goals). Do not name tools or
-servers. Be honest in `sigma`: it will be checked.
+    {
+      "prompt": "Summarise the latest reviews for product X",
+      "prompt_inputs": ["text"],
+      "goals": [
+        {
+          "id": "g1",
+          "desc": "Retrieve recent reviews for product X",
+          "class": "retrieve",
+          "in": ["query"],
+          "out": "record:review[]",
+          "eff": ["read(db)"],
+          "sigma": "data",
+          "n": 100,
+          "exactness": "tolerant",
+          "deps": [],
+          "lang": "en",
+          "optional": false
+        },
+        {
+          "id": "g2",
+          "desc": "Summarise the retrieved reviews",
+          "class": "summarise",
+          "in": ["record:review[]"],
+          "out": "text",
+          "eff": [],
+          "sigma": "native",
+          "n": 100,
+          "exactness": "tolerant",
+          "deps": ["g1"],
+          "lang": "en",
+          "optional": false
+        }
+      ]
+    }
 
-## Θ — kinds (closed)
+Do not wrap the object in an id/query/context envelope. Do not add Markdown fences or explanatory prose. Do not emit tool or server names.
 
-`text, document, table, record, media, credential, identifier, location, number, url, path, query,
-code, datetime, boolean, none`
+## Goal fields
 
-## Θ — domains used by the registry (prefer these)
+- id: unique identifier matching [A-Za-z][A-Za-z0-9_-]{0,63}.
+- desc: concise, non-empty description of the intended operation.
+- class: model-side classes: classify, extract, summarise, translate, convert_format, write, plan, synthesise, aggregate, compute_exact, count, compare, answer; boundary-crossing classes: retrieve, search, fetch_web, store, send, transact, execute, navigate_browser, render_media, create_document, edit_document, random.
+- in / out: semantic types kind, kind:domain, or kind:domain[] from Θ. Use none when no artefact is produced.
+- eff: required effects such as read(src), write(r), delete(r), exec, egress(dst), money, session. Use an empty array for pure reasoning.
+- sigma: self-assessment native, data, effect, or unreliable. This is not trusted proof.
+- n: positive integer estimate of processed items (1 when not applicable).
+- exactness: exact or tolerant.
+- deps: IDs of goals whose output this goal consumes.
+- optional: boolean.
+- lang: optional non-empty language label.
 
-See `data/processed/theta.json` (`domains`). Use a domain only when it adds meaning; a new lowercase
-singular domain term is allowed when none fits.
+## Semantic vocabulary Θ
+
+Kinds: text, document, table, record, media, credential, identifier, location, number, url, path, query, code, datetime, boolean, none.
+
+Prefer domains from data/processed/theta.json. Use a lowercase singular domain only when it adds useful precision.
+
+## Trust and validation boundaries
+
+A generated object is only a proposal. The Studio API validates structure, field types, semantic types, effects, identifiers, dependency references and dependency cycles. Passing those checks does not establish semantic alignment, completeness, safety, policy authorization, tool availability, or task fulfilment. A human must review the objective-to-goal mapping before discovery. Unsupported output is rejected rather than silently repaired.
