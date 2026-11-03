@@ -616,6 +616,8 @@ def agent_create(payload: dict[str, Any]) -> dict[str, Any]:
         raise HTTPException(status_code=422, detail=exc.errors(include_context=False, include_input=False)) from exc
     except agent_registry.AgentRegistryConflict as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=422, detail="Agent manifest must contain only strict JSON values") from exc
     return {
         **resource,
         "semantic_correctness_verified": False,
