@@ -463,7 +463,7 @@
     try{
       const gs=readRequest().goal_spec||{};
       goalSpecState={prompt:gs.prompt||"",prompt_inputs_text:(gs.prompt_inputs||["text"]).join(", "),goals:Array.isArray(gs.goals)?gs.goals.map(g=>({...g,n:g.n??1,in:[...(g.in||[])],eff:[...(g.eff||[])],deps:[...(g.deps||[])]})):[]};
-      goalJsonManuallyEdited=false;renderGoalEditor();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Visual editor reloaded from the JSON payload.";
+      goalJsonManuallyEdited=false;if(bench.selectedTask)$("bench-goal-review").checked=false;renderGoalEditor();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Visual editor reloaded from the JSON payload.";
     }catch(e){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent="Cannot reload editor: "+e.message;}
   });
   try{
@@ -685,6 +685,9 @@
 
   // Integrated benchmark workspace: task prompts and tool metadata are browsed locally.
   const bench = { dataset:"livemcpbench", taskOffset:0, toolOffset:0, taskTotal:0, toolTotal:0, taskLimit:12, toolLimit:15, selectedTask:null, selectedTaskKey:null, selectedTools:new Map(), datasets:[] };
+  // Any subsequent GoalSpec edit invalidates the user's previous review acknowledgement.
+  $("goal-editor").addEventListener("input",()=>{if(bench.selectedTask)$("bench-goal-review").checked=false;});
+  $("goal-editor").addEventListener("change",()=>{if(bench.selectedTask)$("bench-goal-review").checked=false;});
   const syncBenchmarkToolsToRequest = () => {
     const body=JSON.parse($("payload").value);
     body.tools=[...bench.selectedTools.values()].map(t=>({
