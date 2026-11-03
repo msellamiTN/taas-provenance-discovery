@@ -29,7 +29,7 @@ Never infer a live runtime result from static tests, a successful build, hardwar
 | Item | Evidence | State |
 |---|---|---|
 | PR #20 — Model Engineering Workbench | Open draft; head `4a3e4e460f2556f6556b1ef4736f991337cf32c2` | Model workbench + global header authentication + Colab operator guide implemented; CI/Colab validation still needs evidence |
-| PR #21 — Colab launcher alignment | Open draft; head `8211e36b586a6ef75d185fb1b4c5dd5171037697`; 13 commits / 6 files | Notebook now pins PR #20 head, binds Uvicorn to `0.0.0.0:8000`, probes readiness via loopback, and tests/documentation cover proxy `NOT_FOUND`; validation incomplete |
+| PR #21 — Colab launcher alignment | Open draft; head `a6e9657e7b43568b18ae73fbab7a22137f30cd8d`; 15 commits / 7 files | Notebook proxy binding fix plus the three stale regression assertions repaired; fresh CI and Colab validation still pending |
 | PR #21 GitHub Actions run #184 | [Run 41659536638](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/41659536638) | Historical failure on earlier head; later notebook/proxy commits have not yet been confirmed green by a retrieved run |
 | CI failure detail | Job `unit-tests`, step 5 failed; available job summary does not expose failing assertion/log | Root cause **not yet established** |
 | Colab T4 live model load/inference | No execution evidence in PR #21; latest notebook pin `4a3e4e460f2556f6556b1ef4736f991337cf32c2` | Not run / unverified |
@@ -45,7 +45,7 @@ The PR #21 failure must be diagnosed from the job log before changing code. Do n
 | ID | Task | Acceptance / evidence required | Status |
 |---|---|---|---|
 | CORE-001 | Diagnose PR #21 CI failure | Capture failing test name, traceback and reproducible command; classify regression vs environment; link evidence | **Done — 3 stale UI assertions identified** |
-| CORE-002 | Repair PR #21 regression | Minimal fix with regression test; no unrelated refactor; commit linked to PR #21 | **Validated in PR #23; integration into PR #21 pending review/merge** |
+| CORE-002 | Repair PR #21 regression | Minimal fix with regression test; no unrelated refactor; commit linked to PR #21 | **Integrated into PR #21** via commits `5a75f3013d14b1416ef56e68288b6b0218e67e48` and `a6e9657e7b43568b18ae73fbab7a22137f30cd8d`; fresh CI result pending |
 | CORE-003 | Run full repository test suite | `python -m pip install -e ".[test,studio]"` then `python -m pytest -q`; record counts and environment | **Passed in GitHub Actions: 180 passed, 3 warnings (Python 3.11.17)** |
 | CORE-004 | Build benchmark hypergraph | Run `python scripts/build_benchmark_hypergraph.py --outdir /tmp/taas-benchmark-hypergraph`; verify expected outputs | **Passed in GitHub Actions: 31 vertices, 569 hyperedges, 76 servers; artifact uploaded** |
 | CORE-005 | Validate Colab notebook statically | Notebook JSON parse and notebook regression tests pass | Updated in PR #21; latest CI result not yet retrieved |
@@ -226,3 +226,6 @@ Every PR must be executed in Google Colab against its exact head SHA. GitHub Act
 
 
 - **2026-11-03:** PR #22 initially failed its CI run because its original base (`feature/colab-model-agent-studio`) still contained the three stale assertions. A temporary retarget to PR #23's branch was reverted because PR #22's head does not contain that branch's commit ancestry; GitHub reported the PR as non-mergeable. PR #22 remains based on PR #21 and must be revalidated after PR #23's regression repair is integrated into PR #21. No fresh passing PR #22 run has been observed.
+
+
+- **2026-11-03:** Integrated the two test-only repairs from PR #23 directly into PR #21's head branch (commits `5a75f3013d14b1416ef56e68288b6b0218e67e48` and `a6e9657e7b43568b18ae73fbab7a22137f30cd8d`). PR #21 now contains the title assertion and robust nested-workspace/CSS assertions. The new PR #21 head is `a6e9657e7b43568b18ae73fbab7a22137f30cd8d`; no fresh CI run has yet been returned for this head. PR #23 remains open pending confirmation that the integrated PR #21 run is green.
