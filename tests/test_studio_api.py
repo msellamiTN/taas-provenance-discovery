@@ -747,7 +747,7 @@ def test_benchmark_task_import_clears_stale_demo_goal_before_authoring():
     )[0]
     assert "goalSpecState.goals=[]" in handler
     assert "example goals cleared" in handler
-    assert "author semantic goal contracts" in handler
+    assert "Author semantic goal contracts" in handler
 
 
 def test_benchmark_tool_import_replaces_demo_tools_instead_of_merging():
