@@ -20,7 +20,7 @@ spec:
   model:
     provider: huggingface
     model_id: Qwen/Qwen2.5-0.5B-Instruct
-    # revision: immutable Hub commit SHA (optional in this increment)
+    # revision: 7-64 character immutable Hub commit SHA (optional)
   instructions: |
     Help the operator summarize support requests.
   goal_spec_template: null
