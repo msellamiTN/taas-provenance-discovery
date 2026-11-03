@@ -31,3 +31,21 @@ def test_nested_workspace_switching_preserves_global_runtime_snapshot():
     html = STUDIO_HTML.read_text(encoding="utf-8")
     assert 'if (child.id === "runtime-overview") child.hidden = false;' in html
     assert "else child.hidden = child !== root;" in html
+
+
+def test_professional_studio_navigation_exposes_capability_groups():
+    html = STUDIO_HTML.read_text(encoding="utf-8")
+    assert 'nav-label">BUILD</span>' in html
+    assert 'nav-label">TOOLS &amp; DISCOVERY</span>' in html
+    assert 'nav-label">OPERATE &amp; OBSERVE</span>' in html
+    assert 'href="#overview" aria-current="page"' in html
+    assert ".studio-nav a:focus-visible" in html
+
+
+def test_studio_discloses_agent_and_governed_execution_boundaries():
+    html = STUDIO_HTML.read_text(encoding="utf-8")
+    assert 'class="notice" role="note"' in html
+    assert "draft GoalSpecs for review" in html
+    assert "do not invoke MCP tools" in html
+    assert "MCP invocation not enabled" in html
+    assert "isolated workers" in html
