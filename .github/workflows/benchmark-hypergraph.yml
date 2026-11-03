@@ -5,11 +5,8 @@ on:
     branches:
       - feature/benchmark-capability-hypergraph
       - feature/colab-t4-core-studio
+  # Studio work is intentionally developed as stacked PRs; validate every PR base.
   pull_request:
-    branches:
-      - main
-      - feature/benchmark-capability-hypergraph
-      - feature/integrated-studio-colab-runtime
   workflow_dispatch:
 
 # Avoid spending runner time on obsolete commits when newer work is pushed.
