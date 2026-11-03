@@ -7,7 +7,7 @@
 3. Run the notebook cells from top to bottom.
 4. Wait for the package import and /health + /ready checks.
 5. Open the generated **TaaS Studio** browser link.
-6. Copy the temporary API token printed by the launch cell into the Studio token field when submitting discovery requests.
+6. Copy the temporary API token printed by the launch cell into the persistent **Studio authentication** control in the application header, then select **Connect**. The header verifies the token against the current runtime and keeps it in page memory only; Discovery, GoalSpec validation, Model Studio and Agent Studio reuse the authenticated session.
 
 No ModelProfile upload, Hugging Face token, model endpoint or manual provider configuration is required to launch the current Studio.
 
