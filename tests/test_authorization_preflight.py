@@ -93,10 +93,14 @@ def test_preflight_binds_agent_snapshot_tool_goal_args_and_server_identity_but_f
     assert result["checks"]["snapshot_integrity_available"] is True
     assert result["checks"]["agent_grant_declared"] is True
     assert result["checks"]["tool_definition_resolved"] is True
+    assert result["checks"]["tool_arguments_schema_validated"] is False
+    assert result["checks"]["human_approval_workflow_available"] is False
     assert result["checks"]["trusted_service_principal_configured"] is True
     assert result["checks"]["server_policy_configured"] is True
     assert "trusted_effect_assessment_pipeline_not_integrated" in result["deny_reasons"]
     assert "assurance_evidence_store_not_integrated" in result["deny_reasons"]
+    assert "tool_argument_schema_validation_not_integrated" in result["deny_reasons"]
+    assert "human_approval_workflow_not_integrated" in result["deny_reasons"]
     assert result["binding"]["tool_definition_sha256"] == "c" * 64
     assert result["binding"]["mcp_snapshot_id"] == "b" * 64
     assert result["binding"]["policy_version"] == "2026-11-03.1"
