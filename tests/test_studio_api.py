@@ -754,8 +754,8 @@ def test_benchmark_tool_import_replaces_demo_tools_instead_of_merging():
     response = client.get("/")
     assert response.status_code == 200
     page = response.text
-    handler = page.split('$("bench-add-tools").addEventListener("click",()=>{', 1)[1].split(
-        '\\n  function showBenchError', 1
+        '\n  $("bench-add-tools")', 1
+        '\n  function showBenchError', 1
     )[0]
     assert "syncBenchmarkToolsToRequest()" in handler
     assert "const syncBenchmarkToolsToRequest = () =>" in page
