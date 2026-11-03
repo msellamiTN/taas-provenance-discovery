@@ -26,7 +26,7 @@ def test_model_workbench_uses_live_detail_artifact_and_memory_endpoints():
     assert "/api/v1/models/estimate-memory" in html
     assert "/api/v1/models/load" in html
     assert "load_guaranteed" not in html  # the UI must not fabricate a load guarantee
-    assert "load guarantee" in html.lower()
+    assert "not a guarantee of successful loading" in html.lower()
 
 
 def test_kv_cache_estimate_is_sent_only_with_complete_architecture_dimensions():
