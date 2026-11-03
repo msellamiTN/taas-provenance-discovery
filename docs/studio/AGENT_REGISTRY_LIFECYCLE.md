@@ -17,7 +17,7 @@ All routes require the Studio bearer token.
 | POST | `/api/v1/agents/{agent_id}/versions/{version}/publish` | Transition validated → published |
 | GET | `/api/v1/agents/events` | Read append-only lifecycle event history; optional `agent_id` |
 
-Set `TAAS_AGENT_REGISTRY_PATH` to choose the SQLite database location. If unset, the service uses `~/.taas/studio/agents.sqlite3`. On POSIX systems the implementation attempts owner-only directory and file permissions (0700/0600). SQLite WAL mode and a write transaction serialize lifecycle updates.
+Set `TAAS_AGENT_REGISTRY_PATH` to choose the SQLite database location. If unset, the service uses `~/.taas/studio/agents.sqlite3`. On POSIX systems the implementation attempts owner-only directory and file permissions (0700/0600). SQLite WAL mode and a write transaction serialize lifecycle updates. Database triggers reject updates/deletes to version content, deletion of version rows, and updates/deletes to lifecycle event rows. Lifecycle-state and updated-at columns are the only mutable version fields.
 
 ## Lifecycle
 
@@ -34,7 +34,7 @@ create manifest
 
 Only the transitions `draft → validated` and `validated → published` are accepted. Published versions are immutable. A changed configuration must be created as a new SemVer version; an existing `agent_id + version` pair cannot be overwritten.
 
-Every successful transition appends an event with event type, prior/new state, actor label, timestamp, and manifest SHA-256. The hash is calculated over canonical JSON (UTF-8, sorted keys, compact separators). It is a content-integrity identifier, not a digital signature or external timestamp proof.
+Every successful transition appends an event with event type, prior/new state, actor label, timestamp, and manifest SHA-256. The hash is calculated over canonical JSON (UTF-8, sorted keys, compact separators). It is a content-integrity identifier, not a digital signature or external timestamp proof. Database triggers protect against accidental/application-level mutation; a filesystem/database administrator can still alter the database or drop triggers.
 
 ## Trust boundaries
 
