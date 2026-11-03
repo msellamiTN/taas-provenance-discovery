@@ -911,3 +911,113 @@ def test_studio_overview_connects_to_authenticated_live_runtime_status():
     ):
         assert marker in page
     assert 'localStorage.setItem("token"' not in page
+
+
+
+def test_model_runtime_status_requires_authentication(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.get("/api/v1/models/runtime")
+    assert response.status_code == 401
+
+
+def test_model_runtime_status_reports_actual_process_state(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+
+    class Runtime:
+        def status(self):
+            return {"model_loaded": True, "model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+                    "device": "cpu", "dtype": "float32", "inference_executed": False}
+
+    monkeypatch.setattr(api, "get_model_runtime", lambda: Runtime())
+    response = client.get("/api/v1/models/runtime",
+                          headers={"Authorization": "Bearer test-token"})
+    assert response.status_code == 200
+    assert response.json()["model_loaded"] is True
+    assert response.json()["inference_executed"] is False
+
+
+def test_model_load_endpoint_uses_selected_model_and_device(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+
+    class Runtime:
+        def load(self, model_id, device):
+            return {"model_loaded": True, "model_id": model_id, "device": device,
+                    "dtype": "float32", "trust_remote_code": False}
+
+    monkeypatch.setattr(api, "get_model_runtime", lambda: Runtime())
+    response = client.post("/api/v1/models/load",
+                           headers={"Authorization": "Bearer test-token"},
+                           json={"model_id": "Qwen/Qwen2.5-0.5B-Instruct", "device": "cpu"})
+    assert response.status_code == 200
+    assert response.json()["model_id"] == "Qwen/Qwen2.5-0.5B-Instruct"
+    assert response.json()["device"] == "cpu"
+    assert response.json()["trust_remote_code"] is False
+
+
+def test_model_load_endpoint_rejects_invalid_device(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.post("/api/v1/models/load",
+                           headers={"Authorization": "Bearer test-token"},
+                           json={"model_id": "Qwen/Qwen2.5-0.5B-Instruct", "device": "tpu"},
+                           )
+    assert response.status_code == 422
+
+
+def test_model_chat_endpoint_returns_real_runtime_result(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+
+    class Runtime:
+        def chat(self, message, system, max_new_tokens, temperature):
+            return {"text": "hello", "model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+                    "device": "cpu", "latency_seconds": 0.1, "output_tokens": 1}
+
+    monkeypatch.setattr(api, "get_model_runtime", lambda: Runtime())
+    response = client.post("/api/v1/models/chat",
+                           headers={"Authorization": "Bearer test-token"},
+                           json={"message": "hello"})
+    assert response.status_code == 200
+    assert response.json()["text"] == "hello"
+    assert response.json()["device"] == "cpu"
+
+
+def test_agent_decomposition_endpoint_separates_structure_from_semantics(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    goal_spec = {
+        "prompt": "Explain precision and recall",
+        "prompt_inputs": ["text"],
+        "goals": [{
+            "id": "g1", "class": "answer", "in": ["text"], "out": "text",
+            "eff": [], "sigma": "native", "desc": "Explain precision and recall",
+            "deps": [], "n": 1, "exactness": "tolerant", "lang": "en", "optional": False,
+        }],
+    }
+
+    class Runtime:
+        def decompose(self, prompt, context, max_new_tokens):
+            return {"text": "{}", "goal_spec": goal_spec, "json_valid": True,
+                    "semantic_correctness_verified": False}
+
+    monkeypatch.setattr(api, "get_model_runtime", lambda: Runtime())
+    response = client.post("/api/v1/agents/decompose",
+                           headers={"Authorization": "Bearer test-token"},
+                           json={"prompt": "Explain precision and recall"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["structural_validation"]["valid"] is True
+    assert data["semantic_correctness_verified"] is False
+
+
+def test_huggingface_model_id_validation_is_strict():
+    from taas.studio.model_runtime import HuggingFaceModelRuntime
+
+    assert HuggingFaceModelRuntime._validate_model_id("Qwen/Qwen2.5-0.5B-Instruct") == "Qwen/Qwen2.5-0.5B-Instruct"
+    with pytest.raises(ValueError):
+        HuggingFaceModelRuntime._validate_model_id("../local-code")
