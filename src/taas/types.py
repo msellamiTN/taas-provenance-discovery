@@ -214,7 +214,11 @@ def tau_out(name: str, description: str, output_schema: dict | None = None) -> T
     Array shape alone supports only generic record[]. A domain-specific array type
     requires a lexical cue in the tool name, description, or item field names.
     """
-    text = (re.sub(r"[_\-]", " ", name) + " " + (description or "")[:500]
+    # Split camelCase/PascalCase as well as separators so registry identifiers
+    # such as npmVersions contribute the same lexical evidence as npm_versions.
+    normalised_name = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", name)
+    normalised_name = re.sub(r"[_\-]+", " ", normalised_name)
+    text = (normalised_name + " " + (description or "")[:500]
             + _array_item_evidence(output_schema)).lower()
     is_array = bool(output_schema and output_schema.get("type") == "array")
     if is_array:
