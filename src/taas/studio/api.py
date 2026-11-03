@@ -14,7 +14,7 @@ from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException, Query, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from taas.contracts import extract_contract
 from taas.effects import parse_effect
@@ -25,6 +25,7 @@ from taas.goals import SIGMAS, parse_goal_spec
 from taas.policy import Policy
 from taas.provenance import DEFAULT_TRUST
 from taas.studio.models import ModelCatalogError, get_model_details, inspect_model_artifacts, search_models
+from taas.studio.agent_spec import validate_agent_manifest
 from taas.studio.runtime import estimate_model_memory, probe_hardware, probe_runtime
 from taas.studio.model_runtime import ModelRuntimeError, get_model_runtime
 from taas.studio.mcp_registry import MCPRegistryError, inspect_server as inspect_mcp_server, list_servers as list_mcp_servers
@@ -576,6 +577,23 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except ModelRuntimeError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.post("/api/v1/agents/validate", dependencies=[Depends(require_api_token)])
+def agent_manifest_validate(payload: dict[str, Any]) -> dict[str, Any]:
+    """Validate a declarative Agent manifest without saving or executing it."""
+    try:
+        manifest = validate_agent_manifest(payload)
+    except ValidationError as exc:
+        raise HTTPException(status_code=422, detail=exc.errors(include_context=False, include_input=False)) from exc
+    return {
+        "valid": True,
+        "manifest": manifest,
+        "lifecycle_state": "draft",
+        "semantic_correctness_verified": False,
+        "tools_authorized": False,
+        "execution_enabled": False,
+    }
 
 
 @app.get("/api/v1/mcp/servers", dependencies=[Depends(require_api_token)])
