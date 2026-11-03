@@ -71,7 +71,7 @@ A measured model profile can be configured later through a dedicated Studio conf
 
 ## Runtime and security
 
-- The API binds to 127.0.0.1:8000 and is opened through Colab's proxyPort helper.
+- Uvicorn binds to 0.0.0.0:8000 inside the ephemeral Colab runtime so Colab's proxy can reach it. Readiness checks use 127.0.0.1:8000. API routes remain bearer-token protected; no unauthenticated public tunnel is created.
 - The notebook creates a temporary bearer token per runtime. Treat the notebook output as sensitive; do not share it.
 - Colab is ephemeral. Model weights, process state and files under /content may disappear when the runtime ends.
 - A visible T4 does not accelerate the current CPU-oriented discovery engine. It is intended for a future local inference backend.
@@ -90,7 +90,8 @@ A measured model profile can be configured later through a dedicated Studio conf
 | /ready returns 503 | Confirm the generated API token is present in the notebook runtime and rerun launch. |
 | Discovery returns 401 | Paste the current runtime's token into the Studio token field. |
 | Discovery returns 422 | Check GoalSpec, policy and engine fields against the current TaaS core contract. |
-| Colab proxy fails | Confirm the runtime remains connected and rerun the proxy-link cell. |
+| Colab proxy returns `RpcError(NOT_FOUND)` | Confirm `/health` and `/ready` passed, then verify Uvicorn binds to `0.0.0.0:8000`, not loopback-only. Rerun the proxy-link cell after the server is ready. |
+| Colab proxy fails for another reason | Confirm the runtime remains connected and rerun the proxy-link cell. |
 
 ## Next product milestones
 
