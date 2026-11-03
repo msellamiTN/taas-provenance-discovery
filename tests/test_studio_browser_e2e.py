@@ -99,7 +99,7 @@ def test_hypergraph_explorer_on_live_colab_studio(viewport, tmp_path: Path):
                 }""",
                 timeout=60000,
             )
-            result_text = page.locator("#response").inner_text()
+            result_text = page.locator("#response").text_content() or ""
             result = json.loads(result_text)
             assert result["execution_performed"] is False
             assert result["hypergraph_projection_status"] == "available", result
