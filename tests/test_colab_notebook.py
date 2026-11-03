@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 NOTEBOOK = ROOT / "notebooks" / "colab" / "taas_core_studio_colab.ipynb"
 GUIDE = ROOT / "docs" / "deployment" / "COLAB_T4_QUICKSTART.md"
 WORKFLOW = ROOT / ".github" / "workflows" / "benchmark-hypergraph.yml"
-INTEGRATED_STUDIO_COMMIT = "1dd15b069fc847d0262bc416980bb6a7ede7b731"
+INTEGRATED_STUDIO_COMMIT = "13bc5f4a1610d521674dcbcfbb7b25495e140943"
 
 
 def notebook_source() -> tuple[dict, str, str]:
@@ -63,7 +63,7 @@ def test_colab_installs_and_verifies_optional_hugging_face_runtime() -> None:
 
 def test_colab_notebook_uses_safe_loopback_proxy_and_ephemeral_token() -> None:
     _, _, code = notebook_source()
-    assert 'APP_HOST, APP_PORT = "127.0.0.1", 8000' in code
+    assert 'APP_BIND_HOST, APP_HEALTH_HOST, APP_PORT = "0.0.0.0", "127.0.0.1", 8000' in code
     assert "google.colab.kernel.proxyPort" in code
     assert "trycloudflare.com" not in code
     assert "secrets.token_urlsafe(32)" in code
