@@ -559,7 +559,7 @@ def test_studio_frontend_integrates_benchmark_and_tool_registry_workspace():
         'id="models"',
         'id="runtime"',
         "Gold labels reserved for evaluation",
-        "GoalSpec-to-prompt semantic alignment is not automatically verified.",
+        "Structural validation does not verify semantic alignment",
     ):
         assert marker in page
 
