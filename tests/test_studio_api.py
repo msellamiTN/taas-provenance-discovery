@@ -782,6 +782,7 @@ def test_benchmark_registry_selection_stays_synchronized_and_blocks_stale_demo_d
     assert response.status_code == 200
     page = response.text
     assert "if(bench.selectedTask)" in page
+    assert 'if(bench.selectedTask){\n          $("bench-goal-review").checked=false;' in page
     assert "syncBenchmarkToolsToRequest()" in page
     assert "Benchmark discovery blocked: select at least one registry tool" in page
     assert "registry selections are not synchronized with the request" in page
