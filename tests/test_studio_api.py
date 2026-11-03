@@ -42,7 +42,7 @@ def test_ready_does_not_require_calibration(monkeypatch):
 def test_studio_home_serves_browser_workspace():
     response = client.get("/")
     assert response.status_code == 200
-    assert "TaaS Core Studio" in response.text
+    assert "TaaS Studio" in response.text
     assert "/api/v1/discover" in response.text
 
 
