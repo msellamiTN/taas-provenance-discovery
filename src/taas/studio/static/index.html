@@ -321,7 +321,7 @@
     body.goal_spec.goals=goalSpecState.goals;
     writeRequest(body);
   };
-  const defaultGoal = (i) => ({id:"g"+i,class:"retrieve",in:[],out:"record[]",eff:["read(*)"],sigma:"data",desc:"Describe the required operation",deps:[],n:1,exactness:"tolerant",lang:"en",optional:false});
+  const defaultGoal = (i) => ({id:"g"+i,class:"retrieve",in:[],out:"record[]",eff:["read(*)"],sigma:"data",desc:"",deps:[],n:1,exactness:"tolerant",lang:"en",optional:false});
   let goalFieldCounter=0;
   const makeField = (labelText, value, onChange, options=null, multiline=false) => {
     const wrap=document.createElement("div");wrap.className="field";
@@ -380,6 +380,7 @@
       if(!g.id||! /^[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(g.id))errors.push(p+": ID must start with a letter and contain only letters, digits, _ or -.");
       else if(ids.has(g.id))errors.push(p+": duplicate goal ID."); else ids.add(g.id);
       if(!GOAL_CLASSES.includes(g.class))errors.push(p+": unsupported operation class.");
+      if(typeof g.desc!=="string"||!g.desc.trim())errors.push(p+": goal description is required; describe the intended operation.");
       const validType=t=>{const m=/^([a-z_]+)(?::([a-z0-9_-]+))?(\[\])?$/.exec(t);return Boolean(m&&SEMANTIC_KINDS.includes(m[1]));};
       if(typeof g.out!=="string"||!validType(g.out))errors.push(p+": output type must use a supported semantic kind (optionally :domain and []).");
       (g.in||[]).forEach(t=>{if(!validType(t))errors.push(p+": invalid input type "+t+".");});
@@ -700,11 +701,20 @@
     }catch(e){$("bench-status").textContent="Cannot update GoalSpec: discovery request JSON is invalid.";}
   });
   $("bench-add-tools").addEventListener("click",()=>{
-    try{const body=JSON.parse($("payload").value);const existing=new Map((body.tools||[]).map(t=>[t.server+"::"+t.name,t]));
-      bench.selectedTools.forEach(t=>existing.set(t.server+"::"+t.name,{server:t.server,name:t.name,description:t.description||"",input_schema:t.input_schema||{},output_schema:t.output_schema||null,annotations:t.annotations||null,source:t.source||"benchmark-registry",category:t.category||""}));
-      body.tools=[...existing.values()];$("payload").value=JSON.stringify(body,null,2);
-      $("bench-status").textContent=bench.selectedTools.size+" selected registry tool(s) merged into the discovery request. Review the GoalSpec and policy before running.";
-    }catch(e){$("bench-status").textContent="Cannot add tools: discovery request JSON is invalid.";}
+    try{
+      const body=JSON.parse($("payload").value);
+      // Registry selection is authoritative for this workflow. Replace demo/sample
+      // tools rather than merging them, otherwise stale demo capabilities can win.
+      body.tools=[...bench.selectedTools.values()].map(t=>({
+        server:t.server,name:t.name,description:t.description||"",
+        input_schema:t.input_schema||{},output_schema:t.output_schema||null,
+        annotations:t.annotations||null,source:t.source||"benchmark-registry",
+        category:t.category||""
+      }));
+      if(!body.tools.length)throw new Error("Select at least one registry tool before importing.");
+      $("payload").value=JSON.stringify(body,null,2);
+      $("bench-status").textContent=body.tools.length+" selected registry tool(s) replaced the request tool set. Demo/sample tools were removed. Review the GoalSpec and policy before running.";
+    }catch(e){$("bench-status").textContent="Cannot add tools: "+e.message;}
   });
   function showBenchError(e){$("bench-status").textContent="Workspace request failed: "+e.message;}
   const originalRunHandler = run.onclick;
