@@ -21,6 +21,151 @@ def test_discovery_requires_token(monkeypatch):
     assert response.status_code == 401
 
 
+def test_discovery_returns_server_owned_hypergraph_projection(monkeypatch):
+    from types import SimpleNamespace
+
+    import taas.studio.api as api
+    from taas.contracts import make_contract
+    from taas.hypergraph import Derivation, Hypergraph, ReachResult
+    from taas.types import parse_type
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    contract = make_contract(
+        "orders::list_orders",
+        {"customer_id": "identifier"},
+        "record:order[]",
+        ["read(orders)"],
+        description="List orders",
+        source_label="internal",
+    )
+    graph = Hypergraph()
+    graph.add(contract)
+    reach = ReachResult(
+        types={parse_type("identifier"), parse_type("record:order[]")},
+        derivations={
+            "identifier": Derivation("prompt", "identifier", (), "prompt"),
+            "record:order[]": Derivation(
+                contract.tool, "record:order[]", ("identifier",), "tool", 0.95
+            ),
+        },
+        bridges=[],
+        labels={"identifier": "public", "record:order[]": "internal"},
+        fired={contract.tool},
+        tool_types={"record:order[]": contract.tool},
+    )
+
+    class FakeEngine:
+        def __init__(self, contracts, profile, trust, cfg):
+            self.H = graph
+            self.composer = SimpleNamespace(model_edges=lambda goals: [])
+
+        def discover(self, spec, policy):
+            return SimpleNamespace(
+                spec=spec,
+                gap=SimpleNamespace(gap=[]),
+                compose=SimpleNamespace(
+                    reachability=reach, candidates=[contract.tool], regime="exact", stats={}
+                ),
+                certificate=None,
+                counterexample=None,
+                toolkit=[contract.tool],
+                time_s=0.01,
+                abstained=False,
+            )
+
+    monkeypatch.setattr(api, "DiscoveryEngine", FakeEngine)
+    response = client.post(
+        "/api/v1/discover",
+        headers={"Authorization": "Bearer test-token"},
+        json={
+            "goal_spec": {
+                "prompt": "List customer orders",
+                "prompt_inputs": ["identifier"],
+                "goals": [{
+                    "id": "g1", "class": "retrieve", "in": ["identifier"],
+                    "out": "record:order[]", "eff": ["read(orders)"],
+                    "sigma": "data", "deps": [], "desc": "List orders",
+                }],
+            },
+            "tools": [{
+                "server": "orders", "name": "list_orders",
+                "input_schema": {
+                    "type": "object",
+                    "properties": {"customer_id": {"type": "string"}},
+                    "required": ["customer_id"],
+                },
+            }],
+        },
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["status"] == "selected"
+    assert data["selected_tools"] == [contract.tool]
+    assert data["hypergraph_projection_status"] == "available"
+    projection = data["hypergraph_projection"]
+    assert projection["schema"] == "taas.hypergraph-projection/v1"
+    edge = next(item for item in projection["hyperedges"] if item["kind"] == "tool")
+    assert edge["tool_id"] == contract.tool
+    assert edge["fired_in_reachability"] is True
+    assert data["execution_performed"] is False
+
+
+def test_discovery_abstention_does_not_manufacture_hypergraph_projection(monkeypatch):
+    from types import SimpleNamespace
+
+    import taas.studio.api as api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+
+    class FakeEngine:
+        def __init__(self, contracts, profile, trust, cfg):
+            self.H = object()
+            self.composer = SimpleNamespace(model_edges=lambda goals: [])
+
+        def discover(self, spec, policy):
+            return SimpleNamespace(
+                spec=spec,
+                gap=SimpleNamespace(gap=[]),
+                compose=SimpleNamespace(reachability=None, candidates=[], regime="", stats={}),
+                certificate=None,
+                counterexample=None,
+                toolkit=None,
+                time_s=0.01,
+                abstained=True,
+            )
+
+    monkeypatch.setattr(api, "DiscoveryEngine", FakeEngine)
+    response = client.post(
+        "/api/v1/discover",
+        headers={"Authorization": "Bearer test-token"},
+        json={
+            "goal_spec": {
+                "prompt": "List customer orders",
+                "prompt_inputs": ["identifier"],
+                "goals": [{
+                    "id": "g1", "class": "retrieve", "in": ["identifier"],
+                    "out": "record:order[]", "eff": ["read(orders)"],
+                    "sigma": "data", "deps": [], "desc": "List orders",
+                }],
+            },
+            "tools": [{
+                "server": "orders", "name": "list_orders",
+                "input_schema": {
+                    "type": "object",
+                    "properties": {"customer_id": {"type": "string"}},
+                    "required": ["customer_id"],
+                },
+            }],
+        },
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["status"] == "abstained"
+    assert data["hypergraph_projection_status"] == "unavailable_abstained"
+    assert data["hypergraph_projection"] is None
+    assert data["execution_performed"] is False
+
+
 def test_default_profile_is_uncalibrated_and_fail_closed(monkeypatch):
     from taas.studio.api import load_profile
 
