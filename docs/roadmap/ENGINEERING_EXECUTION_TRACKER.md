@@ -45,9 +45,9 @@ The PR #21 failure must be diagnosed from the job log before changing code. Do n
 | ID | Task | Acceptance / evidence required | Status |
 |---|---|---|---|
 | CORE-001 | Diagnose PR #21 CI failure | Capture failing test name, traceback and reproducible command; classify regression vs environment; link evidence | **Done — 3 stale UI assertions identified** |
-| CORE-002 | Repair PR #21 regression | Minimal fix with regression test; no unrelated refactor; commit linked to PR #21 | **In progress — PR #23, CI pending** |
-| CORE-003 | Run full repository test suite | `python -m pip install -e ".[test,studio]"` then `python -m pytest -q`; record counts and environment | Planned |
-| CORE-004 | Build benchmark hypergraph | Run `python scripts/build_benchmark_hypergraph.py --outdir /tmp/taas-benchmark-hypergraph`; verify expected outputs | Planned |
+| CORE-002 | Repair PR #21 regression | Minimal fix with regression test; no unrelated refactor; commit linked to PR #21 | **Validated in PR #23; integration into PR #21 pending review/merge** |
+| CORE-003 | Run full repository test suite | `python -m pip install -e ".[test,studio]"` then `python -m pytest -q`; record counts and environment | **Passed in GitHub Actions: 180 passed, 3 warnings (Python 3.11.17)** |
+| CORE-004 | Build benchmark hypergraph | Run `python scripts/build_benchmark_hypergraph.py --outdir /tmp/taas-benchmark-hypergraph`; verify expected outputs | **Passed in GitHub Actions: 31 vertices, 569 hyperedges, 76 servers; artifact uploaded** |
 | CORE-005 | Validate Colab notebook statically | Notebook JSON parse and notebook regression tests pass | Implemented in PR #21; CI currently failed |
 | CORE-006 | Validate Colab T4 runtime | Launch notebook on an actual T4 session; record GPU, exact model/revision, load, inference, latency/memory and errors; no synthetic success | Not run |
 | CORE-007 | Reconcile PR #20 → #21 stack | Confirm branch ancestry, no accidental divergence, all checks green before merge recommendation | In progress |
@@ -196,7 +196,8 @@ For each task:
 | Date | Task | Commit / PR | Build | Tests | Runtime | Outcome / next action |
 |---|---|---|---|---|---|---|
 | 2026-11-03 | PR21 CI baseline | PR #21 / `a9d629e7e710e6622c0b10eed06ece29ca62ab14` | Dependency installation passed in CI | **177 passed, 3 failed**: stale title assertion; brittle nested-panel comment assertion; exact CSS-string assertion | Colab T4 not run | Root cause established from job logs; see PR #23 fix |
-| 2026-11-03 | Studio regression test repair | [PR #23](https://github.com/msellamiTN/taas-provenance-discovery/pull/23) / `1ce2a01ca62ab07c8890ba7ad7ceed13b9a20c5c` | GitHub Actions run [#41663531105](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/41663531105) queued/in progress at last check | Tests rewritten to assert current title and actual workspace behavior; CI result pending | No runtime code changed; UI browser run not required for test-only patch | Await CI; if green, rerun original PR #21 checks and continue with benchmark build
+| 2026-11-03 | Studio regression test repair | [PR #23](https://github.com/msellamiTN/taas-provenance-discovery/pull/23) / `1ce2a01ca62ab07c8890ba7ad7ceed13b9a20c5c` | [GitHub Actions run #41663531105](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/41663531105) — **success** | **180 passed, 3 warnings**; hypergraph build succeeded; artifact uploaded | Test-only patch; no runtime product code changed | PR #23 is green; integrate it into PR #21 before treating PR #21 as green |
+| 2026-11-03 | Benchmark hypergraph build | PR #23 CI run #41663531105 | **Passed** | Build report: 31 vertices, 569 hyperedges, 76 servers, 736 required argument occurrences, 821 optional arguments | GitHub-hosted CI execution; not a production runtime deployment | Inspect benchmark artifact and preserve reproducibility metadata
 
 ## 6. Immediate next actions
 
@@ -210,4 +211,4 @@ For each task:
 ## 7. Change log
 
 - **2026-11-03:** Initial tracker created from the audited repository and PR #20/#21 state; submitted as draft PR #22. No unverified feature is marked Done.
-- **2026-11-03:** Diagnosed PR #21 CI failures from full job logs; added test-only repair in draft PR #23. Validation is pending.
+- **2026-11-03:** Diagnosed PR #21 CI failures from full job logs; test-only repair in draft PR #23 passed CI (180 tests) and benchmark hypergraph build. PR #21 itself still needs the repair integrated.
