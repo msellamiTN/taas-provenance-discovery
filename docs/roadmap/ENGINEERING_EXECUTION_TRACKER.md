@@ -251,7 +251,7 @@ The following observations supersede earlier pending statements above where they
 |---|---|---|---|
 | PR #22 engineering tracker | `b918b1b4d24bdaa0076cbc212d7b8cfda470b3ad` | Run #41672769864 — **success**; regression suite and hypergraph build/upload completed | Documentation CI only; Colab is not a product runtime requirement for this docs-only change |
 | PR #24 professional Studio shell | `6e14c7da4b77b831efd00086ccfd22008383e7c3` | Run #41672863564 — **success**; regression suite and hypergraph build/upload completed | Browser visual review at responsive breakpoints remains unverified; no Colab evidence claimed |
-| PR #25 declarative Agent manifest | `e978fbec326e4eb8903837848ea3cca3f57068dc` | Run #41674084047 — **success**; **189 passed, 3 warnings**; hypergraph build and artifact upload succeeded | Structural schema and UI validation only; no durable registry, publication, tool authorization or execution. Browser/Colab/GPU/production validation not run |
+| PR #25 declarative Agent manifest | `f9430971531992307d528e40740c89a0e46eabf1` | Run #41674346126 — **success**; **190 passed, 3 warnings**; hypergraph build (31 vertices, 569 hyperedges) and artifact upload succeeded | Structural schema and validation workspace only; no registry in PR #25. Browser/Colab/GPU/production validation not run |
 
 PR #24's final CI pass includes the repair to the stale “Execution disabled” assertion. Its scope remains a UX shell only. It does not deliver governed MCP execution.
 
@@ -268,3 +268,22 @@ PR #25 introduces `taas.ai/v1alpha1` Agent manifests, strict metadata/model/tool
 
 - **2026-11-03:** PR #24 CI run #41672863564 passed after correcting the stale UX assertion; PR #22 CI run #41672769864 also passed.
 - **2026-11-03:** Draft PR #25 opened for the declarative Agent manifest contract and validation workspace. CI run #41674084047 passed: 189 tests, 3 warnings, hypergraph build and artifact upload successful. No browser/Colab/GPU/production validation is claimed.
+
+
+## 11. Agent Registry lifecycle milestone — PR #26 (2026-11-03)
+
+- **PR:** [#26 — Agent Studio: immutable registry and lifecycle management](https://github.com/msellamiTN/taas-provenance-discovery/pull/26)
+- **Branch:** `feature/taas-agent-registry-lifecycle`
+- **Base:** PR #25 branch `feature/taas-agent-spec-lifecycle`
+- **Current head at tracker update:** `22ea8bf2f4b27611d8224c59a5596e67309d1b9f`
+- **Implemented:** SQLite-backed immutable Agent versions keyed by ID + SemVer; canonical JSON SHA-256 fingerprint; draft → validated → published transitions; append-only lifecycle events; database triggers preventing application-level version-content mutation/deletion and audit-row mutation/deletion; authenticated create/list/read/validate/publish/events APIs; Agent Studio save/validate/publish controls.
+- **Tests added:** API authentication; duplicate-version conflict; exact version retrieval; monotonic lifecycle; publication gating; audit events and manifest hashes; database immutability triggers; POSIX owner-only file permissions; truthful UI actions with execution disabled.
+- **Storage configuration:** `TAAS_AGENT_REGISTRY_PATH`; default `~/.taas/studio/agents.sqlite3`.
+- **Trust limits:** local single-service SQLite only; no tenant isolation, encryption-at-rest, backup/restore, external human identity attribution, signed audit, secret broker, model admission, tool registry snapshot binding, authorization or execution.
+- **CI:** run #41675370864 was in progress when this tracker entry was written; no pass/fail conclusion recorded. Exact-head evidence must be checked before acceptance.
+- **Next:** verify PR #26 CI, then design production registry evolution (tenant identity, encrypted persistence, migrations, backup/restore, external audit sink) and immutable MCP registry snapshots before enabling any governed tool execution.
+
+### Change log addendum
+
+- **2026-11-03:** PR #25 exact final head `f9430971531992307d528e40740c89a0e46eabf1` passed run #41674346126: 190 passed, 3 warnings; hypergraph build and artifact upload succeeded.
+- **2026-11-03:** PR #26 opened with immutable Agent registry and lifecycle implementation. Run #41675370864 was still in progress at the time of this update; no CI result is claimed.
