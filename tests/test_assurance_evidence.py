@@ -78,7 +78,7 @@ def test_tampered_payload_and_attestation_are_rejected(tmp_path):
         environ=env,
     )
     changed = {**envelope, "payload": {"valid": False}}
-    with pytest.raises(EvidenceError, match="payload hash"):
+    with pytest.raises(EvidenceError, match="payload_sha256"):
         store_evidence(changed, environ=env)
     changed = {**envelope, "attestation_sha256": "0" * 64}
     with pytest.raises(EvidenceError, match="attestation"):
