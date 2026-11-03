@@ -763,15 +763,24 @@ def mcp_registry_snapshot_inspect() -> dict[str, Any]:
                 if name in seen or not isinstance(schema, dict):
                     raise HTTPException(status_code=502, detail=f"MCP server {configured_server['id']} returned duplicate tools or an invalid input schema")
                 seen.add(name)
+                description = tool.get("description") or ""
+                output_schema = tool.get("output_schema")
+                annotations = tool.get("annotations")
+                if not isinstance(description, str) or len(description) > 12000:
+                    raise HTTPException(status_code=502, detail=f"MCP tool {name} returned an invalid description")
+                if output_schema is not None and not isinstance(output_schema, dict):
+                    raise HTTPException(status_code=502, detail=f"MCP tool {name} returned an invalid output schema")
+                if annotations is not None and not isinstance(annotations, dict):
+                    raise HTTPException(status_code=502, detail=f"MCP tool {name} returned invalid annotations")
                 definition = {
                     "server_id": configured_server["id"],
                     "name": name,
-                    "description": tool.get("description") or "",
+                    "description": description,
                     "input_schema": schema,
-                    "output_schema": tool.get("output_schema"),
-                    "annotations": tool.get("annotations"),
+                    "output_schema": output_schema,
+                    "annotations": annotations,
                 }
-                canonical = json.dumps(definition, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+                canonical = json.dumps(definition, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False)
                 definition["definition_sha256"] = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
                 normalized_tools.append(definition)
             servers.append({
@@ -790,7 +799,11 @@ def mcp_registry_snapshot_inspect() -> dict[str, Any]:
         }
         if sum(len(server["tools"]) for server in servers) > 5000:
             raise HTTPException(status_code=413, detail="MCP registry snapshot exceeds the 5,000-tool safety limit")
-        if len(json.dumps(snapshot, ensure_ascii=False).encode("utf-8")) > 10 * 1024 * 1024:
+        try:
+            snapshot_size = len(json.dumps(snapshot, ensure_ascii=False, allow_nan=False).encode("utf-8"))
+        except (TypeError, ValueError) as exc:
+            raise HTTPException(status_code=502, detail="MCP registry returned a non-JSON schema value") from exc
+        if snapshot_size > 10 * 1024 * 1024:
             raise HTTPException(status_code=413, detail="MCP registry snapshot exceeds the 10 MiB safety limit")
         return agent_registry.store_mcp_snapshot(snapshot)
     except ValueError as exc:
