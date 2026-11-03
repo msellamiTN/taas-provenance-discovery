@@ -43,3 +43,19 @@ def test_catalog_selection_does_not_claim_runtime_compatibility_or_execute_code(
     assert "runtime compatibility unverified" in html
     assert "model_code_executed" in html or "Remote repository code execution is disabled" in html
     assert "trust_remote_code=false" in html
+
+def test_overview_exposes_taas_lifecycle_and_marks_execution_gateway_truthfully():
+    html = PAGE.read_text(encoding="utf-8")
+    for marker in (
+        "TaaS engineering lifecycle",
+        "Agent planning",
+        "Tool intelligence",
+        "Goal contract",
+        "Discovery",
+        "Assurance",
+        "Execution gateway",
+        "Authorization primitives only · no invocation API",
+    ):
+        assert marker in html
+    assert 'document.querySelectorAll(".pipeline-step[href]")' in html
+    assert 'studioLinks.find(link=>link.getAttribute("href")===step.getAttribute("href"))' in html
