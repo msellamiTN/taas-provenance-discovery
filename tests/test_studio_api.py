@@ -844,3 +844,17 @@ def test_studio_navigation_shell_has_valid_targets_and_accessible_skip_link():
     assert 'aria-label="Studio sections"' in html
     assert ".studio-layout" in html
     assert "@media(max-width:900px)" in html
+
+
+def test_studio_invalidates_discovery_output_when_benchmark_context_changes():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    assert "const clearDiscoveryResult = (reason) =>" in page
+    assert "discoveryRequestGeneration += 1" in page
+    assert "previous discovery output, certificate and bindings were invalidated" in page
+    assert "submittedPrompt !== selectedPrompt" in page
+    assert "GoalSpec prompt does not exactly match the currently selected benchmark task" in page
+    assert "if (activeGeneration !== discoveryRequestGeneration) return;" in page
+    assert 'clearDiscoveryResult("Task changed:' in page
+    assert 'clearDiscoveryResult("Benchmark context cleared:' in page
