@@ -229,3 +229,15 @@ Every PR must be executed in Google Colab against its exact head SHA. GitHub Act
 
 
 - **2026-11-03:** Integrated the two test-only repairs from PR #23 directly into PR #21's head branch (commits `5a75f3013d14b1416ef56e68288b6b0218e67e48` and `a6e9657e7b43568b18ae73fbab7a22137f30cd8d`). PR #21 now contains the title assertion and robust nested-workspace/CSS assertions. The new PR #21 head is `a6e9657e7b43568b18ae73fbab7a22137f30cd8d`; no fresh CI run has yet been returned for this head. PR #23 remains open pending confirmation that the integrated PR #21 run is green.
+
+
+## 9. Professional Studio shell milestone (PR #24)
+
+- **PR:** [#24 — Professional Studio shell: capability-aware navigation and truthful execution boundaries](https://github.com/msellamiTN/taas-provenance-discovery/pull/24)
+- **Branch:** `feature/taas-professional-studio-shell`
+- **Base:** PR #21 branch `feature/colab-model-agent-studio`
+- **Head:** `ca88de7b9bdd73e4e0f2ef6a28d3dcab069b2a71`
+- **Implemented:** grouped BUILD / TOOLS & DISCOVERY / OPERATE & OBSERVE navigation; Overview at top; responsive sticky sidebar; keyboard focus visibility; corrected capability banner; explicit statement that governed MCP invocation, isolated workers and durable run history are not enabled.
+- **Static validation:** all 12 navigation anchors resolve to actual element IDs. Regression assertions added for navigation grouping and execution boundary.
+- **CI/browser/Colab:** no fresh CI run or live browser/Colab evidence observed at time of tracker update. Status remains pending.
+- **Next:** validate PR #24 regression CI, review the visual layout at desktop/tablet/mobile widths, then proceed to real Execution Gateway + governed MCP invocation design only after defining isolation, secret brokering, cancellation, audit, budgets and trace persistence.
