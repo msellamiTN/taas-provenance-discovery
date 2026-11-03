@@ -1,179 +1,145 @@
-# TaaS Studio on Google Colab T4 — quickstart
+# TaaS Model & Agentic Studio on Google Colab — Quickstart
 
-## One-click launch
+## 1. Launch
 
-1. Open [the Colab notebook](../../notebooks/colab/taas_core_studio_colab.ipynb).
-2. Select **Runtime → Change runtime type → T4 GPU** when available.
+1. Open the maintained [Colab notebook](../../notebooks/colab/taas_core_studio_colab.ipynb).
+2. Select **Runtime → Change runtime type → T4 GPU** when available. CPU mode remains possible for smaller models.
 3. Run the notebook cells from top to bottom.
-4. Wait for the package import and /health + /ready checks.
-5. Open the generated **TaaS Studio** browser link.
-6. Copy the temporary API token printed by the launch cell into the Studio token field when submitting discovery requests.
+4. The notebook checks out an immutable revision, installs `.[studio,hf]` into the active interpreter, verifies imports, detects hardware, creates a temporary API token and starts the FastAPI service on loopback.
+5. Open the generated Studio link and enter the token in the Studio token field.
 
-No ModelProfile upload, Hugging Face token, model endpoint or manual provider configuration is required to launch the current Studio.
+The Colab notebook currently pins the integrated Studio implementation at commit `26900dece9b035ff52dee3dd465a3e01ebff3c3c`. The pin is intentional: the notebook does not install an unreviewed moving branch.
 
-## GPU diagnostics milestone
+## 2. What is available in this revision
 
-The Studio includes an authenticated **Runtime · GPU diagnostics** panel. Enter the current runtime token and select **Check GPU and CUDA**.
+### Model Studio
 
-- `gpu_detected` and `nvidia_smi_available` report host-level NVIDIA visibility.
-- `cuda_available` reports whether the installed PyTorch build can access CUDA.
-- `inference_ready` is true only when PyTorch reports CUDA and a device can be queried.
-- GPU memory is reported in MiB when available.
-- A visible T4 with `inference_ready=false` is not yet a working inference runtime.
+- Search Hugging Face repositories using the authenticated model catalog adapter.
+- Inspect repository metadata and reported architecture fields.
+- Inspect repository file metadata and backend candidates without downloading those files.
+- Estimate weight memory and optional decoder KV cache when the required dimensions are present.
+- Explicitly load a Hugging Face causal language model into the process hosting the Studio API.
+- Run real model-backed chat inference against the process-local loaded model.
 
-This endpoint is diagnostic only. It does not install CUDA, PyTorch, model weights or an inference engine, and it does not allocate GPU memory or run a model.
+Relevant API routes:
 
-## Current capability boundary
+| Method | Route | Behavior |
+|---|---|---|
+| GET | `/api/v1/models/search` | Search repository metadata |
+| GET | `/api/v1/models/detail` | Inspect reported model/config metadata |
+| GET | `/api/v1/models/artifacts` | Inspect file metadata; no download |
+| POST | `/api/v1/models/estimate-memory` | Advisory memory estimate |
+| GET | `/api/v1/models/runtime` | Actual process-local model state |
+| POST | `/api/v1/models/load` | Explicit download and load into this API process |
+| POST | `/api/v1/models/chat` | Real inference using the loaded model |
 
-This PR milestone launches the existing **TaaS discovery workspace**. It does not yet provide Hugging Face model search/download/load, model-backed chat, agent orchestration, MCP server invocation, live execution streaming or persistent run history. These must be implemented and tested before being advertised as available.
+The runtime accepts a Hugging Face `owner/repository` model ID and `auto`, `cpu` or `cuda` device selection. Loading uses `trust_remote_code=False` and Safetensors. A model selected in the catalog is not loaded automatically. A successful load does not prove the model produces correct answers; a successful chat request is evidence that an inference request completed.
 
-The Colab notebook installs the package into the active interpreter and verifies the taas import before starting Uvicorn. If installation fails, it prints the pip output and stops instead of continuing into a misleading profile-import error.
+The memory estimator is not a compatibility or load guarantee. It estimates weights, configured overhead, runtime reserve and optional decoder KV cache. It excludes activations, backend workspaces and allocator fragmentation. Artifact-extension/backend matches are candidates only; actual load and inference are the runtime checks.
 
-## Valid discovery example
+### Agent Studio
 
-The browser workspace ships with a runnable, read-only metadata example. Its GoalSpec follows the parser contract:
+- Chat with the loaded model.
+- Ask the loaded model to propose a canonical TaaS GoalSpec from a natural-language objective.
+- Parse and structurally validate the proposal.
+- Review the proposed goals before applying them to the visual GoalSpec editor.
 
-```json
-{
-  "prompt": "List the available orders",
-  "goals": [{
-    "id": "g1",
-    "class": "retrieve",
-    "in": [],
-    "out": "record[]",
-    "eff": ["read(*)"],
-    "sigma": "data",
-    "desc": "Retrieve the available orders",
-    "deps": []
-  }]
-}
-```
+The proposal is not proof that the GoalSpec faithfully represents the user's intent. Structural validation is not semantic validation. This revision does not implement a bounded autonomous agent loop or MCP tool-calling execution.
 
-The accompanying demo tool is named `demo-orders::list_orders`, declares an array output schema, and has the MCP `readOnlyHint` annotation. This is synthetic metadata supplied to the discovery engine; it is not a live MCP connection and does not execute the tool.
+Relevant API routes:
 
-Important contract rules:
+| Method | Route | Behavior |
+|---|---|---|
+| POST | `/api/v1/agents/decompose` | Model-assisted GoalSpec proposal |
+| POST | `/api/v1/goals/validate` | Structural validation only |
 
-- Use `out`, `desc`, and `deps`; the API rejects the legacy aliases `output`, `reason`, and `dependencies`.
-- Goal `class` must be a supported model or external class. `read` is an effect, not a goal class.
-- `eff` is an array of effect expressions, e.g. `["read(*)"]`, not a scalar string.
-- `sigma` is one of `native`, `data`, `effect`, or `unreliable`.
-- Semantic output types must agree with the tool contract. The demo uses `record[]` on both sides.
-- The demo policy uses `lmin: ann` because its synthetic read-only evidence comes from an MCP annotation; an `obs` threshold would correctly exclude annotation-only evidence.
-- A successful discovery response returns the canonical parsed GoalSpec, including `in`, `out`, `eff`, `desc`, and `deps`.
+### TaaS Discovery Studio
 
-An `abstained` result remains a valid safety outcome. Inspect `counterexample`, `gap`, `composition.stats.per_goal`, and the eligible/candidate counts; do not weaken policy or type checks merely to obtain a selected toolkit.
+- Browse retained benchmark datasets, task prompts and tool metadata.
+- Author and validate GoalSpecs.
+- Inspect configured MCP stdio servers and their advertised tool schemas.
+- Submit a GoalSpec, tool contracts and policy to the actual TaaS discovery engine.
+- Inspect selected tools or explicit abstention, model coverage, composition statistics, certificate checks, witnesses and counterexamples.
 
-## Default calibration mode
+Relevant API routes:
 
-Studio starts without TAAS_MODEL_PROFILE. The API creates an explicit uncalibrated-default profile with strict=True. Unknown model-native capabilities therefore receive rho=0; the system does not invent calibration measurements or claim calibrated model competence.
+| Method | Route | Behavior |
+|---|---|---|
+| GET | `/api/v1/bench/datasets` | Retained dataset catalogue |
+| GET | `/api/v1/bench/tasks` | Task prompts; evaluator gold mappings are not returned |
+| GET | `/api/v1/bench/tools` | Retained tool metadata |
+| GET | `/api/v1/mcp/servers` | Operator-configured MCP stdio servers |
+| POST | `/api/v1/mcp/servers/{server_id}/inspect` | Connect and inspect tool schemas only |
+| POST | `/api/v1/discover` | Run TaaS discovery and pre-execution assurance |
 
-A measured model profile can be configured later through a dedicated Studio configuration interface. It must be produced from actual calibration observations and validated using ModelProfile.load(path). Model-provider configuration (Hugging Face repository, quantization, inference runtime and generation parameters) is separate from this calibration profile.
+MCP inspection does not call `tools/call`. Discovery does not execute selected tools. A selected toolkit and a valid pre-execution certificate do not establish runtime success or task completion.
 
-## Runtime and security
+## 3. Model capability calibration
 
-- The API binds to 127.0.0.1:8000 and is opened through Colab's proxyPort helper.
-- The notebook creates a temporary bearer token per runtime. Treat the notebook output as sensitive; do not share it.
-- Colab is ephemeral. Model weights, process state and files under /content may disappear when the runtime ends.
-- A visible T4 does not accelerate the current CPU-oriented discovery engine. It is intended for a future local inference backend.
-- Do not expose the service through an unauthenticated public tunnel. Team sharing requires a named tunnel and an identity-aware access policy protecting the complete hostname.
+The TaaS core uses a measured `ModelProfile` to estimate native model capability. This is different from Hugging Face model metadata and different from successful model loading.
 
-## Troubleshooting
+By default, the notebook removes `TAAS_MODEL_PROFILE`, so the API starts with an explicit strict, uncalibrated profile. Unmeasured model-native capabilities are not assumed. Do not infer `rho` values from model names, parameter counts, model cards or artifact metadata.
+
+At this revision, the loaded Model Runtime identity is not yet automatically bound to a measured TaaS ModelProfile. Treat that as a known integration limitation. A configured profile must be produced from actual calibration observations and must correspond to the model being evaluated.
+
+## 4. MCP server configuration and boundaries
+
+MCP servers are operator-configured through `TAAS_MCP_SERVERS_JSON` or `TAAS_MCP_SERVERS_FILE`. The current adapter supports configured stdio servers for inspection. The server process is started only for the bounded inspection session; the feature returns the advertised tool descriptions, schemas and annotations.
+
+- Tool descriptions, schemas and MCP annotations are declarations, not independently verified evidence.
+- The current Studio does not provide a general MCP server connection manager, credential vault, remote HTTP/SSE transport support or invocation API.
+- The execution-gateway module contains authorization primitives, but it does not start MCP servers or invoke tools.
+- Do not expose a button or workflow as executable unless a server-side invocation implementation and its security controls have been separately delivered and tested.
+
+## 5. Runtime and Colab behavior
+
+- The API binds to `127.0.0.1:8000` and is exposed using Colab's `proxyPort` helper.
+- The model runs inside the same Colab Python process that hosts the API; this is not a remote Colab connector.
+- The notebook creates a temporary bearer token for the runtime. Treat notebook output as sensitive and do not share the token.
+- Colab storage and process state are ephemeral. Model downloads may consume substantial disk and memory.
+- A visible T4 is a host-level observation. Actual model load and inference must be verified from Model Studio.
+- The discovery core is CPU-oriented; a GPU is intended for local model inference, not for accelerating the current discovery algorithms.
+
+The API is experimental, process-local and single-user oriented. It is not a production multi-tenant deployment.
+
+## 6. Trust and result interpretation
+
+Keep these states distinct:
+
+1. **GoalSpec structural validity** — the contract passes syntax, type vocabulary and dependency checks.
+2. **Discovery selection** — the engine found a candidate toolkit under the submitted contracts and policy.
+3. **Pre-execution certificate** — the mandatory checks and recorded witnesses validate under the model, provenance and policy assumptions.
+4. **Runtime outcome** — whether an actual model or MCP invocation ran and what it returned.
+
+The current MCP workflow reaches inspection and discovery, not runtime tool invocation. Never describe a certificate as an execution trace, a selected toolkit as proof of semantic task completion, or metadata as runtime observation.
+
+## 7. Troubleshooting
 
 | Symptom | Action |
 |---|---|
-| Repository checkout fails | Check network access and pinned commit availability. |
-| taas import fails | Confirm the install cell completed; inspect its pip stdout/stderr and verify src/taas exists in the checked-out repository. |
-| GPU not visible | Select T4 if available; check `nvidia-smi` in Colab. |
-| GPU visible, CUDA unavailable | A CUDA-compatible PyTorch build and inference backend are not yet configured; host visibility alone is insufficient. |
-| Hardware diagnostics return 401 | Enter the current runtime token in Studio. |
-| API exits | Inspect /content/taas-studio.log. |
-| /ready returns 503 | Confirm the generated API token is present in the notebook runtime and rerun launch. |
-| Discovery returns 401 | Paste the current runtime's token into the Studio token field. |
-| Discovery returns 422 | Check GoalSpec, policy and engine fields against the current TaaS core contract. |
-| Colab proxy fails | Confirm the runtime remains connected and rerun the proxy-link cell. |
+| Repository checkout fails | Check Colab network access and the immutable pinned commit. |
+| Installation fails | Inspect the pip output in the notebook. The integrated Model Studio requires the `hf` extra. |
+| Import check fails | Confirm `torch`, `transformers`, `safetensors`, FastAPI and Uvicorn imports succeed in the active interpreter. |
+| GPU not visible | Select a GPU runtime when available; inspect `nvidia-smi`. |
+| Model load fails | Inspect the API/Colab log. Confirm model access, available disk/VRAM, supported Safetensors artifacts and backend requirements. |
+| Chat reports no model loaded | Use the explicit Model Runtime load action first. |
+| API returns 401 | Enter the temporary token printed by the current notebook runtime. |
+| Discovery returns 422 | Validate the GoalSpec, semantic types, effects and engine settings. |
+| Discovery abstains | Inspect the counterexample, gap, evidence threshold, policy and composition diagnostics; do not weaken safety constraints just to force selection. |
+| Colab proxy fails | Keep the runtime connected and rerun the proxy-link cell. |
 
-## Next product milestones
+## 8. Deliberately not included yet
 
-1. Hugging Face Model Manager with T4-aware memory estimation and load/unload.
-2. Model-backed chat and a bounded agent runtime.
-3. MCP server/tool registry and controlled invocation.
-4. TaaS-governed tool selection, approval and execution enforcement.
-5. Observable run timeline, decision certificates and persistent trace storage.
+The following remain separate implementation milestones:
 
-The benchmark-native execution adapters remain separate from interactive Studio chat so that interactive features do not alter benchmark protocols.
+- model unload and managed download/load jobs;
+- immutable model revision pinning and revision-bound calibration;
+- streaming chat and conversation persistence;
+- model identity and measured TaaS ModelProfile binding;
+- durable workspaces, discovery run history and exportable traces;
+- persistent MCP server sessions, credential isolation and broader transport support;
+- sandboxed MCP invocation, runtime authorization enforcement, cancellation and output redaction;
+- bounded autonomous agent orchestration;
+- production identity, tenancy, quotas, audit and operational hardening.
 
-
-## Interpreting discovery results
-
-Studio distinguishes model delegation from external-tool coverage:
-
-- **Model-delegated goals** is the core engine's `gap`: goals not handled natively by the configured model profile and therefore passed to tool composition. It is not, by itself, a remaining coverage failure.
-- **Toolkit-bound goals** counts goal bindings in a successful composition certificate.
-- **Selected tools** lists metadata contracts chosen by composition.
-- A selected result and certificate establish compatibility under the supplied metadata, provenance and policy assumptions. They do not establish that a live MCP server is reachable or that executing a tool will return correct data.
-- `rho` is the model capability estimate. A zero value in an uncalibrated strict profile is not a tool quality score.
-
-Studio preserves the natural-language `goal_spec.prompt` when parsing and returning the canonical GoalSpec.
-
-
-## Model Manager foundation: VRAM estimation
-
-The authenticated endpoint `POST /api/v1/models/estimate-memory` provides an early model-size filter. Example:
-
-```json
-{
-  "parameters_billion": 7,
-  "quantization": "int4",
-  "overhead_fraction": 0.2,
-  "runtime_reserve_gib": 2.0
-}
-```
-
-Supported weight-storage assumptions are FP16 (2 bytes/parameter), INT8 (1 byte/parameter), and INT4 (0.5 byte/parameter). The estimate adds a configurable overhead fraction and runtime reserve, and compares the result with currently observed free GPU memory when available.
-
-**This is not a model compatibility or load guarantee.** When architecture inputs are supplied, the estimator adds decoder KV cache using `2 × layers × KV heads × head dimension × context length × batch size × bytes per element`. Supported cache dtypes are FP16, INT8 and FP32. If any architecture dimension is supplied, all four dimensions are required. Without them, KV cache is reported as unknown and is not included in the total. The estimate still excludes activations, CUDA workspaces, allocator fragmentation and backend-specific quantization metadata. No model is downloaded or loaded by this endpoint.
-
-
-## Read-only Hugging Face model catalog
-
-The Studio **Model catalog · Hugging Face** panel calls the authenticated endpoint:
-
-`GET /api/v1/models/search?q=...&limit=10&sort=downloads`
-
-The adapter queries the fixed Hugging Face model metadata API and returns a bounded subset of repository metadata: model ID, model page, task tag, library, downloads, likes, last modification time, gated/private flags, license tag, tags, safetensors presence and parameter count when supplied by the catalog.
-
-Operational properties:
-
-- Search limit is capped at 30 records; request timeout is 12 seconds.
-- An optional `HF_TOKEN` environment variable can be used for access to metadata that requires authentication. It is never returned by the API.
-- The Studio bearer token is required for the endpoint.
-- Repository IDs and metadata are treated as untrusted display data. No model card code, custom Python, or repository file is executed.
-- Search does **not** download weights, inspect all weight shards, load a model, or certify T4 compatibility.
-- Parameter counts may be absent. Safetensors metadata is not a substitute for inspecting a specific downloadable artifact and its quantization format.
-
-
-The authenticated detail endpoint is:
-
-`GET /api/v1/models/detail?model_id=namespace/repository`
-
-It returns a whitelist of configuration fields explicitly reported by the Hugging Face model API, including model type, architecture names, layer/head counts, explicit head dimension and reported context-limit fields when present. It does not infer missing architecture values from the model name or from unrelated dimensions. The response marks whether the reported dimensions are sufficient for the current conventional decoder KV-cache estimator. It does not inspect downloadable weight artifacts, download files, execute model code or establish backend compatibility.
-
-The next compatibility milestone must combine verified artifact metadata, architecture-specific KV-cache estimates, context length and the selected inference backend before allowing a download or load operation.
-
-
-Example architecture inputs for a decoder model:
-
-```json
-{
-  "parameters_billion": 7,
-  "quantization": "int4",
-  "num_hidden_layers": 32,
-  "num_key_value_heads": 8,
-  "head_dim": 128,
-  "context_length": 4096,
-  "batch_size": 1,
-  "kv_cache_dtype": "fp16"
-}
-```
-
-For those illustrative architecture values, the KV cache estimate is 0.5 GiB. These values are not inferred from the Hugging Face search result; they must be obtained from the selected model's verified configuration. The formula assumes a conventional decoder attention cache with separate key and value tensors. Architectures with sliding-window, latent, hybrid or otherwise nonstandard attention require a model-specific estimator.
+The current Studio should be evaluated against the features actually delivered above, not against this future roadmap.
