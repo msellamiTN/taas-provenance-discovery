@@ -29,8 +29,7 @@ def _free_port() -> int:
         return int(sock.getsockname()[1])
 
 
-@pytest.mark.browser
-def test_hypergraph_explorer_browser_journey(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+def test_hypergraph_explorer_browser_journey(tmp_path: Path):
     """Exercise auth, real Core discovery, graph interactions and responsive layout."""
     try:
         from playwright.sync_api import sync_playwright
