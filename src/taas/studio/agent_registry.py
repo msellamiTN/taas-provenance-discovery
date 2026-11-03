@@ -73,6 +73,43 @@ def _connect() -> sqlite3.Connection:
         )
         """
     )
+    connection.execute(
+        """
+        CREATE TRIGGER IF NOT EXISTS agent_versions_immutable_fields
+        BEFORE UPDATE OF agent_id, version, manifest_json, manifest_sha256, created_at
+        ON agent_versions
+        BEGIN
+            SELECT RAISE(ABORT, 'Agent version content is immutable');
+        END
+        """
+    )
+    connection.execute(
+        """
+        CREATE TRIGGER IF NOT EXISTS agent_versions_no_delete
+        BEFORE DELETE ON agent_versions
+        BEGIN
+            SELECT RAISE(ABORT, 'Agent versions cannot be deleted');
+        END
+        """
+    )
+    connection.execute(
+        """
+        CREATE TRIGGER IF NOT EXISTS agent_events_no_update
+        BEFORE UPDATE ON agent_events
+        BEGIN
+            SELECT RAISE(ABORT, 'Agent lifecycle events are append-only');
+        END
+        """
+    )
+    connection.execute(
+        """
+        CREATE TRIGGER IF NOT EXISTS agent_events_no_delete
+        BEFORE DELETE ON agent_events
+        BEGIN
+            SELECT RAISE(ABORT, 'Agent lifecycle events are append-only');
+        END
+        """
+    )
     if os.name == "posix":
         try:
             os.chmod(path.parent, 0o700)
