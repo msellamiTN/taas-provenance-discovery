@@ -665,6 +665,19 @@ def test_studio_frontend_exposes_visual_goalspec_editor_and_server_validation():
         assert marker in page
 
 
+def test_goal_spec_validation_rejects_missing_goal_description(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.post(
+        "/api/v1/goals/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json={"prompt": "Get BBC finance news", "goals": [
+            {"id": "g1", "class": "retrieve", "out": "record[]", "desc": ""}
+        ]},
+    )
+    assert response.status_code == 422
+    assert ".desc must be a non-empty authored goal description" in response.json()["detail"]
+
+
 def test_goal_spec_validation_rejects_unknown_prompt_context_type(monkeypatch):
     monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
     response = client.post(
@@ -728,8 +741,26 @@ def test_benchmark_task_import_clears_stale_demo_goal_before_authoring():
     assert response.status_code == 200
     page = response.text
     handler = page.split('$("bench-use-task").addEventListener("click",()=>{', 1)[1].split(
-        '\\n  $("bench-add-tools")', 1
+        '\n  $("bench-add-tools")', 1
     )[0]
     assert "goalSpecState.goals=[]" in handler
     assert "example goals were cleared" in handler
     assert "author semantic goal contracts" in handler
+
+
+def test_benchmark_tool_import_replaces_demo_tools_instead_of_merging():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    handler = page.split('$("bench-add-tools").addEventListener("click",()=>{', 1)[1].split(
+        '\n  function showBenchError', 1
+    )[0]
+    assert "body.tools=[...bench.selectedTools.values()]" in handler
+    assert "Demo/sample tools were removed" in handler
+    assert "new Map((body.tools||[])" not in handler
+
+
+def test_visual_goal_editor_requires_authored_goal_description():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "goal description is required; describe the intended operation" in response.text
