@@ -312,12 +312,24 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <a href="#goal-editor">GoalSpec designer</a>
       <a href="#discovery">Tool discovery</a>
       <a href="#certificate-panel">Assurance center</a>
+      <a href="#evidence-explorer">Evidence explorer</a>
       <span class="nav-label">OPERATE &amp; OBSERVE</span>
       <a href="#workspace">Benchmark workspace</a>
       <a href="#runtime">Runtime diagnostics</a>
       <div class="nav-foot"><span class="nav-status-dot"></span><span>Governed execution<br><small>MCP invocation not enabled</small></span></div>
     </nav>
     <div class="studio-content">
+
+  <section id="evidence-explorer" class="section-anchor" style="margin-bottom:18px">
+    <div class="panel-head"><div><div class="eyebrow">ASSURE · Evidence</div><h2 style="margin:4px 0">Evidence explorer</h2>
+    <p class="subtle" style="margin:4px 0 0">Inspect an immutable record by its content-addressed ID. The server verifies the stored subject binding, signature, digest and freshness.</p></div><span class="pill">Read-only · fail closed</span></div>
+    <div class="field"><label for="assurance-evidence-id">Evidence ID · SHA-256</label><input id="assurance-evidence-id" type="text" autocomplete="off" spellcheck="false" placeholder="Paste a 64-character evidence ID"><p class="subtle">No evidence is created or authorized from this screen.</p></div>
+    <div class="inline-actions"><button id="assurance-evidence-inspect" type="button">Verify and inspect</button><span id="assurance-evidence-status" class="status subtle" role="status" aria-live="polite">No evidence record selected.</span></div>
+    <div id="assurance-evidence-summary" class="result-grid" hidden></div>
+    <pre id="assurance-evidence-result" style="min-height:100px">Evidence details will appear here after server-side verification.</pre>
+    <p class="subtle">A valid HMAC proves service issuance and record integrity, not assessor-claim truth. It is not policy approval and does not authorize or execute a tool. Expired or tampered records are rejected.</p>
+  </section>
+
   <section class="runtime-overview" aria-labelledby="runtime-overview-title">
     <div class="runtime-overview-head">
       <div><div class="eyebrow">Live runtime · Colab / host</div><h2 id="runtime-overview-title" style="margin:4px 0">Environment overview</h2><p class="muted" style="margin:0">Observed process and hardware diagnostics. A visible GPU is not proof that a model is loaded or inference works.</p></div>
@@ -1563,6 +1575,46 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       body.tools=[...byKey.values()];$("payload").value=JSON.stringify(body,null,2);$("mcp-server-status").textContent=added+" MCP tool contract(s) added to discovery request. Review GoalSpec and policy before discovery.";
       if(bench.selectedTask){$("bench-goal-review").checked=false;$("bench-status").textContent="MCP tools added. Review selected tools against the active task and reconfirm before discovery.";}
     }catch(e){$("mcp-server-status").textContent="Could not update discovery request: "+e.message;}
+  });
+
+
+  $("assurance-evidence-inspect").addEventListener("click", async () => {
+    const id = $("assurance-evidence-id").value.trim();
+    const button = $("assurance-evidence-inspect");
+    const status = $("assurance-evidence-status");
+    const output = $("assurance-evidence-result");
+    const summary = $("assurance-evidence-summary");
+    summary.hidden = true;
+    summary.replaceChildren();
+    if (!/^[0-9a-f]{64}$/.test(id)) {
+      status.textContent = "Enter a lowercase 64-character SHA-256 evidence ID.";
+      output.textContent = "No request was sent.";
+      return;
+    }
+    button.disabled = true;
+    status.textContent = "Checking signature, binding, digest and freshness…";
+    output.textContent = "Verifying evidence record…";
+    try {
+      const data = await apiGet("/api/v1/assurance/evidence/" + encodeURIComponent(id));
+      const ev = data.evidence;
+      status.textContent = "Record integrity verified · freshness: " + data.freshness;
+      [["Evidence type", ev.evidence_type], ["Issuer", ev.issuer], ["Assessor", ev.assessor], ["Expires", ev.expires_at]].forEach(([label, value]) => {
+        const card = document.createElement("div"); card.className = "metric";
+        const caption = document.createElement("span"); caption.className = "subtle"; caption.textContent = label;
+        const strong = document.createElement("strong"); strong.style.fontSize = "13px"; strong.textContent = String(value);
+        card.append(caption, strong); summary.append(card);
+      });
+      summary.hidden = false;
+      output.textContent = JSON.stringify({evidence: ev, verification: {
+        integrity_verified: data.integrity_verified, freshness: data.freshness,
+        assessor_claim_truth_verified: data.assessor_claim_truth_verified,
+        authorization_granted: data.authorization_granted,
+        execution_performed: data.execution_performed
+      }}, null, 2);
+    } catch (error) {
+      status.textContent = "Evidence could not be verified: " + error.message;
+      output.textContent = "No evidence content was accepted. Check the ID, API diagnostics and record freshness.";
+    } finally { button.disabled = false; }
   });
 
 })();

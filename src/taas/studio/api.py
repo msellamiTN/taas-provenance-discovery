@@ -38,6 +38,7 @@ from taas.studio.runtime import estimate_model_memory, probe_hardware, probe_run
 from taas.studio.model_runtime import ModelRuntimeError, get_model_runtime
 from taas.studio.mcp_registry import MCPRegistryError, inspect_server as inspect_mcp_server, list_servers as list_mcp_servers
 from taas.types import KINDS
+from taas.studio.assurance_routes import build_assurance_router
 
 app = FastAPI(
     title="TaaS Core Studio API",
@@ -133,6 +134,9 @@ def require_api_token(
             detail="Invalid or missing bearer token",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+app.include_router(build_assurance_router(require_api_token))
 
 
 def load_profile() -> ModelProfile:
