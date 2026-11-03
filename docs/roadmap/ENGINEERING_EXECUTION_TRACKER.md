@@ -5,6 +5,7 @@
 **Product target:** TaaS Professional Studio — from objective to governed execution.  
 **Repository:** `msellamiTN/taas-provenance-discovery`  
 **Tracking baseline:** 2026-11-03  
+**Tracker PR:** [#22 — Add evidence-based TaaS engineering execution tracker](https://github.com/msellamiTN/taas-provenance-discovery/pull/22) (open, draft).  
 **Current integration baseline:** PR #21 head `a9d629e7e710e6622c0b10eed06ece29ca62ab14` (open, draft; based on PR #20).  
 **Status vocabulary:** `Planned`, `In progress`, `Implemented`, `Built`, `Tested`, `Run verified`, `Blocked`, `Done`. Use `Done` only when all required gates pass.
 
@@ -207,4 +208,4 @@ For each task:
 
 ## 7. Change log
 
-- **2026-11-03:** Initial tracker created from the audited repository and PR #20/#21 state. No unverified feature is marked Done.
+- **2026-11-03:** Initial tracker created from the audited repository and PR #20/#21 state; submitted as draft PR #22. No unverified feature is marked Done.
