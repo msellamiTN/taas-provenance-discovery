@@ -6,7 +6,6 @@ multi-user deployments need isolated workers and resource scheduling.
 """
 from __future__ import annotations
 
-import json
 import re
 from json import JSONDecoder, JSONDecodeError
 import threading
@@ -27,7 +26,7 @@ def parse_goal_spec_response(raw: str) -> tuple[dict[str, Any] | None, str | Non
     if not isinstance(raw, str) or not raw.strip():
         return None, "The model returned an empty response."
     text = raw.strip()
-    fenced = re.fullmatch(r"```(?:json)?\\s*(.*?)\\s*```", text, re.IGNORECASE | re.DOTALL)
+    fenced = re.fullmatch(r"```(?:json)?\s*(.*?)\s*```", text, re.IGNORECASE | re.DOTALL)
     if fenced:
         text = fenced.group(1).strip()
     start = text.find("{")
