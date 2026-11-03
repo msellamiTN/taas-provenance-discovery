@@ -39,6 +39,7 @@ from taas.studio.model_runtime import ModelRuntimeError, get_model_runtime
 from taas.studio.mcp_registry import MCPRegistryError, inspect_server as inspect_mcp_server, list_servers as list_mcp_servers
 from taas.types import KINDS
 from taas.studio.assurance_routes import build_assurance_router
+from taas.hypergraph_projection import project_hypergraph
 
 app = FastAPI(
     title="TaaS Core Studio API",
@@ -502,6 +503,18 @@ def discover(request: DiscoverRequest) -> dict[str, Any]:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     certificate = result.certificate.to_dict() if result.certificate is not None else None
+    reachability = getattr(result.compose, "reachability", None)
+    hypergraph_projection = None
+    projection_status = "unavailable_abstained"
+    if not result.abstained and reachability is not None:
+        # Projection consumes the server-owned graph and final core ReachResult.
+        # It is a read-only view; no graph semantics are recomputed here.
+        hypergraph_projection = project_hypergraph(
+            engine.H,
+            reachability,
+            model_edges=engine.composer.model_edges(result.spec.goals),
+        )
+        projection_status = "available"
     counterexample = (
         result.counterexample.to_dict() if result.counterexample is not None else None
     )
@@ -542,6 +555,8 @@ def discover(request: DiscoverRequest) -> dict[str, Any]:
             "stats": result.compose.stats,
         },
         "discovery_time_seconds": result.time_s,
+        "hypergraph_projection_status": projection_status,
+        "hypergraph_projection": hypergraph_projection,
         "execution_performed": False,
         "model_profile": {
             "model_id": profile.model_id,
