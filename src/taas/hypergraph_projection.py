@@ -101,6 +101,13 @@ def project_hypergraph(
             "forbidden_with": forbidden,
         })
 
+    # Hypergraph.reach() intentionally removes LLM::* identifiers from ReachResult.fired.
+    # Model execution is therefore evidenced by the recorded model derivation, not fired.
+    model_derivation_edges = {
+        derivation.edge
+        for derivation in reach.derivations.values()
+        if derivation.kind == "model"
+    }
     model_edge_list = list(model_edges)
     for model in model_edge_list:
         tail = [str(item) for item in model.tail]
@@ -119,7 +126,7 @@ def project_hypergraph(
             "required_inputs": tail,
             "head": head,
             "rho": model.rho,
-            "fired_in_reachability": model.id in reach.fired,
+            "fired_in_reachability": model.id in model_derivation_edges,
         })
 
     bridges = []
