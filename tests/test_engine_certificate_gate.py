@@ -45,7 +45,8 @@ def test_discover_abstains_when_composition_has_no_certificate(monkeypatch):
 
 
 def test_discover_abstains_when_mandatory_certificate_check_fails(monkeypatch):
-    result = ComposeResult(["tool-a"], certificate(valid=False), None)
+    final_reachability = object()
+    result = ComposeResult(["tool-a"], certificate(valid=False), None, reachability=final_reachability)
     engine = engine_for(monkeypatch, result, SimpleNamespace(clarify=None, gap=[object()]))
 
     found = engine.discover(SimpleNamespace(goals=[], prompt_inputs=[]), policy=object())
@@ -54,6 +55,7 @@ def test_discover_abstains_when_mandatory_certificate_check_fails(monkeypatch):
     assert found.toolkit is None
     assert found.counterexample.check == "CERTIFICATE"
     assert found.counterexample.witness["failed_checks"] == ["S", "C", "P", "E", "L", "V"]
+    assert found.compose.reachability is final_reachability
 
 
 def test_discover_preserves_legitimate_empty_toolkit_with_valid_certificate(monkeypatch):
