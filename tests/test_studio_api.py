@@ -557,7 +557,7 @@ def test_studio_frontend_integrates_benchmark_and_tool_registry_workspace():
         'id="models"',
         'id="runtime"',
         "Gold labels reserved for evaluation",
-        "no automatic LLM interpretation is available in this build",
+        "No automatic LLM interpretation is available in this build.",
     ):
         assert marker in page
 
