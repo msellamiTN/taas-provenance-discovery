@@ -202,6 +202,10 @@
     </div>
     <div class="workspace-foot"><div><strong style="font-size:12px">Guided workflow</strong><div class="subtle">Select a task → review its intent → author/verify GoalSpec → select tools → run discovery.</div></div><span class="pill">Gold labels reserved for evaluation</span></div>
     <div id="bench-status" class="status subtle" aria-live="polite" style="margin-top:12px">Enter the Studio API token below, then load the benchmark workspace.</div>
+    <label style="display:flex;align-items:flex-start;gap:9px;font-weight:500">
+      <input id="bench-goal-review" type="checkbox" style="width:auto;margin-top:2px">
+      <span>I reviewed the GoalSpec against the selected benchmark prompt. Structural validation alone does not establish semantic alignment.</span>
+    </label>
   </section>
 
   <div class="grid" id="discovery">
@@ -541,6 +545,10 @@
     catch (e) { $("status").textContent = "Invalid JSON: " + e.message; return; }
     if(goalJsonManuallyEdited){$("status").textContent="Reload the visual editor from the advanced JSON before validation or discovery.";return;}
     if(bench.selectedTask){
+      if(!$("bench-goal-review").checked){
+        $("status").textContent="Benchmark discovery blocked: review the GoalSpec against the selected task prompt and confirm the review checkbox.";
+        return;
+      }
       const selected=[...bench.selectedTools.values()];
       const requestTools=Array.isArray(body.tools)?body.tools:[];
       const key=t=>(t.server||"")+"::"+(t.name||"");
@@ -676,7 +684,7 @@
   });
 
   // Integrated benchmark workspace: task prompts and tool metadata are browsed locally.
-  const bench = { dataset:"livemcpbench", taskOffset:0, toolOffset:0, taskTotal:0, toolTotal:0, taskLimit:12, toolLimit:15, selectedTask:null, selectedTools:new Map(), datasets:[] };
+  const bench = { dataset:"livemcpbench", taskOffset:0, toolOffset:0, taskTotal:0, toolTotal:0, taskLimit:12, toolLimit:15, selectedTask:null, selectedTaskKey:null, selectedTools:new Map(), datasets:[] };
   const syncBenchmarkToolsToRequest = () => {
     const body=JSON.parse($("payload").value);
     body.tools=[...bench.selectedTools.values()].map(t=>({
@@ -687,6 +695,24 @@
     }));
     $("payload").value=JSON.stringify(body,null,2);
     return body.tools.length;
+  };
+  const invalidateBenchmarkTaskContext = (message) => {
+    bench.selectedTask=null;bench.selectedTaskKey=null;bench.selectedTools.clear();
+    $("bench-tools").querySelectorAll('input[type="checkbox"]').forEach(cb=>{cb.checked=false;});
+    $("bench-selected-count").textContent="0 selected";$("bench-task-prompt").value="";
+    $("bench-goal-review").checked=false;goalSpecState.prompt="";goalSpecState.goals=[];
+    renderGoalEditor();getGoalSpec();syncBenchmarkToolsToRequest();$("bench-status").textContent=message;
+  };
+  const selectBenchmarkTask = (task) => {
+    const key=bench.dataset+"::"+(task.id||task.query||"");
+    if(bench.selectedTaskKey===key){bench.selectedTask=task;return false;}
+    bench.selectedTask=task;bench.selectedTaskKey=key;bench.selectedTools.clear();
+    $("bench-tools").querySelectorAll('input[type="checkbox"]').forEach(cb=>{cb.checked=false;});
+    $("bench-selected-count").textContent="0 selected";$("bench-task-prompt").value=task.query||"";
+    $("bench-goal-review").checked=false;goalSpecState.prompt=task.query||"";goalSpecState.goals=[];
+    renderGoalEditor();getGoalSpec();syncBenchmarkToolsToRequest();
+    $("bench-status").textContent="Task changed: previous GoalSpec and tool selections were invalidated. Author task-specific semantic goals, select relevant registry tools, then confirm your GoalSpec review.";
+    return true;
   };
   const tokenValue = () => $("token").value.trim();
   const apiGet = async (path) => {
@@ -702,7 +728,7 @@
       const b=document.createElement("button"); b.type="button"; b.className="list-item"+(item.id===bench.dataset?" active":"");
       const title=document.createElement("strong"); title.textContent=item.id;
       const meta=document.createElement("small"); meta.textContent=item.task_count+" tasks · "+(item.categories||[]).length+" categories";
-      b.append(title,meta); b.addEventListener("click",()=>{bench.dataset=item.id;bench.taskOffset=0;loadDatasets();loadTasks();}); $("bench-datasets").append(b);
+      b.append(title,meta); b.addEventListener("click",()=>{if(item.id!==bench.dataset)invalidateBenchmarkTaskContext("Dataset changed: previous task context, GoalSpec and tool selections were cleared.");bench.dataset=item.id;bench.taskOffset=0;loadDatasets();loadTasks();}); $("bench-datasets").append(b);
     });
     $("bench-data-origin").textContent=d.data_origin+" · upstream fetch: "+(d.upstream_fetch_performed?"yes":"no");
     const cats=[...new Set(bench.datasets.find(x=>x.id===bench.dataset)?.categories||[])];
@@ -721,7 +747,7 @@
       const b=document.createElement("button");b.type="button";b.className="list-item"+(bench.selectedTask?.id===t.id?" active":"");
       const title=document.createElement("strong");title.textContent=t.id||"Task";
       const meta=document.createElement("small");meta.textContent=(t.category||"Uncategorized")+" · "+(t.n_steps||1)+" step(s) · "+t.query;
-      b.append(title,meta);b.addEventListener("click",()=>{bench.selectedTask=t;$("bench-task-prompt").value=t.query||"";[...$("bench-tasks").children].forEach(x=>x.classList.remove("active"));b.classList.add("active");});
+      b.append(title,meta);b.addEventListener("click",()=>{selectBenchmarkTask(t);[...$("bench-tasks").children].forEach(x=>x.classList.remove("active"));b.classList.add("active");});
       $("bench-tasks").append(b);
     });
     if(!d.tasks?.length)$("bench-tasks").innerHTML='<div class="subtle" style="padding:12px">No tasks match these filters.</div>';
@@ -769,18 +795,13 @@
   $("bench-use-task").addEventListener("click",()=>{
     if(!bench.selectedTask){$("bench-status").textContent="Select a task first.";return;}
     try{
-      goalSpecState.prompt=bench.selectedTask.query||"";
-      // A benchmark prompt is not a semantic GoalSpec. Remove the demo/default
-      // goal so stale example intent cannot be submitted as if it described
-      // the selected benchmark task. The user must author at least one goal.
-      goalSpecState.goals=[];
-      renderGoalEditor();getGoalSpec();
+      const prompt=bench.selectedTask.query||"";
+      if(goalSpecState.prompt!==prompt){goalSpecState.goals=[];$("bench-goal-review").checked=false;}
+      goalSpecState.prompt=prompt;renderGoalEditor();getGoalSpec();
       const importedToolCount=syncBenchmarkToolsToRequest();
-      $("bench-status").textContent="Task prompt copied and example goals cleared. "+
-        (importedToolCount
-          ? importedToolCount+" selected registry tool(s) were synchronized; demo/sample tools were removed. "
-          : "The demo toolset was cleared; select registry tools before discovery. ")+
-        "Author semantic goal contracts that match this task. GoalSpec-to-prompt semantic alignment is not automatically verified.";
+      $("bench-status").textContent="Task prompt copied to GoalSpec. "+
+        (importedToolCount?importedToolCount+" selected registry tool(s) synchronized; review their relevance. ":"No registry tools selected; choose tools relevant to this task. ")+
+        "Author and review task-specific semantic goal contracts. Structural validation does not verify semantic alignment.";
       document.querySelector("#discovery").scrollIntoView({behavior:"smooth",block:"start"});
     }catch(e){$("bench-status").textContent="Cannot update GoalSpec: discovery request JSON is invalid.";}
   });
