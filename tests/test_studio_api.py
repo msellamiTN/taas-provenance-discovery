@@ -42,7 +42,7 @@ def test_ready_does_not_require_calibration(monkeypatch):
 def test_studio_home_serves_browser_workspace():
     response = client.get("/")
     assert response.status_code == 200
-    assert "TaaS Core Studio" in response.text
+    assert "TaaS Studio" in response.text
     assert "/api/v1/discover" in response.text
 
 
@@ -1094,3 +1094,19 @@ def test_mcp_registry_never_accepts_inline_secret_values(monkeypatch):
     monkeypatch.setenv("TAAS_MCP_SERVERS_JSON", '[{"id":"ok","name":"X","command":"python","env":{"API_KEY":"secret"}}]')
     with pytest.raises(MCPRegistryError):
         _load_config()
+
+
+def test_studio_authentication_is_global_and_verifiable_from_header():
+    from taas.studio.api import app
+    from fastapi.testclient import TestClient
+
+    page = TestClient(app).get("/").text
+    assert '<section id="studio-auth" class="studio-auth"' in page
+    assert 'id="token"' in page
+    assert 'id="studio-auth-connect"' in page
+    assert 'id="studio-auth-disconnect"' in page
+    assert 'id="studio-auth-toggle"' in page
+    assert 'fetch("/api/v1/runtime/hardware"' in page
+    assert 'token stays in this page\'s memory' in page
+    assert 'Discovery request configuration first' not in page
+    assert page.count('id="token"') == 1
