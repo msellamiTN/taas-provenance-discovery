@@ -181,16 +181,51 @@ def tau_arg(name: str, schema: dict | None, description: str = "") -> TypeAssign
     return TypeAssignment(SemType("text"), 0.4, "schema")
 
 
+_OUT_DOMAIN_RULES: list[tuple[re.Pattern[str], str]] = [
+    (re.compile(r"\b(npm|package|packages|module|dependency|dependencies)\b"), "package"),
+    (re.compile(r"\b(audio|sound|music|mfcc|chroma|spectrogram|waveform|beat tracking)\b"), "audio"),
+    (re.compile(r"\b(stock|stocks|equity|equities|ticker|finance|financial)\b"), "stock"),
+    (re.compile(r"\b(news|headline|headlines|article|articles)\b"), "news"),
+    (re.compile(r"\b(repository|repositories|repo|github)\b"), "repo"),
+    (re.compile(r"\b(review|reviews|rating|ratings)\b"), "review"),
+    (re.compile(r"\b(weather|forecast|meteorological)\b"), "weather"),
+    (re.compile(r"\b(image|images|photo|photos|picture|pictures)\b"), "image"),
+    (re.compile(r"\b(chart|charts|plot|plots|graph|graphs)\b"), "chart"),
+    (re.compile(r"\b(issue|issues|ticket|tickets|bug|bugs)\b"), "issue"),
+]
+
+
+def _array_item_evidence(output_schema: dict | None) -> str:
+    """Return shallow item-schema field evidence without interpreting arbitrary values."""
+    if not isinstance(output_schema, dict) or output_schema.get("type") != "array":
+        return ""
+    items = output_schema.get("items")
+    if not isinstance(items, dict):
+        return ""
+    props = items.get("properties")
+    if isinstance(props, dict):
+        return " " + " ".join(str(key) for key in props)
+    return ""
+
+
 def tau_out(name: str, description: str, output_schema: dict | None = None) -> TypeAssignment:
-    """τ for the output: output schema if present, else lexical inference on name+description."""
-    if output_schema and output_schema.get("type") == "array":
-        return TypeAssignment(SemType("record", None, True), 0.7, "schema")
-    text = (re.sub(r"[_\-]", " ", name) + " " + (description or "")[:200]).lower()
+    """Type outputs from array structure plus conservative semantic domain cues.
+
+    Array shape alone supports only generic record[]. A domain-specific array type
+    requires a lexical cue in the tool name, description, or item field names.
+    """
+    text = (re.sub(r"[_\-]", " ", name) + " " + (description or "")[:500]
+            + _array_item_evidence(output_schema)).lower()
+    is_array = bool(output_schema and output_schema.get("type") == "array")
+    if is_array:
+        for pat, domain in _OUT_DOMAIN_RULES:
+            if pat.search(text):
+                return TypeAssignment(SemType("record", domain, True), 0.72, "schema+lex-domain")
+        return TypeAssignment(SemType("record", None, True), 0.45, "schema-generic")
     for pat, t in _OUT_RULES:
         if pat.search(text):
             return TypeAssignment(parse_type(t), 0.55, "lex-out")
     return TypeAssignment(SemType("text"), 0.35, "default")
-
 
 @dataclass
 class TypeVocabulary:
