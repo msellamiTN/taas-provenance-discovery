@@ -755,11 +755,36 @@ def test_benchmark_tool_import_replaces_demo_tools_instead_of_merging():
     assert response.status_code == 200
     page = response.text
     handler = page.split('$("bench-add-tools").addEventListener("click",()=>{', 1)[1].split(
-        '\n  function showBenchError', 1
+        '\\n  function showBenchError', 1
     )[0]
-    assert "body.tools=[...bench.selectedTools.values()]" in handler
-    assert "Demo/sample tools were removed" in handler
+    assert "syncBenchmarkToolsToRequest()" in handler
+    assert "const syncBenchmarkToolsToRequest = () =>" in page
+    assert "body.tools=[...bench.selectedTools.values()]" in page
+    assert "Demo/sample tools were removed" in page
     assert "new Map((body.tools||[])" not in handler
+
+
+def test_benchmark_task_import_synchronizes_registry_selection_and_clears_demo_tools():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    task_handler = page.split('$("bench-use-task").addEventListener("click",()=>{', 1)[1].split(
+        '\\n  $("bench-add-tools")', 1
+    )[0]
+    assert "const importedToolCount=syncBenchmarkToolsToRequest()" in task_handler
+    assert "goalSpecState.goals=[]" in task_handler
+    assert "GoalSpec-to-prompt semantic alignment is not automatically verified" in task_handler
+
+
+def test_benchmark_registry_selection_stays_synchronized_and_blocks_stale_demo_discovery():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    assert "if(bench.selectedTask)" in page
+    assert "syncBenchmarkToolsToRequest()" in page
+    assert "Benchmark discovery blocked: select at least one registry tool" in page
+    assert "registry selections are not synchronized with the request" in page
+    assert "benchmark task NOT evaluated" in page
 
 
 def test_visual_goal_editor_requires_authored_goal_description():
