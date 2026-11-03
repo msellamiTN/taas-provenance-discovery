@@ -99,7 +99,7 @@ def test_mcp_colab_notebook_pins_the_integrated_agent_mcp_revision() -> None:
         compile("".join(cell.get("source", [])), f"mcp-colab-cell-{index}", "exec")
 
     assert f'TAAS_COMMIT = "{MCP_INTEGRATED_VALIDATED_COMMIT}"' in code
-    assert "pull/27" in markdown
+    assert "pull/34" in markdown
     assert "/api/v1/agents" in code
     assert "/api/v1/mcp/registry/snapshots" in code
     assert "google.colab.kernel.proxyPort" in code
