@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 NOTEBOOK = ROOT / "notebooks" / "colab" / "taas_core_studio_colab.ipynb"
 GUIDE = ROOT / "docs" / "deployment" / "COLAB_T4_QUICKSTART.md"
 WORKFLOW = ROOT / ".github" / "workflows" / "benchmark-hypergraph.yml"
-INTEGRATED_STUDIO_COMMIT = "f7fbe1ddf27e94ebabe267d5d417dab9da793f22"
+INTEGRATED_STUDIO_COMMIT = "888fefa5f14ad31ef367a7bdf560fcd1c6f0338e"
 
 
 def notebook_source() -> tuple[dict, str, str]:
