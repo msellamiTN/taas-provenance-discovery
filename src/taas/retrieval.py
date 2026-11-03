@@ -186,4 +186,3 @@ class HybridRetriever:
             items = [(t, v) for t, v in items
                      if ok(self.contracts[t]) and self.contracts[t].out.confidence >= self.kappa_min]
         return items[:k]
-}
