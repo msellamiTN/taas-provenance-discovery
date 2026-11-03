@@ -5,11 +5,10 @@ on:
     branches:
       - feature/benchmark-capability-hypergraph
       - feature/colab-t4-core-studio
+      - feature/colab-model-agent-studio
+  # Studio work is intentionally developed as stacked PRs. Do not restrict
+  # pull_request base branches to main or one historical feature branch.
   pull_request:
-    branches:
-      - main
-      - feature/benchmark-capability-hypergraph
-      - feature/integrated-studio-colab-runtime
   workflow_dispatch:
 
 # Avoid spending runner time on obsolete commits when newer work is pushed.
