@@ -5,7 +5,7 @@
 **Product target:** TaaS Professional Studio — from objective to governed execution.  
 **Repository:** `msellamiTN/taas-provenance-discovery`  
 **Tracking baseline:** 2026-11-03  
-**Tracker PR:** [#22 — Add evidence-based TaaS engineering execution tracker](https://github.com/msellamiTN/taas-provenance-discovery/pull/22) (open, draft).  
+**Tracker PR:** [#22 — Add evidence-based TaaS engineering execution tracker](https://github.com/msellamiTN/taas-provenance-discovery/pull/22) (open, draft; retargeted to PR #23's `fix/studio-regression-tests` branch so its test baseline includes the regression repair).  
 **Current integration baseline:** PR #20 head `4a3e4e460f2556f6556b1ef4736f991337cf32c2`; PR #21 head `8211e36b586a6ef75d185fb1b4c5dd5171037697` (both open, draft; PR #21 targets PR #20).  
 **Status vocabulary:** `Planned`, `In progress`, `Implemented`, `Built`, `Tested`, `Run verified`, `Blocked`, `Done`. Use `Done` only when all required gates pass.
 
@@ -223,3 +223,6 @@ Every PR must be executed in Google Colab against its exact head SHA. GitHub Act
 
 
 - **2026-11-03:** Fixed the Colab proxy launch configuration in PR #21: Uvicorn now binds to `0.0.0.0:8000`, while `/health` and `/ready` probes use `127.0.0.1:8000`. Added a regression assertion and `RpcError(NOT_FOUND)` operator troubleshooting. PR #21 notebook is pinned to exact PR #20 head `4a3e4e460f2556f6556b1ef4736f991337cf32c2`; PR #21 head is `8211e36b586a6ef75d185fb1b4c5dd5171037697`. Live Colab rerun and latest CI confirmation remain pending.
+
+
+- **2026-11-03:** PR #22 initially failed its CI run because its original base (`feature/colab-model-agent-studio`) still contained the three stale assertions. Retargeted PR #22 onto PR #23's `fix/studio-regression-tests` branch to establish the correct dependency order. The old failed run is tied to the old merge base; a fresh PR #22 CI run is still required and has not yet been observed.
