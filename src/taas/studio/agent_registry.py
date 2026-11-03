@@ -73,6 +73,24 @@ def _connect() -> sqlite3.Connection:
     )
     connection.execute(
         """
+        CREATE TRIGGER IF NOT EXISTS mcp_snapshots_no_update
+        BEFORE UPDATE ON mcp_registry_snapshots
+        BEGIN
+            SELECT RAISE(ABORT, 'MCP registry snapshots are immutable');
+        END
+        """
+    )
+    connection.execute(
+        """
+        CREATE TRIGGER IF NOT EXISTS mcp_snapshots_no_delete
+        BEFORE DELETE ON mcp_registry_snapshots
+        BEGIN
+            SELECT RAISE(ABORT, 'MCP registry snapshots are immutable');
+        END
+        """
+    )
+    connection.execute(
+        """
         CREATE TABLE IF NOT EXISTS agent_events (
             event_id INTEGER PRIMARY KEY AUTOINCREMENT,
             agent_id TEXT NOT NULL,
@@ -251,7 +269,7 @@ def list_versions(agent_id: str | None = None, limit: int = 100) -> dict[str, An
             ).fetchall()
         else:
             rows = connection.execute(
-                "SELECT agent_id, version, manifest_sha256, lifecycle_state, created_at, updated_at "
+                "SELECT agent_id, version, manifest_sha256, lifecycle_state, registry_snapshot_id, created_at, updated_at "
                 "FROM agent_versions WHERE agent_id = ? "
                 "ORDER BY created_at DESC, version LIMIT ?",
                 (agent_id, limit),
@@ -295,6 +313,14 @@ def transition(
                 f"Invalid Agent lifecycle transition: {current} -> {target_state}"
             )
         existing_snapshot = row["registry_snapshot_id"]
+        if registry_snapshot_id is not None:
+            snapshot_row = connection.execute(
+                "SELECT 1 FROM mcp_registry_snapshots WHERE snapshot_id = ?",
+                (registry_snapshot_id,),
+            ).fetchone()
+            if snapshot_row is None:
+                connection.rollback()
+                raise AgentRegistryNotFound(f"MCP registry snapshot {registry_snapshot_id} was not found")
         if registry_snapshot_id is not None and existing_snapshot not in (None, registry_snapshot_id):
             connection.rollback()
             raise AgentRegistryConflict("Agent version is already bound to a different MCP registry snapshot")
@@ -334,7 +360,7 @@ def list_events(agent_id: str | None = None, limit: int = 200) -> dict[str, Any]
         else:
             rows = connection.execute(
                 "SELECT event_id, agent_id, version, event_type, from_state, to_state, "
-                "manifest_sha256, actor, occurred_at FROM agent_events "
+                "manifest_sha256, actor, occurred_at, registry_snapshot_id FROM agent_events "
                 "WHERE agent_id = ? ORDER BY event_id DESC LIMIT ?",
                 (agent_id, limit),
             ).fetchall()
@@ -384,6 +410,9 @@ def get_mcp_snapshot(snapshot_id: str) -> dict[str, Any]:
     if row is None:
         raise AgentRegistryNotFound(f"MCP registry snapshot {snapshot_id} was not found")
     snapshot = json.loads(row["snapshot_json"])
+    _, recomputed_id = _canonical_manifest(snapshot)
+    if recomputed_id != row["snapshot_id"]:
+        raise AgentRegistryError("Stored MCP registry snapshot failed its content hash check")
     return {
         "snapshot_id": row["snapshot_id"],
         "created_at": row["created_at"],
