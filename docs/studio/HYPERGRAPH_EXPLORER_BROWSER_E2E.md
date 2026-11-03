@@ -1,34 +1,38 @@
-# Hypergraph Explorer — browser E2E acceptance
+# Hypergraph Explorer — Colab-hosted browser E2E acceptance
 
-## Objective
+## Runtime topology
 
-Validate the shipped TaaS Studio frontend in Chromium against a live loopback FastAPI process. This is a browser-level acceptance layer above the existing unit, projection and TestClient tests.
+The browser E2E notebook is an add-on to `notebooks/colab/taas_core_studio_colab.ipynb`. Operators must first run the Core Studio notebook in a Colab runtime. That notebook owns repository checkout, package installation, Uvicorn lifecycle, ephemeral bearer token and Colab `proxyPort` URL.
+
+The E2E add-on reuses the already-running `studio_process`, `api_token` and `proxy_url` from the same Python kernel. It must not start a second Uvicorn process, bind port 8000 again, install a second TaaS checkout, generate a replacement token, or expose another proxy.
 
 ## Browser journey
 
 The Playwright test:
 
-1. Starts the actual `taas.studio.api:app` with a test-only bearer token bound to loopback.
-2. Opens the real Studio HTML and verifies the initial unavailable/empty projection state.
-3. Authenticates through the Studio UI against the real runtime hardware endpoint.
-4. Runs the built-in demo discovery request through the UI and requires a Core-generated `taas.hypergraph-projection/v1` response.
-5. Checks `execution_performed=false` and inspects tool/vertex data in the UI.
-6. Exercises the search filter, SVG keyboard selection, accessible entity-list selection and inspector.
-7. Checks the narrow-screen stacked layout and captures a screenshot artifact.
-8. Asserts that the browser made no HTTP requests to `/api/v1/mcp/*`.
+1. Attaches Chromium to the URL returned by the Core Studio notebook's Colab proxy cell.
+2. Verifies the initial empty Hypergraph Explorer state.
+3. Uses the exact temporary bearer token created by the Core Studio launch cell.
+4. Runs the page's metadata-only demo discovery using the already-running API and real DiscoveryEngine.
+5. Requires a server-generated `taas.hypergraph-projection/v1` projection and `execution_performed=false`.
+6. Exercises filter/search, SVG keyboard selection, accessible entity-list selection and inspector details.
+7. Tests desktop and narrow-screen layouts and writes screenshot artifacts under `/content/taas-e2e-artifacts`.
+8. Asserts no browser requests to `/api/v1/mcp/*`.
 
 ## Safety boundary
 
-- The built-in demo tool is a synthetic metadata contract, not a live MCP server.
-- The discovery endpoint invokes the TaaS DiscoveryEngine only. No tool execution, MCP connection, authorization grant or production identity is exercised.
-- The bearer token is generated for this local test process and is not a production secret.
-- The server binds to `127.0.0.1` and is terminated after the test.
-- This test does not claim cross-browser coverage, production deployment acceptance, visual design sign-off, screen-reader certification or security penetration testing.
+- The built-in demo tool is synthetic metadata, not a live MCP server.
+- Discovery uses TaaS Core; no tool execution, MCP connection, authorization grant or production identity is exercised.
+- The API token is the current runtime token. The E2E notebook must never print its value or persist it.
+- Colab's proxy remains the only access path used by this test; the API continues to bind to loopback inside Colab.
+- This test does not claim cross-browser coverage, production deployment acceptance, screen-reader certification, security penetration testing or human visual sign-off.
 
 ## Run in Colab Runtime
 
-Use `notebooks/colab/taas_hypergraph_explorer_browser_e2e_colab.ipynb`. The notebook pins an immutable source revision, installs the test/Studio extras and Playwright Chromium, runs the browser journey and displays its screenshot artifact.
+1. Open `notebooks/colab/taas_core_studio_colab.ipynb` and run all cells through **Open TaaS Studio** in one runtime.
+2. Keep that runtime/kernel alive and open `notebooks/colab/taas_hypergraph_explorer_browser_e2e_colab.ipynb` in the same runtime.
+3. Run the E2E add-on from its first cell. It checks that `studio_process`, `api_token` and `proxy_url` exist before installing Playwright and running browser tests.
 
 ## Acceptance evidence
 
-A passing run means the exact browser journey above succeeded in the Colab runtime for the pinned revision. Keep the Colab output and GitHub Actions status distinct. A passing browser journey is not a replacement for the broader regression suite or human UX review.
+A passing run validates this browser journey against that currently running Colab Studio process. Keep the Colab operator output and GitHub Actions status distinct. A browser pass is not a replacement for the broader regression suite or human UX review.
