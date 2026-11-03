@@ -8,13 +8,15 @@ def test_bitcoin_report_rubric_requires_retrieval_reasoning_and_file_effect():
         "goals": [
             {"id": "g1", "class": "search", "out": "record:market[]", "eff": ["egress(web)"], "desc": "Find current Bitcoin market information", "deps": []},
             {"id": "g2", "class": "summarise", "out": "text", "eff": [], "desc": "Write the Bitcoin market report", "deps": ["g1"]},
-            {"id": "g3", "class": "create_document", "out": "path:file", "eff": ["write(fs)"], "desc": "Save Markdown report", "deps": ["g2"]},
+            {"id": "g3", "class": "create_document", "out": "path:file", "eff": ["write(fs)"], "desc": "Save Markdown report to /root/markdown/bitcoin.md", "deps": ["g2"]},
         ]
     }
     result = score_case(case, good)
     assert result["goal_recall"] == 1.0
     assert result["goal_precision"] == 1.0
     assert result["dag_valid"] is True
+    assert result["dependency_valid"] is True
+    assert result["missing_prompt_literals"] == []
     assert result["forbidden_effects"] == []
 
 
