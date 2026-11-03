@@ -775,7 +775,7 @@ def test_studio_navigation_shell_has_valid_targets_and_accessible_skip_link():
 
     page = Path(api.__file__).parent / "static" / "index.html"
     html = page.read_text(encoding="utf-8")
-    ids = set(re.findall(r'\\bid=["\\']([^"\\']+)', html))
+    ids = set(re.findall(r'id="([^"]+)"', html))
     nav = re.search(r'<nav class="studio-nav".*?</nav>', html, re.DOTALL)
     assert nav is not None
     targets = set(re.findall(r'href="#([^"]+)"', nav.group(0)))
