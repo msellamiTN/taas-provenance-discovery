@@ -594,7 +594,6 @@
     if (!token) { $("status").textContent = "Enter the Studio API token first."; return; }
     const goalErrors=validateGoalSpecLocal();
     if(goalErrors.length){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent=goalErrors.join(" ");$("status").textContent="Correct the GoalSpec validation errors before discovery.";return;}
-    const requestGeneration = ++discoveryRequestGeneration;
     clearDiscoveryResult("Running discovery for the current request context…");
     const activeGeneration = discoveryRequestGeneration;
     run.disabled = true;
@@ -707,6 +706,7 @@
 
       $("response").textContent = JSON.stringify(data, null, 2);
     } catch (e) {
+      if (activeGeneration !== discoveryRequestGeneration) return;
       $("status").textContent = "Request failed: " + e.message;
       $("toolkit").textContent = "No toolkit returned.";
       $("response").textContent = "";
