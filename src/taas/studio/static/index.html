@@ -1196,7 +1196,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     return fallback || "Request failed.";
   };
   const apiGet = async (path) => {
-    const token=tokenValue(); if(!token) throw new Error("Enter the Studio API token in Discovery request configuration first.");
+    const token=tokenValue(); if(!token) throw new Error("Connect to TaaS Studio in the application header first.");
     const r=await fetch(path,{headers:{"Authorization":"Bearer "+token}});
     const d=await r.json(); if(!r.ok) throw new Error(formatApiError(d.detail||d,"HTTP "+r.status)); return d;
   };
@@ -1303,7 +1303,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 
   // Real Hugging Face model runtime and agent operations. No mock inference path.
   const runtimePost = async (path, body) => {
-    const token=tokenValue(); if(!token) throw new Error("Enter the Studio API token in Discovery request configuration first.");
+    const token=tokenValue(); if(!token) throw new Error("Connect to TaaS Studio in the application header first.");
     const response=await fetch(path,{method:"POST",headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify(body)});
     const data=await response.json(); if(!response.ok) throw new Error(formatApiError(data.detail||data,"HTTP "+response.status)); return data;
   };
