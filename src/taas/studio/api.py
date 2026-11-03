@@ -746,9 +746,16 @@ def mcp_registry_snapshot_inspect() -> dict[str, Any]:
                 raise HTTPException(status_code=502, detail=f"MCP inspection for {configured_server['id']} did not prove read-only behavior")
             if inspected.get("server_id") != configured_server["id"]:
                 raise HTTPException(status_code=502, detail="MCP inspection returned a mismatched server identity")
+            raw_tools = inspected.get("tools")
+            if not isinstance(raw_tools, list) or len(raw_tools) > 500:
+                raise HTTPException(status_code=502, detail=f"MCP server {configured_server['id']} returned an invalid or oversized tool list")
             normalized_tools = []
             seen = set()
-            for tool in inspected.get("tools", []):
+            for tool in raw_tools:
+                if not isinstance(tool, dict):
+                    raise HTTPException(status_code=502, detail=f"MCP server {configured_server['id']} returned a malformed tool definition")
+                if tool.get("server") not in (None, configured_server["id"]):
+                    raise HTTPException(status_code=502, detail="MCP tool definition returned a mismatched server identity")
                 name = tool.get("name")
                 schema = tool.get("input_schema")
                 if not isinstance(name, str) or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_.-]{0,127}", name):
@@ -781,6 +788,10 @@ def mcp_registry_snapshot_inspect() -> dict[str, Any]:
             "capture_mode": "configured_stdio_tools_list",
             "servers": servers,
         }
+        if sum(len(server["tools"]) for server in servers) > 5000:
+            raise HTTPException(status_code=413, detail="MCP registry snapshot exceeds the 5,000-tool safety limit")
+        if len(json.dumps(snapshot, ensure_ascii=False).encode("utf-8")) > 10 * 1024 * 1024:
+            raise HTTPException(status_code=413, detail="MCP registry snapshot exceeds the 10 MiB safety limit")
         return agent_registry.store_mcp_snapshot(snapshot)
     except ValueError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
