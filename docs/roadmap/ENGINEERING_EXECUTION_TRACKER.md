@@ -6,7 +6,7 @@
 **Repository:** `msellamiTN/taas-provenance-discovery`  
 **Tracking baseline:** 2026-11-03  
 **Tracker PR:** [#22 — Add evidence-based TaaS engineering execution tracker](https://github.com/msellamiTN/taas-provenance-discovery/pull/22) (open, draft).  
-**Current integration baseline:** PR #21 head `a9d629e7e710e6622c0b10eed06ece29ca62ab14` (open, draft; based on PR #20).  
+**Current integration baseline:** PR #20 head `4a3e4e460f2556f6556b1ef4736f991337cf32c2`; PR #21 head `8211e36b586a6ef75d185fb1b4c5dd5171037697` (both open, draft; PR #21 targets PR #20).  
 **Status vocabulary:** `Planned`, `In progress`, `Implemented`, `Built`, `Tested`, `Run verified`, `Blocked`, `Done`. Use `Done` only when all required gates pass.
 
 ## 1. Definition of done
@@ -28,11 +28,11 @@ Never infer a live runtime result from static tests, a successful build, hardwar
 
 | Item | Evidence | State |
 |---|---|---|
-| PR #20 — Model Engineering Workbench | Open draft; head `26900dece9b035ff52dee3dd465a3e01ebff3c3c` | Implemented in branch; tests/run not established by PR description |
-| PR #21 — Colab launcher alignment | Open draft; head `a9d629e7e710e6622c0b10eed06ece29ca62ab14`; 5 commits / 4 files | Implemented; validation incomplete |
-| PR #21 GitHub Actions run #184 | [Run 41659536638](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/41659536638) | **Failed** at `Run regression suite`; hypergraph build and artifact upload skipped |
+| PR #20 — Model Engineering Workbench | Open draft; head `4a3e4e460f2556f6556b1ef4736f991337cf32c2` | Model workbench + global header authentication + Colab operator guide implemented; CI/Colab validation still needs evidence |
+| PR #21 — Colab launcher alignment | Open draft; head `8211e36b586a6ef75d185fb1b4c5dd5171037697`; 13 commits / 6 files | Notebook now pins PR #20 head, binds Uvicorn to `0.0.0.0:8000`, probes readiness via loopback, and tests/documentation cover proxy `NOT_FOUND`; validation incomplete |
+| PR #21 GitHub Actions run #184 | [Run 41659536638](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/41659536638) | Historical failure on earlier head; later notebook/proxy commits have not yet been confirmed green by a retrieved run |
 | CI failure detail | Job `unit-tests`, step 5 failed; available job summary does not expose failing assertion/log | Root cause **not yet established** |
-| Colab T4 live model load/inference | No execution evidence in PR #21 | Not run / unverified |
+| Colab T4 live model load/inference | No execution evidence in PR #21; latest notebook pin `4a3e4e460f2556f6556b1ef4736f991337cf32c2` | Not run / unverified |
 | Persistent workspace and multi-user isolation | Not present in audited Studio implementation | Not implemented |
 | MCP tool invocation | Execution gateway authorization primitives exist, but no MCP `tools/call` invocation path | Not implemented |
 
@@ -48,9 +48,9 @@ The PR #21 failure must be diagnosed from the job log before changing code. Do n
 | CORE-002 | Repair PR #21 regression | Minimal fix with regression test; no unrelated refactor; commit linked to PR #21 | **Validated in PR #23; integration into PR #21 pending review/merge** |
 | CORE-003 | Run full repository test suite | `python -m pip install -e ".[test,studio]"` then `python -m pytest -q`; record counts and environment | **Passed in GitHub Actions: 180 passed, 3 warnings (Python 3.11.17)** |
 | CORE-004 | Build benchmark hypergraph | Run `python scripts/build_benchmark_hypergraph.py --outdir /tmp/taas-benchmark-hypergraph`; verify expected outputs | **Passed in GitHub Actions: 31 vertices, 569 hyperedges, 76 servers; artifact uploaded** |
-| CORE-005 | Validate Colab notebook statically | Notebook JSON parse and notebook regression tests pass | Implemented in PR #21; CI currently failed |
-| CORE-006 | Validate Colab T4 runtime | Launch notebook on an actual T4 session; record GPU, exact model/revision, load, inference, latency/memory and errors; no synthetic success | Not run |
-| CORE-007 | Reconcile PR #20 → #21 stack | Confirm branch ancestry, no accidental divergence, all checks green before merge recommendation | In progress |
+| CORE-005 | Validate Colab notebook statically | Notebook JSON parse and notebook regression tests pass | Updated in PR #21; latest CI result not yet retrieved |
+| CORE-006 | Validate Colab runtime | Launch exact pinned notebook; record `/health`, `/ready`, proxy opening, authentication, GPU/model revision, load, inference, latency/memory and errors; no synthetic success | Not run; user to rerun after proxy-binding fix |
+| CORE-007 | Reconcile PR #20 → #21 stack | Confirm branch ancestry, no accidental divergence, all checks green before merge recommendation | In progress; PR #21 now pins exact PR #20 head |
 
 ### P1 — TaaS Professional Studio foundation
 
@@ -207,12 +207,12 @@ Every PR must be executed in Google Colab against its exact head SHA. GitHub Act
 
 ## 7. Immediate next actions
 
-1. Obtain the detailed failing output for PR #21 run #184 and reproduce the failure.
-2. Fix the regression with a targeted test.
-3. Re-run the full CI suite and benchmark hypergraph build.
-4. Validate the Colab notebook on an actual T4 session.
-5. Once the integration chain is stable, implement the TaaS Professional shell (P1) on a branch based on the latest validated stack head.
-6. Continue one focused PR per milestone; update this tracker in every PR that changes task status.
+1. Run the updated PR #21 regression workflow and inspect the exact head SHA and job logs; do not treat an empty workflow lookup as a pass.
+2. Have the operator restart Colab and execute the updated notebook top-to-bottom; capture readiness and proxy results.
+3. Verify global Studio authentication using the current runtime token, then validate GoalSpec and discovery workflows.
+4. Perform actual model load/inference on a T4 only when one is allocated; record model/revision/device/precision/latency/memory.
+5. Review PR #20/#21 stack ancestry and CI before any merge recommendation.
+6. Once this integration is validated, implement the TaaS Professional shell (P1) on a branch based on the latest validated stack head.
 
 ## 8. Change log
 
@@ -220,3 +220,6 @@ Every PR must be executed in Google Colab against its exact head SHA. GitHub Act
 - **2026-11-03:** Diagnosed PR #21 CI failures from full job logs; test-only repair in draft PR #23 passed CI (180 tests) and benchmark hypergraph build. PR #21 itself still needs the repair integrated.
 
 - **2026-11-03:** Added mandatory exact-SHA Colab validation protocol for every PR. Current PRs #20–#23 are explicitly marked NOT RUN in Colab; CI success is not treated as Colab evidence.
+
+
+- **2026-11-03:** Fixed the Colab proxy launch configuration in PR #21: Uvicorn now binds to `0.0.0.0:8000`, while `/health` and `/ready` probes use `127.0.0.1:8000`. Added a regression assertion and `RpcError(NOT_FOUND)` operator troubleshooting. PR #21 notebook is pinned to exact PR #20 head `4a3e4e460f2556f6556b1ef4736f991337cf32c2`; PR #21 head is `8211e36b586a6ef75d185fb1b4c5dd5171037697`. Live Colab rerun and latest CI confirmation remain pending.
