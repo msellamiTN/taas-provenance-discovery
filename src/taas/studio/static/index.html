@@ -344,6 +344,22 @@
 (() => {
   const $ = (id) => document.getElementById(id);
   const run = $("run");
+  let discoveryRequestGeneration = 0;
+  const clearDiscoveryResult = (reason) => {
+    discoveryRequestGeneration += 1;
+    ["selected","gap","covered","delegated","latency"].forEach(id => { if ($(id)) $(id).textContent = "—"; });
+    $("toolkit").textContent = "No discovery result for the current task context.";
+    $("response").textContent = "";
+    $("explanation").textContent = reason || "Discovery result cleared because the request context changed.";
+    $("certificate-panel").hidden = true;
+    $("certificate-checks").replaceChildren();
+    $("goal-coverage").replaceChildren();
+    $("certificate-witnesses").textContent = "No certificate evidence for the current context.";
+    $("certificate-state").className = "certificate-state";
+    $("certificate-state").textContent = "Not evaluated";
+    $("certificate-summary").textContent = "Run discovery for the current GoalSpec and tool selection to produce a new pre-execution result.";
+    $("status").textContent = reason || "Previous discovery result invalidated.";
+  };
 
   // Visual GoalSpec editor. The JSON request remains the canonical transport payload.
   const GOAL_CLASSES = ["classify","extract","summarise","translate","convert_format","write","plan","synthesise","aggregate","compute_exact","count","compare","answer","retrieve","search","fetch_web","store","send","transact","execute","navigate_browser","render_media","create_document","edit_document","random"];
@@ -486,6 +502,7 @@
         headers: { "Authorization": "Bearer " + token }
       });
       const data = await response.json();
+      if (activeGeneration !== discoveryRequestGeneration) return;
       if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
       $("model-status").textContent = data.count + " model metadata record(s). Weights downloaded: no.";
       $("model-results").textContent = JSON.stringify(data.models || [], null, 2);
@@ -545,6 +562,16 @@
     catch (e) { $("status").textContent = "Invalid JSON: " + e.message; return; }
     if(goalJsonManuallyEdited){$("status").textContent="Reload the visual editor from the advanced JSON before validation or discovery.";return;}
     if(bench.selectedTask){
+      const submittedPrompt = String(body.goal_spec?.prompt || "").trim();
+      const selectedPrompt = String(bench.selectedTask.query || "").trim();
+      if (!selectedPrompt || submittedPrompt !== selectedPrompt) {
+        clearDiscoveryResult("Discovery blocked: GoalSpec prompt does not exactly match the currently selected benchmark task. Re-import the task prompt and review the GoalSpec.");
+        return;
+      }
+      if (!Array.isArray(body.goal_spec?.goals) || body.goal_spec.goals.length === 0) {
+        clearDiscoveryResult("Discovery blocked: author at least one task-specific GoalSpec goal before running discovery.");
+        return;
+      }
       if(!$("bench-goal-review").checked){
         $("status").textContent="Benchmark discovery blocked: review the GoalSpec against the selected task prompt and confirm the review checkbox.";
         return;
@@ -567,6 +594,9 @@
     if (!token) { $("status").textContent = "Enter the Studio API token first."; return; }
     const goalErrors=validateGoalSpecLocal();
     if(goalErrors.length){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent=goalErrors.join(" ");$("status").textContent="Correct the GoalSpec validation errors before discovery.";return;}
+    const requestGeneration = ++discoveryRequestGeneration;
+    clearDiscoveryResult("Running discovery for the current request context…");
+    const activeGeneration = discoveryRequestGeneration;
     run.disabled = true;
     $("status").textContent = "Running discovery…";
     $("toolkit").textContent = "Waiting for API response…";
@@ -701,6 +731,7 @@
   };
   const invalidateBenchmarkTaskContext = (message) => {
     bench.selectedTask=null;bench.selectedTaskKey=null;bench.selectedTools.clear();
+    clearDiscoveryResult("Benchmark context cleared: prior discovery output, certificate and bindings are no longer applicable.");
     $("bench-tools").querySelectorAll('input[type="checkbox"]').forEach(cb=>{cb.checked=false;});
     $("bench-selected-count").textContent="0 selected";$("bench-task-prompt").value="";
     $("bench-goal-review").checked=false;goalSpecState.prompt="";goalSpecState.goals=[];
@@ -710,6 +741,7 @@
     const key=bench.dataset+"::"+(task.id||task.query||"");
     if(bench.selectedTaskKey===key){bench.selectedTask=task;return false;}
     bench.selectedTask=task;bench.selectedTaskKey=key;bench.selectedTools.clear();
+    clearDiscoveryResult("Task changed: previous discovery output, certificate and bindings were invalidated. Results shown below will belong only to the current task after a new run.");
     $("bench-tools").querySelectorAll('input[type="checkbox"]').forEach(cb=>{cb.checked=false;});
     $("bench-selected-count").textContent="0 selected";$("bench-task-prompt").value=task.query||"";
     $("bench-goal-review").checked=false;goalSpecState.prompt=task.query||"";goalSpecState.goals=[];
