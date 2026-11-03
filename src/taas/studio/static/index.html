@@ -581,6 +581,10 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     event.preventDefault();
     showStudioWorkspace(link);
   }));
+  document.querySelectorAll(".pipeline-step[href]").forEach(step => step.addEventListener("click", event => {
+    const destination=studioLinks.find(link=>link.getAttribute("href")===step.getAttribute("href"));
+    if(destination){event.preventDefault();showStudioWorkspace(destination);}
+  }));
   const initialWorkspace = studioLinks.find(link => link.getAttribute("href") === window.location.hash)
     || studioLinks.find(link => link.getAttribute("href") === "#overview")
     || studioLinks[0];
