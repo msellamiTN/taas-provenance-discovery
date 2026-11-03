@@ -62,7 +62,7 @@ def test_discovery_returns_server_owned_hypergraph_projection(monkeypatch):
         def discover(self, spec, policy):
             return SimpleNamespace(
                 spec=spec,
-                gap=SimpleNamespace(gap=[]),
+                gap=SimpleNamespace(gap=[], rho=0.0),
                 compose=SimpleNamespace(
                     reachability=reach, candidates=[contract.tool], regime="exact", stats={}
                 ),
@@ -125,7 +125,7 @@ def test_discovery_abstention_does_not_manufacture_hypergraph_projection(monkeyp
         def discover(self, spec, policy):
             return SimpleNamespace(
                 spec=spec,
-                gap=SimpleNamespace(gap=[]),
+                gap=SimpleNamespace(gap=[], rho=0.0),
                 compose=SimpleNamespace(reachability=None, candidates=[], regime="", stats={}),
                 certificate=None,
                 counterexample=None,
