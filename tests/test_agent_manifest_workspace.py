@@ -60,5 +60,5 @@ def test_agent_manifest_workspace_supports_versioned_mcp_snapshot_binding():
     assert "Load stored MCP snapshots" in html
     assert "Inspect configured MCP servers" in html
     assert "No MCP snapshot selected" in html
-    assert "tool_definition_sha256" in html or "resolved_tool_grants" in html
+    assert '"/publish"' in html
     assert "MCP schema snapshots are created through read-only tools/list inspection" in html
