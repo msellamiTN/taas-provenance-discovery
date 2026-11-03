@@ -25,7 +25,7 @@ from taas.goals import SIGMAS, parse_goal_spec
 from taas.policy import Policy
 from taas.provenance import DEFAULT_TRUST
 from taas.studio.models import ModelCatalogError, get_model_details, inspect_model_artifacts, search_models
-from taas.studio.runtime import estimate_model_memory, probe_hardware
+from taas.studio.runtime import estimate_model_memory, probe_hardware, probe_runtime
 from taas.types import KINDS
 
 app = FastAPI(
@@ -124,6 +124,12 @@ def ready() -> dict[str, str]:
 def runtime_hardware() -> dict[str, Any]:
     """Report host GPU and CUDA readiness; does not load or execute a model."""
     return probe_hardware()
+
+
+@app.get("/api/v1/runtime/status", dependencies=[Depends(require_api_token)])
+def runtime_status() -> dict[str, Any]:
+    """Report process, host, storage and GPU state; does not load or execute a model."""
+    return probe_runtime()
 
 
 def validate_studio_goal_spec(spec: dict[str, Any]) -> None:

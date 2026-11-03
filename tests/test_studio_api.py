@@ -844,3 +844,70 @@ def test_studio_navigation_shell_has_valid_targets_and_accessible_skip_link():
     assert 'aria-label="Studio sections"' in html
     assert ".studio-layout" in html
     assert "@media(max-width:900px)" in html
+
+
+def test_runtime_status_requires_authentication(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.get("/api/v1/runtime/status")
+    assert response.status_code == 401
+
+
+def test_runtime_status_reports_host_and_explicit_model_boundary(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    expected = {
+        "service": {
+            "status": "running",
+            "pid": 123,
+            "python_version": "3.12.0",
+            "python_executable": "/usr/bin/python",
+            "platform": "Linux-test",
+        },
+        "host": {
+            "cpu_count": 2,
+            "memory_total_gib": 12.0,
+            "memory_available_gib": 8.0,
+            "disk_total_gib": 100.0,
+            "disk_free_gib": 80.0,
+        },
+        "hardware": {"gpu_detected": False, "inference_ready": False},
+        "model_runtime": {
+            "model_loaded": False,
+            "inference_executed": False,
+            "lifecycle_supported": False,
+            "note": "Runtime diagnostics only; model loading and inference are not implemented by this service.",
+        },
+        "colab": {"detected": True, "ephemeral_storage": True},
+    }
+    monkeypatch.setattr(api, "probe_runtime", lambda: expected)
+    response = client.get(
+        "/api/v1/runtime/status",
+        headers={"Authorization": "Bearer test-token"},
+    )
+    assert response.status_code == 200
+    assert response.json() == expected
+
+
+
+def test_studio_overview_connects_to_authenticated_live_runtime_status():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    for marker in (
+        'id="runtime-refresh"',
+        'id="runtime-overview-state"',
+        'id="runtime-cpu"',
+        'id="runtime-memory"',
+        'id="runtime-disk"',
+        'id="runtime-gpu"',
+        'id="runtime-colab"',
+        'id="runtime-model"',
+        'id="runtime-overview-details"',
+        'fetch("/api/v1/runtime/status"',
+        'cache: "no-store"',
+        'displayed values are from an earlier successful snapshot',
+        'inference not executed',
+    ):
+        assert marker in page
+    assert 'localStorage.setItem("token"' not in page
