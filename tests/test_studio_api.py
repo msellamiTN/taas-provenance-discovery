@@ -559,7 +559,7 @@ def test_studio_frontend_integrates_benchmark_and_tool_registry_workspace():
         'id="models"',
         'id="runtime"',
         "Gold labels reserved for evaluation",
-        "No automatic LLM interpretation is available in this build.",
+        "GoalSpec-to-prompt semantic alignment is not automatically verified.",
     ):
         assert marker in page
 
@@ -746,7 +746,7 @@ def test_benchmark_task_import_clears_stale_demo_goal_before_authoring():
         '\n  $("bench-add-tools")', 1
     )[0]
     assert "goalSpecState.goals=[]" in handler
-    assert "example goals were cleared" in handler
+    assert "example goals cleared" in handler
     assert "author semantic goal contracts" in handler
 
 
