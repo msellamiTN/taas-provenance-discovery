@@ -19,6 +19,16 @@ def test_array_output_uses_tool_name_domain_evidence():
     assert result.source == "schema+lex-domain"
 
 
+
+def test_array_output_splits_camel_case_tool_name_without_description_hint():
+    result = tau_out(
+        "npmVersions",
+        "Return a list.",
+        _array(["name", "version"]),
+    )
+    assert str(result.type) == "record:package[]"
+    assert result.source == "schema+lex-domain"
+
 def test_array_output_uses_description_domain_evidence():
     result = tau_out(
         "extract_features",
