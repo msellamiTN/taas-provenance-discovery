@@ -26,6 +26,7 @@ from taas.policy import Policy
 from taas.provenance import DEFAULT_TRUST
 from taas.studio.models import ModelCatalogError, get_model_details, inspect_model_artifacts, search_models
 from taas.studio.agent_spec import validate_agent_manifest
+from taas.studio import agent_registry
 from taas.studio.runtime import estimate_model_memory, probe_hardware, probe_runtime
 from taas.studio.model_runtime import ModelRuntimeError, get_model_runtime
 from taas.studio.mcp_registry import MCPRegistryError, inspect_server as inspect_mcp_server, list_servers as list_mcp_servers
@@ -594,6 +595,92 @@ def agent_manifest_validate(payload: dict[str, Any]) -> dict[str, Any]:
         "tools_authorized": False,
         "execution_enabled": False,
     }
+
+
+@app.post("/api/v1/agents", status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_api_token)])
+def agent_create(payload: dict[str, Any]) -> dict[str, Any]:
+    """Persist a new immutable Agent version in draft state."""
+    try:
+        manifest = validate_agent_manifest(payload)
+        resource = agent_registry.create_draft(manifest)
+    except ValidationError as exc:
+        raise HTTPException(status_code=422, detail=exc.errors(include_context=False, include_input=False)) from exc
+    except agent_registry.AgentRegistryConflict as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {
+        **resource,
+        "semantic_correctness_verified": False,
+        "tools_authorized": False,
+        "execution_enabled": False,
+    }
+
+
+@app.get("/api/v1/agents", dependencies=[Depends(require_api_token)])
+def agent_list(agent_id: str | None = Query(default=None, max_length=63),
+               limit: int = Query(default=100, ge=1, le=500)) -> dict[str, Any]:
+    return agent_registry.list_versions(agent_id=agent_id, limit=limit)
+
+
+@app.get("/api/v1/agents/{agent_id}/versions/{version}", dependencies=[Depends(require_api_token)])
+def agent_get(agent_id: str, version: str) -> dict[str, Any]:
+    try:
+        resource = agent_registry.get_version(agent_id, version)
+    except agent_registry.AgentRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return {
+        **resource,
+        "semantic_correctness_verified": False,
+        "tools_authorized": False,
+        "execution_enabled": False,
+    }
+
+
+@app.post("/api/v1/agents/{agent_id}/versions/{version}/validate", dependencies=[Depends(require_api_token)])
+def agent_validate_saved_version(agent_id: str, version: str) -> dict[str, Any]:
+    """Revalidate stored bytes and advance draft -> validated; this is structural only."""
+    try:
+        resource = agent_registry.get_version(agent_id, version)
+        manifest = validate_agent_manifest(resource["manifest"])
+        if manifest != resource["manifest"]:
+            raise HTTPException(status_code=409, detail="Stored Agent manifest is not canonical")
+        resource = agent_registry.transition(agent_id, version, "validated")
+    except ValidationError as exc:
+        raise HTTPException(status_code=422, detail=exc.errors(include_context=False, include_input=False)) from exc
+    except agent_registry.AgentRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except agent_registry.AgentRegistryConflict as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {
+        **resource,
+        "validation_scope": "structural_schema_and_cross_field_invariants",
+        "semantic_correctness_verified": False,
+        "tools_authorized": False,
+        "execution_enabled": False,
+    }
+
+
+@app.post("/api/v1/agents/{agent_id}/versions/{version}/publish", dependencies=[Depends(require_api_token)])
+def agent_publish_version(agent_id: str, version: str) -> dict[str, Any]:
+    """Publish an immutable configuration version; publication does not enable execution."""
+    try:
+        resource = agent_registry.transition(agent_id, version, "published")
+    except agent_registry.AgentRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except agent_registry.AgentRegistryConflict as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {
+        **resource,
+        "published_as_configuration": True,
+        "semantic_correctness_verified": False,
+        "tools_authorized": False,
+        "execution_enabled": False,
+    }
+
+
+@app.get("/api/v1/agents/events", dependencies=[Depends(require_api_token)])
+def agent_events(agent_id: str | None = Query(default=None, max_length=63),
+                 limit: int = Query(default=200, ge=1, le=1000)) -> dict[str, Any]:
+    return agent_registry.list_events(agent_id=agent_id, limit=limit)
 
 
 @app.get("/api/v1/mcp/servers", dependencies=[Depends(require_api_token)])

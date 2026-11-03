@@ -14,8 +14,15 @@ def test_agent_manifest_workspace_exposes_contract_and_truthful_lifecycle():
         'id="agent-manifest-result"',
         "taas.ai/v1alpha1",
         "/api/v1/agents/validate",
+        "published configuration",
         "not saved, authorized or executable",
-        "Structural validation only",
+        "structurally validated",
+        'id="agent-manifest-save"',
+        'id="agent-manifest-validate-saved"',
+        'id="agent-manifest-publish"',
+        "/api/v1/agents/",
+        "Save immutable draft",
+        "Publish version",
     ):
         assert marker in html
 
@@ -28,3 +35,16 @@ def test_agent_manifest_workspace_does_not_expose_fake_publish_or_run_actions():
     assert "Publish agent" not in panel
     assert "Run agent" not in panel
     assert "Save agent" not in panel
+
+
+def test_agent_manifest_workspace_uses_persisted_lifecycle_actions_not_fake_execution():
+    html = PAGE.read_text(encoding="utf-8")
+    panel_start = html.index('id="agent-manifest-panel"')
+    panel_end = html.index("</section>", panel_start)
+    panel = html[panel_start:panel_end]
+    assert "Save immutable draft" in panel
+    assert "Validate saved version" in panel
+    assert "Publish version" in panel
+    assert "Run agent" not in panel
+    assert "Invoke tools" not in panel
+    assert "execution remains disabled" in html
