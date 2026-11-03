@@ -195,35 +195,127 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 @media(max-width:560px){header{padding:13px 16px}main{padding:0 12px 36px}section{padding:16px}.hero h2{font-size:22px}.runtime-overview-grid,.certificate-checks{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
 
+
+/* Workspace-level composition */
+.studio-content>section.section-anchor{min-height:calc(100vh - 150px)}
+.studio-content>section.section-anchor>.panel-head{padding-bottom:15px;border-bottom:1px solid var(--line)}
+.studio-content>section.section-anchor>.panel-head h2{font-size:23px;letter-spacing:-.6px}
+#agent-studio>.grid{grid-template-columns:minmax(0,1fr)!important;gap:16px!important}
+#model-runtime-panel,#agent-chat-panel,#agent-goal-panel{padding:22px!important;border:1px solid var(--line)!important;border-radius:12px!important;background:#fff!important;box-shadow:var(--shadow)!important}
+#model-runtime-panel h2,#agent-chat-panel h2,#agent-goal-panel h2{font-size:18px;margin:0 0 14px}
+#runtime-model-details,#agent-chat-result,#agent-decompose-result{max-height:420px;min-height:180px}
+#runtime-model-status,#agent-chat-status,#agent-decompose-status{padding:10px 12px;background:#f5f7fb;border:1px solid var(--line);border-radius:8px}
+#runtime-model-id,#agent-system,#agent-message,#agent-goal-prompt{max-width:900px}
+#agent-chat-panel textarea,#agent-goal-panel textarea{font-family:Inter,ui-sans-serif,system-ui,sans-serif}
+#models,#models+section{padding:22px}
+#models h2{font-size:20px}
+.studio-nav a[aria-current=page]{font-weight:750}
+@media(min-width:1100px){#model-runtime-panel,#agent-chat-panel,#agent-goal-panel{max-width:1100px}}
+
+
+.model-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:11px;margin:14px 0}
+.model-card{display:flex;flex-direction:column;gap:9px;padding:14px;border:1px solid var(--line);border-radius:11px;background:#fff;min-width:0}
+.model-card h3{font-size:13px;line-height:1.4;overflow-wrap:anywhere;margin:0}
+.model-card .model-meta{display:flex;flex-wrap:wrap;gap:5px}
+.model-card .model-meta span{font-size:10px;color:#52627a;background:#f3f6fa;border-radius:5px;padding:4px 6px}
+.model-card p{font-size:11px;color:var(--muted);margin:0}
+.model-card button{align-self:flex-start;margin-top:auto}
+.model-selected-panel{margin-top:16px;border:1px solid #cfdaee;border-radius:12px;background:#fbfcff;padding:18px}
+.model-selected-panel[hidden]{display:none}
+.model-selected-panel h3{font-size:17px;margin:4px 0}
+.model-actions{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
+.model-detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin:12px 0}
+.model-detail-item{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px;min-width:0}
+.model-detail-item small{display:block;color:var(--muted);font-size:10px}
+.model-detail-item strong{display:block;margin-top:4px;font-size:12px;overflow-wrap:anywhere}
+.model-preflight{display:grid;grid-template-columns:minmax(150px,1fr) 130px 130px auto;gap:10px;align-items:end;margin:16px 0;padding:14px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.model-preflight h4{margin:0 0 4px;font-size:13px}.model-preflight p{margin:0}
+.model-preflight label{margin:0;font-size:11px}
+.model-preflight button{margin:0}
+.model-preflight pre{grid-column:1/-1;min-height:70px}
+@media(max-width:720px){.model-preflight{grid-template-columns:1fr 1fr}.model-preflight>div:first-child,.model-preflight pre{grid-column:1/-1}}
+
+
+.taas-pipeline{margin:0 0 18px;padding:17px 18px}
+.pipeline-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:13px}
+.pipeline-heading h2{margin:4px 0 0;font-size:16px}
+.pipeline-steps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.pipeline-step{display:flex;flex-direction:column;gap:5px;min-width:0;padding:11px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);text-decoration:none;transition:border-color .12s,background .12s}
+.pipeline-step:hover{border-color:#b9c9ed;background:#f8faff}
+.pipeline-step:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.pipeline-index{color:#5572b8;font-size:9px;font-weight:800;letter-spacing:.8px}
+.pipeline-step strong{font-size:11px}
+.pipeline-step small{font-size:10px;color:var(--muted);line-height:1.4}
+.pipeline-disabled{background:#f7f8fa;border-style:dashed;color:#778397}
+.pipeline-disabled .pipeline-index{color:#9aa4b3}
+@media(max-width:1100px){.pipeline-steps{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){.pipeline-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.taas-pipeline{padding:14px}}
+
+ 
+    .studio-header{display:flex;align-items:center;justify-content:space-between;gap:22px}
+    .studio-header-brand{min-width:220px}.studio-header-brand p{margin:3px 0 0}
+    .studio-auth{display:flex;align-items:center;gap:8px;min-width:0;padding:9px 10px;border:1px solid rgba(210,222,242,.2);border-radius:11px;background:rgba(255,255,255,.055)}
+    .studio-auth-copy{display:flex;flex-direction:column;gap:2px;min-width:145px}
+    .studio-auth-copy strong{font-size:11px;color:#f4f7fc}
+    .studio-auth-copy span{font-size:9px;color:#aebbd0;max-width:190px;line-height:1.35}
+    .studio-auth input{width:220px;min-width:120px;min-height:34px;padding:7px 9px;border-color:#40516d;background:#0c172b;color:#f4f7fc;font:11px ui-monospace,monospace}
+    .studio-auth input::placeholder{color:#8998b0}
+    .studio-auth button{min-height:34px;margin:0;padding:7px 10px;font-size:10px;white-space:nowrap}
+    .studio-auth button.secondary{color:#e0e9fb;background:#263955;border-color:#40516d}
+    .studio-auth button:disabled{opacity:.45}
+    .studio-auth.connected{border-color:rgba(78,190,143,.5);background:rgba(22,132,91,.13)}
+    .studio-auth.connected .studio-auth-copy span{color:#9de0c2}
+    .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    @media(max-width:900px){.studio-header{align-items:stretch;flex-direction:column}.studio-auth{flex-wrap:wrap}.studio-auth-copy{flex:1 1 100%}.studio-auth input{flex:1 1 190px;width:auto}}
+    @media(max-width:520px){.studio-auth{align-items:stretch}.studio-auth input{flex:1 1 100%}.studio-auth button{flex:1}}
+
+
+    /* UX-2: make capability boundaries and navigation legible at a glance */
+    .notice[role="note"]{border-color:#d8e1ef;background:#f7f9fc;color:#43536b;line-height:1.55}
+    .notice[role="note"] strong{color:#243754}
+    .studio-nav .nav-label{margin-top:16px;padding-top:10px;border-top:1px solid #edf0f5}
+    .studio-nav .nav-label:first-of-type{margin-top:4px;padding-top:0;border-top:0}
+    .studio-nav a{transition:background .15s ease,color .15s ease}
+    .studio-nav a:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+    .studio-nav .nav-foot{margin-top:20px}
+    @media(min-width:901px){main{max-width:1500px}.studio-layout{grid-template-columns:224px minmax(0,1fr);gap:24px}.studio-nav{max-height:calc(100vh - 32px);overflow-y:auto}}
+    @media(max-width:900px){.studio-nav .nav-label{display:none}}
   </style>
 </head>
 <body>
-<header>
-  <h1>TaaS Studio</h1>
-  <p>Discover. Compose. Explain. — tool intelligence · governed AI infrastructure</p>
+<header class="studio-header">
+  <div class="studio-header-brand"><h1>TaaS Studio</h1><p>Engineer AI systems. Discover tools. Assure decisions. — model, agent &amp; tool intelligence</p></div>
+  <section id="studio-auth" class="studio-auth" aria-label="Studio authentication">
+    <div class="studio-auth-copy"><strong>Studio authentication</strong><span id="studio-auth-status" role="status" aria-live="polite">Not connected · token stays in this page's memory</span></div>
+    <label class="sr-only" for="token">Studio API bearer token</label>
+    <input id="token" type="password" autocomplete="new-password" spellcheck="false" placeholder="Paste Studio API token" aria-describedby="studio-auth-status">
+    <button id="studio-auth-toggle" class="secondary" type="button" aria-label="Show token">Show</button>
+    <button id="studio-auth-connect" type="button">Connect</button>
+    <button id="studio-auth-disconnect" class="secondary" type="button" disabled>Disconnect</button>
+  </section>
 </header>
 <main>
-  <div class="notice"><strong>Discovery-only preview.</strong> This workspace calls <code>/api/v1/discover</code>. It does not invoke MCP tools, run an agent, or evaluate task completion. Use only trusted tool metadata; do not paste secrets or sensitive arguments.</div>
+  <div class="notice" role="note"><strong>Execution safety boundary.</strong> Model and Agent workspaces can inspect models, run local inference when explicitly loaded, and draft GoalSpecs for review. Discovery and assurance inspect tool capability and evidence; they do not invoke MCP tools. Governed MCP execution, isolated workers, and durable run history are not enabled in this build.</div>
   <a class="skip-link" href="#overview">Skip to Studio workspace</a>
   <div class="studio-layout">
     <nav class="studio-nav" aria-label="Studio sections">
       <div class="nav-brand"><span class="nav-mark">T</span><span><strong>TaaS Studio</strong><small>Tool Intelligence Platform</small></span></div>
-      <span class="nav-label">WORKSPACE</span>
       <a href="#overview" aria-current="page">Overview</a>
-      <a href="#workspace">Benchmark workspace</a>
-      <a href="#goal-editor">Goal design</a>
-      <a href="#bench-tools">Tool registry</a>
-      <a href="#mcp-studio">MCP connections</a>
-      <span class="nav-label">ANALYSIS</span>
-      <a href="#discovery">Discovery</a>
-      <a href="#certificate-panel">Assurance</a>
-      <span class="nav-label">RESOURCES</span>
+      <span class="nav-label">BUILD</span>
       <a href="#models">Model catalog</a>
       <a href="#model-runtime-panel">Model runtime</a>
-      <a href="#agent-chat-panel">Agent chat</a>
+      <a href="#agent-chat-panel">Agent workspace</a>
       <a href="#agent-goal-panel">Agent design</a>
-      <a href="#runtime">Host diagnostics</a>
-      <div class="nav-foot"><span class="nav-status-dot"></span><span>Execution disabled<br><small>Discovery-only preview</small></span></div>
+      <span class="nav-label">TOOLS &amp; DISCOVERY</span>
+      <a href="#bench-tools">Tool registry</a>
+      <a href="#mcp-studio">MCP connections</a>
+      <a href="#goal-editor">GoalSpec designer</a>
+      <a href="#discovery">Tool discovery</a>
+      <a href="#certificate-panel">Assurance center</a>
+      <span class="nav-label">OPERATE &amp; OBSERVE</span>
+      <a href="#workspace">Benchmark workspace</a>
+      <a href="#runtime">Runtime diagnostics</a>
+      <div class="nav-foot"><span class="nav-status-dot"></span><span>Governed execution<br><small>MCP invocation not enabled</small></span></div>
     </nav>
     <div class="studio-content">
   <section class="runtime-overview" aria-labelledby="runtime-overview-title">
@@ -245,6 +337,17 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     <div><div class="eyebrow">Toolkit-as-a-Service · Control plane</div><h2>Discovery workspace</h2><p>Move from benchmark intent to a reviewed GoalSpec, select candidate tools from the retained registry, and inspect a provenance-aware discovery decision—all in one guided workspace.</p></div>
     <span class="pill"><span class="pill-dot"></span> Discovery preview · execution disabled</span>
   </div>
+  <section class="taas-pipeline" aria-label="TaaS engineering lifecycle">
+    <div class="pipeline-heading"><div><div class="eyebrow">TaaS engineering lifecycle</div><h2>From intent to governed execution</h2></div><span class="pill">Execution invocation not yet enabled</span></div>
+    <div class="pipeline-steps">
+      <a class="pipeline-step" href="#agent-goal-panel"><span class="pipeline-index">01</span><strong>Agent planning</strong><small>Model-assisted GoalSpec proposal</small></a>
+      <a class="pipeline-step" href="#mcp-studio"><span class="pipeline-index">02</span><strong>Tool intelligence</strong><small>Inspect MCP contracts and metadata</small></a>
+      <a class="pipeline-step" href="#goal-editor"><span class="pipeline-index">03</span><strong>Goal contract</strong><small>Review types, effects and dependencies</small></a>
+      <a class="pipeline-step" href="#discovery"><span class="pipeline-index">04</span><strong>Discovery</strong><small>Find candidate toolkits and bindings</small></a>
+      <a class="pipeline-step" href="#certificate-panel"><span class="pipeline-index">05</span><strong>Assurance</strong><small>Inspect certificate and counterexamples</small></a>
+      <div class="pipeline-step pipeline-disabled" aria-disabled="true"><span class="pipeline-index">06</span><strong>Execution gateway</strong><small>Authorization primitives only · no invocation API</small></div>
+    </div>
+  </section>
   <section id="workspace" class="section-anchor" style="margin-bottom:18px">
     <div class="panel-head"><div><div class="eyebrow">01 · Explore</div><h2 style="margin:4px 0">Benchmark &amp; tool workspace</h2></div><span class="pill">Repository-retained data · no upstream fetch</span></div>
     <div class="workspace-grid">
@@ -294,8 +397,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   <div class="grid" id="discovery">
     <section>
       <h2>1 · Request configuration</h2>
-      <label for="token">Studio API bearer token (kept in this page's memory only)</label>
-      <input id="token" type="password" autocomplete="off" placeholder="Enter TAAS_STUDIO_API_TOKEN">
+      <p class="muted">Authentication is managed globally in the Studio header. Connect once per runtime; the bearer token remains in page memory and is never written into the discovery payload.</p>
 
       <div class="goal-editor" id="goal-editor">
         <div class="goal-editor-head"><div><div class="eyebrow">02 · Specify</div><h3>Visual GoalSpec editor</h3><p class="subtle" style="margin:4px 0 0">Define intent, semantic inputs and outputs, effects, and dependencies. The editor writes the canonical GoalSpec into the discovery request.</p></div><span class="pill">Core contract · editable</span></div>
@@ -407,7 +509,22 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     <input id="model-query" type="text" maxlength="120" value="small language model" placeholder="e.g. Qwen 2.5 3B">
     <button id="model-search" type="button">Search Hugging Face</button>
     <div id="model-status" class="status" aria-live="polite">No search performed.</div>
-    <pre id="model-results">Model catalog results will appear here.</pre>
+    <div id="model-cards" class="model-cards" aria-live="polite"><p class="muted">Search to browse model repositories. Select a result to inspect its configuration and artifacts.</p></div>
+    <details class="advanced-json"><summary>Raw catalog response</summary><pre id="model-results">Model catalog results will appear here.</pre></details>
+    <section id="model-selected-panel" class="model-selected-panel" hidden>
+      <div class="panel-head"><div><div class="eyebrow">Selected repository</div><h3 id="model-selected-title">No model selected</h3><p id="model-selected-subtitle" class="muted"></p></div><span id="model-selected-state" class="pill">Metadata only</span></div>
+      <div class="model-actions"><button id="model-use-runtime" type="button">Use in Model Runtime</button><button id="model-inspect-artifacts" type="button" class="secondary">Inspect weight artifacts</button></div>
+      <div id="model-selected-details" class="model-detail-grid"></div>
+      <div class="model-preflight">
+        <div><h4>Memory planning</h4><p class="muted">Estimate uses reported parameter count and optional KV-cache dimensions. It is a planning estimate, not a guarantee of successful loading.</p></div>
+        <label for="model-quantization">Weight precision</label><select id="model-quantization"><option value="fp16">FP16</option><option value="int8">INT8</option><option value="int4" selected>INT4</option></select>
+        <label for="model-context-length">Context length</label><input id="model-context-length" type="number" min="1" max="1000000" value="4096">
+        <button id="model-estimate-memory" type="button" class="secondary" disabled>Estimate memory</button>
+        <div id="model-memory-status" class="status" role="status" aria-live="polite">Select a model with reported parameter metadata.</div><pre id="model-memory-results">No estimate performed.</pre>
+      </div>
+      <details><summary>Architecture and repository metadata</summary><pre id="model-selected-raw"></pre></details>
+      <details><summary>Artifact and backend evidence</summary><pre id="model-selected-artifacts">Artifact inspection has not been performed.</pre></details>
+    </section>
   </section>
   <section style="margin-bottom:18px">
     <h2>Model artifacts · compatibility preflight</h2>
@@ -447,6 +564,47 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <button id="agent-decompose" type="button">Decompose objective with loaded model</button><div id="agent-decompose-status" class="status" role="status" aria-live="polite">No decomposition requested.</div><pre id="agent-decompose-result">The model's GoalSpec proposal will appear here.</pre>
       <div class="inline-actions"><button id="agent-apply-goals" type="button" class="secondary" disabled>Apply proposal to GoalSpec editor</button><span class="subtle">Applying replaces the current visual GoalSpec draft; review and validate it before discovery.</span></div>
     </section>
+    <section id="agent-manifest-panel" style="box-shadow:none;padding:22px;margin-top:14px;border:1px solid var(--line);border-radius:12px;background:#fff">
+      <div class="panel-head"><div><div class="eyebrow">Agent resource · v1alpha1</div><h2 style="margin:4px 0">Define an Agent manifest</h2></div><span class="pill">Draft · not published</span></div>
+      <p class="muted">Describe the agent's model, instructions, exact tool grants, resource budget and approval policy. Validate the contract before any future save or publish action.</p>
+      <label for="agent-manifest-json">Declarative manifest · JSON</label>
+      <textarea id="agent-manifest-json" rows="22" spellcheck="false" style="min-height:390px;width:100%;font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace">{
+  "apiVersion": "taas.ai/v1alpha1",
+  "kind": "Agent",
+  "metadata": {
+    "id": "support-assistant",
+    "name": "Support Assistant",
+    "version": "1.0.0",
+    "description": "Draft support workflow agent"
+  },
+  "spec": {
+    "model": {
+      "provider": "huggingface",
+      "model_id": "Qwen/Qwen2.5-0.5B-Instruct"
+    },
+    "instructions": "Help the operator summarize support requests.",
+    "goal_spec_template": null,
+    "tool_allowlist": [],
+    "resources": {
+      "max_new_tokens": 512,
+      "timeout_seconds": 90,
+      "max_tool_calls": 0
+    },
+    "approval": {
+      "require_human_approval": true,
+      "require_assurance": true,
+      "allow_side_effects": false
+    }
+  }
+}</textarea>
+      <div class="inline-actions"><button id="agent-registry-snapshot-refresh" type="button" class="secondary">Load stored MCP snapshots</button><button id="agent-registry-snapshot-inspect" type="button" class="secondary">Inspect configured MCP servers</button><select id="agent-registry-snapshot-select" aria-label="MCP registry snapshot"><option value="">No MCP snapshot selected</option></select></div>
+      <div id="agent-registry-snapshot-status" class="status" role="status" aria-live="polite">Tool-free agents do not require an MCP snapshot. Agents with tool grants must be published against a selected snapshot.</div>
+      <pre id="agent-registry-snapshot-result">MCP schema snapshots are created through read-only tools/list inspection. No tool is invoked.</pre>
+      <div class="inline-actions"><button id="agent-manifest-validate" type="button">Validate manifest</button><button id="agent-manifest-save" type="button" class="secondary">Save immutable draft</button><button id="agent-manifest-validate-saved" type="button" class="secondary" disabled>Validate saved version</button><button id="agent-manifest-publish" type="button" class="secondary" disabled>Publish version</button><button id="agent-manifest-reset" type="button" class="secondary">Reset example</button></div>
+      <div id="agent-manifest-status" class="status" role="status" aria-live="polite">Manifest has not been validated.</div>
+      <pre id="agent-manifest-result">Validation and registry responses will appear here. Publication does not authorize or execute this agent.</pre>
+      <p class="subtle">Registry lifecycle: draft → structurally validated → published configuration. Semantic correctness, live tool authorization and execution are not established.</p>
+    </section>
   </section>
 
     </div>
@@ -468,10 +626,24 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     let root = target;
     while (root.parentElement && root.parentElement !== studioContent) root = root.parentElement;
     if (root.parentElement !== studioContent) return;
+    // First select the top-level workspace, then isolate the selected nested
+    // panel at each level. This makes Model Runtime, Agent Chat and Agent Design
+    // genuinely distinct destinations rather than aliases for one large page.
     [...studioContent.children].forEach(child => {
       if (child.id === "runtime-overview") child.hidden = false;
       else child.hidden = child !== root;
     });
+    let branch = target;
+    while (branch && branch !== root) {
+      const parent = branch.parentElement;
+      if (!parent) break;
+      [...parent.children].forEach(sibling => {
+        if (sibling !== branch && sibling.tagName !== "SCRIPT") sibling.hidden = true;
+      });
+      branch.hidden = false;
+      branch = parent;
+    }
+    target.hidden = false;
     studioLinks.forEach(item => {
       if (item === link) item.setAttribute("aria-current", "page");
       else item.removeAttribute("aria-current");
@@ -484,6 +656,10 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   studioLinks.forEach(link => link.addEventListener("click", event => {
     event.preventDefault();
     showStudioWorkspace(link);
+  }));
+  document.querySelectorAll(".pipeline-step[href]").forEach(step => step.addEventListener("click", event => {
+    const destination=studioLinks.find(link=>link.getAttribute("href")===step.getAttribute("href"));
+    if(destination){event.preventDefault();showStudioWorkspace(destination);}
   }));
   const initialWorkspace = studioLinks.find(link => link.getAttribute("href") === window.location.hash)
     || studioLinks.find(link => link.getAttribute("href") === "#overview")
@@ -536,7 +712,43 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   };
   runtimeRefresh.addEventListener("click", refreshRuntimeOverview);
   $("token").addEventListener("change", () => {
-    if ($("token").value.trim()) refreshRuntimeOverview();
+    $("studio-auth-status").textContent = $("token").value.trim()
+      ? "Token entered · connect to verify it"
+      : "Not connected · token stays in this page's memory";
+    $("studio-auth").classList.remove("connected");
+  });
+  $("studio-auth-toggle").addEventListener("click", () => {
+    const field=$("token"), reveal=field.type==="password";
+    field.type=reveal?"text":"password";
+    $("studio-auth-toggle").textContent=reveal?"Hide":"Show";
+    $("studio-auth-toggle").setAttribute("aria-label",reveal?"Hide token":"Show token");
+  });
+  $("studio-auth-connect").addEventListener("click", async () => {
+    const token=$("token").value.trim(), button=$("studio-auth-connect");
+    if(!token){$("studio-auth-status").textContent="Paste the runtime token to connect."; $("token").focus(); return;}
+    button.disabled=true; $("studio-auth-status").textContent="Verifying token…";
+    try {
+      const response=await fetch("/api/v1/runtime/hardware",{headers:{"Authorization":"Bearer "+token,"Cache-Control":"no-cache"}});
+      if(response.status===401||response.status===403)throw new Error("Token rejected. Check that it belongs to the current Studio runtime.");
+      if(!response.ok)throw new Error("Studio API returned HTTP "+response.status+".");
+      $("studio-auth").classList.add("connected");
+      $("studio-auth-status").textContent="Connected · token verified for this runtime";
+      $("studio-auth-disconnect").disabled=false;
+      await refreshRuntimeOverview();
+    } catch(e) {
+      $("studio-auth").classList.remove("connected");
+      $("studio-auth-status").textContent=e.message;
+      $("studio-auth-disconnect").disabled=true;
+    } finally { button.disabled=false; }
+  });
+  $("studio-auth-disconnect").addEventListener("click", () => {
+    $("token").value=""; $("token").type="password";
+    $("studio-auth-toggle").textContent="Show";
+    $("studio-auth-toggle").setAttribute("aria-label","Show token");
+    $("studio-auth").classList.remove("connected");
+    $("studio-auth-status").textContent="Disconnected · token cleared from page memory";
+    $("studio-auth-disconnect").disabled=true;
+    $("runtime-overview-state").textContent="Not checked · connect to refresh runtime status.";
   });
 
   const run = $("run");
@@ -683,12 +895,118 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
-      $("model-status").textContent = data.count + " model metadata record(s). Weights downloaded: no.";
-      $("model-results").textContent = JSON.stringify(data.models || [], null, 2);
+      const models = data.models || [];
+      $("model-status").textContent = data.count + " model metadata record(s). Repository metadata only; weights downloaded: no.";
+      $("model-results").textContent = JSON.stringify(models, null, 2);
+      const cards = $("model-cards"); cards.replaceChildren();
+      if (!models.length) { const empty=document.createElement("p");empty.className="muted";empty.textContent="No matching repositories. Try a broader query.";cards.append(empty); }
+      models.forEach(model => {
+        const card=document.createElement("article");card.className="model-card";
+        const title=document.createElement("h3");title.textContent=model.model_id;
+        const meta=document.createElement("div");meta.className="model-meta";
+        const values=[model.pipeline_tag,model.library_name,model.license,model.safetensors?"Safetensors":"No Safetensors metadata",model.gated===true?"Gated":null,model.parameter_count?((model.parameter_count/1e9).toFixed(2)+"B params"):null].filter(Boolean);
+        values.forEach(value=>{const chip=document.createElement("span");chip.textContent=String(value);meta.append(chip);});
+        const stats=document.createElement("p");stats.textContent=(model.downloads==null?"Downloads n/a":Number(model.downloads).toLocaleString()+" downloads")+" · "+(model.likes==null?"likes n/a":Number(model.likes).toLocaleString()+" likes");
+        const action=document.createElement("button");action.type="button";action.className="secondary";action.textContent="Inspect repository";
+        action.addEventListener("click",()=>selectModel(model.model_id));
+        card.append(title,meta,stats,action);cards.append(card);
+      });
     } catch (e) {
       $("model-status").textContent = "Model search failed: " + e.message;
       $("model-results").textContent = "";
+      $("model-cards").replaceChildren();
     } finally { button.disabled = false; }
+  });
+
+
+  let selectedModelRecord=null;
+  let selectedModelArtifacts=null;
+  const renderModelFact=(label,value)=>{
+    const item=document.createElement("div");item.className="model-detail-item";
+    const key=document.createElement("small");key.textContent=label;
+    const val=document.createElement("strong");val.textContent=value==null||value===""?"Not reported":String(value);
+    item.append(key,val);return item;
+  };
+  const selectModel=async(modelId)=>{
+    const token=$("token").value.trim();
+    if(!token){$("model-status").textContent="Enter the Studio API token before inspecting a model.";return;}
+    $("model-selected-panel").hidden=false;
+    $("model-selected-title").textContent=modelId;
+    $("model-selected-subtitle").textContent="Fetching configuration metadata from Hugging Face…";
+    $("model-selected-state").textContent="Inspecting";
+    $("model-selected-details").replaceChildren();
+    selectedModelRecord=null;selectedModelArtifacts=null;
+    $("model-memory-status").textContent="Waiting for model metadata.";
+    try{
+      const response=await fetch("/api/v1/models/detail?"+new URLSearchParams({model_id:modelId}),{headers:{"Authorization":"Bearer "+token}});
+      const data=await response.json();if(!response.ok)throw new Error(data.detail||("HTTP "+response.status));
+      selectedModelRecord=data;
+      $("model-selected-subtitle").textContent=[data.pipeline_tag,data.library_name,data.license].filter(Boolean).join(" · ")||"Repository metadata";
+      $("model-selected-state").textContent="Metadata inspected · weights not downloaded";
+      const arch=data.architecture||{};
+      const facts=[
+        ["Parameters",data.parameter_count?((data.parameter_count/1e9).toFixed(3)+" billion"):null],
+        ["Architecture",arch.model_type],
+        ["Model class",Array.isArray(arch.architectures)?arch.architectures.join(", "):null],
+        ["Layers",arch.num_hidden_layers],
+        ["Attention heads",arch.num_attention_heads],
+        ["KV heads",arch.num_key_value_heads],
+        ["Hidden size",arch.hidden_size],
+        ["Head dimension",arch.head_dim],
+        ["Reported context",arch.max_position_embeddings||arch.max_sequence_length],
+        ["Safetensors",data.safetensors?"Reported":"Not reported"],
+        ["License",data.license],
+        ["Gated repository",data.gated]
+      ];
+      facts.forEach(([label,value])=>$("model-selected-details").append(renderModelFact(label,value)));
+      $("model-selected-raw").textContent=JSON.stringify(data,null,2);
+      $("model-memory-status").textContent=data.parameter_count?"Parameter count reported. Run a planning estimate; KV cache may be partial if architecture dimensions are missing.":"No parameter count reported; memory estimate unavailable.";
+      $("model-estimate-memory").disabled=!data.parameter_count;
+      $("model-use-runtime").disabled=false;
+      $("model-inspect-artifacts").disabled=false;
+      $("runtime-model-id").value=modelId;
+      $("artifact-model-id").value=modelId;
+    }catch(e){
+      $("model-selected-state").textContent="Inspection failed";
+      $("model-selected-subtitle").textContent=e.message;
+      $("model-memory-status").textContent="Cannot estimate without valid model metadata.";
+    }
+  };
+  $("model-use-runtime").addEventListener("click",()=>{
+    if(!selectedModelRecord)return;
+    $("runtime-model-id").value=selectedModelRecord.model_id;
+    const link=studioLinks.find(item=>item.getAttribute("href")==="#model-runtime-panel");
+    if(link)showStudioWorkspace(link);
+  });
+  $("model-inspect-artifacts").addEventListener("click",async()=>{
+    if(!selectedModelRecord)return;
+    const button=$("model-inspect-artifacts");button.disabled=true;
+    $("model-selected-artifacts").textContent="Inspecting repository files metadata…";
+    try{
+      const response=await fetch("/api/v1/models/artifacts?"+new URLSearchParams({model_id:selectedModelRecord.model_id}),{headers:{"Authorization":"Bearer "+$("token").value.trim()}});
+      const data=await response.json();if(!response.ok)throw new Error(data.detail||("HTTP "+response.status));
+      selectedModelArtifacts=data;
+      $("model-selected-artifacts").textContent=JSON.stringify(data,null,2);
+      $("model-selected-state").textContent="Artifacts inspected · runtime compatibility unverified";
+    }catch(e){$("model-selected-artifacts").textContent="Artifact inspection failed: "+e.message;}
+    finally{button.disabled=false;}
+  });
+  $("model-estimate-memory").addEventListener("click",async()=>{
+    if(!selectedModelRecord?.parameter_count)return;
+    const button=$("model-estimate-memory");button.disabled=true;$("model-memory-status").textContent="Calculating memory estimate…";
+    try{
+      const arch=selectedModelRecord.architecture||{};
+      const body={parameters_billion:selectedModelRecord.parameter_count/1e9,quantization:$("model-quantization").value};
+      const context=Number($("model-context-length").value);
+      const kvKeys=["num_hidden_layers","num_key_value_heads","head_dim"];
+      const kvComplete=kvKeys.every(key=>Number.isInteger(arch[key])&&arch[key]>0);
+      if(kvComplete){for(const key of kvKeys)body[key]=arch[key];if(Number.isInteger(context)&&context>0)body.context_length=context;}
+      const response=await fetch("/api/v1/models/estimate-memory",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+$("token").value.trim()},body:JSON.stringify(body)});
+      const data=await response.json();if(!response.ok)throw new Error(data.detail||("HTTP "+response.status));
+      $("model-memory-results").textContent=JSON.stringify(data,null,2);
+      $("model-memory-status").textContent="Estimate calculated from reported parameter count"+(data.kv_cache_memory_gib!==null?" and complete KV-cache dimensions.":"; KV cache excluded because complete architecture dimensions were unavailable.");
+    }catch(e){$("model-memory-status").textContent="Memory estimate failed: "+e.message;}
+    finally{button.disabled=false;}
   });
 
   $("artifact-inspect").addEventListener("click", async () => {
@@ -930,7 +1248,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     return fallback || "Request failed.";
   };
   const apiGet = async (path) => {
-    const token=tokenValue(); if(!token) throw new Error("Enter the Studio API token in Discovery request configuration first.");
+    const token=tokenValue(); if(!token) throw new Error("Connect to TaaS Studio in the application header first.");
     const r=await fetch(path,{headers:{"Authorization":"Bearer "+token}});
     const d=await r.json(); if(!r.ok) throw new Error(formatApiError(d.detail||d,"HTTP "+r.status)); return d;
   };
@@ -1037,7 +1355,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 
   // Real Hugging Face model runtime and agent operations. No mock inference path.
   const runtimePost = async (path, body) => {
-    const token=tokenValue(); if(!token) throw new Error("Enter the Studio API token in Discovery request configuration first.");
+    const token=tokenValue(); if(!token) throw new Error("Connect to TaaS Studio in the application header first.");
     const response=await fetch(path,{method:"POST",headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify(body)});
     const data=await response.json(); if(!response.ok) throw new Error(formatApiError(data.detail||data,"HTTP "+response.status)); return data;
   };
@@ -1072,6 +1390,145 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     goalSpecState.goals=(spec.goals||[]).map(g=>({id:g.id,class:g.class,in:g.in||[],out:g.out,eff:g.eff||[],sigma:g.sigma||"native",desc:g.desc||"",deps:g.deps||[],n:g.n||1,exactness:g.exactness||"tolerant",lang:g.lang||"en",optional:Boolean(g.optional)}));
     renderGoalEditor();getGoalSpec();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Agent proposal applied. Review semantic intent and validate before discovery.";
     document.querySelector("#goal-editor").scrollIntoView({behavior:"smooth",block:"start"});
+  });
+
+  let savedAgentVersion=null;
+  const agentSaveButton=$("agent-manifest-save");
+  const agentValidateSavedButton=$("agent-manifest-validate-saved");
+  const agentPublishButton=$("agent-manifest-publish");
+  const resetAgentRegistrySelection=()=>{
+    savedAgentVersion=null;
+    agentValidateSavedButton.disabled=true;
+    agentPublishButton.disabled=true;
+  };
+  $("agent-manifest-json").addEventListener("input",resetAgentRegistrySelection);
+  agentSaveButton.addEventListener("click",async()=>{
+    agentSaveButton.disabled=true;
+    $("agent-manifest-status").textContent="Validating and persisting a new immutable Agent draft…";
+    try{
+      let manifest;
+      try{manifest=JSON.parse($("agent-manifest-json").value);}
+      catch(error){throw new Error("Invalid JSON: "+error.message);}
+      const result=await runtimePost("/api/v1/agents",manifest);
+      savedAgentVersion={id:result.agent_id,version:result.version};
+      agentValidateSavedButton.disabled=false;
+      $("agent-manifest-result").textContent=JSON.stringify(result,null,2);
+      $("agent-manifest-status").textContent="Saved immutable draft "+result.agent_id+"@"+result.version+" · SHA-256 "+result.manifest_sha256;
+    }catch(error){
+      resetAgentRegistrySelection();
+      $("agent-manifest-result").textContent=error.message;
+      $("agent-manifest-status").textContent="Draft was not saved. Resolve the error and retry.";
+    }finally{agentSaveButton.disabled=false;}
+  });
+  agentValidateSavedButton.addEventListener("click",async()=>{
+    if(!savedAgentVersion)return;
+    agentValidateSavedButton.disabled=true;
+    $("agent-manifest-status").textContent="Revalidating the exact stored Agent version…";
+    try{
+      const path="/api/v1/agents/"+encodeURIComponent(savedAgentVersion.id)+"/versions/"+encodeURIComponent(savedAgentVersion.version)+"/validate";
+      const snapshotId=$("agent-registry-snapshot-select").value;
+      const result=await runtimePost(path,snapshotId?{registry_snapshot_id:snapshotId}:{});
+      agentPublishButton.disabled=false;
+      $("agent-manifest-result").textContent=JSON.stringify(result,null,2);
+      $("agent-manifest-status").textContent="Stored version structurally validated · semantic correctness and execution remain unverified.";
+    }catch(error){
+      $("agent-manifest-result").textContent=error.message;
+      $("agent-manifest-status").textContent="Stored version validation failed.";
+      agentValidateSavedButton.disabled=false;
+    }
+  });
+  $("agent-registry-snapshot-refresh").addEventListener("click",async()=>{
+    const button=$("agent-registry-snapshot-refresh");button.disabled=true;
+    $("agent-registry-snapshot-status").textContent="Loading stored MCP registry snapshots…";
+    try{
+      const data=await apiGet("/api/v1/mcp/registry/snapshots");
+      const select=$("agent-registry-snapshot-select");select.innerHTML="";
+      select.add(new Option("No MCP snapshot selected",""));
+      (data.snapshots||[]).forEach(item=>{
+        select.add(new Option(item.snapshot_id.slice(0,12)+"… · "+item.server_count+" servers · "+item.tool_count+" tools",item.snapshot_id));
+      });
+      $("agent-registry-snapshot-status").textContent=data.count+" immutable MCP snapshot(s) available. Select one to bind tool grants at publication.";
+    }catch(error){$("agent-registry-snapshot-status").textContent="Unable to load MCP snapshots: "+error.message;}
+    finally{button.disabled=false;}
+  });
+  $("agent-registry-snapshot-select").addEventListener("change",()=>{
+    const selected=$("agent-registry-snapshot-select").value;
+    $("agent-registry-snapshot-status").textContent=selected
+      ? "Selected immutable MCP snapshot "+selected+". Agent tool grants will be resolved against this exact schema set at publication."
+      : "No MCP snapshot selected. Tool-free agents do not require a snapshot; agents with tool grants do.";
+  });
+  $("agent-registry-snapshot-inspect").addEventListener("click",async()=>{
+    const button=$("agent-registry-snapshot-inspect");button.disabled=true;
+    $("agent-registry-snapshot-status").textContent="Inspecting configured MCP servers with tools/list only…";
+    try{
+      const result=await runtimePost("/api/v1/mcp/registry/snapshots/inspect",{});
+      const select=$("agent-registry-snapshot-select");
+      let option=[...select.options].find(item=>item.value===result.snapshot_id);
+      if(!option){option=new Option(result.snapshot_id.slice(0,12)+"… · "+result.server_count+" servers · "+result.tool_count+" tools",result.snapshot_id);select.add(option);}
+      select.value=result.snapshot_id;
+      $("agent-registry-snapshot-result").textContent=JSON.stringify({
+        snapshot_id:result.snapshot_id,
+        created_at:result.created_at,
+        server_count:result.server_count,
+        tool_count:result.tool_count,
+        servers:result.snapshot.servers.map(server=>({
+          server_id:server.server_id,
+          server_name:server.server_name,
+          tools:server.tools.map(tool=>({
+            name:tool.name,
+            description:tool.description,
+            definition_sha256:tool.definition_sha256,
+            input_schema:tool.input_schema,
+            output_schema:tool.output_schema
+          })),
+          inspection_only:server.inspection_only,
+          tool_execution_performed:server.tool_execution_performed
+        }))
+      },null,2);
+      $("agent-registry-snapshot-status").textContent="Read-only MCP snapshot captured and selected. Review its ID and schemas before publishing.";
+    }catch(error){
+      $("agent-registry-snapshot-status").textContent="Snapshot inspection failed; no partial snapshot was stored: "+error.message;
+    }finally{button.disabled=false;}
+  });
+
+  agentPublishButton.addEventListener("click",async()=>{
+    if(!savedAgentVersion)return;
+    agentPublishButton.disabled=true;
+    $("agent-manifest-status").textContent="Publishing immutable configuration version…";
+    try{
+      const path="/api/v1/agents/"+encodeURIComponent(savedAgentVersion.id)+"/versions/"+encodeURIComponent(savedAgentVersion.version)+"/publish";
+      const snapshotId=$("agent-registry-snapshot-select").value;
+      const result=await runtimePost(path,snapshotId?{registry_snapshot_id:snapshotId}:{});
+      $("agent-manifest-result").textContent=JSON.stringify(result,null,2);
+      $("agent-manifest-status").textContent="Published configuration "+result.agent_id+"@"+result.version+" · execution remains disabled.";
+    }catch(error){
+      $("agent-manifest-result").textContent=error.message;
+      $("agent-manifest-status").textContent="Publication failed. The registry lifecycle state was not advanced.";
+      agentPublishButton.disabled=false;
+    }
+  });
+
+  const agentManifestExample=$("agent-manifest-json").value;
+  $("agent-manifest-reset").addEventListener("click",()=>{
+    $("agent-manifest-json").value=agentManifestExample;
+    resetAgentRegistrySelection();
+    $("agent-manifest-status").textContent="Example manifest restored · not yet validated.";
+    $("agent-manifest-result").textContent="Validation result will appear here.";
+  });
+  $("agent-manifest-validate").addEventListener("click",async()=>{
+    const button=$("agent-manifest-validate");button.disabled=true;
+    $("agent-manifest-status").textContent="Validating Agent manifest against the v1alpha1 contract…";
+    try{
+      let manifest;
+      try{manifest=JSON.parse($("agent-manifest-json").value);}
+      catch(error){throw new Error("Invalid JSON: "+error.message);}
+      const result=await runtimePost("/api/v1/agents/validate",manifest);
+      $("agent-manifest-result").textContent=JSON.stringify(result,null,2);
+      $("agent-manifest-status").textContent="Manifest structurally valid · draft only · not saved, authorized or executable.";
+    }catch(error){
+      $("agent-manifest-result").textContent=error.message;
+      $("agent-manifest-status").textContent="Manifest validation failed. Correct the schema errors and retry.";
+    }finally{button.disabled=false;}
   });
 
   let inspectedMcpTools=[];let selectedMcpToolKeys=new Set();

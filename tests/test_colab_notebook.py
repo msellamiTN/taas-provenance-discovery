@@ -8,13 +8,30 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 NOTEBOOK = ROOT / "notebooks" / "colab" / "taas_core_studio_colab.ipynb"
 GUIDE = ROOT / "docs" / "deployment" / "COLAB_T4_QUICKSTART.md"
+WORKFLOW = ROOT / ".github" / "workflows" / "benchmark-hypergraph.yml"
+INTEGRATED_STUDIO_COMMIT = "4a3e4e460f2556f6556b1ef4736f991337cf32c2"
+
+
+def notebook_source() -> tuple[dict, str, str]:
+    notebook = json.loads(NOTEBOOK.read_text(encoding="utf-8"))
+    markdown = "\n".join(
+        "".join(cell.get("source", []))
+        for cell in notebook["cells"]
+        if cell["cell_type"] == "markdown"
+    )
+    code = "\n".join(
+        "".join(cell.get("source", []))
+        for cell in notebook["cells"]
+        if cell["cell_type"] == "code"
+    )
+    return notebook, markdown, code
 
 
 def test_colab_notebook_is_valid_and_has_operator_guide() -> None:
-    notebook = json.loads(NOTEBOOK.read_text(encoding="utf-8"))
+    notebook, markdown, _ = notebook_source()
     assert notebook["nbformat"] == 4
     assert GUIDE.is_file()
-    assert "COLAB_T4_QUICKSTART.md" in "".join(notebook["cells"][0]["source"])
+    assert "COLAB_T4_QUICKSTART.md" in markdown
 
 
 def test_colab_code_cells_are_valid_python() -> None:
@@ -26,18 +43,64 @@ def test_colab_code_cells_are_valid_python() -> None:
         compile(source, f"colab-cell-{index}", "exec")
 
 
-def test_colab_notebook_uses_pinned_revision_and_safe_bind_address() -> None:
-    notebook = json.loads(NOTEBOOK.read_text(encoding="utf-8"))
-    source = "\n".join(
+def test_colab_notebook_pins_the_integrated_model_agent_studio_revision() -> None:
+    _, markdown, code = notebook_source()
+    assert f'TAAS_COMMIT = "{INTEGRATED_STUDIO_COMMIT}"' in code
+    assert "Model & Agentic Studio" in markdown
+    assert "model-backed chat inference" in markdown
+    assert "TaaS tool discovery" in markdown
+    assert "MCP inspection does not invoke tools" in markdown
+    assert "discovery workspace" not in markdown.lower() or "integrated" in markdown.lower()
+
+
+def test_colab_installs_and_verifies_optional_hugging_face_runtime() -> None:
+    _, _, code = notebook_source()
+    assert '"-e", ".[studio,hf]"' in code
+    assert "importlib.import_module('torch')" in code
+    assert "importlib.import_module('transformers')" in code
+    assert "importlib.import_module('safetensors')" in code
+
+
+def test_colab_notebook_uses_safe_loopback_proxy_and_ephemeral_token() -> None:
+    _, _, code = notebook_source()
+    assert 'APP_BIND_HOST, APP_HEALTH_HOST, APP_PORT = "0.0.0.0", "127.0.0.1", 8000' in code
+    assert "google.colab.kernel.proxyPort" in code
+    assert "trycloudflare.com" not in code
+    assert "secrets.token_urlsafe(32)" in code
+    assert 'os.environ.pop("TAAS_MODEL_PROFILE"' in code
+    assert "files.upload" not in code
+
+
+def test_ci_covers_stacked_studio_pull_requests() -> None:
+    workflow = WORKFLOW.read_text(encoding="utf-8")
+    assert "pull_request:" in workflow
+    # A stacked PR may target any feature branch, not only historical bases.
+    pull_request_block = workflow.split("  pull_request:", 1)[1].split("  workflow_dispatch:", 1)[0]
+    assert "branches:" not in pull_request_block
+
+
+MCP_REGISTRY_NOTEBOOK = ROOT / "notebooks" / "colab" / "taas_agent_mcp_registry_pr27_colab.ipynb"
+MCP_INTEGRATED_VALIDATED_COMMIT = "729a1b6922deba7f2c57a96a899514b787e3c7e6"
+
+
+def test_mcp_colab_notebook_pins_the_integrated_agent_mcp_revision() -> None:
+    notebook = json.loads(MCP_REGISTRY_NOTEBOOK.read_text(encoding="utf-8"))
+    markdown = "\\n".join(
         "".join(cell.get("source", []))
         for cell in notebook["cells"]
-        if cell["cell_type"] == "code"
+        if cell["cell_type"] == "markdown"
     )
-    assert 'TAAS_COMMIT = "6b4ca19c78896159bd4140370fe87e8205840c42"' in source
-    assert 'APP_HOST, APP_PORT = "127.0.0.1", 8000' in source
-    assert "google.colab.kernel.proxyPort" in source
-    assert "trycloudflare.com" not in source
-    assert "pip\", \"install\", \"-e\", \".[studio]" in source
-    assert "secrets.token_urlsafe(32)" in source
-    assert "TAAS_MODEL_PROFILE" not in source or "os.environ.pop(\"TAAS_MODEL_PROFILE\"" in source
-    assert "files.upload" not in source
+    code_cells = [cell for cell in notebook["cells"] if cell["cell_type"] == "code"]
+    code = "\\n".join("".join(cell.get("source", [])) for cell in code_cells)
+
+    assert notebook["nbformat"] == 4
+    assert code_cells
+    for index, cell in enumerate(code_cells):
+        compile("".join(cell.get("source", [])), f"mcp-colab-cell-{index}", "exec")
+
+    assert f'TAAS_COMMIT = "{MCP_INTEGRATED_VALIDATED_COMMIT}"' in code
+    assert "pull/34" in markdown
+    assert "/api/v1/agents" in code
+    assert "/api/v1/mcp/registry/snapshots" in code
+    assert "google.colab.kernel.proxyPort" in code
+    assert "tool_execution_performed" not in code

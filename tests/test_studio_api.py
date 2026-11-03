@@ -42,7 +42,8 @@ def test_ready_does_not_require_calibration(monkeypatch):
 def test_studio_home_serves_browser_workspace():
     response = client.get("/")
     assert response.status_code == 200
-    assert "TaaS Core Studio" in response.text
+    assert "<title>TaaS Studio — Tool Intelligence Platform</title>" in response.text
+    assert '<strong>TaaS Studio</strong>' in response.text
     assert "/api/v1/discover" in response.text
 
 
@@ -1094,3 +1095,293 @@ def test_mcp_registry_never_accepts_inline_secret_values(monkeypatch):
     monkeypatch.setenv("TAAS_MCP_SERVERS_JSON", '[{"id":"ok","name":"X","command":"python","env":{"API_KEY":"secret"}}]')
     with pytest.raises(MCPRegistryError):
         _load_config()
+
+
+def _valid_agent_manifest():
+    return {
+        "apiVersion": "taas.ai/v1alpha1",
+        "kind": "Agent",
+        "metadata": {
+            "id": "support-assistant",
+            "name": "Support Assistant",
+            "version": "1.0.0",
+            "description": "Draft support workflow agent",
+        },
+        "spec": {
+            "model": {"provider": "huggingface", "model_id": "Qwen/Qwen2.5-0.5B-Instruct"},
+            "instructions": "Help the operator summarize support requests.",
+            "tool_allowlist": [],
+            "resources": {"max_new_tokens": 512, "timeout_seconds": 90, "max_tool_calls": 0},
+            "approval": {
+                "require_human_approval": True,
+                "require_assurance": True,
+                "allow_side_effects": False,
+            },
+        },
+    }
+
+
+def test_agent_manifest_validation_is_authenticated_and_non_executing(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    payload = _valid_agent_manifest()
+    unauthorized = client.post("/api/v1/agents/validate", json=payload)
+    assert unauthorized.status_code == 401
+
+    response = client.post(
+        "/api/v1/agents/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json=payload,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["valid"] is True
+    assert data["manifest"]["metadata"]["id"] == "support-assistant"
+    assert data["lifecycle_state"] == "draft"
+    assert data["semantic_correctness_verified"] is False
+    assert data["tools_authorized"] is False
+    assert data["execution_enabled"] is False
+
+
+def test_agent_manifest_rejects_unknown_fields_and_invalid_model_ids(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    payload = _valid_agent_manifest()
+    payload["spec"]["model"]["model_id"] = "../untrusted-code"
+    payload["spec"]["unexpected"] = "must be rejected"
+    response = client.post(
+        "/api/v1/agents/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json=payload,
+    )
+    assert response.status_code == 422
+
+
+def test_agent_manifest_rejects_duplicate_tool_grants(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    payload = _valid_agent_manifest()
+    payload["spec"]["tool_allowlist"] = [
+        {"server_id": "docs", "tool_name": "search"},
+        {"server_id": "docs", "tool_name": "search"},
+    ]
+    payload["spec"]["resources"]["max_tool_calls"] = 2
+    response = client.post(
+        "/api/v1/agents/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json=payload,
+    )
+    assert response.status_code == 422
+
+
+def test_agent_manifest_requires_human_approval_for_side_effects(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    payload = _valid_agent_manifest()
+    payload["spec"]["approval"]["allow_side_effects"] = True
+    payload["spec"]["approval"]["require_human_approval"] = False
+    response = client.post(
+        "/api/v1/agents/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json=payload,
+    )
+    assert response.status_code == 422
+
+
+def test_agent_manifest_rejects_mutable_or_malformed_model_revision(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    payload = _valid_agent_manifest()
+    payload["spec"]["model"]["revision"] = "main"
+    response = client.post(
+        "/api/v1/agents/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json=payload,
+    )
+    assert response.status_code == 422
+
+
+def test_agent_manifest_requires_full_model_commit_sha(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    payload = _valid_agent_manifest()
+    payload["spec"]["model"]["revision"] = "1234567"
+    response = client.post(
+        "/api/v1/agents/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json=payload,
+    )
+    assert response.status_code == 422
+
+
+def _mcp_inspection_fixture():
+    return {
+        "server_id": "docs",
+        "server_name": "Documentation tools",
+        "server_info": {"name": "docs-server", "version": "1.2.0"},
+        "protocol_version": "2025-06-18",
+        "tool_count": 1,
+        "tools": [{
+            "server": "docs",
+            "name": "search",
+            "description": "Search documentation",
+            "input_schema": {
+                "type": "object",
+                "properties": {"query": {"type": "string"}},
+                "required": ["query"],
+            },
+            "output_schema": None,
+            "annotations": {"readOnlyHint": True},
+            "source": "mcp-live-inspection",
+            "category": "mcp",
+        }],
+        "inspection_only": True,
+        "tool_execution_performed": False,
+    }
+
+
+def test_mcp_registry_snapshot_is_read_only_content_addressed_and_retrievable(monkeypatch, tmp_path):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    monkeypatch.setenv("TAAS_AGENT_REGISTRY_PATH", str(tmp_path / "agents.sqlite3"))
+    monkeypatch.setattr(api, "list_mcp_servers", lambda: {
+        "count": 1,
+        "servers": [{"id": "docs", "name": "Documentation tools", "transport": "stdio"}],
+    })
+    monkeypatch.setattr(api, "inspect_mcp_server", lambda server_id: _mcp_inspection_fixture())
+    headers = {"Authorization": "Bearer test-token"}
+
+    first = client.post("/api/v1/mcp/registry/snapshots/inspect", headers=headers)
+    assert first.status_code == 200
+    snapshot = first.json()
+    assert len(snapshot["snapshot_id"]) == 64
+    assert snapshot["server_count"] == 1
+    assert snapshot["tool_count"] == 1
+    assert snapshot["snapshot"]["servers"][0]["inspection_only"] is True
+    assert snapshot["snapshot"]["servers"][0]["tool_execution_performed"] is False
+    tool = snapshot["snapshot"]["servers"][0]["tools"][0]
+    assert len(tool["definition_sha256"]) == 64
+
+    second = client.post("/api/v1/mcp/registry/snapshots/inspect", headers=headers)
+    assert second.status_code == 200
+    assert second.json()["snapshot_id"] == snapshot["snapshot_id"]
+
+    fetched = client.get(
+        f"/api/v1/mcp/registry/snapshots/{snapshot['snapshot_id']}",
+        headers=headers,
+    )
+    assert fetched.status_code == 200
+    assert fetched.json()["snapshot"] == snapshot["snapshot"]
+
+    listing = client.get("/api/v1/mcp/registry/snapshots", headers=headers)
+    assert listing.status_code == 200
+    assert listing.json()["count"] == 1
+
+
+def test_mcp_registry_snapshot_rejects_non_read_only_inspection(monkeypatch, tmp_path):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    monkeypatch.setenv("TAAS_AGENT_REGISTRY_PATH", str(tmp_path / "agents.sqlite3"))
+    monkeypatch.setattr(api, "list_mcp_servers", lambda: {
+        "count": 1,
+        "servers": [{"id": "docs", "name": "Documentation tools", "transport": "stdio"}],
+    })
+    unsafe = _mcp_inspection_fixture()
+    unsafe["tool_execution_performed"] = True
+    monkeypatch.setattr(api, "inspect_mcp_server", lambda server_id: unsafe)
+    headers = {"Authorization": "Bearer test-token"}
+
+    response = client.post("/api/v1/mcp/registry/snapshots/inspect", headers=headers)
+    assert response.status_code == 502
+    listing = client.get("/api/v1/mcp/registry/snapshots", headers=headers)
+    assert listing.json()["count"] == 0
+
+
+def test_agent_publish_requires_exact_mcp_snapshot_for_tool_grants(monkeypatch, tmp_path):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    monkeypatch.setenv("TAAS_AGENT_REGISTRY_PATH", str(tmp_path / "agents.sqlite3"))
+    monkeypatch.setattr(api, "list_mcp_servers", lambda: {
+        "count": 1,
+        "servers": [{"id": "docs", "name": "Documentation tools", "transport": "stdio"}],
+    })
+    monkeypatch.setattr(api, "inspect_mcp_server", lambda server_id: _mcp_inspection_fixture())
+    headers = {"Authorization": "Bearer test-token"}
+    payload = _valid_agent_manifest()
+    payload["spec"]["tool_allowlist"] = [{"server_id": "docs", "tool_name": "search"}]
+    payload["spec"]["resources"]["max_tool_calls"] = 1
+
+    created = client.post("/api/v1/agents", headers=headers, json=payload)
+    assert created.status_code == 201
+    path = "/api/v1/agents/support-assistant/versions/1.0.0"
+    assert client.post(path + "/validate", headers=headers).status_code == 200
+
+    missing_snapshot = client.post(path + "/publish", headers=headers)
+    assert missing_snapshot.status_code == 422
+
+    captured = client.post("/api/v1/mcp/registry/snapshots/inspect", headers=headers)
+    snapshot_id = captured.json()["snapshot_id"]
+    published = client.post(
+        path + "/publish",
+        headers=headers,
+        json={"registry_snapshot_id": snapshot_id},
+    )
+    assert published.status_code == 200
+    data = published.json()
+    assert data["lifecycle_state"] == "published"
+    assert data["registry_snapshot_id"] == snapshot_id
+    assert data["resolved_tool_grants"][0]["server_id"] == "docs"
+    assert data["resolved_tool_grants"][0]["tool_name"] == "search"
+    assert len(data["resolved_tool_grants"][0]["tool_definition_sha256"]) == 64
+    assert data["tools_authorized"] is False
+    assert data["execution_enabled"] is False
+
+
+def test_agent_publish_rejects_tool_grants_absent_from_snapshot(monkeypatch, tmp_path):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    monkeypatch.setenv("TAAS_AGENT_REGISTRY_PATH", str(tmp_path / "agents.sqlite3"))
+    monkeypatch.setattr(api, "list_mcp_servers", lambda: {
+        "count": 1,
+        "servers": [{"id": "docs", "name": "Documentation tools", "transport": "stdio"}],
+    })
+    monkeypatch.setattr(api, "inspect_mcp_server", lambda server_id: _mcp_inspection_fixture())
+    headers = {"Authorization": "Bearer test-token"}
+    payload = _valid_agent_manifest()
+    payload["spec"]["tool_allowlist"] = [{"server_id": "docs", "tool_name": "delete_all"}]
+    payload["spec"]["resources"]["max_tool_calls"] = 1
+
+    created = client.post("/api/v1/agents", headers=headers, json=payload)
+    assert created.status_code == 201
+    path = "/api/v1/agents/support-assistant/versions/1.0.0"
+    assert client.post(path + "/validate", headers=headers).status_code == 200
+    snapshot = client.post("/api/v1/mcp/registry/snapshots/inspect", headers=headers).json()
+
+    rejected = client.post(
+        path + "/publish",
+        headers=headers,
+        json={"registry_snapshot_id": snapshot["snapshot_id"]},
+    )
+    assert rejected.status_code == 409
+    current = client.get(path, headers=headers).json()
+    assert current["lifecycle_state"] == "validated"
+    assert current["registry_snapshot_id"] is None
+
+
+def test_agent_registry_snapshot_binding_is_one_time_and_audited(monkeypatch, tmp_path):
+    from taas.studio import agent_registry
+
+    monkeypatch.setenv("TAAS_AGENT_REGISTRY_PATH", str(tmp_path / "agents.sqlite3"))
+    manifest = _valid_agent_manifest()
+    created = agent_registry.create_draft(manifest)
+    snapshot = agent_registry.store_mcp_snapshot({
+        "schema_version": "taas.mcp.registry/v1",
+        "capture_mode": "test",
+        "servers": [],
+    })
+    validated = agent_registry.transition("support-assistant", "1.0.0", "validated")
+    published = agent_registry.transition(
+        "support-assistant", "1.0.0", "published",
+        registry_snapshot_id=snapshot["snapshot_id"],
+    )
+    assert published["registry_snapshot_id"] == snapshot["snapshot_id"]
+    events = agent_registry.list_events("support-assistant")["events"]
+    assert events[0]["registry_snapshot_id"] == snapshot["snapshot_id"]
