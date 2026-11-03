@@ -457,7 +457,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         <div><h4>Memory planning</h4><p class="muted">Estimate uses reported parameter count and optional KV-cache dimensions. It is a planning estimate, not a guarantee of successful loading.</p></div>
         <label for="model-quantization">Weight precision</label><select id="model-quantization"><option value="fp16">FP16</option><option value="int8">INT8</option><option value="int4" selected>INT4</option></select>
         <label for="model-context-length">Context length</label><input id="model-context-length" type="number" min="1" max="1000000" value="4096">
-        <button id="model-estimate-memory" type="button" class="secondary">Estimate memory</button>
+        <button id="model-estimate-memory" type="button" class="secondary" disabled>Estimate memory</button>
         <div id="model-memory-status" class="status" role="status" aria-live="polite">Select a model with reported parameter metadata.</div><pre id="model-memory-results">No estimate performed.</pre>
       </div>
       <details><summary>Architecture and repository metadata</summary><pre id="model-selected-raw"></pre></details>
@@ -771,6 +771,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     } catch (e) {
       $("model-status").textContent = "Model search failed: " + e.message;
       $("model-results").textContent = "";
+      $("model-cards").replaceChildren();
     } finally { button.disabled = false; }
   });
 
@@ -855,11 +856,11 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       const body={parameters_billion:selectedModelRecord.parameter_count/1e9,quantization:$("model-quantization").value};
       const context=Number($("model-context-length").value);
       if(Number.isInteger(context)&&context>0)body.context_length=context;
-      for(const key of ["num_hidden_layers","num_key_value_heads","head_dim"])if(Number.isInteger(arch[key])&&arch[key]>0)body[key]=arch[key];
+      const kvKeys=["num_hidden_layers","num_key_value_heads","head_dim"];\n      const kvComplete=kvKeys.every(key=>Number.isInteger(arch[key])&&arch[key]>0);\n      if(kvComplete){for(const key of kvKeys)body[key]=arch[key];if(Number.isInteger(context)&&context>0)body.context_length=context;}
       const response=await fetch("/api/v1/models/estimate-memory",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+$("token").value.trim()},body:JSON.stringify(body)});
       const data=await response.json();if(!response.ok)throw new Error(data.detail||("HTTP "+response.status));
       $("model-memory-results").textContent=JSON.stringify(data,null,2);
-      $("model-memory-status").textContent="Estimate calculated from reported parameter count"+(data.kv_cache_included?" and KV-cache dimensions.":"; KV-cache coverage may be incomplete.");
+      $("model-memory-status").textContent="Estimate calculated from reported parameter count"+(data.kv_cache_memory_gib!==null?" and complete KV-cache dimensions.":"; KV cache excluded because complete architecture dimensions were unavailable.");
     }catch(e){$("model-memory-status").textContent="Memory estimate failed: "+e.message;}
     finally{button.disabled=false;}
   });
