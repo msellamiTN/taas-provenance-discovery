@@ -1305,6 +1305,7 @@ def test_agent_registry_lists_and_reads_immutable_versions(monkeypatch, tmp_path
 
 
 def test_agent_registry_endpoints_require_authentication(monkeypatch, tmp_path):
+    monkeypatch.delenv("TAAS_STUDIO_API_TOKEN", raising=False)
     monkeypatch.setenv("TAAS_AGENT_REGISTRY_PATH", str(tmp_path / "agents.sqlite3"))
     assert client.get("/api/v1/agents").status_code == 503
     monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
