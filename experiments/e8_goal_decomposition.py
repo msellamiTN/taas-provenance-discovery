@@ -19,9 +19,9 @@ CASES: list[dict[str, Any]] = [
         "id": "e8-bitcoin-report",
         "prompt": "Find current Bitcoin market information, write a deep report, and save it as Markdown at /root/markdown/bitcoin.md.",
         "goals": [
-            {"classes": ["search", "fetch_web", "retrieve"], "out_kinds": ["record", "document"], "effects": [["egress", "web"]], "terms": ["bitcoin", "market", "current"]},
-            {"classes": ["summarise", "synthesise", "write"], "out_kinds": ["text", "document"], "effects": [], "terms": ["report", "bitcoin"]},
-            {"classes": ["create_document", "store", "write"], "out_kinds": ["path"], "effects": [["write", "fs"]], "terms": ["save", "markdown", "report"]},
+            {"classes": ["search", "fetch_web", "retrieve"], "out_kinds": ["record", "document"], "effects": [["egress", "web"]], "terms": ["bitcoin", "market", "current"], "deps": []},
+            {"classes": ["summarise", "synthesise", "write"], "out_kinds": ["text", "document"], "effects": [], "terms": ["report", "bitcoin"], "deps": [0]},
+            {"classes": ["create_document", "store", "write"], "out_kinds": ["path"], "effects": [["write", "fs"]], "terms": ["save", "markdown", "report"], "deps": [1]},
         ],
         "required_prompt_literals": ["/root/markdown/bitcoin.md", "Markdown"],
         "forbidden_effects": [["delete", "*"], ["money", "*"]],
@@ -30,9 +30,9 @@ CASES: list[dict[str, Any]] = [
         "id": "e8-issues-digest-slack",
         "prompt": "Fetch open bug issues from repository acme/api, summarize them, then post the digest to Slack channel #engineering.",
         "goals": [
-            {"classes": ["retrieve", "search"], "out_kinds": ["record"], "effects": [["read", "db"], ["egress", "web"]], "terms": ["issues", "bug", "repository"]},
-            {"classes": ["summarise", "synthesise", "write"], "out_kinds": ["text"], "effects": [], "terms": ["summarise", "digest", "issues"]},
-            {"classes": ["send"], "out_kinds": ["none"], "effects": [["egress", "chat"]], "terms": ["post", "slack", "digest"]},
+            {"classes": ["retrieve", "search"], "out_kinds": ["record"], "effects": [["read", "db"], ["egress", "web"]], "terms": ["issues", "bug", "repository"], "deps": []},
+            {"classes": ["summarise", "synthesise", "write"], "out_kinds": ["text"], "effects": [], "terms": ["summarise", "digest", "issues"], "deps": [0]},
+            {"classes": ["send"], "out_kinds": ["none"], "effects": [["egress", "chat"]], "terms": ["post", "slack", "digest"], "deps": [1]},
         ],
         "required_prompt_literals": ["acme/api", "#engineering"],
         "forbidden_effects": [["delete", "*"], ["money", "*"]],
@@ -41,9 +41,9 @@ CASES: list[dict[str, Any]] = [
         "id": "e8-exact-revenue-csv",
         "prompt": "Read sales.csv, calculate the exact total revenue grouped by region, and save the result to revenue_by_region.csv.",
         "goals": [
-            {"classes": ["retrieve"], "out_kinds": ["record", "table"], "effects": [["read", "fs"]], "terms": ["read", "sales", "csv"]},
-            {"classes": ["aggregate", "compute_exact", "count"], "out_kinds": ["table"], "effects": [], "terms": ["revenue", "region", "exact"]},
-            {"classes": ["store", "create_document", "convert_format"], "out_kinds": ["path"], "effects": [["write", "fs"]], "terms": ["save", "revenue", "csv"]},
+            {"classes": ["retrieve"], "out_kinds": ["record", "table"], "effects": [["read", "fs"]], "terms": ["read", "sales", "csv"], "deps": []},
+            {"classes": ["aggregate", "compute_exact", "count"], "out_kinds": ["table"], "effects": [], "terms": ["revenue", "region", "exact"], "deps": [0]},
+            {"classes": ["store", "create_document", "convert_format"], "out_kinds": ["path"], "effects": [["write", "fs"]], "terms": ["save", "revenue", "csv"], "deps": [1]},
         ],
         "required_prompt_literals": ["sales.csv", "revenue_by_region.csv", "exact"],
         "forbidden_effects": [["delete", "*"], ["money", "*"], ["egress", "*"]],
@@ -52,8 +52,8 @@ CASES: list[dict[str, Any]] = [
         "id": "e8-weather-answer",
         "prompt": "What is the current weather in Tunis? Give me a concise answer.",
         "goals": [
-            {"classes": ["retrieve", "search", "fetch_web"], "out_kinds": ["record"], "effects": [["egress", "web"], ["egress", "api"]], "terms": ["weather", "tunis", "current"]},
-            {"classes": ["answer", "summarise", "write"], "out_kinds": ["text"], "effects": [], "terms": ["answer", "weather", "tunis"]},
+            {"classes": ["retrieve", "search", "fetch_web"], "out_kinds": ["record"], "effects": [["egress", "web"], ["egress", "api"]], "terms": ["weather", "tunis", "current"], "deps": []},
+            {"classes": ["answer", "summarise", "write"], "out_kinds": ["text"], "effects": [], "terms": ["answer", "weather", "tunis"], "deps": [0]},
         ],
         "required_prompt_literals": ["Tunis", "current"],
         "forbidden_effects": [["write", "*"], ["delete", "*"], ["money", "*"]],
@@ -62,7 +62,7 @@ CASES: list[dict[str, Any]] = [
         "id": "e8-pure-reasoning",
         "prompt": "Explain the difference between precision and recall in information retrieval, using one short example.",
         "goals": [
-            {"classes": ["answer", "explain", "write"], "out_kinds": ["text"], "effects": [], "terms": ["precision", "recall", "example"]},
+            {"classes": ["answer", "explain", "write"], "out_kinds": ["text"], "effects": [], "terms": ["precision", "recall", "example"], "deps": []},
         ],
         "required_prompt_literals": ["precision", "recall", "example"],
         "forbidden_effects": [["egress", "*"], ["write", "*"], ["delete", "*"], ["money", "*"]],
@@ -87,9 +87,13 @@ def _matches(expected: dict[str, Any], actual: dict[str, Any]) -> bool:
     if cls not in expected["classes"] or kind not in expected["out_kinds"]:
         return False
     effects = _effect_pairs(actual)
-    for required in expected["effects"]:
-        if not any(e_cls == required[0] and (e_scope == required[1] or required[1] == "*") for e_cls, e_scope in effects):
-            return False
+    required_effects = expected["effects"]
+    if required_effects and not any(
+        any(e_cls == required[0] and (e_scope == required[1] or required[1] == "*")
+            for e_cls, e_scope in effects)
+        for required in required_effects
+    ):
+        return False
     desc = str(actual.get("desc", "")).casefold()
     return any(term.casefold() in desc for term in expected["terms"])
 
@@ -114,6 +118,19 @@ def score_case(case: dict[str, Any], output: dict[str, Any] | None) -> dict[str,
     precision = len(matched_actual) / len(predicted) if predicted else 0.0
     recall = len(matched_expected) / len(case["goals"]) if case["goals"] else 1.0
     f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
+    ordered_matches = sorted(matched_expected)
+    dependency_checks = []
+    for expected_index in ordered_matches:
+        actual_index = next(i for i in matched_actual if _matches(case["goals"][expected_index], predicted[i]))
+        expected_deps = case["goals"][expected_index].get("deps", [])
+        actual_deps = set(predicted[actual_index].get("deps", []) or [])
+        expected_actual_ids = {
+            next(i for i in matched_actual if _matches(case["goals"][dep_index], predicted[i]))
+            for dep_index in expected_deps if dep_index in matched_expected
+        }
+        expected_actual_ids = {predicted[i]["id"] for i in expected_actual_ids}
+        dependency_checks.append(expected_actual_ids.issubset(actual_deps))
+    dependency_valid = all(dependency_checks) if dependency_checks else False
     ids = [g.get("id") for g in predicted if isinstance(g, dict)]
     errors = []
     if len(ids) != len(predicted) or any(not isinstance(x, str) or not x for x in ids):
@@ -148,8 +165,8 @@ def score_case(case: dict[str, Any], output: dict[str, Any] | None) -> dict[str,
         dag_valid = all(visit(node) for node in deps)
         if not dag_valid:
             errors.append("dependency cycle")
-    prompt_text = str(case["prompt"])
-    missing_literals = [literal for literal in case["required_prompt_literals"] if literal.casefold() not in prompt_text.casefold()]
+    serialized_output = json.dumps(output, ensure_ascii=False).casefold()
+    missing_literals = [literal for literal in case["required_prompt_literals"] if literal.casefold() not in serialized_output]
     forbidden = []
     for i, goal in enumerate(predicted):
         if not isinstance(goal, dict):
@@ -162,7 +179,8 @@ def score_case(case: dict[str, Any], output: dict[str, Any] | None) -> dict[str,
         "id": case["id"], "valid_json_shape": True,
         "goal_precision": round(precision, 4), "goal_recall": round(recall, 4), "goal_f1": round(f1, 4),
         "matched": len(matched_expected), "expected_goals": len(case["goals"]), "predicted_goals": len(predicted),
-        "dag_valid": dag_valid, "missing_prompt_literals": missing_literals,
+        "dag_valid": dag_valid, "dependency_valid": dependency_valid,
+        "missing_prompt_literals": missing_literals,
         "forbidden_effects": forbidden, "errors": errors,
     }
 
@@ -187,6 +205,7 @@ def run(model: str, limit: int | None = None, record_to: str | None = None) -> d
         "mean_goal_recall": round(sum(r["goal_recall"] for r in scored) / len(scored), 4) if scored else 0.0,
         "mean_goal_f1": round(sum(r["goal_f1"] for r in scored) / len(scored), 4) if scored else 0.0,
         "dag_valid_rate": round(sum(bool(r.get("dag_valid")) for r in scored) / len(scored), 4) if scored else 0.0,
+        "dependency_valid_rate": round(sum(bool(r.get("dependency_valid")) for r in scored) / len(scored), 4) if scored else 0.0,
         "forbidden_effect_cases": sum(bool(r.get("forbidden_effects")) for r in rows),
         "rows": rows,
         "rubric_notice": "Expert-authored acceptance rubric; not an independent full benchmark gold standard.",
