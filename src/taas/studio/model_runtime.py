@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import re
+from json import JSONDecoder, JSONDecodeError
 import threading
 import time
 from pathlib import Path
@@ -18,6 +19,34 @@ ROOT = Path(__file__).resolve().parents[3]
 
 class ModelRuntimeError(RuntimeError):
     """A model could not be loaded or used safely."""
+
+
+
+def parse_goal_spec_response(raw: str) -> tuple[dict[str, Any] | None, str | None]:
+    """Parse one canonical GoalSpec object; never repair generic model output."""
+    if not isinstance(raw, str) or not raw.strip():
+        return None, "The model returned an empty response."
+    text = raw.strip()
+    fenced = re.fullmatch(r"```(?:json)?\\s*(.*?)\\s*```", text, re.IGNORECASE | re.DOTALL)
+    if fenced:
+        text = fenced.group(1).strip()
+    start = text.find("{")
+    if start < 0:
+        return None, "No JSON object was found in the model response."
+    try:
+        parsed, end = JSONDecoder().raw_decode(text[start:])
+    except JSONDecodeError as exc:
+        return None, f"Invalid JSON at character {start + exc.pos}: {exc.msg}."
+    if not isinstance(parsed, dict):
+        return None, "The response must be one JSON object."
+    if text[start + end:].strip():
+        return None, "Unexpected content follows the JSON object."
+    if not isinstance(parsed.get("prompt_inputs"), list) or not isinstance(parsed.get("goals"), list):
+        return None, "Missing canonical prompt_inputs/goals arrays; generic id/query/context output is not a GoalSpec."
+    unsupported = set(parsed) - {"prompt", "prompt_inputs", "goals"}
+    if unsupported:
+        return None, "Unsupported top-level field(s): " + ", ".join(sorted(unsupported))
+    return parsed, None
 
 
 class HuggingFaceModelRuntime:
@@ -162,23 +191,22 @@ class HuggingFaceModelRuntime:
         guide = guide_path.read_text(encoding="utf-8")
         theta = theta_path.read_text(encoding="utf-8")
         system = (
-            guide + "\n\nSemantic type vocabulary (Θ):\n" + theta
-            + "\nReturn only one JSON object matching the GoalSpec contract. "
-              "Do not invent tools or claim that semantic correctness has been verified."
+            guide + "\\n\\nSemantic type vocabulary (Θ):\\n" + theta
+            + "\\n\\nSTRICT OUTPUT: exactly one JSON object with only prompt (optional), "
+              "prompt_inputs (array), and goals (array). Do not emit id/query/context wrappers, "
+              "Markdown fences, or commentary. Never claim semantic correctness is verified."
         )
+        user_content = "Objective:\\n" + prompt.strip()
+        if context.strip():
+            user_content += "\\n\\nAdditional context:\\n" + context.strip()
         result = self._generate(
-            [{"role": "system", "content": system},
-             {"role": "user", "content": json.dumps({"id": "studio-agent", "query": prompt, "context": context}, ensure_ascii=False)}],
+            [{"role": "system", "content": system}, {"role": "user", "content": user_content}],
             max_new_tokens, 0.0,
         )
-        raw = result["text"]
-        match = re.search(r"\{.*\}", raw, re.S)
-        try:
-            parsed = json.loads(match.group(0)) if match else None
-        except json.JSONDecodeError:
-            parsed = None
+        parsed, parse_error = parse_goal_spec_response(result["text"])
         result["goal_spec"] = parsed
-        result["json_valid"] = isinstance(parsed, dict) and isinstance(parsed.get("goals"), list)
+        result["json_valid"] = parsed is not None
+        result["parse_error"] = parse_error
         result["semantic_correctness_verified"] = False
         return result
 
