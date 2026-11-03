@@ -785,6 +785,8 @@ def test_benchmark_registry_selection_stays_synchronized_and_blocks_stale_demo_d
     assert "Benchmark discovery blocked: select at least one registry tool" in page
     assert "registry selections are not synchronized with the request" in page
     assert "benchmark task NOT evaluated" in page
+    assert "semantic alignment with the task prompt is not verified" in page
+    assert "Sync selected tools to discovery" in page
 
 
 def test_visual_goal_editor_requires_authored_goal_description():
