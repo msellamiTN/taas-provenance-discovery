@@ -208,7 +208,10 @@ def build_authorization_preflight(
     if not checks["tool_definition_resolved"]:
         reasons.append("exact_tool_definition_not_resolved")
 
-    configured_principal = os.environ.get("TAAS_STUDIO_PRINCIPAL", "").strip()
+    configured_principal = (
+        trusted_config.principal if trusted_config is not None
+        else os.environ.get("TAAS_STUDIO_PRINCIPAL", "").strip()
+    )
     checks["trusted_service_principal_configured"] = bool(
         re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:@/-]{0,127}", configured_principal)
     )
