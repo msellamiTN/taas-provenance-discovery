@@ -1,3 +1,5 @@
+import re
+
 import pytest
 
 from fastapi.testclient import TestClient
@@ -764,3 +766,22 @@ def test_visual_goal_editor_requires_authored_goal_description():
     response = client.get("/")
     assert response.status_code == 200
     assert "goal description is required; describe the intended operation" in response.text
+
+
+
+def test_studio_navigation_shell_has_valid_targets_and_accessible_skip_link():
+    from pathlib import Path
+    from taas.studio import api
+
+    page = Path(api.__file__).parent / "static" / "index.html"
+    html = page.read_text(encoding="utf-8")
+    ids = set(re.findall(r'\\bid=["\\']([^"\\']+)', html))
+    nav = re.search(r'<nav class="studio-nav".*?</nav>', html, re.DOTALL)
+    assert nav is not None
+    targets = set(re.findall(r'href="#([^"]+)"', nav.group(0)))
+    assert targets <= ids
+    assert 'class="skip-link" href="#overview"' in html
+    assert 'id="overview"' in html
+    assert 'aria-label="Studio sections"' in html
+    assert ".studio-layout" in html
+    assert "@media(max-width:900px)" in html
