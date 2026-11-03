@@ -895,6 +895,144 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     $("status").textContent = message;
     $("hg-status").textContent = message;
   };
+  const DISCOVERY_RESULT_STORAGE_KEY = "taas.studio.discovery-result.v1";
+  const renderDiscoveryResult = (data, context = {}) => {
+    const benchmarkTaskNotEvaluated = context.benchmarkTaskNotEvaluated === true;
+        setDiscoveryStatus("Discovery status: " + data.status + (benchmarkTaskNotEvaluated ? " · benchmark task NOT evaluated" : "") + " · MCP execution: not performed");
+        $("selected").textContent = (data.selected_tools || []).length;
+        $("gap").textContent = (data.gap || []).length;
+        const bindings = (data.certificate && data.certificate.bindings) || {};
+        const selectedTools = new Set(data.selected_tools || []);
+        const goals = (data.goal_spec && data.goal_spec.goals) || [];
+        const gapGoals = new Set(data.gap || []);
+        // Keep the three categories disjoint: gap = toolkit-required;
+        // native outside the gap = model-delegated; certified selected binding = toolkit-bound.
+        const delegatedGoals = goals.filter(goal =>
+          !goal.optional && goal.sigma === "native" && !gapGoals.has(goal.id)
+        );
+        const toolkitBindings = Object.entries(bindings).filter(([goalId, target]) =>
+          gapGoals.has(goalId) && selectedTools.has(target)
+        );
+        $("covered").textContent = toolkitBindings.length;
+        $("delegated").textContent = delegatedGoals.length;
+        $("latency").textContent = Number(data.discovery_time_seconds || 0).toFixed(3) + " s";
+        $("toolkit").textContent = JSON.stringify(data.selected_tools || [], null, 2);
+        const checkResults = (data.certificate && data.certificate.checks) || {};
+        const mandatoryChecks = ["S", "C", "P", "E", "L", "V"];
+        const diagnosticChecks = ["M", "B"];
+        const checkSummary = Object.keys(checkResults).length
+          ? "Mandatory certificate checks (S,C,P,E,L,V): " +
+            mandatoryChecks.map(key => key + "=" + (checkResults[key] === true ? "pass" : "fail/missing")).join(" · ") +
+            ". Diagnostic checks (not validity gates): " +
+            diagnosticChecks.map(key => key + "=" + (checkResults[key] === true ? "pass" : checkResults[key] === false ? "fail" : "not reported")).join(" · ") + ". "
+          : "No certificate was produced. ";
+        const goalSummary =
+          "Model-delegated goals (native after gap analysis): " + delegatedGoals.length + ". " +
+          (toolkitBindings.length
+            ? "Toolkit bindings: " + toolkitBindings.map(([goal, tool]) => goal + " → " + tool).join(", ") + ". "
+            : "No goal-to-tool binding was certified. ");
+        const chi = data.counterexample || {};
+        const witness = chi.witness || {};
+        const reason = (data.status === "selected"
+          ? "Discovery selected a metadata-compatible toolkit. This is not runtime execution verification. "
+          : "Discovery abstained; no toolkit is certified for the requested goals. ") +
+          (benchmarkTaskNotEvaluated
+            ? "Benchmark task evaluation was NOT performed. GoalSpec is human-authored; semantic alignment with the task prompt is not verified. "
+            : "") +
+          checkSummary + goalSummary +
+          (chi.name
+            ? "Counterexample: " + chi.name + " (goal " + (chi.goal || "unspecified") + ", check " + (chi.check || "n/a") + "). " +
+              (witness.goal_out ? "Required output: " + witness.goal_out + ". " : "") +
+              (witness.eligible !== undefined ? "Eligible tools: " + witness.eligible + ". " : "")
+            : "");
+        $("explanation").textContent = reason;
+  
+        // Render trust evidence as structured UI. Mandatory validity gates are distinct
+        // from diagnostics; no runtime execution claim is inferred from a valid certificate.
+        const cert=data.certificate||null;
+        const certPanel=$("certificate-panel");
+        certPanel.hidden=!cert&&!data.counterexample;
+        if(!cert){$("certificate-state").className="certificate-state";$("certificate-state").textContent="No certificate produced";$("certificate-summary").textContent="Discovery did not produce a pre-execution certificate. Inspect the counterexample below; absence of a certificate is not a pass.";$("certificate-checks").replaceChildren();$("goal-coverage").replaceChildren();$("certificate-witnesses").textContent="No certificate evidence was produced.";}
+        if(cert){
+          const mandatory=["S","C","P","E","L","V"];
+          const diagnostic=["M","B"];
+          const checks=cert.checks||{};
+          const valid=mandatory.every(k=>checks[k]===true);
+          $("certificate-state").className="certificate-state "+(valid?"valid":"invalid");
+          $("certificate-state").textContent=valid?"Pre-execution certificate valid":"Certificate invalid";
+          $("certificate-summary").textContent=
+            "Mandatory gates "+mandatory.filter(k=>checks[k]===true).length+"/"+mandatory.length+" passed. " +
+            "M (minimality) and B (bridge ratio) are diagnostics, not validity gates. " +
+            "This certifies the discovery model's pre-execution conditions, not runtime behavior.";
+          const labels={
+            S:["S","Goal sufficiency"],C:["C","Output consumability"],P:["P","Input producibility"],
+            E:["E","Effect and policy bounds"],L:["L","Information-flow bounds"],V:["V","Evidence threshold"],
+            M:["M","Toolkit minimality · diagnostic"],B:["B","Bridge ratio · diagnostic"]
+          };
+          const checkRoot=$("certificate-checks");checkRoot.replaceChildren();
+          [...mandatory,...diagnostic].forEach(k=>{
+            const item=document.createElement("div");item.className="certificate-check "+(checks[k]===true?"pass":checks[k]===false?"fail":"");
+            const title=document.createElement("strong");title.textContent=labels[k][0]+" · "+labels[k][1];
+            const state=document.createElement("small");state.textContent=checks[k]===true?"PASS":checks[k]===false?"FAIL":"NOT REPORTED";
+            item.append(title,state);checkRoot.append(item);
+          });
+          const body=$("goal-coverage");body.replaceChildren();
+          const witnesses=(cert.witnesses&&cert.witnesses.S)||{};
+          goals.forEach(goal=>{
+            const row=document.createElement("tr");
+            const status=goal.optional?"Optional":gapGoals.has(goal.id)?"Toolkit required":goal.sigma==="native"?"Model-delegated":"Coverage not certified";
+            const values=[goal.id+" · "+(goal.desc||goal.class),status,witnesses[goal.id]||"No witness",bindings[goal.id]||"—"];
+            values.forEach(value=>{const cell=document.createElement("td");cell.textContent=String(value);row.append(cell);});
+            body.append(row);
+          });
+          $("certificate-witnesses").textContent=JSON.stringify(cert.witnesses||{},null,2);
+        }
+        const counter=data.counterexample;
+        $("counterexample-panel").hidden=!counter;
+        if(counter){
+          $("counterexample-summary").textContent=(counter.name||counter.kind)+" · goal "+(counter.goal||"unspecified")+" · check "+(counter.check||"unspecified");
+          $("counterexample-detail").textContent=JSON.stringify(counter.witness||{},null,2);
+        }
+  
+        renderHypergraphProjection(data.hypergraph_projection_status === "available" ? data.hypergraph_projection : null);
+        $("response").textContent = JSON.stringify(data, null, 2);
+  };
+  const persistDiscoveryResult = (data, context = {}) => {
+    try {
+      const snapshot = {
+        version: 1,
+        saved_at: new Date().toISOString(),
+        context: {benchmarkTaskNotEvaluated: context.benchmarkTaskNotEvaluated === true},
+        data
+      };
+      const serialized = JSON.stringify(snapshot);
+      // Keep this tab-scoped snapshot bounded; never persist the bearer token.
+      if (serialized.length > 2000000) return false;
+      sessionStorage.setItem(DISCOVERY_RESULT_STORAGE_KEY, serialized);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  };
+  const restoreLastDiscoveryResult = () => {
+    try {
+      const raw = sessionStorage.getItem(DISCOVERY_RESULT_STORAGE_KEY);
+      if (!raw) return;
+      const snapshot = JSON.parse(raw);
+      const data = snapshot && snapshot.version === 1 ? snapshot.data : null;
+      if (!data || typeof data !== "object" || !Array.isArray(data.selected_tools) || !Array.isArray(data.gap)) {
+        sessionStorage.removeItem(DISCOVERY_RESULT_STORAGE_KEY);
+        return;
+      }
+      renderDiscoveryResult(data, snapshot.context || {});
+      const savedAt = snapshot.saved_at ? new Date(snapshot.saved_at) : null;
+      $("status").textContent += " · Restored from this browser tab" +
+        (savedAt && !Number.isNaN(savedAt.getTime()) ? " · " + savedAt.toLocaleString() : "") +
+        " · no discovery request was rerun";
+    } catch (_) {
+      // Storage may be unavailable or contain an incomplete snapshot; never invent a result.
+    }
+  };
   hgRun.addEventListener("click", () => run.click());
   $("hg-edit-goal").addEventListener("click", () => {
     const link = studioLinks.find(item => item.getAttribute("href") === "#goal-editor");
@@ -1243,104 +1381,9 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
-      setDiscoveryStatus("Discovery status: " + data.status + (bench.selectedTask ? " · benchmark task NOT evaluated" : "") + " · MCP execution: not performed");
-      $("selected").textContent = (data.selected_tools || []).length;
-      $("gap").textContent = (data.gap || []).length;
-      const bindings = (data.certificate && data.certificate.bindings) || {};
-      const selectedTools = new Set(data.selected_tools || []);
-      const goals = (data.goal_spec && data.goal_spec.goals) || [];
-      const gapGoals = new Set(data.gap || []);
-      // Keep the three categories disjoint: gap = toolkit-required;
-      // native outside the gap = model-delegated; certified selected binding = toolkit-bound.
-      const delegatedGoals = goals.filter(goal =>
-        !goal.optional && goal.sigma === "native" && !gapGoals.has(goal.id)
-      );
-      const toolkitBindings = Object.entries(bindings).filter(([goalId, target]) =>
-        gapGoals.has(goalId) && selectedTools.has(target)
-      );
-      $("covered").textContent = toolkitBindings.length;
-      $("delegated").textContent = delegatedGoals.length;
-      $("latency").textContent = Number(data.discovery_time_seconds || 0).toFixed(3) + " s";
-      $("toolkit").textContent = JSON.stringify(data.selected_tools || [], null, 2);
-      const checkResults = (data.certificate && data.certificate.checks) || {};
-      const mandatoryChecks = ["S", "C", "P", "E", "L", "V"];
-      const diagnosticChecks = ["M", "B"];
-      const checkSummary = Object.keys(checkResults).length
-        ? "Mandatory certificate checks (S,C,P,E,L,V): " +
-          mandatoryChecks.map(key => key + "=" + (checkResults[key] === true ? "pass" : "fail/missing")).join(" · ") +
-          ". Diagnostic checks (not validity gates): " +
-          diagnosticChecks.map(key => key + "=" + (checkResults[key] === true ? "pass" : checkResults[key] === false ? "fail" : "not reported")).join(" · ") + ". "
-        : "No certificate was produced. ";
-      const goalSummary =
-        "Model-delegated goals (native after gap analysis): " + delegatedGoals.length + ". " +
-        (toolkitBindings.length
-          ? "Toolkit bindings: " + toolkitBindings.map(([goal, tool]) => goal + " → " + tool).join(", ") + ". "
-          : "No goal-to-tool binding was certified. ");
-      const chi = data.counterexample || {};
-      const witness = chi.witness || {};
-      const reason = (data.status === "selected"
-        ? "Discovery selected a metadata-compatible toolkit. This is not runtime execution verification. "
-        : "Discovery abstained; no toolkit is certified for the requested goals. ") +
-        (bench.selectedTask
-          ? "Benchmark task evaluation was NOT performed. GoalSpec is human-authored; semantic alignment with the task prompt is not verified. "
-          : "") +
-        checkSummary + goalSummary +
-        (chi.name
-          ? "Counterexample: " + chi.name + " (goal " + (chi.goal || "unspecified") + ", check " + (chi.check || "n/a") + "). " +
-            (witness.goal_out ? "Required output: " + witness.goal_out + ". " : "") +
-            (witness.eligible !== undefined ? "Eligible tools: " + witness.eligible + ". " : "")
-          : "");
-      $("explanation").textContent = reason;
-
-      // Render trust evidence as structured UI. Mandatory validity gates are distinct
-      // from diagnostics; no runtime execution claim is inferred from a valid certificate.
-      const cert=data.certificate||null;
-      const certPanel=$("certificate-panel");
-      certPanel.hidden=!cert&&!data.counterexample;
-      if(!cert){$("certificate-state").className="certificate-state";$("certificate-state").textContent="No certificate produced";$("certificate-summary").textContent="Discovery did not produce a pre-execution certificate. Inspect the counterexample below; absence of a certificate is not a pass.";$("certificate-checks").replaceChildren();$("goal-coverage").replaceChildren();$("certificate-witnesses").textContent="No certificate evidence was produced.";}
-      if(cert){
-        const mandatory=["S","C","P","E","L","V"];
-        const diagnostic=["M","B"];
-        const checks=cert.checks||{};
-        const valid=mandatory.every(k=>checks[k]===true);
-        $("certificate-state").className="certificate-state "+(valid?"valid":"invalid");
-        $("certificate-state").textContent=valid?"Pre-execution certificate valid":"Certificate invalid";
-        $("certificate-summary").textContent=
-          "Mandatory gates "+mandatory.filter(k=>checks[k]===true).length+"/"+mandatory.length+" passed. " +
-          "M (minimality) and B (bridge ratio) are diagnostics, not validity gates. " +
-          "This certifies the discovery model's pre-execution conditions, not runtime behavior.";
-        const labels={
-          S:["S","Goal sufficiency"],C:["C","Output consumability"],P:["P","Input producibility"],
-          E:["E","Effect and policy bounds"],L:["L","Information-flow bounds"],V:["V","Evidence threshold"],
-          M:["M","Toolkit minimality · diagnostic"],B:["B","Bridge ratio · diagnostic"]
-        };
-        const checkRoot=$("certificate-checks");checkRoot.replaceChildren();
-        [...mandatory,...diagnostic].forEach(k=>{
-          const item=document.createElement("div");item.className="certificate-check "+(checks[k]===true?"pass":checks[k]===false?"fail":"");
-          const title=document.createElement("strong");title.textContent=labels[k][0]+" · "+labels[k][1];
-          const state=document.createElement("small");state.textContent=checks[k]===true?"PASS":checks[k]===false?"FAIL":"NOT REPORTED";
-          item.append(title,state);checkRoot.append(item);
-        });
-        const body=$("goal-coverage");body.replaceChildren();
-        const witnesses=(cert.witnesses&&cert.witnesses.S)||{};
-        goals.forEach(goal=>{
-          const row=document.createElement("tr");
-          const status=goal.optional?"Optional":gapGoals.has(goal.id)?"Toolkit required":goal.sigma==="native"?"Model-delegated":"Coverage not certified";
-          const values=[goal.id+" · "+(goal.desc||goal.class),status,witnesses[goal.id]||"No witness",bindings[goal.id]||"—"];
-          values.forEach(value=>{const cell=document.createElement("td");cell.textContent=String(value);row.append(cell);});
-          body.append(row);
-        });
-        $("certificate-witnesses").textContent=JSON.stringify(cert.witnesses||{},null,2);
-      }
-      const counter=data.counterexample;
-      $("counterexample-panel").hidden=!counter;
-      if(counter){
-        $("counterexample-summary").textContent=(counter.name||counter.kind)+" · goal "+(counter.goal||"unspecified")+" · check "+(counter.check||"unspecified");
-        $("counterexample-detail").textContent=JSON.stringify(counter.witness||{},null,2);
-      }
-
-      renderHypergraphProjection(data.hypergraph_projection_status === "available" ? data.hypergraph_projection : null);
-      $("response").textContent = JSON.stringify(data, null, 2);
+      const benchmarkTaskNotEvaluated = Boolean(bench.selectedTask);
+      renderDiscoveryResult(data, {benchmarkTaskNotEvaluated});
+      persistDiscoveryResult(data, {benchmarkTaskNotEvaluated});
     } catch (e) {
       setDiscoveryStatus("Request failed: " + e.message + " · The previous projection, if any, is retained and may be stale.");
       $("toolkit").textContent = "No toolkit returned.";
@@ -1755,6 +1798,11 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       output.textContent = "No evidence content was accepted. Check the ID, API diagnostics and record freshness.";
     } finally { button.disabled = false; }
   });
+
+
+  // Restore the last successful Core response after a page refresh. This is
+  // ephemeral per-tab UI state, not durable run history; the API token is never stored.
+  restoreLastDiscoveryResult();
 
 })();
 </script>

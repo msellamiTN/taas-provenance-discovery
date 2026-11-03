@@ -127,3 +127,16 @@ def test_hypergraph_explorer_actions_reuse_existing_discovery_and_goal_editor():
     assert '$("status").textContent = message;' in html
     assert '$("hg-status").textContent = message;' in html
     assert 'item.getAttribute("href") === "#goal-editor"' in html
+
+
+
+def test_last_discovery_result_is_restored_after_refresh_without_persisting_authentication():
+    html = STUDIO_HTML.read_text(encoding="utf-8")
+    assert 'const DISCOVERY_RESULT_STORAGE_KEY = "taas.studio.discovery-result.v1";' in html
+    assert "sessionStorage.setItem(DISCOVERY_RESULT_STORAGE_KEY, serialized)" in html
+    assert "sessionStorage.getItem(DISCOVERY_RESULT_STORAGE_KEY)" in html
+    assert "renderDiscoveryResult(data, snapshot.context || {})" in html
+    assert "restoreLastDiscoveryResult();" in html
+    assert "persistDiscoveryResult(data, {benchmarkTaskNotEvaluated})" in html
+    assert "TAAS_STUDIO_API_TOKEN" not in html[html.index("const persistDiscoveryResult"):html.index("const restoreLastDiscoveryResult")]
+    assert "localStorage.setItem" not in html
