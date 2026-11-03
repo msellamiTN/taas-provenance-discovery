@@ -287,3 +287,20 @@ PR #25 introduces `taas.ai/v1alpha1` Agent manifests, strict metadata/model/tool
 
 - **2026-11-03:** PR #25 exact final head `f9430971531992307d528e40740c89a0e46eabf1` passed run #41674346126: 190 passed, 3 warnings; hypergraph build and artifact upload succeeded.
 - **2026-11-03:** PR #26 opened with immutable Agent registry and lifecycle implementation. Run #41675370864 passed on exact PR #26 head: 198 passed, 3 warnings; hypergraph build and artifact upload succeeded. No browser/Colab/GPU/production validation is claimed.
+
+
+## 12. Versioned MCP registry snapshots — PR #27 (2026-11-03)
+
+- **PR:** [#27 — Agent Studio: versioned MCP snapshots and tool-grant binding](https://github.com/msellamiTN/taas-provenance-discovery/pull/27)
+- **Branch:** `feature/taas-versioned-mcp-registry-snapshots`
+- **Base:** PR #26 branch `feature/taas-agent-registry-lifecycle`
+- **Exact head:** `f28b4bb75adf4554bb78f9c1f069071b2e7d02b2`
+- **CI:** run #41676906501 — **success**; **207 passed, 3 warnings**; hypergraph build (31 vertices, 569 hyperedges) and artifact upload succeeded.
+- **Implemented:** read-only `tools/list` inspection of operator-configured stdio MCP servers; complete snapshot capture with all-or-nothing failure; tool-definition and snapshot SHA-256 fingerprints; immutable snapshot persistence and hash verification; API to inspect/list/read snapshots; exact Agent tool-grant resolution against selected snapshot at publication; one-time snapshot binding and audit event linkage; Studio snapshot inspection/selection controls.
+- **Safety bounds:** maximum 500 tools per server, 5,000 total tools and 10 MiB serialized snapshot.
+- **Trust boundary:** snapshot is evidence of observed schemas, not server identity attestation, tool safety, authorization or execution. No `tools/call` path is added. Live MCP inspection and browser/Colab/GPU/production evidence remain unrun.
+- **Next:** define the pre-execution authorization decision contract bound to Agent version, GoalSpec digest, selected snapshot, exact tool-definition digest, argument digest, principal, policy version, assurance evidence and approval. Keep invocation disabled until the authorization result is rechecked at a real isolated execution boundary.
+
+### Change log addendum
+
+- **2026-11-03:** PR #27 exact head `f28b4bb75adf4554bb78f9c1f069071b2e7d02b2` passed GitHub Actions run #41676906501: 207 passed, 3 warnings; hypergraph build and artifact upload succeeded.
