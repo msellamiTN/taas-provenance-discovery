@@ -143,6 +143,11 @@
     @media(max-width:900px) { .studio-layout { grid-template-columns:1fr; gap:12px; } .studio-nav { position:static; display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; } .nav-brand { width:100%; } .nav-label,.nav-foot { display:none; } .studio-nav a { padding:8px 9px; } }
     @media(max-width:560px) { .studio-nav { gap:2px; } .studio-nav a { font-size:11px; padding:7px; } }
 
+    .studio-content > [hidden] { display:none !important; }
+    .studio-content > section, .studio-content > .grid, .studio-content > .hero { scroll-margin-top:18px; }
+    .studio-nav a { transition:background .12s ease,color .12s ease; }
+    .studio-nav a[aria-current="page"] { color:#214fb4; background:var(--blue-soft); box-shadow:inset 2px 0 #315fce; }
+    @media(prefers-reduced-motion:reduce) { .studio-nav a { transition:none; } }
     .runtime-overview { margin:0 0 18px; }
     .runtime-overview-head { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
     .runtime-overview-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-top:12px; }
@@ -177,7 +182,9 @@
       <a href="#certificate-panel">Assurance</a>
       <span class="nav-label">RESOURCES</span>
       <a href="#models">Model catalog</a>
-      <a href="#agent-studio">Model runtime &amp; Agent Studio</a>
+      <a href="#model-runtime-panel">Model runtime</a>
+      <a href="#agent-chat-panel">Agent chat</a>
+      <a href="#agent-goal-panel">Agent design</a>
       <a href="#runtime">Host diagnostics</a>
       <div class="nav-foot"><span class="nav-status-dot"></span><span>Execution disabled<br><small>Discovery-only preview</small></span></div>
     </nav>
@@ -376,14 +383,11 @@
   </section>
 
 
-    </div>
-  </div>
-
   <section id="agent-studio" class="section-anchor" style="margin-bottom:18px">
     <div class="panel-head"><div><div class="eyebrow">Model &amp; Agent workspace</div><h2 style="margin:4px 0">Load a model and build an agent</h2></div><span class="pill">Real local inference · authenticated API</span></div>
     <p class="muted">Host diagnostics below and model runtime state are separate views. The selected Hugging Face model is downloaded and loaded by the same process that runs this Studio API. If that process runs inside Colab, inference runs in that Colab runtime. This does not remotely connect Studio to a separate Colab session.</p>
     <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px">
-      <section style="box-shadow:none;padding:14px">
+      <section id="model-runtime-panel" style="box-shadow:none;padding:14px">
         <h2>1 · Model runtime</h2><label for="runtime-model-id">Hugging Face model ID</label>
         <input id="runtime-model-id" value="Qwen/Qwen2.5-0.5B-Instruct" maxlength="257" autocomplete="off">
         <label for="runtime-device">Execution device</label>
@@ -392,7 +396,7 @@
         <div id="runtime-model-status" class="status" role="status" aria-live="polite">No model loaded by this process.</div><pre id="runtime-model-details">Model runtime state has not been queried.</pre>
         <p class="subtle">Remote repository code execution is disabled (<code>trust_remote_code=false</code>). CPU uses FP32; CUDA uses BF16 when supported, otherwise FP16. A successful load is not inferred from catalog metadata.</p>
       </section>
-      <section style="box-shadow:none;padding:14px">
+      <section id="agent-chat-panel" style="box-shadow:none;padding:14px">
         <h2>2 · Agent chat</h2><label for="agent-system">Agent instructions</label>
         <textarea id="agent-system" rows="3" style="min-height:75px">You are a precise assistant. Be explicit about uncertainty and do not claim to have executed tools.</textarea>
         <label for="agent-message">Message</label><textarea id="agent-message" rows="4" style="min-height:110px" placeholder="Ask the loaded model a question…"></textarea>
@@ -400,7 +404,7 @@
         <button id="agent-chat-send" type="button">Run inference</button><div id="agent-chat-status" class="status" role="status" aria-live="polite">Load a model before sending a message.</div><pre id="agent-chat-result">Inference output will appear here.</pre>
       </section>
     </div>
-    <section style="box-shadow:none;padding:14px;margin-top:14px">
+    <section id="agent-goal-panel" style="box-shadow:none;padding:14px;margin-top:14px">
       <h2>3 · Goal-oriented agent design</h2><p class="muted">Ask the loaded model to decompose a natural-language objective into the canonical TaaS GoalSpec. The result is a proposal, not a semantic correctness proof and not an execution plan authorization.</p>
       <label for="agent-goal-prompt">Agent objective</label><textarea id="agent-goal-prompt" rows="3" style="min-height:90px" placeholder="Find current information, summarize it, and save a Markdown report…"></textarea>
       <button id="agent-decompose" type="button">Decompose objective with loaded model</button><div id="agent-decompose-status" class="status" role="status" aria-live="polite">No decomposition requested.</div><pre id="agent-decompose-result">The model's GoalSpec proposal will appear here.</pre>
@@ -408,10 +412,47 @@
     </section>
   </section>
 
+    </div>
+  </div>
+
 </main>
 <script>
 (() => {
   const $ = (id) => document.getElementById(id);
+
+  // Persistent single-workspace navigation. Nested anchors resolve to their
+  // containing workspace panel; the runtime snapshot remains visible globally.
+  const studioContent = document.querySelector(".studio-content");
+  const studioLinks = [...document.querySelectorAll(".studio-nav a[href^='#']")];
+  const showStudioWorkspace = (link, updateHash = true) => {
+    const targetId = decodeURIComponent(link.getAttribute("href").slice(1));
+    const target = document.getElementById(targetId);
+    if (!target || !studioContent.contains(target)) return;
+    let root = target;
+    while (root.parentElement && root.parentElement !== studioContent) root = root.parentElement;
+    if (root.parentElement !== studioContent) return;
+    [...studioContent.children].forEach(child => {
+      if (child.id === "runtime-overview") child.hidden = false;
+      else child.hidden = child !== root;
+    });
+    studioLinks.forEach(item => {
+      if (item === link) item.setAttribute("aria-current", "page");
+      else item.removeAttribute("aria-current");
+    });
+    if (updateHash && window.location.hash !== link.getAttribute("href")) {
+      history.replaceState(null, "", link.getAttribute("href"));
+    }
+    target.scrollIntoView({behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block:"start"});
+  };
+  studioLinks.forEach(link => link.addEventListener("click", event => {
+    event.preventDefault();
+    showStudioWorkspace(link);
+  }));
+  const initialWorkspace = studioLinks.find(link => link.getAttribute("href") === window.location.hash)
+    || studioLinks.find(link => link.getAttribute("href") === "#overview")
+    || studioLinks[0];
+  if (initialWorkspace) showStudioWorkspace(initialWorkspace, false);
+
 
   const runtimeRefresh = $("runtime-refresh");
   const runtimeState = $("runtime-overview-state");
