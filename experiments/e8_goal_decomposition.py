@@ -108,27 +108,26 @@ def score_case(case: dict[str, Any], output: dict[str, Any] | None) -> dict[str,
     predicted = output["goals"]
     matched_actual: set[int] = set()
     matched_expected: set[int] = set()
+    expected_to_actual: dict[int, int] = {}
     # Deterministic one-to-one matching; each predicted goal can satisfy at most one rubric item.
     for ei, expected in enumerate(case["goals"]):
         for ai, actual in enumerate(predicted):
             if ai not in matched_actual and isinstance(actual, dict) and _matches(expected, actual):
                 matched_expected.add(ei)
                 matched_actual.add(ai)
+                expected_to_actual[ei] = ai
                 break
     precision = len(matched_actual) / len(predicted) if predicted else 0.0
     recall = len(matched_expected) / len(case["goals"]) if case["goals"] else 1.0
     f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
-    ordered_matches = sorted(matched_expected)
     dependency_checks = []
-    for expected_index in ordered_matches:
-        actual_index = next(i for i in matched_actual if _matches(case["goals"][expected_index], predicted[i]))
+    for expected_index, actual_index in expected_to_actual.items():
         expected_deps = case["goals"][expected_index].get("deps", [])
         actual_deps = set(predicted[actual_index].get("deps", []) or [])
         expected_actual_ids = {
-            next(i for i in matched_actual if _matches(case["goals"][dep_index], predicted[i]))
-            for dep_index in expected_deps if dep_index in matched_expected
+            predicted[expected_to_actual[dep_index]]["id"]
+            for dep_index in expected_deps if dep_index in expected_to_actual
         }
-        expected_actual_ids = {predicted[i]["id"] for i in expected_actual_ids}
         dependency_checks.append(expected_actual_ids.issubset(actual_deps))
     dependency_valid = all(dependency_checks) if dependency_checks else False
     ids = [g.get("id") for g in predicted if isinstance(g, dict)]
