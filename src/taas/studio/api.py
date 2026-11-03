@@ -189,8 +189,8 @@ def validate_studio_goal_spec(spec: dict[str, Any]) -> None:
             raise HTTPException(status_code=422, detail=f"{prefix}.optional must be a boolean")
         if "lang" in goal and (not isinstance(goal["lang"], str) or not goal["lang"].strip()):
             raise HTTPException(status_code=422, detail=f"{prefix}.lang must be a non-empty string")
-        if "desc" in goal and not isinstance(goal["desc"], str):
-            raise HTTPException(status_code=422, detail=f"{prefix}.desc must be a string")
+        if not isinstance(goal.get("desc"), str) or not goal["desc"].strip():
+            raise HTTPException(status_code=422, detail=f"{prefix}.desc must be a non-empty authored goal description")
     prompt_inputs = spec.get("prompt_inputs", ["text"])
     if not isinstance(prompt_inputs, list) or any(not isinstance(item, str) for item in prompt_inputs):
         raise HTTPException(status_code=422, detail="goal_spec.prompt_inputs must be an array of semantic type strings")
