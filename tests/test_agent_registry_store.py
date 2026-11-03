@@ -79,3 +79,33 @@ def test_sqlite_registry_applies_owner_only_permissions(monkeypatch, tmp_path):
     agent_registry.create_draft(_manifest())
     assert stat.S_IMODE(database.parent.stat().st_mode) == 0o700
     assert stat.S_IMODE(database.stat().st_mode) == 0o600
+
+
+def test_mcp_registry_snapshot_rows_are_immutable(monkeypatch, tmp_path):
+    import sqlite3
+
+    from taas.studio import agent_registry
+
+    monkeypatch.setenv("TAAS_AGENT_REGISTRY_PATH", str(tmp_path / "agents.sqlite3"))
+    snapshot = {
+        "schema_version": "taas.mcp.registry/v1",
+        "capture_mode": "test",
+        "servers": [],
+    }
+    stored = agent_registry.store_mcp_snapshot(snapshot)
+    assert agent_registry.get_mcp_snapshot(stored["snapshot_id"])["snapshot"] == snapshot
+
+    connection = agent_registry._connect()
+    try:
+        with pytest.raises(sqlite3.IntegrityError, match="snapshots are immutable"):
+            connection.execute(
+                "UPDATE mcp_registry_snapshots SET snapshot_json = '{}' WHERE snapshot_id = ?",
+                (stored["snapshot_id"],),
+            )
+        with pytest.raises(sqlite3.IntegrityError, match="snapshots are immutable"):
+            connection.execute(
+                "DELETE FROM mcp_registry_snapshots WHERE snapshot_id = ?",
+                (stored["snapshot_id"],),
+            )
+    finally:
+        connection.close()
