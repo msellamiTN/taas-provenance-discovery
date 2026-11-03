@@ -836,10 +836,25 @@
     return true;
   };
   const tokenValue = () => $("token").value.trim();
+  const formatApiError = (detail, fallback) => {
+    if (typeof detail === "string" && detail.trim()) return detail;
+    if (Array.isArray(detail)) return detail.map(item => {
+      if (typeof item === "string") return item;
+      const loc = Array.isArray(item?.loc) ? item.loc.join(".") : "";
+      const msg = item?.msg || item?.message || JSON.stringify(item);
+      return loc ? loc + ": " + msg : msg;
+    }).join("\\n");
+    if (detail && typeof detail === "object") {
+      if (typeof detail.message === "string") return detail.message;
+      if (typeof detail.detail === "string") return detail.detail;
+      return JSON.stringify(detail, null, 2);
+    }
+    return fallback || "Request failed.";
+  };
   const apiGet = async (path) => {
     const token=tokenValue(); if(!token) throw new Error("Enter the Studio API token in Discovery request configuration first.");
     const r=await fetch(path,{headers:{"Authorization":"Bearer "+token}});
-    const d=await r.json(); if(!r.ok) throw new Error(d.detail||("HTTP "+r.status)); return d;
+    const d=await r.json(); if(!r.ok) throw new Error(formatApiError(d.detail||d,"HTTP "+r.status)); return d;
   };
   const loadDatasets = async () => {
     const d=await apiGet("/api/v1/bench/datasets"); bench.datasets=d.datasets||[];
@@ -946,7 +961,7 @@
   const runtimePost = async (path, body) => {
     const token=tokenValue(); if(!token) throw new Error("Enter the Studio API token in Discovery request configuration first.");
     const response=await fetch(path,{method:"POST",headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify(body)});
-    const data=await response.json(); if(!response.ok) throw new Error(data.detail||("HTTP "+response.status)); return data;
+    const data=await response.json(); if(!response.ok) throw new Error(formatApiError(data.detail||data,"HTTP "+response.status)); return data;
   };
   const refreshLoadedModel = async () => {
     const state=await apiGet("/api/v1/models/runtime");$("runtime-model-details").textContent=JSON.stringify(state,null,2);
