@@ -7,6 +7,7 @@ from taas.studio.assurance_evidence import (
     EvidenceError,
     attest_evidence,
     store_evidence,
+    get_verified_evidence,
 )
 
 
@@ -109,4 +110,59 @@ def test_expiry_and_timezone_are_validated(tmp_path):
             observed_at=now.isoformat(),
             expires_at=(now - timedelta(seconds=1)).isoformat(),
             payload={"verified": True},
+        )
+
+
+
+def test_retrieval_rechecks_signature_exact_binding_and_freshness(tmp_path):
+    env = _env(tmp_path)
+    binding = _binding()
+    envelope = attest_evidence(
+        evidence_type="trusted_effect_assessment",
+        subject_binding=binding,
+        issuer="taas-studio",
+        assessor="effect-assessor-v1",
+        method="static-analysis",
+        payload={"effects": ["read(docs)"]},
+        ttl_seconds=120,
+        environ=env,
+    )
+    stored = store_evidence(envelope, environ=env)
+    verified = get_verified_evidence(
+        stored["evidence_id"], expected_type="trusted_effect_assessment",
+        expected_binding=binding, environ=env,
+    )
+    assert verified["payload"] == {"effects": ["read(docs)"]}
+    assert verified["evidence_id"] == stored["evidence_id"]
+
+    altered = {**binding, "arguments_sha256": "9" * 64}
+    with pytest.raises(EvidenceError, match="different invocation"):
+        get_verified_evidence(
+            stored["evidence_id"], expected_type="trusted_effect_assessment",
+            expected_binding=altered, environ=env,
+        )
+    with pytest.raises(EvidenceError, match="not currently fresh"):
+        get_verified_evidence(
+            stored["evidence_id"], expected_type="trusted_effect_assessment",
+            expected_binding=binding, environ=env,
+            now=datetime.now(timezone.utc) + timedelta(minutes=5),
+        )
+
+
+def test_evidence_type_cannot_be_substituted(tmp_path):
+    env = _env(tmp_path)
+    envelope = attest_evidence(
+        evidence_type="provenance_verification",
+        subject_binding=_binding(),
+        issuer="taas-studio",
+        assessor="provenance-verifier",
+        method="digest-check",
+        payload={"verified": True},
+        environ=env,
+    )
+    stored = store_evidence(envelope, environ=env)
+    with pytest.raises(EvidenceError, match="type does not match"):
+        get_verified_evidence(
+            stored["evidence_id"], expected_type="trusted_effect_assessment",
+            expected_binding=_binding(), environ=env,
         )
