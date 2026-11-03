@@ -204,7 +204,7 @@
     <div id="bench-status" class="status subtle" aria-live="polite" style="margin-top:12px">Enter the Studio API token below, then load the benchmark workspace.</div>
     <label style="display:flex;align-items:flex-start;gap:9px;font-weight:500">
       <input id="bench-goal-review" type="checkbox" style="width:auto;margin-top:2px">
-      <span>I reviewed the GoalSpec against the selected benchmark prompt. Structural validation alone does not establish semantic alignment.</span>
+      <span>I reviewed the GoalSpec and selected registry tools against the benchmark prompt. Structural validation alone does not establish semantic alignment.</span>
     </label>
   </section>
 
@@ -771,6 +771,7 @@
         // Once a benchmark task is active, keep the request toolset synchronized
         // with the selection basket; never leave the demo tool silently attached.
         if(bench.selectedTask){
+          $("bench-goal-review").checked=false;
           try{
             const count=syncBenchmarkToolsToRequest();
             $("bench-status").textContent=count
