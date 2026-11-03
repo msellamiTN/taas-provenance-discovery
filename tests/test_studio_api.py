@@ -887,3 +887,27 @@ def test_runtime_status_reports_host_and_explicit_model_boundary(monkeypatch):
     )
     assert response.status_code == 200
     assert response.json() == expected
+
+
+
+def test_studio_overview_connects_to_authenticated_live_runtime_status():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    for marker in (
+        'id="runtime-refresh"',
+        'id="runtime-overview-state"',
+        'id="runtime-cpu"',
+        'id="runtime-memory"',
+        'id="runtime-disk"',
+        'id="runtime-gpu"',
+        'id="runtime-colab"',
+        'id="runtime-model"',
+        'id="runtime-overview-details"',
+        'fetch("/api/v1/runtime/status"',
+        'cache: "no-store"',
+        'displayed values are from an earlier successful snapshot',
+        'inference not executed',
+    ):
+        assert marker in page
+    assert 'localStorage.setItem("token"' not in page
