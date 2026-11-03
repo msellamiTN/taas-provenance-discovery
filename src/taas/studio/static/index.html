@@ -235,6 +235,22 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 .model-preflight pre{grid-column:1/-1;min-height:70px}
 @media(max-width:720px){.model-preflight{grid-template-columns:1fr 1fr}.model-preflight>div:first-child,.model-preflight pre{grid-column:1/-1}}
 
+
+.taas-pipeline{margin:0 0 18px;padding:17px 18px}
+.pipeline-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:13px}
+.pipeline-heading h2{margin:4px 0 0;font-size:16px}
+.pipeline-steps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.pipeline-step{display:flex;flex-direction:column;gap:5px;min-width:0;padding:11px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);text-decoration:none;transition:border-color .12s,background .12s}
+.pipeline-step:hover{border-color:#b9c9ed;background:#f8faff}
+.pipeline-step:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.pipeline-index{color:#5572b8;font-size:9px;font-weight:800;letter-spacing:.8px}
+.pipeline-step strong{font-size:11px}
+.pipeline-step small{font-size:10px;color:var(--muted);line-height:1.4}
+.pipeline-disabled{background:#f7f8fa;border-style:dashed;color:#778397}
+.pipeline-disabled .pipeline-index{color:#9aa4b3}
+@media(max-width:1100px){.pipeline-steps{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){.pipeline-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.taas-pipeline{padding:14px}}
+
   </style>
 </head>
 <body>
@@ -285,6 +301,17 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     <div><div class="eyebrow">Toolkit-as-a-Service · Control plane</div><h2>Discovery workspace</h2><p>Move from benchmark intent to a reviewed GoalSpec, select candidate tools from the retained registry, and inspect a provenance-aware discovery decision—all in one guided workspace.</p></div>
     <span class="pill"><span class="pill-dot"></span> Discovery preview · execution disabled</span>
   </div>
+  <section class="taas-pipeline" aria-label="TaaS engineering lifecycle">
+    <div class="pipeline-heading"><div><div class="eyebrow">TaaS engineering lifecycle</div><h2>From intent to governed execution</h2></div><span class="pill">Execution invocation not yet enabled</span></div>
+    <div class="pipeline-steps">
+      <a class="pipeline-step" href="#agent-goal-panel"><span class="pipeline-index">01</span><strong>Agent planning</strong><small>Model-assisted GoalSpec proposal</small></a>
+      <a class="pipeline-step" href="#mcp-studio"><span class="pipeline-index">02</span><strong>Tool intelligence</strong><small>Inspect MCP contracts and metadata</small></a>
+      <a class="pipeline-step" href="#goal-editor"><span class="pipeline-index">03</span><strong>Goal contract</strong><small>Review types, effects and dependencies</small></a>
+      <a class="pipeline-step" href="#discovery"><span class="pipeline-index">04</span><strong>Discovery</strong><small>Find candidate toolkits and bindings</small></a>
+      <a class="pipeline-step" href="#certificate-panel"><span class="pipeline-index">05</span><strong>Assurance</strong><small>Inspect certificate and counterexamples</small></a>
+      <div class="pipeline-step pipeline-disabled" aria-disabled="true"><span class="pipeline-index">06</span><strong>Execution gateway</strong><small>Authorization primitives only · no invocation API</small></div>
+    </div>
+  </section>
   <section id="workspace" class="section-anchor" style="margin-bottom:18px">
     <div class="panel-head"><div><div class="eyebrow">01 · Explore</div><h2 style="margin:4px 0">Benchmark &amp; tool workspace</h2></div><span class="pill">Repository-retained data · no upstream fetch</span></div>
     <div class="workspace-grid">
