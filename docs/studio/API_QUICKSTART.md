@@ -133,3 +133,38 @@ manual JSON edits so both representations are synchronized.
 Local validation is a convenience for immediate feedback; server-side validation is
 the authoritative structural check before discovery. Neither validation layer proves
 that a GoalSpec faithfully captures the user's intent.
+
+
+## Discovery hypergraph projection
+
+A successful discovery response can include `hypergraph_projection`, a read-only
+serialization of the server-owned semantic hypergraph and the final core reachability
+result. It is produced only when discovery has not abstained and the Composer returned
+an authoritative final `ReachResult`.
+
+Response fields:
+
+- `hypergraph_projection_status`: `available` or `unavailable_abstained`.
+- `hypergraph_projection`: an object conforming to
+  `taas.hypergraph-projection/v1`, or `null` when no authoritative projection exists.
+- `projection_id`: deterministic content-derived identifier within the projection.
+- `vertices`: semantic types, reachability, information-flow labels and derivation summaries.
+- `hyperedges`: registered tool contracts and GoalSpec-derived model edges, including
+  their inputs, outputs, effects, fingerprints and whether the edge fired in final reachability.
+- `bridges`: recorded model bridge derivations.
+- `reachability`: core-returned reachable types, fired tool edges, labels and derivations.
+- `summary`: projection counts.
+
+The endpoint projects the request's server-side `DiscoveryEngine.H` and the Composer's
+final `ReachResult`; it does not accept a graph, reachability map, derivation, certificate,
+or evidence object from the browser. The browser must treat this projection as a read-only
+view and must not infer authorization or execution from an edge being reachable or fired.
+
+On abstention, `hypergraph_projection_status` is `unavailable_abstained` and
+`hypergraph_projection` is `null`. The API does not manufacture a successful graph
+for a failed or clarified discovery. Even when a projection is available,
+`execution_performed` remains `false`: this endpoint does not invoke MCP tools.
+
+The projection is a visualization and inspection contract, not a durable discovery-run
+record. Persisted run identifiers, multi-tenant isolation, lifecycle history and
+production authorization remain separate work.
