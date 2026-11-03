@@ -9,3 +9,12 @@ dist/
 
 # raw MCPToolBench++ request files (33 MB) are re-downloaded by scripts/fetch_data.sh
 data/raw/mcptoolbenchpp/*.json
+
+# LaTeX build files
+paper/*.aux
+paper/*.log
+paper/*.bbl
+paper/*.blg
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.out

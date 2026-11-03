@@ -1,0 +1,25 @@
+\begin{table}[t]
+\caption{Request-path ablations on the LiveMCPBench test split (95 tasks). Each row changes one component of the
+reference configuration; differences to the reference in parentheses. Abst.: share of tasks with an explicit
+abstention.}
+\label{tab:eval-ablation}
+\centering\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lllr@{}}
+\toprule
+Variant & Recall & $|K|$ & Abst.\\
+\midrule
+Reference (dev-tuned) & .186 & 1.42 & 0.06 \\
+\midrule
+No relevance term (Eq.~(6)) & .082 ($-$0.104) & 1.37 ($-$0.05) & 0.06 \\
+No structural score & .173 ($-$0.013) & 1.39 ($-$0.03) & 0.07 \\
+No backward closure ($d=0$) & .182 ($-$0.004) & 1.37 ($-$0.05) & 0.07 \\
+No refinement (Alg.~3A) & .182 ($-$0.004) & 1.39 ($-$0.03) & 0.08 \\
+Alg.~1 read literally & .175 ($-$0.011) & 1.93 (+0.51) & 0.09 \\
+Strict rule~2 & .182 ($-$0.004) & 1.92 (+0.49) & 0.07 \\
+Rule~1 off & .193 (+0.007) & 1.45 (+0.03) & 0.05 \\
+Haiku $\rho_{\mathrm{LLM}}$ profile & .186 (+0.000) & 1.42 (+0.00) & 0.06 \\
+Haiku analyst & .176 ($-$0.010) & 1.60 (+0.18) & 0.04 \\
+(L) along derivations & .186 (+0.000) & 1.42 (+0.00) & 0.06 \\
+\bottomrule
+\end{tabular}
+\end{table}

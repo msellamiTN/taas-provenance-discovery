@@ -1,0 +1,21 @@
+% Stand-alone preview of the evaluation section in the IEEE Computer Society journal format used by the
+% manuscript (IEEEtran, compsoc, 10pt, two columns). Counters are set so that numbering matches its place
+% in the paper: Section 8, Figures from 8, Tables from 7.
+\documentclass[10pt,journal,compsoc]{IEEEtran}
+\usepackage[nocompress]{cite}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath,amssymb}
+\usepackage{url}
+\graphicspath{{../results/figures/}}
+\begin{document}
+\setcounter{section}{7}
+\setcounter{figure}{7}
+\setcounter{table}{6}
+\setcounter{page}{14}
+\input{sections/evaluation}
+\clearpage
+\typeout{EVAL-LAST-PAGE: \the\numexpr\value{page}-1\relax}
+\bibliographystyle{IEEEtran}
+\bibliography{evaluation}
+\end{document}

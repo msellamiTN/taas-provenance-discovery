@@ -1,0 +1,17 @@
+\begin{table}[t]
+\caption{Composition on synthetic typed registries (RQ3): 48 tasks with hidden chains of length $L\in\{2,3,4\}$.
+Valid: toolkits accepted by an independent checker, with the 95\% Wilson interval (\%). By $L$: valid share
+(\%) for $L=2/3/4$. Opt.: share (\%) whose cost equals the brute-force optimum.}
+\label{tab:eval-composition}
+\centering\footnotesize\setlength{\tabcolsep}{2.0pt}
+\begin{tabular}{@{}lrlcrr@{}}
+\toprule
+Regime & Valid & 95\% CI & By $L$ & Opt. & ms\\
+\midrule
+Exact (B\&B) & 48/48 & [92.6, 100.0] & 100/100/100 & 100 & 12.1 \\
+Greedy cover & 48/48 & [92.6, 100.0] & 100/100/100 & 100 & 11.5 \\
+No backward closure & 3/48 & [2.1, 16.8] & 12/6/0 & 6 & 5.2 \\
+Per-subtask & 32/48 & [52.5, 78.3] & 100/100/0 & 67 & -- \\
+\bottomrule
+\end{tabular}
+\end{table}

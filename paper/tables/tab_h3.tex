@@ -1,0 +1,25 @@
+\begin{table}[t]
+\caption{Toolkit size, context cost and gold-tool recall (H3). Means over tasks; recall with its 95\% confidence
+interval. LMB: LiveMCPBench, 95 tasks (test). TB++: MCPToolBench++, 60 queries (development). Tok.: tokens of the
+exposed tool definitions.}
+\label{tab:eval-h3}
+\centering\footnotesize\setlength{\tabcolsep}{2.2pt}
+\begin{tabular}{@{}lrrlrrl@{}}
+\toprule
+ & \multicolumn{3}{c}{LMB (test)} & \multicolumn{3}{c}{TB++ (dev)}\\
+\cmidrule(lr){2-4}\cmidrule(l){5-7}
+System & $|K|$ & Tok. & Recall & $|K|$ & Tok. & Recall\\
+\midrule
+TaaS & 1.42 & 126 & .186\,$\pm$\,.054 & 1.00 & 88 & .383\,$\pm$\,.124 \\
+\quad no gap analysis & 1.96 & 165 & .175\,$\pm$\,.054 & 0.90 & 84 & .367\,$\pm$\,.123 \\
+\quad strict rule 2 & 1.92 & 162 & .182\,$\pm$\,.056 & 1.05 & 94 & .367\,$\pm$\,.123 \\
+\addlinespace[2pt]
+Per-subtask & 2.57 & 343 & .249\,$\pm$\,.066 & 1.32 & 252 & .433\,$\pm$\,.126 \\
+\quad gap goals only & 1.72 & 219 & .202\,$\pm$\,.061 & 1.05 & 236 & .417\,$\pm$\,.126 \\
+RAG-MCP top-3 & 3.00 & 745 & .240\,$\pm$\,.065 & 3.00 & 617 & .467\,$\pm$\,.127 \\
+RAG-MCP top-5 & 5.00 & 1{,}252 & .293\,$\pm$\,.073 & 5.00 & 1{,}089 & .550\,$\pm$\,.127 \\
+MCP-Zero & 2.59 & 386 & .213\,$\pm$\,.061 & 1.28 & 220 & .317\,$\pm$\,.119 \\
+Full catalogue & 569.00 & 96{,}420 & 1.000 & 569.00 & 96{,}420 & 1.000 \\
+\bottomrule
+\end{tabular}
+\end{table}
