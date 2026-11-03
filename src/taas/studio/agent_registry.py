@@ -294,6 +294,8 @@ def transition(
     allowed = {"draft": "validated", "validated": "published"}
     if target_state not in {"validated", "published"}:
         raise AgentRegistryConflict("Only draft->validated and validated->published transitions are supported")
+    if registry_snapshot_id is not None and target_state != "published":
+        raise AgentRegistryConflict("MCP registry snapshots may only be bound during publication")
     now = _now()
     connection = _connect()
     try:
