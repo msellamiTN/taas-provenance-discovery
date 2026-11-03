@@ -1095,3 +1095,114 @@ def test_mcp_registry_never_accepts_inline_secret_values(monkeypatch):
     monkeypatch.setenv("TAAS_MCP_SERVERS_JSON", '[{"id":"ok","name":"X","command":"python","env":{"API_KEY":"secret"}}]')
     with pytest.raises(MCPRegistryError):
         _load_config()
+
+
+def _valid_agent_manifest():
+    return {
+        "apiVersion": "taas.ai/v1alpha1",
+        "kind": "Agent",
+        "metadata": {
+            "id": "support-assistant",
+            "name": "Support Assistant",
+            "version": "1.0.0",
+            "description": "Draft support workflow agent",
+        },
+        "spec": {
+            "model": {"provider": "huggingface", "model_id": "Qwen/Qwen2.5-0.5B-Instruct"},
+            "instructions": "Help the operator summarize support requests.",
+            "tool_allowlist": [],
+            "resources": {"max_new_tokens": 512, "timeout_seconds": 90, "max_tool_calls": 0},
+            "approval": {
+                "require_human_approval": True,
+                "require_assurance": True,
+                "allow_side_effects": False,
+            },
+        },
+    }
+
+
+def test_agent_manifest_validation_is_authenticated_and_non_executing(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    payload = _valid_agent_manifest()
+    unauthorized = client.post("/api/v1/agents/validate", json=payload)
+    assert unauthorized.status_code == 401
+
+    response = client.post(
+        "/api/v1/agents/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json=payload,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["valid"] is True
+    assert data["manifest"]["metadata"]["id"] == "support-assistant"
+    assert data["lifecycle_state"] == "draft"
+    assert data["semantic_correctness_verified"] is False
+    assert data["tools_authorized"] is False
+    assert data["execution_enabled"] is False
+
+
+def test_agent_manifest_rejects_unknown_fields_and_invalid_model_ids(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    payload = _valid_agent_manifest()
+    payload["spec"]["model"]["model_id"] = "../untrusted-code"
+    payload["spec"]["unexpected"] = "must be rejected"
+    response = client.post(
+        "/api/v1/agents/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json=payload,
+    )
+    assert response.status_code == 422
+
+
+def test_agent_manifest_rejects_duplicate_tool_grants(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    payload = _valid_agent_manifest()
+    payload["spec"]["tool_allowlist"] = [
+        {"server_id": "docs", "tool_name": "search"},
+        {"server_id": "docs", "tool_name": "search"},
+    ]
+    payload["spec"]["resources"]["max_tool_calls"] = 2
+    response = client.post(
+        "/api/v1/agents/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json=payload,
+    )
+    assert response.status_code == 422
+
+
+def test_agent_manifest_requires_human_approval_for_side_effects(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    payload = _valid_agent_manifest()
+    payload["spec"]["approval"]["allow_side_effects"] = True
+    payload["spec"]["approval"]["require_human_approval"] = False
+    response = client.post(
+        "/api/v1/agents/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json=payload,
+    )
+    assert response.status_code == 422
+
+
+def test_agent_manifest_rejects_mutable_or_malformed_model_revision(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    payload = _valid_agent_manifest()
+    payload["spec"]["model"]["revision"] = "main"
+    response = client.post(
+        "/api/v1/agents/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json=payload,
+    )
+    assert response.status_code == 422
+
+
+def test_agent_manifest_requires_full_model_commit_sha(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    payload = _valid_agent_manifest()
+    payload["spec"]["model"]["revision"] = "1234567"
+    response = client.post(
+        "/api/v1/agents/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json=payload,
+    )
+    assert response.status_code == 422
