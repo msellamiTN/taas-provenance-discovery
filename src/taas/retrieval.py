@@ -61,7 +61,12 @@ class Encoder(Protocol):
 
 
 class LSAEncoder:
-    """Local dense encoder: TF-IDF (word 1-2 grams + char 3-5 grams) → truncated SVD → L2."""
+    """Local dense encoder: TF-IDF → truncated SVD → L2.
+
+    Degenerate corpora (one document or zero across-document variance) use normalized
+    TF-IDF vectors directly. This avoids sklearn's undefined explained-variance ratio
+    while preserving a finite, query-compatible representation.
+    """
 
     def __init__(self, dim: int = 128, seed: int = 0) -> None:
         self.dim, self.seed = dim, seed
@@ -70,18 +75,32 @@ class LSAEncoder:
         from scipy.sparse import hstack
         from sklearn.decomposition import TruncatedSVD
         from sklearn.feature_extraction.text import TfidfVectorizer
-        self.w = TfidfVectorizer(tokenizer=tokenize, token_pattern=None, ngram_range=(1, 2), sublinear_tf=True,
-                                 min_df=1)
+
+        if not docs:
+            raise ValueError("LSAEncoder.fit requires at least one document")
+        self.w = TfidfVectorizer(tokenizer=tokenize, token_pattern=None, ngram_range=(1, 2),
+                                 sublinear_tf=True, min_df=1)
         self.c = TfidfVectorizer(analyzer="char_wb", ngram_range=(3, 5), sublinear_tf=True, min_df=1)
         X = hstack([self.w.fit_transform(docs), self.c.fit_transform(docs)]).tocsr()
-        k = max(2, min(self.dim, X.shape[0] - 1, X.shape[1] - 1))
-        self.svd = TruncatedSVD(k, random_state=self.seed).fit(X)
+
+        # TruncatedSVD.explained_variance_ratio_ divides by total feature variance.
+        # That denominator is zero for a one-row or identical-document corpus.
+        mean = np.asarray(X.mean(axis=0)).ravel()
+        mean_sq = np.asarray(X.multiply(X).mean(axis=0)).ravel()
+        total_variance = float(np.maximum(mean_sq - mean * mean, 0.0).sum())
+        self._use_svd = X.shape[0] >= 2 and X.shape[1] >= 2 and total_variance > 1e-12
+        if self._use_svd:
+            k = min(self.dim, X.shape[0] - 1, X.shape[1] - 1)
+            self.svd = TruncatedSVD(k, random_state=self.seed).fit(X)
+        else:
+            self.svd = None
         return self
 
     def encode(self, texts: Sequence[str]) -> np.ndarray:
         from scipy.sparse import hstack
+
         X = hstack([self.w.transform(texts), self.c.transform(texts)]).tocsr()
-        V = self.svd.transform(X)
+        V = self.svd.transform(X) if self._use_svd else X.toarray()
         return V / (np.linalg.norm(V, axis=1, keepdims=True) + 1e-12)
 
 
@@ -167,3 +186,4 @@ class HybridRetriever:
             items = [(t, v) for t, v in items
                      if ok(self.contracts[t]) and self.contracts[t].out.confidence >= self.kappa_min]
         return items[:k]
+}
