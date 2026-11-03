@@ -241,3 +241,30 @@ Every PR must be executed in Google Colab against its exact head SHA. GitHub Act
 - **Static validation:** all 12 navigation anchors resolve to actual element IDs. Regression assertions added for navigation grouping and execution boundary.
 - **CI/browser/Colab:** no fresh CI run or live browser/Colab evidence observed at time of tracker update. Status remains pending.
 - **Next:** validate PR #24 regression CI, review the visual layout at desktop/tablet/mobile widths, then proceed to real Execution Gateway + governed MCP invocation design only after defining isolation, secret brokering, cancellation, audit, budgets and trace persistence.
+
+
+## 10. Updated integration and Agent Studio status (2026-11-03)
+
+The following observations supersede earlier pending statements above where they refer to the same PR:
+
+| Work item | Exact head | GitHub Actions | Remaining evidence / decision |
+|---|---|---|---|
+| PR #22 engineering tracker | `b918b1b4d24bdaa0076cbc212d7b8cfda470b3ad` | Run #41672769864 — **success**; regression suite and hypergraph build/upload completed | Documentation CI only; Colab is not a product runtime requirement for this docs-only change |
+| PR #24 professional Studio shell | `6e14c7da4b77b831efd00086ccfd22008383e7c3` | Run #41672863564 — **success**; regression suite and hypergraph build/upload completed | Browser visual review at responsive breakpoints remains unverified; no Colab evidence claimed |
+| PR #25 declarative Agent manifest | Latest head is tracked by PR #25 | Run #41674084047 — queued/in progress at the time of this update; no conclusion recorded | Structural schema and UI validation only; no durable registry, publication, tool authorization or execution. Wait for CI before marking source validation passed |
+
+PR #24's final CI pass includes the repair to the stale “Execution disabled” assertion. Its scope remains a UX shell only. It does not deliver governed MCP execution.
+
+PR #25 introduces `taas.ai/v1alpha1` Agent manifests, strict metadata/model/tool/resource/approval fields, conservative cross-field validation, an authenticated validation endpoint, and a JSON manifest editor. A valid response is explicitly an **unpersisted draft**. Model IDs are references, not availability or compatibility evidence; optional model revisions must be immutable Hub commit SHAs. Tool grants are configuration declarations, not bearer capabilities.
+
+### Updated next actions
+
+1. Wait for PR #25's exact-head CI run #41674084047; inspect the full regression result and hypergraph build.
+2. If CI fails, repair the underlying contract, API or UI regression; do not weaken assertions to obtain a green run.
+3. Next Agent Studio milestone after this schema increment: durable versioned Agent registry with immutable versions, lifecycle transitions and audit events. Keep publish and run disabled until policy/registry binding and governed execution are implemented.
+4. Browser validation and the PR #20/#21 Colab model-runtime validation remain separate evidence gates. No GPU inference or production readiness is inferred from GitHub Actions.
+
+### Change log addendum
+
+- **2026-11-03:** PR #24 CI run #41672863564 passed after correcting the stale UX assertion; PR #22 CI run #41672769864 also passed.
+- **2026-11-03:** Draft PR #25 opened for the declarative Agent manifest contract and validation workspace. CI run #41674084047 was still in progress when this addendum was written; no pass is claimed.
