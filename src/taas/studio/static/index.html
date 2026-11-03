@@ -142,6 +142,17 @@
     .studio-content { min-width:0; }
     @media(max-width:900px) { .studio-layout { grid-template-columns:1fr; gap:12px; } .studio-nav { position:static; display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; } .nav-brand { width:100%; } .nav-label,.nav-foot { display:none; } .studio-nav a { padding:8px 9px; } }
     @media(max-width:560px) { .studio-nav { gap:2px; } .studio-nav a { font-size:11px; padding:7px; } }
+
+    .runtime-overview { margin:0 0 18px; }
+    .runtime-overview-head { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+    .runtime-overview-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-top:12px; }
+    .runtime-overview .metric { min-width:0; }
+    .runtime-overview .metric strong { overflow-wrap:anywhere; font-size:18px; }
+    .runtime-meta { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:10px; }
+    .runtime-state { font-size:11px; font-weight:750; color:#66758b; }
+    .runtime-state.ok { color:#176b49; } .runtime-state.error { color:#a13f2e; }
+    .runtime-overview button { margin:0; }
+    @media(max-width:720px) { .runtime-overview-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
   </style>
 </head>
 <body>
@@ -169,6 +180,21 @@
       <div class="nav-foot"><span class="nav-status-dot"></span><span>Execution disabled<br><small>Discovery-only preview</small></span></div>
     </nav>
     <div class="studio-content">
+  <section class="runtime-overview" aria-labelledby="runtime-overview-title">
+    <div class="runtime-overview-head">
+      <div><div class="eyebrow">Live runtime · Colab / host</div><h2 id="runtime-overview-title" style="margin:4px 0">Environment overview</h2><p class="muted" style="margin:0">Observed process and hardware diagnostics. A visible GPU is not proof that a model is loaded or inference works.</p></div>
+      <button id="runtime-refresh" type="button" class="secondary">Refresh runtime status</button>
+    </div>
+    <div id="runtime-overview-state" class="runtime-state" role="status" aria-live="polite">Not checked · enter the Studio API token, then refresh.</div>
+    <div class="runtime-overview-grid">
+      <div class="metric"><span class="muted">CPU cores</span><strong id="runtime-cpu">—</strong></div>
+      <div class="metric"><span class="muted">RAM · available / total</span><strong id="runtime-memory">—</strong></div>
+      <div class="metric"><span class="muted">Disk · free / total</span><strong id="runtime-disk">—</strong></div>
+      <div class="metric"><span class="muted">GPU</span><strong id="runtime-gpu">—</strong></div>
+    </div>
+    <div class="runtime-meta"><span class="pill" id="runtime-colab">Colab: unknown</span><span class="pill" id="runtime-model">Model: not loaded</span><span class="muted" id="runtime-updated">No successful snapshot yet.</span></div>
+    <details style="margin-top:10px"><summary class="subtle" style="cursor:pointer">Runtime diagnostics detail</summary><pre id="runtime-overview-details" style="min-height:80px">No runtime status snapshot.</pre></details>
+  </section>
   <div class="hero" id="overview">
     <div><div class="eyebrow">Toolkit-as-a-Service · Control plane</div><h2>Discovery workspace</h2><p>Move from benchmark intent to a reviewed GoalSpec, select candidate tools from the retained registry, and inspect a provenance-aware discovery decision—all in one guided workspace.</p></div>
     <span class="pill"><span class="pill-dot"></span> Discovery preview · execution disabled</span>
@@ -343,7 +369,55 @@
 <script>
 (() => {
   const $ = (id) => document.getElementById(id);
-  const run = $("run");
+
+  const runtimeRefresh = $("runtime-refresh");
+  const runtimeState = $("runtime-overview-state");
+  let runtimeLastSuccess = 0;
+  const formatGiB = value => Number.isFinite(value) ? Number(value).toFixed(1) + " GiB" : "Not reported";
+  const refreshRuntimeOverview = async () => {
+    const token = $("token").value.trim();
+    if (!token) {
+      runtimeState.className = "runtime-state";
+      runtimeState.textContent = "Token required · diagnostics have not been requested.";
+      return;
+    }
+    runtimeRefresh.disabled = true;
+    runtimeState.className = "runtime-state";
+    runtimeState.textContent = "Loading authenticated runtime snapshot…";
+    try {
+      const response = await fetch("/api/v1/runtime/status", {
+        headers: { "Authorization": "Bearer " + token, "Cache-Control": "no-cache" },
+        cache: "no-store"
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
+      const host = data.host || {}, hardware = data.hardware || {}, gpu = hardware.gpu || {};
+      $("runtime-cpu").textContent = host.cpu_count ?? "Not reported";
+      $("runtime-memory").textContent = formatGiB(host.memory_available_gib) + " / " + formatGiB(host.memory_total_gib);
+      $("runtime-disk").textContent = formatGiB(host.disk_free_gib) + " / " + formatGiB(host.disk_total_gib);
+      $("runtime-gpu").textContent = hardware.gpu_detected ? (gpu.name || "GPU detected") : "No GPU verified";
+      $("runtime-colab").textContent = "Colab: " + (data.colab?.detected ? "detected" : "not detected");
+      $("runtime-model").textContent = "Model: " + (data.model_runtime?.model_loaded === true ? "loaded" : "not loaded");
+      $("runtime-overview-details").textContent = JSON.stringify(data, null, 2);
+      runtimeLastSuccess = Date.now();
+      $("runtime-updated").textContent = "Last successful snapshot: " + new Date(runtimeLastSuccess).toLocaleTimeString();
+      runtimeState.className = "runtime-state ok";
+      runtimeState.textContent = "Live snapshot received · " + (data.service?.status || "service status unknown") +
+        " · CUDA " + (hardware.cuda_available === true ? "available" : "not verified") +
+        " · inference " + (data.model_runtime?.inference_executed === true ? "executed" : "not executed");
+    } catch (error) {
+      runtimeState.className = "runtime-state error";
+      runtimeState.textContent = "Refresh failed: " + error.message +
+        (runtimeLastSuccess ? " · displayed values are from an earlier successful snapshot." : " · no successful snapshot is available.");
+    } finally {
+      runtimeRefresh.disabled = false;
+    }
+  };
+  runtimeRefresh.addEventListener("click", refreshRuntimeOverview);
+  $("token").addEventListener("change", () => {
+    if ($("token").value.trim()) refreshRuntimeOverview();
+  });
+\n  const run = $("run");
 
   // Visual GoalSpec editor. The JSON request remains the canonical transport payload.
   const GOAL_CLASSES = ["classify","extract","summarise","translate","convert_format","write","plan","synthesise","aggregate","compute_exact","count","compare","answer","retrieve","search","fetch_web","store","send","transact","execute","navigate_browser","render_media","create_document","edit_document","random"];
