@@ -1451,6 +1451,12 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     }catch(error){$("agent-registry-snapshot-status").textContent="Unable to load MCP snapshots: "+error.message;}
     finally{button.disabled=false;}
   });
+  $("agent-registry-snapshot-select").addEventListener("change",()=>{
+    const selected=$("agent-registry-snapshot-select").value;
+    $("agent-registry-snapshot-status").textContent=selected
+      ? "Selected immutable MCP snapshot "+selected+". Agent tool grants will be resolved against this exact schema set at publication."
+      : "No MCP snapshot selected. Tool-free agents do not require a snapshot; agents with tool grants do.";
+  });
   $("agent-registry-snapshot-inspect").addEventListener("click",async()=>{
     const button=$("agent-registry-snapshot-inspect");button.disabled=true;
     $("agent-registry-snapshot-status").textContent="Inspecting configured MCP servers with tools/list only…";
@@ -1468,7 +1474,13 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         servers:result.snapshot.servers.map(server=>({
           server_id:server.server_id,
           server_name:server.server_name,
-          tool_names:server.tools.map(tool=>tool.name),
+          tools:server.tools.map(tool=>({
+            name:tool.name,
+            description:tool.description,
+            definition_sha256:tool.definition_sha256,
+            input_schema:tool.input_schema,
+            output_schema:tool.output_schema
+          })),
           inspection_only:server.inspection_only,
           tool_execution_performed:server.tool_execution_performed
         }))
