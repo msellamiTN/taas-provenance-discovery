@@ -27,6 +27,7 @@ from taas.provenance import DEFAULT_TRUST
 from taas.studio.models import ModelCatalogError, get_model_details, inspect_model_artifacts, search_models
 from taas.studio.runtime import estimate_model_memory, probe_hardware, probe_runtime
 from taas.studio.model_runtime import ModelRuntimeError, get_model_runtime
+from taas.studio.mcp_registry import MCPRegistryError, inspect_server as inspect_mcp_server, list_servers as list_mcp_servers
 from taas.types import KINDS
 
 app = FastAPI(
@@ -575,6 +576,26 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except ModelRuntimeError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.get("/api/v1/mcp/servers", dependencies=[Depends(require_api_token)])
+def mcp_servers() -> dict[str, Any]:
+    """List operator-configured MCP stdio servers without exposing commands or secrets."""
+    try:
+        return list_mcp_servers()
+    except MCPRegistryError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.post("/api/v1/mcp/servers/{server_id}/inspect", dependencies=[Depends(require_api_token)])
+def mcp_inspect(server_id: str) -> dict[str, Any]:
+    """Connect to a configured MCP server and list tool schemas; never calls tools."""
+    try:
+        return inspect_mcp_server(server_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except MCPRegistryError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
 
 @app.get("/", include_in_schema=False)
 def studio_home():
