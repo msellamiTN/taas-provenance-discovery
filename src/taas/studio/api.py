@@ -569,7 +569,7 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
         else:
             result["structural_validation"] = {
                 "valid": False,
-                "detail": "Model did not return a parseable GoalSpec JSON object",
+                "detail": result.get("parse_error") or "Model did not return a canonical GoalSpec JSON object",
             }
         return result
     except ValueError as exc:
