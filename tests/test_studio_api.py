@@ -856,5 +856,6 @@ def test_studio_invalidates_discovery_output_when_benchmark_context_changes():
     assert "submittedPrompt !== selectedPrompt" in page
     assert "GoalSpec prompt does not exactly match the currently selected benchmark task" in page
     assert "if (activeGeneration !== discoveryRequestGeneration) return;" in page
+    assert '$("counterexample-panel").hidden = true;' in page
     assert 'clearDiscoveryResult("Task changed:' in page
     assert 'clearDiscoveryResult("Benchmark context cleared:' in page
