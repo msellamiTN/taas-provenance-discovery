@@ -34,3 +34,10 @@ The current layout is a deterministic presentation of hyperedge incidence, not a
 ## Validation
 
 Static regression tests verify navigation, schema gating, field consumption, keyboard interaction and the absence of browser-side semantic claims. These tests do not replace browser automation, visual review, or an operator Colab run against a live Studio API.
+
+
+## End-to-end API integration test
+
+`tests/test_studio_hypergraph_explorer.py::test_live_studio_api_projects_real_core_discovery` exercises the real FastAPI application and real `DiscoveryEngine` using a local synthetic tool contract. It verifies the served Studio Explorer mount points, bearer-token rejection, authenticated Discovery response, Core-generated projection, reachable output type and `execution_performed=false`.
+
+The fixture is contract metadata only. No MCP server is contacted and no tool is invoked. The Colab notebook installs the Studio/test extras and runs this test together with the projection and Studio UI regression suites. Browser automation and deployment validation remain separate acceptance gates.
