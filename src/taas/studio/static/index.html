@@ -280,7 +280,30 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     .studio-nav .nav-foot{margin-top:20px}
     @media(min-width:901px){main{max-width:1500px}.studio-layout{grid-template-columns:224px minmax(0,1fr);gap:24px}.studio-nav{max-height:calc(100vh - 32px);overflow-y:auto}}
     @media(max-width:900px){.studio-nav .nav-label{display:none}}
-  </style>
+  
+    /* Hypergraph Explorer — server projection viewer */
+    .hg-shell{margin-top:14px;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+    .hg-toolbar{display:flex;gap:9px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid var(--line)}
+    .hg-toolbar .field{margin:0;min-width:190px;flex:1}
+    .hg-toolbar input{font:12px Inter,system-ui,sans-serif;padding:8px 10px}
+    .hg-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(250px,.85fr);min-height:390px}
+    .hg-canvas-wrap{min-width:0;padding:12px;background:#f8faff;overflow:auto}
+    .hg-canvas{display:block;width:100%;min-width:620px;height:auto;min-height:260px}
+    .hg-inspector{border-left:1px solid var(--line);padding:15px;min-width:0}
+    .hg-inspector h3{font-size:13px;margin:0 0 10px}
+    .hg-inspector dl{display:grid;grid-template-columns:92px minmax(0,1fr);gap:7px 9px;font-size:11px;margin:0}
+    .hg-inspector dt{color:var(--muted)}.hg-inspector dd{margin:0;overflow-wrap:anywhere;font-weight:600}
+    .hg-legend{display:flex;gap:12px;flex-wrap:wrap;padding:9px 14px;border-top:1px solid var(--line);color:var(--muted);font-size:10px}
+    .hg-key{display:inline-flex;gap:5px;align-items:center}.hg-swatch{width:9px;height:9px;border-radius:3px;background:#315fce}.hg-swatch.type{background:#dbe7ff;border:1px solid #7797db}.hg-swatch.model{background:#e9ddff;border:1px solid #9c7bd0}.hg-swatch.bridge{background:#ffedcc;border:1px solid #c18a32}
+    .hg-entity{cursor:pointer;outline:none}.hg-entity:focus .hg-node,.hg-entity.selected .hg-node{stroke:#163f9b;stroke-width:3}
+    .hg-node{fill:#fff;stroke:#b9c8df;stroke-width:1.4}.hg-edge-tool{fill:#eaf1ff;stroke:#7e9bda}.hg-edge-model{fill:#f3edff;stroke:#a68bcf}.hg-edge-bridge{fill:#fff4df;stroke:#c69a4c}
+    .hg-link{stroke:#a8b8ce;stroke-width:1.5;fill:none}.hg-label{font:11px Inter,system-ui,sans-serif;fill:#243653}.hg-sub{font:9px Inter,system-ui,sans-serif;fill:#66758b}
+    .hg-entity-list{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}.hg-entity-list button{margin:0;padding:6px 9px;font-size:10px}
+    .hg-empty{padding:28px 18px;text-align:center;color:var(--muted);font-size:12px}
+    .hg-meta{font-size:10px;color:var(--muted)}.hg-status{padding:10px 14px;font-size:11px;color:var(--muted);background:#fbfcfe;border-top:1px solid var(--line)}
+    @media(max-width:850px){.hg-layout{grid-template-columns:1fr}.hg-inspector{border-left:0;border-top:1px solid var(--line)}}
+
+</style>
 </head>
 <body>
 <header class="studio-header">
@@ -311,6 +334,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <a href="#mcp-studio">MCP connections</a>
       <a href="#goal-editor">GoalSpec designer</a>
       <a href="#discovery">Tool discovery</a>
+      <a href="#hypergraph-explorer">Hypergraph explorer</a>
       <a href="#certificate-panel">Assurance center</a>
       <a href="#evidence-explorer">Evidence explorer</a>
       <span class="nav-label">OPERATE &amp; OBSERVE</span>
@@ -487,6 +511,22 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <p id="explanation" class="muted" aria-live="polite">Run a request to see why TaaS selected a toolkit or abstained.</p>
       <h2>Selected toolkit</h2>
       <pre id="toolkit">No discovery result yet.</pre>
+      <section id="hypergraph-explorer" class="hg-shell" aria-labelledby="hg-title">
+        <div class="hg-toolbar">
+          <div><div class="eyebrow">DISCOVER · SEMANTIC GRAPH</div><h3 id="hg-title" style="margin:4px 0;font-size:14px">Hypergraph Explorer</h3><div id="hg-summary" class="hg-meta">Run discovery to load the authoritative Core projection.</div></div>
+          <div class="field"><label for="hg-filter">Filter types and capabilities</label><input id="hg-filter" type="search" placeholder="Search semantic types, tools, effects…" disabled></div>
+          <span id="hg-projection-state" class="pill">No projection</span>
+        </div>
+        <div id="hg-empty" class="hg-empty">No hypergraph projection is available yet. A graph is shown only when the Discovery API returns a server-generated projection.</div>
+        <div id="hg-workspace" class="hg-layout" hidden>
+          <div class="hg-canvas-wrap"><svg id="hg-canvas" class="hg-canvas" viewBox="0 0 900 320" role="group" aria-label="Interactive semantic hypergraph projection"></svg>
+            <div id="hg-entity-list" class="hg-entity-list" aria-label="Graph entities"></div>
+          </div>
+          <aside class="hg-inspector" aria-live="polite"><h3 id="hg-inspector-title">Select a graph element</h3><div id="hg-inspector-body" class="subtle">Select a semantic type or hyperedge to inspect its server-provided attributes.</div></aside>
+        </div>
+        <div class="hg-legend"><span class="hg-key"><i class="hg-swatch type"></i>Semantic type</span><span class="hg-key"><i class="hg-swatch"></i>Tool hyperedge</span><span class="hg-key"><i class="hg-swatch model"></i>Model edge</span><span class="hg-key"><i class="hg-swatch bridge"></i>Bridge</span><span class="hg-key">Solid outline = reachable state supplied by Core</span></div>
+        <div id="hg-status" class="hg-status" role="status" aria-live="polite">No discovery projection loaded. This view never calculates reachability or invokes tools.</div>
+      </section>
 
       <section class="certificate-panel" id="certificate-panel" hidden>
         <div class="certificate-head"><h3>Trust &amp; certificate</h3><span id="certificate-state" class="certificate-state">Not evaluated</span></div>
@@ -626,6 +666,90 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 <script>
 (() => {
   const $ = (id) => document.getElementById(id);
+
+  // Hypergraph Explorer is a renderer for the Core-owned projection.
+  // It may arrange and filter returned records, but never derives reachability,
+  // semantic compatibility, policy decisions or certification in the browser.
+  let hypergraphProjection = null;
+  let hypergraphSelection = null;
+  const hgSvg = (tag, attrs = {}, text = "") => {
+    const node = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
+    if (text) node.textContent = text;
+    return node;
+  };
+  const hgText = (value) => value === null || value === undefined || value === "" ? "Not reported" : String(value);
+  const hgSetInspector = (kind, item) => {
+    hypergraphSelection = {kind, id:item.id};
+    $("hg-inspector-title").textContent = kind === "semantic_type" ? item.semantic_type : (item.name || item.operation || item.goal_id || item.id);
+    const rows = kind === "semantic_type"
+      ? [["Kind","Semantic type"],["Reachable",item.reachable ? "Yes · Core reported" : "No · not in reachable set"],["Information label",item.information_label],["Derivation",item.derivation ? item.derivation.edge_id+" · "+item.derivation.kind : "No derivation reported"],["Derivation inputs",item.derivation?.inputs?.join(", ") || "None reported"]]
+      : [["Kind",kind],["Identifier",item.id],["Inputs",(item.required_inputs || item.tail?.map(x=>x.type) || []).join(", ") || "None"],["Output",item.head],["Effects",(item.effects || []).join(", ") || "Not applicable"],["Fingerprint",item.contract_fingerprint],["Fired in reachability",item.fired_in_reachability === true ? "Yes · Core derivation" : item.fired_in_reachability === false ? "No" : "Not reported"],["Server",item.server],["Tool",item.name],["Model class",item.model_class],["Goal",item.goal_id],["Forbidden with",(item.forbidden_with || []).map(x=>x.tool_id+": "+x.reason).join("; ") || "None reported"],["QoS",item.qos ? JSON.stringify(item.qos) : "Not reported"]];
+    $("hg-inspector-body").replaceChildren();
+    const dl=document.createElement("dl");
+    rows.forEach(([label,value])=>{const dt=document.createElement("dt");dt.textContent=label;const dd=document.createElement("dd");dd.textContent=hgText(value);dl.append(dt,dd);});
+    $("hg-inspector-body").append(dl);
+    $("hg-canvas").querySelectorAll(".hg-entity").forEach(el=>el.classList.toggle("selected",el.getAttribute("data-id")===item.id));
+    $("hg-entity-list").querySelectorAll("button").forEach(el=>el.classList.toggle("active",el.dataset.id===item.id));
+  };
+  const renderHypergraphProjection = (projection) => {
+    hypergraphProjection = projection || null; hypergraphSelection = null;
+    const empty=$("hg-empty"), workspace=$("hg-workspace"), filter=$("hg-filter");
+    const valid=projection && projection.schema==="taas.hypergraph-projection/v1" &&
+      Array.isArray(projection.vertices) && Array.isArray(projection.hyperedges) && Array.isArray(projection.bridges);
+    if(!valid){
+      empty.hidden=false;workspace.hidden=true;filter.disabled=true;filter.value="";
+      $("hg-projection-state").textContent=projection ? "Invalid projection" : "Projection unavailable";
+      $("hg-summary").textContent=projection ? "The response did not match the supported projection schema." : "No server-generated projection returned for this discovery result.";
+      $("hg-status").textContent=projection ? "Projection was not rendered because its schema was not recognized." : "Discovery abstained or the Core did not provide authoritative reachability. No graph was synthesized.";
+      return;
+    }
+    empty.hidden=true;workspace.hidden=false;filter.disabled=false;
+    const summary=projection.summary||{};
+    $("hg-projection-state").textContent="Core projection · "+projection.projection_id;
+    $("hg-summary").textContent=(summary.vertex_count||0)+" types · "+(summary.hyperedge_count||0)+" hyperedges · "+(summary.bridge_count||0)+" bridges · "+(summary.reachable_type_count||0)+" reachable types";
+    const svg=$("hg-canvas");svg.replaceChildren();
+    const allEdges=[...projection.hyperedges,...projection.bridges.map(b=>({...b,kind:"bridge"}))];
+    const rowHeight=86, height=Math.max(300,allEdges.length*rowHeight+40);
+    svg.setAttribute("viewBox","0 0 900 "+height);svg.setAttribute("height",height);
+    const vertexMap=new Map(projection.vertices.map(v=>[v.id,v]));
+    allEdges.forEach((edge,index)=>{
+      const y=45+index*rowHeight, edgeId=edge.id, inputTypes=(edge.required_inputs||edge.tail?.map(x=>typeof x==="string"?x:x.type)||[]).map(String);
+      const output=String(edge.head||"");
+      const leftX=28, midX=350, rightX=700;
+      inputTypes.slice(0,4).forEach((type,j)=>{
+        const iy=y-((Math.min(inputTypes.length,4)-1)*13)/2+j*26;
+        svg.append(hgSvg("path",{d:"M "+(leftX+205)+" "+iy+" L "+(midX-12)+" "+y,class:"hg-link"}));
+        const node=hgSvg("g",{class:"hg-entity",tabindex:"0",role:"button","aria-label":"Inspect input type "+type,"data-id":"type:"+type});
+        node.append(hgSvg("rect",{x:leftX,y:iy-11,width:205,height:22,rx:6,class:"hg-node"}));
+        node.append(hgSvg("text",{x:leftX+9,y:iy+4,class:"hg-label"},type.length>30?type.slice(0,27)+"…":type));
+        const v=vertexMap.get("type:"+type);node.addEventListener("click",()=>v&&hgSetInspector("semantic_type",v));node.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&v){e.preventDefault();hgSetInspector("semantic_type",v);}});svg.append(node);
+      });
+      svg.append(hgSvg("path",{d:"M "+(midX+205)+" "+y+" L "+(rightX-12)+" "+y,class:"hg-link"}));
+      const kind=edge.kind||"tool", edgeGroup=hgSvg("g",{class:"hg-entity",tabindex:"0",role:"button","aria-label":"Inspect "+kind+" "+(edge.name||edge.operation||edge.id),"data-id":edgeId});
+      const edgeClass=kind==="model"?"hg-edge-model":kind==="bridge"?"hg-edge-bridge":"hg-edge-tool";
+      edgeGroup.append(hgSvg("rect",{x:midX,y:y-22,width:205,height:44,rx:8,class:"hg-node "+edgeClass}));
+      edgeGroup.append(hgSvg("text",{x:midX+10,y:y-3,class:"hg-label"},String(edge.name||edge.operation||edge.goal_id||edge.id).slice(0,27)));
+      edgeGroup.append(hgSvg("text",{x:midX+10,y:y+12,class:"hg-sub"},kind.toUpperCase()+" · "+(edge.fired_in_reachability===true?"FIRED":edge.fired_in_reachability===false?"NOT FIRED":"DERIVED")));
+      const select=()=>hgSetInspector(kind,edge);edgeGroup.addEventListener("click",select);edgeGroup.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();select();}});svg.append(edgeGroup);
+      const out=vertexMap.get("type:"+output);
+      const outGroup=hgSvg("g",{class:"hg-entity",tabindex:"0",role:"button","aria-label":"Inspect output type "+output,"data-id":"type:"+output});
+      outGroup.append(hgSvg("rect",{x:rightX,y:y-15,width:185,height:30,rx:7,class:"hg-node"}));
+      outGroup.append(hgSvg("text",{x:rightX+9,y:y+4,class:"hg-label"},output.length>25?output.slice(0,22)+"…":output));
+      outGroup.addEventListener("click",()=>out&&hgSetInspector("semantic_type",out));outGroup.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&out){e.preventDefault();hgSetInspector("semantic_type",out);}});svg.append(outGroup);
+    });
+    if(!allEdges.length){svg.append(hgSvg("text",{x:30,y:40,class:"hg-label"},"Projection contains no hyperedges."));}
+    const list=$("hg-entity-list");list.replaceChildren();
+    projection.vertices.forEach(v=>{const b=document.createElement("button");b.type="button";b.className="secondary";b.dataset.id=v.id;b.textContent=(v.reachable?"● ":"○ ")+v.semantic_type;b.addEventListener("click",()=>hgSetInspector("semantic_type",v));list.append(b);});
+    allEdges.forEach(e=>{const b=document.createElement("button");b.type="button";b.className="secondary";b.dataset.id=e.id;b.textContent=(e.kind||"edge")+": "+(e.name||e.operation||e.goal_id||e.id);b.addEventListener("click",()=>hgSetInspector(e.kind||"tool",e));list.append(b);});
+    $("hg-status").textContent="Rendered directly from the API projection. Reachability, labels, derivations and fired-edge flags are displayed as supplied by TaaS Core; browser layout is presentational only. No MCP calls or execution performed.";
+    $("hg-filter").oninput=()=>{
+      const q=$("hg-filter").value.trim().toLowerCase();
+      $("hg-entity-list").querySelectorAll("button").forEach(b=>{b.hidden=!!q&&!b.textContent.toLowerCase().includes(q);});
+      svg.querySelectorAll(".hg-entity").forEach(el=>{const match=!q||el.textContent.toLowerCase().includes(q)||el.getAttribute("aria-label").toLowerCase().includes(q);el.style.opacity=match?"1":"0.18";});
+    };
+  };
+
 
   // Persistent single-workspace navigation. Nested anchors resolve to their
   // containing workspace panel; the runtime snapshot remains visible globally.
@@ -1097,6 +1221,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     $("status").textContent = "Running discovery…";
     $("toolkit").textContent = "Waiting for API response…";
     $("response").textContent = "";
+    renderHypergraphProjection(null);
     try {
       const response = await fetch("/api/v1/discover", {
         method: "POST",
@@ -1201,6 +1326,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         $("counterexample-detail").textContent=JSON.stringify(counter.witness||{},null,2);
       }
 
+      renderHypergraphProjection(data.hypergraph_projection_status === "available" ? data.hypergraph_projection : null);
       $("response").textContent = JSON.stringify(data, null, 2);
     } catch (e) {
       $("status").textContent = "Request failed: " + e.message;
