@@ -46,12 +46,11 @@ at read time, not merely at ingestion. Evidence expiry is limited to 30 days.
 
 ## Current limitation
 
-This initial branch is a storage/attestation foundation only. The read path is
-intentionally not wired into authorization preflight yet. A follow-up change
-must persist the full canonical subject binding alongside its digest and
-reconstruct the exact signed envelope during retrieval; it must then add
-independent tests for tampering, binding mismatch, expiry, replay, and
-concurrent idempotent writes.
+This branch is a storage/attestation foundation only. The read path verifies the stored full canonical subject binding, the payload
+digest, the HMAC attestation, the content-addressed evidence ID, the requested
+evidence type, and current freshness. Legacy rows without a persisted signed
+subject binding are rejected. Tests cover tampering, binding mismatch, expiry,
+type substitution, and idempotent replay.
 
 The authorization preflight must continue to deny until all required evidence
 types, argument-schema validation, trusted effect assessment, human identity,
