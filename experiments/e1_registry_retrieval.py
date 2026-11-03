@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from collections import defaultdict
 from pathlib import Path
 from statistics import mean
@@ -62,8 +63,8 @@ def task_metrics(ranking: list[str], groups: list[set[str]], ks=DEFAULT_K) -> di
     reciprocal_rank = 1.0 / ranks[0] if ranks and ranks[0] <= len(ranking) else 0.0
     precisions = [(i + 1) / rank for i, rank in enumerate(ranks) if rank <= len(ranking)]
     ap = sum(precisions) / len(groups)
-    dcg = sum(1.0 / __import__("math").log2(rank + 1) for rank in ranks if rank <= len(ranking))
-    ideal = sum(1.0 / __import__("math").log2(i + 2) for i in range(min(len(groups), len(ranking))))
+    dcg = sum(1.0 / math.log2(rank + 1) for rank in ranks if rank <= len(ranking))
+    ideal = sum(1.0 / math.log2(i + 2) for i in range(min(len(groups), len(ranking))))
     return {
         "n_gold_groups": len(groups),
         "mrr": reciprocal_rank,
