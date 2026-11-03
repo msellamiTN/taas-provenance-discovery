@@ -381,7 +381,7 @@
 
   <section id="agent-studio" class="section-anchor" style="margin-bottom:18px">
     <div class="panel-head"><div><div class="eyebrow">Model &amp; Agent workspace</div><h2 style="margin:4px 0">Load a model and build an agent</h2></div><span class="pill">Real local inference · authenticated API</span></div>
-    <p class="muted">The selected Hugging Face model is downloaded and loaded by the same process that runs this Studio API. If that process runs inside Colab, inference runs in that Colab runtime. This does not remotely connect Studio to a separate Colab session.</p>
+    <p class="muted">Host diagnostics below and model runtime state are separate views. The selected Hugging Face model is downloaded and loaded by the same process that runs this Studio API. If that process runs inside Colab, inference runs in that Colab runtime. This does not remotely connect Studio to a separate Colab session.</p>
     <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px">
       <section style="box-shadow:none;padding:14px">
         <h2>1 · Model runtime</h2><label for="runtime-model-id">Hugging Face model ID</label>
@@ -433,21 +433,21 @@
         cache: "no-store"
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
+      if (!response.ok) throw new Error(formatApiError(data.detail || data, "HTTP " + response.status));
       const host = data.host || {}, hardware = data.hardware || {}, gpu = hardware.gpu || {};
       $("runtime-cpu").textContent = host.cpu_count ?? "Not reported";
       $("runtime-memory").textContent = formatGiB(host.memory_available_gib) + " / " + formatGiB(host.memory_total_gib);
       $("runtime-disk").textContent = formatGiB(host.disk_free_gib) + " / " + formatGiB(host.disk_total_gib);
       $("runtime-gpu").textContent = hardware.gpu_detected ? (gpu.name || "GPU detected") : "No GPU verified";
       $("runtime-colab").textContent = "Colab: " + (data.colab?.detected ? "detected" : "not detected");
-      $("runtime-model").textContent = "Model: " + (data.model_runtime?.model_loaded === true ? "loaded" : "not loaded");
+      $("runtime-model").textContent = "Model state: inspect Model Studio";
       $("runtime-overview-details").textContent = JSON.stringify(data, null, 2);
       runtimeLastSuccess = Date.now();
       $("runtime-updated").textContent = "Last successful snapshot: " + new Date(runtimeLastSuccess).toLocaleTimeString();
       runtimeState.className = "runtime-state ok";
       runtimeState.textContent = "Live snapshot received · " + (data.service?.status || "service status unknown") +
         " · CUDA " + (hardware.cuda_available === true ? "available" : "not verified") +
-        " · inference " + (data.model_runtime?.inference_executed === true ? "executed" : "not executed");
+        " · model state is reported separately in Model Studio";
     } catch (error) {
       runtimeState.className = "runtime-state error";
       runtimeState.textContent = "Refresh failed: " + error.message +
