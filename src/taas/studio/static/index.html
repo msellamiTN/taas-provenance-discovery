@@ -597,10 +597,10 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     }
   }
 }</textarea>
-      <div class="inline-actions"><button id="agent-manifest-validate" type="button">Validate manifest</button><button id="agent-manifest-reset" type="button" class="secondary">Reset example</button></div>
+      <div class="inline-actions"><button id="agent-manifest-validate" type="button">Validate manifest</button><button id="agent-manifest-save" type="button" class="secondary">Save immutable draft</button><button id="agent-manifest-validate-saved" type="button" class="secondary" disabled>Validate saved version</button><button id="agent-manifest-publish" type="button" class="secondary" disabled>Publish version</button><button id="agent-manifest-reset" type="button" class="secondary">Reset example</button></div>
       <div id="agent-manifest-status" class="status" role="status" aria-live="polite">Manifest has not been validated.</div>
-      <pre id="agent-manifest-result">Validation result will appear here. Validation does not save, authorize, or execute this agent.</pre>
-      <p class="subtle">Structural validation only. The agent remains an unpersisted draft; semantic correctness, live tool authorization and execution are not established.</p>
+      <pre id="agent-manifest-result">Validation and registry responses will appear here. Publication does not authorize or execute this agent.</pre>
+      <p class="subtle">Registry lifecycle: draft → structurally validated → published configuration. Semantic correctness, live tool authorization and execution are not established.</p>
     </section>
   </section>
 
@@ -1389,9 +1389,70 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     document.querySelector("#goal-editor").scrollIntoView({behavior:"smooth",block:"start"});
   });
 
+  let savedAgentVersion=null;
+  const agentSaveButton=$("agent-manifest-save");
+  const agentValidateSavedButton=$("agent-manifest-validate-saved");
+  const agentPublishButton=$("agent-manifest-publish");
+  const resetAgentRegistrySelection=()=>{
+    savedAgentVersion=null;
+    agentValidateSavedButton.disabled=true;
+    agentPublishButton.disabled=true;
+  };
+  $("agent-manifest-json").addEventListener("input",resetAgentRegistrySelection);
+  agentSaveButton.addEventListener("click",async()=>{
+    agentSaveButton.disabled=true;
+    $("agent-manifest-status").textContent="Validating and persisting a new immutable Agent draft…";
+    try{
+      let manifest;
+      try{manifest=JSON.parse($("agent-manifest-json").value);}
+      catch(error){throw new Error("Invalid JSON: "+error.message);}
+      const result=await runtimePost("/api/v1/agents",manifest);
+      savedAgentVersion={id:result.agent_id,version:result.version};
+      agentValidateSavedButton.disabled=false;
+      $("agent-manifest-result").textContent=JSON.stringify(result,null,2);
+      $("agent-manifest-status").textContent="Saved immutable draft "+result.agent_id+"@"+result.version+" · SHA-256 "+result.manifest_sha256;
+    }catch(error){
+      resetAgentRegistrySelection();
+      $("agent-manifest-result").textContent=error.message;
+      $("agent-manifest-status").textContent="Draft was not saved. Resolve the error and retry.";
+    }finally{agentSaveButton.disabled=false;}
+  });
+  agentValidateSavedButton.addEventListener("click",async()=>{
+    if(!savedAgentVersion)return;
+    agentValidateSavedButton.disabled=true;
+    $("agent-manifest-status").textContent="Revalidating the exact stored Agent version…";
+    try{
+      const path="/api/v1/agents/"+encodeURIComponent(savedAgentVersion.id)+"/versions/"+encodeURIComponent(savedAgentVersion.version)+"/validate";
+      const result=await runtimePost(path,{});
+      agentPublishButton.disabled=false;
+      $("agent-manifest-result").textContent=JSON.stringify(result,null,2);
+      $("agent-manifest-status").textContent="Stored version structurally validated · semantic correctness and execution remain unverified.";
+    }catch(error){
+      $("agent-manifest-result").textContent=error.message;
+      $("agent-manifest-status").textContent="Stored version validation failed.";
+      agentValidateSavedButton.disabled=false;
+    }
+  });
+  agentPublishButton.addEventListener("click",async()=>{
+    if(!savedAgentVersion)return;
+    agentPublishButton.disabled=true;
+    $("agent-manifest-status").textContent="Publishing immutable configuration version…";
+    try{
+      const path="/api/v1/agents/"+encodeURIComponent(savedAgentVersion.id)+"/versions/"+encodeURIComponent(savedAgentVersion.version)+"/publish";
+      const result=await runtimePost(path,{});
+      $("agent-manifest-result").textContent=JSON.stringify(result,null,2);
+      $("agent-manifest-status").textContent="Published configuration "+result.agent_id+"@"+result.version+" · execution remains disabled.";
+    }catch(error){
+      $("agent-manifest-result").textContent=error.message;
+      $("agent-manifest-status").textContent="Publication failed. The registry lifecycle state was not advanced.";
+      agentPublishButton.disabled=false;
+    }
+  });
+
   const agentManifestExample=$("agent-manifest-json").value;
   $("agent-manifest-reset").addEventListener("click",()=>{
     $("agent-manifest-json").value=agentManifestExample;
+    resetAgentRegistrySelection();
     $("agent-manifest-status").textContent="Example manifest restored · not yet validated.";
     $("agent-manifest-result").textContent="Validation result will appear here.";
   });
