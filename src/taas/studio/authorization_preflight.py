@@ -90,8 +90,8 @@ def load_trusted_authorization_config(
     if encoding not in {"positive", "closed_world"}:
         raise AuthorizationConfigurationError("Policy encoding must be positive or closed_world")
     egress_threshold = payload.get("egress_threshold", "internal")
-    if egress_threshold not in LEVELS:
-        raise AuthorizationConfigurationError("Policy egress_threshold is not a recognized information label")
+    if not isinstance(egress_threshold, str) or not egress_threshold or len(egress_threshold) > 64:
+        raise AuthorizationConfigurationError("Policy egress_threshold must be a non-empty label string")
     rules = payload.get("declass", [])
     if not isinstance(rules, list):
         raise AuthorizationConfigurationError("Policy declass must be an array")
@@ -104,8 +104,6 @@ def load_trusted_authorization_config(
             min_records = int(rule.get("min_records", 10))
             if min_evidence not in LEVELS or min_records < 1:
                 raise ValueError("Invalid evidence threshold or record count")
-            if rule["label_from"] not in LEVELS or rule["label_to"] not in LEVELS:
-                raise ValueError("Invalid declassification labels")
             tool_classes = rule.get("tool_classes", ["aggregate"])
             tools = rule.get("tools", [])
             if not isinstance(tool_classes, list) or any(not isinstance(x, str) for x in tool_classes):
