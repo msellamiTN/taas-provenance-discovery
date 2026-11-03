@@ -745,9 +745,9 @@ def test_benchmark_task_import_clears_stale_demo_goal_before_authoring():
     handler = page.split('$("bench-use-task").addEventListener("click",()=>{', 1)[1].split(
         '\n  $("bench-add-tools")', 1
     )[0]
-    assert "goalSpecState.goals=[]" in handler
-    assert "example goals cleared" in handler
-    assert "Author semantic goal contracts" in handler
+    assert "if(goalSpecState.prompt!==prompt){goalSpecState.goals=[]" in handler
+    assert "Task prompt copied to GoalSpec" in handler
+    assert "Author and review task-specific semantic goal contracts" in handler
 
 
 def test_benchmark_tool_import_replaces_demo_tools_instead_of_merging():
@@ -772,8 +772,9 @@ def test_benchmark_task_import_synchronizes_registry_selection_and_clears_demo_t
         '\n  $("bench-add-tools")', 1
     )[0]
     assert "const importedToolCount=syncBenchmarkToolsToRequest()" in task_handler
-    assert "goalSpecState.goals=[]" in task_handler
-    assert "GoalSpec-to-prompt semantic alignment is not automatically verified" in task_handler
+    assert "selectBenchmarkTask(t)" in page
+    assert "goalSpecState.goals=[]" in page
+    assert "Structural validation does not verify semantic alignment" in task_handler
 
 
 def test_benchmark_registry_selection_stays_synchronized_and_blocks_stale_demo_discovery():
@@ -787,6 +788,33 @@ def test_benchmark_registry_selection_stays_synchronized_and_blocks_stale_demo_d
     assert "benchmark task NOT evaluated" in page
     assert "semantic alignment with the task prompt is not verified" in page
     assert "Sync selected tools to discovery" in page
+    assert "Benchmark discovery blocked: review the GoalSpec against the selected task prompt" in page
+
+def test_benchmark_task_switch_invalidates_previous_goal_and_tool_context():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    assert 'selectedTaskKey:null' in page
+    assert "const invalidateBenchmarkTaskContext = (message) =>" in page
+    assert "const selectBenchmarkTask = (task) =>" in page
+    assert 'bench.selectedTools.clear()' in page
+    assert 'goalSpecState.prompt=task.query||"";goalSpecState.goals=[]' in page
+    assert '$("bench-goal-review").checked=false' in page
+    assert 'syncBenchmarkToolsToRequest()' in page
+    assert 'selectBenchmarkTask(t)' in page
+
+
+def test_benchmark_discovery_requires_explicit_goal_spec_review():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    assert 'id="bench-goal-review" type="checkbox"' in page
+    run_handler = page.split('run.addEventListener("click", async () => {', 1)[1].split(
+        '\n  // Integrated benchmark workspace', 1
+    )[0]
+    assert 'if(!$("bench-goal-review").checked)' in run_handler
+    assert "review the GoalSpec against the selected task prompt" in run_handler
+
 
 
 def test_visual_goal_editor_requires_authored_goal_description():
