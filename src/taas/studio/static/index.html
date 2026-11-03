@@ -251,12 +251,37 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 @media(max-width:1100px){.pipeline-steps{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:560px){.pipeline-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.taas-pipeline{padding:14px}}
 
+ 
+    .studio-header{display:flex;align-items:center;justify-content:space-between;gap:22px}
+    .studio-header-brand{min-width:220px}.studio-header-brand p{margin:3px 0 0}
+    .studio-auth{display:flex;align-items:center;gap:8px;min-width:0;padding:9px 10px;border:1px solid rgba(210,222,242,.2);border-radius:11px;background:rgba(255,255,255,.055)}
+    .studio-auth-copy{display:flex;flex-direction:column;gap:2px;min-width:145px}
+    .studio-auth-copy strong{font-size:11px;color:#f4f7fc}
+    .studio-auth-copy span{font-size:9px;color:#aebbd0;max-width:190px;line-height:1.35}
+    .studio-auth input{width:220px;min-width:120px;min-height:34px;padding:7px 9px;border-color:#40516d;background:#0c172b;color:#f4f7fc;font:11px ui-monospace,monospace}
+    .studio-auth input::placeholder{color:#8998b0}
+    .studio-auth button{min-height:34px;margin:0;padding:7px 10px;font-size:10px;white-space:nowrap}
+    .studio-auth button.secondary{color:#e0e9fb;background:#263955;border-color:#40516d}
+    .studio-auth button:disabled{opacity:.45}
+    .studio-auth.connected{border-color:rgba(78,190,143,.5);background:rgba(22,132,91,.13)}
+    .studio-auth.connected .studio-auth-copy span{color:#9de0c2}
+    .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    @media(max-width:900px){.studio-header{align-items:stretch;flex-direction:column}.studio-auth{flex-wrap:wrap}.studio-auth-copy{flex:1 1 100%}.studio-auth input{flex:1 1 190px;width:auto}}
+    @media(max-width:520px){.studio-auth{align-items:stretch}.studio-auth input{flex:1 1 100%}.studio-auth button{flex:1}}
+
   </style>
 </head>
 <body>
-<header>
-  <h1>TaaS Studio</h1>
-  <p>Discover. Compose. Explain. — tool intelligence · governed AI infrastructure</p>
+<header class="studio-header">
+  <div class="studio-header-brand"><h1>TaaS Studio</h1><p>Discover. Compose. Explain. — tool intelligence · governed AI infrastructure</p></div>
+  <section id="studio-auth" class="studio-auth" aria-label="Studio authentication">
+    <div class="studio-auth-copy"><strong>Studio authentication</strong><span id="studio-auth-status" role="status" aria-live="polite">Not connected · token stays in this page's memory</span></div>
+    <label class="sr-only" for="token">Studio API bearer token</label>
+    <input id="token" type="password" autocomplete="new-password" spellcheck="false" placeholder="Paste Studio API token" aria-describedby="studio-auth-status">
+    <button id="studio-auth-toggle" class="secondary" type="button" aria-label="Show token">Show</button>
+    <button id="studio-auth-connect" type="button">Connect</button>
+    <button id="studio-auth-disconnect" class="secondary" type="button" disabled>Disconnect</button>
+  </section>
 </header>
 <main>
   <div class="notice"><strong>Discovery-only preview.</strong> This workspace calls <code>/api/v1/discover</code>. It does not invoke MCP tools, run an agent, or evaluate task completion. Use only trusted tool metadata; do not paste secrets or sensitive arguments.</div>
@@ -361,8 +386,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   <div class="grid" id="discovery">
     <section>
       <h2>1 · Request configuration</h2>
-      <label for="token">Studio API bearer token (kept in this page's memory only)</label>
-      <input id="token" type="password" autocomplete="off" placeholder="Enter TAAS_STUDIO_API_TOKEN">
+      <p class="muted">Authentication is managed globally in the Studio header. Connect once per runtime; the bearer token remains in page memory and is never written into the discovery payload.</p>
 
       <div class="goal-editor" id="goal-editor">
         <div class="goal-editor-head"><div><div class="eyebrow">02 · Specify</div><h3>Visual GoalSpec editor</h3><p class="subtle" style="margin:4px 0 0">Define intent, semantic inputs and outputs, effects, and dependencies. The editor writes the canonical GoalSpec into the discovery request.</p></div><span class="pill">Core contract · editable</span></div>
@@ -636,7 +660,43 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   };
   runtimeRefresh.addEventListener("click", refreshRuntimeOverview);
   $("token").addEventListener("change", () => {
-    if ($("token").value.trim()) refreshRuntimeOverview();
+    $("studio-auth-status").textContent = $("token").value.trim()
+      ? "Token entered · connect to verify it"
+      : "Not connected · token stays in this page's memory";
+    $("studio-auth").classList.remove("connected");
+  });
+  $("studio-auth-toggle").addEventListener("click", () => {
+    const field=$("token"), reveal=field.type==="password";
+    field.type=reveal?"text":"password";
+    $("studio-auth-toggle").textContent=reveal?"Hide":"Show";
+    $("studio-auth-toggle").setAttribute("aria-label",reveal?"Hide token":"Show token");
+  });
+  $("studio-auth-connect").addEventListener("click", async () => {
+    const token=$("token").value.trim(), button=$("studio-auth-connect");
+    if(!token){$("studio-auth-status").textContent="Paste the runtime token to connect."; $("token").focus(); return;}
+    button.disabled=true; $("studio-auth-status").textContent="Verifying token…";
+    try {
+      const response=await fetch("/api/v1/runtime/hardware",{headers:{"Authorization":"Bearer "+token,"Cache-Control":"no-cache"}});
+      if(response.status===401||response.status===403)throw new Error("Token rejected. Check that it belongs to the current Studio runtime.");
+      if(!response.ok)throw new Error("Studio API returned HTTP "+response.status+".");
+      $("studio-auth").classList.add("connected");
+      $("studio-auth-status").textContent="Connected · token verified for this runtime";
+      $("studio-auth-disconnect").disabled=false;
+      await refreshRuntimeOverview();
+    } catch(e) {
+      $("studio-auth").classList.remove("connected");
+      $("studio-auth-status").textContent=e.message;
+      $("studio-auth-disconnect").disabled=true;
+    } finally { button.disabled=false; }
+  });
+  $("studio-auth-disconnect").addEventListener("click", () => {
+    $("token").value=""; $("token").type="password";
+    $("studio-auth-toggle").textContent="Show";
+    $("studio-auth-toggle").setAttribute("aria-label","Show token");
+    $("studio-auth").classList.remove("connected");
+    $("studio-auth-status").textContent="Disconnected · token cleared from page memory";
+    $("studio-auth-disconnect").disabled=true;
+    $("runtime-overview-state").textContent="Not checked · connect to refresh runtime status.";
   });
 
   const run = $("run");
@@ -1136,7 +1196,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     return fallback || "Request failed.";
   };
   const apiGet = async (path) => {
-    const token=tokenValue(); if(!token) throw new Error("Enter the Studio API token in Discovery request configuration first.");
+    const token=tokenValue(); if(!token) throw new Error("Connect to TaaS Studio in the application header first.");
     const r=await fetch(path,{headers:{"Authorization":"Bearer "+token}});
     const d=await r.json(); if(!r.ok) throw new Error(formatApiError(d.detail||d,"HTTP "+r.status)); return d;
   };
@@ -1243,7 +1303,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 
   // Real Hugging Face model runtime and agent operations. No mock inference path.
   const runtimePost = async (path, body) => {
-    const token=tokenValue(); if(!token) throw new Error("Enter the Studio API token in Discovery request configuration first.");
+    const token=tokenValue(); if(!token) throw new Error("Connect to TaaS Studio in the application header first.");
     const response=await fetch(path,{method:"POST",headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify(body)});
     const data=await response.json(); if(!response.ok) throw new Error(formatApiError(data.detail||data,"HTTP "+response.status)); return data;
   };
