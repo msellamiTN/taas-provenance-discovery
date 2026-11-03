@@ -25,7 +25,7 @@ from taas.goals import SIGMAS, parse_goal_spec
 from taas.policy import Policy
 from taas.provenance import DEFAULT_TRUST
 from taas.studio.models import ModelCatalogError, get_model_details, inspect_model_artifacts, search_models
-from taas.studio.runtime import estimate_model_memory, probe_hardware
+from taas.studio.runtime import estimate_model_memory, probe_hardware, probe_runtime
 from taas.types import KINDS
 
 app = FastAPI(
