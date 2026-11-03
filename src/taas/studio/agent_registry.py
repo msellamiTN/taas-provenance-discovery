@@ -171,7 +171,7 @@ def _now() -> str:
 
 
 def _canonical_manifest(manifest: dict[str, Any]) -> tuple[str, str]:
-    serialized = json.dumps(manifest, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    serialized = json.dumps(manifest, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False)
     digest = hashlib.sha256(serialized.encode("utf-8")).hexdigest()
     return serialized, digest
 
