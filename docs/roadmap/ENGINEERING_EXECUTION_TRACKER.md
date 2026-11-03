@@ -251,7 +251,7 @@ The following observations supersede earlier pending statements above where they
 |---|---|---|---|
 | PR #22 engineering tracker | `b918b1b4d24bdaa0076cbc212d7b8cfda470b3ad` | Run #41672769864 — **success**; regression suite and hypergraph build/upload completed | Documentation CI only; Colab is not a product runtime requirement for this docs-only change |
 | PR #24 professional Studio shell | `6e14c7da4b77b831efd00086ccfd22008383e7c3` | Run #41672863564 — **success**; regression suite and hypergraph build/upload completed | Browser visual review at responsive breakpoints remains unverified; no Colab evidence claimed |
-| PR #25 declarative Agent manifest | Latest head is tracked by PR #25 | Run #41674084047 — queued/in progress at the time of this update; no conclusion recorded | Structural schema and UI validation only; no durable registry, publication, tool authorization or execution. Wait for CI before marking source validation passed |
+| PR #25 declarative Agent manifest | `e978fbec326e4eb8903837848ea3cca3f57068dc` | Run #41674084047 — **success**; **189 passed, 3 warnings**; hypergraph build and artifact upload succeeded | Structural schema and UI validation only; no durable registry, publication, tool authorization or execution. Browser/Colab/GPU/production validation not run |
 
 PR #24's final CI pass includes the repair to the stale “Execution disabled” assertion. Its scope remains a UX shell only. It does not deliver governed MCP execution.
 
@@ -267,4 +267,4 @@ PR #25 introduces `taas.ai/v1alpha1` Agent manifests, strict metadata/model/tool
 ### Change log addendum
 
 - **2026-11-03:** PR #24 CI run #41672863564 passed after correcting the stale UX assertion; PR #22 CI run #41672769864 also passed.
-- **2026-11-03:** Draft PR #25 opened for the declarative Agent manifest contract and validation workspace. CI run #41674084047 was still in progress when this addendum was written; no pass is claimed.
+- **2026-11-03:** Draft PR #25 opened for the declarative Agent manifest contract and validation workspace. CI run #41674084047 passed: 189 tests, 3 warnings, hypergraph build and artifact upload successful. No browser/Colab/GPU/production validation is claimed.
