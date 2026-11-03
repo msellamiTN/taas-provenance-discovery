@@ -178,3 +178,18 @@ Example architecture inputs for a decoder model:
 ```
 
 For those illustrative architecture values, the KV cache estimate is 0.5 GiB. These values are not inferred from the Hugging Face search result; they must be obtained from the selected model's verified configuration. The formula assumes a conventional decoder attention cache with separate key and value tensors. Architectures with sliding-window, latent, hybrid or otherwise nonstandard attention require a model-specific estimator.
+
+
+## 9. Clean-runtime validation procedure
+
+For a reproducible operator check:
+
+1. In Colab, select **Runtime → Disconnect and delete runtime** to remove stale server processes and proxy state.
+2. Reopen the maintained notebook from the PR link and run every cell from the top.
+3. Confirm the printed commit equals `4a3e4e460f2556f6556b1ef4736f991337cf32c2`.
+4. Confirm installation/import checks complete, then verify both health and readiness return HTTP 200.
+5. Open the generated proxy URL and connect with the ephemeral token from that runtime only.
+6. Record runtime type, Python version, GPU allocation, model repository/revision, device, precision, load outcome, inference outcome, latency and peak memory when an actual model test is performed.
+7. Keep the Colab output and logs private if they contain the temporary bearer token.
+
+A CPU-only launch validates the Studio API and discovery workflow; it does not validate GPU model loading. A T4 allocation alone is not model inference evidence. Report each validation level independently and do not label a notebook as passed until its cells have actually run.
