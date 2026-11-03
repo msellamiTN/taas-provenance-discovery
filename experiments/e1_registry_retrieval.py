@@ -20,13 +20,6 @@ from taas.retrieval import HybridRetriever, LSAEncoder
 
 
 DEFAULT_K = (1, 5, 10, 20)
-COMPONENTS = {
-    "bm25": ("lex",),
-    "lsa": ("den",),
-    "hybrid_lex_lsa": ("lex", "den"),
-}
-
-
 def resolved_gold_groups(task, known_ids: set[str]) -> tuple[list[set[str]], int]:
     """Return any-of alternative groups, preserving ambiguity and excluding unresolved IDs."""
     groups: list[set[str]] = []
@@ -99,8 +92,6 @@ def evaluate_snapshot(data: dict, ks=DEFAULT_K) -> dict:
     # The retriever is fitted exclusively on registry-derived contract renderings.
     retriever = HybridRetriever(encoder=LSAEncoder()).fit(contracts)
     eligible = list(known_ids)
-    reach = set()
-
     dataset_names = ("livemcpbench", "mcptoolbenchpp")
     results = {}
     for dataset_name in dataset_names:
@@ -154,7 +145,7 @@ def evaluate_snapshot(data: dict, ks=DEFAULT_K) -> dict:
         "experiment": "E1",
         "evaluation_mode": "offline_retrieval_only",
         "registry_tools": len(contracts),
-        "retrieval_inputs": ["task.query", "tool definition name/server/category/description via contract rendering"],
+        "retrieval_inputs": ["task.query", "tool definition name/server/tool_class/description via contract rendering"],
         "gold_usage": "evaluation_only_after_ranking",
         "not_evaluated": [
             "GoalSpec semantic validity", "policy eligibility", "hypergraph composition",
