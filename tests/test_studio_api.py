@@ -1309,3 +1309,29 @@ def test_agent_registry_endpoints_require_authentication(monkeypatch, tmp_path):
     assert client.get("/api/v1/agents").status_code == 503
     monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
     assert client.get("/api/v1/agents").status_code == 401
+
+
+def test_agent_registry_published_versions_are_immutable_and_audited(monkeypatch, tmp_path):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    monkeypatch.setenv("TAAS_AGENT_REGISTRY_PATH", str(tmp_path / "agents.sqlite3"))
+    headers = {"Authorization": "Bearer test-token"}
+    payload = _valid_agent_manifest()
+    created = client.post("/api/v1/agents", headers=headers, json=payload)
+    assert created.status_code == 201
+    version_path = "/api/v1/agents/support-assistant/versions/1.0.0"
+    assert client.post(version_path + "/validate", headers=headers).status_code == 200
+    published = client.post(version_path + "/publish", headers=headers)
+    assert published.status_code == 200
+
+    fetched = client.get(version_path, headers=headers)
+    assert fetched.status_code == 200
+    assert fetched.json()["manifest"] == created.json()["manifest"]
+    assert fetched.json()["manifest_sha256"] == created.json()["manifest_sha256"]
+    assert fetched.json()["lifecycle_state"] == "published"
+
+    events = client.get(
+        "/api/v1/agents/events?agent_id=support-assistant",
+        headers=headers,
+    ).json()["events"]
+    assert len(events) == 3
+    assert all(event["manifest_sha256"] == created.json()["manifest_sha256"] for event in events)
