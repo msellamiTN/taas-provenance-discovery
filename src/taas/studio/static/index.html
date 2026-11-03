@@ -352,6 +352,9 @@
     $("response").textContent = "";
     $("explanation").textContent = reason || "Discovery result cleared because the request context changed.";
     $("certificate-panel").hidden = true;
+    $("counterexample-panel").hidden = true;
+    $("counterexample-summary").textContent = "No counterexample for the current context.";
+    $("counterexample-detail").textContent = "";
     $("certificate-checks").replaceChildren();
     $("goal-coverage").replaceChildren();
     $("certificate-witnesses").textContent = "No certificate evidence for the current context.";
@@ -526,6 +529,7 @@
         headers: { "Authorization": "Bearer " + token }
       });
       const data = await response.json();
+      if (activeGeneration !== discoveryRequestGeneration) return;
       if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
       $("artifact-status").textContent =
         data.file_count + " repository file(s) inspected · weights downloaded: no · T4 compatibility: not verified.";
