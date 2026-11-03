@@ -585,7 +585,7 @@ def agent_manifest_validate(payload: dict[str, Any]) -> dict[str, Any]:
     try:
         manifest = validate_agent_manifest(payload)
     except ValidationError as exc:
-        raise HTTPException(status_code=422, detail=exc.errors()) from exc
+        raise HTTPException(status_code=422, detail=exc.errors(include_context=False, include_input=False)) from exc
     return {
         "valid": True,
         "manifest": manifest,
