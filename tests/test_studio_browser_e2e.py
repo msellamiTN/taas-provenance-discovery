@@ -56,24 +56,30 @@ def test_hypergraph_explorer_on_live_colab_studio(viewport, tmp_path: Path):
             if "/api/v1/mcp/" in request.url else None,
         )
         try:
-            # Separate Colab proxy reachability from the Studio static frontend.
-            # A 404 on / can be caused either by the proxy target or by the API's
-            # explicit "frontend not installed" response; /health distinguishes them.
-            health_url = studio_url.rstrip("/") + "/health"
-            health_response = page.request.get(health_url, timeout=30000)
+            # Verify the API directly inside the same Colab runtime. The Colab
+            # port proxy may return an edge-level 404 for /health even while the
+            # browser-facing homepage route is available; do not confuse that
+            # proxy behavior with the local FastAPI health route.
+            local_health_url = os.environ.get(
+                "TAAS_STUDIO_LOCAL_HEALTH_URL", "http://127.0.0.1:8000/health"
+            ).strip()
+            health_response = page.request.get(local_health_url, timeout=30000)
             health_body = health_response.text()
             assert health_response.status == 200, (
-                f"Colab proxy did not reach the TaaS API: GET /health returned "
+                f"Local TaaS API health check failed: GET {local_health_url} returned "
                 f"{health_response.status}; body={health_body[:500]!r}. "
-                "Check that proxy_url is from the same running Studio process on port 8000."
+                "Check the existing Studio process and its local health endpoint."
             )
+
+            # The actual Studio UI and all authenticated browser API calls must
+            # still traverse the existing Colab proxy.
             response = page.goto(studio_url, wait_until="domcontentloaded", timeout=60000)
             if response is None or response.status != 200:
                 body = page.locator("body").inner_text()[:500] if page.locator("body").count() else ""
                 pytest.fail(
-                    f"TaaS API is reachable (/health=200), but Studio homepage returned "
-                    f"{response.status if response else 'no response'}; body={body!r}. "
-                    "This points to the static frontend mount/file, not Playwright or the Colab proxy."
+                    f"Local TaaS API is healthy (/health=200), but the Colab-proxied "
+                    f"Studio homepage returned {response.status if response else 'no response'}; "
+                    f"body={body!r}. Check proxy_url and the Studio static mount."
                 )
             assert page.title() == "TaaS Studio — Tool Intelligence Platform"
             assert page.locator("#hg-empty").is_visible()
