@@ -13,7 +13,7 @@ The Playwright test:
 1. Attaches Chromium to the URL returned by the Core Studio notebook's Colab proxy cell.
 2. Verifies the initial empty Hypergraph Explorer state.
 3. Uses the exact temporary bearer token created by the Core Studio launch cell.
-4. Runs the page's metadata-only demo discovery using the already-running API and real DiscoveryEngine.
+4. Opens **DISCOVER → Hypergraph Explorer** and clicks its own **Run discovery** action. The action reuses the existing discovery request/GoalSpec and calls the already-running API and real DiscoveryEngine.
 5. Requires a server-generated `taas.hypergraph-projection/v1` projection and `execution_performed=false`.
 6. Exercises filter/search, SVG keyboard selection, accessible entity-list selection and inspector details.
 7. Tests desktop and narrow-screen layouts and writes screenshot artifacts under `/content/taas-e2e-artifacts`.
@@ -29,9 +29,9 @@ The Playwright test:
 
 ## Run in Colab Runtime
 
-1. Open `notebooks/colab/taas_core_studio_colab.ipynb` and run all cells through **Open TaaS Studio** in one runtime.
-2. Keep that runtime/kernel alive and open `notebooks/colab/taas_hypergraph_explorer_browser_e2e_colab.ipynb` in the same runtime.
-3. Run the E2E add-on from its first cell. It checks that `studio_process`, `api_token` and `proxy_url` exist before installing Playwright and running browser tests.
+1. Open `notebooks/colab/taas_core_studio_colab.ipynb` and run it in one Colab runtime.
+2. Keep that same runtime/kernel and the existing TaaS Studio process alive.
+3. If browser E2E is required, execute the E2E validation cells in that same runtime/kernel. They must attach to the existing `studio_process`, `api_token` and `proxy_url`; they must never launch a second Studio or require a second Colab runtime.
 
 ## Acceptance evidence
 
