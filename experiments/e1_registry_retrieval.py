@@ -112,10 +112,28 @@ def evaluate_snapshot(data: dict, ks=DEFAULT_K) -> dict:
             n_with_gold += bool(task.gold_tools or task.gold_unresolved)
             n_unresolved += unresolved > 0
             n_evaluable += bool(groups)
-            # Gold mappings are not passed to score/rank; only the natural-language query is.
-            for label, components in COMPONENTS.items():
-                scores = retriever.scores(task.query, None, eligible, reach, components=components)
-                ranking = sorted(scores, key=lambda tool: (-scores[tool], tool))
+            # Score the query once per component: the dense vector is reused for LSA
+            # and the hybrid RRF ranking. Gold mappings remain outside this path.
+            idx = [retriever.pos[tool] for tool in eligible]
+            lexical_raw = retriever.bm25.scores(task.query, idx)
+            lexical = {retriever.ids[i]: value for i, value in lexical_raw.items()}
+            query_vector = retriever.encoder.encode([task.query])[0]
+            similarities = retriever.vecs[idx] @ query_vector
+            dense = {tool: float(value) for tool, value in zip(eligible, similarities)}
+
+            rankings = {
+                "bm25": sorted(lexical, key=lambda tool: (-lexical[tool], tool)),
+                "lsa": sorted(dense, key=lambda tool: (-dense[tool], tool)),
+            }
+            fused = {tool: 0.0 for tool in eligible}
+            for component_scores in (lexical, dense):
+                ordered = sorted(component_scores.items(), key=lambda item: (-item[1], item[0]))
+                for rank, (tool, value) in enumerate(ordered, start=1):
+                    if value > 0:
+                        fused[tool] += 1.0 / (retriever.k0 + rank)
+            rankings["hybrid_lex_lsa"] = sorted(fused, key=lambda tool: (-fused[tool], tool))
+
+            for label, ranking in rankings.items():
                 rows_by_component[label].append(task_metrics(ranking, groups, ks) if groups else None)
 
         component_results = {}
