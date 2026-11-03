@@ -754,7 +754,7 @@ def test_benchmark_tool_import_replaces_demo_tools_instead_of_merging():
     response = client.get("/")
     assert response.status_code == 200
     page = response.text
-        '\n  $("bench-add-tools")', 1
+    handler = page.split('$("bench-add-tools").addEventListener("click",()=>{', 1)[1].split(
         '\n  function showBenchError', 1
     )[0]
     assert "syncBenchmarkToolsToRequest()" in handler
@@ -769,7 +769,7 @@ def test_benchmark_task_import_synchronizes_registry_selection_and_clears_demo_t
     assert response.status_code == 200
     page = response.text
     task_handler = page.split('$("bench-use-task").addEventListener("click",()=>{', 1)[1].split(
-        '\\n  $("bench-add-tools")', 1
+        '\n  $("bench-add-tools")', 1
     )[0]
     assert "const importedToolCount=syncBenchmarkToolsToRequest()" in task_handler
     assert "goalSpecState.goals=[]" in task_handler
