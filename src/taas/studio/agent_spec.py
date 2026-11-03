@@ -14,7 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 _AGENT_ID = re.compile(r"^[a-z][a-z0-9-]{2,62}$")
 _TOOL_NAME = re.compile(r"^[A-Za-z][A-Za-z0-9_.-]{0,127}$")
 _MODEL_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}/[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
-_REVISION = re.compile(r"^[0-9a-fA-F]{7,64}$")
+_REVISION = re.compile(r"^[0-9a-fA-F]{40}$")
 _SEMVER = re.compile(r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$")
 
 
@@ -39,13 +39,13 @@ class AgentMetadata(StrictModel):
 class AgentModelBinding(StrictModel):
     provider: Literal["huggingface"] = "huggingface"
     model_id: str = Field(min_length=3, max_length=257)
-    revision: str | None = Field(default=None, min_length=7, max_length=64)
+    revision: str | None = Field(default=None, min_length=40, max_length=40)
 
     @field_validator("revision")
     @classmethod
     def valid_revision(cls, value: str | None) -> str | None:
         if value is not None and not _REVISION.fullmatch(value):
-            raise ValueError("revision must be a 7-64 character immutable Hub commit SHA")
+            raise ValueError("revision must be a full 40-character immutable Hub commit SHA")
         return value
 
     @field_validator("model_id")
