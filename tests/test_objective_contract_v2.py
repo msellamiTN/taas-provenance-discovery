@@ -141,7 +141,7 @@ def test_v2_retrieval_outcome_can_be_covered_by_actual_supplied_data():
     assert frame["source_data_required"] is False
 
     external = derive_objective_contract(
-        "Search the web using this supplied document for current references."
+        "Search the web using the following document for current references."
     )
     assert external["user_supplied_content"] is True
     assert external["source_data_required"] is True
