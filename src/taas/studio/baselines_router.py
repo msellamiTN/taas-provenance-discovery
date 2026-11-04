@@ -1,5 +1,5 @@
 """Mountable baseline catalogue and preview router."""
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 from taas.studio.experiments_api import (
     baseline_catalog,
@@ -11,7 +11,7 @@ from taas.studio.experiments_api import (
 router = APIRouter(
     prefix="/api/v1/baselines",
     tags=["PaMCP Baselines"],
-    dependencies=[require_token],
+    dependencies=[Depends(require_token)],
 )
 router.add_api_route("/catalog", baseline_catalog, methods=["GET"])
 router.add_api_route("/catalog/{baseline_id}", baseline_detail, methods=["GET"])
