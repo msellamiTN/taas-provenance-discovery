@@ -103,8 +103,13 @@ def derive_objective_contract(
         rf"|\b{content_noun}\b.{{0,40}}\b{supplied_marker}\s+(?:in|with|by)\s+(?:the\s+)?(?:prompt|request|message|user)\b",
         lower,
     ))
+    explicit_external_source = bool(re.search(
+        r"\\b(web|website|webpage|online|internet|external\\s+sources?|external\\s+data|database|api|repository)\\b",
+        lower,
+    ))
+    acquisition_requested = bool(search_intent or retrieval_intent or multi_source_intent)
     source_data_required = bool(
-        search_intent or retrieval_intent or multi_source_intent
+        (acquisition_requested and (not user_supplied_content or explicit_external_source))
         or ((total or count or all_scope or temporal or recency_scope) and not user_supplied_content)
     )
     required: list[str] = []
