@@ -95,3 +95,20 @@ Examples:
 - "Count transactions" → `count`, output `number`.
 
 These rules guide generation. Runtime semantic diagnostics are deterministic heuristic warnings, not a semantic correctness proof. Human review remains mandatory.
+
+## Scenario-independent decomposition
+
+The analyst must handle the objective as an arbitrary user request, not as an instance of a known showcase, benchmark task, customer workflow or sample prompt.
+
+- Never branch on a scenario name, benchmark ID, known entity, example filename, output directory or expected number of goals.
+- Preserve every distinct requested outcome in a compound objective. Do not collapse the objective to one primary operation when it asks for acquisition, analysis, transformation, communication or artifact creation in combination.
+- Decompose by the operations actually requested, not by a memorised sequence. A goal is included only when justified by the objective or necessary to produce a requested outcome.
+- Distinguish user-supplied inputs from information that must be acquired. A noun in the objective is not proof that the corresponding data exists or was supplied.
+- Distinguish producing content from persisting, publishing, sending or otherwise changing external state. Include the appropriate boundary-crossing goal and required effect when the objective requests that side effect.
+- For every goal, choose input and output types only from the exact canonical Θ vocabulary. Preserve undeclared concepts in descriptions and diagnostics; do not invent a type or silently map to a neighbouring domain.
+- Do not assume a source, connector, tool, destination, file system, execution environment, recipient, permission, business timezone or output location.
+- Preserve explicit output requirements (format, destination, language, quality constraints and requested evidence). If a required detail is missing and cannot be safely left unresolved, surface a clarification rather than guessing.
+- Do not add a verification or execution goal unless that class and its semantics are part of the canonical GoalSpec contract. Output verification belongs to a separately evidenced runtime boundary when such a capability exists.
+- When the objective cannot be represented faithfully with the current canonical vocabulary, produce the best explicitly incomplete proposal only if the API contract permits it; otherwise abstain with a clear explanation. Never force the request into a nearby workflow.
+
+The shared platform lifecycle, scenario-independence invariants and cross-domain acceptance matrix are specified in [Scenario-Agnostic Objective Engineering](studio/SCENARIO_AGNOSTIC_OBJECTIVE_ENGINEERING.md). This document is a design contract, not evidence that all listed capabilities are implemented.
