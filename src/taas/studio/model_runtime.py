@@ -18,7 +18,9 @@ import time
 from pathlib import Path
 from typing import Any
 
-ROOT = Path(__file__).resolve().parents[3]\n\nfrom taas.studio.analyst_contract import build_analyst_system_prompt, build_refinement_context
+ROOT = Path(__file__).resolve().parents[3]
+
+from taas.studio.analyst_contract import build_analyst_system_prompt, build_refinement_context
 
 
 class ModelRuntimeError(RuntimeError):
