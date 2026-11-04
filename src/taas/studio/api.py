@@ -38,7 +38,7 @@ from taas.studio.authorization_preflight import (
 from taas.studio.runtime import estimate_model_memory, probe_hardware, probe_runtime
 from taas.studio.model_runtime import ModelRuntimeError, get_model_runtime
 from taas.studio.analyst_contract import validate_theta_types, build_refinement_context, load_analyst_contract
-from taas.studio.objective_contract import build_objective_context, diagnose_objective_alignment
+from taas.studio.objective_contract import (build_objective_context, diagnose_objective_alignment, build_outcome_coverage)
 from taas.studio.ollama_runtime import get_ollama_runtime
 from taas.studio.mcp_registry import MCPRegistryError, inspect_server as inspect_mcp_server, list_servers as list_mcp_servers
 from taas.types import KINDS
@@ -798,6 +798,10 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
         # Return the full deterministic objective frame as inspectable provenance.
         from taas.studio.objective_contract import derive_objective_contract
         result["objective_contract"] = derive_objective_contract(request.prompt)
+        result["objective_coverage"] = build_outcome_coverage(
+            request.prompt,
+            result.get("goal_spec") if isinstance(result.get("goal_spec"), dict) else None,
+        )
         result["core_analysis"] = core_analysis
         result["attempt_history"] = attempt_history
         result["structural_validation"] = {
@@ -814,7 +818,7 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
             "auto_applied": False,
         }
         result["semantic_diagnostics"] = diagnostics
-        result["semantic_review_required"] = bool(diagnostics) or not accepted
+        result["semantic_review_required"] = True
         result["workflow"] = {
             "objective_interpretation": "completed",
             "goalspec_generation": "completed" if result.get("json_valid") else "failed",
