@@ -2,8 +2,6 @@ from types import SimpleNamespace
 
 from taas.bitmap_index import BitmapIndex
 from taas.contracts import make_contract
-from taas.engine import DiscoveryEngine
-from taas.model_profile import ModelProfile
 from taas.policy import Policy
 from taas.studio.discovery_diagnostics import build_discovery_diagnostics
 
