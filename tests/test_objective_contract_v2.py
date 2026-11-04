@@ -216,3 +216,28 @@ def test_search_operation_is_reflected_in_primary_operation_and_outcomes():
 
     assert frame["operation"] == "search"
     assert "search" in frame["required_goal_classes"]
+
+
+def test_alignment_does_not_treat_supplied_input_as_a_performed_operation():
+    from taas.studio.objective_contract import diagnose_objective_alignment
+
+    diagnostics = diagnose_objective_alignment(
+        "Search the supplied documents for references to privacy.",
+        {"prompt_inputs": ["text"], "goals": []},
+    )
+    assert any(
+        item["code"] == "objective_operation_missing"
+        and "search" in item["message"]
+        for item in diagnostics
+    )
+
+
+def test_external_acquisition_requires_an_acquisition_goal_even_with_an_input():
+    from taas.studio.objective_contract import diagnose_objective_alignment
+
+    diagnostics = diagnose_objective_alignment(
+        "Search the web using the following document for current references.",
+        {"prompt_inputs": ["text"], "goals": []},
+    )
+    assert any(item["code"] == "objective_operation_missing" for item in diagnostics)
+    assert any(item["code"] == "objective_data_source_missing" for item in diagnostics)
