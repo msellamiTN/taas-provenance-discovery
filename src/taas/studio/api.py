@@ -646,7 +646,7 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
             # no candidate is applied or passed to discovery automatically.
             prior_text = str(result.get("text", ""))
             refinement_context = request.context
-            refinement_context += "\\n\\n" + build_refinement_context(
+            refinement_context += "\n\n" + build_refinement_context(
                 request.prompt, prior_text, diagnostics
             )
             refined = runtime.decompose(
