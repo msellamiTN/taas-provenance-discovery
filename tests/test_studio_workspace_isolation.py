@@ -13,8 +13,9 @@ def test_model_runtime_agent_chat_and_agent_design_are_independent_workspaces():
     # Assert the navigation algorithm, not a particular explanatory comment.
     assert "let root = target;" in html
     assert "while (branch && branch !== root)" in html
-    assert "sibling.hidden = true" in html
-    assert "branch.hidden = false" in html
+    assert "hideForNavigation(sibling)" in html
+    assert "target.hidden = false;" in html
+    assert 'node.dataset.studioNavHidden = "true";' in html
 
 
 def test_model_and_agent_workspaces_use_consistent_single_column_task_layouts():
@@ -30,7 +31,7 @@ def test_model_and_agent_workspaces_use_consistent_single_column_task_layouts():
 def test_nested_workspace_switching_preserves_global_runtime_snapshot():
     html = STUDIO_HTML.read_text(encoding="utf-8")
     assert 'if (child.id === "runtime-overview") child.hidden = false;' in html
-    assert "else child.hidden = child !== root;" in html
+    assert 'else if (child !== root) hideForNavigation(child);' in html
 
 
 def test_professional_studio_navigation_exposes_capability_groups():
@@ -38,7 +39,7 @@ def test_professional_studio_navigation_exposes_capability_groups():
     assert 'nav-label">BUILD</span>' in html
     assert 'nav-label">TOOLS &amp; DISCOVERY</span>' in html
     assert 'nav-label">OPERATE &amp; OBSERVE</span>' in html
-    assert 'href="#overview" aria-current="page"' in html
+    assert 'href="#overview-workspace" aria-current="page"' in html
     assert ".studio-nav a:focus-visible" in html
 
 
