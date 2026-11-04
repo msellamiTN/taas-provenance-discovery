@@ -31,6 +31,18 @@ A scenario-specific adapter is permitted only when it is a genuine external inte
 9. **Assurance and decision** — report goal coverage, evidence witnesses, unsupported goals, capability gaps, policy conflicts, uncertainty and approval requirements.
 10. **Governed execution (separate capability)** — only a separately implemented and authorized runtime may execute. It must enforce identity, least privilege, secrets isolation, network policy, budgets, cancellation, output validation, audit and provenance capture.
 
+## Objective Contract v2 implementation status
+
+The current branch now emits an additive `contract_version: "2.0"` frame from `derive_objective_contract`. It preserves the legacy `operation`, `required_goal_classes`, scope, exactness, temporal and source-data fields while adding:
+
+- `outcomes[]`: ordered, independently identified required goal-class hypotheses;
+- `constraints`: grouped input, scope, computation, temporal, unresolved-concept and ambiguity information;
+- `review`: mandatory human review, explicit interpretation method and an always-false semantic verification flag.
+
+The current outcome list is still derived from deterministic lexical rules. It is not yet an extensible semantic outcome graph, and the current parser can miss paraphrases, implicit operations, negation, conditional requirements and cross-lingual intent. The v2 shape is therefore a backward-compatible contract step—not a claim of universal objective understanding.
+
+A focused test module, `tests/test_objective_contract_v2.py`, covers compound outcome preservation, legacy-field compatibility, user-supplied content handling, mandatory review and objective-context serialization. The Colab notebook pins the tested source revision and runs these focused tests. A notebook pin is not evidence that the notebook has been executed successfully; record actual Colab output before declaring acceptance.
+
 ## Objective frame: required properties
 
 The frame must be extensible and versioned. It must not reduce a compound objective to one primary operation. At minimum, represent:
