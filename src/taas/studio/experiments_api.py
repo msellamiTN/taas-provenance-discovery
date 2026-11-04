@@ -32,7 +32,7 @@ from taas.policy import Policy
 from taas.retrieval import HybridRetriever
 from taas.types import KINDS
 
-from taas.experiments.catalog import CATALOG_PATH, VARIANTS, load_catalog
+from taas.experiments.catalog import CATALOG_PATH, FACTORIAL_VARIANTS, VARIANTS, load_catalog
 from taas.experiments.baseline_catalog import (baseline_index, baselines_for_experiment, load_baseline_catalog, validate_baseline_selection)
 
 app = FastAPI(
@@ -246,8 +246,16 @@ def variants() -> dict[str, Any]:
     data = load_catalog()
     return {
         "variants": data["pa_mcp_variants"],
+        "factorial_variants": [
+            {
+                "name": cell["name"],
+                "G": cell["G"], "P": cell["P"], "S": cell["S"],
+                "description": FACTORIAL_VARIANTS[cell["name"]].description,
+            }
+            for cell in data["factorial_design"]["cells"]
+        ],
         "factorial_design": data["factorial_design"],
-        "note": "Leave-one-out contrasts are conditional marginal effects; they are not assumed additive.",
+        "note": "Leave-one-out contrasts are conditional marginal effects; estimate interactions from all eight cells; do not assume additivity.",
     }
 
 
@@ -257,8 +265,10 @@ def validate_run_draft(payload: RunDraft) -> dict[str, Any]:
     exp = next((e for e in data["experiments"] if e["id"] == payload.experiment_id), None)
     if exp is None:
         raise HTTPException(status_code=404, detail="Unknown experiment")
-    if payload.variant not in VARIANTS:
+    if payload.variant not in FACTORIAL_VARIANTS:
         raise HTTPException(status_code=422, detail=f"Unknown PaMCP variant: {payload.variant}")
+    if payload.variant not in VARIANTS and payload.experiment_id != "E18":
+        raise HTTPException(status_code=422, detail="Combined factorial cells are available in E18 only")
     if not isinstance(payload.dataset_snapshot.get("name"), str) or not payload.dataset_snapshot["name"]:
         raise HTTPException(status_code=422, detail="dataset_snapshot.name is required")
     if not isinstance(payload.dataset_snapshot.get("version_or_hash"), str) or not payload.dataset_snapshot["version_or_hash"]:
@@ -280,7 +290,7 @@ def validate_run_draft(payload: RunDraft) -> dict[str, Any]:
         "configuration": digest_payload,
         "configuration_sha256": digest,
         "experiment_title": exp["title"],
-        "variant_factors": {k: getattr(VARIANTS[payload.variant], k) for k in ("G", "P", "S")},
+        "variant_factors": {k: getattr(FACTORIAL_VARIANTS[payload.variant], k) for k in ("G", "P", "S")},
         "execution_enabled": False,
         "evaluator_access_granted": False,
         "message": "Configuration validated only. No experiment has been queued or executed.",
@@ -302,7 +312,7 @@ def baseline_preview(payload: BaselinePreviewRequest) -> dict[str, Any]:
             raise HTTPException(status_code=422, detail="PaMCP factorial variants are available in E18 only")
         if len(set(payload.pamcp_variants)) != len(payload.pamcp_variants):
             raise HTTPException(status_code=422, detail="PaMCP variants must be unique")
-        invalid_variants = sorted(set(payload.pamcp_variants) - set(VARIANTS))
+        invalid_variants = sorted(set(payload.pamcp_variants) - set(FACTORIAL_VARIANTS))
         if invalid_variants:
             raise HTTPException(status_code=422, detail=f"Unknown PaMCP variant(s): {invalid_variants}")
 
