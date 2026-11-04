@@ -100,3 +100,36 @@ def test_analyst_prompt_and_refinement_explain_retrieval_effect_semantics():
         assert "execute(query)" in text
         assert "read(source)" in text
         assert "backend implementation details" in text
+
+
+
+def test_single_goal_query_input_is_not_a_goal_dependency():
+    spec = _retrieval_goal_spec(["read(source)"])
+    spec["prompt_inputs"] = ["query"]
+    spec["goals"][0]["in"] = ["query"]
+    spec["goals"][0]["deps"] = []
+    validate_studio_goal_spec(spec)
+
+
+def test_prompt_input_name_cannot_be_used_as_a_dependency_id():
+    spec = _retrieval_goal_spec(["read(source)"])
+    spec["prompt_inputs"] = ["query"]
+    spec["goals"][0]["in"] = ["query"]
+    spec["goals"][0]["deps"] = ["query"]
+    with pytest.raises(HTTPException, match="unknown dependency"):
+        validate_studio_goal_spec(spec)
+
+
+def test_analyst_prompt_and_refinement_define_dependency_namespace():
+    prompt = build_analyst_system_prompt()
+    refinement = build_refinement_context(
+        "Retrieve records matching the provided query from the configured source.",
+        '{"prompt_inputs":["query"],"deps":["query"]}',
+        [{"code": "goalspec_structural_nonconformance", "severity": "error",
+          "message": "goal retrieve_records references unknown dependency 'query'"}],
+    )
+    for text in (prompt, refinement):
+        assert "deps" in text
+        assert "goal IDs" in text
+        assert "input names" in text
+        assert "single-goal" in text
