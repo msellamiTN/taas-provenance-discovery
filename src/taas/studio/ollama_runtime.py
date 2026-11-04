@@ -62,7 +62,7 @@ class OllamaModelRuntime:
                 "execution_performed": False,
             }
         except ModelRuntimeError as exc:
-            return {"provider": "ollama", "available": False, "base_url": self._base_url(),
+            return {"provider": "ollama", "available": False, "base_url": None,
                     "model_selected": self._model_name, "models": [],
                     "last_inference_at": self._last_inference_at, "last_error": str(exc),
                     "execution_performed": False}
