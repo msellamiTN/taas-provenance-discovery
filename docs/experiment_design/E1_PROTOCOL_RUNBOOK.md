@@ -76,3 +76,35 @@ A successful GitHub Actions execution means the pipeline ran and the artifact wa
 The E1 run manifest remains \`failed\` while the independent reference-label metric is blocked or committed-source hash checks disagree. It becomes \`completed\` only when the complete independent reference labels are supplied and the committed registry matches the pinned raw rebuild.
 
 All catalogue experiment statuses remain \`planned_not_run\` until the artifacts have been reviewed and accepted.
+
+
+## Independent-label reconciliation
+
+After both files are completed, reconcile them without showing the restricted map before annotation freeze:
+
+\`\`\`bash
+python experiments/e1/reconcile_reference_annotations.py \\
+  --annotator-a reference_effect_annotator_A.csv \\
+  --annotator-b reference_effect_annotator_B.csv \\
+  --mapping restricted_reference_mapping.csv \\
+  --output-dir e1_reference_reconciliation \\
+  --annotator-a-id <ANNOTATOR_A_ID> \\
+  --annotator-b-id <ANNOTATOR_B_ID>
+\`\`\`
+
+The utility checks exact annotation-unit coverage, tool-name consistency, full SHA-256 definition identities, boolean decisions, confidence and rationale. It writes raw Cohen's kappa, an agreement report, disagreements and an adjudication template. It does not automatically resolve disagreements. When any disagreement exists, the E1 reference-label JSON is withheld until an adjudicator completes the template and supplies a frozen adjudication rule:
+
+\`\`\`bash
+python experiments/e1/reconcile_reference_annotations.py \\
+  --annotator-a reference_effect_annotator_A.csv \\
+  --annotator-b reference_effect_annotator_B.csv \\
+  --mapping restricted_reference_mapping.csv \\
+  --output-dir e1_reference_reconciliation_final \\
+  --annotator-a-id <ANNOTATOR_A_ID> \\
+  --annotator-b-id <ANNOTATOR_B_ID> \\
+  --adjudicated-csv adjudicated_labels.csv \\
+  --adjudicator-id <ADJUDICATOR_ID> \\
+  --adjudication-rule "<FROZEN_RULE>"
+\`\`\`
+
+The emitted \`reference_labels.json\` is accepted by the E1 runner's \`--reference-labels\` option only when the label set covers every unique source definition exactly. The metric must not be computed from partial coverage.
