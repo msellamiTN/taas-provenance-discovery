@@ -1601,7 +1601,17 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   };
   const refreshLoadedModel = async () => {
     const state=await apiGet("/api/v1/models/runtime");$("runtime-model-details").textContent=JSON.stringify(state,null,2);
-    $("runtime-model-status").textContent=state.model_loaded ? "Loaded · "+state.model_id+" · "+state.device+" · "+state.dtype : "No model loaded by this process.";return state;
+    if($("runtime-provider").value==="ollama"){
+      const ollama=state.providers?.ollama||{};
+      $("runtime-model-status").textContent=!ollama.available
+        ?"Ollama unavailable · "+(ollama.last_error||"Check the daemon and endpoint.")
+        :ollama.model_selected
+          ?"Ollama model selected · "+ollama.model_selected+" · weights load on first inference"
+          :"Ollama reachable · select an installed model tag.";
+    }else{
+      $("runtime-model-status").textContent=state.model_loaded ? "Loaded · "+state.model_id+" · "+state.device+" · "+state.dtype : "No Hugging Face model loaded by this process.";
+    }
+    return state;
   };
   $("runtime-provider").addEventListener("change",()=>{
     const ollama=$("runtime-provider").value==="ollama";
