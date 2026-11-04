@@ -11,16 +11,23 @@ class StudioMarkup(HTMLParser):
         self.ids = []
         self.nav_hrefs = []
         self.pipeline_hrefs = []
+        self.in_studio_nav = False
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
+        if tag == "nav" and "studio-nav" in attrs.get("class", "").split():
+            self.in_studio_nav = True
         if "id" in attrs:
             self.ids.append(attrs["id"])
         if tag == "a" and attrs.get("href", "").startswith("#"):
-            if "studio-nav" in attrs.get("class", "").split():
+            if self.in_studio_nav:
                 self.nav_hrefs.append(attrs["href"])
             if "pipeline-step" in attrs.get("class", "").split():
                 self.pipeline_hrefs.append(attrs["href"])
+
+    def handle_endtag(self, tag):
+        if tag == "nav":
+            self.in_studio_nav = False
 
 
 def studio_markup():
@@ -41,7 +48,8 @@ def test_every_studio_navigation_and_pipeline_destination_exists():
 
 def test_navigation_restores_only_visibility_flags_it_owns():
     html = STUDIO_HTML.read_text(encoding="utf-8")
-    assert 'data-studio-nav-hidden="true"' in html
+    assert 'node.dataset.studioNavHidden = "true";' in html
+    assert 'querySelectorAll("[data-studio-nav-hidden=\'true\']")' in html
     assert 'restoreNavigationVisibility();' in html
     assert 'delete node.dataset.studioNavHidden;' in html
     assert 'window.addEventListener("popstate", routeFromLocation);' in html
@@ -69,3 +77,18 @@ def test_parent_workspace_navigation_unhides_panels_hidden_by_previous_child_rou
     assert route.index("restoreNavigationVisibility();") < route.index("hideForNavigation(child)")
     assert 'while (branch && branch !== root)' in route
     assert 'if (branch && branch !== root)' not in route
+
+
+def test_overview_navigation_shows_the_lifecycle_and_not_only_the_hero():
+    html = STUDIO_HTML.read_text(encoding="utf-8")
+    assert '<a href="#overview-workspace" aria-current="page">Overview</a>' in html
+    assert '<div id="overview-workspace">' in html
+    overview = html[html.index('<div id="overview-workspace">'):html.index('<section id="workspace"')]
+    assert 'id="overview"' in overview
+    assert 'class="taas-pipeline"' in overview
+
+
+def test_tablet_and_mobile_navigation_use_compact_grid_layouts():
+    html = STUDIO_HTML.read_text(encoding="utf-8")
+    assert '@media(max-width:900px){.studio-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))' in html
+    assert '@media(max-width:560px){.studio-nav{grid-template-columns:repeat(2,minmax(0,1fr))' in html
