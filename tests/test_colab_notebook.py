@@ -78,6 +78,9 @@ def test_colab_objective_matrix_covers_local_and_external_workflows() -> None:
         assert phrase in code
     assert 'assert contract["source_data_required"] is False' in code
     assert "importlib.reload(objective_contract)" in code
+    assert "importlib.invalidate_caches()" in code
+    assert "studio_api = importlib.reload(studio_api)" in code
+    assert "missing_agent_api" in code
     assert 'contract["contract_version"] == "2.0"' in code
     assert 'assert contract["source_data_required"] is True' in code
 
