@@ -333,20 +333,15 @@ def derive_objective_contract(
 
 
 def build_outcome_coverage(objective: str, spec: dict[str, Any] | None) -> dict[str, Any]:
-    """Map v2 required outcomes to proposed goals or explicitly supplied inputs.
+    """Map v2 required outcomes to matching GoalSpec operation classes.
 
-    Coverage is structural evidence only. It does not establish semantic
-    equivalence, source availability, tool capability, authorization or success.
+    Supplied inputs are not operation evidence. Class coverage is structural
+    only and does not establish semantic equivalence, source availability,
+    tool capability, authorization or success.
     """
     contract = derive_objective_contract(objective)
     candidate = spec if isinstance(spec, dict) else {}
     goals = [goal for goal in candidate.get("goals", []) if isinstance(goal, dict)]
-    prompt_inputs = [str(value).casefold() for value in candidate.get("prompt_inputs", [])]
-    data_inputs = [
-        value for value in prompt_inputs
-        if value.split(":", 1)[0] in {"record", "table", "document"}
-        or (contract.get("user_supplied_content") and value == "text")
-    ]
     coverage = []
     for outcome in contract["outcomes"]:
         required_class = outcome["goal_class"]
@@ -406,12 +401,7 @@ def diagnose_objective_alignment(objective: str, spec: dict[str, Any]) -> list[d
     classes = {str(g.get("class", "")).casefold() for g in goals}
     diagnostics: list[dict[str, str]] = []
 
-    data_inputs = [str(x).casefold() for x in spec.get("prompt_inputs", [])
-                   if str(x).split(":", 1)[0] in {"record", "table", "document"}
-                   or (contract.get("user_supplied_content") and str(x).casefold() == "text")]
     for cls in contract["required_goal_classes"]:
-        if cls in {"retrieve", "search"} and data_inputs:
-            continue
         present = cls in classes or (cls == "aggregate" and "compute_exact" in classes)
         if not present:
             diagnostics.append({
@@ -423,11 +413,11 @@ def diagnose_objective_alignment(objective: str, spec: dict[str, Any]) -> list[d
     acquisitions = [g for g in goals if str(g.get("class", "")).casefold()
                     in {"retrieve", "search", "fetch_web"}]
     if contract["source_data_required"]:
-        if not data_inputs and not acquisitions:
+        if not acquisitions:
             diagnostics.append({
                 "code": "objective_data_source_missing", "severity": "error",
-                "message": "The objective requires source data, but neither typed data input nor a data-acquisition goal is present.",
-                "suggestion": "Add a retrieval/search goal or explicitly supply source data as a typed input. Do not invent a source.",
+                "message": "The objective requires external source data, but no data-acquisition goal is present. Supplied inputs do not prove external retrieval.",
+                "suggestion": "Add a retrieval/search goal for the external source. Do not invent a source or treat supplied content as acquired data.",
             })
 
     numeric_ops = [g for g in goals if str(g.get("class", "")).casefold()
