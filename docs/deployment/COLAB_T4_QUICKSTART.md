@@ -95,7 +95,8 @@ A measured model profile can be configured later through a dedicated Studio conf
 | API exits | Inspect /content/taas-studio.log. |
 | /ready returns 503 | Confirm the generated API token is present in the notebook runtime and rerun launch. |
 | Discovery returns 401 | Paste the current runtime's token into the Studio token field. |
-| Discovery returns 409 | Review the objective, GoalSpec, effects, dependencies and selected tool metadata, then confirm the human-review checkbox. Any subsequent edits require reconfirmation. |\n| Discovery returns 422 | Check GoalSpec, policy and engine fields against the current TaaS core contract. |
+| Discovery returns 409 | Review the objective, GoalSpec, effects, dependencies and selected tool metadata, then confirm the human-review checkbox. Any subsequent edits require reconfirmation. |
+| Discovery returns 422 | Check GoalSpec, policy and engine fields against the current TaaS core contract. |
 | Colab proxy returns `RpcError(NOT_FOUND)` | Confirm `/health` and `/ready` passed, then verify Uvicorn binds to `0.0.0.0:8000`, not loopback-only. Rerun the proxy-link cell after the server is ready. |
 | Colab proxy fails for another reason | Confirm the runtime remains connected and rerun the proxy-link cell. |
 
