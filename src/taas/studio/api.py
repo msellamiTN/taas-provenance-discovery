@@ -841,12 +841,26 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
             if candidate.get("json_valid") and isinstance(candidate.get("goal_spec"), dict):
                 diagnostics = diagnose_objective_alignment(request.prompt, candidate["goal_spec"])
             for event in candidate.get("normalization_events", []):
-                diagnostics.append({
-                    "code": "declared_plural_type_normalized",
-                    "severity": "warning",
-                    "message": f"{event['path']}: normalized {event['from']!r} to declared Θ type {event['to']!r}.",
-                    "suggestion": "Review the canonical type; no undeclared type or business domain was inferred.",
-                })
+                if event.get("rule") == "trailing_plural_s_to_declared_theta_type":
+                    diagnostics.append({
+                        "code": "declared_plural_type_normalized",
+                        "severity": "warning",
+                        "message": f"{event['path']}: normalized {event['from']!r} to declared Θ type {event['to']!r}.",
+                        "suggestion": "Review the canonical type; no undeclared type or business domain was inferred.",
+                    })
+                elif event.get("rule") == "single_goal_input_name_not_dependency":
+                    diagnostics.append({
+                        "code": "single_goal_input_dependency_canonicalized",
+                        "severity": "warning",
+                        "message": (
+                            f"{event['path']}: removed input-name value(s) {event['removed']!r} "
+                            "from a single-goal dependency list; raw model output is retained."
+                        ),
+                        "suggestion": (
+                            "Review this explicit canonicalization. Goal dependencies must reference "
+                            "other goal IDs; this one-goal candidate has no distinct prerequisite goal."
+                        ),
+                    })
             if structural_error:
                 diagnostics.append({
                     "code": "goalspec_structural_nonconformance",
