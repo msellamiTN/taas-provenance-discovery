@@ -1702,7 +1702,8 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       const hasErrors=diagnostics.some(x=>x.severity==="error");
       const coreNeedsClarification=result.core_analysis?.status==="clarification_required";
       const accepted=result.conformance?.accepted_for_human_review===true;
-      if(result.json_valid&&result.structural_validation?.valid&&accepted&&!hasErrors&&!coreNeedsClarification){
+      const missingOutcomes=(result.objective_coverage?.summary?.missing||0)>0;
+      if(result.json_valid&&result.structural_validation?.valid&&accepted&&!hasErrors&&!coreNeedsClarification&&!missingOutcomes){
         pendingAgentGoalSpec=result.goal_spec;$("agent-apply-goals").disabled=false;
         $("agent-semantic-diagnostics").className="goal-validation"+(diagnostics.length?"":" valid");
         const core=result.core_analysis||{};
@@ -1726,7 +1727,9 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
           ? "Core requires clarification: "+(result.core_analysis?.clarification||"unresolved GoalSpec input.")
           : hasErrors
             ? "Core rejected objective conformance: "+diagnostics.filter(x=>x.severity==="error").map(x=>x.code+": "+x.message).join(" | ")
-            : "No acceptable GoalSpec: structural validation or Core conformance failed. Inspect attempt history and diagnostics.";
+            : missingOutcomes
+              ? "Objective coverage is incomplete: "+(result.objective_coverage?.summary?.missing||0)+" required outcome(s) have no matching goal or supplied input. Refine the proposal before applying."
+              : "No acceptable GoalSpec: structural validation or Core conformance failed. Inspect attempt history and diagnostics.";
         $("agent-decompose-status").textContent="GoalSpec was not accepted for human review. Apply is disabled; refine the objective or resolve the reported Core constraints.";
       }
     }catch(e){$("agent-decompose-status").textContent="Agent decomposition failed: "+e.message;}finally{button.disabled=false;}
