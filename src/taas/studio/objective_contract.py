@@ -206,8 +206,48 @@ def derive_objective_contract(
     ))
     currency_ambiguity = amount_operation and financial_domain and not currency_explicit
 
+    # Objective Contract v2 is additive: retain the v1 keys consumed by the
+    # current Studio/API while representing every detected operation as an
+    # independent required outcome. These are rule-derived hypotheses, not a
+    # proof that the natural-language objective has been fully understood.
+    outcomes = [
+        {
+            "id": f"outcome_{index + 1}",
+            "goal_class": goal_class,
+            "required": True,
+            "interpretation": "lexical_rule",
+        }
+        for index, goal_class in enumerate(required)
+    ]
+    constraints = {
+        "inputs": {
+            "source_data_required": source_data_required,
+            "user_supplied_content": user_supplied_content,
+        },
+        "scope": {
+            "all_matching_items": all_scope,
+            "date_or_range_constraint": temporal is not None,
+        },
+        "computation": {
+            "numeric_result_required": bool(count or (total and not grouped_aggregation)),
+            "grouped_result_required": grouped_aggregation,
+            "exactness_required": "exact" if total or count else None,
+        },
+        "temporal": temporal,
+        "unresolved_concepts": sorted(unresolved),
+        "ambiguities": ["currency_policy"] if currency_ambiguity else [],
+    }
+
     return {
+        "contract_version": "2.0",
         "objective": text,
+        "outcomes": outcomes,
+        "constraints": constraints,
+        "review": {
+            "required": bool(unresolved or currency_ambiguity or temporal is not None),
+            "semantic_correctness_verified": False,
+            "interpretation_method": "deterministic_lexical_rules",
+        },
         "operation": operation,
         "required_goal_classes": required,
         "numeric_result_required": bool(count or (total and not grouped_aggregation)),
@@ -235,7 +275,7 @@ def derive_objective_contract(
 def build_objective_context(objective: str) -> str:
     contract = derive_objective_contract(objective)
     return (
-        "TaaS Core objective frame (deterministically derived; preserve these constraints):\n"
+        "TaaS Core Objective Contract v2 (deterministically derived; preserve every outcome and constraint):\n"
         + json.dumps(contract, ensure_ascii=False, indent=2)
         + "\nUse only declared Theta types. prompt_inputs describe user-supplied input types, "
           "not business nouns from the objective. Use text for a natural-language request unless "
