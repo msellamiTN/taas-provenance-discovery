@@ -358,6 +358,13 @@ def baseline_preview(payload: BaselinePreviewRequest) -> dict[str, Any]:
                 result = run_effect_baseline(baseline_id, raw_tools)
             elif baseline_id in {"mcp_default_annotations", "closed_world_annotations", "lexical_positive", "lexical_closed_world", "verified_evidence"}:
                 result = run_policy_baseline(baseline_id, raw_tools)
+            elif baseline_id == "no_refinement":
+                result = run_pamcp_variant(
+                    "Full_PaMCP", contracts, payload.goal_spec, policy,
+                    top_k=payload.top_k, refine_k=0,
+                )
+                result["baseline_id"] = "no_refinement"
+                result["refinement_iterations_allowed"] = 0
             else:
                 result = run_baseline(
                     baseline_id, retriever, spec, prompt, pool, top_k=payload.top_k,
