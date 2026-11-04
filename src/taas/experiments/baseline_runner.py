@@ -380,9 +380,11 @@ def run_baseline(
         return BaselineResult(baseline_id, "adapter_not_implemented",
                               details={"implementation_maturity": maturity,
                                        "reason": "This baseline requires a separate pipeline/runtime adapter."})
+    explicit_params = dict(parameters or {})
     params = dict(spec_def.get("params", {}))
-    params.update(dict(parameters or {}))
-    k = int(params.get("top_k", top_k)) if isinstance(params.get("top_k", top_k), int) else top_k
+    params.update(explicit_params)
+    requested_k = explicit_params.get("top_k", top_k if top_k is not None else params.get("top_k", 5))
+    k = int(requested_k) if isinstance(requested_k, int) else 5
     visible = [t for t in pool if t in retriever.contracts]
 
     if baseline_id == "all_tools":
