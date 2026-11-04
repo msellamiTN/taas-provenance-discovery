@@ -54,7 +54,6 @@ def diagnose_goal_spec(prompt: str, spec: dict[str, Any]) -> list[dict[str, str]
     objective = (prompt or spec.get("prompt") or "").casefold()
     goals = spec.get("goals", []) if isinstance(spec, dict) else []
     classes = {str(g.get("class", "")).casefold() for g in goals if isinstance(g, dict)}
-    outputs = [str(g.get("out", "")).casefold() for g in goals if isinstance(g, dict)}
     diagnostics: list[dict[str, str]] = []
     total_requested = bool(re.search(r"\b(sum|summation|aggregate|total value|sum of|calculate\s+(?:the\s+)?total)\b", objective))
     if total_requested and not ({"aggregate", "compute_exact"} & classes):
