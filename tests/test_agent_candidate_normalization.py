@@ -1,4 +1,4 @@
-from taas.studio.api import canonicalize_declared_plural_types, prepare_agent_candidate
+from fastapi import HTTPException\nimport pytest\n\nfrom taas.studio.api import (\n    canonicalize_declared_plural_types, prepare_agent_candidate, validate_studio_goal_spec,\n)\nfrom taas.studio.analyst_contract import build_analyst_system_prompt, build_refinement_context
 
 
 def test_declared_plural_type_is_canonicalized_without_mutating_model_object():
@@ -47,3 +47,45 @@ def test_exact_user_objective_replaces_truncated_model_echo():
     assert prepared["objective_prompt_preserved"] is True
     assert prepared["normalization_events"][0]["to"] == "record[]"
     assert candidate["goal_spec"]["prompt"].endswith("sourc")
+\n\ndef _retrieval_goal_spec(effects):
+    return {
+        "prompt": "Retrieve records matching the provided query from the configured source.",
+        "prompt_inputs": ["text"],
+        "goals": [{
+            "id": "retrieve_records",
+            "desc": "Retrieve records matching the provided query from the configured source",
+            "class": "retrieve",
+            "in": ["query"],
+            "out": "record[]",
+            "eff": effects,
+            "sigma": "data",
+            "n": 100,
+            "exactness": "tolerant",
+            "deps": [],
+            "lang": "en",
+            "optional": False,
+        }],
+    }
+
+
+def test_retrieval_effect_contract_accepts_read_without_internal_exec():
+    validate_studio_goal_spec(_retrieval_goal_spec(["read(source)"]))
+
+
+def test_execute_query_is_rejected_as_an_invalid_effect():
+    with pytest.raises(HTTPException, match="invalid effect 'execute(query)'"):
+        validate_studio_goal_spec(_retrieval_goal_spec(["read(source)", "execute(query)"]))
+
+
+def test_analyst_prompt_and_refinement_explain_retrieval_effect_semantics():
+    prompt = build_analyst_system_prompt()
+    refinement = build_refinement_context(
+        "Retrieve records matching the provided query from the configured source.",
+        '{"eff":["execute(query)"]}',
+        [{"code": "goalspec_structural_nonconformance", "severity": "error",
+          "message": "invalid effect execute(query)"}],
+    )
+    for text in (prompt, refinement):
+        assert "execute(query)" in text
+        assert "read(source)" in text
+        assert "backend implementation details" in text
