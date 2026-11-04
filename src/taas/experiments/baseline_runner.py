@@ -70,6 +70,28 @@ def _dense(retriever: HybridRetriever, query: str, pool: Sequence[str], k: int,
                                    "candidate_count": len(pool)})
 
 
+
+def _rag_multiquery(
+    retriever: HybridRetriever, prompt: str, spec: GoalSpec, pool: Sequence[str], k: int,
+    rrf_k0: int = 60,
+) -> BaselineResult:
+    """Global-context multi-query dense retrieval with reciprocal-rank fusion."""
+    queries = [prompt] + [g.rendering() for g in spec.goals if not g.optional]
+    fused: dict[str, float] = {tool: 0.0 for tool in pool}
+    for query in queries:
+        scores = retriever.scores(query, None, pool, set(), components=("den",))
+        ranked = sorted(scores.items(), key=lambda item: (-float(item[1]), item[0]))
+        for rank, (tool, _score) in enumerate(ranked, start=1):
+            fused[tool] = fused.get(tool, 0.0) + 1.0 / (rrf_k0 + rank)
+    ranked = _rank(fused, k)
+    return BaselineResult(
+        "rag_mcp", "completed", [tool for tool, _ in ranked], _tool_ranking(ranked),
+        details={"adapter": "global prompt + goal-view dense retrieval with RRF",
+                 "query_views": len(queries), "rrf_k0": rrf_k0,
+                 "no_structural_or_provenance_filter": True,
+                 "clean_room_adaptation": True},
+    )
+
 def _colt_scene_completeness(
     retriever: HybridRetriever, query: str, pool: Sequence[str], k: int,
     training_scenes: Sequence[Mapping[str, Any]] | None,
@@ -369,10 +391,12 @@ def run_baseline(
                               details={"control": "unfiltered full registry",
                                        "candidate_count": len(visible)})
 
-    if baseline_id in {"bm25", "dense_lsa", "rag_mcp"}:
-        if baseline_id == "bm25":
-            return _bm25(retriever, prompt, visible, k)
+    if baseline_id == "bm25":
+        return _bm25(retriever, prompt, visible, k)
+    if baseline_id == "dense_lsa":
         return _dense(retriever, prompt, visible, k, baseline_id)
+    if baseline_id == "rag_mcp":
+        return _rag_multiquery(retriever, prompt, spec, visible, k, int(params.get("rrf_k0", 60)))
 
     if baseline_id == "mcp_zero":
         selected = mcp_zero(retriever, spec, visible,
