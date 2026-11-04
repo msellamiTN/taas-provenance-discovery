@@ -85,3 +85,68 @@ def test_constraint_repair_is_noop_without_objective_contract_constraints():
 
     assert normalized == spec
     assert events == []
+
+
+def test_core_gap_classifies_retrieval_as_tool_required_not_model_skill_gap():
+    from types import SimpleNamespace
+
+    from taas.studio.api import classify_core_gap_requirements
+
+    goals = [SimpleNamespace(id="g1", cls="retrieve")]
+    result = classify_core_gap_requirements(goals, ["g1"])
+
+    assert result == {
+        "status": "tool_requirements_detected",
+        "tool_required_goal_ids": ["g1"],
+        "model_capability_gap_goal_ids": [],
+    }
+
+
+def test_core_gap_keeps_uncovered_native_skill_separate_from_tool_requirement():
+    from types import SimpleNamespace
+
+    from taas.studio.api import classify_core_gap_requirements
+
+    goals = [
+        SimpleNamespace(id="g1", cls="retrieve"),
+        SimpleNamespace(id="g2", cls="summarise"),
+    ]
+    result = classify_core_gap_requirements(goals, ["g1", "g2"])
+
+    assert result == {
+        "status": "tool_and_model_capability_gaps_detected",
+        "tool_required_goal_ids": ["g1"],
+        "model_capability_gap_goal_ids": ["g2"],
+    }
+
+
+def test_core_gap_reports_only_native_capability_gap_when_no_external_goal_is_missing():
+    from types import SimpleNamespace
+
+    from taas.studio.api import classify_core_gap_requirements
+
+    goals = [SimpleNamespace(id="g1", cls="summarise")]
+    result = classify_core_gap_requirements(goals, ["g1"])
+
+    assert result == {
+        "status": "capability_gap_detected",
+        "tool_required_goal_ids": [],
+        "model_capability_gap_goal_ids": ["g1"],
+    }
+
+
+def test_core_gap_classification_does_not_change_gap_membership():
+    from types import SimpleNamespace
+
+    from taas.studio.api import classify_core_gap_requirements
+
+    goals = [
+        SimpleNamespace(id="g1", cls="retrieve"),
+        SimpleNamespace(id="g2", cls="summarise"),
+        SimpleNamespace(id="g3", cls="translate"),
+    ]
+    gap_ids = ["g1", "g2"]
+    result = classify_core_gap_requirements(goals, gap_ids)
+
+    assert set(result["tool_required_goal_ids"] + result["model_capability_gap_goal_ids"]) == set(gap_ids)
+    assert result["status"] == "tool_and_model_capability_gaps_detected"
