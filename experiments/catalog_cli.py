@@ -2,7 +2,7 @@
 from __future__ import annotations
 import argparse
 import json
-from taas.experiments.catalog import load_catalog, VARIANTS
+from taas.experiments.catalog import load_catalog, VARIANTS, validate_factorial
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Inspect the frozen PaMCP E1-E22 design.")
@@ -10,6 +10,7 @@ def main() -> None:
     parser.add_argument("--id", dest="experiment_id")
     args = parser.parse_args()
     data = load_catalog()
+    validate_factorial(data)
     if args.command == "list":
         out = [{"id": e["id"], "title": e["title"], "status": e["status"]} for e in data["experiments"]]
     elif args.command == "show":
