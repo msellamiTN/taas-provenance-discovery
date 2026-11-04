@@ -9,6 +9,7 @@ from taas.studio.experiments_api import (
     experiment_catalog,
     experiment_detail,
     baseline_catalog,
+    baseline_preview,
     baseline_detail,
     experiment_baselines,
     validate_run_draft,
@@ -30,3 +31,4 @@ router.add_api_route("/workbench/status", workbench_status, methods=["GET"])
 router.add_api_route("/catalog/{experiment_id}/baselines", experiment_baselines, methods=["GET"])
 router.add_api_route("/baselines/catalog", baseline_catalog, methods=["GET"])
 router.add_api_route("/baselines/catalog/{baseline_id}", baseline_detail, methods=["GET"])
+router.add_api_route("/baselines/preview", baseline_preview, methods=["POST"])
