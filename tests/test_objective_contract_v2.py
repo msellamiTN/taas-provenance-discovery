@@ -128,11 +128,10 @@ def test_v2_retrieval_outcome_can_be_covered_by_actual_supplied_data():
     from taas.studio.objective_contract import build_outcome_coverage
 
     coverage = build_outcome_coverage(
-        "Compare the following supplied documents.",
-        {"prompt_inputs": ["text"], "goals": [{"id": "g1", "class": "compare"}]},
+        "Search the supplied documents for references to privacy.",
+        {"prompt_inputs": ["text"], "goals": []},
     )
 
-    # The objective does not require external retrieval; the supplied text is
-    # not silently treated as a database or external-source capability.
-    assert coverage["summary"]["missing"] == 0
-    assert coverage["outcomes"][0]["status"] == "covered_by_goal"
+    assert coverage["summary"] == {"required": 1, "covered": 1, "missing": 0}
+    assert coverage["outcomes"][0]["status"] == "covered_by_supplied_input"
+    assert coverage["outcomes"][0]["input_types"] == ["text"]
