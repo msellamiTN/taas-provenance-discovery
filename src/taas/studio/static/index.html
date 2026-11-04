@@ -1697,7 +1697,8 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   $("agent-decompose").addEventListener("click",async()=>{
     const button=$("agent-decompose");button.disabled=true;$("agent-decompose-status").textContent="Preparing objective through TaaS Core…";$("agent-apply-goals").disabled=true;pendingAgentGoalSpec=null;
     try{const result=await runtimePost("/api/v1/objectives/prepare",{provider:$("runtime-provider").value,prompt:$("agent-goal-prompt").value,max_new_tokens:1200});$("agent-decompose-result").textContent=JSON.stringify(result,null,2);
-      renderObjectiveCoverage(result.objective_coverage);\n      const diagnostics=result.semantic_diagnostics||[];
+      renderObjectiveCoverage(result.objective_coverage);
+      const diagnostics=result.semantic_diagnostics||[];
       const hasErrors=diagnostics.some(x=>x.severity==="error");
       const coreNeedsClarification=result.core_analysis?.status==="clarification_required";
       const accepted=result.conformance?.accepted_for_human_review===true;
