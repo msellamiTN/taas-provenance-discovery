@@ -84,12 +84,12 @@ def diagnose_goal_spec(prompt: str, spec: dict[str, Any]) -> list[dict[str, str]
     has_currency_context = bool(re.search(r"\b(usd|eur|gbp|tnd|currency|currencies|same currency|convert)\b", objective))
     if total_requested and not has_currency_context and re.search(r"\b(transaction|transactions|financial|payment|payments)\b", objective):
         diagnostics.append({"code":"currency_policy_unspecified","severity":"warning","message":"The financial aggregation does not state how multiple currencies are handled.","suggestion":"Confirm one currency, a conversion policy, or totals grouped by currency when mixed currencies are possible."})
-    count_requested = bool(re.search(r"\b(count|how many|number of)\\b", objective))
+    count_requested = bool(re.search(r"\b(count|how many|number of)\b", objective))
     if count_requested and "count" not in classes:
         diagnostics.append({"code": "missing_count", "severity": "error",
                             "message": "The objective requests a count, but no count goal is present.",
                             "suggestion": "Add a count goal with numeric output; do not substitute a summary."})
-    summary_requested = bool(re.search(r"\b(summarize|summarise|summary)\\b", objective))
+    summary_requested = bool(re.search(r"\b(summarize|summarise|summary)\b", objective))
     if summary_requested and "summarise" not in classes:
         diagnostics.append({"code": "missing_summary", "severity": "warning",
                             "message": "The objective requests a summary, but no summarise goal is present.",
@@ -100,7 +100,7 @@ def diagnose_goal_spec(prompt: str, spec: dict[str, Any]) -> list[dict[str, str]
         for goal in aggregations:
             declared_numeric = any(str(item).casefold() == "number" or str(item).casefold().startswith("number:")
                                    for item in goal.get("in", []))
-            field_named = bool(re.search(r"\b(amount|value|price|total|cost|balance|quantity)\\b",
+            field_named = bool(re.search(r"\b(amount|value|price|total|cost|balance|quantity)\b",
                                          str(goal.get("desc", ""))))
             if not declared_numeric and not field_named:
                 diagnostics.append({"code": "aggregation_field_unspecified", "severity": "warning",
