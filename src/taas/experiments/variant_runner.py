@@ -60,6 +60,7 @@ def run_pamcp_variant(
     goal_spec: dict[str, Any],
     policy: Policy,
     top_k: int = 5,
+    refine_k: int = 3,
 ) -> dict[str, Any]:
     """Run one PaMCP configuration without access to evaluator labels."""
     if variant_id not in VARIANT_IDS:
@@ -89,7 +90,9 @@ def run_pamcp_variant(
             lex_by_property={},
         )
 
-    engine_cfg = EngineConfig(composer=ComposerConfig(K=top_k), use_gap=bool(factors.G))
+    if not 0 <= refine_k <= 10:
+        raise ValueError("refine_k must be between 0 and 10")
+    engine_cfg = EngineConfig(composer=ComposerConfig(K=top_k), use_gap=bool(factors.G), refine_k=refine_k)
     engine = DiscoveryEngine(contracts, profile, trust=trust, cfg=engine_cfg)
     if factors.S == 1:
         result = engine.discover(spec, effective_policy)
@@ -112,6 +115,7 @@ def run_pamcp_variant(
             "composition_stats": result.compose.stats,
             "model_profile": profile.model_id,
             "model_profile_strict": profile.strict,
+            "refinement_iterations_allowed": refine_k,
             "evaluator_labels_accessed": False,
             "mcp_tools_executed": False,
         }
@@ -159,6 +163,7 @@ def run_pamcp_variant(
         "sanitized_manifest_tokens": 0,
         "model_profile": profile.model_id,
         "model_profile_strict": profile.strict,
+        "refinement_iterations_allowed": refine_k,
         "evaluator_labels_accessed": False,
         "mcp_tools_executed": False,
     }
