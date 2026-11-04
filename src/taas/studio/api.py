@@ -575,7 +575,7 @@ def model_runtime_status() -> dict[str, Any]:
     """Report runtime state for both configured inference providers."""
     state = get_model_runtime().status()
     state["providers"] = {
-        "huggingface": {"available": True, "model_loaded": state.get("model_loaded", False),
+        "huggingface": {"supported": True, "model_loaded": state.get("model_loaded", False),
                         "model_id": state.get("model_id"), "device": state.get("device")},
         "ollama": get_ollama_runtime().status(),
     }
@@ -587,6 +587,8 @@ def model_runtime_load(request: ModelLoadRequest) -> dict[str, Any]:
     """Explicitly download/load a selected HF model in this API process."""
     try:
         if request.provider == "ollama":
+            if request.device != "auto":
+                raise ValueError("Ollama manages device placement; omit device or use auto")
             return get_ollama_runtime().load(request.model_id)
         return get_model_runtime().load(request.model_id, request.device)
     except ValueError as exc:
