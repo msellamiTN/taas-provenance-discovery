@@ -1,0 +1,487 @@
+{
+  "schema_version": "1.0.0",
+  "title": "PaMCP baseline method and adapter registry",
+  "policy": "Baseline names are not fidelity claims. `ready`, `partial_adapter`, `adapter_to_build` and `planned` distinguish implementation maturity.",
+  "comparison_tracks": {
+    "retrieval": "BM25, Dense-LSA, RAG-MCP, MCP-Zero, COLT-style, ToolScope-style, CMTF-style and per-subtask.",
+    "end_to_end": "All methods run under the same task, prompt/model, visible registry, principal policy, token/time budget and evaluator; runtime methods also use the same sandbox/judge.",
+    "security": "Progent/Fides/CaMeL are runtime security comparators, not retrieval baselines. Report both utility and enforcement outcome.",
+    "experience": "AutoTool (AAAI 2026) is restricted to E21 and requires confirmed trajectory records."
+  },
+  "fairness_protocol": [
+    "Use identical query/task IDs, registry snapshot, server availability and visibility set.",
+    "Give baseline methods only information permitted by their method; evaluator gold labels are not available to discovery-time queries.",
+    "Fit all learned indexes, scene graphs and cluster thresholds on training/development data only; never train on test qrels.",
+    "Use same top-k/tool exposure budget where the method allows it; separately report stepwise frontier and cumulative union for planners.",
+    "Report native/official reproduction, clean-room implementation, adaptation and surrogate separately.",
+    "Preserve server::tool identity, provider, definition hash, effects and evidence through merger/adaptation layers.",
+    "For E13/E14 use the same real execution runtime, model, judge, tool budgets, timeout and injection cases.",
+    "Record exact commit, adapter version, parameter JSON, model/tokenizer version, seeds and raw rankings."
+  ],
+  "baselines": [
+    {
+      "id": "all_tools",
+      "name": "All-tools exposure",
+      "kind": "control",
+      "implementation": "ready",
+      "method": "Expose the entire visible registry without filtering or ranking.",
+      "outputs": [
+        "full_toolset"
+      ],
+      "params": {},
+      "experiments": [
+        "E4",
+        "E5",
+        "E6",
+        "E7",
+        "E9",
+        "E10",
+        "E13",
+        "E14"
+      ]
+    },
+    {
+      "id": "bm25",
+      "name": "BM25 lexical retrieval",
+      "kind": "retrieval_control",
+      "implementation": "ready",
+      "method": "Rank tool names, server names, classes and descriptions with BM25; no model embedding, type closure or policy reasoning.",
+      "params": {
+        "k1": 1.5,
+        "b": 0.75,
+        "top_k": 10
+      },
+      "experiments": [
+        "E8",
+        "E9",
+        "E13",
+        "E15",
+        "E18",
+        "E22"
+      ]
+    },
+    {
+      "id": "dense_lsa",
+      "name": "Dense retrieval (LSA surrogate)",
+      "kind": "retrieval_control",
+      "implementation": "ready_surrogate",
+      "method": "Rank registry descriptions by cosine similarity using the repository's TF-IDF plus truncated-SVD encoder. This is a dense-retrieval surrogate, not BGE-M3.",
+      "params": {
+        "encoder": "LSAEncoder",
+        "dimension": 128,
+        "seed": 0,
+        "top_k": 10
+      },
+      "experiments": [
+        "E8",
+        "E9",
+        "E13",
+        "E15",
+        "E18",
+        "E22"
+      ]
+    },
+    {
+      "id": "rag_mcp",
+      "name": "RAG-MCP-style global top-k",
+      "kind": "external_adaptation",
+      "implementation": "ready_adaptation",
+      "method": "Embed the whole request and return top-k tools from the global catalogue. No task decomposition, tool-set constraints or official upstream code reproduction is claimed.",
+      "params": {
+        "ranker": "dense_lsa",
+        "top_k": [
+          3,
+          5,
+          10
+        ]
+      },
+      "experiments": [
+        "E8",
+        "E9",
+        "E13",
+        "E14",
+        "E18",
+        "E22"
+      ]
+    },
+    {
+      "id": "mcp_zero",
+      "name": "MCP-Zero hierarchical routing",
+      "kind": "external_adaptation",
+      "implementation": "partial_adapter",
+      "method": "Route each goal to top server summaries, then rank tools within selected servers. Current adapter is single-pass; it does not reproduce MCP-Zero's LLM active-request loop or prompt protocol.",
+      "params": {
+        "top_servers": 1,
+        "per_goal_top_tools": 1,
+        "server_summary_max_chars": 4000,
+        "active_request_loop": false
+      },
+      "experiments": [
+        "E8",
+        "E9",
+        "E10",
+        "E11",
+        "E13",
+        "E14",
+        "E15",
+        "E18",
+        "E22"
+      ]
+    },
+    {
+      "id": "per_subtask",
+      "name": "Per-subtask hybrid retrieval",
+      "kind": "internal_control",
+      "implementation": "ready",
+      "method": "Retrieve independently for each authored subgoal, then union candidate tools. Does not perform global toolkit composition or joint validation.",
+      "params": {
+        "k_per_goal": 1,
+        "components": [
+          "lex",
+          "den"
+        ]
+      },
+      "experiments": [
+        "E8",
+        "E9",
+        "E10",
+        "E11",
+        "E13",
+        "E18",
+        "E22"
+      ]
+    },
+    {
+      "id": "colt_adapted",
+      "name": "COLT-style completeness retrieval",
+      "kind": "external_adaptation",
+      "implementation": "adapter_to_build",
+      "method": "Build query-tool and query-scene-tool co-use graphs from training queries only; rank tools with semantic relevance plus scene-neighbour support; optimize completeness-oriented top-k. Must use an explicit train split and never derive scenes from evaluation queries.",
+      "params": {
+        "top_k": 10,
+        "scene_weight": 0.5,
+        "semantic_weight": 0.5,
+        "training_split_required": true,
+        "scene_source": "training gold bundles only"
+      },
+      "experiments": [
+        "E8",
+        "E9",
+        "E10",
+        "E13",
+        "E18",
+        "E22"
+      ]
+    },
+    {
+      "id": "toolscope_adapted",
+      "name": "ToolScope-style merger and contextual retrieval",
+      "kind": "external_adaptation",
+      "implementation": "adapter_to_build",
+      "method": "Cluster candidate tools with a declared semantic-equivalence threshold, then context-rank within clusters. Preserve original provider/tool identities, hashes, effects and evidence; report merge precision, recall and false-equivalence rate. This clean-room adapter is not an exact reproduction of the paper's LLM merger/cross-encoder stack.",
+      "params": {
+        "merge_threshold": 0.82,
+        "rerank": "contextual_dense",
+        "preserve_provider_identity": true,
+        "merge_equivalence_validation": true
+      },
+      "experiments": [
+        "E8",
+        "E9",
+        "E10",
+        "E13",
+        "E14",
+        "E15",
+        "E18",
+        "E22"
+      ]
+    },
+    {
+      "id": "cmtf_adapted",
+      "name": "CMTF state-frontier planning",
+      "kind": "external_adaptation",
+      "implementation": "adapter_to_build",
+      "method": "Search typed precondition/effect states with breadth-first expansion; expose the next-step frontier and cumulative union. Adaptation maps TaaS semantic types/effects to planner states and must disclose how contracts were sourced.",
+      "params": {
+        "search": "breadth_first",
+        "frontier_only": true,
+        "also_report_cumulative_union": true,
+        "contract_source": "independent schema/human/probe contracts"
+      },
+      "experiments": [
+        "E8",
+        "E9",
+        "E10",
+        "E11",
+        "E13",
+        "E14",
+        "E15",
+        "E18",
+        "E22"
+      ]
+    },
+    {
+      "id": "autotool_adapted",
+      "name": "AutoTool (AAAI 2026) trajectory reuse",
+      "kind": "external_adaptation",
+      "implementation": "adapter_to_build",
+      "method": "Retrieve and reuse confirmed historical execution trajectories, with registry/hash/policy revalidation before reuse. Only E21; do not confuse this with a differently named AutoTool publication.",
+      "params": {
+        "trajectory_repository_required": true,
+        "staleness_revalidation": true,
+        "repository_size": [
+          0,
+          50,
+          200,
+          1000
+        ]
+      },
+      "experiments": [
+        "E21"
+      ]
+    },
+    {
+      "id": "mcp_default_annotations",
+      "name": "MCP default annotation reading",
+      "kind": "policy_control",
+      "implementation": "ready_policy_control",
+      "method": "Treat published MCP annotations as declarations with default client interpretation. Report the actual hint values and do not call the hints independently verified evidence.",
+      "params": {
+        "missing_hint": "unspecified",
+        "positive_read_only_hint": true
+      },
+      "experiments": [
+        "E4",
+        "E5",
+        "E6",
+        "E7",
+        "E18"
+      ]
+    },
+    {
+      "id": "closed_world_annotations",
+      "name": "Closed-world annotation filter",
+      "kind": "policy_control",
+      "implementation": "ready_policy_control",
+      "method": "Interpret missing/false read-only annotation as failing the read-only condition. Kept distinct from MCP-default semantics and from the deliberately unsafe declared-only ablation.",
+      "params": {
+        "require_readOnlyHint": true,
+        "missing_hint": "reject",
+        "false_hint": "reject"
+      },
+      "experiments": [
+        "E4",
+        "E5",
+        "E6",
+        "E7",
+        "E18"
+      ]
+    },
+    {
+      "id": "lexical_positive",
+      "name": "Positive lexical evidence filter",
+      "kind": "policy_control",
+      "implementation": "ready_policy_control",
+      "method": "Admit only tools whose lexical property evidence passes the configured property threshold; lexical inference is not observed execution evidence.",
+      "params": {
+        "min_evidence": "lex",
+        "encoding": "positive"
+      },
+      "experiments": [
+        "E4",
+        "E5",
+        "E6",
+        "E7",
+        "E18"
+      ]
+    },
+    {
+      "id": "lexical_closed_world",
+      "name": "Closed-world lexical filter",
+      "kind": "policy_control",
+      "implementation": "ready_policy_control",
+      "method": "Exclude tools with lexical violation cues; unknown/missing cues are handled according to the specified closed-world rule.",
+      "params": {
+        "min_evidence": "lex",
+        "encoding": "closed_world"
+      },
+      "experiments": [
+        "E4",
+        "E5",
+        "E6",
+        "E7",
+        "E18"
+      ]
+    },
+    {
+      "id": "verified_evidence",
+      "name": "Observed/attested evidence eligibility",
+      "kind": "policy_control",
+      "implementation": "core_method",
+      "method": "Use property-specific trust thresholds over hash-bound observed or attested evidence; distinguish empirical probe coverage and signer trust.",
+      "params": {
+        "evidence_levels": [
+          "obs",
+          "att"
+        ],
+        "property_specific": true,
+        "hash_bound": true
+      },
+      "experiments": [
+        "E4",
+        "E5",
+        "E6",
+        "E7",
+        "E18"
+      ]
+    },
+    {
+      "id": "progent_runtime",
+      "name": "Progent-style runtime policy enforcement",
+      "kind": "security_comparator",
+      "implementation": "adapter_to_build",
+      "method": "Enforce per-tool effect and argument restrictions immediately before invocation; report denial/fallback and policy-update behavior separately from retrieval quality.",
+      "params": {
+        "enforcement_point": "before_tool_call",
+        "default_deny": false,
+        "z3_subset_check": "optional"
+      },
+      "experiments": [
+        "E13",
+        "E14"
+      ]
+    },
+    {
+      "id": "fides_ifc",
+      "name": "Fides-style information-flow control",
+      "kind": "security_comparator",
+      "implementation": "adapter_to_build",
+      "method": "Propagate confidentiality/integrity labels through tool inputs and outputs and enforce declassification/output policies. Not a retrieval baseline.",
+      "params": {
+        "label_propagation": "join",
+        "declassification": "explicit",
+        "enforcement_point": "runtime"
+      },
+      "experiments": [
+        "E10",
+        "E13",
+        "E14"
+      ]
+    },
+    {
+      "id": "camel_ifc",
+      "name": "CaMeL-style taint and capability enforcement",
+      "kind": "security_comparator",
+      "implementation": "adapter_to_build",
+      "method": "Track data dependency labels and check tool-call policies at the interpreter boundary. Requires an agent interpreter/runtime integration; not a retrieval baseline.",
+      "params": {
+        "taint_tracking": true,
+        "policy_check": "before_tool_call"
+      },
+      "experiments": [
+        "E10",
+        "E13",
+        "E14"
+      ]
+    },
+    {
+      "id": "linear_scan",
+      "name": "Linear eligibility scan",
+      "kind": "systems_control",
+      "implementation": "ready",
+      "method": "Scan every tool/property record to compute eligibility; compare with bitmap eligibility under identical policy semantics.",
+      "params": {
+        "index": "none"
+      },
+      "experiments": [
+        "E15"
+      ]
+    },
+    {
+      "id": "full_rebuild",
+      "name": "Full registry rebuild",
+      "kind": "systems_control",
+      "implementation": "ready_control",
+      "method": "Rebuild contracts, hypergraph, retrieval structures and eligibility state from the complete new registry snapshot after each event.",
+      "params": {
+        "update_mode": "full_rebuild"
+      },
+      "experiments": [
+        "E16"
+      ]
+    },
+    {
+      "id": "no_refinement",
+      "name": "No counterexample-guided refinement",
+      "kind": "internal_control",
+      "implementation": "ready_control",
+      "method": "Run the selected discovery configuration once and do not apply counterexample-guided repair.",
+      "params": {
+        "refine_k": 0
+      },
+      "experiments": [
+        "E17",
+        "E18"
+      ]
+    },
+    {
+      "id": "self_assessed_profile",
+      "name": "Unverified model self-assessment",
+      "kind": "calibration_control",
+      "implementation": "planned",
+      "method": "Use model-declared capability/confidence without external calibration; report it only as a self-assessment control.",
+      "params": {
+        "calibration": "none"
+      },
+      "experiments": [
+        "E12",
+        "E19"
+      ]
+    },
+    {
+      "id": "uncalibrated_profile",
+      "name": "Strict uncalibrated model profile",
+      "kind": "calibration_control",
+      "implementation": "ready_control",
+      "method": "Assign no native capability to unmeasured classes in strict mode.",
+      "params": {
+        "strict": true,
+        "unmeasured_rho": 0
+      },
+      "experiments": [
+        "E11",
+        "E12",
+        "E19"
+      ]
+    },
+    {
+      "id": "calibrated_profile",
+      "name": "Empirically calibrated model profile",
+      "kind": "core_method",
+      "implementation": "core_method",
+      "method": "Use reliability estimates measured on a task-class/input-size calibration set with uncertainty and profile versioning.",
+      "params": {
+        "calibration": "held_out_empirical"
+      },
+      "experiments": [
+        "E11",
+        "E12",
+        "E19",
+        "E20"
+      ]
+    },
+    {
+      "id": "no_experience",
+      "name": "No trajectory experience reuse",
+      "kind": "internal_control",
+      "implementation": "ready_control",
+      "method": "Do not retrieve historical trajectories; serves as the zero-memory control for AutoTool-style E21 comparison.",
+      "params": {
+        "experience_reuse": false
+      },
+      "experiments": [
+        "E21"
+      ]
+    }
+  ]
+}
