@@ -125,7 +125,7 @@ def build_refinement_context(objective: str, prior_output: str, diagnostics: lis
         + "\n\nAllowed exact semantic type strings from Θ.common_types (copy verbatim; do not "
         "pluralize, normalize, or invent a type):\n"
         + allowed_types
-        + "\n\nDependency correction rule: `deps` contains only IDs of other goals in this GoalSpec. "
+        + "\n\nDependency correction rule: `deps` contains only IDs of other goals (goal IDs) in this GoalSpec. "
         "It is not a list of prompt inputs, variable names, semantic types, or field names. "
         "The value `query` is an input name/type, not a goal ID; remove it from deps. "
         "Keep the query represented in prompt_inputs and the goal.in fields using the exact Θ type. "
