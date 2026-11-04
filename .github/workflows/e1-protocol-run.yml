@@ -1,0 +1,86 @@
+name: PaMCP E1 Protocol Run
+
+on:
+  push:
+    branches: ["research/pamcp-experimental-v1"]
+    paths:
+      - "experiments/e1_protocol_runner.py"
+      - "scripts/fetch_data.sh"
+      - "tests/test_e1_protocol_runner.py"
+      - "docs/experiment_design/run_manifest.schema.json"
+      - ".github/workflows/e1-protocol-run.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e1-protocol-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install E1 runtime and test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[test,experiment]"
+      - name: Preserve the committed merged registry snapshot
+        run: |
+          test -s data/processed/registry_merged.json
+          cp data/processed/registry_merged.json /tmp/registry_merged_committed.json
+          sha256sum /tmp/registry_merged_committed.json
+      - name: Rebuild pinned LiveMCPTool and MCPToolBench++ inputs
+        run: bash scripts/fetch_data.sh
+      - name: Run protocol E1 over all three registry views
+        run: |
+          python experiments/e1_protocol_runner.py \
+            --root . \
+            --output results/definitive/E1 \
+            --committed-merged /tmp/registry_merged_committed.json
+      - name: Validate E1 run manifest and protocol outputs
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from jsonschema import validate
+          run_dirs = sorted(Path("results/definitive/E1").glob("E1-*"))
+          assert run_dirs, "E1 run directory was not created"
+          run_dir = run_dirs[-1]
+          manifest = json.loads((run_dir / "MANIFEST.json").read_text())
+          schema = json.loads(Path("docs/experiment_design/run_manifest.schema.json").read_text())
+          validate(manifest, schema)
+          summary = json.loads((run_dir / "summary.json").read_text())
+          assert [x["tool_count"] for x in summary["datasets"]] == [525, 87, 569]
+          assert [x["server_count"] for x in summary["datasets"]] == [69, 10, 76]
+          assert summary["server_categories"]["observed"] == 14
+          assert summary["definition_hash_validation"]["validated_merged_tool_count"] == 569
+          print(json.dumps({
+              "run_id": manifest["run_id"],
+              "manifest_status": manifest["status"],
+              "reference_label_status": summary["reference_labels"]["status"],
+              "hash_mismatches": summary["definition_hash_validation"]["mismatch_count"],
+              "committed_snapshot_matches_rebuilt": manifest["metrics"]["committed_snapshot_matches_rebuilt"],
+          }, indent=2))
+          with open(__import__("os").environ["GITHUB_STEP_SUMMARY"], "a") as f:
+              f.write("## E1 protocol run\n\n")
+              f.write(f"- Run ID: `{manifest['run_id']}`\n")
+              f.write(f"- Manifest status: **{manifest['status']}**\n")
+              f.write(f"- Reference-label status: **{summary['reference_labels']['status']}**\n")
+              f.write(f"- Hash mismatches: **{summary['definition_hash_validation']['mismatch_count']}**\n")
+              f.write(f"- Committed registry matches source rebuild: **{manifest['metrics']['committed_snapshot_matches_rebuilt']}**\n")
+          PY
+      - name: Run E1 protocol runner regression tests
+        run: python -m pytest -q tests/test_e1_protocol_runner.py
+      - name: Upload immutable E1 execution bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PaMCP-E1-protocol-run
+          path: results/definitive/E1/
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 6
