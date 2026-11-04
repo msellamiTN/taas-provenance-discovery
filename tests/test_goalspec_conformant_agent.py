@@ -761,3 +761,16 @@ def test_count_combined_with_grouped_aggregate_keeps_both_output_contracts():
     ]}
     diagnostics = diagnose_objective_alignment(prompt, spec)
     assert not [item for item in diagnostics if item["severity"] == "error"]
+
+
+def test_refinement_lists_exact_theta_types_and_forbids_pluralized_inventions():
+    context = build_refinement_context(
+        "Retrieve records from the configured source.",
+        '{"goals":[{"id":"g1","class":"retrieve","out":"records[]"}]}',
+        [{"code": "goalspec_structural_nonconformance", "severity": "error",
+          "message": "goal_spec.goals[0].out uses an undeclared Θ semantic type string 'records[]'"}],
+    )
+    assert "Allowed exact semantic type strings from Θ.common_types" in context
+    assert '"record[]"' in context
+    assert "copy verbatim" in context
+    assert "Never repeat a rejected type" in context
