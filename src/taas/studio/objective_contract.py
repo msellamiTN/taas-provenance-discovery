@@ -98,7 +98,7 @@ def derive_objective_contract(
     supplied_marker = r"(?:user[- ]?)?(?:supplied|provided|attached|uploaded|given)"
     user_supplied_content = bool(re.search(
         rf"\b(?:this|these|following|provided|attached|uploaded|above|below|selected|given|supplied)\s+{content_noun}\b"
-        rf"|\b(?:these|those|the)\s+(?:(?:one|two|three|four|five|several|multiple|both)\s+)?{supplied_marker}\s+{content_noun}\b"
+        rf"|\\b(?:these|those|the|a|an)\\s+(?:(?:one|two|three|four|five|several|multiple|both)\\s+)?{supplied_marker}\\s+(?:[a-z][a-z0-9_-]*\\s+){{0,3}}{content_noun}\\b"
         rf"|\b{content_noun}\s+(?:that\s+is\s+)?{supplied_marker}\b"
         rf"|\b{content_noun}\b.{{0,40}}\b{supplied_marker}\s+(?:in|with|by)\s+(?:the\s+)?(?:prompt|request|message|user)\b",
         lower,
