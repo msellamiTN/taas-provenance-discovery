@@ -31,7 +31,7 @@ def _write_synthetic_source_tree(root: Path) -> None:
     server_tools = {}
     server_categories = {}
     for i in range(525):
-        server_index = i % 69
+        server_index = (i % 3) if i < 43 else (3 + ((i - 43) % 66))
         server = f"live-s{server_index:02d}"
         category = f"LiveCategory{server_index % 8}"
         server_categories[server] = category
@@ -51,8 +51,8 @@ def _write_synthetic_source_tree(root: Path) -> None:
         live_tools.append((server, row))
         server_tools.setdefault(server, []).append(row)
 
-    # 43 source definitions overlap on seven LiveMCPTool servers.
-    overlap = [(srv, row) for srv, row in live_tools if int(srv[-2:]) < 7][:43]
+    # 43 source definitions overlap on three LiveMCPTool servers.
+    overlap = [(srv, row) for srv, row in live_tools if int(srv[-2:]) < 3][:43]
     assert len(overlap) == 43
     live_by_server = {}
     for server, rows in server_tools.items():
@@ -61,7 +61,7 @@ def _write_synthetic_source_tree(root: Path) -> None:
     live_doc = [{"category": cat, "tools": servers} for cat, servers in sorted(live_by_server.items())]
     (live_root / "tools.json").write_text(json.dumps(live_doc), encoding="utf-8")
 
-    pp_servers = [f"live-s{i:02d}" for i in range(7)] + ["pp-srv-0", "pp-srv-1", "pp-srv-2"]
+    pp_servers = [f"live-s{i:02d}" for i in range(3)] + [f"pp-srv-{i}" for i in range(7)]
     pp_categories = ["browser", "file_system", "finance", "map", "pay", "search"]
     pp_rows = []
     for i, (server, tool) in enumerate(overlap):
