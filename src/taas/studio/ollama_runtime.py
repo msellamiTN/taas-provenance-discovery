@@ -13,7 +13,7 @@ from typing import Any
 from taas.studio.model_runtime import (
     ModelRuntimeError, ROOT, diagnose_goal_spec, parse_goal_spec_response,
 )
-from taas.studio.analyst_contract import build_analyst_system_prompt, build_refinement_context
+from taas.studio.analyst_contract import build_analyst_system_prompt
 
 
 class OllamaModelRuntime:
@@ -116,7 +116,10 @@ class OllamaModelRuntime:
     def decompose(self, prompt: str, context: str = "", max_new_tokens: int = 1200) -> dict[str, Any]:
         if not prompt.strip():
             raise ValueError("prompt must not be empty")
-        system = build_analyst_system_prompt()
+        try:
+            system = build_analyst_system_prompt()
+        except RuntimeError as exc:
+            raise ModelRuntimeError(str(exc)) from exc
         user = "Objective:\n" + prompt.strip()
         if context.strip():
             user += "\n\nAdditional context:\n" + context.strip()
