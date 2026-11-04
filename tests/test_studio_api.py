@@ -1078,6 +1078,10 @@ def test_model_runtime_status_reports_actual_process_state(monkeypatch):
                     "device": "cpu", "dtype": "float32", "inference_executed": False}
 
     monkeypatch.setattr(api, "get_model_runtime", lambda: Runtime())
+    class Ollama:
+        def status(self):
+            return {"provider": "ollama", "available": False, "models": []}
+    monkeypatch.setattr(api, "get_ollama_runtime", lambda: Ollama())
     response = client.get("/api/v1/models/runtime",
                           headers={"Authorization": "Bearer test-token"})
     assert response.status_code == 200
@@ -1531,3 +1535,83 @@ def test_agent_registry_snapshot_binding_is_one_time_and_audited(monkeypatch, tm
     assert published["registry_snapshot_id"] == snapshot["snapshot_id"]
     events = agent_registry.list_events("support-assistant")["events"]
     assert events[0]["registry_snapshot_id"] == snapshot["snapshot_id"]
+
+
+def test_ollama_provider_load_chat_and_status(monkeypatch):
+    from taas.studio.ollama_runtime import OllamaModelRuntime
+
+    monkeypatch.setenv("TAAS_OLLAMA_BASE_URL", "http://127.0.0.1:11434")
+    runtime = OllamaModelRuntime()
+    calls = []
+
+    def fake_request(path, payload=None, timeout=30):
+        calls.append((path, payload))
+        if path == "/api/show":
+            return {"modelfile": "FROM qwen2.5"}
+        if path == "/api/tags":
+            return {"models": [{"name": "qwen2.5:0.5b", "size": 123}]}
+        if path == "/api/chat":
+            return {"message": {"content": "hello"}, "prompt_eval_count": 4, "eval_count": 2}
+        raise AssertionError(path)
+
+    monkeypatch.setattr(runtime, "_request", fake_request)
+    selected = runtime.load("qwen2.5:0.5b")
+    assert selected["model_selected"] == "qwen2.5:0.5b"
+    assert selected["load_semantics"].startswith("validated")
+    assert selected["available"] is True
+    result = runtime.chat("hi")
+    assert result["text"] == "hello"
+    assert result["provider"] == "ollama"
+    assert result["device"] == "managed-by-ollama"
+    assert calls[0][0] == "/api/show"
+    assert calls[-1][0] == "/api/chat"
+
+
+def test_ollama_provider_rejects_invalid_model_tag():
+    from taas.studio.ollama_runtime import OllamaModelRuntime
+
+    with pytest.raises(ValueError):
+        OllamaModelRuntime().load("../unsafe model")
+
+
+def test_ollama_provider_rejects_embedded_credentials_in_endpoint(monkeypatch):
+    from taas.studio.ollama_runtime import OllamaModelRuntime, ModelRuntimeError
+
+    monkeypatch.setenv("TAAS_OLLAMA_BASE_URL", "http://user:pass@example.test:11434")
+    with pytest.raises(ModelRuntimeError):
+        OllamaModelRuntime().status()
+
+
+def test_model_load_endpoint_routes_to_ollama_provider(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+
+    class Ollama:
+        def load(self, model_id):
+            return {"provider": "ollama", "model_selected": model_id}
+
+    monkeypatch.setattr(api, "get_ollama_runtime", lambda: Ollama())
+    response = client.post("/api/v1/models/load",
+                           headers={"Authorization": "Bearer test-token"},
+                           json={"provider": "ollama", "model_id": "qwen2.5:0.5b"})
+    assert response.status_code == 200
+    assert response.json()["provider"] == "ollama"
+
+
+def test_model_chat_endpoint_routes_to_ollama_provider(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+
+    class Ollama:
+        def chat(self, message, system, max_new_tokens, temperature):
+            return {"provider": "ollama", "text": "response", "device": "managed-by-ollama"}
+
+    monkeypatch.setattr(api, "get_ollama_runtime", lambda: Ollama())
+    response = client.post("/api/v1/models/chat",
+                           headers={"Authorization": "Bearer test-token"},
+                           json={"provider": "ollama", "message": "hello"})
+    assert response.status_code == 200
+    assert response.json()["provider"] == "ollama"
+    assert response.json()["text"] == "response"
