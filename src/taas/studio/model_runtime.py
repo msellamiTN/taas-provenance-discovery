@@ -18,7 +18,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-ROOT = Path(__file__).resolve().parents[3]
+ROOT = Path(__file__).resolve().parents[3]\n\nfrom taas.studio.analyst_contract import build_analyst_system_prompt, build_refinement_context
 
 
 class ModelRuntimeError(RuntimeError):
@@ -233,20 +233,7 @@ class HuggingFaceModelRuntime:
     def decompose(self, prompt: str, context: str = "", max_new_tokens: int = 1200) -> dict[str, Any]:
         if not prompt.strip():
             raise ValueError("prompt must not be empty")
-        guide_path = ROOT / "docs" / "ANALYST_GUIDE.md"
-        theta_path = ROOT / "data" / "processed" / "theta.json"
-        if not guide_path.is_file() or not theta_path.is_file():
-            raise ModelRuntimeError("Analyst guide or semantic type vocabulary is missing from this installation")
-        guide = guide_path.read_text(encoding="utf-8")
-        theta = theta_path.read_text(encoding="utf-8")
-        system = (
-            guide + "\n\nSemantic type vocabulary (Θ):\n" + theta
-            + "\n\nPRIORITY SEMANTIC RULES: preserve the requested operation. Calculating a total or sum requires aggregate or compute_exact with numeric output; summarise is not aggregation. Use exactness=exact for exact arithmetic. Preserve all/every scope; n is not proof of completeness. Surface currency ambiguity for financial totals."
-            + "\n\nSTRICT OUTPUT: exactly one JSON object with only prompt (optional), "
-              "prompt_inputs (array), and goals (array). Do not emit id/query/context wrappers, "
-              "Markdown fences, or commentary. Never claim semantic correctness is verified."
-        )
-        user_content = "Objective:\n" + prompt.strip()
+        system = build_analyst_system_prompt()\n        user_content = "Objective:\n" + prompt.strip()
         if context.strip():
             user_content += "\n\nAdditional context:\n" + context.strip()
         result = self._generate(
