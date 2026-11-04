@@ -616,6 +616,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <h2>3 · Goal-oriented agent design</h2><p class="muted">Ask the loaded model to decompose a natural-language objective into the canonical TaaS GoalSpec. The result is a proposal, not a semantic correctness proof and not an execution plan authorization.</p>
       <label for="agent-goal-prompt">Agent objective</label><textarea id="agent-goal-prompt" rows="3" style="min-height:90px" placeholder="Find current information, summarize it, and save a Markdown report…"></textarea>
       <button id="agent-decompose" type="button">Decompose objective with loaded model</button><div id="agent-decompose-status" class="status" role="status" aria-live="polite">No decomposition requested.</div><pre id="agent-decompose-result">The model's GoalSpec proposal will appear here.</pre>
+      <div id="agent-semantic-diagnostics" class="goal-validation" role="status" aria-live="polite">Semantic diagnostics appear after decomposition. Heuristic warnings are not a correctness proof.</div>
       <div class="inline-actions"><button id="agent-apply-goals" type="button" class="secondary" disabled>Apply proposal to GoalSpec editor</button><span class="subtle">Applying replaces the current visual GoalSpec draft; review and validate it before discovery.</span></div>
     </section>
     <section id="agent-manifest-panel" style="box-shadow:none;padding:22px;margin-top:14px;border:1px solid var(--line);border-radius:12px;background:#fff">
@@ -1612,15 +1613,23 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   $("agent-decompose").addEventListener("click",async()=>{
     const button=$("agent-decompose");button.disabled=true;$("agent-decompose-status").textContent="Decomposing objective with the loaded model…";$("agent-apply-goals").disabled=true;pendingAgentGoalSpec=null;
     try{const result=await runtimePost("/api/v1/agents/decompose",{prompt:$("agent-goal-prompt").value,max_new_tokens:1200});$("agent-decompose-result").textContent=JSON.stringify(result,null,2);
-      if(result.json_valid&&result.structural_validation?.valid){pendingAgentGoalSpec=result.goal_spec;$("agent-apply-goals").disabled=false;$("agent-decompose-status").textContent="GoalSpec proposal parsed and structurally valid. Semantic correctness is not verified.";}
-      else{$("agent-decompose-status").textContent="Model response is not an acceptable GoalSpec. Inspect the response and refine the objective.";}
+      if(result.json_valid&&result.structural_validation?.valid){
+        pendingAgentGoalSpec=result.goal_spec;$("agent-apply-goals").disabled=false;
+        const diagnostics=result.semantic_diagnostics||[];
+        $("agent-semantic-diagnostics").className="goal-validation"+(diagnostics.some(x=>x.severity==="error")?" invalid":diagnostics.length?"":" valid");
+        $("agent-semantic-diagnostics").textContent=diagnostics.length
+          ? "Semantic review required · "+diagnostics.length+" heuristic diagnostic(s): "+diagnostics.map(x=>x.code+": "+x.message+" Suggested action: "+x.suggestion).join(" | ")
+          : "No heuristic issue detected. This is not proof of semantic correctness; review the objective-to-goal mapping.";
+        $("agent-decompose-status").textContent="GoalSpec proposal parsed and structurally valid. Semantic correctness is not verified; review diagnostics before applying.";
+      }
+      else{$("agent-semantic-diagnostics").className="goal-validation invalid";$("agent-semantic-diagnostics").textContent="No semantic review: response did not pass parsing and structural validation.";$("agent-decompose-status").textContent="Model response is not an acceptable GoalSpec. Inspect the response and refine the objective.";}
     }catch(e){$("agent-decompose-status").textContent="Agent decomposition failed: "+e.message;}finally{button.disabled=false;}
   });
   $("agent-apply-goals").addEventListener("click",()=>{
     if(!pendingAgentGoalSpec)return;const spec=pendingAgentGoalSpec;goalSpecState.prompt=spec.prompt||$("agent-goal-prompt").value.trim();
     goalSpecState.prompt_inputs_text=(spec.prompt_inputs||["text"]).join(", ");
     goalSpecState.goals=(spec.goals||[]).map(g=>({id:g.id,class:g.class,in:g.in||[],out:g.out,eff:g.eff||[],sigma:g.sigma||"native",desc:g.desc||"",deps:g.deps||[],n:g.n||1,exactness:g.exactness||"tolerant",lang:g.lang||"en",optional:Boolean(g.optional)}));
-    renderGoalEditor();getGoalSpec();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Agent proposal applied. Review semantic intent and validate before discovery.";
+    renderGoalEditor();getGoalSpec();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Agent proposal applied as an editable draft. Review objective coverage, semantic diagnostics, types and dependencies; then validate before discovery. Applying does not prove correctness or authorize execution.";
     document.querySelector("#goal-editor").scrollIntoView({behavior:"smooth",block:"start"});
   });
 
