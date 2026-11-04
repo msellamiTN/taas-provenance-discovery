@@ -98,17 +98,27 @@ def validate_theta_types(spec: dict[str, Any]) -> str | None:
 
 
 def build_refinement_context(objective: str, prior_output: str, diagnostics: list[dict[str, str]]) -> str:
-    """Bounded repair instructions; preserve the objective and never hide unresolved issues."""
+    """Bounded repair instructions; preserve intent and copy only declared Theta types."""
+    try:
+        _, theta = load_analyst_contract()
+        allowed_types = json.dumps(theta["common_types"], ensure_ascii=False)
+    except RuntimeError:
+        allowed_types = "unavailable: canonical Θ vocabulary could not be loaded"
     return (
-        "GOALSPEC CONFORMANCE REFINEMENT — attempt 2 of 2.\n"
-        "Original objective (immutable; do not narrow, reinterpret, or replace it):\n"
+        "GOALSPEC CONFORMANCE REFINEMENT — attempt 2 of 2.\\n"
+        "Original objective (immutable; do not narrow, reinterpret, or replace it):\\n"
         + objective.strip()
-        + "\n\nPrevious candidate (untrusted; correct it rather than defending it):\n"
+        + "\\n\\nPrevious candidate (untrusted; correct it rather than defending it):\\n"
         + prior_output[:12000]
-        + "\n\nDeterministic Core validation/intent diagnostics:\n"
+        + "\\n\\nDeterministic Core validation/intent diagnostics:\\n"
         + json.dumps(diagnostics, ensure_ascii=False)
-        + "\n\nReturn a complete replacement GoalSpec JSON object. Resolve every structural/type error "
-        "and every severity=error intent diagnostic without changing the objective. Preserve unresolved "
-        "ambiguity explicitly; do not invent schema domains or data facts. Warnings may remain and must "
-        "not be hidden. Output JSON only."
+        + "\\n\\nAllowed exact semantic type strings from Θ.common_types (copy verbatim; do not "
+        "pluralize, normalize, or invent a type):\\n"
+        + allowed_types
+        + "\\n\\nReturn a complete replacement GoalSpec JSON object. Resolve every structural/type error "
+        "and every severity=error intent diagnostic without changing the objective. If a collection's "
+        "business schema is unresolved, use the exact generic type 'record[]' when it is present in the "
+        "allowed list and preserve the business concept in the goal description. Never repeat a rejected "
+        "type. Preserve unresolved ambiguity explicitly; do not invent schema domains or data facts. "
+        "Warnings may remain and must not be hidden. Output JSON only."
     )
