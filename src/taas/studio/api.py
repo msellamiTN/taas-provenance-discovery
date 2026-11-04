@@ -151,6 +151,36 @@ def require_api_token(
 app.include_router(build_assurance_router(require_api_token))
 
 
+def classify_core_gap_requirements(goals: list[Any], gap_goal_ids: list[str]) -> dict[str, Any]:
+    """Separate external tool requirements from uncovered model-native capabilities.
+
+    This is a presentation/diagnostic classification only: it does not change
+    gap_analysis, model rho, eligibility, discovery, or execution authorization.
+    """
+    gap_ids = set(gap_goal_ids)
+    tool_required = [
+        str(goal.id) for goal in goals
+        if str(goal.id) in gap_ids and str(goal.cls) in EXTERNAL_CLASSES
+    ]
+    model_capability_gaps = [
+        str(goal.id) for goal in goals
+        if str(goal.id) in gap_ids and str(goal.cls) not in EXTERNAL_CLASSES
+    ]
+    if tool_required and model_capability_gaps:
+        status = "tool_and_model_capability_gaps_detected"
+    elif tool_required:
+        status = "tool_requirements_detected"
+    elif model_capability_gaps:
+        status = "capability_gap_detected"
+    else:
+        status = "model_coverage_candidate"
+    return {
+        "status": status,
+        "tool_required_goal_ids": tool_required,
+        "model_capability_gap_goal_ids": model_capability_gaps,
+    }
+
+
 def load_profile() -> ModelProfile:
     """Load optional calibration; otherwise use an explicitly uncalibrated, fail-closed profile.
 
@@ -1009,10 +1039,12 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
             core_spec = parse_studio_goal_spec(copy.deepcopy(result["goal_spec"]))
             gap = gap_analysis(core_spec, profile)
             ordered = core_spec.order() or []
+            gap_requirements = classify_core_gap_requirements(
+                ordered, [goal.id for goal in gap.gap]
+            )
             core_analysis = {
-                "status": "clarification_required" if gap.clarify else (
-                    "capability_gap_detected" if gap.gap else "model_coverage_candidate"
-                ),
+                **gap_requirements,
+                "status": "clarification_required" if gap.clarify else gap_requirements["status"],
                 "model_profile": {
                     "model_id": profile.model_id, "calibrated_profile_matched": profile_matches,
                     "strict": profile.strict, "threshold": profile.tau,
