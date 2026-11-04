@@ -48,6 +48,38 @@ def parse_goal_spec_response(raw: str) -> tuple[dict[str, Any] | None, str | Non
     return parsed, None
 
 
+
+def diagnose_goal_spec(prompt: str, spec: dict[str, Any]) -> list[dict[str, str]]:
+    """Return conservative deterministic warnings; this is not a semantic verifier."""
+    objective = (prompt or spec.get("prompt") or "").casefold()
+    goals = spec.get("goals", []) if isinstance(spec, dict) else []
+    classes = {str(g.get("class", "")).casefold() for g in goals if isinstance(g, dict)}
+    diagnostics: list[dict[str, str]] = []
+    total_requested = bool(re.search(r"\b(sum|summation|aggregate|total value|sum of|calculate\s+(?:the\s+)?total)\b", objective))
+    if total_requested and not ({"aggregate", "compute_exact"} & classes):
+        diagnostics.append({"code":"missing_aggregation","severity":"error","message":"The objective requests a total or sum, but no aggregate/compute_exact goal is present. A summary is not a calculation.","suggestion":"Add an aggregate or compute_exact goal that consumes numeric values and produces number."})
+    if total_requested and ({"aggregate", "compute_exact"} & classes):
+        aggregation_outputs = [
+            str(g.get("out", "")).casefold() for g in goals
+            if isinstance(g, dict) and str(g.get("class", "")).casefold() in {"aggregate", "compute_exact"}
+        ]
+        if not any(value == "number" or value.startswith("number:") for value in aggregation_outputs):
+            diagnostics.append({"code":"aggregation_output_not_numeric","severity":"error","message":"The objective requests a numeric total, but no proposed goal declares a numeric output.","suggestion":"Set the aggregation result type to number."})
+        exact_goals = [g for g in goals if isinstance(g, dict) and str(g.get("class", "")).casefold() in {"aggregate", "compute_exact"}]
+        if exact_goals and any(str(g.get("exactness", "tolerant")).casefold() != "exact" for g in exact_goals):
+            diagnostics.append({"code":"aggregation_not_exact","severity":"warning","message":"The requested total is exact, but an aggregation goal is marked tolerant.","suggestion":"Use exactness='exact' unless approximation is explicitly permitted."})
+    if total_requested and "summarise" in classes and not ({"aggregate", "compute_exact"} & classes):
+        diagnostics.append({"code":"summary_substituted_for_calculation","severity":"error","message":"A summarise goal appears where the objective requires arithmetic aggregation.","suggestion":"Add numeric aggregation; keep summarisation only as an optional presentation step."})
+    if total_requested and re.search(r"\b(all|every)\b", objective):
+        retrievals = [g for g in goals if isinstance(g, dict) and str(g.get("class", "")).casefold() in {"retrieve", "search", "fetch_web"}]
+        if any(isinstance(g.get("n"), (int, float)) and not isinstance(g.get("n"), bool) and g.get("n") > 1 for g in retrievals):
+            diagnostics.append({"code":"scope_completeness_unproven","severity":"warning","message":"The objective says all/every, but a finite n value is only an estimate and does not prove complete retrieval.","suggestion":"Preserve unbounded scope in retrieval description; treat n as an estimate, not a completeness guarantee."})
+    has_currency_context = bool(re.search(r"\b(usd|eur|gbp|tnd|currency|currencies|same currency|convert)\b", objective))
+    if total_requested and not has_currency_context and re.search(r"\b(transaction|transactions|financial|payment|payments)\b", objective):
+        diagnostics.append({"code":"currency_policy_unspecified","severity":"warning","message":"The financial aggregation does not state how multiple currencies are handled.","suggestion":"Confirm one currency, a conversion policy, or totals grouped by currency when mixed currencies are possible."})
+    return diagnostics
+
+
 class HuggingFaceModelRuntime:
     def __init__(self) -> None:
         self._lock = threading.RLock()
@@ -190,14 +222,15 @@ class HuggingFaceModelRuntime:
         guide = guide_path.read_text(encoding="utf-8")
         theta = theta_path.read_text(encoding="utf-8")
         system = (
-            guide + "\\n\\nSemantic type vocabulary (Θ):\\n" + theta
-            + "\\n\\nSTRICT OUTPUT: exactly one JSON object with only prompt (optional), "
+            guide + "\n\nSemantic type vocabulary (Θ):\n" + theta
+            + "\n\nPRIORITY SEMANTIC RULES: preserve the requested operation. Calculating a total or sum requires aggregate or compute_exact with numeric output; summarise is not aggregation. Use exactness=exact for exact arithmetic. Preserve all/every scope; n is not proof of completeness. Surface currency ambiguity for financial totals."
+            + "\n\nSTRICT OUTPUT: exactly one JSON object with only prompt (optional), "
               "prompt_inputs (array), and goals (array). Do not emit id/query/context wrappers, "
               "Markdown fences, or commentary. Never claim semantic correctness is verified."
         )
-        user_content = "Objective:\\n" + prompt.strip()
+        user_content = "Objective:\n" + prompt.strip()
         if context.strip():
-            user_content += "\\n\\nAdditional context:\\n" + context.strip()
+            user_content += "\n\nAdditional context:\n" + context.strip()
         result = self._generate(
             [{"role": "system", "content": system}, {"role": "user", "content": user_content}],
             max_new_tokens, 0.0,
@@ -206,6 +239,8 @@ class HuggingFaceModelRuntime:
         result["goal_spec"] = parsed
         result["json_valid"] = parsed is not None
         result["parse_error"] = parse_error
+        result["semantic_diagnostics"] = diagnose_goal_spec(prompt, parsed) if parsed is not None else []
+        result["semantic_review_required"] = bool(result["semantic_diagnostics"])
         result["semantic_correctness_verified"] = False
         return result
 
