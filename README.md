@@ -28,6 +28,14 @@ Table 1 (LiveMCPTool + MCPToolBench++, 76 servers, 569 tools).
 | `docs/GITHUB_RESEARCH.md` | related open-source code read for this work and what was reused |
 | `docs/RESULTS.md` | all results, generated from `results/*.json` |
 
+## PaMCP experimental workbench (new specification)
+
+The definitive E1–E22 design is tracked in `docs/experiment_design/pamcp_experiments_v1.json`. The Studio workbench API is currently a separate validation-only service; it lists experiments and validates run drafts but does not yet schedule or execute experiments, access evaluator labels, or invoke MCP tools.
+
+See `docs/studio/EXPERIMENT_WORKBENCH_SPEC.md` and `docs/studio/EXPERIMENT_WORKBENCH_API.md`. Launch the initial catalog API with `uvicorn taas.studio.experiments_api:app --host 127.0.0.1 --port 8001` after installing `.[studio,experiment]` and setting `TAAS_STUDIO_API_TOKEN`.
+
+All new experiment definitions begin as `planned_not_run`. The existing historical experiment outputs are not imported into the new programme's evidence base.
+
 ## Quick start
 
 ```bash
