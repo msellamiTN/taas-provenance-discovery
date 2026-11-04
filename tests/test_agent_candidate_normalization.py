@@ -1,4 +1,12 @@
-from fastapi import HTTPException\nimport pytest\n\nfrom taas.studio.api import (\n    canonicalize_declared_plural_types, prepare_agent_candidate, validate_studio_goal_spec,\n)\nfrom taas.studio.analyst_contract import build_analyst_system_prompt, build_refinement_context
+import pytest
+from fastapi import HTTPException
+
+from taas.studio.api import (
+    canonicalize_declared_plural_types,
+    prepare_agent_candidate,
+    validate_studio_goal_spec,
+)
+from taas.studio.analyst_contract import build_analyst_system_prompt, build_refinement_context
 
 
 def test_declared_plural_type_is_canonicalized_without_mutating_model_object():
@@ -47,7 +55,9 @@ def test_exact_user_objective_replaces_truncated_model_echo():
     assert prepared["objective_prompt_preserved"] is True
     assert prepared["normalization_events"][0]["to"] == "record[]"
     assert candidate["goal_spec"]["prompt"].endswith("sourc")
-\n\ndef _retrieval_goal_spec(effects):
+
+
+def _retrieval_goal_spec(effects):
     return {
         "prompt": "Retrieve records matching the provided query from the configured source.",
         "prompt_inputs": ["text"],
