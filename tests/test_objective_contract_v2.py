@@ -179,6 +179,17 @@ def test_v2_recognizes_qualified_multi_source_acquisition_requests():
         assert frame["user_supplied_content"] is False, (objective, frame)
 
 
+def test_v2_external_source_phrase_requires_acquisition_without_search_verb():
+    examples = [
+        "Create a report from external sources.",
+        "Create a report from several sources.",
+        "Create a report from multiple sources.",
+    ]
+    for objective in examples:
+        frame = derive_objective_contract(objective)
+        assert frame["source_data_required"] is True, (objective, frame)
+
+
 def test_v2_external_sources_override_supplied_prompt_content():
     objective = "Create a report from several external sources using the supplied document."
     frame = derive_objective_contract(objective)
