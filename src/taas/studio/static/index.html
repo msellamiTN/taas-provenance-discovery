@@ -527,6 +527,19 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <p id="explanation" class="muted" aria-live="polite">Run a request to see why TaaS selected a toolkit or abstained.</p>
       <h2>Selected toolkit</h2>
       <pre id="toolkit">No discovery result yet.</pre>
+      <section class="certificate-panel" id="discovery-diagnostics-panel" hidden aria-labelledby="discovery-diagnostics-title">
+        <div class="certificate-head"><h3 id="discovery-diagnostics-title">Discovery pipeline diagnostics</h3><span id="discovery-diagnostics-stage" class="certificate-state">Not reported</span></div>
+        <p id="discovery-diagnostics-summary" class="subtle">Core registry, policy eligibility and candidate retrieval diagnostics appear after discovery.</p>
+        <div class="certificate-checks" aria-live="polite">
+          <div class="certificate-check"><strong id="discovery-diagnostics-contracts">—</strong><small>Indexed contracts</small></div>
+          <div class="certificate-check"><strong id="discovery-diagnostics-eligible">—</strong><small>Policy-eligible tools</small></div>
+          <div class="certificate-check"><strong id="discovery-diagnostics-candidates">—</strong><small>Retrieved candidates</small></div>
+          <div class="certificate-check"><strong id="discovery-diagnostics-consistency">—</strong><small>Eligibility count consistency</small></div>
+        </div>
+        <h3 style="font-size:12px;margin:12px 0 4px">Per-tool eligibility evidence</h3>
+        <div style="overflow-x:auto"><table class="coverage-table"><thead><tr><th>Tool</th><th>Eligible</th><th>Evidence strengths</th><th>Exclusion reasons</th></tr></thead><tbody id="discovery-diagnostics-tools"></tbody></table></div>
+        <details><summary>Raw diagnostic payload</summary><pre id="discovery-diagnostics-raw"></pre></details>
+      </section>
       <section id="hypergraph-explorer" class="hg-shell" aria-labelledby="hg-title">
         <div class="hg-toolbar">
           <div><div class="eyebrow">DISCOVER · SEMANTIC GRAPH</div><h3 id="hg-title" style="margin:4px 0;font-size:14px">Hypergraph Explorer</h3><div id="hg-summary" class="hg-meta">Run discovery to load the authoritative Core projection.</div></div>
@@ -1054,6 +1067,35 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
           $("counterexample-detail").textContent=JSON.stringify(counter.witness||{},null,2);
         }
   
+        const diag=data.discovery_diagnostics||null;
+        const diagPanel=$("discovery-diagnostics-panel");
+        diagPanel.hidden=!diag||diag.available!==true;
+        if(!diagPanel.hidden){
+          $("discovery-diagnostics-stage").textContent=String(diag.pipeline_stage||"stage unavailable").replaceAll("_"," ");
+          $("discovery-diagnostics-summary").textContent=
+            "Policy encoding: "+(diag.policy?.encoding||"unknown")+
+            " · evidence threshold: "+(diag.policy?.minimum_evidence_strength??"unknown")+
+            " · composition eligible count: "+(diag.eligibility?.composition_reported_eligible_count??"not reported")+
+            ". This report explains discovery filters; it does not authorize execution.";
+          $("discovery-diagnostics-contracts").textContent=String(diag.index_live_count??0)+" / "+String(diag.registry_contract_count??0);
+          $("discovery-diagnostics-eligible").textContent=String(diag.eligibility?.eligible_count??0);
+          $("discovery-diagnostics-candidates").textContent=String(diag.candidate_retrieval?.candidate_count??0);
+          const consistent=diag.eligibility?.composition_count_matches_preflight;
+          $("discovery-diagnostics-consistency").textContent=consistent===true?"MATCH":consistent===false?"MISMATCH":"N/A";
+          const rows=$("discovery-diagnostics-tools");rows.replaceChildren();
+          (diag.tools||[]).forEach(tool=>{
+            const row=document.createElement("tr");
+            const values=[
+              tool.tool_id||"unknown",
+              tool.eligible===true?"Eligible":"Excluded",
+              JSON.stringify(tool.property_strengths||{}),
+              (tool.exclusions||[]).length?JSON.stringify(tool.exclusions):"No policy/visibility exclusion reported"
+            ];
+            values.forEach(value=>{const cell=document.createElement("td");cell.textContent=String(value);row.append(cell);});
+            rows.append(row);
+          });
+          $("discovery-diagnostics-raw").textContent=JSON.stringify(diag,null,2);
+        }
         renderHypergraphProjection(data.hypergraph_projection_status === "available" ? data.hypergraph_projection : null);
         $("response").textContent = JSON.stringify(data, null, 2);
   };
