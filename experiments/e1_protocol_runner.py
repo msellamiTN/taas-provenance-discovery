@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+from dataclasses import asdict
 import json
 import platform
 import random
@@ -260,7 +261,7 @@ def run_e1(root: str | Path, output_root: str | Path,
         raise ValueError("MCPToolBench++ source commit is not pinned to the specified revision")
 
     live = load_livemcpptool(raw)
-    pp, _ = load_mcptoolbenchpp(raw)
+    pp, _pp_tasks = load_mcptoolbenchpp(raw)
     merged = merge_registries(live, pp)
     views = {"LiveMCPTool": live, "MCPToolBench++": pp, "merged": merged}
     for name, tools in views.items():
@@ -276,8 +277,26 @@ def run_e1(root: str | Path, output_root: str | Path,
         if missing or extra:
             raise ValueError(f"Reference label coverage mismatch: missing={len(missing)}, extra={len(extra)}")
 
-    built = build_all(write=True)
-    if len(built["registry"]) != 569:
+    live_tasks = load_livemcpbench_tasks(merged, raw)
+    registry_payload = {
+        "registry": [asdict(t) | {"id": t.id, "hash": t.definition_hash()} for t in merged],
+        "tasks_livemcpbench": [asdict(t) for t in live_tasks],
+        "tasks_mcptoolbenchpp": [asdict(t) for t in _pp_tasks],
+        "stats": {
+            "LiveMCPTool": registry_stats(live),
+            "MCPToolBench++": registry_stats(pp),
+            "merged": registry_stats(merged),
+            "requests": {
+                "LiveMCPBench": len(live_tasks),
+                "MCPToolBench++": len(_pp_tasks),
+                "MCPToolBench++_unique_queries": len({t.query for t in _pp_tasks}),
+            },
+        },
+    }
+    processed_file = root / "data" / "processed" / "registry_merged.json"
+    processed_file.parent.mkdir(parents=True, exist_ok=True)
+    processed_file.write_text(json.dumps(registry_payload, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    if len(registry_payload["registry"]) != 569:
         raise ValueError("Canonical registry build did not yield 569 tools")
 
     run_id = run_id or f"E1-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}-protocol-v1"
@@ -302,7 +321,7 @@ def run_e1(root: str | Path, output_root: str | Path,
     if len(category_names) != 14:
         raise ValueError(f"Expected 14 source categories, observed {len(category_names)}: {category_names}")
 
-    published = {r["id"]: r for r in built["registry"]}
+    published = {r["id"]: r for r in registry_payload["registry"]}
     hash_mismatches = []
     for tool in merged:
         if published[tool.id].get("hash") != tool.definition_hash():
