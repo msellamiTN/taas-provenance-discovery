@@ -46,3 +46,43 @@ def test_goal_spec_parser_rejects_trailing_second_object():
     )
     assert spec is None
     assert "Unexpected content follows" in error
+
+
+def test_goal_spec_diagnostics_catch_summary_substituted_for_financial_sum():
+    from taas.studio.model_runtime import diagnose_goal_spec
+
+    proposal = {
+        "prompt": "Calculate the total value of all transactions.",
+        "goals": [
+            {"id": "g1", "class": "retrieve", "in": ["query"],
+             "out": "record:transaction[]", "n": 100, "desc": "Retrieve all transactions"},
+            {"id": "g2", "class": "summarise", "in": ["record:transaction[]"],
+             "out": "text", "deps": ["g1"], "desc": "Summarize transactions"},
+        ],
+    }
+    diagnostics = diagnose_goal_spec(proposal["prompt"], proposal)
+    codes = {item["code"] for item in diagnostics}
+    assert "missing_aggregation" in codes
+    assert "summary_substituted_for_calculation" in codes
+    assert "scope_completeness_unproven" in codes
+    assert "currency_policy_unspecified" in codes
+
+
+def test_goal_spec_diagnostics_accept_explicit_exact_numeric_aggregation():
+    from taas.studio.model_runtime import diagnose_goal_spec
+
+    proposal = {
+        "prompt": "Calculate the total value of all transactions.",
+        "goals": [
+            {"id": "g1", "class": "retrieve", "in": ["query"],
+             "out": "record:transaction[]", "n": 100, "desc": "Retrieve all transactions"},
+            {"id": "g2", "class": "aggregate", "in": ["record:transaction[]"],
+             "out": "number", "deps": ["g1"], "exactness": "exact",
+             "desc": "Sum transaction amounts"},
+        ],
+    }
+    codes = {item["code"] for item in diagnose_goal_spec(proposal["prompt"], proposal)}
+    assert "missing_aggregation" not in codes
+    assert "aggregation_output_not_numeric" not in codes
+    assert "aggregation_not_exact" not in codes
+    assert "summary_substituted_for_calculation" not in codes
