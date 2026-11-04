@@ -245,10 +245,11 @@
       "name": "MCP default annotation reading",
       "kind": "policy_control",
       "implementation": "ready_policy_control",
-      "method": "Treat published MCP annotations as declarations with default client interpretation. Report the actual hint values and do not call the hints independently verified evidence.",
+      "method": "Expose the complete discovered tool catalogue as a default client would; surface published readOnlyHint/destructiveHint/openWorldHint values for the client/agent but do not treat them as an access-control decision or verified evidence.",
       "params": {
         "missing_hint": "unspecified",
-        "positive_read_only_hint": true
+        "filtering": "none",
+        "annotations_are_untrusted_hints": true
       },
       "experiments": [
         "E4",
@@ -263,11 +264,12 @@
       "name": "Closed-world annotation filter",
       "kind": "policy_control",
       "implementation": "ready_policy_control",
-      "method": "Interpret missing/false read-only annotation as failing the read-only condition. Kept distinct from MCP-default semantics and from the deliberately unsafe declared-only ablation.",
+      "method": "Closed-world read-only filter: require readOnlyHint=true; missing, false or malformed hints are ineligible. This is stricter than merely displaying MCP annotations.",
       "params": {
         "require_readOnlyHint": true,
         "missing_hint": "reject",
-        "false_hint": "reject"
+        "false_hint": "reject",
+        "malformed_hint": "reject"
       },
       "experiments": [
         "E4",
@@ -282,10 +284,11 @@
       "name": "Positive lexical evidence filter",
       "kind": "policy_control",
       "implementation": "ready_policy_control",
-      "method": "Admit only tools whose lexical property evidence passes the configured property threshold; lexical inference is not observed execution evidence.",
+      "method": "Positive lexical filter: require an explicit read/list/get/search/fetch/retrieve-style cue and no lexically detected persistent state modification; lexical evidence is weak, not observed evidence.",
       "params": {
         "min_evidence": "lex",
-        "encoding": "positive"
+        "encoding": "positive",
+        "require_positive_read_cue": true
       },
       "experiments": [
         "E4",
@@ -300,10 +303,11 @@
       "name": "Closed-world lexical filter",
       "kind": "policy_control",
       "implementation": "ready_policy_control",
-      "method": "Exclude tools with lexical violation cues; unknown/missing cues are handled according to the specified closed-world rule.",
+      "method": "Closed-world lexical filter: reject explicit lexical write/delete/execute/money cues and treat the absence of such cues as safe. This intentionally exposes the risk of unknown-as-safe inference.",
       "params": {
         "min_evidence": "lex",
-        "encoding": "closed_world"
+        "encoding": "closed_world",
+        "unknown_is_safe": true
       },
       "experiments": [
         "E4",
@@ -318,7 +322,7 @@
       "name": "Observed/attested evidence eligibility",
       "kind": "policy_control",
       "implementation": "core_method",
-      "method": "Use property-specific trust thresholds over hash-bound observed or attested evidence; distinguish empirical probe coverage and signer trust.",
+      "method": "Use property-specific trust thresholds over hash-bound observed or attested evidence. The preview adapter remains blocked until independent evidence records and a verified evidence-store snapshot are supplied; it must not substitute annotations, lexical inference or evaluation labels.",
       "params": {
         "evidence_levels": [
           "obs",
