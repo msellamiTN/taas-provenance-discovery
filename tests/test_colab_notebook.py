@@ -10,7 +10,7 @@ NOTEBOOK = ROOT / "notebooks" / "colab" / "taas_core_studio_colab.ipynb"
 GUIDE = ROOT / "docs" / "deployment" / "COLAB_T4_QUICKSTART.md"
 RUNTIME_GUIDE = ROOT / "docs" / "deployment" / "MODEL_RUNTIME_BACKENDS.md"
 WORKFLOW = ROOT / ".github" / "workflows" / "benchmark-hypergraph.yml"
-INTEGRATED_STUDIO_COMMIT = "724c47be8f281ae413ad74830497aa56d49c9a64"
+INTEGRATED_STUDIO_COMMIT = "7859cd76670f00ec54f0b245ca6b257f8cb9c83e"
 
 
 def notebook_source() -> tuple[dict, str, str]:
@@ -55,6 +55,23 @@ def test_colab_notebook_pins_the_integrated_model_agent_studio_revision() -> Non
     assert "MCP inspection does not invoke tools" in markdown
     assert "discovery workspace" not in markdown.lower() or "integrated" in markdown.lower()
     assert "Hypergraph Explorer" in markdown
+
+
+def test_colab_objective_matrix_covers_local_and_external_workflows() -> None:
+    _, _, code = notebook_source()
+    for phrase in (
+        "Summarise the document supplied in the prompt.",
+        "Translate this paragraph into French.",
+        "Compare these two provided architectures.",
+        "Identify anomalies in the supplied sensor data.",
+        "Create a report from several external sources.",
+        "Count all invoices issued this year.",
+        "Calculate average sales by region.",
+        "Supplied-content vs external-source routing checks OK",
+    ):
+        assert phrase in code
+    assert 'assert contract["source_data_required"] is False' in code
+    assert 'assert contract["source_data_required"] is True' in code
 
 
 def test_colab_installs_and_verifies_optional_hugging_face_runtime() -> None:

@@ -22,8 +22,9 @@ def load_analyst_contract() -> tuple[str, dict[str, Any]]:
         theta = json.loads(theta_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise RuntimeError("Semantic type vocabulary Θ is unreadable") from exc
-    if not isinstance(theta.get("kinds"), list) or not isinstance(theta.get("domains"), list):
-        raise RuntimeError("Semantic type vocabulary Θ must define kinds and domains")
+    if (not isinstance(theta.get("kinds"), list) or not isinstance(theta.get("domains"), list)
+            or not isinstance(theta.get("common_types"), list)):
+        raise RuntimeError("Semantic type vocabulary Θ must define kinds, domains and common_types")
     return guide_path.read_text(encoding="utf-8"), theta
 
 
@@ -38,15 +39,17 @@ def build_analyst_system_prompt() -> str:
         + "\n\nCANONICAL SEMANTIC VOCABULARY Θ (authoritative; do not invent kinds or domains):\n"
         + vocabulary
         + "\n\nMANDATORY DECOMPOSITION RULES:\n"
-        "- prompt_inputs, every goal.in and every goal.out must use a type admitted by Θ. "
-        "Use text for the natural-language request itself; never use a business noun as a type "
-        "unless it is a declared kind/domain (e.g. transactions is not a type).\n"
+        "- prompt_inputs, every goal.in and every goal.out must use a semantic type admitted by Θ. "
+        "A domain label alone is not a type: invoice is a domain, while record:invoice is a typed record. "
+        "Use text for the natural-language request; prompt_inputs describe actual user-supplied input types, "
+        "not nouns extracted from the objective. Use record[] only as a provisional generic collection "
+        "when the source schema is unresolved.\n"
         "- Use only goal classes and fields defined in ANALYST_GUIDE.md. "
         "Do not invent classes, fields, effects, domains, or implicit capabilities.\n"
         "- Preserve intent: total/sum -> aggregate or compute_exact with numeric input and number output; "
         "summarise is not arithmetic. Count -> count. A requested summary -> summarise.\n"
         "- Preserve all/every/date/range scope. n is only an estimate and never proves completeness.\n"
-        "- Exact arithmetic -> exactness=exact. Do not silently assume currency conversion or combine "
+        "- Exact arithmetic or counting -> exactness=exact. Do not silently assume currency conversion or combine "
         "different currencies; surface ambiguity in the goal description/context.\n"
         "- Model-generated plans are proposals only. Do not claim validation, authorization, execution, "
         "or semantic correctness.\n\n"
@@ -65,6 +68,7 @@ def validate_theta_types(spec: dict[str, Any]) -> str | None:
     except RuntimeError as exc:
         return str(exc)
     kinds, domains = set(theta["kinds"]), set(theta["domains"])
+    allowed_types = set(theta.get("common_types", []))
     pattern = re.compile(r"^([a-z_]+)(?::([a-z0-9_-]+))?(\[\])?$")
     values: list[tuple[str, Any]] = []
     for i, value in enumerate(spec.get("prompt_inputs", [])):
@@ -80,10 +84,16 @@ def validate_theta_types(spec: dict[str, Any]) -> str | None:
             return f"{path} must be a semantic type string"
         match = pattern.fullmatch(value)
         if not match or match.group(1) not in kinds:
+            if value in domains:
+                return (f"{path} uses domain label {value!r} where a semantic type is required; "
+                        f"use a kind-qualified type such as 'record:{value}' where appropriate")
             return f"{path} uses a type outside semantic vocabulary Θ: {value!r}"
         domain = match.group(2)
         if domain and domain not in domains:
             return f"{path} uses undeclared Θ domain {domain!r} in {value!r}"
+        if value not in allowed_types:
+            return (f"{path} uses a syntactically valid but undeclared Θ semantic type {value!r}; "
+                    "use an exact entry from Θ.common_types (for example 'record[]' for an unresolved collection)")
     return None
 
 

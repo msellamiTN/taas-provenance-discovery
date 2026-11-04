@@ -65,7 +65,7 @@ Important contract rules:
 - `sigma` is one of `native`, `data`, `effect`, or `unreliable`.
 - Semantic output types must agree with the tool contract. The demo uses `record[]` on both sides.
 - The demo policy uses `lmin: ann` because its synthetic read-only evidence comes from an MCP annotation; an `obs` threshold would correctly exclude annotation-only evidence.
-- A successful discovery response returns the canonical parsed GoalSpec, including `in`, `out`, `eff`, `desc`, and `deps`.
+- A successful discovery response returns the canonical parsed GoalSpec, including `in`, `out`, `eff`, `desc`, and `deps`. Before discovery, review the objective-to-GoalSpec mapping and selected tool metadata, then confirm the Studio human-review checkbox. The API rejects discovery with HTTP 409 when this confirmation is absent; editing the prompt, GoalSpec or tool selection invalidates the confirmation.
 
 An `abstained` result remains a valid safety outcome. Inspect `counterexample`, `gap`, `composition.stats.per_goal`, and the eligible/candidate counts; do not weaken policy or type checks merely to obtain a selected toolkit.
 
@@ -95,7 +95,7 @@ A measured model profile can be configured later through a dedicated Studio conf
 | API exits | Inspect /content/taas-studio.log. |
 | /ready returns 503 | Confirm the generated API token is present in the notebook runtime and rerun launch. |
 | Discovery returns 401 | Paste the current runtime's token into the Studio token field. |
-| Discovery returns 422 | Check GoalSpec, policy and engine fields against the current TaaS core contract. |
+| Discovery returns 409 | Review the objective, GoalSpec, effects, dependencies and selected tool metadata, then confirm the human-review checkbox. Any subsequent edits require reconfirmation. |\n| Discovery returns 422 | Check GoalSpec, policy and engine fields against the current TaaS core contract. |
 | Colab proxy returns `RpcError(NOT_FOUND)` | Confirm `/health` and `/ready` passed, then verify Uvicorn binds to `0.0.0.0:8000`, not loopback-only. Rerun the proxy-link cell after the server is ready. |
 | Colab proxy fails for another reason | Confirm the runtime remains connected and rerun the proxy-link cell. |
 
@@ -192,7 +192,7 @@ For a reproducible operator check:
 
 1. In Colab, select **Runtime → Disconnect and delete runtime** to remove stale server processes and proxy state.
 2. Reopen the maintained notebook from the PR link and run every cell from the top.
-3. Confirm the printed commit equals `4a3e4e460f2556f6556b1ef4736f991337cf32c2`.
+3. Confirm the printed commit equals `7859cd76670f00ec54f0b245ca6b257f8cb9c83e`.
 4. Confirm installation/import checks complete, then verify both health and readiness return HTTP 200.
 5. Open the generated proxy URL and connect with the ephemeral token from that runtime only.
 6. Record runtime type, Python version, GPU allocation, model repository/revision, device, precision, load outcome, inference outcome, latency and peak memory when an actual model test is performed.
