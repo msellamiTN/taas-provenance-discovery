@@ -265,3 +265,16 @@ def test_baseline_preview_rejects_baseline_outside_experiment(monkeypatch):
         "tools": [{"server": "s", "name": "t", "description": "tool", "input_schema": {}}],
     })
     assert response.status_code == 422
+
+
+def test_existing_taas_studio_mounts_baseline_routes(monkeypatch):
+    from taas.studio.api import app as core_app
+    core_client = TestClient(core_app)
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    headers = {"Authorization": "Bearer test-token"}
+    response = core_client.get("/api/v1/baselines/catalog", headers=headers)
+    assert response.status_code == 200
+    assert response.json()["total"] == 31
+    mapped = core_client.get("/api/v1/experiments/catalog/E14/baselines", headers=headers)
+    assert mapped.status_code == 200
+    assert "progent_runtime" in {x["id"] for x in mapped.json()["baselines"]}
