@@ -33,6 +33,29 @@ VARIANTS = {
         "Per-subgoal retrieval and union; disable backward closure, global set checks and certificate; preserve G and P."),
 }
 
+
+FACTORIAL_VARIANTS = {
+    "Full_PaMCP": VARIANTS["Full_PaMCP"],
+    "PaMCP_NoGap": VARIANTS["PaMCP_NoGap"],
+    "PaMCP_Declared": VARIANTS["PaMCP_Declared"],
+    "PaMCP_NoCert": VARIANTS["PaMCP_NoCert"],
+    "G1_P0_S0": Variant("G1_P0_S0", 1, 0, 0,
+        "Model-conditioned gap + metadata-only eligibility + per-subgoal retrieval/union without set-level checks."),
+    "G0_P1_S0": Variant("G0_P1_S0", 0, 1, 0,
+        "No model gap + provenance eligibility + per-subgoal retrieval/union without set-level checks."),
+    "G0_P0_S1": Variant("G0_P0_S1", 0, 0, 1,
+        "No model gap + metadata-only eligibility + set-level composition/certification."),
+    "G0_P0_S0": Variant("G0_P0_S0", 0, 0, 0,
+        "No model gap + metadata-only eligibility + per-subgoal retrieval/union without set-level checks."),
+}
+
+
+def get_factorial_variant(name: str) -> Variant:
+    try:
+        return FACTORIAL_VARIANTS[name]
+    except KeyError as exc:
+        raise ValueError(f"Unknown factorial variant: {name}") from exc
+
 EXPECTED_FACTORIAL_NAMES = {
     (1, 1, 1): "Full_PaMCP",
     (0, 1, 1): "PaMCP_NoGap",
