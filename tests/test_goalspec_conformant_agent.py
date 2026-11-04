@@ -123,3 +123,43 @@ def test_agent_decompose_does_not_retry_after_second_failure(monkeypatch):
     assert response["conformance"]["accepted_for_human_review"] is False
     assert response["conformance"]["unresolved_errors"]
     assert response["conformance"]["auto_applied"] is False
+
+
+def test_total_objective_requires_aggregation_and_preserves_all_scope():
+    from taas.studio.model_runtime import diagnose_goal_spec
+
+    candidate = {
+        "goals": [{
+            "id": "g1", "class": "retrieve", "desc": "Retrieve all transactions",
+            "in": ["query"], "out": "record:payment[]", "n": 100,
+        }, {
+            "id": "g2", "class": "summarise", "desc": "Summarise retrieved transactions",
+            "in": ["record:payment[]"], "out": "text", "n": 1,
+        }],
+    }
+    codes = {item["code"] for item in diagnose_goal_spec(
+        "Calculate the total value of all transactions", candidate
+    )}
+    assert "missing_aggregation" in codes
+    assert "summary_substituted_for_calculation" in codes
+    assert "scope_completeness_unproven" in codes
+
+
+def test_count_objective_requires_count_goal():
+    from taas.studio.model_runtime import diagnose_goal_spec
+
+    candidate = {"goals": [{"id": "g1", "class": "summarise", "out": "text"}]}
+    diagnostics = diagnose_goal_spec("How many orders were created?", candidate)
+    assert any(item["code"] == "missing_count" and item["severity"] == "error"
+               for item in diagnostics)
+
+
+def test_valid_aggregate_still_surfaces_missing_currency_policy():
+    from taas.studio.model_runtime import diagnose_goal_spec
+
+    candidate = {"goals": [{
+        "id": "g1", "class": "aggregate", "desc": "Sum transaction amount",
+        "in": ["record:payment[]"], "out": "number", "exactness": "exact",
+    }]}
+    diagnostics = diagnose_goal_spec("Calculate the total value of all payments", candidate)
+    assert any(item["code"] == "currency_policy_unspecified" for item in diagnostics)
