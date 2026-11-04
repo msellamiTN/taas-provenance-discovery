@@ -91,9 +91,15 @@ def derive_objective_contract(
         r"\b(from|across|à partir de|a partir de)\s+(?:multiple|several|various|different|many|plusieurs|diverses|différentes|differentes)\s+(?:data\s+)?sources?\b",
         lower,
     ))
+    # Detect both common word orders: "this paragraph" and
+    # "the document supplied in the prompt". A content noun alone is
+    # insufficient; an explicit user-supplied/attached/provided cue is needed.
+    content_noun = r"(?:text|paragraph|document|file|dataset|data|records?|report|image|audio|video)"
+    supplied_marker = r"(?:user[- ]?)?(?:supplied|provided|attached|uploaded|given)"
     user_supplied_content = bool(re.search(
-        r"\b(this|these|following|provided|attached|uploaded|above|below|selected|given)\s+(?:text|paragraph|document|file|dataset|data|records?|report|image|audio|video)\b"
-        r"|\b(?:attached|uploaded|provided)\s+(?:file|document|dataset|report)\b",
+        rf"\\b(?:this|these|following|provided|attached|uploaded|above|below|selected|given|supplied)\\s+{content_noun}\\b"
+        rf"|\\b{content_noun}\\s+(?:that\\s+is\\s+)?{supplied_marker}\\b"
+        rf"|\\b{content_noun}\\b.{{0,40}}\\b{supplied_marker}\\s+(?:in|with|by)\\s+(?:the\\s+)?(?:prompt|request|message|user)\\b",
         lower,
     ))
     source_data_required = bool(
@@ -146,7 +152,7 @@ def derive_objective_contract(
         "the", "for", "from", "with", "and", "that", "this", "last", "current",
         "week", "month", "year", "of", "is", "are", "was", "were", "to", "in",
         "on", "by", "per", "today", "yesterday", "issued", "created", "generated",
-        "received", "between", "ytd", "summarize", "summarise", "summary",
+        "received", "supplied", "provided", "attached", "uploaded", "between", "ytd", "summarize", "summarise", "summary",
         "payments", "payment", "invoices", "invoice",
         "amount", "financial", "aggregate", "aggregation", "compare", "comparison",
         "versus",
