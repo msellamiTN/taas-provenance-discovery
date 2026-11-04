@@ -94,7 +94,7 @@ def derive_objective_contract(
     # Detect both common word orders: "this paragraph" and
     # "the document supplied in the prompt". A content noun alone is
     # insufficient; an explicit user-supplied/attached/provided cue is needed.
-    content_noun = r"(?:text|paragraph|document|file|dataset|data|records?|report|image|audio|video)"
+    content_noun = r"(?:text|paragraph|document|file|dataset|data|records?|report|image|audio|video|architecture|design|option|alternative|proposal|example|candidate)s?"
     supplied_marker = r"(?:user[- ]?)?(?:supplied|provided|attached|uploaded|given)"
     user_supplied_content = bool(re.search(
         rf"\b(?:this|these|following|provided|attached|uploaded|above|below|selected|given|supplied)\s+{content_noun}\b"
@@ -149,7 +149,7 @@ def derive_objective_contract(
     stop = {
         "calculate", "total", "value", "all", "every", "each", "please", "show",
         "find", "get", "give", "what", "how", "many", "number", "sum", "count",
-        "the", "for", "from", "with", "and", "that", "this", "last", "current",
+        "the", "for", "from", "with", "and", "that", "this", "these", "those", "two", "three", "four", "last", "current",
         "week", "month", "year", "of", "is", "are", "was", "were", "to", "in",
         "on", "by", "per", "today", "yesterday", "issued", "created", "generated",
         "received", "supplied", "provided", "attached", "uploaded", "between", "ytd", "summarize", "summarise", "summary",
