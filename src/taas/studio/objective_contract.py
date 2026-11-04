@@ -72,15 +72,15 @@ def _temporal_scope(lower: str, reference_date: date | datetime | str | None) ->
         r"juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre)"
     )
     date_atom = (
-        rf"(?:\\d{{4}}-\\d{{1,2}}-\\d{{1,2}}|"
-        rf"\\d{{1,2}}[/-]\\d{{1,2}}[/-]\\d{{2,4}}|"
-        rf"(?:\\d{{1,2}}(?:st|nd|rd|th)?\\s+{month}|{month}\\s+\\d{{1,2}}(?:st|nd|rd|th)?))"
+        rf"(?:\d{{4}}-\d{{1,2}}-\d{{1,2}}|"
+        rf"\d{{1,2}}[/-]\d{{1,2}}[/-]\d{{2,4}}|"
+        rf"(?:\d{{1,2}}(?:st|nd|rd|th)?\s+{month}|{month}\s+\d{{1,2}}(?:st|nd|rd|th)?))"
     )
     range_patterns = (
-        (rf"\\bbetween\\s+{date_atom}\\s+(?:and|to)\\s+{date_atom}\\b", "between"),
-        (rf"\\bfrom\\s+{date_atom}\\s+to\\s+{date_atom}\\b", "from_to"),
-        (rf"\\bdu\\s+{date_atom}\\s+au\\s+{date_atom}\\b", "du_au"),
-        (rf"\\bentre\\s+{date_atom}\\s+et\\s+{date_atom}\\b", "entre"),
+        (rf"\bbetween\s+{date_atom}\s+(?:and|to)\s+{date_atom}\b", "between"),
+        (rf"\bfrom\s+{date_atom}\s+to\s+{date_atom}\b", "from_to"),
+        (rf"\bdu\s+{date_atom}\s+au\s+{date_atom}\b", "du_au"),
+        (rf"\bentre\s+{date_atom}\s+et\s+{date_atom}\b", "entre"),
     )
     for pattern, expression in range_patterns:
         match = re.search(pattern, lower)
