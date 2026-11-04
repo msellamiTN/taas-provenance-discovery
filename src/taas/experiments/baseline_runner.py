@@ -377,7 +377,7 @@ def run_baseline(
         raise KeyError(f"Unknown baseline id: {baseline_id}")
     spec_def = index[baseline_id]
     maturity = spec_def["implementation"]
-    executable = {"ready", "ready_surrogate", "ready_adaptation", "partial_adapter", "core_method"}
+    executable = {"ready", "ready_surrogate", "ready_adaptation", "partial_adapter", "core_method", "ready_control"}
     if maturity not in executable:
         return BaselineResult(baseline_id, "adapter_not_implemented",
                               details={"implementation_maturity": maturity,
