@@ -317,7 +317,7 @@ def canonicalize_objective_constraint_dependencies(
     def collect_names(value: Any) -> None:
         if isinstance(value, dict):
             for key, nested in value.items():
-                if isinstance(key, str):
+                if isinstance(key, str) and not isinstance(nested, (dict, list)):
                     constraint_names.add(key)
                 collect_names(nested)
         elif isinstance(value, list):
