@@ -1760,13 +1760,19 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         pendingAgentGoalSpec=result.goal_spec;$("agent-apply-goals").disabled=false;
         $("agent-semantic-diagnostics").className="goal-validation"+(diagnostics.length?"":" valid");
         const core=result.core_analysis||{};
-        const gapText=(core.gap_goal_ids||[]).length
-          ? "Core capability gaps: "+core.gap_goal_ids.join(", ")+". "
-          : "No Core capability gap identified by the current model profile. ";
+        const toolRequired=core.tool_required_goal_ids||[];
+        const modelGaps=core.model_capability_gap_goal_ids||[];
+        const gapText=toolRequired.length&&modelGaps.length
+          ? "Tool-required goals: "+toolRequired.join(", ")+". Uncovered model-native capability goals: "+modelGaps.join(", ")+". "
+          : toolRequired.length
+            ? "Tool-required goals: "+toolRequired.join(", ")+". These goals require tool discovery; rho=0 is expected for external operations and is not a claim that the model should perform them natively. "
+            : modelGaps.length
+              ? "Uncovered model-native capability goals: "+modelGaps.join(", ")+". "
+              : "No uncovered model-native capability identified by the current profile. ";
         const profile=core.model_profile||{};
         const calibration=profile.calibrated_profile_matched
           ? "Matched calibrated profile: "+profile.model_id+". "
-          : "No matching calibrated profile; strict Core analysis treats unmeasured model skills as uncovered. ";
+          : "No matching calibrated profile; unmeasured model-native skills remain uncovered in strict mode. This does not change the classification of external tool-required goals. ";
         $("agent-semantic-diagnostics").textContent=(diagnostics.length
           ? "Human review required · "+diagnostics.map(x=>x.code+": "+x.message+" Suggested action: "+x.suggestion).join(" | ")
           : "No configured objective-alignment error detected. ")
