@@ -1645,7 +1645,7 @@ def test_canonical_objective_prepare_endpoint_runs_goal_decomposition_and_core_a
 
     class Runtime:
         def decompose(self, prompt, context, max_new_tokens):
-            assert "TaaS Core objective frame" in context
+            assert "TaaS Core Objective Contract v2" in context
             return {"text": "{}", "goal_spec": goal_spec, "json_valid": True,
                     "model_id": "test/model", "semantic_correctness_verified": False}
 
@@ -1660,6 +1660,9 @@ def test_canonical_objective_prepare_endpoint_runs_goal_decomposition_and_core_a
     assert data["core_analysis"]["goal_order"] == ["g1"]
     assert data["conformance"]["semantic_correctness_verified"] is False
     assert data["conformance"]["auto_applied"] is False
+    assert data["objective_contract"]["contract_version"] == "2.0"
+    assert data["objective_coverage"]["summary"] == {"required": 1, "covered": 1, "missing": 0}
+    assert data["semantic_review_required"] is True
     assert data["workflow"]["objective_interpretation"] == "completed"
     assert data["workflow"]["tool_discovery"] == "awaiting_human_review_and_selected_tool_metadata"
     assert data["workflow"]["tool_execution"] == "disabled"
@@ -1683,6 +1686,9 @@ def test_studio_frontend_routes_operational_objectives_through_core_first_workfl
     assert "human_review_confirmed" in page
     assert '$("goal-add").addEventListener("click",invalidateHumanReview)' in page
     assert 'runtimePost("/api/v1/objectives/prepare"' in page
+    assert 'id="agent-outcome-coverage"' in page
+    assert "renderObjectiveCoverage(result.objective_coverage)" in page
+    assert "Coverage shows structural mapping only" in page
 
 
 def test_canonical_objective_discover_endpoint_runs_existing_core_discovery(monkeypatch):
