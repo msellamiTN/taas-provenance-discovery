@@ -165,6 +165,28 @@ def test_search_outcome_requires_a_search_goal_even_when_documents_are_supplied(
     assert coverage["outcomes"][0]["goal_ids"] == ["g1"]
     assert coverage["outcomes"][0]["semantic_conformance"] == "not_assessed"
 
+def test_v2_recognizes_qualified_multi_source_acquisition_requests():
+    examples = [
+        "Create a report from several external sources.",
+        "Create a report across multiple independent data sources.",
+        "Build a summary from various online sources.",
+        "Prepare a report from several public sources.",
+    ]
+    for objective in examples:
+        frame = derive_objective_contract(objective)
+        assert "create_document" in frame["required_goal_classes"] or "synthesise" in frame["required_goal_classes"], (objective, frame)
+        assert frame["source_data_required"] is True, (objective, frame)
+        assert frame["user_supplied_content"] is False, (objective, frame)
+
+
+def test_v2_external_sources_override_supplied_prompt_content():
+    objective = "Create a report from several external sources using the supplied outline."
+    frame = derive_objective_contract(objective)
+
+    assert frame["user_supplied_content"] is True
+    assert frame["source_data_required"] is True
+
+
 def test_v2_recognizes_supplied_content_with_descriptive_modifiers():
     examples = [
         "Identify anomalies in the supplied sensor data.",
