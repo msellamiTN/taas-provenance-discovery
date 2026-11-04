@@ -387,3 +387,102 @@ def test_studio_page_exposes_experiment_and_baseline_workbench():
         '/api/v1/baselines/preview',
     ]:
         assert marker in page.text
+
+
+def test_baseline_preview_validates_collection_goal_types(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    headers = {"Authorization": "Bearer test-token"}
+    response = client.post("/api/v1/baselines/preview", headers=headers, json={
+        "experiment_id": "E8",
+        "baseline_ids": ["bm25"],
+        "goal_spec": {
+            "prompt": "List review records",
+            "prompt_inputs": ["query"],
+            "goals": [{
+                "id": "g1", "class": "retrieve", "in": ["query"],
+                "out": "record:review[]", "sigma": "data",
+                "desc": "List review records",
+            }],
+        },
+        "tools": [{
+            "server": "reviews", "name": "list_reviews",
+            "description": "List review records",
+            "input_schema": {"type": "object", "properties": {"query": {"type": "string"}}},
+        }],
+    })
+    assert response.status_code == 200, response.text
+
+
+def test_baseline_preview_rejects_malformed_goal_spec_before_adapter(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    headers = {"Authorization": "Bearer test-token"}
+    response = client.post("/api/v1/baselines/preview", headers=headers, json={
+        "experiment_id": "E8", "baseline_ids": ["bm25"],
+        "goal_spec": {
+            "prompt": "List reviews",
+            "goals": [{
+                "id": "g1", "class": "retrieve", "out": "not_a_supported_type",
+                "sigma": "data", "desc": "List reviews",
+            }],
+        },
+        "tools": [{
+            "server": "reviews", "name": "list_reviews",
+            "description": "List review records",
+            "input_schema": {"type": "object", "properties": {}},
+        }],
+    })
+    assert response.status_code == 422
+    assert "semantic type" in response.json()["detail"]
+
+
+def test_colt_preview_marks_non_training_scenes_invalid_without_crashing_batch(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    headers = {"Authorization": "Bearer test-token"}
+    response = client.post("/api/v1/baselines/preview", headers=headers, json={
+        "experiment_id": "E8", "baseline_ids": ["colt_adapted", "bm25"],
+        "goal_spec": {
+            "prompt": "Find reviews", "prompt_inputs": ["query"],
+            "goals": [{
+                "id": "g1", "class": "search", "in": ["query"],
+                "out": "record:review", "sigma": "data", "desc": "Find reviews",
+            }],
+        },
+        "tools": [{
+            "server": "reviews", "name": "search_reviews",
+            "description": "Search reviews",
+            "input_schema": {"type": "object", "properties": {}},
+        }],
+        "training_scenes": [{"split": "test", "tools": ["reviews::search_reviews"]}],
+    })
+    assert response.status_code == 200
+    results = {x["baseline"]["id"]: x["result"] for x in response.json()["results"]}
+    assert results["colt_adapted"]["status"] == "invalid_adapter_configuration"
+    assert results["bm25"]["status"] == "completed"
+
+
+def test_baseline_preview_registry_hash_is_order_invariant(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    headers = {"Authorization": "Bearer test-token"}
+    base = {
+        "experiment_id": "E8", "baseline_ids": ["bm25"],
+        "goal_spec": {
+            "prompt": "Search reviews", "prompt_inputs": ["query"],
+            "goals": [{
+                "id": "g1", "class": "search", "in": ["query"],
+                "out": "record:review", "sigma": "data", "desc": "Search reviews",
+            }],
+        },
+        "top_k": 2,
+    }
+    one = {
+        "server": "reviews", "name": "search_reviews", "description": "Search reviews",
+        "input_schema": {"type": "object", "properties": {}},
+    }
+    two = {
+        "server": "reviews", "name": "list_reviews", "description": "List reviews",
+        "input_schema": {"type": "object", "properties": {}},
+    }
+    a = client.post("/api/v1/baselines/preview", headers=headers, json={**base, "tools": [one, two]})
+    b = client.post("/api/v1/baselines/preview", headers=headers, json={**base, "tools": [two, one]})
+    assert a.status_code == b.status_code == 200
+    assert a.json()["registry_snapshot"]["sha256"] == b.json()["registry_snapshot"]["sha256"]
