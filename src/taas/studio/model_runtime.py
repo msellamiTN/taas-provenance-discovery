@@ -20,7 +20,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[3]
 
-from taas.studio.analyst_contract import build_analyst_system_prompt, build_refinement_context
+from taas.studio.analyst_contract import build_analyst_system_prompt
 
 
 class ModelRuntimeError(RuntimeError):
@@ -257,7 +257,10 @@ class HuggingFaceModelRuntime:
     def decompose(self, prompt: str, context: str = "", max_new_tokens: int = 1200) -> dict[str, Any]:
         if not prompt.strip():
             raise ValueError("prompt must not be empty")
-        system = build_analyst_system_prompt()
+        try:
+            system = build_analyst_system_prompt()
+        except RuntimeError as exc:
+            raise ModelRuntimeError(str(exc)) from exc
         user_content = "Objective:\n" + prompt.strip()
         if context.strip():
             user_content += "\n\nAdditional context:\n" + context.strip()
