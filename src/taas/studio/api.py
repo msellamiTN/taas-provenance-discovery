@@ -195,6 +195,64 @@ def runtime_status() -> dict[str, Any]:
     return probe_runtime()
 
 
+def canonicalize_declared_plural_types(spec: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, str]]]:
+    """Canonicalize only a trailing plural 's' when the singular type is explicitly in Θ.
+
+    This is a narrow schema-backed spelling repair (e.g. records[] -> record[]),
+    not domain inference or a relaxation of the semantic type vocabulary.
+    """
+    candidate = copy.deepcopy(spec)
+    try:
+        _, theta = load_analyst_contract()
+    except RuntimeError:
+        return candidate, []
+    allowed = set(theta.get("common_types", []))
+    events: list[dict[str, str]] = []
+
+    def canonicalize(value: Any, path: str) -> Any:
+        if not isinstance(value, str) or not value.endswith("[]"):
+            return value
+        body = value[:-2]
+        if not body.endswith("s"):
+            return value
+        singular = body[:-1] + "[]"
+        if singular not in allowed:
+            return value
+        events.append({"path": path, "from": value, "to": singular,
+                       "rule": "trailing_plural_s_to_declared_theta_type"})
+        return singular
+
+    candidate["prompt_inputs"] = [
+        canonicalize(value, f"prompt_inputs[{index}]")
+        for index, value in enumerate(candidate.get("prompt_inputs", []))
+    ]
+    for index, goal in enumerate(candidate.get("goals", [])):
+        if not isinstance(goal, dict):
+            continue
+        if "out" in goal:
+            goal["out"] = canonicalize(goal["out"], f"goals[{index}].out")
+        goal["in"] = [
+            canonicalize(value, f"goals[{index}].in[{position}]")
+            for position, value in enumerate(goal.get("in", []))
+        ]
+    return candidate, events
+
+
+def prepare_agent_candidate(candidate: dict[str, Any], original_objective: str) -> dict[str, Any]:
+    """Preserve the user-authored objective and apply only Θ-backed type spelling repair."""
+    prepared = copy.deepcopy(candidate)
+    spec = prepared.get("goal_spec")
+    if isinstance(spec, dict):
+        normalized, events = canonicalize_declared_plural_types(spec)
+        # The objective is user-authored input, not a field the model may truncate,
+        # paraphrase, or replace. Keep the model's raw response in prepared["text"].
+        normalized["prompt"] = original_objective
+        prepared["goal_spec"] = normalized
+        prepared["normalization_events"] = events
+        prepared["objective_prompt_preserved"] = True
+    return prepared
+
+
 def validate_studio_goal_spec(spec: dict[str, Any]) -> None:
     """Fail early on the legacy/malformed UI payload instead of silently defaulting fields."""
     goals = spec.get("goals")
@@ -706,6 +764,7 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
             base_context += "\n\n"
         base_context += objective_context
         result = runtime.decompose(request.prompt, base_context, request.max_new_tokens)
+        result = prepare_agent_candidate(result, request.prompt)
 
         def assess(candidate: dict[str, Any]) -> tuple[bool, list[dict[str, str]], Any]:
             structural_error: Any = None
@@ -721,6 +780,13 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
             diagnostics: list[dict[str, str]] = []
             if candidate.get("json_valid") and isinstance(candidate.get("goal_spec"), dict):
                 diagnostics = diagnose_objective_alignment(request.prompt, candidate["goal_spec"])
+            for event in candidate.get("normalization_events", []):
+                diagnostics.append({
+                    "code": "declared_plural_type_normalized",
+                    "severity": "warning",
+                    "message": f"{event['path']}: normalized {event['from']!r} to declared Θ type {event['to']!r}.",
+                    "suggestion": "Review the canonical type; no undeclared type or business domain was inferred.",
+                })
             if structural_error:
                 diagnostics.append({
                     "code": "goalspec_structural_nonconformance",
@@ -750,6 +816,7 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
             refined = runtime.decompose(
                 request.prompt, refinement_context, request.max_new_tokens
             )
+            refined = prepare_agent_candidate(refined, request.prompt)
             attempts = 2
             accepted, refined_diagnostics, structural_error = assess(refined)
             attempt_history.append({
