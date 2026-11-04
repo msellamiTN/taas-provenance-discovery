@@ -641,6 +641,8 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
             diagnostics = list(candidate.get("semantic_diagnostics") or [])
             if candidate.get("json_valid") and isinstance(candidate.get("goal_spec"), dict):
                 diagnostics.extend(diagnose_objective_alignment(request.prompt, candidate["goal_spec"]))
+                diagnostics = list({(item.get("code"), item.get("message")): item
+                                    for item in diagnostics}.values())
             if structural_error:
                 diagnostics.append({
                     "code": "goalspec_structural_nonconformance",
@@ -721,10 +723,6 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
                 "hypergraph_composition": "deferred_to_discovery",
             }
 
-        result["objective_contract"] = {
-            "operation": build_objective_context(request.prompt).splitlines()[1]
-            if False else None
-        }
         # Return the full deterministic objective frame as inspectable provenance.
         from taas.studio.objective_contract import derive_objective_contract
         result["objective_contract"] = derive_objective_contract(request.prompt)
