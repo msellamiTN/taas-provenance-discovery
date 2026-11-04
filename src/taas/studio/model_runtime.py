@@ -63,6 +63,7 @@ def diagnose_goal_spec(prompt: str, spec: dict[str, Any]) -> list[dict[str, str]
     classes = {str(g.get("class", "")).casefold() for g in goals if isinstance(g, dict)}
     diagnostics: list[dict[str, str]] = []
     total_requested = bool(re.search(r"\b(sum|summation|aggregate|total value|sum of|calculate\s+(?:the\s+)?total)\b", objective))
+    count_requested = bool(re.search(r"\b(count|how many|number of)\b", objective))
     if total_requested and not ({"aggregate", "compute_exact"} & classes):
         diagnostics.append({"code":"missing_aggregation","severity":"error","message":"The objective requests a total or sum, but no aggregate/compute_exact goal is present. A summary is not a calculation.","suggestion":"Add an aggregate or compute_exact goal that consumes numeric values and produces number."})
     if total_requested and ({"aggregate", "compute_exact"} & classes):
@@ -77,18 +78,32 @@ def diagnose_goal_spec(prompt: str, spec: dict[str, Any]) -> list[dict[str, str]
             diagnostics.append({"code":"aggregation_not_exact","severity":"warning","message":"The requested total is exact, but an aggregation goal is marked tolerant.","suggestion":"Use exactness='exact' unless approximation is explicitly permitted."})
     if total_requested and "summarise" in classes and not ({"aggregate", "compute_exact"} & classes):
         diagnostics.append({"code":"summary_substituted_for_calculation","severity":"error","message":"A summarise goal appears where the objective requires arithmetic aggregation.","suggestion":"Add numeric aggregation; keep summarisation only as an optional presentation step."})
-    if total_requested and re.search(r"\b(all|every)\b", objective):
+    if (total_requested or count_requested) and re.search(r"\b(all|every|each)\b", objective):
         retrievals = [g for g in goals if isinstance(g, dict) and str(g.get("class", "")).casefold() in {"retrieve", "search", "fetch_web"}]
         if any(isinstance(g.get("n"), (int, float)) and not isinstance(g.get("n"), bool) and g.get("n") >= 1 for g in retrievals):
             diagnostics.append({"code":"scope_completeness_unproven","severity":"warning","message":"The objective says all/every, but a finite n value is only an estimate and does not prove complete retrieval.","suggestion":"Preserve unbounded scope in retrieval description; treat n as an estimate, not a completeness guarantee."})
     has_currency_context = bool(re.search(r"\b(usd|eur|gbp|tnd|currency|currencies|same currency|convert)\b", objective))
-    if total_requested and not has_currency_context and re.search(r"\b(transaction|transactions|financial|payment|payments)\b", objective):
+    monetary_subject = bool(re.search(
+        r"\b(transaction|transactions|financial|payment|payments|invoice|invoices|amount|value|price|cost|balance)\b",
+        objective,
+    ))
+    # Currency policy is relevant to monetary aggregation, not to counting invoices/payments.
+    if total_requested and monetary_subject and not has_currency_context:
         diagnostics.append({"code":"currency_policy_unspecified","severity":"warning","message":"The financial aggregation does not state how multiple currencies are handled.","suggestion":"Confirm one currency, a conversion policy, or totals grouped by currency when mixed currencies are possible."})
-    count_requested = bool(re.search(r"\b(count|how many|number of)\b", objective))
-    if count_requested and "count" not in classes:
+    count_goals = [g for g in goals if isinstance(g, dict) and str(g.get("class", "")).casefold() == "count"]
+    if count_requested and not count_goals:
         diagnostics.append({"code": "missing_count", "severity": "error",
                             "message": "The objective requests a count, but no count goal is present.",
                             "suggestion": "Add a count goal with numeric output; do not substitute a summary."})
+    for goal in count_goals:
+        if str(goal.get("out", "")).casefold() != "number":
+            diagnostics.append({"code": "count_output_not_numeric", "severity": "error",
+                                "message": "The count goal must produce a number.",
+                                "suggestion": "Set the count goal output type to number."})
+        if str(goal.get("exactness", "tolerant")).casefold() != "exact":
+            diagnostics.append({"code": "count_not_exact", "severity": "error",
+                                "message": "The objective requests an exact count, but the count goal is not marked exact.",
+                                "suggestion": "Set exactness='exact'; do not approximate a requested count."})
     summary_requested = bool(re.search(r"\b(summarize|summarise|summary)\b", objective))
     if summary_requested and "summarise" not in classes:
         diagnostics.append({"code": "missing_summary", "severity": "warning",
