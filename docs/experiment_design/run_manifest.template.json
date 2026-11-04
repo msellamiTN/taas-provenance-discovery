@@ -1,0 +1,32 @@
+{
+  "spec_version": "1.0.0",
+  "experiment_id": "E1",
+  "run_id": "E1-YYYYMMDD-001",
+  "status": "planned",
+  "configuration": "descriptive_measurement",
+  "dataset_snapshot": {
+    "name": "LiveMCPTool+MCPToolBench+++merged",
+    "version_or_hash": "TO_BE_FILLED",
+    "split": "all three protocol registry views",
+    "sample_count": null,
+    "label_snapshot_hash": null
+  },
+  "code": {
+    "repository": "https://github.com/msellamiTN/taas-provenance-discovery",
+    "commit": "TO_BE_FILLED",
+    "dirty_worktree": false
+  },
+  "environment": {
+    "os": "TO_BE_FILLED",
+    "python": "TO_BE_FILLED",
+    "hardware": "TO_BE_FILLED",
+    "container_image_digest": null
+  },
+  "models": [],
+  "parameters": {},
+  "seeds": [],
+  "metrics": {},
+  "statistical_analysis": {},
+  "artifacts": [],
+  "notes": "Template only; no experiment executed."
+}
