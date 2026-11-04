@@ -110,22 +110,22 @@ def build_refinement_context(objective: str, prior_output: str, diagnostics: lis
     except RuntimeError:
         allowed_types = "unavailable: canonical Θ vocabulary could not be loaded"
     return (
-        "GOALSPEC CONFORMANCE REFINEMENT — attempt 2 of 2.\\n"
-        "Original objective (immutable; do not narrow, reinterpret, or replace it):\\n"
+        "GOALSPEC CONFORMANCE REFINEMENT — attempt 2 of 2.\n"
+        "Original objective (immutable; do not narrow, reinterpret, or replace it):\n"
         + objective.strip()
-        + "\\n\\nPrevious candidate (untrusted; correct it rather than defending it):\\n"
+        + "\n\nPrevious candidate (untrusted; correct it rather than defending it):\n"
         + prior_output[:12000]
-        + "\\n\\nDeterministic Core validation/intent diagnostics:\\n"
+        + "\n\nDeterministic Core validation/intent diagnostics:\n"
         + json.dumps(diagnostics, ensure_ascii=False)
-        + "\\n\\nAllowed exact semantic type strings from Θ.common_types (copy verbatim; do not "
-        "pluralize, normalize, or invent a type):\\n"
+        + "\n\nAllowed exact semantic type strings from Θ.common_types (copy verbatim; do not "
+        "pluralize, normalize, or invent a type):\n"
         + allowed_types
-        + "\\n\\nEffect correction rule: effects are limited to read(scope), write(scope), delete(scope), "
+        + "\n\nEffect correction rule: effects are limited to read(scope), write(scope), delete(scope), "
         "egress(scope), exec, money, and session. `execute(query)` is invalid because execute is a goal "
         "class, not an effect. For ordinary retrieval/search from a configured source, retain read(source) "
         "and remove an invented exec effect unless the user explicitly requests code/command/script/process "
-        "execution. Do not infer effects from backend implementation details.\\n"
-        + "\\n\\nReturn a complete replacement GoalSpec JSON object. Resolve every structural/type error "
+        "execution. Do not infer effects from backend implementation details.\n"
+        + "\n\nReturn a complete replacement GoalSpec JSON object. Resolve every structural/type error "
         "and every severity=error intent diagnostic without changing the objective. If a collection's "
         "business schema is unresolved, use the exact generic type 'record[]' when it is present in the "
         "allowed list and preserve the business concept in the goal description. Never repeat a rejected "
