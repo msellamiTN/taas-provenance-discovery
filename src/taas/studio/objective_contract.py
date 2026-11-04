@@ -131,7 +131,10 @@ def derive_objective_contract(
     temporal = _temporal_scope(lower, reference_date)
     recency_scope = bool(re.search(r"\b(latest|recent|newest|current|up[- ]to[- ]date|dernier|dernière|derniere|récent|recent|actuel|actuelle)\b", lower))
     multi_source_intent = bool(re.search(
-        r"\b(from|across|à partir de|a partir de)\s+(?:multiple|several|various|different|many|plusieurs|diverses|différentes|differentes)\s+(?:data\s+)?sources?\b",
+        r"\\b(?:from|across|à partir de|a partir de)\\s+"
+        r"(?:multiple|several|various|different|many|plusieurs|diverses|différentes|differentes)\\s+"
+        r"(?:(?:external|online|public|independent|relevant|externes?|en ligne|publiques?)\\s+){0,3}"
+        r"(?:data\\s+)?sources?\\b",
         lower,
     ))
     # Detect both common word orders: "this paragraph" and
