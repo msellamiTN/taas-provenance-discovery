@@ -1619,13 +1619,14 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     $("runtime-model-id").value=ollama?"qwen2.5:0.5b":"Qwen/Qwen2.5-0.5B-Instruct";
     $("runtime-model-id").placeholder=ollama?"e.g. qwen2.5:0.5b":"owner/model";
     $("runtime-device").hidden=ollama;$("runtime-device-label").hidden=ollama;
+    $("runtime-model-load").textContent=ollama?"Select installed Ollama model":"Download & load model";
     $("runtime-provider-help").textContent=ollama
       ?"Ollama runs as a separate daemon. Start it and install a model first; configure TAAS_OLLAMA_BASE_URL when it is not at 127.0.0.1:11434. Model selection validates installation; Ollama loads weights on first inference."
       :"Hugging Face loads weights inside the TaaS process. CPU is supported; CUDA is optional. Tokenizers use fast mode with a slow-mode fallback.";
   });
   $("runtime-model-refresh").addEventListener("click",async()=>{ $("runtime-model-status").textContent="Reading model runtime state…";try{await refreshLoadedModel();}catch(e){$("runtime-model-status").textContent="Status request failed: "+e.message;} });
   $("runtime-model-load").addEventListener("click",async()=>{
-    const button=$("runtime-model-load");button.disabled=true;$("runtime-model-status").textContent="Loading model weights. The first load may take time and download model files…";
+    const button=$("runtime-model-load");button.disabled=true;const selectedProvider=$("runtime-provider").value;$("runtime-model-status").textContent=selectedProvider==="ollama"?"Validating that the model tag is installed in Ollama…":"Loading model weights. The first load may take time and download model files…";
     try{const provider=$("runtime-provider").value;const state=await runtimePost("/api/v1/models/load",{provider,model_id:$("runtime-model-id").value.trim(),device:provider==="ollama"?"auto":$("runtime-device").value});$("runtime-model-details").textContent=JSON.stringify(state,null,2);$("runtime-model-status").textContent=provider==="ollama"?"Ollama model selected · "+state.model_selected+" · weights load on first inference":"Model loaded · "+state.model_id+" · "+state.device+" · "+state.dtype;}
     catch(e){$("runtime-model-status").textContent="Model load failed: "+e.message;}finally{button.disabled=false;}
   });
