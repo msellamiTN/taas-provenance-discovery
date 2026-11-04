@@ -23,3 +23,12 @@ def test_factorial_is_complete():
 def test_variant_factor_contracts(name, expected):
     v = VARIANTS[name]
     assert (v.G, v.P, v.S) == expected
+
+
+def test_factorial_variant_labels_match_factor_bits():
+    data = load_catalog()
+    cells = {(x["G"], x["P"], x["S"]): x["name"] for x in data["factorial_design"]["cells"]}
+    assert cells[(1, 1, 1)] == "Full_PaMCP"
+    assert cells[(0, 1, 1)] == "PaMCP_NoGap"
+    assert cells[(1, 0, 1)] == "PaMCP_Declared"
+    assert cells[(1, 1, 0)] == "PaMCP_NoCert"
