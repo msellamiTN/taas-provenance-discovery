@@ -104,7 +104,7 @@ def derive_objective_contract(
         lower,
     ))
     explicit_external_source = bool(re.search(
-        r"\\b(web|website|webpage|online|internet|external\\s+sources?|external\\s+data|database|api|repository)\\b",
+        r"\b(web|website|webpage|online|internet|external\s+sources?|external\s+data|database|api|repository)\b",
         lower,
     ))
     acquisition_requested = bool(search_intent or retrieval_intent or multi_source_intent)
