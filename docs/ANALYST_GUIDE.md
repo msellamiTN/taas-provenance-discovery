@@ -75,3 +75,23 @@ Prefer domains from data/processed/theta.json. Use a lowercase singular domain o
 ## Trust and validation boundaries
 
 A generated object is only a proposal. The Studio API validates structure, field types, semantic types, effects, identifiers, dependency references and dependency cycles. Passing those checks does not establish semantic alignment, completeness, safety, policy authorization, tool availability, or task fulfilment. A human must review the objective-to-goal mapping before discovery. Unsupported output is rejected rather than silently repaired.
+
+
+## Analytical intent preservation
+
+The decomposition must preserve the requested operation, not merely the topic or data source.
+
+- Distinguish **summarise** (produce a textual synopsis) from **aggregate** (compute a reduction such as sum, average, min, max, grouping, or count). Never substitute one for the other.
+- For requests to calculate a total/sum of values, include an explicit `aggregate` or `compute_exact` goal. Its inputs must include the relevant numeric field or typed records that contain it, and its output must be `number` (or an explicitly typed numeric result).
+- For financial amounts, preserve exact arithmetic intent with `exactness: "exact"` when the objective asks for a total. Do not silently round or estimate.
+- If currency is unspecified and mixed currencies are possible, surface the ambiguity or ask for clarification; do not assume amounts in different currencies can be added.
+- Do not invent a fixed collection size as a guarantee of completeness. `n` is an estimate, not proof that all matching records were retrieved.
+- Preserve scope words such as "all", "every", and date/range constraints.
+- A final answer goal may format a computed result, but must not replace the computation.
+
+Examples:
+- "Summarize transactions" → `summarise`, output `text`.
+- "Calculate the total value of transactions" → retrieval (if required), then `aggregate`/`compute_exact`, output `number`.
+- "Count transactions" → `count`, output `number`.
+
+These rules guide generation. Runtime semantic diagnostics are deterministic heuristic warnings, not a semantic correctness proof. Human review remains mandatory.
