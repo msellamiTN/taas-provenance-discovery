@@ -1,9 +1,9 @@
-# TaaS Studio on Google Colab T4 — quickstart
+# TaaS Studio on Google Colab — CPU, CUDA and Ollama quickstart
 
 ## One-click launch
 
 1. Open [the Colab notebook](../../notebooks/colab/taas_core_studio_colab.ipynb).
-2. Select **Runtime → Change runtime type → T4 GPU** when available.
+2. Select **Runtime → Change runtime type → T4 GPU** when available; CPU-only runtimes are also supported.
 3. Run the notebook cells from top to bottom.
 4. Wait for the package import and /health + /ready checks.
 5. Open the generated **TaaS Studio** browser link.
@@ -23,11 +23,17 @@ The Studio includes an authenticated **Runtime · GPU diagnostics** panel. Enter
 
 This endpoint is diagnostic only. It does not install CUDA, PyTorch, model weights or an inference engine, and it does not allocate GPU memory or run a model.
 
-## Current capability boundary
+## Model runtime backends
 
-This PR milestone launches the existing **TaaS discovery workspace**. It does not yet provide Hugging Face model search/download/load, model-backed chat, agent orchestration, MCP server invocation, live execution streaming or persistent run history. These must be implemented and tested before being advertised as available.
+The integrated Model/Agent Studio supports:
 
-The Colab notebook installs the package into the active interpreter and verifies the taas import before starting Uvicorn. If installation fails, it prints the pip output and stops instead of continuing into a misleading profile-import error.
+- **Hugging Face Transformers on CPU** — supported without a GPU. Automatic mode selects CPU when CUDA is unavailable.
+- **Hugging Face Transformers on CUDA** — optional acceleration when Colab allocates a compatible GPU.
+- **Ollama** — optional separate daemon in the same Colab VM or at an operator-configured endpoint. Set `TAAS_OLLAMA_BASE_URL` before launching Uvicorn when the daemon is not at `http://127.0.0.1:11434`.
+
+The notebook installs the Hugging Face extras, including `sentencepiece` and `tiktoken`, and includes an opt-in Ollama setup cell. Ollama is not installed or started by default. See [Model Runtime Backends](MODEL_RUNTIME_BACKENDS.md) for setup, memory guidance, tokenizer fallback behavior, and troubleshooting.
+
+A Hugging Face model load is an actual weight-load operation inside the TaaS process. Ollama model selection validates an installed tag; Ollama loads weights lazily on the first inference. Device placement and quantization for Ollama remain managed by Ollama.
 
 ## Valid discovery example
 
