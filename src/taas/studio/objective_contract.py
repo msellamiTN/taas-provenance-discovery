@@ -244,7 +244,15 @@ def derive_objective_contract(
         "outcomes": outcomes,
         "constraints": constraints,
         "review": {
-            "required": bool(unresolved or currency_ambiguity or temporal is not None),
+            # Human review is a platform invariant, including apparently simple
+            # objectives; lexical rules never certify semantic correctness.
+            "required": True,
+            "reasons": [
+                "human_review_mandatory",
+                *([ "unresolved_business_concepts" ] if unresolved else []),
+                *([ "unresolved_ambiguity" ] if currency_ambiguity else []),
+                *([ "temporal_scope_requires_resolution" ] if temporal is not None else []),
+            ],
             "semantic_correctness_verified": False,
             "interpretation_method": "deterministic_lexical_rules",
         },
