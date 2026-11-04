@@ -16,6 +16,7 @@ from taas.contracts import CapabilityContract
 from taas.engine import DiscoveryEngine, EngineConfig
 from taas.goals import parse_goal_spec
 from taas.manifest import manifest_tokens, raw_tokens
+from taas.experiments.catalog import FACTORIAL_VARIANTS, get_factorial_variant
 from taas.model_profile import ModelProfile
 from taas.policy import Policy
 from taas.provenance import DEFAULT_TRUST
@@ -23,7 +24,7 @@ from taas.provenance import TrustPolicy
 from taas.retrieval import HybridRetriever
 
 
-VARIANT_IDS = {"Full_PaMCP", "PaMCP_NoGap", "PaMCP_Declared", "PaMCP_NoCert"}
+VARIANT_IDS = set(FACTORIAL_VARIANTS)
 
 
 def load_preview_profile() -> ModelProfile:
@@ -63,6 +64,7 @@ def run_pamcp_variant(
     """Run one PaMCP configuration without access to evaluator labels."""
     if variant_id not in VARIANT_IDS:
         raise KeyError(f"Unknown PaMCP variant {variant_id}")
+    factors = get_factorial_variant(variant_id)
     if not 1 <= top_k <= 100:
         raise ValueError("top_k must be between 1 and 100")
     profile = load_preview_profile()
@@ -70,7 +72,7 @@ def run_pamcp_variant(
 
     trust = DEFAULT_TRUST
     effective_policy = policy
-    if variant_id == "PaMCP_Declared":
+    if factors.P == 0:
         # P=0: declarations/lexical assertions remain visible, but there is no
         # obs/att threshold. Lower the evidence floor to the lexical tier.
         effective_policy = _policy_with_evidence_floor(policy, 0.0)
@@ -87,14 +89,15 @@ def run_pamcp_variant(
             lex_by_property={},
         )
 
-    engine_cfg = EngineConfig(composer=ComposerConfig(K=top_k), use_gap=(variant_id != "PaMCP_NoGap"))
+    engine_cfg = EngineConfig(composer=ComposerConfig(K=top_k), use_gap=bool(factors.G))
     engine = DiscoveryEngine(contracts, profile, trust=trust, cfg=engine_cfg)
-    if variant_id != "PaMCP_NoCert":
+    if factors.S == 1:
         result = engine.discover(spec, effective_policy)
         toolkit = result.toolkit or []
         certificate = result.certificate.to_dict() if result.certificate is not None else None
         return {
             "variant_id": variant_id,
+            "factors": {"G": factors.G, "P": factors.P, "S": factors.S},
             "status": "abstained" if result.abstained else "selected",
             "selected_tool_ids": toolkit,
             "candidate_tool_ids": result.compose.candidates,
@@ -139,6 +142,7 @@ def run_pamcp_variant(
         per_goal.append({"goal_id": goal.id, "tool_ids": [tool for tool, _ in ranked]})
     return {
         "variant_id": variant_id,
+        "factors": {"G": factors.G, "P": factors.P, "S": factors.S},
         "status": "selected_uncertified" if selected or not gap.gap else "abstained_no_candidates",
         "selected_tool_ids": selected,
         "per_goal_shortlists": per_goal,
