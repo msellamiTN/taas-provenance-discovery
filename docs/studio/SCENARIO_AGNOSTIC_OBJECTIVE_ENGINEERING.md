@@ -38,6 +38,7 @@ The current branch now emits an additive `contract_version: "2.0"` frame from `d
 - `outcomes[]`: ordered, independently identified required goal-class hypotheses;
 - `constraints`: grouped input, scope, computation, temporal, unresolved-concept and ambiguity information;
 - `review`: mandatory human review, explicit interpretation method and an always-false semantic verification flag.
+- `objective_coverage` from the prepare API: each required outcome is mapped to matching proposed goal IDs, actual supplied input types, or an explicit `missing` state. Coverage is structural evidence only and never semantic proof.
 
 The current outcome list is still derived from deterministic lexical rules. It is not yet an extensible semantic outcome graph, and the current parser can miss paraphrases, implicit operations, negation, conditional requirements and cross-lingual intent. The v2 shape is therefore a backward-compatible contract step—not a claim of universal objective understanding.
 
