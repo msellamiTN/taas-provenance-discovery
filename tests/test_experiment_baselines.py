@@ -383,8 +383,9 @@ def test_studio_page_exposes_experiment_and_baseline_workbench():
     for marker in [
         'id="experiments"', 'id="experiment-catalog-load"',
         'id="experiment-baselines-load"', 'id="baseline-preview-run"',
-        'id="experiment-baseline-cards"', 'id="baseline-preview-results"',
-        '/api/v1/baselines/preview',
+        'id="experiment-baseline-cards"', 'id="pamcp-variant-panel"',
+        'id="pamcp-variant-cards"', 'id="baseline-preview-results"',
+        'factorial_variants', 'pamcp_variants', '/api/v1/baselines/preview',
     ]:
         assert marker in page.text
 
@@ -541,7 +542,7 @@ def test_e18_preview_accepts_primary_pamcp_factorial_variants(monkeypatch):
     assert response.status_code == 200, response.text
     data = response.json()
     assert data["baseline_count"] == 0
-    assert data["pamcp_variant_count"] == 4
+    assert data["pamcp_variant_count"] == 8
     assert {x["variant"] for x in data["pamcp_variant_results"]} == set(variants)
     for item in data["pamcp_variant_results"]:
         assert item["result"]["evaluator_labels_accessed"] is False
