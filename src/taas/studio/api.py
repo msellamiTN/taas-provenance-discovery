@@ -39,7 +39,7 @@ from taas.studio.authorization_preflight import (
 from taas.studio.runtime import estimate_model_memory, probe_hardware, probe_runtime
 from taas.studio.model_runtime import ModelRuntimeError, get_model_runtime
 from taas.studio.analyst_contract import validate_theta_types, build_refinement_context, load_analyst_contract
-from taas.studio.objective_contract import (build_objective_context, diagnose_objective_alignment, build_outcome_coverage)
+from taas.studio.objective_contract import (build_objective_context, derive_objective_contract, diagnose_objective_alignment, build_outcome_coverage)
 from taas.studio.ollama_runtime import get_ollama_runtime
 from taas.studio.mcp_registry import MCPRegistryError, inspect_server as inspect_mcp_server, list_servers as list_mcp_servers
 from taas.types import KINDS
@@ -297,18 +297,91 @@ def canonicalize_single_goal_input_dependencies(
     return candidate, [event]
 
 
-def prepare_agent_candidate(candidate: dict[str, Any], original_objective: str) -> dict[str, Any]:
+def canonicalize_objective_constraint_dependencies(
+    spec: dict[str, Any],
+    objective_contract: dict[str, Any] | None,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Remove dependency entries that name Objective Contract constraints, not goals.
+
+    GoalSpec deps are graph edges and may reference only declared goal IDs. Objective
+    Contract constraints live in a separate namespace. This repair is exact-name,
+    contract-backed, provenance-recorded, and never removes a dependency that is a
+    declared goal ID.
+    """
+    candidate = copy.deepcopy(spec)
+    constraints = objective_contract.get("constraints") if isinstance(objective_contract, dict) else None
+    if not isinstance(constraints, dict):
+        return candidate, []
+
+    constraint_names: set[str] = set()
+    def collect_names(value: Any) -> None:
+        if isinstance(value, dict):
+            for key, nested in value.items():
+                if isinstance(key, str):
+                    constraint_names.add(key)
+                collect_names(nested)
+        elif isinstance(value, list):
+            for nested in value:
+                collect_names(nested)
+    collect_names(constraints)
+
+    goals = candidate.get("goals")
+    if not isinstance(goals, list):
+        return candidate, []
+    goal_ids = {
+        goal.get("id") for goal in goals
+        if isinstance(goal, dict) and isinstance(goal.get("id"), str)
+    }
+    events: list[dict[str, Any]] = []
+    for index, goal in enumerate(goals):
+        if not isinstance(goal, dict):
+            continue
+        deps = goal.get("deps")
+        if not isinstance(deps, list) or not deps:
+            continue
+        removed = [
+            dep for dep in deps
+            if isinstance(dep, str) and dep not in goal_ids and dep in constraint_names
+        ]
+        if not removed:
+            continue
+        remaining = [dep for dep in deps if dep not in removed]
+        goal["deps"] = remaining
+        events.append({
+            "path": f"goals[{index}].deps",
+            "from": copy.deepcopy(deps),
+            "to": copy.deepcopy(remaining),
+            "removed": copy.deepcopy(removed),
+            "rule": "objective_constraint_name_not_goal_dependency",
+            "reason": (
+                "The removed value names an Objective Contract constraint, not a GoalSpec goal ID. "
+                "The constraint remains preserved in the Objective Contract."
+            ),
+        })
+    return candidate, events
+
+
+def prepare_agent_candidate(
+    candidate: dict[str, Any],
+    original_objective: str,
+    objective_contract: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """Preserve the objective and apply only narrow, provenance-recorded canonicalizations."""
     prepared = copy.deepcopy(candidate)
     spec = prepared.get("goal_spec")
     if isinstance(spec, dict):
         normalized, type_events = canonicalize_declared_plural_types(spec)
-        normalized, dependency_events = canonicalize_single_goal_input_dependencies(normalized)
+        normalized, input_dependency_events = canonicalize_single_goal_input_dependencies(normalized)
+        normalized, constraint_dependency_events = canonicalize_objective_constraint_dependencies(
+            normalized, objective_contract
+        )
         # The objective is user-authored input, not a field the model may truncate,
         # paraphrase, or replace. Keep the model's raw response in prepared["text"].
         normalized["prompt"] = original_objective
         prepared["goal_spec"] = normalized
-        prepared["normalization_events"] = type_events + dependency_events
+        prepared["normalization_events"] = (
+            type_events + input_dependency_events + constraint_dependency_events
+        )
         prepared["objective_prompt_preserved"] = True
     return prepared
 
@@ -818,13 +891,14 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
         runtime = get_ollama_runtime() if request.provider == "ollama" else get_model_runtime()
         # TaaS Core contributes an objective frame before generation. The model is
         # not given the MCP registry; capability matching remains a later Core stage.
+        objective_contract = derive_objective_contract(request.prompt)
         objective_context = build_objective_context(request.prompt)
         base_context = request.context.strip()
         if base_context:
             base_context += "\n\n"
         base_context += objective_context
         result = runtime.decompose(request.prompt, base_context, request.max_new_tokens)
-        result = prepare_agent_candidate(result, request.prompt)
+        result = prepare_agent_candidate(result, request.prompt, objective_contract)
 
         def assess(candidate: dict[str, Any]) -> tuple[bool, list[dict[str, str]], Any]:
             structural_error: Any = None
@@ -861,6 +935,20 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
                             "other goal IDs; this one-goal candidate has no distinct prerequisite goal."
                         ),
                     })
+                elif event.get("rule") == "objective_constraint_name_not_goal_dependency":
+                    diagnostics.append({
+                        "code": "objective_constraint_dependency_canonicalized",
+                        "severity": "warning",
+                        "message": (
+                            f"{event['path']}: removed Objective Contract constraint name(s) "
+                            f"{event['removed']!r} from the GoalSpec dependency graph; "
+                            "the constraints remain preserved in the Objective Contract."
+                        ),
+                        "suggestion": (
+                            "Review the namespace correction. GoalSpec deps may reference only "
+                            "declared goal IDs; objective constraints are represented separately."
+                        ),
+                    })
             if structural_error:
                 diagnostics.append({
                     "code": "goalspec_structural_nonconformance",
@@ -890,7 +978,7 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
             refined = runtime.decompose(
                 request.prompt, refinement_context, request.max_new_tokens
             )
-            refined = prepare_agent_candidate(refined, request.prompt)
+            refined = prepare_agent_candidate(refined, request.prompt, objective_contract)
             attempts = 2
             accepted, refined_diagnostics, structural_error = assess(refined)
             attempt_history.append({
@@ -944,7 +1032,7 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
 
         # Return the full deterministic objective frame as inspectable provenance.
         from taas.studio.objective_contract import derive_objective_contract
-        result["objective_contract"] = derive_objective_contract(request.prompt)
+        result["objective_contract"] = objective_contract
         result["objective_coverage"] = build_outcome_coverage(
             request.prompt,
             result.get("goal_spec") if isinstance(result.get("goal_spec"), dict) else None,
