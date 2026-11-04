@@ -155,8 +155,8 @@
       "id": "colt_adapted",
       "name": "COLT-style completeness retrieval",
       "kind": "external_adaptation",
-      "implementation": "adapter_to_build",
-      "method": "Build query-tool and query-scene-tool co-use graphs from training queries only; rank tools with semantic relevance plus scene-neighbour support; optimize completeness-oriented top-k. Must use an explicit train split and never derive scenes from evaluation queries.",
+      "implementation": "ready_adaptation",
+      "method": "Build query-tool and query-scene-tool co-use graphs from training queries only; rank tools with semantic relevance plus scene-neighbour support; optimize completeness-oriented top-k. Must use an explicit train split and never derive scenes from evaluation queries. Executable clean-room adapter is present in src/taas/experiments/baseline_runner.py; it is not a bit-for-bit reproduction.",
       "params": {
         "top_k": 10,
         "scene_weight": 0.5,
@@ -177,8 +177,8 @@
       "id": "toolscope_adapted",
       "name": "ToolScope-style merger and contextual retrieval",
       "kind": "external_adaptation",
-      "implementation": "adapter_to_build",
-      "method": "Cluster candidate tools with a declared semantic-equivalence threshold, then context-rank within clusters. Preserve original provider/tool identities, hashes, effects and evidence; report merge precision, recall and false-equivalence rate. This clean-room adapter is not an exact reproduction of the paper's LLM merger/cross-encoder stack.",
+      "implementation": "ready_adaptation",
+      "method": "Cluster candidate tools with a declared semantic-equivalence threshold, then context-rank within clusters. Preserve original provider/tool identities, hashes, effects and evidence; report merge precision, recall and false-equivalence rate. This clean-room adapter is not an exact reproduction of the paper's LLM merger/cross-encoder stack. Executable clean-room adapter is present in src/taas/experiments/baseline_runner.py; it is not a bit-for-bit reproduction.",
       "params": {
         "merge_threshold": 0.82,
         "rerank": "contextual_dense",
@@ -200,8 +200,8 @@
       "id": "cmtf_adapted",
       "name": "CMTF state-frontier planning",
       "kind": "external_adaptation",
-      "implementation": "adapter_to_build",
-      "method": "Search typed precondition/effect states with breadth-first expansion; expose the next-step frontier and cumulative union. Adaptation maps TaaS semantic types/effects to planner states and must disclose how contracts were sourced.",
+      "implementation": "ready_adaptation",
+      "method": "Search typed precondition/effect states with breadth-first expansion; expose the next-step frontier and cumulative union. Adaptation maps TaaS semantic types/effects to planner states and must disclose how contracts were sourced. Executable clean-room adapter is present in src/taas/experiments/baseline_runner.py; it is not a bit-for-bit reproduction.",
       "params": {
         "search": "breadth_first",
         "frontier_only": true,
@@ -224,8 +224,8 @@
       "id": "autotool_adapted",
       "name": "AutoTool (AAAI 2026) trajectory reuse",
       "kind": "external_adaptation",
-      "implementation": "adapter_to_build",
-      "method": "Retrieve and reuse confirmed historical execution trajectories, with registry/hash/policy revalidation before reuse. Only E21; do not confuse this with a differently named AutoTool publication.",
+      "implementation": "ready_adaptation",
+      "method": "Retrieve and reuse confirmed historical execution trajectories, with registry/hash/policy revalidation before reuse. Only E21; do not confuse this with a differently named AutoTool publication. Executable clean-room adapter is present in src/taas/experiments/baseline_runner.py; it is not a bit-for-bit reproduction.",
       "params": {
         "trajectory_repository_required": true,
         "staleness_revalidation": true,
