@@ -565,3 +565,58 @@ def test_pamcp_variants_are_restricted_to_e18(monkeypatch):
         "tools": [{"server": "s", "name": "t", "description": "tool", "input_schema": {}}],
     })
     assert response.status_code == 422
+
+
+def test_linear_scan_control_matches_direct_positive_eligibility():
+    contracts, retriever, spec, _ = _fixture()
+    policy = Policy.make("requires-read-only", required=["read_only"], allowed=["read(*)"], lmin="obs")
+    result = run_baseline(
+        "linear_scan", retriever, spec, spec.prompt, list(retriever.contracts),
+        policy=policy,
+    )
+    assert result.status == "completed"
+    assert result.details["bitmap_index_used"] is False
+    assert result.details["scanned_tool_count"] == len(contracts)
+    assert set(result.selected_tools) == {"reviews::search_reviews", "reviews::list_reviews"}
+
+
+def test_no_experience_control_runs_without_trajectory_store():
+    _, retriever, spec, _ = _fixture()
+    result = run_baseline(
+        "no_experience", retriever, spec, spec.prompt, list(retriever.contracts),
+        top_k=2,
+    )
+    assert result.status == "completed"
+    assert result.details["experience_repository_used"] is False
+    assert result.details["historical_trajectories_consulted"] == 0
+
+
+def test_e17_no_refinement_adapter_disables_counterexample_repair(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    headers = {"Authorization": "Bearer test-token"}
+    response = client.post("/api/v1/baselines/preview", headers=headers, json={
+        "experiment_id": "E17",
+        "baseline_ids": ["no_refinement"],
+        "goal_spec": {
+            "prompt": "Search customer reviews",
+            "prompt_inputs": ["query"],
+            "goals": [{
+                "id": "g1", "class": "search", "in": ["query"],
+                "out": "record:review", "eff": ["read(reviews)"],
+                "sigma": "data", "desc": "Search customer reviews",
+            }],
+        },
+        "tools": [{
+            "server": "reviews", "name": "search_reviews",
+            "description": "Search customer reviews",
+            "input_schema": {"type": "object", "properties": {"query": {"type": "string"}}},
+            "annotations": {"readOnlyHint": True},
+        }],
+        "policy": {"name": "read-only-preview", "allowed": ["read(*)"], "lmin": "ann"},
+        "top_k": 2,
+    })
+    assert response.status_code == 200, response.text
+    result = response.json()["results"][0]["result"]
+    assert result["baseline_id"] == "no_refinement"
+    assert result["refinement_iterations_allowed"] == 0
+    assert result["evaluator_labels_accessed"] is False
