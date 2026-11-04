@@ -208,6 +208,10 @@ def test_studio_frontend_keeps_goal_metrics_disjoint_and_runtime_claims_precise(
     assert "model not loaded · inference not executed" in page
     assert "model_loaded: false" in page
     assert "inference_executed: false" in page
+    assert 'id="discovery-diagnostics-panel"' in page
+    assert 'id="discovery-diagnostics-tools"' in page
+    assert 'cell.textContent=String(value)' in page
+    assert 'discovery_diagnostics' in page
 
     # Separate mandatory validity gates from non-gating diagnostics.
     assert 'const mandatoryChecks = ["S", "C", "P", "E", "L", "V"]' in page
