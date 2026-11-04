@@ -1,5 +1,5 @@
 """Mountable PaMCP experiment catalogue and configuration router."""
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 from taas.studio.experiments_api import (
     experiment_catalog,
@@ -14,7 +14,7 @@ from taas.studio.experiments_api import (
 router = APIRouter(
     prefix="/api/v1/experiments",
     tags=["PaMCP Experiments"],
-    dependencies=[require_token],
+    dependencies=[Depends(require_token)],
 )
 router.add_api_route("/catalog", experiment_catalog, methods=["GET"])
 router.add_api_route("/catalog/{experiment_id}", experiment_detail, methods=["GET"])
