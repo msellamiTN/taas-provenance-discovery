@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 CATALOG_PATH = ROOT / "docs" / "experiment_design" / "pamcp_experiments_v1.json"
 
 
