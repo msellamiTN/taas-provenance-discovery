@@ -71,6 +71,8 @@ def test_colab_objective_matrix_covers_local_and_external_workflows() -> None:
     ):
         assert phrase in code
     assert 'assert contract["source_data_required"] is False' in code
+    assert "importlib.reload(objective_contract)" in code
+    assert 'contract["contract_version"] == "2.0"' in code
     assert 'assert contract["source_data_required"] is True' in code
 
 
