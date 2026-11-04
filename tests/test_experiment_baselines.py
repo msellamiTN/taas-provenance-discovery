@@ -39,7 +39,7 @@ def _fixture():
             "out": "record:review", "eff": ["read(reviews)"],
             "sigma": "data", "desc": "Search customer reviews",
         }],
-    })
+    }, prompt="Search customer reviews")
     raw = RawTool(
         server="reviews", name="search_reviews", description="Search customer reviews",
         input_schema={"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]},
