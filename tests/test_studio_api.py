@@ -985,7 +985,8 @@ def test_studio_navigation_shell_has_valid_targets_and_accessible_skip_link():
     assert nav is not None
     targets = set(re.findall(r'href="#([^"]+)"', nav.group(0)))
     assert targets <= ids
-    assert 'class="skip-link" href="#overview"' in html
+    assert 'class="skip-link" href="#overview-workspace"' in html
+    assert 'id="overview-workspace"' in html
     assert 'id="overview"' in html
     assert 'aria-label="Studio sections"' in html
     assert ".studio-layout" in html
