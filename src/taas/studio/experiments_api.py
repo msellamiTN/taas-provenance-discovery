@@ -23,6 +23,7 @@ from taas.contracts import extract_contract
 from taas.data.registries import RawTool
 from taas.experiments.baseline_runner import run_baseline
 from taas.experiments.registry_baselines import run_effect_baseline, run_typing_baseline
+from taas.experiments.policy_baselines import run_policy_baseline
 from taas.goals import parse_goal_spec
 from taas.policy import Policy
 from taas.retrieval import HybridRetriever
@@ -262,6 +263,8 @@ def baseline_preview(payload: BaselinePreviewRequest) -> dict[str, Any]:
             result = run_typing_baseline(baseline_id, raw_tools)
         elif baseline_id in {"effects_declared", "effects_lexical", "effects_probe"}:
             result = run_effect_baseline(baseline_id, raw_tools)
+        elif baseline_id in {"mcp_default_annotations", "closed_world_annotations", "lexical_positive", "lexical_closed_world", "verified_evidence"}:
+            result = run_policy_baseline(baseline_id, raw_tools)
         else:
             result = run_baseline(
                 baseline_id, retriever, spec, prompt, pool, top_k=payload.top_k,
