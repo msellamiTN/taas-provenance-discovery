@@ -304,7 +304,17 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     .hg-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.hg-actions button{margin:0;white-space:nowrap}.hg-actions .secondary{background:#fff}
     @media(max-width:850px){.hg-layout{grid-template-columns:1fr}.hg-inspector{border-left:0;border-top:1px solid var(--line)}}
 
-\n/* Compact, readable navigation on tablet and mobile. */\n@media(max-width:900px){.studio-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:4px}.studio-nav .nav-brand{grid-column:1/-1;width:auto}.studio-nav a{min-width:0;overflow-wrap:anywhere;line-height:1.35}}\n@media(max-width:560px){.studio-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;padding:9px}.studio-nav a{min-height:36px;padding:7px 8px;font-size:11px}}\n</style>
+\n/* Compact, readable navigation on tablet and mobile. */\n@media(max-width:900px){.studio-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:4px}.studio-nav .nav-brand{grid-column:1/-1;width:auto}.studio-nav a{min-width:0;overflow-wrap:anywhere;line-height:1.35}}\n@media(max-width:560px){.studio-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;padding:9px}.studio-nav a{min-height:36px;padding:7px 8px;font-size:11px}}\n
+  .outcome-coverage{margin:12px 0;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface,#fff)}
+  .outcome-coverage-summary{font-size:13px;font-weight:650;margin-bottom:9px;color:var(--text)}
+  .outcome-coverage-table{width:100%;border-collapse:collapse;font-size:12px}
+  .outcome-coverage-table th,.outcome-coverage-table td{text-align:left;padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  .outcome-coverage-table th{color:var(--muted);font-weight:600}
+  .outcome-status{display:inline-block;padding:3px 7px;border-radius:999px;font-size:11px;font-weight:650;white-space:nowrap}
+  .outcome-status.covered{background:#e8f5ee;color:#17633c}
+  .outcome-status.missing{background:#fff1e8;color:#99420b}
+  .outcome-coverage-note{margin:9px 0 0;color:var(--muted);font-size:11px;line-height:1.45}
+</style>
 </head>
 <body>
 <header class="studio-header">
@@ -627,7 +637,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     <section id="agent-goal-panel" style="box-shadow:none;padding:14px;margin-top:14px">
       <h2>3 · Objective Engineering · TaaS Core</h2><p class="muted">Canonical entry point for operational prompts. TaaS Core frames the objective, the selected model proposes a GoalSpec, and deterministic validation plus actual Core gap_analysis inspect it. Tool discovery follows only after human review. The proposal is never an execution authorization.</p>
       <label for="agent-goal-prompt">Agent objective</label><textarea id="agent-goal-prompt" rows="3" style="min-height:90px" placeholder="Find current information, summarize it, and save a Markdown report…"></textarea>
-      <button id="agent-decompose" type="button">Prepare objective with TaaS Core</button><div id="agent-decompose-status" class="status" role="status" aria-live="polite">No decomposition requested.</div><pre id="agent-decompose-result">The model's GoalSpec proposal will appear here.</pre>
+      <button id="agent-decompose" type="button">Prepare objective with TaaS Core</button><div id="agent-decompose-status" class="status" role="status" aria-live="polite">No decomposition requested.</div><div id="agent-outcome-coverage" class="outcome-coverage" aria-live="polite"></div><pre id="agent-decompose-result">The model's GoalSpec proposal will appear here.</pre>
       <div id="agent-semantic-diagnostics" class="goal-validation" role="status" aria-live="polite">Semantic diagnostics appear after decomposition. Heuristic warnings are not a correctness proof.</div>
       <div class="inline-actions"><button id="agent-apply-goals" type="button" class="secondary" disabled>Apply proposal to GoalSpec editor</button><span class="subtle">Applying replaces the current visual GoalSpec draft; review and validate it before discovery.</span></div>
     </section>
@@ -1658,11 +1668,36 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       $("agent-chat-status").textContent="Inference completed · "+result.latency_seconds+"s · "+result.output_tokens+" generated tokens.";
     }catch(e){$("agent-chat-status").textContent="Inference failed: "+e.message;}finally{button.disabled=false;}
   });
+  function renderObjectiveCoverage(coverage){
+    const root=$("agent-outcome-coverage");root.replaceChildren();
+    if(!coverage||!Array.isArray(coverage.outcomes)){root.textContent="Outcome coverage is not available for this response.";return;}
+    const summary=document.createElement("div");summary.className="outcome-coverage-summary";
+    const counts=coverage.summary||{};
+    summary.textContent="Objective outcomes · "+(counts.covered??0)+"/"+(counts.required??coverage.outcomes.length)+" mapped · "+(counts.missing??0)+" missing";
+    root.appendChild(summary);
+    if(!coverage.outcomes.length){const empty=document.createElement("p");empty.className="subtle";empty.textContent="No explicit operation outcome was detected. Review the original objective and clarify its expected result.";root.appendChild(empty);return;}
+    const table=document.createElement("table");table.className="outcome-coverage-table";
+    const head=document.createElement("thead"),headRow=document.createElement("tr");
+    ["Required outcome","Coverage","Goal / input evidence"].forEach(label=>{const th=document.createElement("th");th.textContent=label;headRow.appendChild(th);});
+    head.appendChild(headRow);table.appendChild(head);
+    const body=document.createElement("tbody");
+    const labels={covered_by_goal:"Mapped to GoalSpec",covered_by_supplied_input:"Supplied input",missing:"Missing"};
+    coverage.outcomes.forEach(outcome=>{
+      const tr=document.createElement("tr");
+      const outcomeCell=document.createElement("td");outcomeCell.textContent=outcome.goal_class||"Unspecified";
+      const statusCell=document.createElement("td");const status=document.createElement("span");status.className="outcome-status "+(outcome.status==="missing"?"missing":"covered");status.textContent=labels[outcome.status]||outcome.status||"Unknown";statusCell.appendChild(status);
+      const evidenceCell=document.createElement("td");const evidence=[...(outcome.goal_ids||[]),...(outcome.input_types||[]).map(value=>"input: "+value)];evidenceCell.textContent=evidence.length?evidence.join(", "):"No matching goal or supplied input";
+      tr.append(outcomeCell,statusCell,evidenceCell);body.appendChild(tr);
+    });
+    table.appendChild(body);root.appendChild(table);
+    const note=document.createElement("p");note.className="outcome-coverage-note";note.textContent="Coverage shows structural mapping only. It is not proof of semantic correctness, data availability, tool capability or execution success. Human review remains mandatory.";
+    root.appendChild(note);
+  }
   let pendingAgentGoalSpec=null;
   $("agent-decompose").addEventListener("click",async()=>{
     const button=$("agent-decompose");button.disabled=true;$("agent-decompose-status").textContent="Preparing objective through TaaS Core…";$("agent-apply-goals").disabled=true;pendingAgentGoalSpec=null;
     try{const result=await runtimePost("/api/v1/objectives/prepare",{provider:$("runtime-provider").value,prompt:$("agent-goal-prompt").value,max_new_tokens:1200});$("agent-decompose-result").textContent=JSON.stringify(result,null,2);
-      const diagnostics=result.semantic_diagnostics||[];
+      renderObjectiveCoverage(result.objective_coverage);\n      const diagnostics=result.semantic_diagnostics||[];
       const hasErrors=diagnostics.some(x=>x.severity==="error");
       const coreNeedsClarification=result.core_analysis?.status==="clarification_required";
       const accepted=result.conformance?.accepted_for_human_review===true;
