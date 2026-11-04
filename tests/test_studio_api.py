@@ -1689,6 +1689,8 @@ def test_studio_frontend_routes_operational_objectives_through_core_first_workfl
     assert 'id="agent-outcome-coverage"' in page
     assert "renderObjectiveCoverage(result.objective_coverage)" in page
     assert "Coverage shows structural mapping only" in page
+    assert "const missingOutcomes=" in page
+    assert "!missingOutcomes" in page
 
 
 def test_canonical_objective_discover_endpoint_runs_existing_core_discovery(monkeypatch):
