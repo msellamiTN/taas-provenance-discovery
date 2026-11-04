@@ -923,7 +923,7 @@
       const body=document.createElement("span");
       const title=document.createElement("strong");title.textContent=id;
       const factors=document.createElement("small");factors.textContent="G="+item.G+" · P="+item.P+" · S="+item.S;
-      const desc=document.createElement("small");desc.textContent=item.definition;
+      const desc=document.createElement("small");desc.textContent=item.description;
       body.append(title,factors,desc);card.append(check,body);root.append(card);
     });
     updatePreviewButton();
@@ -939,10 +939,10 @@
       renderBaselineCards();
       const variantPanel=$("pamcp-variant-panel");
       variantPanel.hidden=id!=="E18";
-      experimentUi.variants={};
+      experimentUi.variants=[];
       if(id==="E18"){
         const v=await apiGet("/api/v1/experiments/variants");
-        experimentUi.variants=v.variants||{};
+        experimentUi.variants=v.factorial_variants||[];
       }
       renderVariantCards();
       $("experiment-catalog-status").textContent=d.total+" experiment-scoped baseline(s) loaded"+
