@@ -33,7 +33,7 @@ def _conformant_candidate() -> dict:
         "prompt": "Calculate the total value of all transactions",
         "prompt_inputs": ["text"],
         "goals": [{
-            "id": "g1", "desc": "Retrieve all transaction records from the user-authorized data source",
+            "id": "g1", "desc": "Retrieve all matching transaction records from the source identified during Discovery",
             "class": "retrieve", "in": ["query"], "out": "record[]",
             "eff": ["read(db)"], "sigma": "data", "n": 1,
             "exactness": "exact", "deps": [], "optional": False,
@@ -244,3 +244,14 @@ def test_objective_alignment_accepts_connected_all_scope_plan_with_warnings_only
     )
     assert not [item for item in diagnostics if item["severity"] == "error"]
     assert any(item["code"] == "objective_concept_not_mapped_to_theta" for item in diagnostics)
+
+
+def test_compute_exact_is_valid_aggregate_operation_alternative():
+    from taas.studio.objective_contract import diagnose_objective_alignment
+
+    spec = _conformant_candidate()
+    spec["goals"][1]["class"] = "compute_exact"
+    diagnostics = diagnose_objective_alignment(
+        "Calculate the total value of all transactions", spec
+    )
+    assert not [item for item in diagnostics if item["severity"] == "error"]
