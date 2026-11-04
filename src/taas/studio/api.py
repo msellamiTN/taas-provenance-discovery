@@ -36,6 +36,7 @@ from taas.studio.authorization_preflight import (
 )
 from taas.studio.runtime import estimate_model_memory, probe_hardware, probe_runtime
 from taas.studio.model_runtime import ModelRuntimeError, get_model_runtime
+from taas.studio.ollama_runtime import get_ollama_runtime
 from taas.studio.mcp_registry import MCPRegistryError, inspect_server as inspect_mcp_server, list_servers as list_mcp_servers
 from taas.types import KINDS
 from taas.studio.assurance_routes import build_assurance_router
@@ -86,11 +87,13 @@ class DiscoverRequest(BaseModel):
 class ModelLoadRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     model_id: str = Field(min_length=3, max_length=257)
+    provider: str = Field(default="huggingface", pattern="^(huggingface|ollama)$")
     device: str = Field(default="auto", pattern="^(auto|cpu|cuda)$")
 
 
 class ModelChatRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
+    provider: str = Field(default="huggingface", pattern="^(huggingface|ollama)$")
     message: str = Field(min_length=1, max_length=12000)
     system: str = Field(default="You are a helpful assistant.", max_length=4000)
     max_new_tokens: int = Field(default=512, ge=1, le=2048)
@@ -99,6 +102,7 @@ class ModelChatRequest(BaseModel):
 
 class AgentDecomposeRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
+    provider: str = Field(default="huggingface", pattern="^(huggingface|ollama)$")
     prompt: str = Field(min_length=1, max_length=12000)
     context: str = Field(default="", max_length=8000)
     max_new_tokens: int = Field(default=1200, ge=1, le=2048)
@@ -568,14 +572,22 @@ def discover(request: DiscoverRequest) -> dict[str, Any]:
 
 @app.get("/api/v1/models/runtime", dependencies=[Depends(require_api_token)])
 def model_runtime_status() -> dict[str, Any]:
-    """Report the actual process-local model state, not catalog metadata."""
-    return get_model_runtime().status()
+    """Report runtime state for both configured inference providers."""
+    state = get_model_runtime().status()
+    state["providers"] = {
+        "huggingface": {"available": True, "model_loaded": state.get("model_loaded", False),
+                        "model_id": state.get("model_id"), "device": state.get("device")},
+        "ollama": get_ollama_runtime().status(),
+    }
+    return state
 
 
 @app.post("/api/v1/models/load", dependencies=[Depends(require_api_token)])
 def model_runtime_load(request: ModelLoadRequest) -> dict[str, Any]:
     """Explicitly download/load a selected HF model in this API process."""
     try:
+        if request.provider == "ollama":
+            return get_ollama_runtime().load(request.model_id)
         return get_model_runtime().load(request.model_id, request.device)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
@@ -587,9 +599,8 @@ def model_runtime_load(request: ModelLoadRequest) -> dict[str, Any]:
 def model_runtime_chat(request: ModelChatRequest) -> dict[str, Any]:
     """Run a real inference request against the currently loaded model."""
     try:
-        return get_model_runtime().chat(
-            request.message, request.system, request.max_new_tokens, request.temperature
-        )
+        runtime = get_ollama_runtime() if request.provider == "ollama" else get_model_runtime()
+        return runtime.chat(request.message, request.system, request.max_new_tokens, request.temperature)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except ModelRuntimeError as exc:
@@ -600,9 +611,8 @@ def model_runtime_chat(request: ModelChatRequest) -> dict[str, Any]:
 def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
     """Use the selected Studio model to propose a GoalSpec; validate separately."""
     try:
-        result = get_model_runtime().decompose(
-            request.prompt, request.context, request.max_new_tokens
-        )
+        runtime = get_ollama_runtime() if request.provider == "ollama" else get_model_runtime()
+        result = runtime.decompose(request.prompt, request.context, request.max_new_tokens)
         if result.get("json_valid"):
             try:
                 validate_studio_goal_spec(result["goal_spec"])
