@@ -64,3 +64,16 @@ def test_workbench_status_does_not_claim_runner_or_sandbox():
     assert data["execution_enabled"] is False
     assert data["sequential_runner"] == "not_implemented"
     assert data["mcp_execution_sandbox"] == "not_implemented"
+
+
+def test_existing_studio_mounts_experiment_catalog(monkeypatch):
+    from fastapi.testclient import TestClient
+    from taas.studio.api import app
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = TestClient(app).get(
+        "/api/v1/experiments/catalog",
+        headers={"Authorization": "Bearer test-token"},
+    )
+    assert response.status_code == 200
+    assert response.json()["total"] == 22
+    assert response.json()["planned_not_run"] == 22
