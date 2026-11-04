@@ -514,7 +514,8 @@ def test_pamcp_variant_runner_exposes_uncertified_no_cert_semantics():
 def test_e18_preview_accepts_primary_pamcp_factorial_variants(monkeypatch):
     monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
     headers = {"Authorization": "Bearer test-token"}
-    variants = ["Full_PaMCP", "PaMCP_NoGap", "PaMCP_Declared", "PaMCP_NoCert"]
+    variants = ["Full_PaMCP", "PaMCP_NoGap", "PaMCP_Declared", "PaMCP_NoCert",
+                "G1_P0_S0", "G0_P1_S0", "G0_P0_S1", "G0_P0_S0"]
     response = client.post("/api/v1/baselines/preview", headers=headers, json={
         "experiment_id": "E18",
         "baseline_ids": [],
