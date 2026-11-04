@@ -123,6 +123,7 @@ def run_pamcp_variant(
     if gap.clarify is not None:
         return {
             "variant_id": variant_id,
+            "factors": {"G": factors.G, "P": factors.P, "S": factors.S},
             "status": "abstained_clarification",
             "selected_tool_ids": [],
             "gap_goal_ids": [],
