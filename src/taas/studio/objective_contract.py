@@ -50,7 +50,7 @@ def derive_objective_contract(objective: str) -> dict[str, Any]:
     )
     stop = {"calculate", "total", "value", "all", "every", "each", "please", "show",
             "find", "get", "give", "what", "how", "many", "number", "sum", "the",
-            "for", "from", "with", "and", "that", "this", "last", "week", "month",
+            "for", "from", "with", "and", "that", "this", "last", "week", "month", "of", "is", "are", "was", "were", "to", "in", "on", "by", "per",
             "today", "yesterday", "transactions", "transaction", "payments", "payment",
             "invoices", "invoice", "amount", "financial"}
     unresolved = sorted({w.rstrip("s") for w in business_terms
