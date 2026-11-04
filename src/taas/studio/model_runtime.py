@@ -79,11 +79,33 @@ def diagnose_goal_spec(prompt: str, spec: dict[str, Any]) -> list[dict[str, str]
         diagnostics.append({"code":"summary_substituted_for_calculation","severity":"error","message":"A summarise goal appears where the objective requires arithmetic aggregation.","suggestion":"Add numeric aggregation; keep summarisation only as an optional presentation step."})
     if total_requested and re.search(r"\b(all|every)\b", objective):
         retrievals = [g for g in goals if isinstance(g, dict) and str(g.get("class", "")).casefold() in {"retrieve", "search", "fetch_web"}]
-        if any(isinstance(g.get("n"), (int, float)) and not isinstance(g.get("n"), bool) and g.get("n") > 1 for g in retrievals):
+        if any(isinstance(g.get("n"), (int, float)) and not isinstance(g.get("n"), bool) and g.get("n") >= 1 for g in retrievals):
             diagnostics.append({"code":"scope_completeness_unproven","severity":"warning","message":"The objective says all/every, but a finite n value is only an estimate and does not prove complete retrieval.","suggestion":"Preserve unbounded scope in retrieval description; treat n as an estimate, not a completeness guarantee."})
     has_currency_context = bool(re.search(r"\b(usd|eur|gbp|tnd|currency|currencies|same currency|convert)\b", objective))
     if total_requested and not has_currency_context and re.search(r"\b(transaction|transactions|financial|payment|payments)\b", objective):
         diagnostics.append({"code":"currency_policy_unspecified","severity":"warning","message":"The financial aggregation does not state how multiple currencies are handled.","suggestion":"Confirm one currency, a conversion policy, or totals grouped by currency when mixed currencies are possible."})
+    count_requested = bool(re.search(r"\\b(count|how many|number of)\\b", objective))
+    if count_requested and "count" not in classes:
+        diagnostics.append({"code": "missing_count", "severity": "error",
+                            "message": "The objective requests a count, but no count goal is present.",
+                            "suggestion": "Add a count goal with numeric output; do not substitute a summary."})
+    summary_requested = bool(re.search(r"\\b(summarize|summarise|summary)\\b", objective))
+    if summary_requested and "summarise" not in classes:
+        diagnostics.append({"code": "missing_summary", "severity": "warning",
+                            "message": "The objective requests a summary, but no summarise goal is present.",
+                            "suggestion": "Add a summarise goal if a textual synopsis is required."})
+    if total_requested:
+        aggregations = [g for g in goals if isinstance(g, dict)
+                        and str(g.get("class", "")).casefold() in {"aggregate", "compute_exact"}]
+        for goal in aggregations:
+            declared_numeric = any(str(item).casefold() == "number" or str(item).casefold().startswith("number:")
+                                   for item in goal.get("in", []))
+            field_named = bool(re.search(r"\\b(amount|value|price|total|cost|balance|quantity)\\b",
+                                         str(goal.get("desc", ""))))
+            if not declared_numeric and not field_named:
+                diagnostics.append({"code": "aggregation_field_unspecified", "severity": "warning",
+                                    "message": "The aggregation goal does not identify the numeric field being summed.",
+                                    "suggestion": "Name the numeric field (for example amount/value) or provide a numeric input type."})
     return diagnostics
 
 
