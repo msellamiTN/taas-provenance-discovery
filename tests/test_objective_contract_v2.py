@@ -124,17 +124,23 @@ def test_v2_outcome_coverage_reports_missing_operations_without_guessing():
     assert coverage["outcomes"][1]["goal_ids"] == []
 
 
-def test_v2_retrieval_outcome_can_be_covered_by_actual_supplied_data():
+def test_supplied_input_does_not_count_as_performed_search_or_retrieval():
     from taas.studio.objective_contract import build_outcome_coverage
 
-    coverage = build_outcome_coverage(
+    for objective in (
         "Search the supplied documents for references to privacy.",
-        {"prompt_inputs": ["text"], "goals": []},
-    )
+        "Retrieve records from the configured source.",
+    ):
+        coverage = build_outcome_coverage(
+            objective,
+            {"prompt_inputs": ["text", "record[]"], "goals": []},
+        )
+        assert coverage["summary"]["missing"] >= 1
+        assert all(item["status"] == "missing" for item in coverage["outcomes"])
+        assert all(item["input_types"] == [] for item in coverage["outcomes"])
+        assert coverage["semantic_correctness_verified"] is False
+        assert coverage["coverage_semantics"].startswith("goal_class_only")
 
-    assert coverage["summary"] == {"required": 1, "covered": 1, "missing": 0}
-    assert coverage["outcomes"][0]["status"] == "covered_by_supplied_input"
-    assert coverage["outcomes"][0]["input_types"] == ["text"]
     frame = derive_objective_contract(
         "Search the supplied documents for references to privacy."
     )
@@ -145,6 +151,19 @@ def test_v2_retrieval_outcome_can_be_covered_by_actual_supplied_data():
     )
     assert external["user_supplied_content"] is True
     assert external["source_data_required"] is True
+
+
+def test_search_outcome_requires_a_search_goal_even_when_documents_are_supplied():
+    from taas.studio.objective_contract import build_outcome_coverage
+
+    coverage = build_outcome_coverage(
+        "Search the supplied documents for references to privacy.",
+        {"prompt_inputs": ["text"], "goals": [{"id": "g1", "class": "search"}]},
+    )
+    assert coverage["summary"] == {"required": 1, "covered": 1, "missing": 0}
+    assert coverage["outcomes"][0]["status"] == "covered_by_goal"
+    assert coverage["outcomes"][0]["goal_ids"] == ["g1"]
+    assert coverage["outcomes"][0]["semantic_conformance"] == "not_assessed"
 
 def test_v2_recognizes_supplied_content_with_descriptive_modifiers():
     examples = [
