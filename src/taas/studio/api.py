@@ -28,6 +28,7 @@ from taas.studio.models import ModelCatalogError, get_model_details, inspect_mod
 from taas.studio.runtime import estimate_model_memory, probe_hardware
 
 from taas.studio.experiments_router import router as experiments_router
+from taas.studio.baselines_router import router as baselines_router
 from taas.types import KINDS
 
 app = FastAPI(
@@ -112,6 +113,7 @@ def load_profile() -> ModelProfile:
 
 
 app.include_router(experiments_router)
+app.include_router(baselines_router)
 
 
 @app.get("/health")
