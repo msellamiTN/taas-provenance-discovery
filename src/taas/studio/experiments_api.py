@@ -81,7 +81,7 @@ class BaselinePreviewRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     experiment_id: str = Field(pattern=r"^E([1-9]|1[0-9]|2[0-2])$")
     baseline_ids: list[str] = Field(default_factory=list, max_length=32)
-    pamcp_variants: list[str] = Field(default_factory=list, max_length=4)
+    pamcp_variants: list[str] = Field(default_factory=list, max_length=8)
     goal_spec: dict[str, Any]
     tools: list[BaselineToolInput] = Field(min_length=1, max_length=2000)
     policy: dict[str, Any] = Field(default_factory=dict)
