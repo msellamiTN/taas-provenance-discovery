@@ -667,6 +667,24 @@ def test_user_supplied_content_detection_supports_both_word_orders():
         assert contract["source_data_required"] is False, (prompt, contract)
 
 
+def test_provided_architectures_are_recognized_as_user_supplied_content():
+    from taas.studio.objective_contract import derive_objective_contract
+
+    prompts = (
+        "Compare these two provided architectures.",
+        "Compare the two architectures provided by the user.",
+        "Evaluate these provided design alternatives.",
+    )
+    for prompt in prompts:
+        contract = derive_objective_contract(prompt)
+        assert "compare" in contract["required_goal_classes"], (prompt, contract)
+        assert contract["user_supplied_content"] is True, (prompt, contract)
+        assert contract["source_data_required"] is False, (prompt, contract)
+        assert not {"these", "two", "provided"}.intersection(
+            contract["unresolved_business_concepts"]
+        ), (prompt, contract)
+
+
 def test_external_record_count_still_requires_retrieval():
     from taas.studio.objective_contract import derive_objective_contract
 
