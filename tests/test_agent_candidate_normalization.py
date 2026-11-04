@@ -83,8 +83,9 @@ def test_retrieval_effect_contract_accepts_read_without_internal_exec():
 
 
 def test_execute_query_is_rejected_as_an_invalid_effect():
-    with pytest.raises(HTTPException, match="invalid effect 'execute(query)'"):
+    with pytest.raises(HTTPException) as exc:
         validate_studio_goal_spec(_retrieval_goal_spec(["read(source)", "execute(query)"]))
+    assert "invalid effect 'execute(query)'" in exc.value.detail
 
 
 def test_analyst_prompt_and_refinement_explain_retrieval_effect_semantics():
