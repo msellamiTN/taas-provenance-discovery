@@ -355,7 +355,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     <p class="subtle">A valid HMAC proves service issuance and record integrity, not assessor-claim truth. It is not policy approval and does not authorize or execute a tool. Expired or tampered records are rejected.</p>
   </section>
 
-  <section class="runtime-overview" aria-labelledby="runtime-overview-title">
+  <section id="runtime-overview" class="runtime-overview" aria-labelledby="runtime-overview-title">
     <div class="runtime-overview-head">
       <div><div class="eyebrow">Live runtime · Colab / host</div><h2 id="runtime-overview-title" style="margin:4px 0">Environment overview</h2><p class="muted" style="margin:0">Observed process and hardware diagnostics. A visible GPU is not proof that a model is loaded or inference works.</p></div>
       <button id="runtime-refresh" type="button" class="secondary">Refresh runtime status</button>
@@ -753,52 +753,84 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   };
 
 
-  // Persistent single-workspace navigation. Nested anchors resolve to their
-  // containing workspace panel; the runtime snapshot remains visible globally.
+  // Persistent single-workspace navigation. Navigation owns only the
+  // visibility flags it sets; application-level hidden states remain intact.
+  // The runtime snapshot is a global utility and stays visible in every workspace.
   const studioContent = document.querySelector(".studio-content");
   const studioLinks = [...document.querySelectorAll(".studio-nav a[href^='#']")];
-  const showStudioWorkspace = (link, updateHash = true) => {
-    const targetId = decodeURIComponent(link.getAttribute("href").slice(1));
+  const restoreNavigationVisibility = () => {
+    studioContent.querySelectorAll("[data-studio-nav-hidden='true']").forEach(node => {
+      node.hidden = false;
+      delete node.dataset.studioNavHidden;
+    });
+  };
+  const hideForNavigation = node => {
+    if (node.tagName === "SCRIPT" || node.hidden) return;
+    node.hidden = true;
+    node.dataset.studioNavHidden = "true";
+  };
+  let lastRoutedHash = "";
+  const showStudioWorkspace = (link, updateHistory = true) => {
+    const href = link.getAttribute("href");
+    const targetId = decodeURIComponent(href.slice(1));
     const target = document.getElementById(targetId);
-    if (!target || !studioContent.contains(target)) return;
+    if (!target || !studioContent.contains(target)) return false;
     let root = target;
     while (root.parentElement && root.parentElement !== studioContent) root = root.parentElement;
-    if (root.parentElement !== studioContent) return;
-    // First select the top-level workspace, then isolate the selected nested
-    // panel at each level. This makes Model Runtime, Agent Chat and Agent Design
-    // genuinely distinct destinations rather than aliases for one large page.
+    if (root.parentElement !== studioContent) return false;
+
+    // Undo only navigation-owned hiding before resolving the next destination.
+    // This fixes parent -> child -> parent navigation without exposing panels
+    // that are intentionally hidden by their own application state.
+    restoreNavigationVisibility();
     [...studioContent.children].forEach(child => {
       if (child.id === "runtime-overview") child.hidden = false;
-      else child.hidden = child !== root;
+      else if (child !== root) hideForNavigation(child);
     });
     let branch = target;
     while (branch && branch !== root) {
       const parent = branch.parentElement;
       if (!parent) break;
       [...parent.children].forEach(sibling => {
-        if (sibling !== branch && sibling.tagName !== "SCRIPT") sibling.hidden = true;
+        if (sibling !== branch) hideForNavigation(sibling);
       });
-      branch.hidden = false;
       branch = parent;
     }
     target.hidden = false;
+
     studioLinks.forEach(item => {
       if (item === link) item.setAttribute("aria-current", "page");
       else item.removeAttribute("aria-current");
     });
-    if (updateHash && window.location.hash !== link.getAttribute("href")) {
-      history.replaceState(null, "", link.getAttribute("href"));
+    if (updateHistory && window.location.hash !== href) {
+      history.pushState({studioWorkspace: targetId}, "", href);
     }
-    target.scrollIntoView({behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block:"start"});
+    lastRoutedHash = href;
+    target.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      block: "start"
+    });
+    return true;
+  };
+  const routeFromLocation = () => {
+    const href = window.location.hash;
+    if (!href || href === lastRoutedHash) return;
+    const link = studioLinks.find(item => item.getAttribute("href") === href);
+    if (link) showStudioWorkspace(link, false);
   };
   studioLinks.forEach(link => link.addEventListener("click", event => {
     event.preventDefault();
     showStudioWorkspace(link);
   }));
   document.querySelectorAll(".pipeline-step[href]").forEach(step => step.addEventListener("click", event => {
-    const destination=studioLinks.find(link=>link.getAttribute("href")===step.getAttribute("href"));
-    if(destination){event.preventDefault();showStudioWorkspace(destination);}
+    const destination = studioLinks.find(link => link.getAttribute("href") === step.getAttribute("href"));
+    if (destination) {
+      event.preventDefault();
+      showStudioWorkspace(destination);
+    }
   }));
+  window.addEventListener("popstate", routeFromLocation);
+  window.addEventListener("hashchange", routeFromLocation);
   const initialWorkspace = studioLinks.find(link => link.getAttribute("href") === window.location.hash)
     || studioLinks.find(link => link.getAttribute("href") === "#overview")
     || studioLinks[0];
@@ -1529,7 +1561,8 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       $("bench-status").textContent="Task prompt copied to GoalSpec. "+
         (importedToolCount?importedToolCount+" selected registry tool(s) synchronized; review their relevance. ":"No registry tools selected; choose tools relevant to this task. ")+
         "Author and review task-specific semantic goal contracts. Structural validation does not verify semantic alignment.";
-      document.querySelector("#discovery").scrollIntoView({behavior:"smooth",block:"start"});
+      const goalEditorLink = studioLinks.find(link => link.getAttribute("href") === "#goal-editor");
+      if (goalEditorLink) showStudioWorkspace(goalEditorLink);
     }catch(e){$("bench-status").textContent="Cannot update GoalSpec: discovery request JSON is invalid.";}
   });
   $("bench-add-tools").addEventListener("click",()=>{
