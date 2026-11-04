@@ -72,3 +72,12 @@ def test_objective_context_exposes_v2_outcomes_and_constraints():
     assert '"outcomes"' in context
     assert '"constraints"' in context
     assert "preserve every outcome and constraint" in context
+
+
+
+def test_v2_always_requires_human_review_even_for_simple_objectives():
+    frame = derive_objective_contract("Translate this paragraph into French.")
+
+    assert frame["review"]["required"] is True
+    assert "human_review_mandatory" in frame["review"]["reasons"]
+    assert frame["review"]["semantic_correctness_verified"] is False
