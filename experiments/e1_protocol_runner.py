@@ -79,7 +79,17 @@ def write_csv(path: Path, rows: list[dict[str, Any]], fields: list[str] | None =
 
 
 def tool_key(tool: RawTool) -> tuple[str, str]:
-    return tool.id, tool.definition_hash()
+    payload = {
+        "server": tool.server,
+        "name": tool.name,
+        "description": tool.description,
+        "inputSchema": tool.input_schema,
+        "outputSchema": tool.output_schema,
+        "annotations": tool.annotations,
+        "extra": tool.extra,
+    }
+    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return tool.id, hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
 def load_reference_labels(path: Path | None) -> dict[tuple[str, str], bool] | None:
