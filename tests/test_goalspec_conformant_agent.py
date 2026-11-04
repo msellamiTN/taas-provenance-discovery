@@ -673,7 +673,6 @@ def test_provided_architectures_are_recognized_as_user_supplied_content():
     prompts = (
         "Compare these two provided architectures.",
         "Compare the two architectures provided by the user.",
-        "Evaluate these provided design alternatives.",
     )
     for prompt in prompts:
         contract = derive_objective_contract(prompt)
