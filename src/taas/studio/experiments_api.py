@@ -97,7 +97,7 @@ def validate_preview_goal_spec(spec: dict[str, Any]) -> None:
         raise HTTPException(status_code=422, detail="goal_spec.goals must be a non-empty array")
     allowed_classes = set(MODEL_CLASSES) | set(EXTERNAL_CLASSES)
     legacy_fields = {"output", "reason", "dependencies"}
-    type_pattern = re.compile(r"^([a-z_]+)(?::[a-z0-9_-]+)?(\\[\\])?$")
+    type_pattern = re.compile(r"^([a-z_]+)(?::[a-z0-9_-]+)?(\[\])?$")
 
     def valid_type(value: Any) -> bool:
         if not isinstance(value, str):
