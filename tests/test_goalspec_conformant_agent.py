@@ -117,6 +117,10 @@ def test_agent_decompose_performs_only_one_bounded_refinement(monkeypatch):
     assert response["core_analysis"]["status"] == "capability_gap_detected"
     assert response["core_analysis"]["goal_order"] == ["g1", "g2"]
     assert response["objective_contract"]["operation"] == "aggregate"
+    assert response["objective_coverage"]["summary"] == {
+        "required": 2, "covered": 2, "missing": 0,
+    }
+    assert response["semantic_review_required"] is True
     assert len(response["attempt_history"]) == 2
 
 
