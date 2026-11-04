@@ -593,7 +593,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 
   <section id="agent-studio" class="section-anchor" style="margin-bottom:18px">
     <div class="panel-head"><div><div class="eyebrow">Model &amp; Agent workspace</div><h2 style="margin:4px 0">Load a model and build an agent</h2></div><span class="pill">Real local inference · authenticated API</span></div>
-    <p class="muted">Host diagnostics below and model runtime state are separate views. The selected Hugging Face model is downloaded and loaded by the same process that runs this Studio API. If that process runs inside Colab, inference runs in that Colab runtime. This does not remotely connect Studio to a separate Colab session.</p>
+    <p class="muted">Host diagnostics below and model runtime state are separate views. Hugging Face weights run inside the process hosting this Studio API. Ollama runs in a separate daemon selected through the provider control. If Studio runs inside Colab, local CPU/CUDA/Ollama inference runs in that Colab VM; this does not remotely connect Studio to a separate Colab session.</p>
     <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px">
       <section id="model-runtime-panel" style="box-shadow:none;padding:14px">
         <h2>1 · Model runtime</h2>
@@ -1632,7 +1632,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   $("agent-chat-send").addEventListener("click",async()=>{
     const button=$("agent-chat-send");button.disabled=true;$("agent-chat-status").textContent="Generating with the loaded model…";
     try{const result=await runtimePost("/api/v1/models/chat",{provider:$("runtime-provider").value,message:$("agent-message").value,system:$("agent-system").value,max_new_tokens:Number($("agent-max-tokens").value||512),temperature:0.2});
-      $("agent-chat-result").textContent=result.text+"\n\n"+JSON.stringify({model_id:result.model_id,device:result.device,dtype:result.dtype,latency_seconds:result.latency_seconds,input_tokens:result.input_tokens,output_tokens:result.output_tokens},null,2);
+      $("agent-chat-result").textContent=result.text+"\n\n"+JSON.stringify({provider:result.provider,model_id:result.model_id,device:result.device,dtype:result.dtype,latency_seconds:result.latency_seconds,input_tokens:result.input_tokens,output_tokens:result.output_tokens},null,2);
       $("agent-chat-status").textContent="Inference completed · "+result.latency_seconds+"s · "+result.output_tokens+" generated tokens.";
     }catch(e){$("agent-chat-status").textContent="Inference failed: "+e.message;}finally{button.disabled=false;}
   });
