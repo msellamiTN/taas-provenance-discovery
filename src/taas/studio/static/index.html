@@ -344,7 +344,7 @@
     <div id="experiment-baseline-cards" class="baseline-cards"><div class="subtle">Load the experiment catalogue first.</div></div>
     <div id="pamcp-variant-panel" hidden>
       <div class="panel-head" style="margin-top:18px"><h3>PaMCP primary configurations · E18 factorial</h3><span class="count">G × P × S · 2³</span></div>
-      <p class="subtle">These are the four named configurations. The complete 2³ factorial also includes the four combined-off cells; this preview focuses on the full system and its three leave-one-out contrasts.</p>
+      <p class="subtle">All eight cells are available here. The four named configurations are the full method and its three leave-one-out contrasts; the remaining cells estimate interactions in the complete 2³ factorial.</p>
       <div id="pamcp-variant-cards" class="baseline-cards"></div>
     </div>
     <details class="advanced-json">
@@ -911,8 +911,8 @@
   };
   const renderVariantCards = () => {
     const root=$("pamcp-variant-cards");root.replaceChildren();
-    const entries=Object.entries(experimentUi.variants);
-    entries.forEach(([id,item])=>{
+    experimentUi.variants.forEach(item=>{
+      const id=item.name;
       const card=document.createElement("label");card.className="baseline-method-card";
       const check=document.createElement("input");check.type="checkbox";check.value=id;
       check.checked=experimentUi.selectedVariants.has(id);
@@ -946,7 +946,7 @@
       }
       renderVariantCards();
       $("experiment-catalog-status").textContent=d.total+" experiment-scoped baseline(s) loaded"+
-        (id==="E18" ? " · Four PaMCP primary variants available for E18." : ".");
+        (id==="E18" ? " · Eight PaMCP factorial cells available for E18." : ".");
     }catch(e){$("experiment-catalog-status").textContent="Baseline catalogue error: "+e.message;}
     finally{$("experiment-baselines-load").disabled=false;}
   };
