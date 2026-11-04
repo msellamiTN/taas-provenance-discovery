@@ -470,7 +470,7 @@ def run_e1(root: str | Path, output_root: str | Path,
         "spec_version": "1.0.0", "experiment_id": "E1", "run_id": run_id,
         "status": status, "configuration": "descriptive_measurement",
         "dataset_snapshot": {
-            "name": "LiveMCPTool+MCPToolBench+++merged",
+            "name": "LiveMCPTool, MCPToolBench++, merged",
             "version_or_hash": "sha256:" + dataset_hash,
             "split": "all three protocol registry views",
             "sample_count": sum(len(x) for x in views.values()),
