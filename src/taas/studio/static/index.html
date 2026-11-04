@@ -946,7 +946,7 @@
       }
       renderVariantCards();
       $("experiment-catalog-status").textContent=d.total+" experiment-scoped baseline(s) loaded"+
-        (id==="E18")+" PaMCP primary variants available for E18.";
+        (id==="E18" ? " · Four PaMCP primary variants available for E18." : ".");
     }catch(e){$("experiment-catalog-status").textContent="Baseline catalogue error: "+e.message;}
     finally{$("experiment-baselines-load").disabled=false;}
   };
