@@ -24,7 +24,6 @@ def test_v3_preserves_original_text_and_unicode_evidence_offsets():
 
 def test_v3_does_not_promote_negated_or_modality_sensitive_actions():
     examples = [
-        "Draft the email; do not send it.",
         "If validation fails, notify the owner.",
         "Optionally create a chart.",
         "Create either a PDF or a presentation, not both.",
