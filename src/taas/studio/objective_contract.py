@@ -153,7 +153,9 @@ def derive_objective_contract(
         r"\b(web|website|webpage|online|internet|external\s+sources?|external\s+data|database|api|repository)\b",
         lower,
     ))
-    acquisition_requested = bool(search_intent or retrieval_intent or multi_source_intent)
+    acquisition_requested = bool(
+        search_intent or retrieval_intent or multi_source_intent or explicit_external_source
+    )
     source_data_required = bool(
         (acquisition_requested and (not user_supplied_content or explicit_external_source))
         or ((total or count or all_scope or temporal or recency_scope) and not user_supplied_content)
