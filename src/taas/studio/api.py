@@ -36,6 +36,7 @@ from taas.studio.authorization_preflight import (
 )
 from taas.studio.runtime import estimate_model_memory, probe_hardware, probe_runtime
 from taas.studio.model_runtime import ModelRuntimeError, get_model_runtime
+from taas.studio.analyst_contract import validate_theta_types, build_refinement_context
 from taas.studio.ollama_runtime import get_ollama_runtime
 from taas.studio.mcp_registry import MCPRegistryError, inspect_server as inspect_mcp_server, list_servers as list_mcp_servers
 from taas.types import KINDS
@@ -268,6 +269,9 @@ def validate_studio_goal_spec(spec: dict[str, Any]) -> None:
                 raise HTTPException(status_code=422, detail=f"goal {ids[index]} references unknown dependency {dep!r}")
             if dep == ids[index]:
                 raise HTTPException(status_code=422, detail=f"goal {ids[index]} cannot depend on itself")
+    theta_error = validate_theta_types(spec)
+    if theta_error:
+        raise HTTPException(status_code=422, detail=theta_error)
     parsed = parse_goal_spec(spec, prompt=str(spec.get("prompt", "")))
     if parsed.order() is None:
         raise HTTPException(status_code=422, detail="goal_spec dependency graph contains a cycle")
@@ -615,17 +619,58 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
     try:
         runtime = get_ollama_runtime() if request.provider == "ollama" else get_model_runtime()
         result = runtime.decompose(request.prompt, request.context, request.max_new_tokens)
-        if result.get("json_valid"):
-            try:
-                validate_studio_goal_spec(result["goal_spec"])
-                result["structural_validation"] = {"valid": True}
-            except HTTPException as exc:
-                result["structural_validation"] = {"valid": False, "detail": exc.detail}
-        else:
-            result["structural_validation"] = {
-                "valid": False,
-                "detail": result.get("parse_error") or "Model did not return a canonical GoalSpec JSON object",
-            }
+        def assess(candidate: dict[str, Any]) -> tuple[bool, list[dict[str, str]], Any]:
+            structural_error: Any = None
+            if candidate.get("json_valid") and isinstance(candidate.get("goal_spec"), dict):
+                try:
+                    validate_studio_goal_spec(candidate["goal_spec"])
+                except HTTPException as exc:
+                    structural_error = exc.detail
+            else:
+                structural_error = candidate.get("parse_error") or "Model did not return a canonical GoalSpec JSON object"
+            diagnostics = list(candidate.get("semantic_diagnostics") or [])
+            if structural_error:
+                diagnostics.append({
+                    "code": "goalspec_structural_nonconformance",
+                    "severity": "error",
+                    "message": str(structural_error),
+                    "suggestion": "Regenerate using only the canonical GoalSpec schema and declared Θ vocabulary.",
+                })
+            has_errors = any(item.get("severity") == "error" for item in diagnostics)
+            return structural_error is None and not has_errors, diagnostics, structural_error
+
+        accepted, diagnostics, structural_error = assess(result)
+        attempts = 1
+        if not accepted:
+            # Exactly one bounded refinement. The original objective is repeated verbatim;
+            # no candidate is applied or passed to discovery automatically.
+            prior_text = str(result.get("text", ""))
+            refinement_context = request.context
+            refinement_context += "\\n\\n" + build_refinement_context(
+                request.prompt, prior_text, diagnostics
+            )
+            refined = runtime.decompose(
+                request.prompt, refinement_context, request.max_new_tokens
+            )
+            attempts = 2
+            accepted, refined_diagnostics, structural_error = assess(refined)
+            result = refined
+            diagnostics = refined_diagnostics
+        result["structural_validation"] = {
+            "valid": structural_error is None,
+            "detail": structural_error,
+            "theta_vocabulary_enforced": True,
+        }
+        result["conformance"] = {
+            "accepted_for_human_review": accepted,
+            "attempts": attempts,
+            "max_attempts": 2,
+            "unresolved_errors": [item for item in diagnostics if item.get("severity") == "error"],
+            "semantic_correctness_verified": False,
+            "auto_applied": False,
+        }
+        result["semantic_diagnostics"] = diagnostics
+        result["semantic_review_required"] = bool(diagnostics) or not accepted
         return result
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
