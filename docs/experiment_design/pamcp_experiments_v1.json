@@ -168,7 +168,8 @@
         "Table",
         "category stacked bars"
       ],
-      "status": "planned_not_run"
+      "status": "planned_not_run",
+      "baseline_ids": []
     },
     {
       "id": "E2",
@@ -185,7 +186,11 @@
         "Confusion matrix",
         "F1 vs threshold"
       ],
-      "status": "planned_not_run"
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "typing_structural",
+        "typing_schema_lexical"
+      ]
     },
     {
       "id": "E3",
@@ -202,7 +207,12 @@
         "Confusion matrix",
         "coverage vs probe budget"
       ],
-      "status": "planned_not_run"
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "effects_declared",
+        "effects_lexical",
+        "effects_probe"
+      ]
     },
     {
       "id": "E4",
@@ -219,7 +229,15 @@
       "outputs": [
         "Exp@5/Util@5 table and coverage curves"
       ],
-      "status": "planned_not_run"
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "all_tools",
+        "mcp_default_annotations",
+        "closed_world_annotations",
+        "lexical_positive",
+        "lexical_closed_world",
+        "verified_evidence"
+      ]
     },
     {
       "id": "E5",
@@ -235,7 +253,15 @@
       "outputs": [
         "Exposure vs malicious-provider fraction"
       ],
-      "status": "planned_not_run"
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "all_tools",
+        "mcp_default_annotations",
+        "closed_world_annotations",
+        "lexical_positive",
+        "lexical_closed_world",
+        "verified_evidence"
+      ]
     },
     {
       "id": "E6",
@@ -252,7 +278,14 @@
       "outputs": [
         "Exposure vs FAR with CI"
       ],
-      "status": "planned_not_run"
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "mcp_default_annotations",
+        "closed_world_annotations",
+        "lexical_positive",
+        "lexical_closed_world",
+        "verified_evidence"
+      ]
     },
     {
       "id": "E7",
@@ -271,7 +304,14 @@
         "Pareto plot",
         "policy-threshold heatmap"
       ],
-      "status": "planned_not_run"
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "mcp_default_annotations",
+        "closed_world_annotations",
+        "lexical_positive",
+        "lexical_closed_world",
+        "verified_evidence"
+      ]
     },
     {
       "id": "E8",
@@ -290,7 +330,17 @@
         "B1/B1m table",
         "Hit@1 vs distractors"
       ],
-      "status": "planned_not_run"
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "bm25",
+        "dense_lsa",
+        "rag_mcp",
+        "mcp_zero",
+        "per_subtask",
+        "colt_adapted",
+        "toolscope_adapted",
+        "cmtf_adapted"
+      ]
     },
     {
       "id": "E9",
@@ -306,7 +356,16 @@
       "outputs": [
         "Group recall bars/lines"
       ],
-      "status": "planned_not_run"
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "rag_mcp",
+        "mcp_zero",
+        "per_subtask",
+        "colt_adapted",
+        "toolscope_adapted",
+        "cmtf_adapted",
+        "all_tools"
+      ]
     },
     {
       "id": "E10",
@@ -324,7 +383,17 @@
         "Failure-cause bars",
         "per-check table"
       ],
-      "status": "planned_not_run"
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "mcp_zero",
+        "per_subtask",
+        "colt_adapted",
+        "toolscope_adapted",
+        "cmtf_adapted",
+        "fides_ifc",
+        "camel_ifc",
+        "all_tools"
+      ]
     },
     {
       "id": "E11",
@@ -342,7 +411,14 @@
         "Size/bridge ratio vs n",
         "size vs tau"
       ],
-      "status": "planned_not_run"
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "mcp_zero",
+        "per_subtask",
+        "cmtf_adapted",
+        "uncalibrated_profile",
+        "calibrated_profile"
+      ]
     },
     {
       "id": "E12",
@@ -359,7 +435,12 @@
         "rho heatmap",
         "claimed vs measured"
       ],
-      "status": "planned_not_run"
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "self_assessed_profile",
+        "uncalibrated_profile",
+        "calibrated_profile"
+      ]
     },
     {
       "id": "E13",
@@ -378,7 +459,19 @@
         "Success/tokens bars",
         "steps boxplot"
       ],
-      "status": "planned_not_run"
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "all_tools",
+        "rag_mcp",
+        "mcp_zero",
+        "per_subtask",
+        "colt_adapted",
+        "toolscope_adapted",
+        "cmtf_adapted",
+        "progent_runtime",
+        "fides_ifc",
+        "camel_ifc"
+      ]
     },
     {
       "id": "E14",
@@ -396,7 +489,17 @@
         "Out-of-policy actions bars",
         "task success table"
       ],
-      "status": "planned_not_run"
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "all_tools",
+        "rag_mcp",
+        "mcp_zero",
+        "toolscope_adapted",
+        "cmtf_adapted",
+        "progent_runtime",
+        "fides_ifc",
+        "camel_ifc"
+      ]
     },
     {
       "id": "E15",
@@ -413,7 +516,17 @@
         "Log-log latency",
         "gap/optimality table"
       ],
-      "status": "planned_not_run"
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "bm25",
+        "dense_lsa",
+        "rag_mcp",
+        "mcp_zero",
+        "colt_adapted",
+        "toolscope_adapted",
+        "cmtf_adapted",
+        "linear_scan"
+      ]
     },
     {
       "id": "E16",
@@ -431,7 +544,10 @@
       "outputs": [
         "Update/invalidation table"
       ],
-      "status": "planned_not_run"
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "full_rebuild"
+      ]
     },
     {
       "id": "E17",
@@ -449,7 +565,10 @@
         "Success by chi",
         "success vs iteration"
       ],
-      "status": "planned_not_run"
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "no_refinement"
+      ]
     },
     {
       "id": "E18",
@@ -469,7 +588,23 @@
       "outputs": [
         "3 ablations + 2^3 factorial + components"
       ],
-      "status": "planned_not_run"
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "bm25",
+        "dense_lsa",
+        "rag_mcp",
+        "mcp_zero",
+        "per_subtask",
+        "colt_adapted",
+        "toolscope_adapted",
+        "cmtf_adapted",
+        "mcp_default_annotations",
+        "closed_world_annotations",
+        "lexical_positive",
+        "lexical_closed_world",
+        "verified_evidence",
+        "no_refinement"
+      ]
     },
     {
       "id": "E19",
@@ -487,7 +622,12 @@
       "outputs": [
         "Role comparison bars/table"
       ],
-      "status": "planned_not_run"
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "self_assessed_profile",
+        "uncalibrated_profile",
+        "calibrated_profile"
+      ]
     },
     {
       "id": "E20",
@@ -506,7 +646,10 @@
         "Weight heatmap",
         "Pareto"
       ],
-      "status": "planned_not_run"
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "calibrated_profile"
+      ]
     },
     {
       "id": "E21",
@@ -523,7 +666,11 @@
         "Savings vs repository size",
         "error-detection bars"
       ],
-      "status": "planned_not_run"
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "autotool_adapted",
+        "no_experience"
+      ]
     },
     {
       "id": "E22",
@@ -541,7 +688,18 @@
       "outputs": [
         "Statistical validity table"
       ],
-      "status": "planned_not_run"
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "bm25",
+        "dense_lsa",
+        "rag_mcp",
+        "mcp_zero",
+        "colt_adapted",
+        "toolscope_adapted",
+        "cmtf_adapted",
+        "per_subtask"
+      ]
     }
-  ]
+  ],
+  "baseline_catalog": "pamcp_baselines_v1.json"
 }
