@@ -634,6 +634,39 @@ def test_user_supplied_content_does_not_force_external_tool_retrieval():
     assert not [item for item in diagnostics if item["severity"] == "error"]
 
 
+def test_document_supplied_in_prompt_is_recognized_as_user_content():
+    from taas.studio.objective_contract import derive_objective_contract, diagnose_objective_alignment
+
+    prompt = "Summarise the document supplied in the prompt."
+    contract = derive_objective_contract(prompt)
+    assert contract["required_goal_classes"] == ["summarise"]
+    assert contract["user_supplied_content"] is True
+    assert contract["source_data_required"] is False
+    assert "supplied" not in contract["unresolved_business_concepts"]
+
+    spec = {"prompt_inputs": ["text"], "goals": [
+        {"id": "g1", "class": "summarise", "desc": "Summarise the supplied document",
+         "in": ["text"], "out": "text", "deps": []}
+    ]}
+    diagnostics = diagnose_objective_alignment(prompt, spec)
+    assert not [item for item in diagnostics if item["severity"] == "error"]
+
+
+def test_user_supplied_content_detection_supports_both_word_orders():
+    from taas.studio.objective_contract import derive_objective_contract
+
+    prompts = (
+        "Summarise the document supplied in the prompt.",
+        "Summarise the supplied document.",
+        "Summarise the document provided by the user.",
+        "Translate the paragraph attached to this request.",
+    )
+    for prompt in prompts:
+        contract = derive_objective_contract(prompt)
+        assert contract["user_supplied_content"] is True, (prompt, contract)
+        assert contract["source_data_required"] is False, (prompt, contract)
+
+
 def test_external_record_count_still_requires_retrieval():
     from taas.studio.objective_contract import derive_objective_contract
 
