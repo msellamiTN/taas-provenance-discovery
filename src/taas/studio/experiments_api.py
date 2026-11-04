@@ -26,6 +26,7 @@ from taas.data.registries import RawTool
 from taas.experiments.baseline_runner import run_baseline
 from taas.experiments.registry_baselines import run_effect_baseline, run_typing_baseline
 from taas.experiments.policy_baselines import run_policy_baseline
+from taas.experiments.variant_runner import run_pamcp_variant
 from taas.goals import parse_goal_spec
 from taas.policy import Policy
 from taas.retrieval import HybridRetriever
@@ -79,7 +80,8 @@ class BaselineToolInput(BaseModel):
 class BaselinePreviewRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     experiment_id: str = Field(pattern=r"^E([1-9]|1[0-9]|2[0-2])$")
-    baseline_ids: list[str] = Field(min_length=1, max_length=32)
+    baseline_ids: list[str] = Field(default_factory=list, max_length=32)
+    pamcp_variants: list[str] = Field(default_factory=list, max_length=4)
     goal_spec: dict[str, Any]
     tools: list[BaselineToolInput] = Field(min_length=1, max_length=2000)
     policy: dict[str, Any] = Field(default_factory=dict)
@@ -289,10 +291,20 @@ def validate_run_draft(payload: RunDraft) -> dict[str, Any]:
 @app.post("/api/v1/baselines/preview", dependencies=[Depends(require_token)])
 def baseline_preview(payload: BaselinePreviewRequest) -> dict[str, Any]:
     """Execute selected baseline adapters over a supplied registry snapshot; never scores gold labels."""
+    if not payload.baseline_ids and not payload.pamcp_variants:
+        raise HTTPException(status_code=422, detail="Select at least one baseline or PaMCP configuration")
     try:
-        selected = validate_baseline_selection(payload.experiment_id, payload.baseline_ids)
+        selected = validate_baseline_selection(payload.experiment_id, payload.baseline_ids) if payload.baseline_ids else []
     except (KeyError, ValueError) as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+    if payload.pamcp_variants:
+        if payload.experiment_id != "E18":
+            raise HTTPException(status_code=422, detail="PaMCP factorial variants are available in E18 only")
+        if len(set(payload.pamcp_variants)) != len(payload.pamcp_variants):
+            raise HTTPException(status_code=422, detail="PaMCP variants must be unique")
+        invalid_variants = sorted(set(payload.pamcp_variants) - set(VARIANTS))
+        if invalid_variants:
+            raise HTTPException(status_code=422, detail=f"Unknown PaMCP variant(s): {invalid_variants}")
 
     validate_preview_goal_spec(payload.goal_spec)
     spec = parse_goal_spec(payload.goal_spec, prompt=str(payload.goal_spec.get("prompt", "")))
@@ -352,9 +364,27 @@ def baseline_preview(payload: BaselinePreviewRequest) -> dict[str, Any]:
             }
         results.append({"baseline": baseline, "result": result})
 
+
+    variant_results = []
+    for variant_id in payload.pamcp_variants:
+        try:
+            variant_result = run_pamcp_variant(
+                variant_id, contracts, payload.goal_spec, policy, top_k=payload.top_k
+            )
+        except (ValueError, TypeError, KeyError, OverflowError) as exc:
+            variant_result = {
+                "variant_id": variant_id,
+                "status": "invalid_variant_configuration",
+                "selected_tool_ids": [],
+                "error": f"{type(exc).__name__}: {exc}",
+            }
+        variant_results.append({"variant": variant_id, "result": variant_result})
+
     return {
         "experiment_id": payload.experiment_id,
         "baseline_count": len(results),
+        "pamcp_variant_count": len(variant_results),
+        "pamcp_variant_results": variant_results,
         "registry_snapshot": {"tool_count": len(pool), "sha256": registry_hash},
         "goal_spec": payload.goal_spec,
         "results": results,
