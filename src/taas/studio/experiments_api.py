@@ -20,6 +20,8 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, ConfigDict, Field
 
 from taas.contracts import extract_contract
+from taas.effects import parse_effect
+from taas.model_profile import EXTERNAL_CLASSES, MODEL_CLASSES
 from taas.data.registries import RawTool
 from taas.experiments.baseline_runner import run_baseline
 from taas.experiments.registry_baselines import run_effect_baseline, run_typing_baseline
@@ -27,6 +29,7 @@ from taas.experiments.policy_baselines import run_policy_baseline
 from taas.goals import parse_goal_spec
 from taas.policy import Policy
 from taas.retrieval import HybridRetriever
+from taas.types import KINDS
 
 from taas.experiments.catalog import CATALOG_PATH, VARIANTS, load_catalog
 from taas.experiments.baseline_catalog import (baseline_index, baselines_for_experiment, load_baseline_catalog, validate_baseline_selection)
@@ -76,14 +79,82 @@ class BaselineToolInput(BaseModel):
 class BaselinePreviewRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     experiment_id: str = Field(pattern=r"^E([1-9]|1[0-9]|2[0-2])$")
-    baseline_ids: list[str] = Field(min_length=1, max_length=10)
+    baseline_ids: list[str] = Field(min_length=1, max_length=32)
     goal_spec: dict[str, Any]
     tools: list[BaselineToolInput] = Field(min_length=1, max_length=2000)
     policy: dict[str, Any] = Field(default_factory=dict)
     top_k: int = Field(default=5, ge=1, le=100)
     parameters: dict[str, dict[str, Any]] = Field(default_factory=dict)
-    training_scenes: list[dict[str, Any]] | None = None
-    trajectories: list[dict[str, Any]] | None = None
+    training_scenes: list[dict[str, Any]] | None = Field(default=None, max_length=20000)
+    trajectories: list[dict[str, Any]] | None = Field(default=None, max_length=20000)
+
+
+
+def validate_preview_goal_spec(spec: dict[str, Any]) -> None:
+    """Strict structural validation before a baseline adapter sees the task."""
+    goals = spec.get("goals")
+    if not isinstance(goals, list) or not goals:
+        raise HTTPException(status_code=422, detail="goal_spec.goals must be a non-empty array")
+    allowed_classes = set(MODEL_CLASSES) | set(EXTERNAL_CLASSES)
+    legacy_fields = {"output", "reason", "dependencies"}
+    type_pattern = re.compile(r"^([a-z_]+)(?::[a-z0-9_-]+)?(\\[\\])?$")
+
+    def valid_type(value: Any) -> bool:
+        if not isinstance(value, str):
+            return False
+        match = type_pattern.fullmatch(value)
+        return bool(match and match.group(1) in KINDS)
+
+    ids: list[str] = []
+    for index, goal in enumerate(goals):
+        prefix = f"goal_spec.goals[{index}]"
+        if not isinstance(goal, dict):
+            raise HTTPException(status_code=422, detail=f"{prefix} must be an object")
+        legacy = sorted(legacy_fields.intersection(goal))
+        if legacy:
+            raise HTTPException(status_code=422, detail=f"{prefix} uses legacy field(s) {legacy}")
+        goal_id = goal.get("id")
+        if not isinstance(goal_id, str) or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]{0,63}", goal_id):
+            raise HTTPException(status_code=422, detail=f"{prefix}.id is invalid")
+        if goal_id in ids:
+            raise HTTPException(status_code=422, detail=f"duplicate goal id: {goal_id}")
+        ids.append(goal_id)
+        if goal.get("class") not in allowed_classes:
+            raise HTTPException(status_code=422, detail=f"{prefix}.class is unsupported")
+        if not valid_type(goal.get("out")):
+            raise HTTPException(status_code=422, detail=f"{prefix}.out is not a supported semantic type")
+        if goal.get("sigma", "native") not in {"native", "data", "effect", "unreliable"}:
+            raise HTTPException(status_code=422, detail=f"{prefix}.sigma is invalid")
+        if not isinstance(goal.get("desc"), str) or not goal["desc"].strip():
+            raise HTTPException(status_code=422, detail=f"{prefix}.desc must be non-empty")
+        for field_name in ("in", "eff", "deps"):
+            value = goal.get(field_name, [])
+            if not isinstance(value, list) or any(not isinstance(x, str) for x in value):
+                raise HTTPException(status_code=422, detail=f"{prefix}.{field_name} must be a string array")
+        for type_value in goal.get("in", []):
+            if not valid_type(type_value):
+                raise HTTPException(status_code=422, detail=f"{prefix}.in contains an unsupported semantic type")
+        for effect_value in goal.get("eff", []):
+            try:
+                parse_effect(effect_value)
+            except ValueError as exc:
+                raise HTTPException(status_code=422, detail=f"{prefix}.eff contains an invalid effect") from exc
+        if "optional" in goal and not isinstance(goal["optional"], bool):
+            raise HTTPException(status_code=422, detail=f"{prefix}.optional must be boolean")
+        if "n" in goal and (isinstance(goal["n"], bool) or not isinstance(goal["n"], int) or goal["n"] < 1):
+            raise HTTPException(status_code=422, detail=f"{prefix}.n must be a positive integer")
+        if goal.get("exactness", "tolerant") not in {"tolerant", "exact"}:
+            raise HTTPException(status_code=422, detail=f"{prefix}.exactness is invalid")
+    prompt_inputs = spec.get("prompt_inputs", ["text"])
+    if not isinstance(prompt_inputs, list) or any(not valid_type(x) for x in prompt_inputs):
+        raise HTTPException(status_code=422, detail="goal_spec.prompt_inputs must contain supported semantic types")
+    for index, goal in enumerate(goals):
+        for dependency in goal.get("deps", []):
+            if dependency not in ids or dependency == ids[index]:
+                raise HTTPException(status_code=422, detail=f"goal {ids[index]} has an invalid dependency {dependency!r}")
+    parsed = parse_goal_spec(spec, prompt=str(spec.get("prompt", "")))
+    if parsed.order() is None:
+        raise HTTPException(status_code=422, detail="goal_spec dependency graph contains a cycle")
 
 
 @app.get("/health")
@@ -223,12 +294,8 @@ def baseline_preview(payload: BaselinePreviewRequest) -> dict[str, Any]:
     except (KeyError, ValueError) as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
-    goals = payload.goal_spec.get("goals")
-    if not isinstance(goals, list) or not goals:
-        raise HTTPException(status_code=422, detail="goal_spec.goals must be a non-empty array")
+    validate_preview_goal_spec(payload.goal_spec)
     spec = parse_goal_spec(payload.goal_spec, prompt=str(payload.goal_spec.get("prompt", "")))
-    if spec.order() is None:
-        raise HTTPException(status_code=422, detail="goal_spec dependency graph contains a cycle")
 
     raw_tools = [RawTool(**tool.model_dump()) for tool in payload.tools]
     contracts = [extract_contract(tool) for tool in raw_tools]
@@ -249,7 +316,10 @@ def baseline_preview(payload: BaselinePreviewRequest) -> dict[str, Any]:
     except (TypeError, ValueError, KeyError) as exc:
         raise HTTPException(status_code=422, detail=f"Invalid baseline policy: {exc}") from exc
 
-    canonical_tools = [tool.model_dump(mode="json") for tool in payload.tools]
+    canonical_tools = sorted(
+        [tool.model_dump(mode="json") for tool in payload.tools],
+        key=lambda item: (item["server"], item["name"]),
+    )
     registry_hash = hashlib.sha256(json.dumps(canonical_tools, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
     policy_payload = dict(policy_data)
     policy_hash = hashlib.sha256(json.dumps(policy_payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
@@ -259,19 +329,27 @@ def baseline_preview(payload: BaselinePreviewRequest) -> dict[str, Any]:
     for baseline in selected:
         baseline_id = baseline["id"]
         params = payload.parameters.get(baseline_id, {})
-        if baseline_id in {"typing_structural", "typing_schema_lexical"}:
-            result = run_typing_baseline(baseline_id, raw_tools)
-        elif baseline_id in {"effects_declared", "effects_lexical", "effects_probe"}:
-            result = run_effect_baseline(baseline_id, raw_tools)
-        elif baseline_id in {"mcp_default_annotations", "closed_world_annotations", "lexical_positive", "lexical_closed_world", "verified_evidence"}:
-            result = run_policy_baseline(baseline_id, raw_tools)
-        else:
-            result = run_baseline(
-                baseline_id, retriever, spec, prompt, pool, top_k=payload.top_k,
-                policy=policy, training_scenes=payload.training_scenes,
-                trajectories=payload.trajectories, registry_hash=registry_hash,
-                policy_hash=policy_hash, tool_hashes=tool_hashes, parameters=params,
-            ).to_dict()
+        try:
+            if baseline_id in {"typing_structural", "typing_schema_lexical"}:
+                result = run_typing_baseline(baseline_id, raw_tools)
+            elif baseline_id in {"effects_declared", "effects_lexical", "effects_probe"}:
+                result = run_effect_baseline(baseline_id, raw_tools)
+            elif baseline_id in {"mcp_default_annotations", "closed_world_annotations", "lexical_positive", "lexical_closed_world", "verified_evidence"}:
+                result = run_policy_baseline(baseline_id, raw_tools)
+            else:
+                result = run_baseline(
+                    baseline_id, retriever, spec, prompt, pool, top_k=payload.top_k,
+                    policy=policy, training_scenes=payload.training_scenes,
+                    trajectories=payload.trajectories, registry_hash=registry_hash,
+                    policy_hash=policy_hash, tool_hashes=tool_hashes, parameters=params,
+                ).to_dict()
+        except (ValueError, TypeError, KeyError, OverflowError) as exc:
+            result = {
+                "baseline_id": baseline_id,
+                "status": "invalid_adapter_configuration",
+                "selected_tools": [],
+                "error": f"{type(exc).__name__}: {exc}",
+            }
         results.append({"baseline": baseline, "result": result})
 
     return {
