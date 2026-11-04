@@ -482,6 +482,95 @@
       "experiments": [
         "E21"
       ]
+    },
+    {
+      "id": "typing_structural",
+      "name": "Structural schema typing",
+      "kind": "typing_control",
+      "implementation": "ready_control",
+      "method": "Infer semantic input/output types from JSON Schema primitive types, required fields and schema structure only.",
+      "params": {
+        "source": "inputSchema/outputSchema",
+        "llm": false
+      },
+      "experiments": [
+        "E2"
+      ]
+    },
+    {
+      "id": "typing_schema_lexical",
+      "name": "Schema plus lexical typing",
+      "kind": "typing_control",
+      "implementation": "ready_control",
+      "method": "Combine schema-derived types with names, argument names and descriptions; no human labels or runtime probe evidence.",
+      "params": {
+        "source": "schema+name+description",
+        "llm": false
+      },
+      "experiments": [
+        "E2"
+      ]
+    },
+    {
+      "id": "typing_llm_assisted",
+      "name": "LLM-assisted semantic typing",
+      "kind": "typing_method",
+      "implementation": "pipeline_to_build",
+      "method": "Generate typed input/output contracts from public schemas and descriptions, then compare against blinded human annotations; evaluator labels are not prompt inputs.",
+      "params": {
+        "model": "pinned",
+        "prompt_hash": "required"
+      },
+      "experiments": [
+        "E2"
+      ]
+    },
+    {
+      "id": "effects_declared",
+      "name": "Published effect declarations",
+      "kind": "effect_control",
+      "implementation": "ready_control",
+      "method": "Infer effect claims only from MCP annotations; missing annotations remain unknown, and declaration truth is assessed against independent probe/human labels.",
+      "params": {
+        "source": "annotations",
+        "missing": "unknown"
+      },
+      "experiments": [
+        "E3"
+      ]
+    },
+    {
+      "id": "effects_lexical",
+      "name": "Lexical effect inference",
+      "kind": "effect_control",
+      "implementation": "ready_control",
+      "method": "Infer candidate effect classes from tool names, descriptions and argument names using fixed transparent lexical rules.",
+      "params": {
+        "source": "name+description+argument_names",
+        "rule_version": "pinned"
+      },
+      "experiments": [
+        "E3"
+      ]
+    },
+    {
+      "id": "effects_probe",
+      "name": "Observed effect probing",
+      "kind": "evidence_method",
+      "implementation": "pipeline_to_build",
+      "method": "Execute bounded, credential-free test calls in isolated reference servers; infer observed effects from before/after state and traces. Never derive observed evidence from evaluation labels.",
+      "params": {
+        "probe_budgets": [
+          10,
+          30,
+          100
+        ],
+        "credential_free": true,
+        "network": "deny_by_default"
+      },
+      "experiments": [
+        "E3"
+      ]
     }
   ]
 }
