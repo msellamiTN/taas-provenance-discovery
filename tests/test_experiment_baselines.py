@@ -486,3 +486,80 @@ def test_baseline_preview_registry_hash_is_order_invariant(monkeypatch):
     b = client.post("/api/v1/baselines/preview", headers=headers, json={**base, "tools": [two, one]})
     assert a.status_code == b.status_code == 200
     assert a.json()["registry_snapshot"]["sha256"] == b.json()["registry_snapshot"]["sha256"]
+
+
+def test_pamcp_variant_runner_exposes_uncertified_no_cert_semantics():
+    from taas.experiments.variant_runner import run_pamcp_variant
+
+    contracts, _, spec, _ = _fixture()
+    policy = Policy.make("read-only-preview", allowed=["read(*)"], lmin="ann")
+    result = run_pamcp_variant("PaMCP_NoCert", contracts, {
+        "prompt": spec.prompt,
+        "prompt_inputs": [str(x) for x in spec.prompt_inputs],
+        "goals": [{
+            "id": "g1", "class": "search", "in": ["query"],
+            "out": "record:review", "eff": ["read(reviews)"],
+            "sigma": "data", "desc": "Search customer reviews",
+        }],
+    }, policy, top_k=2)
+    assert result["variant_id"] == "PaMCP_NoCert"
+    assert result["certificate"] is None
+    assert result["certificate_valid"] is False
+    assert result["backward_closure"] is False
+    assert result["joint_compatibility_effect_flow_checks"] is False
+    assert result["evaluator_labels_accessed"] is False
+    assert result["mcp_tools_executed"] is False
+
+
+def test_e18_preview_accepts_primary_pamcp_factorial_variants(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    headers = {"Authorization": "Bearer test-token"}
+    variants = ["Full_PaMCP", "PaMCP_NoGap", "PaMCP_Declared", "PaMCP_NoCert"]
+    response = client.post("/api/v1/baselines/preview", headers=headers, json={
+        "experiment_id": "E18",
+        "baseline_ids": [],
+        "pamcp_variants": variants,
+        "goal_spec": {
+            "prompt": "Search customer reviews",
+            "prompt_inputs": ["query"],
+            "goals": [{
+                "id": "g1", "class": "search", "in": ["query"],
+                "out": "record:review", "eff": ["read(reviews)"],
+                "sigma": "data", "desc": "Search customer reviews",
+            }],
+        },
+        "tools": [{
+            "server": "reviews", "name": "search_reviews",
+            "description": "Search customer reviews",
+            "input_schema": {"type": "object", "properties": {"query": {"type": "string"}}},
+            "annotations": {"readOnlyHint": True},
+        }],
+        "policy": {"name": "read-only-preview", "allowed": ["read(*)"], "lmin": "ann"},
+        "top_k": 2,
+    })
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["baseline_count"] == 0
+    assert data["pamcp_variant_count"] == 4
+    assert {x["variant"] for x in data["pamcp_variant_results"]} == set(variants)
+    for item in data["pamcp_variant_results"]:
+        assert item["result"]["evaluator_labels_accessed"] is False
+        assert item["result"]["mcp_tools_executed"] is False
+
+
+def test_pamcp_variants_are_restricted_to_e18(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    headers = {"Authorization": "Bearer test-token"}
+    response = client.post("/api/v1/baselines/preview", headers=headers, json={
+        "experiment_id": "E8", "baseline_ids": [],
+        "pamcp_variants": ["Full_PaMCP"],
+        "goal_spec": {
+            "prompt": "Find a tool",
+            "goals": [{
+                "id": "g1", "class": "search", "in": [],
+                "out": "document", "sigma": "data", "desc": "Find a tool",
+            }],
+        },
+        "tools": [{"server": "s", "name": "t", "description": "tool", "input_schema": {}}],
+    })
+    assert response.status_code == 422
