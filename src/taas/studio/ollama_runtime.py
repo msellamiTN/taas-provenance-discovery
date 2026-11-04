@@ -13,6 +13,7 @@ from typing import Any
 from taas.studio.model_runtime import (
     ModelRuntimeError, ROOT, diagnose_goal_spec, parse_goal_spec_response,
 )
+from taas.studio.analyst_contract import build_analyst_system_prompt
 
 
 class OllamaModelRuntime:
@@ -115,14 +116,10 @@ class OllamaModelRuntime:
     def decompose(self, prompt: str, context: str = "", max_new_tokens: int = 1200) -> dict[str, Any]:
         if not prompt.strip():
             raise ValueError("prompt must not be empty")
-        guide = ROOT / "docs" / "ANALYST_GUIDE.md"
-        theta = ROOT / "data" / "processed" / "theta.json"
-        if not guide.is_file() or not theta.is_file():
-            raise ModelRuntimeError("Analyst guide or semantic type vocabulary is missing")
-        system = (guide.read_text(encoding="utf-8") + "\n\nSemantic type vocabulary (Θ):\n"
-                  + theta.read_text(encoding="utf-8")
-                  + "\n\nPRIORITY RULES: preserve the requested operation. A total requires aggregate or compute_exact with numeric output; summarise is not aggregation. Use exactness=exact for exact arithmetic. Preserve all/every scope; n is not proof of completeness. Surface currency ambiguity."
-                  + "\n\nSTRICT OUTPUT: exactly one canonical GoalSpec JSON object; no wrappers, fences, or commentary.")
+        try:
+            system = build_analyst_system_prompt()
+        except RuntimeError as exc:
+            raise ModelRuntimeError(str(exc)) from exc
         user = "Objective:\n" + prompt.strip()
         if context.strip():
             user += "\n\nAdditional context:\n" + context.strip()
