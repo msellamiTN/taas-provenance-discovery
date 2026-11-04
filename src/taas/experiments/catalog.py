@@ -33,6 +33,28 @@ VARIANTS = {
         "Per-subgoal retrieval and union; disable backward closure, global set checks and certificate; preserve G and P."),
 }
 
+EXPECTED_FACTORIAL_NAMES = {
+    (1, 1, 1): "Full_PaMCP",
+    (0, 1, 1): "PaMCP_NoGap",
+    (1, 0, 1): "PaMCP_Declared",
+    (1, 1, 0): "PaMCP_NoCert",
+    (1, 0, 0): "G1_P0_S0",
+    (0, 1, 0): "G0_P1_S0",
+    (0, 0, 1): "G0_P0_S1",
+    (0, 0, 0): "G0_P0_S0",
+}
+
+
+def validate_factorial(data: dict[str, Any]) -> None:
+    cells = data.get("factorial_design", {}).get("cells", [])
+    got = {(x["G"], x["P"], x["S"]) for x in cells}
+    if len(cells) != 8 or got != set(EXPECTED_FACTORIAL_NAMES):
+        raise ValueError("Factorial cells are incomplete or duplicated")
+    for cell in cells:
+        key = (cell["G"], cell["P"], cell["S"])
+        if cell.get("name") != EXPECTED_FACTORIAL_NAMES[key]:
+            raise ValueError(f"Incorrect factorial variant label for {key}: {cell.get('name')}")
+
 
 def load_catalog(path: Path = CATALOG_PATH) -> dict[str, Any]:
     data = json.loads(path.read_text(encoding="utf-8"))
@@ -45,9 +67,7 @@ def load_catalog(path: Path = CATALOG_PATH) -> dict[str, Any]:
         raise ValueError(f"Catalog must contain E1-E22 in order; got {actual}")
     if any(e.get("status") != "planned_not_run" for e in experiments):
         raise ValueError("New catalog entries must begin planned_not_run")
-    cells = data.get("factorial_design", {}).get("cells", [])
-    if len(cells) != 8 or len({(c["G"], c["P"], c["S"]) for c in cells}) != 8:
-        raise ValueError("The primary factorial design must contain eight unique cells")
+    validate_factorial(data)
     return data
 
 
@@ -61,10 +81,3 @@ def validate_variant(name: str, config: dict[str, Any]) -> Variant:
     if observed != wanted:
         raise ValueError(f"{name} factor mismatch: expected {wanted}, got {observed}")
     return expected
-
-
-def validate_factorial(data: dict[str, Any]) -> None:
-    expected = {(g, p, s) for g in (0, 1) for p in (0, 1) for s in (0, 1)}
-    got = {(x["G"], x["P"], x["S"]) for x in data["factorial_design"]["cells"]}
-    if got != expected:
-        raise ValueError("Factorial cells are incomplete or duplicated")
