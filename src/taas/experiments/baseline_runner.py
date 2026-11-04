@@ -6,6 +6,7 @@ claim exact reproductions of COLT, ToolScope, CMTF or AutoTool.
 from __future__ import annotations
 
 from collections import Counter, defaultdict, deque
+import time
 from dataclasses import asdict, dataclass, field
 from typing import Any, Iterable, Mapping, Sequence
 
@@ -16,6 +17,7 @@ from taas.effects import Effect, within
 from taas.experiments.baseline_catalog import baseline_index
 from taas.goals import GoalSpec
 from taas.policy import Policy
+from taas.provenance import DEFAULT_TRUST
 from taas.retrieval import HybridRetriever, tokenize
 from taas.types import SemType, parse_type, subtype
 
@@ -386,6 +388,57 @@ def run_baseline(
     requested_k = explicit_params.get("top_k", top_k if top_k is not None else params.get("top_k", 5))
     k = int(requested_k) if isinstance(requested_k, int) else 5
     visible = [t for t in pool if t in retriever.contracts]
+
+    if baseline_id == "linear_scan":
+        started = time.perf_counter()
+        if policy is None:
+            raise ValueError("linear_scan requires a policy")
+        visible = set(pool)
+        eligible = []
+        for tool in visible:
+            contract = retriever.contracts[tool]
+            if policy.visible is not None and tool not in policy.visible:
+                continue
+            if policy.encoding == "positive":
+                accepted = all(
+                    contract.strength(prop, DEFAULT_TRUST) >= policy.lmin
+                    for prop in policy.required
+                )
+            else:
+                accepted = not any(
+                    contract.strength(prop, DEFAULT_TRUST) >= policy.lmin
+                    for prop in policy.forbidden
+                )
+            if accepted:
+                eligible.append(tool)
+        elapsed = time.perf_counter() - started
+        return BaselineResult(
+            baseline_id, "completed", sorted(eligible),
+            details={"control": "direct linear eligibility scan",
+                     "eligibility_encoding": policy.encoding,
+                     "required_properties": sorted(policy.required),
+                     "forbidden_properties": sorted(policy.forbidden),
+                     "evidence_floor": policy.lmin,
+                     "scanned_tool_count": len(visible),
+                     "eligible_tool_count": len(eligible),
+                     "scan_seconds": elapsed,
+                     "bitmap_index_used": False},
+        )
+
+    if baseline_id == "no_experience":
+        selected = per_subtask(
+            retriever, spec, visible,
+            k_per_goal=int(params.get("k_per_goal", 1)),
+            include_native=False,
+        )
+        scores = retriever.scores(prompt, None, selected, set(), components=("den",)) if selected else {}
+        return BaselineResult(
+            baseline_id, "completed", selected,
+            _tool_ranking(_rank(scores, len(selected))),
+            details={"experience_repository_used": False,
+                     "historical_trajectories_consulted": 0,
+                     "method": "per-subtask retrieval without trajectory reuse"},
+        )
 
     if baseline_id == "all_tools":
         selected = all_tools(visible)
