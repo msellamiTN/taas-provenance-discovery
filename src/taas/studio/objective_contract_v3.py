@@ -67,8 +67,8 @@ def _source_evidence(objective: str, goal_class: str) -> list[dict[str, Any]]:
 
 def _clause_bounds(text: str, position: int) -> tuple[int, int]:
     """Return conservative punctuation-delimited clause bounds around a source offset."""
-    left = max((text.rfind(mark, 0, position) for mark in (";", ".", "!", "?", "\\n")), default=-1) + 1
-    right_candidates = [text.find(mark, position) for mark in (";", ".", "!", "?", "\\n")]
+    left = max((text.rfind(mark, 0, position) for mark in (";", ".", "!", "?", "\n")), default=-1) + 1
+    right_candidates = [text.find(mark, position) for mark in (";", ".", "!", "?", "\n")]
     right_candidates = [value for value in right_candidates if value >= 0]
     right = min(right_candidates) if right_candidates else len(text)
     return left, right
