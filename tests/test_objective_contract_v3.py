@@ -51,7 +51,7 @@ def test_v3_modality_is_scoped_to_its_clause_without_erasing_unrelated_outcomes(
 
 
 def test_v3_newline_is_a_clause_boundary_for_modality_scope():
-    contract = derive_objective_contract_v3("Draft the email\\nDo not send it.")
+    contract = derive_objective_contract_v3("Draft the email\nDo not send it.")
     assert any(item["goal_class"] == "write" for item in contract["outcomes"])
     assert not any(item["goal_class"] == "send" for item in contract["outcomes"])
     assert any("send" in item["affected_goal_classes"] for item in contract["clarifications"])
