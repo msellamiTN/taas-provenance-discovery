@@ -7,6 +7,11 @@ multi-user deployments need isolated workers and resource scheduling.
 from __future__ import annotations
 
 import re
+import json
+import os
+from urllib.error import HTTPError, URLError
+from urllib.parse import urlsplit
+from urllib.request import Request, urlopen
 from json import JSONDecoder, JSONDecodeError
 import threading
 import time
@@ -140,7 +145,18 @@ class HuggingFaceModelRuntime:
             # Do not discard a working model until the replacement has loaded.
             self._last_error = None
             try:
-                tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=False)
+                try:
+                    tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=False, use_fast=True)
+                except Exception as fast_exc:
+                    try:
+                        tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=False, use_fast=False)
+                    except Exception as slow_exc:
+                        raise ModelRuntimeError(
+                            "Tokenizer loading failed in fast and slow modes. Install sentencepiece and tiktoken: "
+                            "pip install sentencepiece tiktoken. "
+                            f"Fast tokenizer: {type(fast_exc).__name__}: {fast_exc}; "
+                            f"slow tokenizer: {type(slow_exc).__name__}: {slow_exc}"
+                        ) from slow_exc
                 if tokenizer.pad_token_id is None and tokenizer.eos_token_id is not None:
                     tokenizer.pad_token = tokenizer.eos_token
                 model = AutoModelForCausalLM.from_pretrained(
