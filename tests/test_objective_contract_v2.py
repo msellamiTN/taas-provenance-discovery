@@ -135,3 +135,13 @@ def test_v2_retrieval_outcome_can_be_covered_by_actual_supplied_data():
     assert coverage["summary"] == {"required": 1, "covered": 1, "missing": 0}
     assert coverage["outcomes"][0]["status"] == "covered_by_supplied_input"
     assert coverage["outcomes"][0]["input_types"] == ["text"]
+    frame = derive_objective_contract(
+        "Search the supplied documents for references to privacy."
+    )
+    assert frame["source_data_required"] is False
+
+    external = derive_objective_contract(
+        "Search the web using this supplied document for current references."
+    )
+    assert external["user_supplied_content"] is True
+    assert external["source_data_required"] is True
