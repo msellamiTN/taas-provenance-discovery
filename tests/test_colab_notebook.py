@@ -8,6 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 NOTEBOOK = ROOT / "notebooks" / "colab" / "taas_core_studio_colab.ipynb"
 GUIDE = ROOT / "docs" / "deployment" / "COLAB_T4_QUICKSTART.md"
+RUNTIME_GUIDE = ROOT / "docs" / "deployment" / "MODEL_RUNTIME_BACKENDS.md"
 WORKFLOW = ROOT / ".github" / "workflows" / "benchmark-hypergraph.yml"
 INTEGRATED_STUDIO_COMMIT = "593a7fd9c6dda70e350ec865bc8f1c390b041bba"
 
@@ -31,7 +32,9 @@ def test_colab_notebook_is_valid_and_has_operator_guide() -> None:
     notebook, markdown, _ = notebook_source()
     assert notebook["nbformat"] == 4
     assert GUIDE.is_file()
+    assert RUNTIME_GUIDE.is_file()
     assert "COLAB_T4_QUICKSTART.md" in markdown
+    assert "CPU / CUDA / Ollama" in markdown
 
 
 def test_colab_code_cells_are_valid_python() -> None:
@@ -60,6 +63,11 @@ def test_colab_installs_and_verifies_optional_hugging_face_runtime() -> None:
     assert "importlib.import_module('torch')" in code
     assert "importlib.import_module('transformers')" in code
     assert "importlib.import_module('safetensors')" in code
+    assert "importlib.import_module('sentencepiece')" in code
+    assert "importlib.import_module('tiktoken')" in code
+    assert "importlib.import_module('taas.studio.ollama_runtime')" in code
+    assert "ENABLE_OLLAMA = False" in code
+    assert "TAAS_OLLAMA_BASE_URL" in code
 
 
 def test_colab_notebook_uses_safe_loopback_proxy_and_ephemeral_token() -> None:
