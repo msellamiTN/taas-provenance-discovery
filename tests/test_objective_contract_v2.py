@@ -81,3 +81,58 @@ def test_v2_always_requires_human_review_even_for_simple_objectives():
     assert frame["review"]["required"] is True
     assert "human_review_mandatory" in frame["review"]["reasons"]
     assert frame["review"]["semantic_correctness_verified"] is False
+
+
+
+def test_v2_outcome_coverage_maps_each_required_operation_to_goal_ids():
+    from taas.studio.objective_contract import build_outcome_coverage
+
+    objective = (
+        "Search for recent papers on formal concept analysis, compare the findings, "
+        "synthesise the evidence, and create a report."
+    )
+    spec = {"prompt_inputs": ["text"], "goals": [
+        {"id": "g1", "class": "search"},
+        {"id": "g2", "class": "compare"},
+        {"id": "g3", "class": "synthesise"},
+        {"id": "g4", "class": "create_document"},
+    ]}
+    coverage = build_outcome_coverage(objective, spec)
+
+    assert coverage["summary"] == {"required": 4, "covered": 4, "missing": 0}
+    assert [item["status"] for item in coverage["outcomes"]] == [
+        "covered_by_goal", "covered_by_goal", "covered_by_goal", "covered_by_goal"
+    ]
+    assert [item["goal_ids"] for item in coverage["outcomes"]] == [
+        ["g1"], ["g2"], ["g3"], ["g4"]
+    ]
+    assert coverage["semantic_correctness_verified"] is False
+
+
+def test_v2_outcome_coverage_reports_missing_operations_without_guessing():
+    from taas.studio.objective_contract import build_outcome_coverage
+
+    objective = "Search for recent papers and summarise the findings."
+    coverage = build_outcome_coverage(objective, {
+        "prompt_inputs": ["text"],
+        "goals": [{"id": "g1", "class": "search"}],
+    })
+
+    assert coverage["summary"] == {"required": 2, "covered": 1, "missing": 1}
+    assert coverage["outcomes"][0]["status"] == "covered_by_goal"
+    assert coverage["outcomes"][1]["status"] == "missing"
+    assert coverage["outcomes"][1]["goal_ids"] == []
+
+
+def test_v2_retrieval_outcome_can_be_covered_by_actual_supplied_data():
+    from taas.studio.objective_contract import build_outcome_coverage
+
+    coverage = build_outcome_coverage(
+        "Compare the following supplied documents.",
+        {"prompt_inputs": ["text"], "goals": [{"id": "g1", "class": "compare"}]},
+    )
+
+    # The objective does not require external retrieval; the supplied text is
+    # not silently treated as a database or external-source capability.
+    assert coverage["summary"]["missing"] == 0
+    assert coverage["outcomes"][0]["status"] == "covered_by_goal"
