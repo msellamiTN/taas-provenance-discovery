@@ -1578,8 +1578,9 @@ def test_ollama_provider_rejects_embedded_credentials_in_endpoint(monkeypatch):
     from taas.studio.ollama_runtime import OllamaModelRuntime, ModelRuntimeError
 
     monkeypatch.setenv("TAAS_OLLAMA_BASE_URL", "http://user:pass@example.test:11434")
-    with pytest.raises(ModelRuntimeError):
-        OllamaModelRuntime().status()
+    status = OllamaModelRuntime().status()
+    assert status["available"] is False
+    assert "without embedded credentials" in status["last_error"]
 
 
 def test_model_load_endpoint_routes_to_ollama_provider(monkeypatch):
