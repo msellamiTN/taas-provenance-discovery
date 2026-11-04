@@ -1626,7 +1626,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   $("runtime-model-refresh").addEventListener("click",async()=>{ $("runtime-model-status").textContent="Reading model runtime state…";try{await refreshLoadedModel();}catch(e){$("runtime-model-status").textContent="Status request failed: "+e.message;} });
   $("runtime-model-load").addEventListener("click",async()=>{
     const button=$("runtime-model-load");button.disabled=true;$("runtime-model-status").textContent="Loading model weights. The first load may take time and download model files…";
-    try{const provider=$("runtime-provider").value;const state=await runtimePost("/api/v1/models/load",{provider,model_id:$("runtime-model-id").value.trim(),device:$("runtime-device").value});$("runtime-model-details").textContent=JSON.stringify(state,null,2);$("runtime-model-status").textContent=provider==="ollama"?"Ollama model selected · "+state.model_selected+" · weights load on first inference":"Model loaded · "+state.model_id+" · "+state.device+" · "+state.dtype;}
+    try{const provider=$("runtime-provider").value;const state=await runtimePost("/api/v1/models/load",{provider,model_id:$("runtime-model-id").value.trim(),device:provider==="ollama"?"auto":$("runtime-device").value});$("runtime-model-details").textContent=JSON.stringify(state,null,2);$("runtime-model-status").textContent=provider==="ollama"?"Ollama model selected · "+state.model_selected+" · weights load on first inference":"Model loaded · "+state.model_id+" · "+state.device+" · "+state.dtype;}
     catch(e){$("runtime-model-status").textContent="Model load failed: "+e.message;}finally{button.disabled=false;}
   });
   $("agent-chat-send").addEventListener("click",async()=>{
