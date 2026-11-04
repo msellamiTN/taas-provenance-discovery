@@ -787,14 +787,19 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       if (child.id === "runtime-overview") child.hidden = false;
       else if (child !== root) hideForNavigation(child);
     });
-    let branch = target;
-    while (branch && branch !== root) {
-      const parent = branch.parentElement;
-      if (!parent) break;
-      [...parent.children].forEach(sibling => {
-        if (sibling !== branch) hideForNavigation(sibling);
-      });
-      branch = parent;
+    // Discovery is a coupled request/result workspace: isolating GoalSpec,
+    // Hypergraph or Assurance would hide the Run action or the result context.
+    // Keep the complete Discovery workspace visible and scroll to the destination.
+    if (root.id !== "discovery") {
+      let branch = target;
+      while (branch && branch !== root) {
+        const parent = branch.parentElement;
+        if (!parent) break;
+        [...parent.children].forEach(sibling => {
+          if (sibling !== branch) hideForNavigation(sibling);
+        });
+        branch = parent;
+      }
     }
     target.hidden = false;
 
