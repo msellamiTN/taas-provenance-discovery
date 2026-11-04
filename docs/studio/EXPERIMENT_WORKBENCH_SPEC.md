@@ -138,3 +138,32 @@ Unavailable capabilities must be visibly marked as planned. No fake progress, fa
 8. Actual execution claims are possible only for sandbox-backed runs with invocation traces.
 9. UI clearly separates selected toolkit, certificate, task success and runtime policy outcomes.
 10. Unit/integration/security tests and a local dry-run pass before any E1 execution.
+
+
+## 13. Baseline architecture and per-experiment assignment
+
+Baselines are first-class experiment inputs, not hard-coded labels in a plotting script. Their authoritative registry is `docs/experiment_design/pamcp_baselines_v1.json`; each E1–E22 experiment has an explicit `baseline_ids` allowlist in the experiment catalogue. The API rejects a selected baseline that is not assigned to the experiment.
+
+Baseline families are separated to avoid invalid comparisons:
+
+- **Retrieval controls:** BM25, Dense-LSA, RAG-MCP-style multi-query dense RRF, and per-subtask retrieval.
+- **External retrieval/planning adaptations:** MCP-Zero, COLT-style scene completeness, ToolScope-style merger/context ranking, CMTF-style typed state-frontier planning.
+- **Trajectory baseline:** AutoTool (AAAI 2026), E21 only.
+- **Eligibility/effect controls:** MCP annotation semantics, closed-world annotation reading, positive/closed-world lexical filters, observed/attested evidence, schema/lexical typing, and declared/lexical effect inference.
+- **Runtime security comparators:** Progent-style call policy, Fides-style IFC and CaMeL-style taint tracking. These are not retrieval baselines.
+- **Systems controls:** linear eligibility scan and full registry rebuild.
+- **Internal controls:** no-refinement, uncalibrated profile, self-assessment and no-experience reuse.
+
+The common adapter output records selected tool IDs, rankings, stepwise frontiers, merge clusters, diagnostics and adapter status. The current runner executes retrieval/planning adapters, and the E2/E3 registry-side rules. A baseline requiring actual probe traces, security runtime hooks, learned COLT training or trajectory data is not silently substituted: it returns an explicit blocked/not-implemented status or requires the corresponding training/runtime input.
+
+### Baseline fidelity policy
+
+- **Ready component/control:** implemented in this repository and reproducible from its recorded parameters.
+- **Surrogate:** substitutes a different encoder or component and must be identified as such.
+- **Partial adapter:** reproduces one algorithmic stage, not the complete original method.
+- **Clean-room adaptation:** implements a method-inspired mechanism, but is not the original model/prompt/training pipeline.
+- **Pipeline to build / planned:** not executable yet.
+
+BM25 is the lexical control. Dense-LSA is explicitly a surrogate for a downloaded dense embedding model. MCP-Zero currently performs single-pass hierarchical routing, not its full active LLM request loop. COLT uses a scene co-use graph built from training-only query/tool bundles, not the paper's full learned graph architecture. ToolScope uses embedding clusters and contextual representatives; it does not reproduce the paper's LLM equivalence verification and cross-encoder pipeline. CMTF uses typed TaaS contracts as planner preconditions/effects, not an independently implemented native benchmark world-state model. AutoTool-style experience reuse is enabled only when confirmed trajectories and all registry/policy/tool hashes are revalidated.
+
+For every result, report the baseline adapter ID, implementation maturity, source commit, exact parameter JSON, data split, training artifact hash and any deviation from the original paper.
