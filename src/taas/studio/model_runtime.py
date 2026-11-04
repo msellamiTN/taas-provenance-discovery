@@ -73,7 +73,7 @@ def diagnose_goal_spec(prompt: str, spec: dict[str, Any]) -> list[dict[str, str]
         diagnostics.append({"code":"summary_substituted_for_calculation","severity":"error","message":"A summarise goal appears where the objective requires arithmetic aggregation.","suggestion":"Add numeric aggregation; keep summarisation only as an optional presentation step."})
     if total_requested and re.search(r"\b(all|every)\b", objective):
         retrievals = [g for g in goals if isinstance(g, dict) and str(g.get("class", "")).casefold() in {"retrieve", "search", "fetch_web"}]
-        if any(int(g.get("n", 1) or 1) > 1 for g in retrievals):
+        if any(isinstance(g.get("n"), (int, float)) and not isinstance(g.get("n"), bool) and g.get("n") > 1 for g in retrievals):
             diagnostics.append({"code":"scope_completeness_unproven","severity":"warning","message":"The objective says all/every, but a finite n value is only an estimate and does not prove complete retrieval.","suggestion":"Preserve unbounded scope in retrieval description; treat n as an estimate, not a completeness guarantee."})
     has_currency_context = bool(re.search(r"\b(usd|eur|gbp|tnd|currency|currencies|same currency|convert)\b", objective))
     if total_requested and not has_currency_context and re.search(r"\b(transaction|transactions|financial|payment|payments)\b", objective):
