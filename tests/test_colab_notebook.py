@@ -37,6 +37,12 @@ def test_colab_notebook_is_valid_and_has_operator_guide() -> None:
     assert "CPU / CUDA / Ollama" in markdown
 
 
+def test_colab_quickstart_has_no_escaped_table_newline() -> None:
+    guide = GUIDE.read_text(encoding="utf-8")
+    assert "|\\n| Discovery returns 422" not in guide
+    assert "| Discovery returns 422 |" in guide
+
+
 def test_colab_code_cells_are_valid_python() -> None:
     notebook = json.loads(NOTEBOOK.read_text(encoding="utf-8"))
     code_cells = [cell for cell in notebook["cells"] if cell["cell_type"] == "code"]
