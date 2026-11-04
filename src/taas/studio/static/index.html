@@ -1641,16 +1641,37 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   $("agent-decompose").addEventListener("click",async()=>{
     const button=$("agent-decompose");button.disabled=true;$("agent-decompose-status").textContent="Decomposing objective with the loaded model…";$("agent-apply-goals").disabled=true;pendingAgentGoalSpec=null;
     try{const result=await runtimePost("/api/v1/agents/decompose",{provider:$("runtime-provider").value,prompt:$("agent-goal-prompt").value,max_new_tokens:1200});$("agent-decompose-result").textContent=JSON.stringify(result,null,2);
-      if(result.json_valid&&result.structural_validation?.valid){
+      const diagnostics=result.semantic_diagnostics||[];
+      const hasErrors=diagnostics.some(x=>x.severity==="error");
+      const coreNeedsClarification=result.core_analysis?.status==="clarification_required";
+      const accepted=result.conformance?.accepted_for_human_review===true;
+      if(result.json_valid&&result.structural_validation?.valid&&accepted&&!hasErrors&&!coreNeedsClarification){
         pendingAgentGoalSpec=result.goal_spec;$("agent-apply-goals").disabled=false;
-        const diagnostics=result.semantic_diagnostics||[];
-        $("agent-semantic-diagnostics").className="goal-validation"+(diagnostics.some(x=>x.severity==="error")?" invalid":diagnostics.length?"":" valid");
-        $("agent-semantic-diagnostics").textContent=diagnostics.length
-          ? "Semantic review required · "+diagnostics.length+" heuristic diagnostic(s): "+diagnostics.map(x=>x.code+": "+x.message+" Suggested action: "+x.suggestion).join(" | ")
-          : "No heuristic issue detected. This is not proof of semantic correctness; review the objective-to-goal mapping.";
-        $("agent-decompose-status").textContent="GoalSpec proposal parsed and structurally valid. Semantic correctness is not verified; review diagnostics before applying.";
+        $("agent-semantic-diagnostics").className="goal-validation"+(diagnostics.length?"":" valid");
+        const core=result.core_analysis||{};
+        const gapText=(core.gap_goal_ids||[]).length
+          ? "Core capability gaps: "+core.gap_goal_ids.join(", ")+". "
+          : "No Core capability gap identified by the current model profile. ";
+        const profile=core.model_profile||{};
+        const calibration=profile.calibrated_profile_matched
+          ? "Matched calibrated profile: "+profile.model_id+". "
+          : "No matching calibrated profile; strict Core analysis treats unmeasured model skills as uncovered. ";
+        $("agent-semantic-diagnostics").textContent=(diagnostics.length
+          ? "Human review required · "+diagnostics.map(x=>x.code+": "+x.message+" Suggested action: "+x.suggestion).join(" | ")
+          : "No configured objective-alignment error detected. ")
+          +gapText+calibration+"Review the objective-to-goal mapping; this is not a correctness proof.";
+        $("agent-decompose-status").textContent="Core-analyzed GoalSpec proposal. "+(result.attempt_history||[]).length+" attempt(s). Human review is required before applying.";
       }
-      else{$("agent-semantic-diagnostics").className="goal-validation invalid";$("agent-semantic-diagnostics").textContent="No semantic review: response did not pass parsing and structural validation.";$("agent-decompose-status").textContent="Model response is not an acceptable GoalSpec. Inspect the response and refine the objective.";}
+      else{
+        pendingAgentGoalSpec=null;$("agent-apply-goals").disabled=true;
+        $("agent-semantic-diagnostics").className="goal-validation invalid";
+        $("agent-semantic-diagnostics").textContent=coreNeedsClarification
+          ? "Core requires clarification: "+(result.core_analysis?.clarification||"unresolved GoalSpec input.")
+          : hasErrors
+            ? "Core rejected objective conformance: "+diagnostics.filter(x=>x.severity==="error").map(x=>x.code+": "+x.message).join(" | ")
+            : "No acceptable GoalSpec: structural validation or Core conformance failed. Inspect attempt history and diagnostics.";
+        $("agent-decompose-status").textContent="GoalSpec was not accepted for human review. Apply is disabled; refine the objective or resolve the reported Core constraints.";
+      }
     }catch(e){$("agent-decompose-status").textContent="Agent decomposition failed: "+e.message;}finally{button.disabled=false;}
   });
   $("agent-apply-goals").addEventListener("click",()=>{
