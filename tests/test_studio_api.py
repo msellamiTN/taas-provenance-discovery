@@ -1616,3 +1616,11 @@ def test_model_chat_endpoint_routes_to_ollama_provider(monkeypatch):
     assert response.status_code == 200
     assert response.json()["provider"] == "ollama"
     assert response.json()["text"] == "response"
+
+def test_ollama_load_rejects_huggingface_device_selection(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.post("/api/v1/models/load",
+                           headers={"Authorization": "Bearer test-token"},
+                           json={"provider": "ollama", "model_id": "qwen2.5:0.5b", "device": "cpu"})
+    assert response.status_code == 422
+    assert "Ollama manages device placement" in response.json()["detail"]
