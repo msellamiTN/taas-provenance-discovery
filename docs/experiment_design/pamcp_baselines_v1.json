@@ -405,8 +405,8 @@
       "id": "full_rebuild",
       "name": "Full registry rebuild",
       "kind": "systems_control",
-      "implementation": "ready_control",
-      "method": "Rebuild contracts, hypergraph, retrieval structures and eligibility state from the complete new registry snapshot after each event.",
+      "implementation": "adapter_to_build",
+      "method": "Rebuild all contracts, hypergraph, retrieval structures and eligibility state from a complete post-event registry snapshot. A dedicated E16 event-replay worker is still required; the preview API does not simulate registry notifications.",
       "params": {
         "update_mode": "full_rebuild"
       },
@@ -419,7 +419,7 @@
       "name": "No counterexample-guided refinement",
       "kind": "internal_control",
       "implementation": "ready_control",
-      "method": "Run the selected discovery configuration once and do not apply counterexample-guided repair.",
+      "method": "Run Full PaMCP with counterexample-guided refinement disabled (refine_k=0); preserve G, P and S. Used as an isolated E17/E18 component control.",
       "params": {
         "refine_k": 0
       },
@@ -446,8 +446,8 @@
       "id": "uncalibrated_profile",
       "name": "Strict uncalibrated model profile",
       "kind": "calibration_control",
-      "implementation": "ready_control",
-      "method": "Assign no native capability to unmeasured classes in strict mode.",
+      "implementation": "pipeline_to_build",
+      "method": "Run with a strict uncalibrated profile assigning zero native capability to unmeasured classes. A dedicated profile-comparison adapter is still required for the E11/E12/E19 study.",
       "params": {
         "strict": true,
         "unmeasured_rho": 0
@@ -462,8 +462,8 @@
       "id": "calibrated_profile",
       "name": "Empirically calibrated model profile",
       "kind": "core_method",
-      "implementation": "core_method",
-      "method": "Use reliability estimates measured on a task-class/input-size calibration set with uncertainty and profile versioning.",
+      "implementation": "pipeline_to_build",
+      "method": "Use a frozen, empirically calibrated model profile with a dataset/version hash and calibration report. The profile-comparison adapter and calibration-artifact validation remain to be implemented.",
       "params": {
         "calibration": "held_out_empirical"
       },
@@ -479,7 +479,7 @@
       "name": "No trajectory experience reuse",
       "kind": "internal_control",
       "implementation": "ready_control",
-      "method": "Do not retrieve historical trajectories; serves as the zero-memory control for AutoTool-style E21 comparison.",
+      "method": "Use per-subtask retrieval without consulting a trajectory repository. This is the zero-experience control for the E21 trajectory-reuse comparison.",
       "params": {
         "experience_reuse": false
       },
