@@ -65,7 +65,7 @@ def derive_objective_contract(objective: str) -> dict[str, Any]:
         "numeric_result_required": bool(total or count),
         "exactness_required": "exact" if total or count else None,
         "scope": {"all_matching_items": all_scope, "date_or_range_constraint": date_scope},
-        "source_data_required": bool(total or count or all_scope or financial),
+        "source_data_required": bool(total or count or summary or compare or all_scope or financial),
         "theta_domain_candidates": matched_domains,
         "unresolved_business_concepts": sorted(set(unresolved)),
         "ambiguities": (["currency_policy"] if financial and not currency_explicit else []),
@@ -95,7 +95,8 @@ def diagnose_objective_alignment(objective: str, spec: dict[str, Any]) -> list[d
     diagnostics: list[dict[str, str]] = []
     required = contract["required_goal_classes"]
     for cls in required:
-        if cls not in classes:
+        present = cls in classes or (cls == "aggregate" and "compute_exact" in classes)
+        if not present:
             diagnostics.append({
                 "code": "objective_operation_missing", "severity": "error",
                 "message": f"The objective requires a {cls} operation, but no {cls} goal exists.",
