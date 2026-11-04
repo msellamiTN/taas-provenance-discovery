@@ -37,7 +37,7 @@ from taas.studio.authorization_preflight import (
 )
 from taas.studio.runtime import estimate_model_memory, probe_hardware, probe_runtime
 from taas.studio.model_runtime import ModelRuntimeError, get_model_runtime
-from taas.studio.analyst_contract import validate_theta_types, build_refinement_context
+from taas.studio.analyst_contract import validate_theta_types, build_refinement_context, load_analyst_contract
 from taas.studio.objective_contract import build_objective_context, diagnose_objective_alignment
 from taas.studio.ollama_runtime import get_ollama_runtime
 from taas.studio.mcp_registry import MCPRegistryError, inspect_server as inspect_mcp_server, list_servers as list_mcp_servers
@@ -83,6 +83,9 @@ class DiscoverRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     goal_spec: dict[str, Any]
     tools: list[ToolInput] = Field(min_length=1, max_length=500)
+    provider: str = Field(default="huggingface", pattern="^(huggingface|ollama)$")
+    model_id: str | None = Field(default=None, min_length=3, max_length=257)
+    human_review_confirmed: bool = False
     policy: dict[str, Any] = Field(default_factory=dict)
     engine: dict[str, Any] = Field(default_factory=dict)
 
@@ -200,9 +203,40 @@ def validate_studio_goal_spec(spec: dict[str, Any]) -> None:
     legacy = {"output", "reason", "dependencies"}
     ids: list[str] = []
     type_pattern = re.compile(r"^([a-z_]+)(?::[a-z0-9_-]+)?(\[\])?$")
+    try:
+        _, theta_vocabulary = load_analyst_contract()
+    except RuntimeError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    theta_domains = set(theta_vocabulary.get("domains", []))
+    theta_types = set(theta_vocabulary.get("common_types", []))
+
     def valid_semantic_type(value: str) -> bool:
         match = type_pattern.fullmatch(value)
-        return bool(match and match.group(1) in KINDS)
+        return bool(match and match.group(1) in KINDS and value in theta_types)
+
+    def invalid_type_detail(path: str, value: str) -> str:
+        if value in theta_domains:
+            return (
+                f"{path} uses domain label {value!r} where a semantic type is required. "
+                f"A domain is not a kind: use a declared kind-qualified type if available, "
+                "or 'text' for a natural-language prompt input. Resolve collection shape "
+                "against Θ.common_types; a domain name alone is not a semantic type."
+            )
+        if isinstance(value, str):
+            if path == "goal_spec.prompt_inputs":
+                return (
+                    f"{path} contains invalid semantic type {value!r}; expected a declared semantic type string. "
+                    "Use an exact entry from Θ.common_types."
+                )
+            return (
+                f"{path} uses an undeclared Θ semantic type string {value!r}; it is syntactically valid "
+                "but absent from Θ.common_types. For an unresolved collection, use 'record[]' "
+                "and preserve the business concept in the goal description."
+            )
+        if path == "goal_spec.prompt_inputs":
+            return (f"{path} contains invalid semantic type {value!r}; prompt_inputs must be a semantic type string. "
+                    "Use a declared Θ kind with an optional declared domain.")
+        return f"{path} must be a semantic type string; got invalid value {value!r}. Use a declared Θ kind with an optional declared domain."
 
     for index, goal in enumerate(goals):
         prefix = f"goal_spec.goals[{index}]"
@@ -228,7 +262,7 @@ def validate_studio_goal_spec(spec: dict[str, Any]) -> None:
             )
         out_type = goal.get("out")
         if not isinstance(out_type, str) or not valid_semantic_type(out_type):
-            raise HTTPException(status_code=422, detail=f"{prefix}.out must be a semantic type string")
+            raise HTTPException(status_code=422, detail=invalid_type_detail(f"{prefix}.out", str(out_type)))
         if goal.get("sigma", "native") not in SIGMAS:
             raise HTTPException(status_code=422, detail=f"{prefix}.sigma must be one of {SIGMAS}")
         for field_name in ("in", "eff", "deps"):
@@ -239,7 +273,7 @@ def validate_studio_goal_spec(spec: dict[str, Any]) -> None:
                 raise HTTPException(status_code=422, detail=f"{prefix}.{field_name} must contain strings")
         for input_type in goal.get("in", []):
             if not valid_semantic_type(input_type):
-                raise HTTPException(status_code=422, detail=f"{prefix}.in contains invalid semantic type {input_type!r}")
+                raise HTTPException(status_code=422, detail=invalid_type_detail(f"{prefix}.in", input_type))
         for effect in goal.get("eff", []):
             try:
                 parse_effect(effect)
@@ -261,7 +295,7 @@ def validate_studio_goal_spec(spec: dict[str, Any]) -> None:
         raise HTTPException(status_code=422, detail="goal_spec.prompt_inputs must be an array of semantic type strings")
     for item in prompt_inputs:
         if not valid_semantic_type(item):
-            raise HTTPException(status_code=422, detail=f"goal_spec.prompt_inputs contains invalid semantic type {item!r}")
+            raise HTTPException(status_code=422, detail=invalid_type_detail("goal_spec.prompt_inputs", item))
     if "prompt" in spec and not isinstance(spec["prompt"], str):
         raise HTTPException(status_code=422, detail="goal_spec.prompt must be a string")
     known_ids = set(ids)
@@ -476,11 +510,40 @@ def bench_tools(
     }
 
 
-@app.post("/api/v1/discover", dependencies=[Depends(require_api_token)])
+@app.post("/api/v1/objectives/discover", dependencies=[Depends(require_api_token)])
+@app.post("/api/v1/discover", dependencies=[Depends(require_api_token)], include_in_schema=False)
 def discover(request: DiscoverRequest) -> dict[str, Any]:
     """Run TaaS discovery only; this endpoint does not invoke MCP tools."""
+    if not request.human_review_confirmed:
+        raise HTTPException(
+            status_code=409,
+            detail="Human review is required for the objective-to-GoalSpec mapping and selected tool metadata before discovery.",
+        )
     validate_studio_goal_spec(request.goal_spec)
-    profile = load_profile()
+    objective = str(request.goal_spec.get("prompt", "")).strip()
+    if not objective:
+        raise HTTPException(
+            status_code=422,
+            detail="goal_spec.prompt must preserve the original natural-language objective for Core conformance validation.",
+        )
+    objective_diagnostics = diagnose_objective_alignment(objective, request.goal_spec)
+    objective_errors = [item for item in objective_diagnostics if item.get("severity") == "error"]
+    if objective_errors:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "message": "TaaS Core objective conformance rejected this GoalSpec; discovery was not started.",
+                "diagnostics": objective_diagnostics,
+            },
+        )
+    configured_profile = load_profile()
+    profile_matches = bool(
+        request.model_id and configured_profile.model_id == request.model_id
+    )
+    if request.model_id and not profile_matches:
+        profile = ModelProfile(model_id=request.model_id, strict=True)
+    else:
+        profile = configured_profile
     raw_tools = [RawTool(**tool.model_dump()) for tool in request.tools]
     contracts = [extract_contract(tool) for tool in raw_tools]
 
@@ -568,9 +631,17 @@ def discover(request: DiscoverRequest) -> dict[str, Any]:
         "hypergraph_projection_status": projection_status,
         "hypergraph_projection": hypergraph_projection,
         "execution_performed": False,
+        "human_review": {"confirmed": True, "scope": "goal_spec_and_selected_tool_metadata",
+                         "semantic_correctness_verified": False},
+        "objective_conformance": {"accepted_for_human_review": True,
+                                  "diagnostics": objective_diagnostics,
+                                  "semantic_correctness_verified": False},
         "model_profile": {
+            "provider": request.provider,
             "model_id": profile.model_id,
-            "calibration": "configured" if os.environ.get("TAAS_MODEL_PROFILE") else "uncalibrated",
+            "requested_model_id": request.model_id,
+            "calibrated_profile_matched": profile_matches,
+            "calibration": "configured" if (not request.model_id or profile_matches) and os.environ.get("TAAS_MODEL_PROFILE") else "uncalibrated",
             "strict": profile.strict,
         },
     }
@@ -615,7 +686,8 @@ def model_runtime_chat(request: ModelChatRequest) -> dict[str, Any]:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 
-@app.post("/api/v1/agents/decompose", dependencies=[Depends(require_api_token)])
+@app.post("/api/v1/objectives/prepare", dependencies=[Depends(require_api_token)])
+@app.post("/api/v1/agents/decompose", dependencies=[Depends(require_api_token)], include_in_schema=False)
 def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
     """Use the selected Studio model to propose a GoalSpec; validate separately."""
     try:
@@ -638,11 +710,11 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
                     structural_error = exc.detail
             else:
                 structural_error = candidate.get("parse_error") or "Model did not return a canonical GoalSpec JSON object"
-            diagnostics = list(candidate.get("semantic_diagnostics") or [])
+            # One canonical semantic validator owns Studio acceptance. Provider-
+            # local heuristics may be returned for diagnostics, but cannot override Core.
+            diagnostics: list[dict[str, str]] = []
             if candidate.get("json_valid") and isinstance(candidate.get("goal_spec"), dict):
-                diagnostics.extend(diagnose_objective_alignment(request.prompt, candidate["goal_spec"]))
-                diagnostics = list({(item.get("code"), item.get("message")): item
-                                    for item in diagnostics}.values())
+                diagnostics = diagnose_objective_alignment(request.prompt, candidate["goal_spec"])
             if structural_error:
                 diagnostics.append({
                     "code": "goalspec_structural_nonconformance",
@@ -690,7 +762,7 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
             "clarification": None, "discovery": "not_run_user_action_required",
             "hypergraph_composition": "deferred_to_discovery",
         }
-        if structural_error is None and isinstance(result.get("goal_spec"), dict):
+        if structural_error is None and accepted and isinstance(result.get("goal_spec"), dict):
             # Run the actual GoalSpec gap-analysis algorithm against the active
             # model's calibrated profile. A mismatched/missing profile fails closed.
             active_model_id = str(result.get("model_id") or "")
@@ -743,6 +815,17 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
         }
         result["semantic_diagnostics"] = diagnostics
         result["semantic_review_required"] = bool(diagnostics) or not accepted
+        result["workflow"] = {
+            "objective_interpretation": "completed",
+            "goalspec_generation": "completed" if result.get("json_valid") else "failed",
+            "structural_validation": "passed" if structural_error is None else "failed",
+            "objective_conformance": "accepted_for_human_review" if accepted else "rejected",
+            "core_gap_analysis": core_analysis.get("status", "not_analyzed"),
+            "tool_discovery": ("awaiting_human_review_and_selected_tool_metadata" if accepted else "blocked_by_objective_conformance"),
+            "hypergraph_composition": "deferred_to_tool_discovery",
+            "tool_execution": "disabled",
+            "semantic_correctness_verified": False,
+        }
         return result
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc

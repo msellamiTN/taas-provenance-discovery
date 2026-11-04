@@ -24,7 +24,7 @@ Example:
           "desc": "Retrieve recent reviews for product X",
           "class": "retrieve",
           "in": ["query"],
-          "out": "record:review[]",
+          "out": "record[]",
           "eff": ["read(db)"],
           "sigma": "data",
           "n": 100,
@@ -37,7 +37,7 @@ Example:
           "id": "g2",
           "desc": "Summarise the retrieved reviews",
           "class": "summarise",
-          "in": ["record:review[]"],
+          "in": ["record[]"],
           "out": "text",
           "eff": [],
           "sigma": "native",
@@ -57,7 +57,7 @@ Do not wrap the object in an id/query/context envelope. Do not add Markdown fenc
 - id: unique identifier matching [A-Za-z][A-Za-z0-9_-]{0,63}.
 - desc: concise, non-empty description of the intended operation.
 - class: model-side classes: classify, extract, summarise, translate, convert_format, write, plan, synthesise, aggregate, compute_exact, count, compare, answer; boundary-crossing classes: retrieve, search, fetch_web, store, send, transact, execute, navigate_browser, render_media, create_document, edit_document, random.
-- in / out: semantic types kind, kind:domain, or kind:domain[] from Θ. Use none when no artefact is produced.
+- in / out: exact semantic type strings listed in Θ.common_types. Do not synthesize kind:domain or array combinations. Use none when no artefact is produced.
 - eff: required effects such as read(src), write(r), delete(r), exec, egress(dst), money, session. Use an empty array for pure reasoning.
 - sigma: self-assessment native, data, effect, or unreliable. This is not trusted proof.
 - n: positive integer estimate of processed items (1 when not applicable).
@@ -70,7 +70,7 @@ Do not wrap the object in an id/query/context envelope. Do not add Markdown fenc
 
 Kinds: text, document, table, record, media, credential, identifier, location, number, url, path, query, code, datetime, boolean, none.
 
-Prefer domains from data/processed/theta.json. Use a lowercase singular domain only when it adds useful precision.
+Prefer domains from data/processed/theta.json. Use a lowercase singular domain only when the exact kind/domain/cardinality combination is present in Θ.common_types. Never construct a type merely because its kind and domain are individually declared. If the exact collection type is absent, use a declared generic type such as record[] and preserve the business concept in the goal description.
 
 ## Trust and validation boundaries
 

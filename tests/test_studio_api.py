@@ -33,7 +33,7 @@ def test_discovery_returns_server_owned_hypergraph_projection(monkeypatch):
     contract = make_contract(
         "orders::list_orders",
         {"customer_id": "identifier"},
-        "record:order[]",
+        "record[]",
         ["read(orders)"],
         description="List orders",
         source_label="internal",
@@ -41,17 +41,17 @@ def test_discovery_returns_server_owned_hypergraph_projection(monkeypatch):
     graph = Hypergraph()
     graph.add(contract)
     reach = ReachResult(
-        types={parse_type("identifier"), parse_type("record:order[]")},
+        types={parse_type("identifier"), parse_type("record[]")},
         derivations={
             "identifier": Derivation("prompt", "identifier", (), "prompt"),
-            "record:order[]": Derivation(
-                contract.tool, "record:order[]", ("identifier",), "tool", 0.95
+            "record[]": Derivation(
+                contract.tool, "record[]", ("identifier",), "tool", 0.95
             ),
         },
         bridges=[],
-        labels={"identifier": "public", "record:order[]": "internal"},
+        labels={"identifier": "public", "record[]": "internal"},
         fired={contract.tool},
-        tool_types={"record:order[]": contract.tool},
+        tool_types={"record[]": contract.tool},
     )
 
     class FakeEngine:
@@ -83,10 +83,11 @@ def test_discovery_returns_server_owned_hypergraph_projection(monkeypatch):
                 "prompt_inputs": ["identifier"],
                 "goals": [{
                     "id": "g1", "class": "retrieve", "in": ["identifier"],
-                    "out": "record:order[]", "eff": ["read(orders)"],
+                    "out": "record[]", "eff": ["read(orders)"],
                     "sigma": "data", "deps": [], "desc": "List orders",
                 }],
             },
+            "human_review_confirmed": True,
             "tools": [{
                 "server": "orders", "name": "list_orders",
                 "input_schema": {
@@ -108,6 +109,7 @@ def test_discovery_returns_server_owned_hypergraph_projection(monkeypatch):
     assert edge["tool_id"] == contract.tool
     assert edge["fired_in_reachability"] is True
     assert data["execution_performed"] is False
+    assert data["human_review"]["confirmed"] is True
 
 
 def test_discovery_abstention_does_not_manufacture_hypergraph_projection(monkeypatch):
@@ -144,10 +146,11 @@ def test_discovery_abstention_does_not_manufacture_hypergraph_projection(monkeyp
                 "prompt_inputs": ["identifier"],
                 "goals": [{
                     "id": "g1", "class": "retrieve", "in": ["identifier"],
-                    "out": "record:order[]", "eff": ["read(orders)"],
+                    "out": "record[]", "eff": ["read(orders)"],
                     "sigma": "data", "deps": [], "desc": "List orders",
                 }],
             },
+            "human_review_confirmed": True,
             "tools": [{
                 "server": "orders", "name": "list_orders",
                 "input_schema": {
@@ -189,7 +192,7 @@ def test_studio_home_serves_browser_workspace():
     assert response.status_code == 200
     assert "<title>TaaS Studio — Tool Intelligence Platform</title>" in response.text
     assert '<strong>TaaS Studio</strong>' in response.text
-    assert "/api/v1/discover" in response.text
+    assert "/api/v1/objectives/discover" in response.text
 
 
 def test_studio_frontend_keeps_goal_metrics_disjoint_and_runtime_claims_precise():
@@ -739,9 +742,9 @@ def test_goal_spec_validation_endpoint_returns_topological_order(monkeypatch):
             "prompt": "Retrieve orders and summarize them",
             "prompt_inputs": ["text"],
             "goals": [
-                {"id": "g1", "class": "retrieve", "in": [], "out": "record:order[]",
+                {"id": "g1", "class": "retrieve", "in": [], "out": "record[]",
                  "eff": ["read(*)"], "sigma": "data", "deps": [], "desc": "Retrieve orders"},
-                {"id": "g2", "class": "summarise", "in": ["record:order[]"], "out": "text",
+                {"id": "g2", "class": "summarise", "in": ["record[]"], "out": "text",
                  "eff": [], "sigma": "native", "deps": ["g1"], "desc": "Summarise retrieved orders"},
             ],
         },
@@ -1624,3 +1627,153 @@ def test_ollama_load_rejects_huggingface_device_selection(monkeypatch):
                            json={"provider": "ollama", "model_id": "qwen2.5:0.5b", "device": "cpu"})
     assert response.status_code == 422
     assert "Ollama manages device placement" in response.json()["detail"]
+
+
+def test_canonical_objective_prepare_endpoint_runs_goal_decomposition_and_core_analysis(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    goal_spec = {
+        "prompt": "Explain precision and recall",
+        "prompt_inputs": ["text"],
+        "goals": [{
+            "id": "g1", "class": "answer", "in": ["text"], "out": "text",
+            "eff": [], "sigma": "native", "desc": "Explain precision and recall",
+            "deps": [], "n": 1, "exactness": "tolerant", "lang": "en", "optional": False,
+        }],
+    }
+
+    class Runtime:
+        def decompose(self, prompt, context, max_new_tokens):
+            assert "TaaS Core objective frame" in context
+            return {"text": "{}", "goal_spec": goal_spec, "json_valid": True,
+                    "model_id": "test/model", "semantic_correctness_verified": False}
+
+    monkeypatch.setattr(api, "get_model_runtime", lambda: Runtime())
+    response = client.post("/api/v1/objectives/prepare",
+                           headers={"Authorization": "Bearer test-token"},
+                           json={"prompt": "Explain precision and recall"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["structural_validation"]["valid"] is True
+    assert data["core_analysis"]["status"] != "not_analyzed"
+    assert data["core_analysis"]["goal_order"] == ["g1"]
+    assert data["conformance"]["semantic_correctness_verified"] is False
+    assert data["conformance"]["auto_applied"] is False
+    assert data["workflow"]["objective_interpretation"] == "completed"
+    assert data["workflow"]["tool_discovery"] == "awaiting_human_review_and_selected_tool_metadata"
+    assert data["workflow"]["tool_execution"] == "disabled"
+
+
+def test_canonical_objective_prepare_endpoint_requires_studio_authentication():
+    response = client.post("/api/v1/objectives/prepare",
+                           json={"prompt": "Explain precision and recall"})
+    assert response.status_code == 503 or response.status_code == 401
+
+
+def test_studio_frontend_routes_operational_objectives_through_core_first_workflow():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    assert "Objective Engineering · TaaS Core" in page
+    assert "Free-form inference only" in page
+    assert 'id="agent-route-prompt-core"' in page
+    assert "Prepare this prompt with TaaS Core" in page
+    assert 'id="goal-semantic-review"' in page
+    assert "human_review_confirmed" in page
+    assert '$("goal-add").addEventListener("click",invalidateHumanReview)' in page
+    assert 'runtimePost("/api/v1/objectives/prepare"' in page
+
+
+def test_canonical_objective_discover_endpoint_runs_existing_core_discovery(monkeypatch):
+    from types import SimpleNamespace
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+
+    class FakeEngine:
+        def __init__(self, contracts, profile, trust, cfg):
+            self.H = object()
+            self.composer = SimpleNamespace(model_edges=lambda goals: [])
+
+        def discover(self, spec, policy):
+            return SimpleNamespace(
+                spec=spec, gap=SimpleNamespace(gap=[], rho=0.0),
+                compose=SimpleNamespace(reachability=None, candidates=[], regime="exact", stats={}),
+                certificate=None, counterexample=None, toolkit=None, time_s=0.01, abstained=True,
+            )
+
+    monkeypatch.setattr(api, "DiscoveryEngine", FakeEngine)
+    response = client.post("/api/v1/objectives/discover",
+        headers={"Authorization": "Bearer test-token"},
+        json={
+            "goal_spec": {
+                "prompt": "List customer orders", "prompt_inputs": ["text"],
+                "goals": [{"id": "g1", "class": "retrieve", "in": ["query"],
+                           "out": "record[]", "eff": ["read(orders)"], "sigma": "data",
+                           "deps": [], "desc": "List customer orders"}],
+            },
+            "human_review_confirmed": True,
+            "tools": [{"server": "orders", "name": "list_orders",
+                       "input_schema": {"type": "object", "properties": {}}}],
+        })
+    assert response.status_code == 200
+    assert response.json()["status"] == "abstained"
+    assert response.json()["execution_performed"] is False
+
+
+def test_studio_pipeline_ui_orders_core_before_tool_discovery():
+    page = client.get("/").text
+    labels = [
+        "Objective intelligence", "GoalSpec decomposition", "Core validation",
+        "Tool intelligence", "Discovery &amp; hypergraph", "Assurance &amp; decision",
+        "Governed execution",
+    ]
+    pipeline_start = page.index('class="pipeline-steps"')
+    positions = [page.index(label, pipeline_start) for label in labels]
+    assert positions == sorted(positions)
+    assert 'fetch("/api/v1/objectives/discover"' in page
+
+
+def test_core_discovery_requires_explicit_human_review(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.post(
+        "/api/v1/objectives/discover",
+        headers={"Authorization": "Bearer test-token"},
+        json={"goal_spec": {}, "tools": [{"server": "s", "name": "t"}]},
+    )
+    assert response.status_code == 409
+    assert "Human review is required" in response.json()["detail"]
+
+
+def test_discovery_revalidates_objective_conformance_before_core_engine(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+
+    def must_not_run(*args, **kwargs):
+        raise AssertionError("DiscoveryEngine must not run for a nonconformant GoalSpec")
+
+    from taas.studio import api
+    monkeypatch.setattr(api, "DiscoveryEngine", must_not_run)
+    response = client.post(
+        "/api/v1/objectives/discover",
+        headers={"Authorization": "Bearer test-token"},
+        json={
+            "human_review_confirmed": True,
+            "goal_spec": {
+                "prompt": "Count all invoices issued this year.",
+                "prompt_inputs": ["text"],
+                "goals": [{
+                    "id": "g1", "class": "retrieve", "in": ["query"],
+                    "out": "record[]", "eff": ["read(*)"], "sigma": "data",
+                    "deps": [], "desc": "Retrieve all invoices issued this year",
+                }],
+            },
+            "tools": [{"server": "invoice_source", "name": "list_invoices",
+                       "input_schema": {"type": "object", "properties": {}}}],
+        },
+    )
+    assert response.status_code == 422
+    detail = response.json()["detail"]
+    assert "conformance rejected" in detail["message"]
+    assert any(item["code"] == "objective_operation_missing"
+               for item in detail["diagnostics"])

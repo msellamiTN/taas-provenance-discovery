@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from taas.studio.analyst_contract import (
     build_analyst_system_prompt,
     build_refinement_context,
@@ -15,9 +17,9 @@ def _candidate(prompt_input: str = "text") -> dict:
         "goals": [{
             "id": "g1",
             "desc": "Retrieve transaction records and their numeric amount fields",
-            "class": "retrieve",
+            "class": "retrieve", "eff": ["read(*)"],
             "in": ["query"],
-            "out": "record:payment[]",
+            "out": "record[]",
             "eff": ["read(db)"],
             "sigma": "data",
             "n": 1,
@@ -34,7 +36,7 @@ def _conformant_candidate() -> dict:
         "prompt_inputs": ["text"],
         "goals": [{
             "id": "g1", "desc": "Retrieve all matching transaction records from the source identified during Discovery",
-            "class": "retrieve", "in": ["query"], "out": "record[]",
+            "class": "retrieve", "eff": ["read(*)"], "in": ["query"], "out": "record[]",
             "eff": ["read(db)"], "sigma": "data", "n": 1,
             "exactness": "exact", "deps": [], "optional": False,
         }, {
@@ -152,11 +154,11 @@ def test_total_objective_requires_aggregation_and_preserves_all_scope():
 
     candidate = {
         "goals": [{
-            "id": "g1", "class": "retrieve", "desc": "Retrieve all transactions",
-            "in": ["query"], "out": "record:payment[]", "n": 100,
+            "id": "g1", "class": "retrieve", "eff": ["read(*)"], "desc": "Retrieve all transactions",
+            "in": ["query"], "out": "record[]", "n": 100,
         }, {
             "id": "g2", "class": "summarise", "desc": "Summarise retrieved transactions",
-            "in": ["record:payment[]"], "out": "text", "n": 1,
+            "in": ["record[]"], "out": "text", "n": 1,
         }],
     }
     codes = {item["code"] for item in diagnose_goal_spec(
@@ -181,7 +183,7 @@ def test_valid_aggregate_still_surfaces_missing_currency_policy():
 
     candidate = {"goals": [{
         "id": "g1", "class": "aggregate", "desc": "Sum transaction amount",
-        "in": ["record:payment[]"], "out": "number", "exactness": "exact",
+        "in": ["record[]"], "out": "number", "exactness": "exact",
     }]}
     diagnostics = diagnose_goal_spec("Calculate the total value of all payments", candidate)
     assert any(item["code"] == "currency_policy_unspecified" for item in diagnostics)
@@ -192,7 +194,7 @@ def test_objective_contract_derives_operation_scope_and_unmapped_domain():
 
     frame = derive_objective_contract("Calculate the total value of all transactions")
     assert frame["operation"] == "aggregate"
-    assert frame["required_goal_classes"] == ["aggregate"]
+    assert frame["required_goal_classes"] == ["retrieve", "aggregate"]
     assert frame["numeric_result_required"] is True
     assert frame["exactness_required"] == "exact"
     assert frame["scope"]["all_matching_items"] is True
@@ -221,7 +223,7 @@ def test_objective_alignment_requires_complete_scope_and_connected_aggregation()
     spec = {
         "prompt_inputs": ["text"],
         "goals": [{
-            "id": "g1", "class": "retrieve", "desc": "Retrieve recent transactions",
+            "id": "g1", "class": "retrieve", "eff": ["read(*)"], "desc": "Retrieve recent transactions",
             "in": ["query"], "out": "record[]", "deps": [],
         }, {
             "id": "g2", "class": "aggregate", "desc": "Sum amount",
@@ -254,4 +256,454 @@ def test_compute_exact_is_valid_aggregate_operation_alternative():
     diagnostics = diagnose_objective_alignment(
         "Calculate the total value of all transactions", spec
     )
+    assert not [item for item in diagnostics if item["severity"] == "error"]
+
+
+def test_this_year_is_preserved_as_an_explicit_temporal_constraint():
+    from taas.studio.objective_contract import derive_objective_contract
+
+    frame = derive_objective_contract("Count all invoices issued this year.")
+    assert frame["scope"]["all_matching_items"] is True
+    assert frame["scope"]["date_or_range_constraint"] is True
+    assert frame["temporal_scope"]["expression"] == "this_year"
+    assert frame["temporal_scope"]["anchor_required"] is True
+    assert frame["temporal_scope"]["business_timezone_required"] is True
+    assert "thi" not in frame["unresolved_business_concepts"]
+    assert "year" not in frame["unresolved_business_concepts"]
+    assert "issued" not in frame["unresolved_business_concepts"]
+
+
+def test_relative_year_can_be_anchored_without_guessing_timezone():
+    from taas.studio.objective_contract import derive_objective_contract
+
+    frame = derive_objective_contract(
+        "Count all invoices issued this year.", reference_date="2026-11-04"
+    )
+    assert frame["temporal_scope"]["reference_date"] == "2026-11-04"
+    assert frame["temporal_scope"]["anchor_required"] is False
+    assert frame["temporal_scope"]["business_timezone_required"] is True
+    assert frame["temporal_scope"]["resolution_status"] == "anchored_not_materialized"
+
+
+def test_currency_policy_is_not_required_for_invoice_count():
+    from taas.studio.objective_contract import derive_objective_contract
+
+    frame = derive_objective_contract("Count all invoices issued this year.")
+    assert frame["operation"] == "count"
+    assert "currency_policy" not in frame["ambiguities"]
+
+
+def test_currency_policy_remains_required_for_monetary_invoice_aggregation():
+    from taas.studio.objective_contract import derive_objective_contract
+
+    frame = derive_objective_contract("Calculate the total value of all invoices.")
+    assert frame["operation"] == "aggregate"
+    assert "currency_policy" in frame["ambiguities"]
+
+
+def test_count_alignment_requires_numeric_exact_result_and_retrieval_dependency():
+    from taas.studio.objective_contract import diagnose_objective_alignment
+
+    objective = "Count all invoices issued this year."
+    bad = {
+        "prompt_inputs": ["text"],
+        "goals": [
+            {"id": "g1", "class": "retrieve", "eff": ["read(*)"], "desc": "Retrieve all invoices issued this year",
+             "in": ["query"], "out": "record[]", "deps": [], "n": 100},
+            {"id": "g2", "class": "count", "desc": "Count retrieved invoices",
+             "in": ["record[]"], "out": "text", "exactness": "tolerant", "deps": ["g1"]},
+        ],
+    }
+    codes = {item["code"] for item in diagnose_objective_alignment(objective, bad)}
+    assert "objective_numeric_output_missing" in codes
+    assert "objective_exactness_not_preserved" in codes
+    assert "objective_temporal_field_unresolved" in codes
+    assert "objective_dataflow_disconnected" not in codes
+
+
+def test_count_alignment_accepts_exact_connected_temporal_plan():
+    from taas.studio.objective_contract import diagnose_objective_alignment
+
+    objective = "Count all invoices issued this year."
+    spec = {
+        "prompt_inputs": ["text"],
+        "goals": [
+            {"id": "g1", "class": "retrieve", "eff": ["read(*)"], "desc": "Retrieve all invoices issued this year",
+             "in": ["query"], "out": "record[]", "deps": [], "n": 100},
+            {"id": "g2", "class": "count", "desc": "Count invoice records exactly",
+             "in": ["record[]"], "out": "number", "exactness": "exact", "deps": ["g1"]},
+        ],
+    }
+    diagnostics = diagnose_objective_alignment(objective, spec)
+    assert not [item for item in diagnostics if item["severity"] == "error"]
+    assert any(item["code"] == "objective_temporal_field_unresolved" for item in diagnostics)
+
+
+def test_model_runtime_does_not_request_currency_policy_for_counting_invoices():
+    from taas.studio.model_runtime import diagnose_goal_spec
+
+    spec = {"goals": [{"id": "g1", "class": "count", "desc": "Count invoices",
+                       "out": "number", "exactness": "exact"}]}
+    codes = {item["code"] for item in diagnose_goal_spec(
+        "Count all invoices issued this year.", spec
+    )}
+    assert "currency_policy_unspecified" not in codes
+    assert "count_not_exact" not in codes
+    assert "missing_count" not in codes
+
+
+def test_model_runtime_rejects_approximate_or_non_numeric_count():
+    from taas.studio.model_runtime import diagnose_goal_spec
+
+    spec = {"goals": [{"id": "g1", "class": "count", "desc": "Count invoices",
+                       "out": "text", "exactness": "tolerant"}]}
+    codes = {item["code"] for item in diagnose_goal_spec(
+        "Count all invoices issued this year.", spec
+    )}
+    assert "count_output_not_numeric" in codes
+    assert "count_not_exact" in codes
+
+
+def test_studio_explains_that_invoice_domain_is_not_a_prompt_input_type():
+    import pytest
+    from fastapi import HTTPException
+
+    with pytest.raises(HTTPException) as exc:
+        api.validate_studio_goal_spec(_candidate("invoice"))
+    assert "domain label 'invoice'" in str(exc.value.detail)
+    assert "or 'text' for a natural-language prompt input" in str(exc.value.detail)
+
+
+def test_finite_n_is_not_treated_as_complete_for_all_count_objectives():
+    from taas.studio.model_runtime import diagnose_goal_spec
+
+    spec = {"goals": [
+        {"id": "g1", "class": "retrieve", "eff": ["read(*)"], "desc": "Retrieve all invoices issued this year",
+         "out": "record[]", "n": 100},
+        {"id": "g2", "class": "count", "desc": "Count retrieved invoices",
+         "out": "number", "exactness": "exact", "deps": ["g1"]},
+    ]}
+    diagnostics = diagnose_goal_spec("Count all invoices issued this year.", spec)
+    assert any(item["code"] == "scope_completeness_unproven"
+               and item["severity"] == "warning" for item in diagnostics)
+
+
+def test_theta_rejects_declared_domain_with_undeclared_collection_shape():
+    candidate = _candidate()
+    candidate["goals"][0]["out"] = "record:invoice[]"
+    error = validate_theta_types(candidate)
+    assert "syntactically valid but undeclared" in error
+    assert "record[]" in error
+
+
+def test_theta_accepts_declared_invoice_record_and_generic_collection():
+    candidate = _candidate()
+    candidate["goals"][0]["out"] = "record:invoice"
+    assert validate_theta_types(candidate) is None
+    candidate["goals"][0]["out"] = "record[]"
+    assert validate_theta_types(candidate) is None
+
+
+def test_search_prompt_requires_search_goal_and_preserves_topic():
+    from taas.studio.objective_contract import derive_objective_contract, diagnose_objective_alignment
+
+    prompt = "Find the latest research papers about federated learning."
+    frame = derive_objective_contract(prompt)
+    assert frame["required_goal_classes"] == ["search"]
+    assert frame["source_data_required"] is True
+    spec = {"prompt_inputs": ["text"], "goals": [
+        {"id": "g1", "class": "summarise", "desc": "Summarise federated learning",
+         "in": ["text"], "out": "text", "deps": []}
+    ]}
+    codes = {item["code"] for item in diagnose_objective_alignment(prompt, spec)}
+    assert "objective_operation_missing" in codes
+    assert "objective_data_source_missing" in codes
+
+
+def test_search_and_summary_prompt_requires_both_stages():
+    from taas.studio.objective_contract import derive_objective_contract, diagnose_objective_alignment
+
+    prompt = "Search for recent papers on formal concept analysis and summarise the findings."
+    frame = derive_objective_contract(prompt)
+    assert frame["required_goal_classes"] == ["search", "summarise"]
+    spec = {"prompt_inputs": ["text"], "goals": [
+        {"id": "g1", "class": "search", "eff": ["read(*)"], "desc": "Search for recent papers on formal concept analysis",
+         "in": ["query"], "out": "record[]", "deps": []}
+    ]}
+    codes = {item["code"] for item in diagnose_objective_alignment(prompt, spec)}
+    assert "objective_operation_missing" in codes
+    assert "objective_data_source_missing" not in codes
+
+
+def test_translation_prompt_does_not_force_tool_retrieval():
+    from taas.studio.objective_contract import derive_objective_contract
+
+    frame = derive_objective_contract("Translate this paragraph into French.")
+    assert frame["required_goal_classes"] == ["translate"]
+    assert frame["source_data_required"] is False
+
+
+def test_objective_context_uses_real_newlines_and_is_not_domain_specific():
+    from taas.studio.objective_contract import build_objective_context
+
+    context = build_objective_context("Find the latest research papers about federated learning.")
+    assert "\\n" not in context
+    assert "\nUse only declared Theta types." in context
+    assert "invoice" not in context.casefold()
+
+
+def test_temporal_diagnostic_is_domain_agnostic():
+    from taas.studio.objective_contract import diagnose_objective_alignment
+
+    spec = {"prompt_inputs": ["text"], "goals": [
+        {"id": "g1", "class": "retrieve", "eff": ["read(*)"], "desc": "Retrieve all research papers published this year",
+         "in": ["query"], "out": "record[]", "deps": []}
+    ]}
+    diagnostics = diagnose_objective_alignment("Find all research papers published this year.", spec)
+    temporal = next(item for item in diagnostics if item["code"] == "objective_temporal_field_unresolved")
+    assert "source field" in temporal["suggestion"]
+    assert "invoice" not in temporal["suggestion"].casefold()
+
+
+def test_api_rejects_theta_type_combination_not_in_common_types():
+    import pytest
+    from fastapi import HTTPException
+
+    candidate = _candidate()
+    candidate["goals"][0]["out"] = "record:invoice[]"
+    with pytest.raises(HTTPException) as exc:
+        api.validate_studio_goal_spec(candidate)
+    assert "syntactically valid" in str(exc.value.detail)
+    assert "Θ.common_types" in str(exc.value.detail)
+
+
+@pytest.mark.parametrize(
+    ("prompt", "expected_class"),
+    [
+        ("Save the final report to the project workspace.", "store"),
+        ("Send an email notification to the project owner.", "send"),
+        ("Book a meeting for the engineering team.", "transact"),
+        ("Execute the deployment script.", "execute"),
+        ("Browse the vendor documentation website.", "navigate_browser"),
+        ("Generate an image illustrating the architecture.", "render_media"),
+        ("Create a project status report.", "create_document"),
+        ("Edit the project status report.", "edit_document"),
+        ("Générer une image pour illustrer l’architecture.", "render_media"),
+        ("Créer un rapport de suivi du projet.", "create_document"),
+        ("Modifier le rapport de suivi.", "edit_document"),
+    ],
+)
+def test_objective_contract_covers_boundary_and_artifact_operations(prompt, expected_class):
+    from taas.studio.objective_contract import derive_objective_contract
+
+    contract = derive_objective_contract(prompt)
+    assert expected_class in contract["required_goal_classes"]
+
+
+@pytest.mark.parametrize(
+    ("goal_class", "prompt", "effect"),
+    [
+        ("store", "Save the report.", "write(*)"),
+        ("send", "Send an email.", "egress(*)"),
+        ("transact", "Transfer funds to the vendor.", "money"),
+        ("execute", "Execute the script.", "exec"),
+        ("retrieve", "Retrieve records.", "read(*)"),
+        ("search", "Search records.", "read(*)"),
+        ("fetch_web", "Fetch the official website page.", "egress(*)"),
+        ("navigate_browser", "Browse the vendor website.", "egress(*)"),
+        ("create_document", "Create a project report.", "write(*)"),
+        ("edit_document", "Edit the project report.", "write(*)"),
+        ("render_media", "Generate an image for the project.", "egress(*)"),
+    ],
+)
+def test_boundary_operations_require_explicit_effect_declarations(goal_class, prompt, effect):
+    from taas.studio.objective_contract import diagnose_objective_alignment
+
+    spec = {"prompt_inputs": ["text"], "goals": [
+        {"id": "g1", "class": goal_class, "desc": prompt, "in": ["text"],
+         "out": "none", "eff": [], "deps": []}
+    ]}
+    diagnostics = diagnose_objective_alignment(prompt, spec)
+    assert any(item["code"] == "objective_effect_not_declared"
+               and item["severity"] == "error" for item in diagnostics)
+    spec["goals"][0]["eff"] = [effect]
+    diagnostics = diagnose_objective_alignment(prompt, spec)
+    assert not any(item["code"] == "objective_effect_not_declared"
+                   for item in diagnostics)
+
+
+def test_analyst_guide_example_uses_a_declared_generic_collection_type():
+    from taas.studio.analyst_contract import build_analyst_system_prompt
+
+    prompt = build_analyst_system_prompt()
+    assert '"out": "record[]"' in prompt
+    assert "exact kind/domain/cardinality combination" in prompt
+
+
+def test_objective_contract_covers_web_fetch_and_random_operations():
+    from taas.studio.objective_contract import derive_objective_contract
+
+    web = derive_objective_contract("Fetch the official website page for the API reference.")
+    assert "fetch_web" in web["required_goal_classes"]
+    random = derive_objective_contract("Randomly select five records from the supplied dataset.")
+    assert "random" in random["required_goal_classes"]
+
+
+def test_goal_effect_errors_block_objective_acceptance():
+    from taas.studio.objective_contract import diagnose_objective_alignment
+
+    prompt = "Send an email notification to the project owner."
+    spec = {"prompt_inputs": ["text"], "goals": [
+        {"id": "g1", "class": "send", "desc": "Send the notification",
+         "in": ["text"], "out": "none", "eff": [], "deps": []}
+    ]}
+    diagnostics = diagnose_objective_alignment(prompt, spec)
+    assert any(item["code"] == "objective_effect_not_declared"
+               and item["severity"] == "error" for item in diagnostics)
+
+
+def test_french_objectives_preserve_count_and_relative_year_intent():
+    from taas.studio.objective_contract import derive_objective_contract
+
+    contract = derive_objective_contract("Compter toutes les factures émises cette année.")
+    assert contract["operation"] == "count"
+    assert contract["required_goal_classes"] == ["retrieve", "count"]
+    assert contract["scope"]["all_matching_items"] is True
+    assert contract["temporal_scope"]["expression"] == "this_year"
+    assert contract["exactness_required"] == "exact"
+
+
+def test_average_by_region_requires_grouped_tabular_aggregate():
+    from taas.studio.objective_contract import derive_objective_contract, diagnose_objective_alignment
+
+    prompt = "Calculate average sales by region."
+    contract = derive_objective_contract(prompt)
+    assert contract["operation"] == "aggregate"
+    assert contract["grouped_result_required"] is True
+    assert contract["numeric_result_required"] is False
+
+    spec = {"prompt_inputs": ["text"], "goals": [
+        {"id": "g1", "class": "retrieve", "eff": ["read(*)"], "desc": "Retrieve sales records",
+         "in": ["query"], "out": "record[]", "deps": []},
+        {"id": "g2", "class": "aggregate", "desc": "Calculate average sales by region",
+         "in": ["record[]"], "out": "text", "exactness": "exact", "deps": ["g1"]},
+    ]}
+    codes = {item["code"] for item in diagnose_objective_alignment(prompt, spec)}
+    assert "objective_grouped_output_missing" in codes
+
+    spec["goals"][1]["out"] = "table"
+    codes = {item["code"] for item in diagnose_objective_alignment(prompt, spec)}
+    assert "objective_grouped_output_missing" not in codes
+
+
+def test_multi_source_report_requires_retrieval_and_document_creation():
+    from taas.studio.objective_contract import derive_objective_contract
+
+    contract = derive_objective_contract("Create a report from several sources.")
+    assert contract["source_data_required"] is True
+    assert contract["required_goal_classes"] == ["retrieve", "create_document"]
+
+
+def test_multi_source_synthesis_requires_retrieval_and_synthesis():
+    from taas.studio.objective_contract import derive_objective_contract
+
+    contract = derive_objective_contract("Synthesize findings from multiple sources.")
+    assert contract["required_goal_classes"] == ["retrieve", "synthesise"]
+
+
+def test_french_multi_source_report_is_recognized():
+    from taas.studio.objective_contract import derive_objective_contract
+
+    contract = derive_objective_contract("Créer un rapport à partir de plusieurs sources.")
+    assert "retrieve" in contract["required_goal_classes"]
+    assert "create_document" in contract["required_goal_classes"]
+
+
+def test_user_supplied_content_does_not_force_external_tool_retrieval():
+    from taas.studio.objective_contract import derive_objective_contract, diagnose_objective_alignment
+
+    prompt = "Count all words in this paragraph."
+    contract = derive_objective_contract(prompt)
+    assert contract["user_supplied_content"] is True
+    assert contract["source_data_required"] is False
+    spec = {"prompt_inputs": ["text"], "goals": [
+        {"id": "g1", "class": "count", "desc": "Count every word in the supplied paragraph",
+         "in": ["text"], "out": "number", "exactness": "exact", "deps": []}
+    ]}
+    diagnostics = diagnose_objective_alignment(prompt, spec)
+    assert not [item for item in diagnostics if item["severity"] == "error"]
+
+
+def test_external_record_count_still_requires_retrieval():
+    from taas.studio.objective_contract import derive_objective_contract
+
+    contract = derive_objective_contract("Count all invoices issued this year.")
+    assert contract["user_supplied_content"] is False
+    assert contract["source_data_required"] is True
+    assert "retrieve" in contract["required_goal_classes"]
+
+
+def test_business_noun_alone_does_not_force_external_data_retrieval():
+    from taas.studio.objective_contract import derive_objective_contract
+
+    contract = derive_objective_contract("Explain what an invoice is.")
+    assert contract["required_goal_classes"] == ["answer"]
+    assert contract["source_data_required"] is False
+    assert "explain" not in contract["unresolved_business_concepts"]
+    assert "paragraph" not in contract["unresolved_business_concepts"]
+
+
+def test_multi_operation_objective_checks_exactness_for_each_numeric_goal():
+    from taas.studio.objective_contract import diagnose_objective_alignment, derive_objective_contract
+
+    prompt = "Count all invoices and calculate their total value this year."
+    contract = derive_objective_contract(prompt)
+    assert {"retrieve", "count", "aggregate"}.issubset(set(contract["required_goal_classes"]))
+    spec = {"prompt_inputs": ["text"], "goals": [
+        {"id": "g1", "class": "retrieve", "eff": ["read(*)"], "desc": "Retrieve all invoices this year",
+         "in": ["query"], "out": "record[]", "deps": []},
+        {"id": "g2", "class": "aggregate", "desc": "Calculate exact total invoice value",
+         "in": ["record[]"], "out": "number", "exactness": "exact", "deps": ["g1"]},
+        {"id": "g3", "class": "count", "desc": "Count all retrieved invoices",
+         "in": ["record[]"], "out": "number", "exactness": "tolerant", "deps": ["g1"]},
+    ]}
+    diagnostics = diagnose_objective_alignment(prompt, spec)
+    assert any(item["code"] == "objective_exactness_not_preserved" for item in diagnostics)
+    spec["goals"][2]["exactness"] = "exact"
+    diagnostics = diagnose_objective_alignment(prompt, spec)
+    assert not [item for item in diagnostics if item["severity"] == "error"]
+
+
+def test_multi_operation_objective_requires_each_numeric_goal_to_depend_on_retrieval():
+    from taas.studio.objective_contract import diagnose_objective_alignment
+
+    prompt = "Count all invoices and calculate their total value this year."
+    spec = {"prompt_inputs": ["text"], "goals": [
+        {"id": "g1", "class": "retrieve", "eff": ["read(*)"], "desc": "Retrieve all invoices this year",
+         "in": ["query"], "out": "record[]", "deps": []},
+        {"id": "g2", "class": "aggregate", "desc": "Calculate exact total invoice value",
+         "in": ["record[]"], "out": "number", "exactness": "exact", "deps": ["g1"]},
+        {"id": "g3", "class": "count", "desc": "Count all retrieved invoices",
+         "in": ["record[]"], "out": "number", "exactness": "exact", "deps": []},
+    ]}
+    diagnostics = diagnose_objective_alignment(prompt, spec)
+    assert any(item["code"] == "objective_dataflow_disconnected" for item in diagnostics)
+
+
+def test_count_combined_with_grouped_aggregate_keeps_both_output_contracts():
+    from taas.studio.objective_contract import diagnose_objective_alignment, derive_objective_contract
+
+    prompt = "Count all records and calculate average sales by region."
+    contract = derive_objective_contract(prompt)
+    assert contract["grouped_result_required"] is True
+    assert contract["numeric_result_required"] is True
+    spec = {"prompt_inputs": ["text"], "goals": [
+        {"id": "g1", "class": "retrieve", "eff": ["read(*)"], "desc": "Retrieve all records",
+         "in": ["query"], "out": "record[]", "deps": []},
+        {"id": "g2", "class": "count", "desc": "Count all retrieved records",
+         "in": ["record[]"], "out": "number", "exactness": "exact", "deps": ["g1"]},
+        {"id": "g3", "class": "aggregate", "desc": "Calculate average sales by region",
+         "in": ["record[]"], "out": "table", "exactness": "exact", "deps": ["g1"]},
+    ]}
+    diagnostics = diagnose_objective_alignment(prompt, spec)
     assert not [item for item in diagnostics if item["severity"] == "error"]
