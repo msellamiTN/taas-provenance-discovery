@@ -244,17 +244,71 @@ def canonicalize_declared_plural_types(spec: dict[str, Any]) -> tuple[dict[str, 
     return candidate, events
 
 
+def canonicalize_single_goal_input_dependencies(
+    spec: dict[str, Any],
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Remove only input-name pseudo-edges from a one-goal candidate, with provenance.
+
+    A GoalSpec dependency is an edge to another goal ID. In a one-goal graph,
+    a declared input name cannot identify a distinct prerequisite goal. This
+    narrowly repairs that namespace collision; all other dependency values and
+    all multi-goal graphs are left untouched for strict validation.
+    """
+    candidate = copy.deepcopy(spec)
+    goals = candidate.get("goals")
+    if not isinstance(goals, list) or len(goals) != 1 or not isinstance(goals[0], dict):
+        return candidate, []
+
+    goal = goals[0]
+    deps = goal.get("deps")
+    if not isinstance(deps, list) or not deps:
+        return candidate, []
+
+    input_names: set[str] = set()
+    for field in ("in",):
+        values = goal.get(field)
+        if isinstance(values, list):
+            input_names.update(value for value in values if isinstance(value, str))
+    prompt_inputs = candidate.get("prompt_inputs")
+    if isinstance(prompt_inputs, list):
+        input_names.update(value for value in prompt_inputs if isinstance(value, str))
+
+    goal_id = goal.get("id")
+    removable = [
+        dep for dep in deps
+        if isinstance(dep, str) and dep != goal_id and dep in input_names
+    ]
+    if not removable:
+        return candidate, []
+
+    remaining = [dep for dep in deps if dep not in removable]
+    goal["deps"] = remaining
+    event = {
+        "path": "goals[0].deps",
+        "from": copy.deepcopy(deps),
+        "to": copy.deepcopy(remaining),
+        "removed": copy.deepcopy(removable),
+        "rule": "single_goal_input_name_not_dependency",
+        "reason": (
+            "A dependency must reference another goal ID; this one-goal candidate "
+            "declared the removed value as an input name, not as a goal."
+        ),
+    }
+    return candidate, [event]
+
+
 def prepare_agent_candidate(candidate: dict[str, Any], original_objective: str) -> dict[str, Any]:
-    """Preserve the user-authored objective and apply only Θ-backed type spelling repair."""
+    """Preserve the objective and apply only narrow, provenance-recorded canonicalizations."""
     prepared = copy.deepcopy(candidate)
     spec = prepared.get("goal_spec")
     if isinstance(spec, dict):
-        normalized, events = canonicalize_declared_plural_types(spec)
+        normalized, type_events = canonicalize_declared_plural_types(spec)
+        normalized, dependency_events = canonicalize_single_goal_input_dependencies(normalized)
         # The objective is user-authored input, not a field the model may truncate,
         # paraphrase, or replace. Keep the model's raw response in prepared["text"].
         normalized["prompt"] = original_objective
         prepared["goal_spec"] = normalized
-        prepared["normalization_events"] = events
+        prepared["normalization_events"] = type_events + dependency_events
         prepared["objective_prompt_preserved"] = True
     return prepared
 
