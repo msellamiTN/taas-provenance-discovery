@@ -358,21 +358,19 @@ def build_outcome_coverage(objective: str, spec: dict[str, Any] | None) -> dict[
             for goal in goals
             if str(goal.get("class", "")).casefold() in equivalents
         ]
-        input_covered = (
-            required_class in {"retrieve", "search"}
-            and bool(data_inputs)
-        )
+        # An input proves that data was supplied; it does not prove that a
+        # requested operation (including search/retrieval) was performed.
         if matched:
             status = "covered_by_goal"
-        elif input_covered:
-            status = "covered_by_supplied_input"
         else:
             status = "missing"
         coverage.append({
             **outcome,
             "status": status,
             "goal_ids": matched,
-            "input_types": data_inputs if input_covered else [],
+            "input_types": [],
+            "coverage_level": "goal_class_only" if matched else "uncovered",
+            "semantic_conformance": "not_assessed",
         })
     counts = {
         "required": len(coverage),
@@ -384,6 +382,7 @@ def build_outcome_coverage(objective: str, spec: dict[str, Any] | None) -> dict[
         "outcomes": coverage,
         "summary": counts,
         "semantic_correctness_verified": False,
+        "coverage_semantics": "goal_class_only; semantic conformance is not assessed",
     }
 
 
