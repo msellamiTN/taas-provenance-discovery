@@ -65,6 +65,20 @@ def _source_evidence(objective: str, goal_class: str) -> list[dict[str, Any]]:
     return []
 
 
+def _clause_bounds(text: str, position: int) -> tuple[int, int]:
+    """Return conservative punctuation-delimited clause bounds around a source offset."""
+    left = max((text.rfind(mark, 0, position) for mark in (";", ".", "!", "?", "\\n")), default=-1) + 1
+    right_candidates = [text.find(mark, position) for mark in (";", ".", "!", "?", "\\n")]
+    right_candidates = [value for value in right_candidates if value >= 0]
+    right = min(right_candidates) if right_candidates else len(text)
+    return left, right
+
+
+def _clause_modality(text: str, evidence: dict[str, Any]) -> list[re.Match[str]]:
+    start, end = _clause_bounds(text, evidence["start"])
+    return list(_MODALITY_MARKERS.finditer(text, start, end))
+
+
 def derive_objective_contract_v3(
     objective: str,
     reference_date: Any = None,
@@ -74,54 +88,60 @@ def derive_objective_contract_v3(
     original = objective if isinstance(objective, str) else str(objective or "")
     v2 = derive_objective_contract(original, reference_date=reference_date)
     candidates = list(v2.get("required_goal_classes", []))
-    modality_matches = list(_MODALITY_MARKERS.finditer(original))
     clarifications: list[dict[str, Any]] = []
     outcomes: list[dict[str, Any]] = []
 
-    if modality_matches and candidates:
-        for match in modality_matches:
+    for index, goal_class in enumerate(candidates, start=1):
+        evidence = _source_evidence(original, goal_class)
+        if not evidence:
             clarifications.append({
                 "id": f"clarification_{len(clarifications) + 1}",
-                "question": "Clarify the scope of negation, condition, optionality, or alternatives before classifying the affected actions.",
-                "reason": "modality_scope_not_resolved",
-                "affected_goal_classes": candidates,
+                "question": f"Confirm whether '{goal_class}' is an intended operation.",
+                "reason": "no_direct_source_evidence",
+                "affected_goal_classes": [goal_class],
                 "blocking": True,
-                "source_evidence": [{
-                    "start": match.start(),
-                    "end": match.end(),
-                    "text": original[match.start():match.end()],
-                    "cue": "modality_marker",
-                    "offset_unit": "unicode_code_point",
-                }],
+                "source_evidence": [],
             })
-    else:
-        for index, goal_class in enumerate(candidates, start=1):
-            evidence = _source_evidence(original, goal_class)
-            if not evidence:
+            continue
+
+        local_markers = _clause_modality(original, evidence[0])
+        if local_markers:
+            for marker in local_markers:
                 clarifications.append({
                     "id": f"clarification_{len(clarifications) + 1}",
-                    "question": f"Confirm whether '{goal_class}' is an intended operation.",
-                    "reason": "no_direct_source_evidence",
+                    "question": "Clarify the scope of negation, condition, optionality, or alternatives for this clause.",
+                    "reason": "clause_modality_scope_not_resolved",
                     "affected_goal_classes": [goal_class],
                     "blocking": True,
-                    "source_evidence": [],
+                    "source_evidence": [{
+                        "start": marker.start(),
+                        "end": marker.end(),
+                        "text": original[marker.start():marker.end()],
+                        "cue": "modality_marker",
+                        "offset_unit": "unicode_code_point",
+                    }],
+                    "clause_span": {
+                        "start": _clause_bounds(original, evidence[0]["start"])[0],
+                        "end": _clause_bounds(original, evidence[0]["start"])[1],
+                    },
                 })
-                continue
-            outcomes.append({
-                "id": f"outcome_{index}",
-                "goal_class": goal_class,
-                "requirement": "required",
-                "modality": "asserted",
-                "source_evidence": evidence,
-                "condition_ref": None,
-                "alternative_group": None,
-                "depends_on": [],
-                "interpretation": {
-                    "method": "deterministic_rule",
-                    "confidence": None,
-                    "semantic_correctness_verified": False,
-                },
-            })
+            continue
+
+        outcomes.append({
+            "id": f"outcome_{index}",
+            "goal_class": goal_class,
+            "requirement": "required",
+            "modality": "asserted",
+            "source_evidence": evidence,
+            "condition_ref": None,
+            "alternative_group": None,
+            "depends_on": [],
+            "interpretation": {
+                "method": "deterministic_rule",
+                "confidence": None,
+                "semantic_correctness_verified": False,
+            },
+        })
 
     return {
         "schema": _SCHEMA,
