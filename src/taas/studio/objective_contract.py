@@ -41,7 +41,6 @@ def _temporal_scope(lower: str, reference_date: date | datetime | str | None) ->
         (r"\b(this week|current week|cette semaine)\b", "calendar_week", "this_week"),
         (r"\b(last week|previous week|semaine dernière|semaine derniere|la semaine dernière|la semaine derniere)\b", "calendar_week", "last_week"),
         (r"\b(today|yesterday|aujourd’hui|aujourd hui|hier)\b", "relative_day", "relative_day"),
-        (r"\b(between|from|entre|du)\b", "explicit_range", "explicit_range"),
     )
     for pattern, kind, expression in patterns:
         match = re.search(pattern, lower)
@@ -65,6 +64,46 @@ def _temporal_scope(lower: str, reference_date: date | datetime | str | None) ->
                 "end_exclusive": None,
                 "resolution_status": "unresolved" if anchor is None else "anchored_not_materialized",
             }
+    # Explicit ranges require date-shaped endpoints; "from the configured source"
+    # is a source phrase, not a date range.
+    month = (
+        r"(?:january|february|march|april|may|june|july|august|september|"
+        r"october|november|december|janvier|février|fevrier|mars|avril|mai|"
+        r"juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre)"
+    )
+    date_atom = (
+        rf"(?:\\d{{4}}-\\d{{1,2}}-\\d{{1,2}}|"
+        rf"\\d{{1,2}}[/-]\\d{{1,2}}[/-]\\d{{2,4}}|"
+        rf"(?:\\d{{1,2}}(?:st|nd|rd|th)?\\s+{month}|{month}\\s+\\d{{1,2}}(?:st|nd|rd|th)?))"
+    )
+    range_patterns = (
+        (rf"\\bbetween\\s+{date_atom}\\s+(?:and|to)\\s+{date_atom}\\b", "between"),
+        (rf"\\bfrom\\s+{date_atom}\\s+to\\s+{date_atom}\\b", "from_to"),
+        (rf"\\bdu\\s+{date_atom}\\s+au\\s+{date_atom}\\b", "du_au"),
+        (rf"\\bentre\\s+{date_atom}\\s+et\\s+{date_atom}\\b", "entre"),
+    )
+    for pattern, expression in range_patterns:
+        match = re.search(pattern, lower)
+        if match:
+            anchor = None
+            if reference_date is not None:
+                if isinstance(reference_date, datetime):
+                    anchor = reference_date.date().isoformat()
+                elif isinstance(reference_date, date):
+                    anchor = reference_date.isoformat()
+                else:
+                    anchor = date.fromisoformat(str(reference_date)[:10]).isoformat()
+            return {
+                "kind": "explicit_range",
+                "expression": expression,
+                "matched_text": match.group(0),
+                "reference_date": anchor,
+                "anchor_required": anchor is None,
+                "business_timezone_required": True,
+                "start_inclusive": None,
+                "end_exclusive": None,
+                "resolution_status": "unresolved" if anchor is None else "anchored_not_materialized",
+            }
     return None
 
 
@@ -79,13 +118,17 @@ def derive_objective_contract(
     count = bool(re.search(r"\b(count|how many|number of|compter|combien de|nombre de)\b", lower))
     summary = bool(re.search(r"\b(summarize|summarise|summary|résumer|resumer|résumé|resume|synthétiser|synthetiser)\b", lower))
     compare = bool(re.search(r"\b(compare|comparison|versus|vs|comparer|comparaison)\b", lower))
-    operation = "aggregate" if total else "count" if count else "summarise" if summary else "compare" if compare else "general"
+    search_intent = bool(re.search(r"\b(search|look\s+up|find|discover|research|chercher|rechercher|trouver|étudier|etudier)\b", lower))
+    retrieval_intent = bool(re.search(r"\b(retrieve|fetch|load|collect|list|show|get|récupérer|recuperer|charger|collecter|lister|afficher|obtenir)\b", lower))
+    operation = (
+        "aggregate" if total else "count" if count else "summarise" if summary
+        else "compare" if compare else "search" if search_intent
+        else "retrieve" if retrieval_intent else "general"
+    )
     grouped_aggregation = bool(total and re.search(r"\b(by|per|group(?:ed)? by|par)\b", lower))
 
     all_scope = bool(re.search(r"\b(all|every|each|entire|complete|tous|toutes|chaque|ensemble complet)\b", lower))
     temporal = _temporal_scope(lower, reference_date)
-    search_intent = bool(re.search(r"\b(search|look\s+up|find|discover|research|chercher|rechercher|trouver|étudier|etudier)\b", lower))
-    retrieval_intent = bool(re.search(r"\b(retrieve|fetch|load|collect|list|show|get|récupérer|recuperer|charger|collecter|lister|afficher|obtenir)\b", lower))
     recency_scope = bool(re.search(r"\b(latest|recent|newest|current|up[- ]to[- ]date|dernier|dernière|derniere|récent|recent|actuel|actuelle)\b", lower))
     multi_source_intent = bool(re.search(
         r"\b(from|across|à partir de|a partir de)\s+(?:multiple|several|various|different|many|plusieurs|diverses|différentes|differentes)\s+(?:data\s+)?sources?\b",
@@ -149,6 +192,7 @@ def derive_objective_contract(
 
     theta = _theta()
     domains = set(theta.get("domains", []))
+    theta_kinds = set(theta.get("kinds", []))
     # Match only literal declared domain names. No synonym inference is performed.
     matched_domains = sorted(d for d in domains if re.search(rf"\b{re.escape(d)}s?\b", lower))
 
@@ -161,7 +205,9 @@ def derive_objective_contract(
         "received", "supplied", "provided", "attached", "uploaded", "between", "ytd", "summarize", "summarise", "summary",
         "payments", "payment", "invoices", "invoice", "architecture", "design", "option", "alternative", "proposal", "example", "candidate",
         "amount", "financial", "aggregate", "aggregation", "compare", "comparison",
-        "versus",
+        "versus", "configured", "matching", "provided", "given", "selected",
+        "query", "source", "relevant", "specific", "retrieving", "retrieved",
+        "records", "record",
     }
     stop.update({
         "compter", "combien", "nombre", "tous", "toutes", "chaque", "les", "des",
@@ -193,7 +239,7 @@ def derive_objective_contract(
     unresolved = set()
     for word in business_terms:
         normalized = _singularize(word)
-        if normalized in stop or normalized in domains:
+        if normalized in stop or normalized in domains or normalized in theta_kinds:
             continue
         unresolved.add(normalized)
 
