@@ -246,6 +246,7 @@ def render_report(rows: list[dict[str, Any]], summary: dict[str, Any]) -> str:
 def run_e1(root: str | Path, output_root: str | Path,
            reference_labels_path: str | Path | None = None, run_id: str | None = None) -> Path:
     root, output_root = Path(root).resolve(), Path(output_root).resolve()
+    initial_dirty_worktree = bool(git_value(root, "status", "--porcelain"))
     raw = root / "data" / "raw"
     sources_path = raw / "SOURCES.txt"
     schema_path = root / "docs" / "experiment_design" / "run_manifest.schema.json"
@@ -304,7 +305,9 @@ def run_e1(root: str | Path, output_root: str | Path,
     run_dir.mkdir(parents=True, exist_ok=False)
     input_dir = run_dir / "inputs"
     input_dir.mkdir()
-    shutil.copytree(raw, input_dir / "data" / "raw")
+    raw_snapshot = input_dir / "data" / "raw"
+    raw_snapshot.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(raw, raw_snapshot)
     proc = input_dir / "data" / "processed"
     proc.mkdir(parents=True)
     shutil.copy2(root / "data" / "processed" / "registry_merged.json", proc / "registry_merged.json")
@@ -450,7 +453,7 @@ def run_e1(root: str | Path, output_root: str | Path,
         "code": {
             "repository": "https://github.com/msellamiTN/taas-provenance-discovery",
             "commit": git_value(root, "rev-parse", "HEAD") or "unknown",
-            "dirty_worktree": bool(git_value(root, "status", "--porcelain")),
+            "dirty_worktree": initial_dirty_worktree,
         },
         "environment": {
             "os": platform.platform(), "python": platform.python_version(),
