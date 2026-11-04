@@ -342,6 +342,11 @@
     <div id="experiment-summary" class="subtle">Choose an experiment to inspect its goal, data requirements and baseline plan.</div>
     <div class="panel-head" style="margin-top:16px"><h3>Registered baselines for this experiment</h3><span class="count" id="experiment-baseline-count">0 baselines</span></div>
     <div id="experiment-baseline-cards" class="baseline-cards"><div class="subtle">Load the experiment catalogue first.</div></div>
+    <div id="pamcp-variant-panel" hidden>
+      <div class="panel-head" style="margin-top:18px"><h3>PaMCP primary configurations · E18 factorial</h3><span class="count">G × P × S · 2³</span></div>
+      <p class="subtle">These are the four named configurations. The complete 2³ factorial also includes the four combined-off cells; this preview focuses on the full system and its three leave-one-out contrasts.</p>
+      <div id="pamcp-variant-cards" class="baseline-cards"></div>
+    </div>
     <details class="advanced-json">
       <summary>Advanced · training scenes, trajectories and baseline parameters</summary>
       <p class="subtle">Only use training-split scenes for COLT-style adaptation. AutoTool-style reuse requires confirmed trajectories with matching registry, policy and tool-definition hashes.</p>
@@ -868,26 +873,25 @@
   const originalRunHandler = run.onclick;
 
   // PaMCP experiments and baseline workbench. Catalog calls are explicit and authenticated.
-  const experimentUi = { items:[], baselines:[], selected:new Set(), current:null };
+  const experimentUi = {
+    items:[], baselines:[], selected:new Set(), variants:{}, selectedVariants:new Set(), current:null
+  };
   const maturityLabel = value => ({
-    ready:"Implemented",
-    ready_surrogate:"Implemented surrogate",
-    ready_adaptation:"Clean-room adaptation",
-    partial_adapter:"Partial adapter",
-    core_method:"PaMCP core method",
-    ready_control:"Implemented control",
-    ready_policy_control:"Policy control",
-    adapter_to_build:"Adapter to build",
-    pipeline_to_build:"Pipeline to build",
-    planned:"Planned"
+    ready:"Implemented", ready_surrogate:"Implemented surrogate", ready_adaptation:"Clean-room adaptation",
+    partial_adapter:"Partial adapter", core_method:"PaMCP core method", ready_control:"Implemented control",
+    ready_policy_control:"Policy control", adapter_to_build:"Adapter to build",
+    pipeline_to_build:"Pipeline to build", planned:"Planned"
   }[value] || value || "Unspecified");
+  const updatePreviewButton = () => {
+    $("baseline-preview-run").disabled = experimentUi.selected.size===0 && experimentUi.selectedVariants.size===0;
+  };
   const renderBaselineCards = () => {
     const root=$("experiment-baseline-cards");root.replaceChildren();
     $("experiment-baseline-count").textContent=experimentUi.baselines.length+" baselines";
     if(!experimentUi.baselines.length){
       const empty=document.createElement("div");empty.className="subtle";
-      empty.textContent="No baseline is assigned to this experiment. This is a registry/characterization or design-only study.";
-      root.append(empty);$("baseline-preview-run").disabled=true;return;
+      empty.textContent="No external or control baseline is assigned to this experiment.";
+      root.append(empty);
     }
     experimentUi.baselines.forEach(item=>{
       const card=document.createElement("label");card.className="baseline-method-card";
@@ -895,7 +899,7 @@
       check.checked=experimentUi.selected.has(item.id);
       check.addEventListener("change",()=>{
         if(check.checked)experimentUi.selected.add(item.id);else experimentUi.selected.delete(item.id);
-        $("baseline-preview-run").disabled=experimentUi.selected.size===0;
+        updatePreviewButton();
       });
       const body=document.createElement("span");
       const title=document.createElement("strong");title.textContent=item.name+" · "+item.id;
@@ -903,7 +907,26 @@
       const maturity=document.createElement("span");maturity.className="baseline-maturity";maturity.textContent=maturityLabel(item.implementation);
       body.append(title,desc,maturity);card.append(check,body);root.append(card);
     });
-    $("baseline-preview-run").disabled=experimentUi.selected.size===0;
+    updatePreviewButton();
+  };
+  const renderVariantCards = () => {
+    const root=$("pamcp-variant-cards");root.replaceChildren();
+    const entries=Object.entries(experimentUi.variants);
+    entries.forEach(([id,item])=>{
+      const card=document.createElement("label");card.className="baseline-method-card";
+      const check=document.createElement("input");check.type="checkbox";check.value=id;
+      check.checked=experimentUi.selectedVariants.has(id);
+      check.addEventListener("change",()=>{
+        if(check.checked)experimentUi.selectedVariants.add(id);else experimentUi.selectedVariants.delete(id);
+        updatePreviewButton();
+      });
+      const body=document.createElement("span");
+      const title=document.createElement("strong");title.textContent=id;
+      const factors=document.createElement("small");factors.textContent="G="+item.G+" · P="+item.P+" · S="+item.S;
+      const desc=document.createElement("small");desc.textContent=item.definition;
+      body.append(title,factors,desc);card.append(check,body);root.append(card);
+    });
+    updatePreviewButton();
   };
   const loadExperimentBaselines = async () => {
     const id=$("experiment-id").value;
@@ -912,9 +935,18 @@
     $("experiment-catalog-status").textContent="Loading baseline methods for "+id+"…";
     try{
       const d=await apiGet("/api/v1/experiments/catalog/"+encodeURIComponent(id)+"/baselines");
-      experimentUi.baselines=d.baselines||[];experimentUi.selected.clear();
+      experimentUi.baselines=d.baselines||[];experimentUi.selected.clear();experimentUi.selectedVariants.clear();
       renderBaselineCards();
-      $("experiment-catalog-status").textContent=d.total+" experiment-scoped baseline method(s) loaded.";
+      const variantPanel=$("pamcp-variant-panel");
+      variantPanel.hidden=id!=="E18";
+      experimentUi.variants={};
+      if(id==="E18"){
+        const v=await apiGet("/api/v1/experiments/variants");
+        experimentUi.variants=v.variants||{};
+      }
+      renderVariantCards();
+      $("experiment-catalog-status").textContent=d.total+" experiment-scoped baseline(s) loaded"+
+        (id==="E18")+" PaMCP primary variants available for E18.";
     }catch(e){$("experiment-catalog-status").textContent="Baseline catalogue error: "+e.message;}
     finally{$("experiment-baselines-load").disabled=false;}
   };
@@ -951,13 +983,13 @@
   });
   $("experiment-baselines-load").addEventListener("click",loadExperimentBaselines);
   $("baseline-preview-run").addEventListener("click",async()=>{
-    if(!experimentUi.selected.size)return;
+    if(experimentUi.selected.size===0 && experimentUi.selectedVariants.size===0)return;
     const button=$("baseline-preview-run");button.disabled=true;
-    $("baseline-preview-status").textContent="Running selected adapters on the supplied metadata snapshot…";
+    $("baseline-preview-status").textContent="Running selected baseline and/or PaMCP variant previews…";
     try{
       const body=readRequest();
       const extras=JSON.parse($("baseline-extra").value||"{}");
-      if(!body.goal_spec?.goals?.length)throw new Error("Author at least one GoalSpec goal before previewing a baseline.");
+      if(!body.goal_spec?.goals?.length)throw new Error("Author at least one GoalSpec goal before previewing.");
       if(!Array.isArray(body.tools)||!body.tools.length)throw new Error("Add tools to the current discovery request or select tools from the benchmark registry.");
       const response=await fetch("/api/v1/baselines/preview",{
         method:"POST",
@@ -965,6 +997,7 @@
         body:JSON.stringify({
           experiment_id:$("experiment-id").value,
           baseline_ids:[...experimentUi.selected],
+          pamcp_variants:[...experimentUi.selectedVariants],
           goal_spec:body.goal_spec,
           tools:body.tools,
           policy:body.policy||{},
@@ -976,12 +1009,18 @@
       });
       const data=await response.json();if(!response.ok)throw new Error(data.detail||("HTTP "+response.status));
       $("baseline-preview-results").textContent=JSON.stringify(data,null,2);
-      const blocked=(data.results||[]).filter(x=>x.result?.status?.startsWith("blocked")||x.result?.status==="adapter_not_implemented");
-      $("baseline-preview-status").textContent=(data.baseline_count||0)+" adapter(s) returned. "+blocked.length+" blocked/not implemented. Evaluator labels: not accessed · MCP calls: 0.";
+      const items=[...(data.results||[]),...(data.pamcp_variant_results||[])];
+      const blocked=items.filter(x=>{
+        const status=x.result?.status||"";
+        return status.startsWith("blocked")||status.startsWith("invalid_")||status==="adapter_not_implemented";
+      });
+      $("baseline-preview-status").textContent=
+        (data.baseline_count||0)+" baseline adapter(s) · "+(data.pamcp_variant_count||0)+" PaMCP variant(s). "+
+        blocked.length+" blocked/invalid. Evaluator labels: not accessed · MCP calls: 0.";
     }catch(e){
-      $("baseline-preview-status").textContent="Baseline preview failed: "+e.message;
+      $("baseline-preview-status").textContent="Preview failed: "+e.message;
       $("baseline-preview-results").textContent="";
-    }finally{button.disabled=experimentUi.selected.size===0;}
+    }finally{updatePreviewButton();}
   });
   // Load benchmark catalogs on explicit user action to avoid background requests before authentication.
   const loadBtn=document.createElement("button");loadBtn.type="button";loadBtn.textContent="Load benchmark workspace";loadBtn.style.marginTop="12px";
