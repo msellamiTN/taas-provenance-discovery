@@ -59,6 +59,7 @@ Do not wrap the object in an id/query/context envelope. Do not add Markdown fenc
 - class: model-side classes: classify, extract, summarise, translate, convert_format, write, plan, synthesise, aggregate, compute_exact, count, compare, answer; boundary-crossing classes: retrieve, search, fetch_web, store, send, transact, execute, navigate_browser, render_media, create_document, edit_document, random.
 - in / out: exact semantic type strings listed in Θ.common_types. Do not synthesize kind:domain or array combinations. Use none when no artefact is produced.
 - eff: required effects such as read(src), write(r), delete(r), exec, egress(dst), money, session. Use an empty array for pure reasoning.
+- Effect semantics are exact and intentionally narrower than operation verbs: `read(src)` represents reading from a source, including a retrieval/search tool whose implementation may internally issue a database/API query. Do not add `exec` or `exec(scope)` merely because a backend must run a query internally. `exec` is the unscoped effect for an objective that explicitly requests running code, a shell command, script, process or comparable execution. The effect grammar does not accept `execute(query)`; `execute` is a GoalSpec class, not an effect class. Never translate an implementation detail into an additional user-requested side effect.
 - sigma: self-assessment native, data, effect, or unreliable. This is not trusted proof.
 - n: positive integer estimate of processed items (1 when not applicable).
 - exactness: exact or tolerant.
