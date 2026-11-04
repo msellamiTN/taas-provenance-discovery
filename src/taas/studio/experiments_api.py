@@ -19,6 +19,14 @@ from fastapi import Depends, FastAPI, HTTPException, Query, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, ConfigDict, Field
 
+from taas.contracts import extract_contract
+from taas.data.registries import RawTool
+from taas.experiments.baseline_runner import run_baseline
+from taas.experiments.registry_baselines import run_effect_baseline, run_typing_baseline
+from taas.goals import parse_goal_spec
+from taas.policy import Policy
+from taas.retrieval import HybridRetriever
+
 from taas.experiments.catalog import CATALOG_PATH, VARIANTS, load_catalog
 from taas.experiments.baseline_catalog import (baseline_index, baselines_for_experiment, load_baseline_catalog, validate_baseline_selection)
 
@@ -49,6 +57,32 @@ class RunDraft(BaseModel):
     seeds: list[int] = Field(default_factory=lambda: [0], min_length=1, max_length=100)
     baseline: str | None = None
     resource_budget: dict[str, Any] = Field(default_factory=dict)
+
+
+
+class BaselineToolInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    server: str = Field(min_length=1, max_length=256)
+    name: str = Field(min_length=1, max_length=256)
+    description: str = ""
+    input_schema: dict[str, Any] = Field(default_factory=dict)
+    output_schema: dict[str, Any] | None = None
+    annotations: dict[str, Any] | None = None
+    source: str = "baseline-preview"
+    category: str = ""
+
+
+class BaselinePreviewRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    experiment_id: str = Field(pattern=r"^E([1-9]|1[0-9]|2[0-2])$")
+    baseline_ids: list[str] = Field(min_length=1, max_length=10)
+    goal_spec: dict[str, Any]
+    tools: list[BaselineToolInput] = Field(min_length=1, max_length=2000)
+    policy: dict[str, Any] = Field(default_factory=dict)
+    top_k: int = Field(default=5, ge=1, le=100)
+    parameters: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    training_scenes: list[dict[str, Any]] | None = None
+    trajectories: list[dict[str, Any]] | None = None
 
 
 @app.get("/health")
@@ -176,6 +210,77 @@ def validate_run_draft(payload: RunDraft) -> dict[str, Any]:
         "execution_enabled": False,
         "evaluator_access_granted": False,
         "message": "Configuration validated only. No experiment has been queued or executed.",
+    }
+
+
+
+@app.post("/api/v1/baselines/preview", dependencies=[Depends(require_token)])
+def baseline_preview(payload: BaselinePreviewRequest) -> dict[str, Any]:
+    """Execute selected baseline adapters over a supplied registry snapshot; never scores gold labels."""
+    try:
+        selected = validate_baseline_selection(payload.experiment_id, payload.baseline_ids)
+    except (KeyError, ValueError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    goals = payload.goal_spec.get("goals")
+    if not isinstance(goals, list) or not goals:
+        raise HTTPException(status_code=422, detail="goal_spec.goals must be a non-empty array")
+    spec = parse_goal_spec(payload.goal_spec, prompt=str(payload.goal_spec.get("prompt", "")))
+    if spec.order() is None:
+        raise HTTPException(status_code=422, detail="goal_spec dependency graph contains a cycle")
+
+    raw_tools = [RawTool(**tool.model_dump()) for tool in payload.tools]
+    contracts = [extract_contract(tool) for tool in raw_tools]
+    if len({c.tool for c in contracts}) != len(contracts):
+        raise HTTPException(status_code=422, detail="Tool identities must be unique (server::name)")
+    retriever = HybridRetriever().fit(contracts)
+    pool = list(retriever.contracts)
+    policy_data = payload.policy
+    try:
+        policy = Policy.make(
+            name=str(policy_data.get("name", "baseline-preview")),
+            required=policy_data.get("required", []),
+            allowed=policy_data.get("allowed", ["read(*)", "egress(*)", "session"]),
+            lmin=policy_data.get("lmin", "obs"),
+            forbidden=policy_data.get("forbidden", []),
+            encoding=policy_data.get("encoding", "positive"),
+        )
+    except (TypeError, ValueError, KeyError) as exc:
+        raise HTTPException(status_code=422, detail=f"Invalid baseline policy: {exc}") from exc
+
+    canonical_tools = [tool.model_dump(mode="json") for tool in payload.tools]
+    registry_hash = hashlib.sha256(json.dumps(canonical_tools, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    policy_payload = dict(policy_data)
+    policy_hash = hashlib.sha256(json.dumps(policy_payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    tool_hashes = {contract.tool: contract.h for contract in contracts}
+    prompt = str(payload.goal_spec.get("prompt", ""))
+    results = []
+    for baseline in selected:
+        baseline_id = baseline["id"]
+        params = payload.parameters.get(baseline_id, {})
+        if baseline_id in {"typing_structural", "typing_schema_lexical"}:
+            result = run_typing_baseline(baseline_id, raw_tools)
+        elif baseline_id in {"effects_declared", "effects_lexical", "effects_probe"}:
+            result = run_effect_baseline(baseline_id, raw_tools)
+        else:
+            result = run_baseline(
+                baseline_id, retriever, spec, prompt, pool, top_k=payload.top_k,
+                policy=policy, training_scenes=payload.training_scenes,
+                trajectories=payload.trajectories, registry_hash=registry_hash,
+                policy_hash=policy_hash, tool_hashes=tool_hashes, parameters=params,
+            ).to_dict()
+        results.append({"baseline": baseline, "result": result})
+
+    return {
+        "experiment_id": payload.experiment_id,
+        "baseline_count": len(results),
+        "registry_snapshot": {"tool_count": len(pool), "sha256": registry_hash},
+        "goal_spec": payload.goal_spec,
+        "results": results,
+        "evaluator_labels_accessed": False,
+        "mcp_tools_executed": False,
+        "execution_kind": "baseline_adapter_preview",
+        "note": "This is a baseline-adapter preview, not a persisted E1-E22 run. Gold-label evaluation is not performed.",
     }
 
 
