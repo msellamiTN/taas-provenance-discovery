@@ -13,6 +13,7 @@ from typing import Any
 from taas.studio.model_runtime import (
     ModelRuntimeError, ROOT, diagnose_goal_spec, parse_goal_spec_response,
 )
+from taas.studio.analyst_contract import build_analyst_system_prompt, build_refinement_context
 
 
 class OllamaModelRuntime:
