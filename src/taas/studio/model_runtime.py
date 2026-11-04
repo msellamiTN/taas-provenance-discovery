@@ -212,6 +212,7 @@ class HuggingFaceModelRuntime:
                     "input_tokens": int(inputs["input_ids"].shape[1]),
                     "output_tokens": int(generated.shape[0]),
                     "model_id": self._model_id,
+                    "provider": "huggingface",
                     "device": self._device,
                     "dtype": self._dtype,
                 }
