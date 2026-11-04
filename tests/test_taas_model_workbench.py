@@ -41,7 +41,7 @@ def test_catalog_selection_does_not_claim_runtime_compatibility_or_execute_code(
     html = PAGE.read_text(encoding="utf-8")
     assert "weights downloaded: no" in html
     assert "runtime compatibility unverified" in html
-    assert "model_code_executed" in html or "Remote repository code execution is disabled" in html
+    assert "model_code_executed" in html or "remote repository code execution is disabled" in html
     assert "trust_remote_code=false" in html
 
 def test_overview_exposes_taas_lifecycle_and_marks_execution_gateway_truthfully():
