@@ -92,3 +92,10 @@ def test_tablet_and_mobile_navigation_use_compact_grid_layouts():
     html = STUDIO_HTML.read_text(encoding="utf-8")
     assert '@media(max-width:900px){.studio-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))' in html
     assert '@media(max-width:560px){.studio-nav{grid-template-columns:repeat(2,minmax(0,1fr))' in html
+
+
+def test_discovery_routes_preserve_request_and_result_context_together():
+    html = STUDIO_HTML.read_text(encoding="utf-8")
+    route = html[html.index("const showStudioWorkspace ="):html.index("const routeFromLocation =")]
+    assert 'if (root.id !== "discovery")' in route
+    assert "GoalSpec,\n    // Hypergraph or Assurance would hide the Run action or the result context." in route
