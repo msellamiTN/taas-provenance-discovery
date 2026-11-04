@@ -222,19 +222,25 @@ def canonicalize_declared_plural_types(spec: dict[str, Any]) -> tuple[dict[str, 
                        "rule": "trailing_plural_s_to_declared_theta_type"})
         return singular
 
-    candidate["prompt_inputs"] = [
-        canonicalize(value, f"prompt_inputs[{index}]")
-        for index, value in enumerate(candidate.get("prompt_inputs", []))
-    ]
-    for index, goal in enumerate(candidate.get("goals", [])):
-        if not isinstance(goal, dict):
-            continue
-        if "out" in goal:
-            goal["out"] = canonicalize(goal["out"], f"goals[{index}].out")
-        goal["in"] = [
-            canonicalize(value, f"goals[{index}].in[{position}]")
-            for position, value in enumerate(goal.get("in", []))
+    prompt_inputs = candidate.get("prompt_inputs")
+    if isinstance(prompt_inputs, list):
+        candidate["prompt_inputs"] = [
+            canonicalize(value, f"prompt_inputs[{index}]")
+            for index, value in enumerate(prompt_inputs)
         ]
+    goals = candidate.get("goals")
+    if isinstance(goals, list):
+        for index, goal in enumerate(goals):
+            if not isinstance(goal, dict):
+                continue
+            if "out" in goal:
+                goal["out"] = canonicalize(goal["out"], f"goals[{index}].out")
+            inputs = goal.get("in")
+            if isinstance(inputs, list):
+                goal["in"] = [
+                    canonicalize(value, f"goals[{index}].in[{position}]")
+                    for position, value in enumerate(inputs)
+                ]
     return candidate, events
 
 
