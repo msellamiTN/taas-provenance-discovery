@@ -20,6 +20,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, ConfigDict, Field
 
 from taas.experiments.catalog import CATALOG_PATH, VARIANTS, load_catalog
+from taas.experiments.baseline_catalog import (baseline_index, baselines_for_experiment, load_baseline_catalog, validate_baseline_selection)
 
 app = FastAPI(
     title="PaMCP Experimental Workbench API",
@@ -73,6 +74,7 @@ def experiment_catalog(
         "planned_not_run": sum(e["status"] == "planned_not_run" for e in items),
         "experiments": items,
         "results_loaded": False,
+        "baseline_catalog_version": load_baseline_catalog()["schema_version"],
     }
 
 
@@ -83,6 +85,52 @@ def experiment_detail(experiment_id: str) -> dict[str, Any]:
     if item is None:
         raise HTTPException(status_code=404, detail="Unknown experiment ID")
     return item
+
+
+@app.get("/api/v1/baselines/catalog", dependencies=[Depends(require_token)])
+def baseline_catalog(
+    q: str | None = Query(None, max_length=120),
+    kind: str | None = Query(None, max_length=80),
+    experiment_id: str | None = Query(None, pattern=r"^E([1-9]|1[0-9]|2[0-2])$"),
+) -> dict[str, Any]:
+    data = load_baseline_catalog()
+    items = data["baselines"]
+    if q:
+        needle = q.casefold()
+        items = [x for x in items if needle in (x["id"] + " " + x["name"] + " " + x["method"]).casefold()]
+    if kind:
+        items = [x for x in items if x.get("kind") == kind]
+    if experiment_id:
+        allowed = {x["id"] for x in baselines_for_experiment(experiment_id)}
+        items = [x for x in items if x["id"] in allowed]
+    return {
+        "schema_version": data["schema_version"],
+        "total": len(items),
+        "baselines": items,
+        "fidelity_warning": "Adapter availability is not a claim of exact published-method reproduction.",
+    }
+
+
+@app.get("/api/v1/baselines/catalog/{baseline_id}", dependencies=[Depends(require_token)])
+def baseline_detail(baseline_id: str) -> dict[str, Any]:
+    item = baseline_index().get(baseline_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Unknown baseline ID")
+    return item
+
+
+@app.get("/api/v1/experiments/catalog/{experiment_id}/baselines", dependencies=[Depends(require_token)])
+def experiment_baselines(experiment_id: str) -> dict[str, Any]:
+    try:
+        items = baselines_for_experiment(experiment_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return {
+        "experiment_id": experiment_id.upper(),
+        "total": len(items),
+        "baselines": items,
+        "selection_rule": "Only listed baselines are valid for this experiment.",
+    }
 
 
 @app.get("/api/v1/experiments/variants", dependencies=[Depends(require_token)])
@@ -109,8 +157,11 @@ def validate_run_draft(payload: RunDraft) -> dict[str, Any]:
         raise HTTPException(status_code=422, detail="dataset_snapshot.version_or_hash must be frozen before run creation")
     if len(set(payload.seeds)) != len(payload.seeds):
         raise HTTPException(status_code=422, detail="seeds must be unique")
-    if payload.experiment_id == "E21" and payload.baseline not in (None, "AutoTool (AAAI 2026)"):
-        raise HTTPException(status_code=422, detail="E21 AutoTool comparison must use the retained AAAI 2026 baseline identifier")
+    if payload.baseline is not None:
+        try:
+            validate_baseline_selection(payload.experiment_id, [payload.baseline])
+        except (KeyError, ValueError) as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
     digest_payload = payload.model_dump(mode="json")
     digest = hashlib.sha256(json.dumps(digest_payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
     return {
