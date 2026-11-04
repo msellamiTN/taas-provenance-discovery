@@ -97,9 +97,9 @@ def derive_objective_contract(
     content_noun = r"(?:text|paragraph|document|file|dataset|data|records?|report|image|audio|video)"
     supplied_marker = r"(?:user[- ]?)?(?:supplied|provided|attached|uploaded|given)"
     user_supplied_content = bool(re.search(
-        rf"\\b(?:this|these|following|provided|attached|uploaded|above|below|selected|given|supplied)\\s+{content_noun}\\b"
-        rf"|\\b{content_noun}\\s+(?:that\\s+is\\s+)?{supplied_marker}\\b"
-        rf"|\\b{content_noun}\\b.{{0,40}}\\b{supplied_marker}\\s+(?:in|with|by)\\s+(?:the\\s+)?(?:prompt|request|message|user)\\b",
+        rf"\b(?:this|these|following|provided|attached|uploaded|above|below|selected|given|supplied)\s+{content_noun}\b"
+        rf"|\b{content_noun}\s+(?:that\s+is\s+)?{supplied_marker}\b"
+        rf"|\b{content_noun}\b.{{0,40}}\b{supplied_marker}\s+(?:in|with|by)\s+(?:the\s+)?(?:prompt|request|message|user)\b",
         lower,
     ))
     source_data_required = bool(
