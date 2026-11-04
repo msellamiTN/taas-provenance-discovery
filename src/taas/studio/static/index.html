@@ -649,7 +649,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     </div>
     <section id="agent-goal-panel" style="box-shadow:none;padding:14px;margin-top:14px">
       <h2>3 · Objective Engineering · TaaS Core</h2><p class="muted">Canonical entry point for operational prompts. TaaS Core frames the objective, the selected model proposes a GoalSpec, and deterministic validation plus actual Core gap_analysis inspect it. Tool discovery follows only after human review. The proposal is never an execution authorization.</p>
-      <label for="agent-goal-prompt">Agent objective</label><textarea id="agent-goal-prompt" rows="3" style="min-height:90px" placeholder="Find current information, summarize it, and save a Markdown report…"></textarea>
+      <label for="agent-goal-prompt">Agent objective</label><textarea id="agent-goal-prompt" rows="3" maxlength="12000" style="min-height:90px" placeholder="Find current information, summarize it, and save a Markdown report…"></textarea><p class="subtle">The original objective is preserved by the API; verify the complete text here before preparing it.</p>
       <button id="agent-decompose" type="button">Prepare objective with TaaS Core</button><div id="agent-decompose-status" class="status" role="status" aria-live="polite">No decomposition requested.</div><div id="agent-outcome-coverage" class="outcome-coverage" aria-live="polite"></div><pre id="agent-decompose-result">The model's GoalSpec proposal will appear here.</pre>
       <div id="agent-semantic-diagnostics" class="goal-validation" role="status" aria-live="polite">Semantic diagnostics appear after decomposition. Heuristic warnings are not a correctness proof.</div>
       <div class="inline-actions"><button id="agent-apply-goals" type="button" class="secondary" disabled>Apply proposal to GoalSpec editor</button><span class="subtle">Applying replaces the current visual GoalSpec draft; review and validate it before discovery.</span></div>
@@ -1543,6 +1543,11 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     return true;
   };
   const tokenValue = () => $("token").value.trim();
+  const markStudioAuthRejected = () => {
+    $("studio-auth").classList.remove("connected");
+    $("studio-auth-status").textContent = "Token rejected by the Studio API · reconnect to verify the current runtime token";
+    $("studio-auth-disconnect").disabled = false;
+  };
   const formatApiError = (detail, fallback) => {
     if (typeof detail === "string" && detail.trim()) return detail;
     if (Array.isArray(detail)) return detail.map(item => {
@@ -1561,7 +1566,10 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   const apiGet = async (path) => {
     const token=tokenValue(); if(!token) throw new Error("Connect to TaaS Studio in the application header first.");
     const r=await fetch(path,{headers:{"Authorization":"Bearer "+token}});
-    const d=await r.json(); if(!r.ok) throw new Error(formatApiError(d.detail||d,"HTTP "+r.status)); return d;
+    const d=await r.json();
+    if(r.status===401){markStudioAuthRejected();throw new Error("Studio API rejected the bearer token. Reconnect in the header, then retry.");}
+    if(!r.ok) throw new Error(formatApiError(d.detail||d,"HTTP "+r.status));
+    return d;
   };
   const loadDatasets = async () => {
     const d=await apiGet("/api/v1/bench/datasets"); bench.datasets=d.datasets||[];
@@ -1670,7 +1678,10 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   const runtimePost = async (path, body) => {
     const token=tokenValue(); if(!token) throw new Error("Connect to TaaS Studio in the application header first.");
     const response=await fetch(path,{method:"POST",headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify(body)});
-    const data=await response.json(); if(!response.ok) throw new Error(formatApiError(data.detail||data,"HTTP "+response.status)); return data;
+    const data=await response.json();
+    if(response.status===401){markStudioAuthRejected();throw new Error("Studio API rejected the bearer token. Reconnect in the header, then retry.");}
+    if(!response.ok) throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
+    return data;
   };
   const refreshLoadedModel = async () => {
     const state=await apiGet("/api/v1/models/runtime");$("runtime-model-details").textContent=JSON.stringify(state,null,2);
