@@ -28,6 +28,24 @@ def _candidate(prompt_input: str = "text") -> dict:
     }
 
 
+def _conformant_candidate() -> dict:
+    return {
+        "prompt": "Calculate the total value of all transactions",
+        "prompt_inputs": ["text"],
+        "goals": [{
+            "id": "g1", "desc": "Retrieve all transaction records from the user-authorized data source",
+            "class": "retrieve", "in": ["query"], "out": "record[]",
+            "eff": ["read(db)"], "sigma": "data", "n": 1,
+            "exactness": "exact", "deps": [], "optional": False,
+        }, {
+            "id": "g2", "desc": "Calculate the exact sum of the amount/value field for every retrieved record",
+            "class": "aggregate", "in": ["record[]"], "out": "number",
+            "eff": [], "sigma": "unreliable", "n": 1,
+            "exactness": "exact", "deps": ["g1"], "optional": False,
+        }],
+    }
+
+
 def test_theta_rejects_business_noun_as_prompt_input():
     assert "outside semantic vocabulary" in validate_theta_types(_candidate("transactions"))
 
@@ -71,7 +89,7 @@ def test_agent_decompose_performs_only_one_bounded_refinement(monkeypatch):
 
         def decompose(self, prompt, context="", max_new_tokens=1200):
             self.calls.append((prompt, context, max_new_tokens))
-            spec = _candidate("transactions" if len(self.calls) == 1 else "text")
+            spec = _candidate("transactions") if len(self.calls) == 1 else _conformant_candidate()
             return {
                 "text": '{"candidate": true}',
                 "goal_spec": spec,
@@ -94,6 +112,10 @@ def test_agent_decompose_performs_only_one_bounded_refinement(monkeypatch):
     assert response["conformance"]["accepted_for_human_review"] is True
     assert response["conformance"]["auto_applied"] is False
     assert response["conformance"]["semantic_correctness_verified"] is False
+    assert response["core_analysis"]["status"] == "capability_gap_detected"
+    assert response["core_analysis"]["goal_order"] == ["g1", "g2"]
+    assert response["objective_contract"]["operation"] == "aggregate"
+    assert len(response["attempt_history"]) == 2
 
 
 def test_agent_decompose_does_not_retry_after_second_failure(monkeypatch):
