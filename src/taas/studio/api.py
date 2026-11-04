@@ -5,6 +5,7 @@ Protect it behind an authenticated tunnel/reverse proxy and keep it bound to loo
 """
 from __future__ import annotations
 
+import copy
 import hashlib
 import hmac
 import json
@@ -23,7 +24,7 @@ from taas.effects import parse_effect
 from taas.data.registries import RawTool, load_processed
 from taas.engine import DiscoveryEngine, EngineConfig
 from taas.model_profile import EXTERNAL_CLASSES, MODEL_CLASSES, ModelProfile
-from taas.goals import SIGMAS, parse_goal_spec
+from taas.goals import SIGMAS, gap_analysis, parse_goal_spec
 from taas.policy import Policy
 from taas.provenance import DEFAULT_TRUST
 from taas.studio.models import ModelCatalogError, get_model_details, inspect_model_artifacts, search_models
@@ -37,6 +38,7 @@ from taas.studio.authorization_preflight import (
 from taas.studio.runtime import estimate_model_memory, probe_hardware, probe_runtime
 from taas.studio.model_runtime import ModelRuntimeError, get_model_runtime
 from taas.studio.analyst_contract import validate_theta_types, build_refinement_context
+from taas.studio.objective_contract import build_objective_context, diagnose_objective_alignment
 from taas.studio.ollama_runtime import get_ollama_runtime
 from taas.studio.mcp_registry import MCPRegistryError, inspect_server as inspect_mcp_server, list_servers as list_mcp_servers
 from taas.types import KINDS
@@ -618,7 +620,15 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
     """Use the selected Studio model to propose a GoalSpec; validate separately."""
     try:
         runtime = get_ollama_runtime() if request.provider == "ollama" else get_model_runtime()
-        result = runtime.decompose(request.prompt, request.context, request.max_new_tokens)
+        # TaaS Core contributes an objective frame before generation. The model is
+        # not given the MCP registry; capability matching remains a later Core stage.
+        objective_context = build_objective_context(request.prompt)
+        base_context = request.context.strip()
+        if base_context:
+            base_context += "\n\n"
+        base_context += objective_context
+        result = runtime.decompose(request.prompt, base_context, request.max_new_tokens)
+
         def assess(candidate: dict[str, Any]) -> tuple[bool, list[dict[str, str]], Any]:
             structural_error: Any = None
             if candidate.get("json_valid") and isinstance(candidate.get("goal_spec"), dict):
@@ -629,6 +639,8 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
             else:
                 structural_error = candidate.get("parse_error") or "Model did not return a canonical GoalSpec JSON object"
             diagnostics = list(candidate.get("semantic_diagnostics") or [])
+            if candidate.get("json_valid") and isinstance(candidate.get("goal_spec"), dict):
+                diagnostics.extend(diagnose_objective_alignment(request.prompt, candidate["goal_spec"]))
             if structural_error:
                 diagnostics.append({
                     "code": "goalspec_structural_nonconformance",
@@ -641,12 +653,18 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
 
         accepted, diagnostics, structural_error = assess(result)
         attempts = 1
+        attempt_history = [{
+            "attempt": 1, "json_valid": bool(result.get("json_valid")),
+            "structural_valid": structural_error is None,
+            "diagnostic_codes": [item.get("code") for item in diagnostics],
+            "accepted_for_human_review": accepted,
+            "latency_seconds": result.get("latency_seconds"),
+        }]
         if not accepted:
-            # Exactly one bounded refinement. The original objective is repeated verbatim;
-            # no candidate is applied or passed to discovery automatically.
+            # Exactly one bounded refinement. The objective frame is retained along
+            # with the immutable user objective and Core's concrete diagnostics.
             prior_text = str(result.get("text", ""))
-            refinement_context = request.context
-            refinement_context += "\n\n" + build_refinement_context(
+            refinement_context = base_context + "\n\n" + build_refinement_context(
                 request.prompt, prior_text, diagnostics
             )
             refined = runtime.decompose(
@@ -654,8 +672,64 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
             )
             attempts = 2
             accepted, refined_diagnostics, structural_error = assess(refined)
+            attempt_history.append({
+                "attempt": 2, "json_valid": bool(refined.get("json_valid")),
+                "structural_valid": structural_error is None,
+                "diagnostic_codes": [item.get("code") for item in refined_diagnostics],
+                "accepted_for_human_review": accepted,
+                "latency_seconds": refined.get("latency_seconds"),
+            })
             result = refined
             diagnostics = refined_diagnostics
+
+        core_analysis: dict[str, Any] = {
+            "status": "not_analyzed", "model_profile": None, "goal_order": [],
+            "goals": [], "gap_goal_ids": [], "shrink_candidates": [],
+            "clarification": None, "discovery": "not_run_user_action_required",
+            "hypergraph_composition": "deferred_to_discovery",
+        }
+        if structural_error is None and isinstance(result.get("goal_spec"), dict):
+            # Run the actual GoalSpec gap-analysis algorithm against the active
+            # model's calibrated profile. A mismatched/missing profile fails closed.
+            active_model_id = str(result.get("model_id") or "")
+            configured_profile = load_profile()
+            profile_matches = bool(active_model_id and configured_profile.model_id == active_model_id)
+            profile = configured_profile if profile_matches else ModelProfile(
+                model_id=active_model_id or "uncalibrated-default", strict=True
+            )
+            core_spec = parse_studio_goal_spec(copy.deepcopy(result["goal_spec"]))
+            gap = gap_analysis(core_spec, profile)
+            ordered = core_spec.order() or []
+            core_analysis = {
+                "status": "clarification_required" if gap.clarify else (
+                    "capability_gap_detected" if gap.gap else "model_coverage_candidate"
+                ),
+                "model_profile": {
+                    "model_id": profile.model_id, "calibrated_profile_matched": profile_matches,
+                    "strict": profile.strict, "threshold": profile.tau,
+                },
+                "goal_order": [goal.id for goal in ordered],
+                "goals": [{
+                    "id": goal.id, "class": goal.cls, "rho": gap.rho.get(goal.id, 0.0),
+                    "core_sigma": goal.sigma, "sigma_reason": goal.sigma_reason,
+                    "exactness": goal.exactness, "n_estimate": goal.n,
+                } for goal in ordered],
+                "gap_goal_ids": [goal.id for goal in gap.gap],
+                "shrink_candidates": [goal.id for goal in gap.shrink],
+                "clarification": gap.clarify,
+                "discovery": "not_run_user_action_required",
+                "hypergraph_composition": "deferred_to_discovery",
+            }
+
+        result["objective_contract"] = {
+            "operation": build_objective_context(request.prompt).splitlines()[1]
+            if False else None
+        }
+        # Return the full deterministic objective frame as inspectable provenance.
+        from taas.studio.objective_contract import derive_objective_contract
+        result["objective_contract"] = derive_objective_contract(request.prompt)
+        result["core_analysis"] = core_analysis
+        result["attempt_history"] = attempt_history
         result["structural_validation"] = {
             "valid": structural_error is None,
             "detail": structural_error,
