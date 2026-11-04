@@ -108,6 +108,7 @@ class HuggingFaceModelRuntime:
     def status(self) -> dict[str, Any]:
         with self._lock:
             return {
+                "provider": "huggingface",
                 "model_loaded": self._model is not None,
                 "model_id": self._model_id,
                 "device": self._device,
