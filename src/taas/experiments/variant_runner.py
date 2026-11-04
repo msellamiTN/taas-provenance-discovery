@@ -73,15 +73,18 @@ def run_pamcp_variant(
     if variant_id == "PaMCP_Declared":
         # P=0: declarations/lexical assertions remain visible, but there is no
         # obs/att threshold. Lower the evidence floor to the lexical tier.
-        effective_policy = _policy_with_evidence_floor(policy, 0.25)
+        effective_policy = _policy_with_evidence_floor(policy, 0.0)
+        # All available declarations are treated uniformly. Provenance classes do
+        # not receive different trust weights; this is a flat metadata-only control.
         trust = TrustPolicy(
             trusted_signers=frozenset(),
-            lex=0.25,
-            ann=0.50,
-            obs_base=0.55,
-            obs_scale=0.20,
-            att_trusted=0.60,
-            att_unknown=0.60,
+            lex=1.0,
+            ann=1.0,
+            obs_base=1.0,
+            obs_scale=0.0,
+            att_trusted=1.0,
+            att_unknown=1.0,
+            lex_by_property={},
         )
 
     engine_cfg = EngineConfig(composer=ComposerConfig(K=top_k), use_gap=(variant_id != "PaMCP_NoGap"))
