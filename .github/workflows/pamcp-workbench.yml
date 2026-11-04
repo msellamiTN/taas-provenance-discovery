@@ -40,11 +40,12 @@ jobs:
           assert not missing, f"Unknown baseline IDs: {sorted(missing)}"
           print(f"validated {len(experiments['experiments'])} experiments and {len(baseline_ids)} baselines")
           PY
-      - name: Run PaMCP experiment and baseline tests
+      - name: Run PaMCP experiment, baseline and Colab runner tests
         run: |
           python -m pytest -q \
             tests/test_experiment_catalog.py \
             tests/test_studio_experiments_api.py \
-            tests/test_experiment_baselines.py
+            tests/test_experiment_baselines.py \
+            tests/test_colab_e1.py
       - name: Run existing Studio API tests
         run: python -m pytest -q tests/test_studio_api.py
