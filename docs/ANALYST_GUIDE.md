@@ -50,7 +50,7 @@ Example:
       ]
     }
 
-Do not wrap the object in an id/query/context envelope. Do not add Markdown fences or explanatory prose. Do not emit tool or server names.
+Do not wrap the object in an id/query/context envelope. Do not add Markdown fences or explanatory prose. Do not emit tool or server names. For a single-goal request with a user query input, keep that input in `prompt_inputs`/`in` and set `deps` to `[]`; the input name is never a dependency ID.
 
 ## Goal fields
 
@@ -63,7 +63,7 @@ Do not wrap the object in an id/query/context envelope. Do not add Markdown fenc
 - sigma: self-assessment native, data, effect, or unreliable. This is not trusted proof.
 - n: positive integer estimate of processed items (1 when not applicable).
 - exactness: exact or tolerant.
-- deps: IDs of goals whose output this goal consumes.
+- deps: IDs of goals whose output this goal consumes. This field is exclusively a goal-to-goal DAG edge list: every value must exactly equal another goal `id` in the same GoalSpec. Never put a prompt input name, variable name, semantic type, field name, or natural-language word here. User-supplied `query` belongs in `prompt_inputs` and/or `in` as its declared Θ semantic type, not in `deps`. A single-goal objective has `deps: []`; only add `["g1"]` when this goal consumes the output of the distinct goal whose ID is `g1`.
 - optional: boolean.
 - lang: optional non-empty language label.
 
