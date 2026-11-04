@@ -6,12 +6,12 @@
 
 ## E1 — executed descriptive census; reference metric blocked
 
-Run: \`E1-20261104T223556Z-protocol-v1\`
+Run: \`E1-20261104T223832Z-protocol-v1\`
 
 - Branch: \`research/pamcp-experimental-v1\`
-- Run commit: \`43f7865e65666ad3d674c16777a79dfada7e0b0c\`
-- GitHub Actions run: [PaMCP E1 Protocol Run](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/41926588281)
-- Artifact: [PaMCP-E1-protocol-run](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/41926588281/artifacts/13369627440)
+- Run commit: \`d28c34970144179023fbec9ef1da0c0b699414f2\`
+- GitHub Actions run: [PaMCP E1 Protocol Run](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/41926960347)
+- Artifact: [PaMCP-E1-protocol-run](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/41926588281/artifacts/13369408582)
 - Manifest validates against \`run_manifest.schema.json\`.
 - All 25 checksummed run artifacts verified against \`ARTIFACTS_SHA256.json\`.
 - Frozen raw source snapshots and the pre-run committed merged registry are included.
@@ -88,3 +88,5 @@ The protocol says E2, E3 and E12 are prerequisites because semantic contracts, o
 - No claim that metadata or lexical inference is observed effect evidence.
 - No claim of actual MCP execution when only a local adapter preview or registry record was used.
 - No downstream experiment status is changed to completed without a spec-valid manifest and required raw artifacts.
+
+**CI regression result:** the E1 protocol workflow completed successfully; both E1 protocol runner tests passed. The full regression workflow also installs the `experiment` extra so the manifest-validation dependency is present during collection.
