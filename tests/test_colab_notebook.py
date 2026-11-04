@@ -138,6 +138,8 @@ def test_colab_reuses_the_single_studio_runtime_and_proxy_without_browser_automa
     _, markdown, code = notebook_source()
     assert "one checkout" in markdown
     assert "one Studio process" in markdown
-    assert 'if "proxy_url" not in globals() or not proxy_url:' in code
+    assert "proxy_url = output.eval_js" in code
     assert "google.colab.kernel.proxyPort" in code
+    assert "Fresh Colab proxy URL generated" in code
+    assert 'wait_http(f"http://{APP_HEALTH_HOST}:{APP_PORT}/health")' in code
     assert "playwright" not in code.lower()
