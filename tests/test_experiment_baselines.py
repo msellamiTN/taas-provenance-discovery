@@ -577,7 +577,7 @@ def test_linear_scan_control_matches_direct_positive_eligibility():
     assert result.status == "completed"
     assert result.details["bitmap_index_used"] is False
     assert result.details["scanned_tool_count"] == len(contracts)
-    assert set(result.selected_tools) == {"reviews::search_reviews", "reviews::list_reviews"}
+    assert set(result.selected_tools) == {"reviews::search_reviews", "reviews::list_reviews", "web::search_web"}
 
 
 def test_no_experience_control_runs_without_trajectory_store():
