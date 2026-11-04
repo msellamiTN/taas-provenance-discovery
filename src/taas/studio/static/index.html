@@ -596,13 +596,20 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     <p class="muted">Host diagnostics below and model runtime state are separate views. The selected Hugging Face model is downloaded and loaded by the same process that runs this Studio API. If that process runs inside Colab, inference runs in that Colab runtime. This does not remotely connect Studio to a separate Colab session.</p>
     <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px">
       <section id="model-runtime-panel" style="box-shadow:none;padding:14px">
-        <h2>1 · Model runtime</h2><label for="runtime-model-id">Hugging Face model ID</label>
+        <h2>1 · Model runtime</h2>
+        <label for="runtime-provider">Inference provider</label>
+        <select id="runtime-provider" style="width:100%;padding:9px;border:1px solid #d4dce8;border-radius:8px">
+          <option value="huggingface">Hugging Face · Transformers</option>
+          <option value="ollama">Ollama · local or configured API</option>
+        </select>
+        <label for="runtime-model-id" id="runtime-model-label">Hugging Face model ID</label>
         <input id="runtime-model-id" value="Qwen/Qwen2.5-0.5B-Instruct" maxlength="257" autocomplete="off">
-        <label for="runtime-device">Execution device</label>
+        <label for="runtime-device" id="runtime-device-label">Execution device</label>
         <select id="runtime-device" style="width:100%;padding:9px;border:1px solid #d4dce8;border-radius:8px"><option value="auto">Automatic · CUDA when available, otherwise CPU</option><option value="cpu">CPU</option><option value="cuda">CUDA GPU · require CUDA</option></select>
+        <p class="subtle" id="runtime-provider-help">Hugging Face loads weights inside the TaaS process. CPU is supported; CUDA is optional.</p>
         <div class="inline-actions"><button id="runtime-model-load" type="button">Download &amp; load model</button><button id="runtime-model-refresh" type="button" class="secondary">Refresh model state</button></div>
         <div id="runtime-model-status" class="status" role="status" aria-live="polite">No model loaded by this process.</div><pre id="runtime-model-details">Model runtime state has not been queried.</pre>
-        <p class="subtle">Remote repository code execution is disabled (<code>trust_remote_code=false</code>). CPU uses FP32; CUDA uses BF16 when supported, otherwise FP16. A successful load is not inferred from catalog metadata.</p>
+        <p class="subtle">Hugging Face: remote repository code execution is disabled (<code>trust_remote_code=false</code>); CPU uses FP32 and CUDA uses BF16/FP16. Ollama is a separate configured service; its device placement and quantization are managed by Ollama. The Studio never treats model metadata as proof of a successful load.</p>
       </section>
       <section id="agent-chat-panel" style="box-shadow:none;padding:14px">
         <h2>2 · Agent chat</h2><label for="agent-system">Agent instructions</label>
@@ -1596,15 +1603,25 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     const state=await apiGet("/api/v1/models/runtime");$("runtime-model-details").textContent=JSON.stringify(state,null,2);
     $("runtime-model-status").textContent=state.model_loaded ? "Loaded · "+state.model_id+" · "+state.device+" · "+state.dtype : "No model loaded by this process.";return state;
   };
+  $("runtime-provider").addEventListener("change",()=>{
+    const ollama=$("runtime-provider").value==="ollama";
+    $("runtime-model-label").textContent=ollama?"Ollama model tag":"Hugging Face model ID";
+    $("runtime-model-id").value=ollama?"qwen2.5:0.5b":"Qwen/Qwen2.5-0.5B-Instruct";
+    $("runtime-model-id").placeholder=ollama?"e.g. qwen2.5:0.5b":"owner/model";
+    $("runtime-device").hidden=ollama;$("runtime-device-label").hidden=ollama;
+    $("runtime-provider-help").textContent=ollama
+      ?"Ollama runs as a separate daemon. Start it and install a model first; configure TAAS_OLLAMA_BASE_URL when it is not at 127.0.0.1:11434. Model selection validates installation; Ollama loads weights on first inference."
+      :"Hugging Face loads weights inside the TaaS process. CPU is supported; CUDA is optional. Tokenizers use fast mode with a slow-mode fallback.";
+  });
   $("runtime-model-refresh").addEventListener("click",async()=>{ $("runtime-model-status").textContent="Reading model runtime state…";try{await refreshLoadedModel();}catch(e){$("runtime-model-status").textContent="Status request failed: "+e.message;} });
   $("runtime-model-load").addEventListener("click",async()=>{
     const button=$("runtime-model-load");button.disabled=true;$("runtime-model-status").textContent="Loading model weights. The first load may take time and download model files…";
-    try{const state=await runtimePost("/api/v1/models/load",{model_id:$("runtime-model-id").value.trim(),device:$("runtime-device").value});$("runtime-model-details").textContent=JSON.stringify(state,null,2);$("runtime-model-status").textContent="Model loaded · "+state.model_id+" · "+state.device+" · "+state.dtype;}
+    try{const provider=$("runtime-provider").value;const state=await runtimePost("/api/v1/models/load",{provider,model_id:$("runtime-model-id").value.trim(),device:$("runtime-device").value});$("runtime-model-details").textContent=JSON.stringify(state,null,2);$("runtime-model-status").textContent="Model loaded · "+state.model_id+" · "+state.device+" · "+state.dtype;}
     catch(e){$("runtime-model-status").textContent="Model load failed: "+e.message;}finally{button.disabled=false;}
   });
   $("agent-chat-send").addEventListener("click",async()=>{
     const button=$("agent-chat-send");button.disabled=true;$("agent-chat-status").textContent="Generating with the loaded model…";
-    try{const result=await runtimePost("/api/v1/models/chat",{message:$("agent-message").value,system:$("agent-system").value,max_new_tokens:Number($("agent-max-tokens").value||512),temperature:0.2});
+    try{const result=await runtimePost("/api/v1/models/chat",{provider:$("runtime-provider").value,message:$("agent-message").value,system:$("agent-system").value,max_new_tokens:Number($("agent-max-tokens").value||512),temperature:0.2});
       $("agent-chat-result").textContent=result.text+"\n\n"+JSON.stringify({model_id:result.model_id,device:result.device,dtype:result.dtype,latency_seconds:result.latency_seconds,input_tokens:result.input_tokens,output_tokens:result.output_tokens},null,2);
       $("agent-chat-status").textContent="Inference completed · "+result.latency_seconds+"s · "+result.output_tokens+" generated tokens.";
     }catch(e){$("agent-chat-status").textContent="Inference failed: "+e.message;}finally{button.disabled=false;}
@@ -1612,7 +1629,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   let pendingAgentGoalSpec=null;
   $("agent-decompose").addEventListener("click",async()=>{
     const button=$("agent-decompose");button.disabled=true;$("agent-decompose-status").textContent="Decomposing objective with the loaded model…";$("agent-apply-goals").disabled=true;pendingAgentGoalSpec=null;
-    try{const result=await runtimePost("/api/v1/agents/decompose",{prompt:$("agent-goal-prompt").value,max_new_tokens:1200});$("agent-decompose-result").textContent=JSON.stringify(result,null,2);
+    try{const result=await runtimePost("/api/v1/agents/decompose",{provider:$("runtime-provider").value,prompt:$("agent-goal-prompt").value,max_new_tokens:1200});$("agent-decompose-result").textContent=JSON.stringify(result,null,2);
       if(result.json_valid&&result.structural_validation?.valid){
         pendingAgentGoalSpec=result.goal_spec;$("agent-apply-goals").disabled=false;
         const diagnostics=result.semantic_diagnostics||[];
