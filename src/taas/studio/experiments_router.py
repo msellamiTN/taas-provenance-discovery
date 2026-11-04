@@ -8,6 +8,9 @@ from taas.studio.api import require_api_token
 from taas.studio.experiments_api import (
     experiment_catalog,
     experiment_detail,
+    baseline_catalog,
+    baseline_detail,
+    experiment_baselines,
     validate_run_draft,
     variants,
     workbench_status,
@@ -23,3 +26,7 @@ router.add_api_route("/catalog/{experiment_id}", experiment_detail, methods=["GE
 router.add_api_route("/variants", variants, methods=["GET"])
 router.add_api_route("/validate", validate_run_draft, methods=["POST"])
 router.add_api_route("/workbench/status", workbench_status, methods=["GET"])
+
+router.add_api_route("/catalog/{experiment_id}/baselines", experiment_baselines, methods=["GET"])
+router.add_api_route("/baselines/catalog", baseline_catalog, methods=["GET"])
+router.add_api_route("/baselines/catalog/{baseline_id}", baseline_detail, methods=["GET"])
