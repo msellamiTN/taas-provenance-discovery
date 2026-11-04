@@ -157,3 +157,43 @@ def test_v2_recognizes_supplied_content_with_descriptive_modifiers():
         assert frame["user_supplied_content"] is True, (objective, frame)
         assert frame["source_data_required"] is False, (objective, frame)
 
+
+
+def test_retrieval_from_configured_source_is_not_misread_as_a_date_range():
+    objective = "Retrieve records matching the provided query from the configured source."
+    frame = derive_objective_contract(objective)
+
+    assert frame["operation"] == "retrieve"
+    assert frame["temporal_scope"] is None
+    assert frame["constraints"]["temporal"] is None
+    assert not ({"configured", "matching", "query", "source"} & set(frame["unresolved_business_concepts"]))
+
+
+def test_explicit_english_and_french_date_ranges_are_recognized():
+    examples = [
+        ("Retrieve records from 1 January to 31 January.", "from_to"),
+        ("Retrieve records between January 1 and January 31.", "between"),
+        ("Récupérer les dossiers du 1 janvier au 31 janvier.", "du_au"),
+        ("Retrieve records between 2026-01-01 and 2026-01-31.", "between"),
+        ("Retrieve records from 01/01/2026 to 31/01/2026.", "from_to"),
+    ]
+    for objective, expression in examples:
+        frame = derive_objective_contract(objective)
+        assert frame["temporal_scope"] is not None, (objective, frame)
+        assert frame["temporal_scope"]["kind"] == "explicit_range"
+        assert frame["temporal_scope"]["expression"] == expression
+
+
+def test_retrieval_from_database_is_not_a_temporal_constraint():
+    frame = derive_objective_contract("Retrieve customer records from the database.")
+
+    assert frame["operation"] == "retrieve"
+    assert frame["temporal_scope"] is None
+    assert "customer" in frame["unresolved_business_concepts"]
+
+
+def test_search_operation_is_reflected_in_primary_operation_and_outcomes():
+    frame = derive_objective_contract("Search the web for recent research papers.")
+
+    assert frame["operation"] == "search"
+    assert "search" in frame["required_goal_classes"]
