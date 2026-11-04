@@ -2,32 +2,6 @@
   "schema_version": "1.0.0",
   "programme": "PaMCP definitive experimental programme",
   "result_policy": "All definitions are planned_not_run. No superseded experiment values are imported.",
-  "paMcp_variants": {
-    "Full_PaMCP": {
-      "G": 1,
-      "P": 1,
-      "S": 1,
-      "definition": "Model-conditioned gap + provenance-sound eligibility + set-level reasoning/certification."
-    },
-    "PaMCP_NoGap": {
-      "G": 0,
-      "P": 1,
-      "S": 1,
-      "definition": "Remove model capability hyperedges; set Gamma(q)=G(q). All other mechanisms unchanged."
-    },
-    "PaMCP_Declared": {
-      "G": 1,
-      "P": 0,
-      "S": 1,
-      "definition": "Published annotations and lexical cues only; no observed/attested evidence and no provenance trust policy. Preserve retrieval and certification. Separate MCP-defaults control."
-    },
-    "PaMCP_NoCert": {
-      "G": 1,
-      "P": 1,
-      "S": 0,
-      "definition": "Per-subgoal retrieval and union; no backward closure, global set checks, compatibility/effect/flow checks or certificate. Score counterfactual validity with independent evaluator."
-    }
-  },
   "factors": {
     "G": "model-conditioned capability gap",
     "P": "provenance-sound eligibility",
@@ -701,5 +675,31 @@
       ]
     }
   ],
-  "baseline_catalog": "pamcp_baselines_v1.json"
+  "baseline_catalog": "pamcp_baselines_v1.json",
+  "pa_mcp_variants": {
+    "Full_PaMCP": {
+      "G": 1,
+      "P": 1,
+      "S": 1,
+      "definition": "Model-conditioned gap + provenance-sound eligibility + set-level reasoning/certification."
+    },
+    "PaMCP_NoGap": {
+      "G": 0,
+      "P": 1,
+      "S": 1,
+      "definition": "Remove model capability hyperedges; set Gamma(q)=G(q). All other mechanisms unchanged."
+    },
+    "PaMCP_Declared": {
+      "G": 1,
+      "P": 0,
+      "S": 1,
+      "definition": "Published annotations and lexical cues only; no observed/attested evidence and no provenance trust policy. Preserve retrieval and certification. Separate MCP-defaults control."
+    },
+    "PaMCP_NoCert": {
+      "G": 1,
+      "P": 1,
+      "S": 0,
+      "definition": "Per-subgoal retrieval and union; no backward closure, global set checks, compatibility/effect/flow checks or certificate. Score counterfactual validity with independent evaluator."
+    }
+  }
 }
