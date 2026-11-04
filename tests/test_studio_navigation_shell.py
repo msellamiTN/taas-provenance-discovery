@@ -26,7 +26,10 @@ def test_navigation_uses_single_workspace_visibility_and_keeps_host_snapshot():
     assert 'document.querySelector(".studio-content")' in html
     assert "showStudioWorkspace" in html
     assert 'child.id === "runtime-overview"' in html
-    assert "child.hidden = child !== root" in html
+    assert 'else if (child !== root) hideForNavigation(child);' in html
+    assert 'node.hidden = true;' in html
+    assert 'node.dataset.studioNavHidden = "true";' in html
+    assert 'restoreNavigationVisibility();' in html
 
 
 def test_model_and_agent_workspaces_have_distinct_navigation_targets():
