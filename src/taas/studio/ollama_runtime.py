@@ -116,7 +116,8 @@ class OllamaModelRuntime:
     def decompose(self, prompt: str, context: str = "", max_new_tokens: int = 1200) -> dict[str, Any]:
         if not prompt.strip():
             raise ValueError("prompt must not be empty")
-        system = build_analyst_system_prompt()\n        user = "Objective:\n" + prompt.strip()
+        system = build_analyst_system_prompt()
+        user = "Objective:\n" + prompt.strip()
         if context.strip():
             user += "\n\nAdditional context:\n" + context.strip()
         result = self._generate([{"role": "system", "content": system},
