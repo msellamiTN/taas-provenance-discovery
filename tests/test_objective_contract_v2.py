@@ -145,3 +145,15 @@ def test_v2_retrieval_outcome_can_be_covered_by_actual_supplied_data():
     )
     assert external["user_supplied_content"] is True
     assert external["source_data_required"] is True
+
+def test_v2_recognizes_supplied_content_with_descriptive_modifiers():
+    examples = [
+        "Identify anomalies in the supplied sensor data.",
+        "Classify the provided raw telemetry data.",
+        "Summarise the attached financial transaction records.",
+    ]
+    for objective in examples:
+        frame = derive_objective_contract(objective)
+        assert frame["user_supplied_content"] is True, (objective, frame)
+        assert frame["source_data_required"] is False, (objective, frame)
+
