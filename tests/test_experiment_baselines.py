@@ -179,3 +179,89 @@ def test_run_validation_accepts_baseline_for_experiment(monkeypatch):
     })
     assert response.status_code == 200
     assert response.json()["configuration"]["baseline"] == "bm25"
+
+
+def test_baseline_preview_runs_retrieval_without_evaluator_labels(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    headers = {"Authorization": "Bearer test-token"}
+    response = client.post("/api/v1/baselines/preview", headers=headers, json={
+        "experiment_id": "E8",
+        "baseline_ids": ["bm25", "rag_mcp"],
+        "goal_spec": {
+            "prompt": "Search customer reviews",
+            "prompt_inputs": ["query"],
+            "goals": [{
+                "id": "g1", "class": "search", "in": ["query"],
+                "out": "record:review", "eff": ["read(reviews)"],
+                "sigma": "data", "desc": "Search customer reviews",
+            }],
+        },
+        "tools": [
+            {
+                "server": "reviews", "name": "search_reviews",
+                "description": "Search customer reviews",
+                "input_schema": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]},
+                "output_schema": {"type": "object"},
+                "annotations": {"readOnlyHint": True},
+            },
+            {
+                "server": "reviews", "name": "list_reviews",
+                "description": "List review records",
+                "input_schema": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]},
+                "output_schema": {"type": "object"},
+                "annotations": {"readOnlyHint": True},
+            },
+            {
+                "server": "web", "name": "search_web",
+                "description": "Search web pages",
+                "input_schema": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]},
+                "output_schema": {"type": "object"},
+            },
+        ],
+        "top_k": 2,
+    })
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["baseline_count"] == 2
+    assert data["evaluator_labels_accessed"] is False
+    assert data["mcp_tools_executed"] is False
+    assert [x["result"]["baseline_id"] for x in data["results"]] == ["bm25", "rag_mcp"]
+    assert all(x["result"]["status"] == "completed" for x in data["results"])
+
+
+def test_baseline_preview_executes_e2_typing_controls(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    headers = {"Authorization": "Bearer test-token"}
+    response = client.post("/api/v1/baselines/preview", headers=headers, json={
+        "experiment_id": "E2",
+        "baseline_ids": ["typing_structural", "typing_schema_lexical"],
+        "goal_spec": {
+            "prompt": "Find reviews",
+            "goals": [{
+                "id": "g1", "class": "search", "in": ["query"],
+                "out": "record", "sigma": "data", "desc": "Find reviews",
+            }],
+        },
+        "tools": [{
+            "server": "reviews", "name": "search_reviews",
+            "description": "Search customer reviews",
+            "input_schema": {"type": "object", "properties": {"query": {"type": "string"}}},
+            "output_schema": {"type": "object"},
+        }],
+    })
+    assert response.status_code == 200, response.text
+    results = response.json()["results"]
+    assert results[0]["result"]["status"] == "completed"
+    assert results[0]["result"]["evaluator_labels_read"] is False
+    assert results[0]["result"]["predictions"][0]["inputs"]["query"] == "text"
+
+
+def test_baseline_preview_rejects_baseline_outside_experiment(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    headers = {"Authorization": "Bearer test-token"}
+    response = client.post("/api/v1/baselines/preview", headers=headers, json={
+        "experiment_id": "E8", "baseline_ids": ["autotool_adapted"],
+        "goal_spec": {"goals": [{"id": "g1", "class": "search", "out": "text", "desc": "Search"}]},
+        "tools": [{"server": "s", "name": "t", "description": "tool", "input_schema": {}}],
+    })
+    assert response.status_code == 422
