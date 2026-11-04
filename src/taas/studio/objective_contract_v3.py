@@ -49,9 +49,10 @@ _MODALITY_MARKERS = re.compile(
 
 
 def _source_evidence(objective: str, goal_class: str) -> list[dict[str, Any]]:
-    lower = objective.casefold()
+    # Search the original string: casefold() can change Unicode length (e.g. ß -> ss),
+    # which would invalidate offsets into the original user text.
     for pattern in _EVIDENCE_PATTERNS.get(goal_class, ()):
-        match = re.search(pattern, lower, flags=re.IGNORECASE)
+        match = re.search(pattern, objective, flags=re.IGNORECASE)
         if match:
             start, end = match.span()
             return [{
