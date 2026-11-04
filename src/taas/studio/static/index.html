@@ -304,7 +304,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     .hg-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.hg-actions button{margin:0;white-space:nowrap}.hg-actions .secondary{background:#fff}
     @media(max-width:850px){.hg-layout{grid-template-columns:1fr}.hg-inspector{border-left:0;border-top:1px solid var(--line)}}
 
-</style>
+\n/* Compact, readable navigation on tablet and mobile. */\n@media(max-width:900px){.studio-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:4px}.studio-nav .nav-brand{grid-column:1/-1;width:auto}.studio-nav a{min-width:0;overflow-wrap:anywhere;line-height:1.35}}\n@media(max-width:560px){.studio-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;padding:9px}.studio-nav a{min-height:36px;padding:7px 8px;font-size:11px}}\n</style>
 </head>
 <body>
 <header class="studio-header">
@@ -320,11 +320,11 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 </header>
 <main>
   <div class="notice" role="note"><strong>Execution safety boundary.</strong> Model and Agent workspaces can inspect models, run local inference when explicitly loaded, and draft GoalSpecs for review. Discovery and assurance inspect tool capability and evidence; they do not invoke MCP tools. Governed MCP execution, isolated workers, and durable run history are not enabled in this build.</div>
-  <a class="skip-link" href="#overview">Skip to Studio workspace</a>
+  <a class="skip-link" href="#overview-workspace">Skip to Studio workspace</a>
   <div class="studio-layout">
     <nav class="studio-nav" aria-label="Studio sections">
       <div class="nav-brand"><span class="nav-mark">T</span><span><strong>TaaS Studio</strong><small>Tool Intelligence Platform</small></span></div>
-      <a href="#overview" aria-current="page">Overview</a>
+      <a href="#overview-workspace" aria-current="page">Overview</a>
       <span class="nav-label">BUILD</span>
       <a href="#models">Model catalog</a>
       <a href="#model-runtime-panel">Model runtime</a>
@@ -370,7 +370,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     <div class="runtime-meta"><span class="pill" id="runtime-colab">Colab: unknown</span><span class="pill" id="runtime-model">Model: not loaded</span><span class="muted" id="runtime-updated">No successful snapshot yet.</span></div>
     <details style="margin-top:10px"><summary class="subtle" style="cursor:pointer">Runtime diagnostics detail</summary><pre id="runtime-overview-details" style="min-height:80px">No runtime status snapshot.</pre></details>
   </section>
-  <div class="hero" id="overview">
+  <div id="overview-workspace">\n  <div class="hero" id="overview">
     <div><div class="eyebrow">Toolkit-as-a-Service · Control plane</div><h2>Discovery workspace</h2><p>Move from benchmark intent to a reviewed GoalSpec, select candidate tools from the retained registry, and inspect a provenance-aware discovery decision—all in one guided workspace.</p></div>
     <span class="pill"><span class="pill-dot"></span> Discovery preview · execution disabled</span>
   </div>
@@ -385,7 +385,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <div class="pipeline-step pipeline-disabled" aria-disabled="true"><span class="pipeline-index">06</span><strong>Execution gateway</strong><small>Authorization primitives only · no invocation API</small></div>
     </div>
   </section>
-  <section id="workspace" class="section-anchor" style="margin-bottom:18px">
+  </div>\n  <section id="workspace" class="section-anchor" style="margin-bottom:18px">
     <div class="panel-head"><div><div class="eyebrow">01 · Explore</div><h2 style="margin:4px 0">Benchmark &amp; tool workspace</h2></div><span class="pill">Repository-retained data · no upstream fetch</span></div>
     <div class="workspace-grid">
       <section style="box-shadow:none;padding:14px">
