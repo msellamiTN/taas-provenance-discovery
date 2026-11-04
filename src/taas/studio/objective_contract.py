@@ -153,7 +153,7 @@ def derive_objective_contract(
         "week", "month", "year", "of", "is", "are", "was", "were", "to", "in",
         "on", "by", "per", "today", "yesterday", "issued", "created", "generated",
         "received", "supplied", "provided", "attached", "uploaded", "between", "ytd", "summarize", "summarise", "summary",
-        "payments", "payment", "invoices", "invoice",
+        "payments", "payment", "invoices", "invoice", "architecture", "design", "option", "alternative", "proposal", "example", "candidate",
         "amount", "financial", "aggregate", "aggregation", "compare", "comparison",
         "versus",
     }
