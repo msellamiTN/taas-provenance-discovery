@@ -1031,7 +1031,6 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
             }
 
         # Return the full deterministic objective frame as inspectable provenance.
-        from taas.studio.objective_contract import derive_objective_contract
         result["objective_contract"] = objective_contract
         result["objective_coverage"] = build_outcome_coverage(
             request.prompt,
