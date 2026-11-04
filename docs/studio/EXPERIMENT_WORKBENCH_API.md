@@ -80,3 +80,21 @@ Example request:
 ```
 
 Replace the empty `tools` array with the actual, frozen E8 registry subset. Never pass evaluator gold labels in this request.
+
+
+### PaMCP factorial preview (E18)
+
+For E18, the preview body may also contain `pamcp_variants`. The API accepts all eight registered cells:
+
+- `Full_PaMCP` (G=1,P=1,S=1)
+- `PaMCP_NoGap` (G=0,P=1,S=1)
+- `PaMCP_Declared` (G=1,P=0,S=1)
+- `PaMCP_NoCert` (G=1,P=1,S=0)
+- `G1_P0_S0`
+- `G0_P1_S0`
+- `G0_P0_S1`
+- `G0_P0_S0`
+
+The preview applies each factor independently: G toggles model-conditioned gap analysis; P toggles provenance-weighted eligibility versus flat metadata-only claims; S toggles set-level closure/optimization/checks/certificate versus independent per-goal retrieval and union. Combined cells are valid only for E18.
+
+A variant preview returns toolkit IDs, goal gaps, candidate IDs, certificate/check status (or the absence of a certificate for S=0), token estimates and discovery diagnostics. It does not measure benchmark recall, joint feasibility against evaluator labels, runtime task success or actual out-of-policy actions. Those are E18/E13/E14 evaluator outputs and require the separate evaluator/runtime components.
