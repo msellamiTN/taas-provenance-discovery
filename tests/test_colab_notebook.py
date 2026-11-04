@@ -10,7 +10,7 @@ NOTEBOOK = ROOT / "notebooks" / "colab" / "taas_core_studio_colab.ipynb"
 GUIDE = ROOT / "docs" / "deployment" / "COLAB_T4_QUICKSTART.md"
 RUNTIME_GUIDE = ROOT / "docs" / "deployment" / "MODEL_RUNTIME_BACKENDS.md"
 WORKFLOW = ROOT / ".github" / "workflows" / "benchmark-hypergraph.yml"
-INTEGRATED_STUDIO_COMMIT = "d7b53c3057bebc34d31476333047f9d9746f1b42"
+INTEGRATED_STUDIO_COMMIT = "e60e4e1268a0e77840b7d2fd9b23f183de0a7a5c"
 
 
 def notebook_source() -> tuple[dict, str, str]:
@@ -70,6 +70,16 @@ def test_colab_covers_objective_constraint_dependency_namespace() -> None:
     assert "Objective Contract constraint/dependency namespace separation OK" in code
     assert 'TAAS_COMMIT = "d7b53c3057bebc34d31476333047f9d9746f1b42"' in code
     assert "Retrieve records matching the provided query from the configured source." in code
+
+
+def test_colab_distinguishes_external_tool_requirements_from_model_gaps() -> None:
+    _, _, code = notebook_source()
+    assert 'core.get("status") == "tool_requirements_detected"' in code
+    assert 'core.get("tool_required_goal_ids") == ["g1"]' in code
+    assert 'core.get("model_capability_gap_goal_ids") == []' in code
+    assert 'core.get("gap_goal_ids") == ["g1"]' in code
+    assert 'core.get("goals", [{}])[0].get("rho") == 0.0' in code
+    assert 'calibrated_profile_matched") is False' in code
 
 
 def test_colab_objective_matrix_covers_local_and_external_workflows() -> None:
