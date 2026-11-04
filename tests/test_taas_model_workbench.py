@@ -58,4 +58,6 @@ def test_overview_exposes_taas_lifecycle_and_marks_execution_gateway_truthfully(
     ):
         assert marker in html
     assert 'document.querySelectorAll(".pipeline-step[href]")' in html
-    assert 'studioLinks.find(link=>link.getAttribute("href")===step.getAttribute("href"))' in html
+    assert 'const destination = studioLinks.find(link => link.getAttribute("href") === step.getAttribute("href"));' in html
+    assert "if (destination)" in html
+    assert "showStudioWorkspace(destination);" in html
