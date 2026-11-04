@@ -280,6 +280,62 @@ def derive_objective_contract(
     }
 
 
+
+def build_outcome_coverage(objective: str, spec: dict[str, Any] | None) -> dict[str, Any]:
+    """Map v2 required outcomes to proposed goals or explicitly supplied inputs.
+
+    Coverage is structural evidence only. It does not establish semantic
+    equivalence, source availability, tool capability, authorization or success.
+    """
+    contract = derive_objective_contract(objective)
+    candidate = spec if isinstance(spec, dict) else {}
+    goals = [goal for goal in candidate.get("goals", []) if isinstance(goal, dict)]
+    prompt_inputs = [str(value).casefold() for value in candidate.get("prompt_inputs", [])]
+    data_inputs = [
+        value for value in prompt_inputs
+        if value.split(":", 1)[0] in {"record", "table", "document"}
+        or (contract.get("user_supplied_content") and value == "text")
+    ]
+    coverage = []
+    for outcome in contract["outcomes"]:
+        required_class = outcome["goal_class"]
+        equivalents = {required_class}
+        if required_class == "aggregate":
+            equivalents.add("compute_exact")
+        matched = [
+            str(goal.get("id", ""))
+            for goal in goals
+            if str(goal.get("class", "")).casefold() in equivalents
+        ]
+        input_covered = (
+            required_class in {"retrieve", "search"}
+            and bool(data_inputs)
+        )
+        if matched:
+            status = "covered_by_goal"
+        elif input_covered:
+            status = "covered_by_supplied_input"
+        else:
+            status = "missing"
+        coverage.append({
+            **outcome,
+            "status": status,
+            "goal_ids": matched,
+            "input_types": data_inputs if input_covered else [],
+        })
+    counts = {
+        "required": len(coverage),
+        "covered": sum(item["status"] != "missing" for item in coverage),
+        "missing": sum(item["status"] == "missing" for item in coverage),
+    }
+    return {
+        "contract_version": contract["contract_version"],
+        "outcomes": coverage,
+        "summary": counts,
+        "semantic_correctness_verified": False,
+    }
+
+
 def build_objective_context(objective: str) -> str:
     contract = derive_objective_contract(objective)
     return (
