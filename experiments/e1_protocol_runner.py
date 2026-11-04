@@ -29,7 +29,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from taas.data.registries import (
-    RawTool, build_all, load_livemcptool, load_mcptoolbenchpp, merge_registries
+    RawTool, load_livemcptool, load_mcptoolbenchpp, load_livemcpbench_tasks, merge_registries, registry_stats
 )
 
 EXPECTED = {
@@ -262,7 +262,7 @@ def run_e1(root: str | Path, output_root: str | Path,
     if "2bd35e58ed5ebe79bbb12df0f9919a34ed2cb037" not in sources:
         raise ValueError("MCPToolBench++ source commit is not pinned to the specified revision")
 
-    live = load_livemcpptool(raw)
+    live = load_livemcptool(raw)
     pp, _pp_tasks = load_mcptoolbenchpp(raw)
     merged = merge_registries(live, pp)
     views = {"LiveMCPTool": live, "MCPToolBench++": pp, "merged": merged}
