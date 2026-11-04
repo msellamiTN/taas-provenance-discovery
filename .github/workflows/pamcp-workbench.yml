@@ -48,6 +48,7 @@ jobs:
             tests/test_experiment_baselines.py \
             tests/test_colab_e1.py \
             tests/test_e2_annotation_prep.py \
-            tests/test_e1_protocol_runner.py
+            tests/test_e1_protocol_runner.py \
+            tests/test_e1_reference_reconciliation.py
       - name: Run existing Studio API tests
         run: python -m pytest -q tests/test_studio_api.py
