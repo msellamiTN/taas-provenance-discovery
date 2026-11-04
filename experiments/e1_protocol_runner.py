@@ -244,7 +244,8 @@ def render_report(rows: list[dict[str, Any]], summary: dict[str, Any]) -> str:
 
 
 def run_e1(root: str | Path, output_root: str | Path,
-           reference_labels_path: str | Path | None = None, run_id: str | None = None) -> Path:
+           reference_labels_path: str | Path | None = None, run_id: str | None = None,
+           committed_registry_path: str | Path | None = None) -> Path:
     root, output_root = Path(root).resolve(), Path(output_root).resolve()
     initial_dirty_worktree = bool(git_value(root, "status", "--porcelain"))
     raw = root / "data" / "raw"
@@ -272,6 +273,11 @@ def run_e1(root: str | Path, output_root: str | Path,
 
     labels_path = Path(reference_labels_path).resolve() if reference_labels_path else None
     labels = load_reference_labels(labels_path)
+    committed_path = Path(committed_registry_path).resolve() if committed_registry_path else None
+    if committed_path is None:
+        default_committed = root / "data" / "processed" / "registry_merged.json"
+        committed_path = default_committed if default_committed.is_file() else None
+    committed_data = json.loads(committed_path.read_text(encoding="utf-8")) if committed_path else None
     unique_source_definitions = {tool_key(t) for t in live + pp}
     if labels is not None:
         missing, extra = unique_source_definitions - set(labels), set(labels) - unique_source_definitions
@@ -313,6 +319,8 @@ def run_e1(root: str | Path, output_root: str | Path,
     shutil.copy2(root / "data" / "processed" / "registry_merged.json", proc / "registry_merged.json")
     if labels_path:
         shutil.copy2(labels_path, input_dir / "independent_reference_labels.json")
+    if committed_path:
+        shutil.copy2(committed_path, input_dir / "registry_merged_committed.json")
 
     views_summary, categories, servers = [], [], []
     for name, tools in views.items():
@@ -324,14 +332,22 @@ def run_e1(root: str | Path, output_root: str | Path,
     if len(category_names) != 14:
         raise ValueError(f"Expected 14 source categories, observed {len(category_names)}: {category_names}")
 
-    published = {r["id"]: r for r in registry_payload["registry"]}
+    published = {r["id"]: r for r in (committed_data or {}).get("registry", [])}
     hash_mismatches = []
-    for tool in merged:
-        if published[tool.id].get("hash") != tool.definition_hash():
-            hash_mismatches.append({
-                "tool_id": tool.id, "published_hash": published[tool.id].get("hash"),
-                "recomputed_hash": tool.definition_hash(),
-            })
+    missing_committed_ids = []
+    if committed_data is not None:
+        for tool in merged:
+            prior = published.get(tool.id)
+            if prior is None:
+                missing_committed_ids.append(tool.id)
+            elif prior.get("hash") != tool.definition_hash():
+                hash_mismatches.append({
+                    "tool_id": tool.id, "published_hash": prior.get("hash"),
+                    "recomputed_hash": tool.definition_hash(),
+                })
+        extra_committed_ids = sorted(set(published) - {tool.id for tool in merged})
+    else:
+        extra_committed_ids = []
 
     input_hash_rows = []
     for p in sorted(x for x in raw.rglob("*") if x.is_file()):
@@ -343,6 +359,12 @@ def run_e1(root: str | Path, output_root: str | Path,
         "bytes": (root / "data/processed/registry_merged.json").stat().st_size,
         "sha256": sha256_file(root / "data/processed/registry_merged.json"),
     })
+    if committed_path is not None:
+        input_hash_rows.append({
+            "path": "committed_registry_snapshot",
+            "bytes": committed_path.stat().st_size,
+            "sha256": sha256_file(committed_path),
+        })
     dataset_hash = hash_json(input_hash_rows)
 
     registry_rows = []
@@ -387,6 +409,9 @@ def run_e1(root: str | Path, output_root: str | Path,
         "definition_hash_validation": {
             "implementation": "RawTool.definition_hash()",
             "validated_merged_tool_count": len(merged), "mismatch_count": len(hash_mismatches),
+            "committed_snapshot_available": committed_data is not None,
+            "committed_missing_ids": missing_committed_ids,
+            "committed_extra_ids": extra_committed_ids,
             "mismatches": hash_mismatches,
         },
         "reference_labels": {
@@ -433,7 +458,8 @@ def run_e1(root: str | Path, output_root: str | Path,
     (run_dir / "ARTIFACTS_SHA256.json").write_text(json.dumps(checksums, indent=2) + "\n", encoding="utf-8")
     artifact_paths.append("ARTIFACTS_SHA256.json")
 
-    status = "completed" if labels is not None and not hash_mismatches else "failed"
+    snapshot_matches = committed_data is None or (not hash_mismatches and not missing_committed_ids and not extra_committed_ids)
+    status = "completed" if labels is not None and not hash_mismatches and snapshot_matches else "failed"
     notes = "Full independent reference labels supplied." if labels is not None else (
         "Partial descriptive census only. Reference non-read-only share is blocked because "
         "the repository has no independent human reference label set. Silver LLM labels were excluded."
@@ -472,6 +498,7 @@ def run_e1(root: str | Path, output_root: str | Path,
             "registry_summary": registry_rows,
             "reference_metric_status": summary["reference_labels"]["status"],
             "definition_hash_mismatch_count": len(hash_mismatches),
+            "committed_snapshot_matches_rebuilt": snapshot_matches,
         },
         "statistical_analysis": {
             "design": "descriptive census", "confidence_intervals": "not applicable to registry census",
@@ -497,12 +524,14 @@ def main() -> None:
     p.add_argument("--output", default="results/definitive/E1")
     p.add_argument("--reference-labels")
     p.add_argument("--run-id")
+    p.add_argument("--committed-merged")
     a = p.parse_args()
-    d = run_e1(a.root, a.output, a.reference_labels, a.run_id)
+    d = run_e1(a.root, a.output, a.reference_labels, a.run_id, a.committed_merged)
     m = json.loads((d / "MANIFEST.json").read_text(encoding="utf-8"))
     print(json.dumps({
         "experiment_id": "E1", "run_id": m["run_id"], "status": m["status"],
         "reference_metric_status": m["metrics"]["reference_metric_status"],
+        "committed_snapshot_matches_rebuilt": m["metrics"]["committed_snapshot_matches_rebuilt"],
         "archive": str(d / "E1_run.zip"),
     }, indent=2))
 
