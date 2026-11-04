@@ -3,6 +3,7 @@ from fastapi import HTTPException
 
 from taas.studio.api import (
     canonicalize_declared_plural_types,
+    canonicalize_single_goal_input_dependencies,
     prepare_agent_candidate,
     validate_studio_goal_spec,
 )
@@ -133,3 +134,82 @@ def test_analyst_prompt_and_refinement_define_dependency_namespace():
         assert "goal IDs" in text
         assert "input names" in text
         assert "single-goal" in text
+
+
+
+def test_single_goal_input_name_dependency_is_removed_with_provenance():
+    objective = "Retrieve records matching the provided query from the configured source."
+    raw = (
+        '{"prompt_inputs":["query"],"goals":[{"id":"retrieve_records",'
+        '"in":["query"],"out":"records[]","deps":["query"]}]}'
+    )
+    candidate = {
+        "text": raw,
+        "goal_spec": {
+            "prompt": objective,
+            "prompt_inputs": ["query"],
+            "goals": [{
+                "id": "retrieve_records",
+                "desc": objective,
+                "class": "retrieve",
+                "in": ["query"],
+                "out": "records[]",
+                "eff": ["read(source)"],
+                "sigma": "data",
+                "n": 100,
+                "exactness": "tolerant",
+                "deps": ["query"],
+                "lang": "en",
+                "optional": False,
+            }],
+        },
+    }
+
+    prepared = prepare_agent_candidate(candidate, objective)
+
+    assert prepared["goal_spec"]["goals"][0]["deps"] == []
+    assert prepared["goal_spec"]["goals"][0]["out"] == "record[]"
+    assert prepared["normalization_events"] == [
+        {
+            "path": "goals[0].out",
+            "from": "records[]",
+            "to": "record[]",
+            "rule": "trailing_plural_s_to_declared_theta_type",
+        },
+        {
+            "path": "goals[0].deps",
+            "from": ["query"],
+            "to": [],
+            "removed": ["query"],
+            "rule": "single_goal_input_name_not_dependency",
+            "reason": (
+                "A dependency must reference another goal ID; this one-goal candidate "
+                "declared the removed value as an input name, not as a goal."
+            ),
+        },
+    ]
+    assert prepared["text"] == raw
+    validate_studio_goal_spec(prepared["goal_spec"])
+
+
+def test_multi_goal_dependency_graph_is_never_canonicalized_by_input_name_rule():
+    spec = {
+        "prompt_inputs": ["query"],
+        "goals": [
+            {"id": "g1", "in": ["query"], "deps": []},
+            {"id": "g2", "in": ["query"], "deps": ["query"]},
+        ],
+    }
+    normalized, events = canonicalize_single_goal_input_dependencies(spec)
+    assert normalized == spec
+    assert events == []
+
+
+def test_unknown_single_goal_dependency_is_not_removed():
+    spec = {
+        "prompt_inputs": ["query"],
+        "goals": [{"id": "g1", "in": ["query"], "deps": ["missing_goal"]}],
+    }
+    normalized, events = canonicalize_single_goal_input_dependencies(spec)
+    assert normalized["goals"][0]["deps"] == ["missing_goal"]
+    assert events == []
