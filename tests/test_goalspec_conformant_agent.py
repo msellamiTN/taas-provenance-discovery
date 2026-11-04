@@ -185,3 +185,62 @@ def test_valid_aggregate_still_surfaces_missing_currency_policy():
     }]}
     diagnostics = diagnose_goal_spec("Calculate the total value of all payments", candidate)
     assert any(item["code"] == "currency_policy_unspecified" for item in diagnostics)
+
+
+def test_objective_contract_derives_operation_scope_and_unmapped_domain():
+    from taas.studio.objective_contract import derive_objective_contract
+
+    frame = derive_objective_contract("Calculate the total value of all transactions")
+    assert frame["operation"] == "aggregate"
+    assert frame["required_goal_classes"] == ["aggregate"]
+    assert frame["numeric_result_required"] is True
+    assert frame["exactness_required"] == "exact"
+    assert frame["scope"]["all_matching_items"] is True
+    assert "transaction" in frame["unresolved_business_concepts"]
+    assert "currency_policy" in frame["ambiguities"]
+
+
+def test_objective_alignment_rejects_summary_without_data_and_aggregation():
+    from taas.studio.objective_contract import diagnose_objective_alignment
+
+    diagnostics = diagnose_objective_alignment(
+        "Calculate the total value of all transactions",
+        {"prompt_inputs": ["text"], "goals": [{
+            "id": "g1", "class": "summarise", "desc": "Summarise transactions",
+            "in": ["text"], "out": "text", "deps": [],
+        }]},
+    )
+    codes = {item["code"] for item in diagnostics}
+    assert "objective_operation_missing" in codes
+    assert "objective_data_source_missing" in codes
+
+
+def test_objective_alignment_requires_complete_scope_and_connected_aggregation():
+    from taas.studio.objective_contract import diagnose_objective_alignment
+
+    spec = {
+        "prompt_inputs": ["text"],
+        "goals": [{
+            "id": "g1", "class": "retrieve", "desc": "Retrieve recent transactions",
+            "in": ["query"], "out": "record[]", "deps": [],
+        }, {
+            "id": "g2", "class": "aggregate", "desc": "Sum amount",
+            "in": ["record[]"], "out": "number", "exactness": "exact", "deps": [],
+        }],
+    }
+    codes = {item["code"] for item in diagnose_objective_alignment(
+        "Calculate the total value of all transactions", spec
+    )}
+    assert "objective_dataflow_disconnected" in codes
+    assert "objective_scope_not_preserved" in codes
+
+
+def test_objective_alignment_accepts_connected_all_scope_plan_with_warnings_only():
+    from taas.studio.objective_contract import diagnose_objective_alignment
+
+    spec = _conformant_candidate()
+    diagnostics = diagnose_objective_alignment(
+        "Calculate the total value of all transactions", spec
+    )
+    assert not [item for item in diagnostics if item["severity"] == "error"]
+    assert any(item["code"] == "objective_concept_not_mapped_to_theta" for item in diagnostics)
