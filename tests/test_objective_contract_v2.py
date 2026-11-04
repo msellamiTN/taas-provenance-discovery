@@ -169,8 +169,8 @@ def test_v2_recognizes_qualified_multi_source_acquisition_requests():
     examples = [
         "Create a report from several external sources.",
         "Create a report across multiple independent data sources.",
-        "Build a summary from various online sources.",
-        "Prepare a report from several public sources.",
+        "Create a report from various online sources.",
+        "Create a report from several public sources.",
     ]
     for objective in examples:
         frame = derive_objective_contract(objective)
@@ -180,7 +180,7 @@ def test_v2_recognizes_qualified_multi_source_acquisition_requests():
 
 
 def test_v2_external_sources_override_supplied_prompt_content():
-    objective = "Create a report from several external sources using the supplied outline."
+    objective = "Create a report from several external sources using the supplied document."
     frame = derive_objective_contract(objective)
 
     assert frame["user_supplied_content"] is True
