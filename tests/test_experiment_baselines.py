@@ -278,3 +278,112 @@ def test_existing_taas_studio_mounts_baseline_routes(monkeypatch):
     mapped = core_client.get("/api/v1/experiments/catalog/E14/baselines", headers=headers)
     assert mapped.status_code == 200
     assert "progent_runtime" in {x["id"] for x in mapped.json()["baselines"]}
+
+
+def test_policy_controls_distinguish_default_mcp_hints_from_closed_world_filter():
+    from taas.experiments.policy_baselines import run_policy_baseline
+
+    _, _, _, positive_hint_tool = _fixture()
+    no_hint_tool = RawTool(
+        server="other", name="unknown_action", description="Perform an operation",
+        input_schema={"type": "object", "properties": {}}, annotations=None,
+    )
+    false_hint_tool = RawTool(
+        server="other", name="write_file", description="Write a file",
+        input_schema={"type": "object", "properties": {}},
+        annotations={"readOnlyHint": False},
+    )
+    tools = [positive_hint_tool, no_hint_tool, false_hint_tool]
+    default = run_policy_baseline("mcp_default_annotations", tools)
+    closed = run_policy_baseline("closed_world_annotations", tools)
+    assert default["selected_tool_ids"] == [x.id for x in tools]
+    assert len(closed["selected_tool_ids"]) == 1
+    assert closed["selected_tool_ids"] == [positive_hint_tool.id]
+    assert default["annotations_treated_as_verified_evidence"] is False
+    assert default["annotation_counts"] == {"true": 1, "false": 1, "missing": 1, "invalid": 0}
+
+
+def test_positive_and_closed_world_lexical_controls_report_distinct_reasoning():
+    from taas.experiments.policy_baselines import run_policy_baseline
+
+    read_tool = RawTool(
+        server="files", name="list_files", description="List files in a folder",
+        input_schema={"type": "object", "properties": {}},
+    )
+    unknown_tool = RawTool(
+        server="misc", name="operate", description="Perform an operation",
+        input_schema={"type": "object", "properties": {}},
+    )
+    write_tool = RawTool(
+        server="files", name="delete_file", description="Delete a file",
+        input_schema={"type": "object", "properties": {}},
+    )
+    tools = [read_tool, unknown_tool, write_tool]
+    positive = run_policy_baseline("lexical_positive", tools)
+    closed = run_policy_baseline("lexical_closed_world", tools)
+    assert positive["selected_tool_ids"] == [read_tool.id]
+    assert set(closed["selected_tool_ids"]) == {read_tool.id, unknown_tool.id}
+    assert write_tool.id in closed["rejected_tool_ids"]
+
+
+def test_verified_evidence_policy_control_is_blocked_without_real_evidence():
+    from taas.experiments.policy_baselines import run_policy_baseline
+
+    _, _, _, raw = _fixture()
+    result = run_policy_baseline("verified_evidence", [raw])
+    assert result["status"] == "blocked_missing_independent_evidence_store"
+    assert result["selected_tool_ids"] == []
+    assert result["evaluator_labels_read"] is False
+
+
+def test_studio_preview_supports_policy_baselines_and_blocks_missing_evidence(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    headers = {"Authorization": "Bearer test-token"}
+    response = client.post("/api/v1/baselines/preview", headers=headers, json={
+        "experiment_id": "E4",
+        "baseline_ids": [
+            "mcp_default_annotations", "closed_world_annotations",
+            "lexical_positive", "lexical_closed_world", "verified_evidence",
+        ],
+        "goal_spec": {
+            "prompt": "List files",
+            "prompt_inputs": ["text"],
+            "goals": [{
+                "id": "g1", "class": "retrieve", "in": ["text"],
+                "out": "record:file", "eff": ["read(*)"],
+                "sigma": "data", "desc": "List files",
+            }],
+        },
+        "tools": [
+            {
+                "server": "files", "name": "list_files",
+                "description": "List files in a folder",
+                "input_schema": {"type": "object", "properties": {}},
+                "annotations": {"readOnlyHint": True},
+            },
+            {
+                "server": "files", "name": "delete_file",
+                "description": "Delete a file",
+                "input_schema": {"type": "object", "properties": {}},
+                "annotations": {"readOnlyHint": False},
+            },
+        ],
+    })
+    assert response.status_code == 200, response.text
+    results = {x["baseline"]["id"]: x["result"] for x in response.json()["results"]}
+    assert len(results["mcp_default_annotations"]["selected_tool_ids"]) == 2
+    assert results["closed_world_annotations"]["selected_tool_ids"] == ["files::list_files"]
+    assert results["verified_evidence"]["status"] == "blocked_missing_independent_evidence_store"
+
+
+def test_studio_page_exposes_experiment_and_baseline_workbench():
+    from taas.studio.api import app as core_app
+    page = TestClient(core_app).get("/")
+    assert page.status_code == 200
+    for marker in [
+        'id="experiments"', 'id="experiment-catalog-load"',
+        'id="experiment-baselines-load"', 'id="baseline-preview-run"',
+        'id="experiment-baseline-cards"', 'id="baseline-preview-results"',
+        '/api/v1/baselines/preview',
+    ]:
+        assert marker in page.text
