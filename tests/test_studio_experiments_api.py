@@ -29,6 +29,7 @@ def test_variant_api_exposes_three_leave_one_out_variants_and_factorial():
     assert response.status_code == 200
     data = response.json()
     assert len(data["factorial_design"]["cells"]) == 8
+    assert len(data["factorial_variants"]) == 8
     assert data["variants"]["PaMCP_NoGap"]["G"] == 0
     assert data["variants"]["PaMCP_Declared"]["P"] == 0
     assert data["variants"]["PaMCP_NoCert"]["S"] == 0
@@ -77,3 +78,19 @@ def test_existing_studio_mounts_experiment_catalog(monkeypatch):
     assert response.status_code == 200
     assert response.json()["total"] == 22
     assert response.json()["planned_not_run"] == 22
+
+
+def test_combined_factorial_cell_is_valid_only_for_e18(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    headers = {"Authorization": "Bearer test-token"}
+    body = {
+        "experiment_id": "E18", "variant": "G1_P0_S0",
+        "dataset_snapshot": {"name": "LiveMCPBench", "version_or_hash": "sha256:abc"},
+        "split": "pilot", "parameters": {}, "seeds": [1],
+    }
+    good = client.post("/api/v1/experiments/validate", headers=headers, json=body)
+    assert good.status_code == 200, good.text
+    assert good.json()["variant_factors"] == {"G": 1, "P": 0, "S": 0}
+    body["experiment_id"] = "E9"
+    bad = client.post("/api/v1/experiments/validate", headers=headers, json=body)
+    assert bad.status_code == 422
