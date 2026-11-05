@@ -981,7 +981,9 @@ def run_campaign(
         for track in all_tracks
     }
     run_context = {
-        "runner_commit": _git_value(root, "rev-parse", "HEAD"),
+        # Fingerprint the experiment runner itself, not the repository HEAD:
+        # notebook/docs-only commits must not invalidate resumable GPU batches.
+        "runner_code_sha256": _sha256_file(root / "experiments" / "e8_retrieval_campaign.py"),
         "models": models,
         "track_fingerprints": track_fingerprints,
         "top_k": top_k,
