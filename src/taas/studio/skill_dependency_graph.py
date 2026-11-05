@@ -144,6 +144,7 @@ def resolve_skill_dependency_graph(
             "manifest_sha256": actual_digest,
             "lifecycle_state": resource["lifecycle_state"],
             "name": metadata.get("name", node_id),
+            "description": metadata.get("description", ""),
             "instructions": spec.get("instructions", ""),
             "trigger_phrases": list(spec.get("trigger_phrases", [])),
             "source": "skill_registry",
