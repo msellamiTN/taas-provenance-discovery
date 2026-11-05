@@ -40,3 +40,34 @@ def test_mcp_atlas_adapter_rejects_conflicting_same_tool_definitions(tmp_path):
         assert "Conflicting tool definitions" in str(exc)
     else:
         raise AssertionError("Expected conflicting tool definitions to fail")
+
+
+
+def test_mcp_atlas_adapter_supports_name_only_enabled_tools(tmp_path):
+    rows = [{
+        "TASK": "task-0002",
+        "PROMPT": "Fetch a web page",
+        "ENABLED_TOOLS": '["fetch_fetch", "search_web"]',
+        "GTFA_CLAIMS": "[]",
+        "TRAJECTORY": "[]",
+    }]
+    manifest = adapt_mcp_atlas_records(rows, tmp_path)
+    tools = json.loads((tmp_path / "discovery" / "tools.json").read_text())
+    visibility = json.loads((tmp_path / "discovery" / "task_tool_visibility.json").read_text())
+    assert {x["name"] for x in tools} == {"fetch_fetch", "search_web"}
+    assert all(x["identity_resolution"] == "unresolved_server" for x in tools)
+    assert len(visibility[0]["enabled_tool_ids"]) == 2
+    assert manifest["counts"]["unique_tools"] == 2
+
+
+def test_mcp_atlas_adapter_supports_comma_separated_tool_names(tmp_path):
+    rows = [{
+        "TASK": "task-0003",
+        "PROMPT": "Search the web",
+        "ENABLED_TOOLS": "search_web, fetch_fetch",
+        "GTFA_CLAIMS": "",
+        "TRAJECTORY": "",
+    }]
+    adapt_mcp_atlas_records(rows, tmp_path)
+    tools = json.loads((tmp_path / "discovery" / "tools.json").read_text())
+    assert {x["name"] for x in tools} == {"search_web", "fetch_fetch"}
