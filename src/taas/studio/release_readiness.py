@@ -68,7 +68,7 @@ def evaluate_release_readiness(
     )
 
     lifecycle = agent.get("lifecycle_state")
-    lifecycle_valid = lifecycle == "validated"
+    lifecycle_valid = lifecycle in {"validated", "published"}
     _check(
         checks, blockers, "agent_version_validated", lifecycle_valid,
         "agent_version_not_in_validated_state",
