@@ -219,6 +219,8 @@ def test_studio_frontend_renders_v3_clarifications_and_blocks_apply():
     assert "renderObjectiveContractV3" in page
     assert "blocking_clarification_count" in page
     assert "&&!v3Blockers" in page
+    assert "v3StructurallyValid=result.objective_intelligence_v3?.structurally_valid===true" in page
+    assert "&&!v3Blockers&&v3StructurallyValid" in page
 
 def test_default_profile_is_uncalibrated_and_fail_closed(monkeypatch):
     from taas.studio.api import load_profile
