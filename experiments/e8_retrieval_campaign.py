@@ -642,6 +642,67 @@ def _write_rankings(
         path.write_text(json.dumps(values, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
+def _json_fingerprint(value: Any) -> str:
+    encoded = json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":"), default=str)
+    return _sha256_text(encoded)
+
+
+def _atomic_json(path: Path, value: Any) -> None:
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    os.replace(temporary, path)
+
+
+def _ranking_cache_key(
+    track: DatasetTrack, baseline: str, models: Mapping[str, Any], top_k: int, seed: int
+) -> str:
+    return _json_fingerprint({
+        "track_id": track.dataset_id,
+        "source": track.source_manifest,
+        "tools": [(item.tool_id, item.text, item.category, item.server_id) for item in track.tools],
+        "tasks": [(item.task_id, item.query, item.category) for item in track.tasks],
+        "baseline": baseline,
+        "models": dict(models),
+        "top_k": top_k,
+        "seed": seed,
+        "rrf_k0": RRF_K0,
+        "cross_encoder_candidate_k": CROSS_ENCODER_CANDIDATE_K,
+    })
+
+
+def _load_ranking_cache(
+    path: Path, meta_path: Path, cache_key: str,
+    task_ids: set[str], tool_ids: set[str], max_length: int,
+) -> dict[str, list[str]] | None:
+    if not path.is_file() or not meta_path.is_file():
+        return None
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    if meta.get("cache_key") != cache_key:
+        return None
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(data, dict) or set(data) != task_ids:
+        raise ValueError(f"Ranking cache task coverage mismatch: {path}")
+    for task_id, ranked in data.items():
+        if not isinstance(ranked, list) or len(ranked) > max_length:
+            raise ValueError(f"Invalid ranking cache entry for {task_id}: {path}")
+        if len(ranked) != len(set(ranked)) or any(tool_id not in tool_ids for tool_id in ranked):
+            raise ValueError(f"Ranking cache contains duplicate/unknown candidate IDs: {path}")
+    return {key: list(value) for key, value in data.items()}
+
+
+def _save_ranking_cache(
+    path: Path, meta_path: Path, rankings: Mapping[str, Sequence[str]],
+    cache_key: str, baseline: str,
+) -> None:
+    _atomic_json(path, {key: list(value) for key, value in rankings.items()})
+    _atomic_json(meta_path, {
+        "cache_key": cache_key,
+        "baseline": baseline,
+        "task_count": len(rankings),
+        "created_at_utc": datetime.now(timezone.utc).isoformat(),
+    })
+
+
 def _write_per_task_csv(
     track: DatasetTrack, rankings: Mapping[str, Mapping[str, Sequence[str]]], output_dir: Path
 ) -> None:
@@ -687,10 +748,13 @@ def run_campaign(
 ) -> Path:
     root = Path(root).resolve()
     output_root = Path(output_root).resolve()
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+    requested_run_id = run_id is not None
     run_id = run_id or f"E8-{stamp}-{_sha256_text(str(seed) + stamp)[:8]}"
     run_dir = output_root / run_id
-    run_dir.mkdir(parents=True, exist_ok=False)
+    if (run_dir / "MANIFEST.json").is_file():
+        raise FileExistsError(f"Run {run_id} is immutable and already finalized")
+    run_dir.mkdir(parents=True, exist_ok=requested_run_id)
 
     toolret = load_toolret_track(toolret_dir)
     mcp = load_mcptoolbenchpp_track(raw_root)
@@ -706,28 +770,142 @@ def run_campaign(
     )
 
     track_runs: dict[str, Any] = {}
-    failures: dict[str, Any] = {}
     all_tracks = [toolret, mcp]
+    track_fingerprints = {
+        track.dataset_id: _json_fingerprint({
+            "source": track.source_manifest,
+            "tools": [(x.tool_id, x.text, x.category, x.server_id) for x in track.tools],
+            "tasks": [(x.task_id, x.query, x.category) for x in track.tasks],
+        })
+        for track in all_tracks
+    }
+    run_context = {
+        "models": models,
+        "track_fingerprints": track_fingerprints,
+        "top_k": top_k,
+        "seed": seed,
+    }
+    run_context_key = _json_fingerprint(run_context)
+    state_path = run_dir / "RUN_STATE.json"
+    if state_path.exists():
+        existing_state = json.loads(state_path.read_text(encoding="utf-8"))
+        if existing_state.get("run_context_key") != run_context_key:
+            raise ValueError(
+                "Cannot resume this run ID: source snapshots, model revisions, top_k or seed changed. "
+                "Use a new --run-id for a new experimental configuration."
+            )
+    else:
+        _atomic_json(state_path, {
+            "run_id": run_id,
+            "run_context_key": run_context_key,
+            "run_context": run_context,
+            "created_at_utc": datetime.now(timezone.utc).isoformat(),
+        })
+
+    encoder, reranker = _load_sentence_models(
+        e5_model, e5_revision, cross_model, cross_revision, device
+    )
+
     for track in all_tracks:
         start = time.perf_counter()
         docs, tasks = track.tools, track.tasks
-        # The discovery stage is intentionally given no qrels/reference object.
+        task_ids = {task.task_id for task in tasks}
+        tool_ids = {tool.tool_id for tool in docs}
         rankings: dict[str, dict[str, list[str]]] = {}
         candidate_sets: dict[str, dict[str, list[str]]] = {}
-        rankings["random"] = _random_rankings(docs, tasks, top_k, seed)
-        rankings["bm25"], candidate_sets["bm25"] = _bm25_rankings(docs, tasks, top_k)
-        rankings["tfidf"] = _tfidf_rankings(docs, tasks, top_k)
-        dense, hybrid, _dense_candidates = _dense_and_hybrid_rankings(
-            docs, tasks, top_k, encoder, candidate_sets["bm25"]
-        )
-        rankings["e5_dense"] = dense
-        rankings["bm25_e5_rrf"] = hybrid
-        cross, _ = _cross_encoder_rankings(
-            docs, tasks, candidate_sets["bm25"], reranker, top_k
-        )
-        rankings["cross_encoder"] = cross
+        cache_hits = []
+        cache_key = lambda baseline: _ranking_cache_key(track, baseline, models, top_k, seed)
 
-        # Freeze rankings before evaluator references are passed to metric functions.
+        # Random ranking cache.
+        random_path = run_dir / f"{track.dataset_id}_random_rankings.json"
+        random_meta = run_dir / f"{track.dataset_id}_random_cache.json"
+        cached = _load_ranking_cache(random_path, random_meta, cache_key("random"),
+                                     task_ids, tool_ids, top_k)
+        if cached is None:
+            cached = _random_rankings(docs, tasks, top_k, seed)
+            _save_ranking_cache(random_path, random_meta, cached, cache_key("random"), "random")
+        else:
+            cache_hits.append("random")
+        rankings["random"] = cached
+
+        # BM25 top-k and top-100 candidate set share one cached computation.
+        bm25_key = cache_key("bm25")
+        bm25_path = run_dir / f"{track.dataset_id}_bm25_rankings.json"
+        bm25_meta = run_dir / f"{track.dataset_id}_bm25_cache.json"
+        candidate_path = run_dir / f"{track.dataset_id}_bm25_candidates.json"
+        candidate_meta = run_dir / f"{track.dataset_id}_bm25_candidates_cache.json"
+        bm25_cached = _load_ranking_cache(
+            bm25_path, bm25_meta, bm25_key, task_ids, tool_ids, top_k
+        )
+        candidate_cached = _load_ranking_cache(
+            candidate_path, candidate_meta, _ranking_cache_key(
+                track, "bm25_candidates", models, top_k, seed
+            ), task_ids, tool_ids, CROSS_ENCODER_CANDIDATE_K
+        )
+        if bm25_cached is None or candidate_cached is None:
+            bm25_cached, candidate_cached = _bm25_rankings(docs, tasks, top_k)
+            _save_ranking_cache(bm25_path, bm25_meta, bm25_cached, bm25_key, "bm25")
+            _save_ranking_cache(
+                candidate_path, candidate_meta, candidate_cached,
+                _ranking_cache_key(track, "bm25_candidates", models, top_k, seed),
+                "bm25_candidates",
+            )
+        else:
+            cache_hits.append("bm25")
+        rankings["bm25"] = bm25_cached
+        candidate_sets["bm25"] = candidate_cached
+
+        # TF-IDF cache.
+        tfidf_path = run_dir / f"{track.dataset_id}_tfidf_rankings.json"
+        tfidf_meta = run_dir / f"{track.dataset_id}_tfidf_cache.json"
+        cached = _load_ranking_cache(tfidf_path, tfidf_meta, cache_key("tfidf"),
+                                     task_ids, tool_ids, top_k)
+        if cached is None:
+            cached = _tfidf_rankings(docs, tasks, top_k)
+            _save_ranking_cache(tfidf_path, tfidf_meta, cached, cache_key("tfidf"), "tfidf")
+        else:
+            cache_hits.append("tfidf")
+        rankings["tfidf"] = cached
+
+        # E5 and truncated-union RRF are computed together and cached separately.
+        dense_path = run_dir / f"{track.dataset_id}_e5_dense_rankings.json"
+        dense_meta = run_dir / f"{track.dataset_id}_e5_dense_cache.json"
+        hybrid_path = run_dir / f"{track.dataset_id}_bm25_e5_rrf_rankings.json"
+        hybrid_meta = run_dir / f"{track.dataset_id}_bm25_e5_rrf_cache.json"
+        dense_cached = _load_ranking_cache(dense_path, dense_meta, cache_key("e5_dense"),
+                                           task_ids, tool_ids, top_k)
+        hybrid_cached = _load_ranking_cache(hybrid_path, hybrid_meta, cache_key("bm25_e5_rrf"),
+                                            task_ids, tool_ids, top_k)
+        if dense_cached is None or hybrid_cached is None:
+            dense_cached, hybrid_cached, _ = _dense_and_hybrid_rankings(
+                docs, tasks, top_k, encoder, candidate_sets["bm25"]
+            )
+            _save_ranking_cache(dense_path, dense_meta, dense_cached, cache_key("e5_dense"), "e5_dense")
+            _save_ranking_cache(
+                hybrid_path, hybrid_meta, hybrid_cached, cache_key("bm25_e5_rrf"), "bm25_e5_rrf"
+            )
+        else:
+            cache_hits.extend(["e5_dense", "bm25_e5_rrf"])
+        rankings["e5_dense"] = dense_cached
+        rankings["bm25_e5_rrf"] = hybrid_cached
+
+        # Cross-encoder is evaluated on the fixed BM25 top-100 candidate pool.
+        cross_path = run_dir / f"{track.dataset_id}_cross_encoder_rankings.json"
+        cross_meta = run_dir / f"{track.dataset_id}_cross_encoder_cache.json"
+        cached = _load_ranking_cache(cross_path, cross_meta, cache_key("cross_encoder"),
+                                     task_ids, tool_ids, top_k)
+        if cached is None:
+            cached = _cross_encoder_rankings(
+                docs, tasks, candidate_sets["bm25"], reranker, top_k
+            )
+            _save_ranking_cache(
+                cross_path, cross_meta, cached, cache_key("cross_encoder"), "cross_encoder"
+            )
+        else:
+            cache_hits.append("cross_encoder")
+        rankings["cross_encoder"] = cached
+
+        # Rankings are fully materialized before evaluator qrels are accessed.
         _write_rankings(track.dataset_id, rankings, run_dir)
         result = evaluate_track(track, rankings, candidate_sets, run_dir)
         _write_per_task_csv(track, rankings, run_dir)
@@ -739,6 +917,8 @@ def run_campaign(
             "source": track.source_manifest,
             "baseline_status": {baseline: "EXECUTED" for baseline in rankings},
             "baseline_ids_executed": list(rankings),
+            "cache_hits": cache_hits,
+            "cache_misses": [baseline for baseline in rankings if baseline not in cache_hits],
             "plots": plots,
             "metrics_file": f"{track.dataset_id}_metrics.json",
             "paired_tests_file": f"{track.dataset_id}_paired_tests.json",
