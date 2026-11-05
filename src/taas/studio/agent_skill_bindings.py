@@ -78,7 +78,7 @@ def resolve_agent_skill_references(
                     "id": node_id,
                     "name": node["name"],
                     "version": node["version"],
-                    "description": "",
+                    "description": node.get("description", ""),
                     "instructions": node["instructions"],
                     "trigger_phrases": list(node["trigger_phrases"]),
                 }
