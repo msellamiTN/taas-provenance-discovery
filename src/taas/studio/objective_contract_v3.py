@@ -123,6 +123,10 @@ def derive_objective_contract_v3(
 
     for index, goal_class in enumerate(candidates, start=1):
         evidence = _source_evidence(original, goal_class)
+        clause_ref = None
+        if evidence:
+            source_clause = _clause_for_offset(clauses, evidence[0]["start"])
+            clause_ref = source_clause["id"] if source_clause else None
         if not evidence:
             clarifications.append({
                 "id": f"clarification_{len(clarifications) + 1}",
