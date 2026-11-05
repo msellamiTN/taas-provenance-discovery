@@ -76,6 +76,7 @@ jobs:
             tests/test_mcp_atlas_adapter.py \
             tests/test_toolret_adapter.py \
             tests/test_evaluation_metrics.py \
+            tests/test_e8_retrieval_campaign.py \
             tests/test_mcpverse_adapter.py \
             tests/test_declared_effects_are_not_observations.py
       - name: Run existing Studio API tests
