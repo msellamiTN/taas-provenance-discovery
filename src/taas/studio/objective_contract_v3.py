@@ -84,7 +84,7 @@ def _source_clauses(text: str) -> list[dict[str, Any]]:
     clauses: list[dict[str, Any]] = []
     start = 0
     for index, char in enumerate(text):
-        if char in ";.!?\\n":
+        if char in ";.!?\n":
             end = index
             left = start
             while left < end and text[left].isspace():
