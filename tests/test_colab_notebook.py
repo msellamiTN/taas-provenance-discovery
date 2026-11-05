@@ -68,7 +68,7 @@ def test_colab_covers_objective_constraint_dependency_namespace() -> None:
     assert "canonicalize_objective_constraint_dependencies" in code
     assert "tests/test_studio_objective_constraint_dependencies.py" in code
     assert "Objective Contract constraint/dependency namespace separation OK" in code
-    assert 'TAAS_COMMIT = "d7b53c3057bebc34d31476333047f9d9746f1b42"' in code
+    assert f'TAAS_COMMIT = "{INTEGRATED_STUDIO_COMMIT}"' in code
     assert "Retrieve records matching the provided query from the configured source." in code
 
 
