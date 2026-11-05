@@ -1164,10 +1164,14 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
                 manifest_sha256=saved_agent.get("manifest_sha256"),
                 lifecycle_state=saved_agent.get("lifecycle_state"),
             )
-        result = runtime.decompose(
-            request.prompt, base_context, request.max_new_tokens,
-            agent_context=agent_context,
-        )
+        if agent_context is None:
+            # Preserve the legacy runtime call contract for callers without an Agent binding.
+            result = runtime.decompose(request.prompt, base_context, request.max_new_tokens)
+        else:
+            result = runtime.decompose(
+                request.prompt, base_context, request.max_new_tokens,
+                agent_context=agent_context,
+            )
         result = prepare_agent_candidate(result, request.prompt, objective_contract)
 
         def assess(candidate: dict[str, Any]) -> tuple[bool, list[dict[str, str]], Any]:
@@ -1288,10 +1292,15 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
             refinement_context = base_context + "\n\n" + build_refinement_context(
                 request.prompt, prior_text, diagnostics
             )
-            refined = runtime.decompose(
-                request.prompt, refinement_context, request.max_new_tokens,
-                agent_context=agent_context,
-            )
+            if agent_context is None:
+                refined = runtime.decompose(
+                    request.prompt, refinement_context, request.max_new_tokens
+                )
+            else:
+                refined = runtime.decompose(
+                    request.prompt, refinement_context, request.max_new_tokens,
+                    agent_context=agent_context,
+                )
             refined = prepare_agent_candidate(refined, request.prompt, objective_contract)
             attempts = 2
             accepted, refined_diagnostics, structural_error = assess(refined)
