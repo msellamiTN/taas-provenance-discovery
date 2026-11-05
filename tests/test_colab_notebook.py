@@ -10,7 +10,7 @@ NOTEBOOK = ROOT / "notebooks" / "colab" / "taas_core_studio_colab.ipynb"
 GUIDE = ROOT / "docs" / "deployment" / "COLAB_T4_QUICKSTART.md"
 RUNTIME_GUIDE = ROOT / "docs" / "deployment" / "MODEL_RUNTIME_BACKENDS.md"
 WORKFLOW = ROOT / ".github" / "workflows" / "benchmark-hypergraph.yml"
-INTEGRATED_STUDIO_COMMIT = "49daf5efa319a05f391e465d2bb670801ab7d45d"
+INTEGRATED_STUDIO_COMMIT = "8fb0a997bdc455981dfe67406ccb4395bee65dc9"
 
 
 def notebook_source() -> tuple[dict, str, str]:
@@ -78,6 +78,13 @@ def test_colab_runs_agent_reusable_skill_binding_acceptance() -> None:
     assert "tests/test_agent_reusable_skill_binding.py" in code
     assert "Agent reusable Skill binding acceptance tests failed" in code
     assert "Agent reusable Skill binding unit, API and Studio picker tests passed." in code
+
+
+def test_colab_runs_skill_dependency_dag_acceptance() -> None:
+    _, _, code = notebook_source()
+    assert "tests/test_skill_dependency_graph.py" in code
+    assert "Skill dependency DAG acceptance tests failed" in code
+    assert "Skill dependency DAG validation, cycle, bounds and Agent materialization tests passed." in code
 
 
 def test_colab_runs_reusable_skill_registry_acceptance() -> None:
