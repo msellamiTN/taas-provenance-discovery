@@ -32,7 +32,6 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
-from rank_bm25 import BM25Okapi
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 from taas.data.registries import load_mcptoolbenchpp
@@ -259,6 +258,10 @@ def _bm25_rankings(
     tokenized = [_tokenize(x.text) for x in docs]
     if not tokenized or not any(tokenized):
         raise ValueError("BM25 corpus contains no lexical tokens")
+    try:
+        from rank_bm25 import BM25Okapi
+    except ImportError as exc:
+        raise RuntimeError("Install the benchmark-hf extra to run BM25") from exc
     model = BM25Okapi(tokenized)
     all_rankings, candidates = {}, {}
     for task in tasks:
@@ -316,18 +319,20 @@ def _dense_and_hybrid_rankings(
         normalize_embeddings=True, show_progress_bar=True,
     )
     dense_rankings, hybrid_rankings = {}, {}
+    dense_orderings = []
     for i, task in enumerate(tasks):
         dense_scores = np.asarray(passage_vectors @ query_vectors[i], dtype=float)
         dense_order = _rank_scores(dense_scores, ids)
+        dense_orderings.append(dense_order)
         dense_rankings[task.task_id] = dense_order[:top_k]
 
     bm25_all, _ = _bm25_rankings(docs, tasks, max(top_k, CROSS_ENCODER_CANDIDATE_K))
-    for task in tasks:
+    for i, task in enumerate(tasks):
         fused = defaultdict(float)
         for rank, tool_id in enumerate(bm25_all[task.task_id], start=1):
             fused[tool_id] += 1.0 / (rrf_k0 + rank)
         for rank, tool_id in enumerate(
-            _rank_scores(passage_vectors @ query_vectors[tasks.index(task)], ids), start=1
+            dense_orderings[i], start=1
         ):
             fused[tool_id] += 1.0 / (rrf_k0 + rank)
         hybrid_rankings[task.task_id] = sorted(
