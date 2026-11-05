@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import pytest
 from pydantic import ValidationError
+from fastapi.testclient import TestClient
 
 from taas.studio import skill_dependency_graph, skill_registry
 from taas.studio.agent_skill_bindings import resolve_agent_skill_references
 from taas.studio.agent_spec import validate_agent_manifest
 from taas.studio.skill_spec import validate_skill_manifest
+import taas.studio.api as studio_api
 
 
 def _manifest(skill_id: str, *, dependencies=None, instructions=None):
@@ -201,3 +203,31 @@ def test_agent_binding_materializes_transitive_dependencies_in_topological_order
     assert references[0]["dependency_graph_sha256"]
     assert references[0]["resolved_dependencies"][0]["id"] == "base-skill"
     assert references[0]["resolved_dependencies"][0]["manifest_sha256"] == base["manifest_sha256"]
+
+
+
+def test_authenticated_skill_dependency_graph_api_is_read_only(registry, monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "skill-dag-api-token")
+    base = _publish(_manifest("api-base-skill"))
+    root = _publish(_manifest("api-root-skill", dependencies=[{
+        "id": "api-base-skill", "version": "1.0.0",
+        "manifest_sha256": base["manifest_sha256"],
+    }]))
+    client = TestClient(studio_api.app)
+    endpoint = "/api/v1/skills/api-root-skill/versions/1.0.0/dependency-graph"
+
+    unauthorized = client.get(endpoint)
+    assert unauthorized.status_code == 401
+
+    response = client.get(
+        endpoint, headers={"Authorization": "Bearer skill-dag-api-token"}
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert [node["id"] for node in body["nodes"]] == [
+        "api-base-skill", "api-root-skill"
+    ]
+    assert body["graph_sha256"]
+    assert body["semantic_correctness_verified"] is False
+    assert body["tools_authorized"] is False
+    assert body["execution_enabled"] is False
