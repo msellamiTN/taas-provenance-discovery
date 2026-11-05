@@ -209,3 +209,14 @@ def test_agent_objective_prepare_injects_external_skill_and_emits_digest_trace(m
     assert trace["skills"][0]["source"] == "skill_registry"
     assert trace["skills"][0]["registry_manifest_sha256"] == published["manifest_sha256"]
     assert response["workflow"]["tool_execution"] == "disabled"
+
+
+def test_agent_manifest_editor_supports_published_skill_picker_and_exact_pins():
+    from pathlib import Path
+    page = (Path(__file__).resolve().parents[1] / "src" / "taas" / "studio" / "static" / "index.html").read_text(encoding="utf-8")
+    assert 'id="agent-skill-registry-select"' in page
+    assert 'id="agent-skill-registry-refresh"' in page
+    assert 'id="agent-skill-registry-add"' in page
+    assert 'apiGet("/api/v1/skills?limit=200")' in page
+    assert "manifest_sha256:skill.manifest_sha256" in page
+    assert 'manifest.spec.skill_refs.push' in page
