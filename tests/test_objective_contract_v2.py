@@ -274,3 +274,49 @@ def test_external_acquisition_requires_an_acquisition_goal_even_with_an_input():
     )
     assert any(item["code"] == "objective_operation_missing" for item in diagnostics)
     assert any(item["code"] == "objective_data_source_missing" for item in diagnostics)
+
+
+def test_year_difference_requires_retrieval_and_exact_numeric_computation():
+    objective = (
+        "Can you get me the year difference between the creation date of the "
+        "AssaultCube repository and the domain registration date of its official site?"
+    )
+    frame = derive_objective_contract(objective)
+
+    assert frame["operation"] == "compute_exact"
+    assert frame["required_goal_classes"] == ["retrieve", "compute_exact"]
+    assert [outcome["goal_class"] for outcome in frame["outcomes"]] == [
+        "retrieve", "compute_exact"
+    ]
+    assert frame["numeric_result_required"] is True
+    assert frame["exactness_required"] == "exact"
+    assert frame["constraints"]["computation"]["numeric_result_required"] is True
+    assert frame["constraints"]["computation"]["exactness_required"] == "exact"
+    assert frame["source_data_required"] is True
+
+
+def test_year_difference_is_not_covered_by_retrieval_goals_alone():
+    from taas.studio.objective_contract import build_outcome_coverage, diagnose_objective_alignment
+
+    objective = (
+        "Get me the year difference between the repository creation date "
+        "and the official domain registration date."
+    )
+    spec = {
+        "prompt_inputs": ["text"],
+        "goals": [
+            {"id": "g1", "class": "retrieve", "out": "record[]"},
+            {"id": "g2", "class": "retrieve", "out": "record[]", "deps": ["g1"]},
+        ],
+    }
+    coverage = build_outcome_coverage(objective, spec)
+    diagnostics = diagnose_objective_alignment(objective, spec)
+
+    assert coverage["summary"] == {"required": 2, "covered": 1, "missing": 1}
+    assert coverage["outcomes"][1]["goal_class"] == "compute_exact"
+    assert coverage["outcomes"][1]["status"] == "missing"
+    assert any(
+        item["code"] == "objective_operation_missing"
+        and "compute_exact" in item["message"]
+        for item in diagnostics
+    )
