@@ -105,9 +105,9 @@ def test_holm_adjustment_is_monotonic_and_bounded():
     assert all(0 <= x <= 1 for x in adjusted)
 
 
-def test_mcp_toolbench_cluster_mapping_uses_gold_server(monkeypatch):
+def test_mcp_toolbench_cluster_mapping_uses_gold_server(monkeypatch, tmp_path):
     tools = [RawTool("provider-z", "lookup", "Lookup", {}, None, None, "MCPToolBench++", "search")]
     tasks = [Task("q", "lookup", "MCPToolBench++", "search", ["provider-z::lookup"], [], 1)]
     monkeypatch.setattr(e8, "load_mcptoolbenchpp", lambda _: (tools, tasks))
-    track = e8.load_mcptoolbenchpp_track(tmp_path=None)
+    track = e8.load_mcptoolbenchpp_track(tmp_path)
     assert track.cluster_by_task == {"search::q": "provider-z"}
