@@ -6,6 +6,7 @@ import pytest
 from pydantic import ValidationError
 
 from taas.studio.api import AgentDecomposeRequest
+import taas.studio.api as studio_api
 
 from taas.studio.agent_context import build_agent_intelligence_context
 from taas.studio.agent_spec import validate_agent_manifest
@@ -194,3 +195,49 @@ def test_decomposition_request_requires_agent_id_and_version_together():
     )
     assert request.agent_id == "research-assistant"
     assert request.agent_version == "1.2.0"
+
+
+
+def test_objective_prepare_api_resolves_saved_agent_and_reuses_context_for_refinement(monkeypatch):
+    manifest = validate_agent_manifest(_manifest())
+    calls = []
+
+    class FakeRuntime:
+        def decompose(self, prompt, context="", max_new_tokens=1200, agent_context=None):
+            calls.append(agent_context)
+            return {
+                "text": "not-json",
+                "json_valid": False,
+                "parse_error": "test candidate rejected",
+                "goal_spec": None,
+                "model_id": "org/model",
+                "latency_seconds": 0.01,
+            }
+
+    saved = {
+        "agent_id": manifest["metadata"]["id"],
+        "version": manifest["metadata"]["version"],
+        "manifest": manifest,
+        "manifest_sha256": "b" * 64,
+        "lifecycle_state": "draft",
+    }
+    monkeypatch.setattr(studio_api, "get_model_runtime", lambda: FakeRuntime())
+    monkeypatch.setattr(studio_api.agent_registry, "get_version", lambda agent_id, version: saved)
+    monkeypatch.setattr(studio_api, "prepare_agent_candidate", lambda result, prompt, contract: result)
+    monkeypatch.setattr(studio_api, "build_objective_context", lambda prompt: "")
+
+    response = studio_api.agent_decompose(AgentDecomposeRequest(
+        prompt="Find the year difference between two independently sourced dates.",
+        agent_id="research-assistant",
+        agent_version="1.2.0",
+    ))
+
+    assert len(calls) == 2  # initial generation and the one bounded refinement
+    assert calls[0] == calls[1]
+    assert calls[0]["skills"][0]["id"] == "multi-source-date-difference"
+    trace = response["agent_intelligence_context"]
+    assert trace["agent_id"] == "research-assistant"
+    assert trace["agent_version"] == "1.2.0"
+    assert trace["manifest_sha256"] == "b" * 64
+    assert trace["selected_skill_ids"] == ["multi-source-date-difference"]
+    assert response["workflow"]["tool_execution"] == "disabled"
