@@ -28,13 +28,16 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
-          notebook = json.loads(Path("notebooks/PaMCP_MultiBenchmark_v1.ipynb").read_text())
-          code_cells = [cell for cell in notebook["cells"] if cell.get("cell_type") == "code"]
-          assert code_cells, "Colab notebook contains no code cells"
-          for index, cell in enumerate(code_cells):
-              source = "".join(cell.get("source", []))
-              compile(source, f"PaMCP_MultiBenchmark_v1.ipynb:code_cell_{index}", "exec")
-          print(f"syntax-validated {len(code_cells)} Colab code cells")
+          notebooks = [Path("notebooks/PaMCP_MultiBenchmark_v1.ipynb"), Path("notebooks/PaMCP_Core_Protocol_v2.ipynb")]
+          for path in notebooks:
+              notebook = json.loads(path.read_text())
+              assert notebook.get("nbformat") == 4, f"{path}: invalid notebook format"
+              code_cells = [cell for cell in notebook["cells"] if cell.get("cell_type") == "code"]
+              assert code_cells, f"{path}: notebook contains no code cells"
+              for index, cell in enumerate(code_cells):
+                  source = "".join(cell.get("source", []))
+                  compile(source, f"{path}:code_cell_{index}", "exec")
+              print(f"syntax-validated {path}: {len(code_cells)} code cells")
           PY
       - name: Validate E1-E22 and baseline catalogs
         run: |
