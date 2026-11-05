@@ -387,7 +387,7 @@ def canonicalize_arithmetic_expressions_from_effects(
     def is_arithmetic_expression(value: Any) -> bool:
         if not isinstance(value, str) or not value.strip():
             return False
-        compact = re.sub(r"\\s+", "", value)
+        compact = re.sub(r"\s+", "", value)
         tokens = token_pattern.findall(value)
         if not tokens or "".join(tokens) != compact:
             return False
