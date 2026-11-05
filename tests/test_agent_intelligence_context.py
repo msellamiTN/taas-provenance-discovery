@@ -255,3 +255,18 @@ def test_studio_objective_panel_selects_and_submits_saved_agent_version():
     assert 'apiGet("/api/v1/agents?limit=100")' in page
     assert "body.agent_id=selectedAgent.slice(0,split)" in page
     assert "body.agent_version=selectedAgent.slice(split+1)" in page
+
+
+
+def test_agent_manifest_bounds_total_skill_context_size():
+    manifest = _manifest()
+    base_skill = manifest["spec"]["skills"][0]
+    manifest["spec"]["skills"] = []
+    for index in range(4):
+        skill = dict(base_skill)
+        skill["id"] = f"date-skill-{index}"
+        skill["instructions"] = "x" * 7000
+        skill["trigger_phrases"] = [f"date operation {index}"]
+        manifest["spec"]["skills"].append(skill)
+    with pytest.raises(ValidationError, match="combined skill instructions"):
+        validate_agent_manifest(manifest)
