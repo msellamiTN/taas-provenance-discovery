@@ -31,6 +31,11 @@ from taas.provenance import DEFAULT_TRUST
 from taas.studio.models import ModelCatalogError, get_model_details, inspect_model_artifacts, search_models
 from taas.studio.agent_spec import validate_agent_manifest
 from taas.studio.agent_context import build_agent_intelligence_context
+from taas.studio.agent_skill_bindings import (
+    AgentSkillBindingConflict,
+    AgentSkillBindingNotFound,
+    resolve_agent_skill_references,
+)
 from taas.studio import agent_registry
 from taas.studio import skill_registry
 from taas.studio.skill_spec import validate_skill_manifest
@@ -192,6 +197,17 @@ def classify_core_gap_requirements(goals: list[Any], gap_goal_ids: list[str]) ->
         "tool_required_goal_ids": tool_required,
         "model_capability_gap_goal_ids": model_capability_gaps,
     }
+
+
+
+def resolve_agent_skill_bindings_or_http(manifest: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Resolve exact published Skill versions; references are guidance, never grants."""
+    try:
+        return resolve_agent_skill_references(manifest)
+    except AgentSkillBindingNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except AgentSkillBindingConflict as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
 
 
 def load_profile() -> ModelProfile:
@@ -1160,12 +1176,20 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
             except agent_registry.AgentRegistryNotFound as exc:
                 raise HTTPException(status_code=404, detail=str(exc)) from exc
             manifest = validate_agent_manifest(saved_agent["manifest"])
+            manifest, external_skill_references = resolve_agent_skill_bindings_or_http(manifest)
             agent_context, agent_context_trace = build_agent_intelligence_context(
                 manifest,
                 request.prompt,
                 manifest_sha256=saved_agent.get("manifest_sha256"),
                 lifecycle_state=saved_agent.get("lifecycle_state"),
             )
+            agent_context_trace["external_skill_references"] = external_skill_references
+            external_by_id = {item["id"]: item for item in external_skill_references}
+            for skill_trace in agent_context_trace.get("skills", []):
+                external = external_by_id.get(skill_trace.get("id"))
+                if external:
+                    skill_trace["source"] = "skill_registry"
+                    skill_trace["registry_manifest_sha256"] = external["manifest_sha256"]
         if agent_context is None:
             # Preserve the legacy runtime call contract for callers without an Agent binding.
             result = runtime.decompose(request.prompt, base_context, request.max_new_tokens)
@@ -1516,11 +1540,13 @@ def agent_manifest_validate(payload: dict[str, Any]) -> dict[str, Any]:
     """Validate a declarative Agent manifest without saving or executing it."""
     try:
         manifest = validate_agent_manifest(payload)
+        _, resolved_skill_refs = resolve_agent_skill_bindings_or_http(manifest)
     except ValidationError as exc:
         raise HTTPException(status_code=422, detail=exc.errors(include_context=False, include_input=False)) from exc
     return {
         "valid": True,
         "manifest": manifest,
+        "resolved_skill_references": resolved_skill_refs,
         "lifecycle_state": "draft",
         "semantic_correctness_verified": False,
         "tools_authorized": False,
@@ -1533,6 +1559,7 @@ def agent_create(payload: dict[str, Any]) -> dict[str, Any]:
     """Persist a new immutable Agent version in draft state."""
     try:
         manifest = validate_agent_manifest(payload)
+        _, resolved_skill_refs = resolve_agent_skill_bindings_or_http(manifest)
         resource = agent_registry.create_draft(manifest)
     except ValidationError as exc:
         raise HTTPException(status_code=422, detail=exc.errors(include_context=False, include_input=False)) from exc
@@ -1542,6 +1569,7 @@ def agent_create(payload: dict[str, Any]) -> dict[str, Any]:
         raise HTTPException(status_code=422, detail="Agent manifest must contain only strict JSON values") from exc
     return {
         **resource,
+        "resolved_skill_references": resolved_skill_refs,
         "semantic_correctness_verified": False,
         "tools_authorized": False,
         "execution_enabled": False,
@@ -1576,6 +1604,7 @@ def agent_validate_saved_version(agent_id: str, version: str) -> dict[str, Any]:
         manifest = validate_agent_manifest(resource["manifest"])
         if manifest != resource["manifest"]:
             raise HTTPException(status_code=409, detail="Stored Agent manifest is not canonical")
+        _, resolved_skill_refs = resolve_agent_skill_bindings_or_http(manifest)
         resource = agent_registry.transition(agent_id, version, "validated")
     except ValidationError as exc:
         raise HTTPException(status_code=422, detail=exc.errors(include_context=False, include_input=False)) from exc
@@ -1585,7 +1614,8 @@ def agent_validate_saved_version(agent_id: str, version: str) -> dict[str, Any]:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
     return {
         **resource,
-        "validation_scope": "structural_schema_and_cross_field_invariants",
+        "validation_scope": "structural_schema_cross_field_invariants_and_pinned_skill_resolution",
+        "resolved_skill_references": resolved_skill_refs,
         "semantic_correctness_verified": False,
         "tools_authorized": False,
         "execution_enabled": False,
@@ -1601,6 +1631,8 @@ def agent_publish_version(
     """Publish configuration; tool grants must resolve against an immutable MCP snapshot."""
     try:
         current = agent_registry.get_version(agent_id, version)
+        validated_manifest = validate_agent_manifest(current["manifest"])
+        _, resolved_skill_refs = resolve_agent_skill_bindings_or_http(validated_manifest)
         grants = current["manifest"]["spec"].get("tool_allowlist", [])
         snapshot_id = request.registry_snapshot_id if request else None
         resolved_grants = []
@@ -1644,6 +1676,7 @@ def agent_publish_version(
         **resource,
         "published_as_configuration": True,
         "resolved_tool_grants": resolved_grants,
+        "resolved_skill_references": resolved_skill_refs,
         "semantic_correctness_verified": False,
         "tools_authorized": False,
         "execution_enabled": False,
