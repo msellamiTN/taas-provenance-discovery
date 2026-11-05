@@ -36,3 +36,8 @@ This feature does not invoke MCP tools, grant authorization, execute an Agent, o
 ## Validation
 
 The canonical Colab notebook includes the Objective Contract v3 test module and Studio API regression suite. CI additionally validates notebook JSON/Python cells and runs the repository test workflow. A live Colab execution must be recorded separately; notebook inclusion alone is not runtime evidence.
+
+
+## Clause provenance graph increment
+
+The v3 projection now includes a `clauses` collection. Clauses are conservative punctuation/newline-delimited source segments with exact Unicode code-point spans into the unchanged objective. Each emitted outcome carries a `clause_ref`; each clause lists its linked `outcome_refs` and `clarification_refs`. This is a provenance association only: it does not infer causal or execution dependencies between clauses. The validator checks clause span integrity, unique clause IDs, outcome-to-clause references, and reverse-reference consistency. Clauses without supported operation evidence remain visible without being promoted to outcomes.
