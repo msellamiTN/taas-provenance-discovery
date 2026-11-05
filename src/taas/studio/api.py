@@ -55,7 +55,7 @@ from taas.studio.ollama_runtime import get_ollama_runtime
 from taas.studio.mcp_registry import MCPRegistryError, inspect_server as inspect_mcp_server, list_servers as list_mcp_servers
 from taas.types import KINDS
 from taas.studio.assurance_routes import build_assurance_router
-from taas.hypergraph_projection import project_hypergraph
+from taas.hypergraph_projection import project_hypergraph, project_skill_dependency_graph
 
 app = FastAPI(
     title="TaaS Core Studio API",
