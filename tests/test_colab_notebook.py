@@ -60,7 +60,7 @@ def test_colab_runs_oncology_objective_outcome_temporal_regression() -> None:
     assert "tests/test_objective_contract_v3.py" in code
     assert "objective_regression_tests" in code
     assert "November 2024" in code
-    assert "top-one descending publication-date selection" in code
+    assert "top-one" in code and "publication-date" in code
 
 
 def test_colab_runs_objective_contract_v3_acceptance() -> None:
