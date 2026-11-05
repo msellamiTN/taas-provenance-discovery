@@ -8,7 +8,7 @@ Agent Instructions and Skills are inputs to the actual Objective Analyst LLM req
 
 `spec.instructions` contains persistent Agent-level guidance.
 
-`spec.skills` is an optional list of versioned skill definitions bundled into the immutable Agent version. Each skill defines an identifier, name, semantic version, description, reusable instructions, and explicit `trigger_phrases`.
+`spec.skills` is an optional list of versioned skill definitions bundled into the immutable Agent version. `spec.skill_refs` is an optional list of exact references to independently published Skill Registry versions; each reference pins the Skill ID, semantic version, and canonical registry manifest SHA-256 digest. Both forms define reusable instructions and explicit `trigger_phrases`.
 
 Example:
 
@@ -29,10 +29,11 @@ The manifest bounds combined skill instruction text to 24,000 characters and tot
 
 1. Studio selects a saved Agent ID and immutable version.
 2. The API loads that exact version from the Agent registry and validates its manifest.
-3. The context resolver selects matching skills and computes SHA-256 digests for Agent and skill instructions.
-4. The Objective Analyst receives Agent instructions and selected skill guidance in its system context.
-5. The same context is supplied to the bounded refinement attempt.
-6. The API response includes `agent_intelligence_context` trace metadata: Agent identity/version, lifecycle state, manifest digest, instruction digest, effective context digest, selected skill IDs, skill digests, matched triggers, and resolver policy.
+3. Exact `skill_refs` are resolved against published registry versions; both version and manifest digest must match.
+4. The context resolver selects matching embedded and registry-backed Skills and computes SHA-256 digests for Agent and skill instructions.
+5. The Objective Analyst receives Agent instructions and selected skill guidance in its system context.
+6. The same context is supplied to the bounded refinement attempt.
+7. The API response includes `agent_intelligence_context` trace metadata: Agent identity/version, lifecycle state, manifest digest, instruction digest, effective context digest, selected skill IDs, external reference pins, skill digests, matched triggers, and resolver policy.
 
 The trace does not echo the full instruction or skill text.
 
@@ -50,4 +51,4 @@ Older Agent versions created before the `skills` field existed retain their orig
 
 ## Current scope and next increment
 
-Skills are currently embedded and versioned within an Agent manifest. A separate reusable cross-Agent Skill Registry, semantic skill retrieval, skill dependency management, and skill-level evaluation/approval lifecycle are not included in this increment. The lexical resolver is a transparent baseline that can be measured before introducing semantic retrieval.
+Embedded Skills and exact, digest-pinned references to published cross-Agent Skill Registry versions are supported. Semantic skill retrieval, skill dependency management, signed publisher attestations, tenant isolation, and skill-level semantic evaluation remain future work. The lexical resolver is a transparent baseline that can be measured before introducing semantic retrieval.
