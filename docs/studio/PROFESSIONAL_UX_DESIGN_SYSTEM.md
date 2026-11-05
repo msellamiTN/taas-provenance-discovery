@@ -31,3 +31,15 @@ Updated the existing HTML/CSS presentation layer only. Existing endpoint calls, 
 ## Validation status
 
 Static regression tests cover design tokens, keyboard focus, responsive breakpoints, reduced-motion support, and preservation of the execution-disabled trust message. Browser screenshot review, keyboard walkthrough, contrast audit, and automated browser tests remain required before production release.
+
+
+## UX-2 — Persistent workspace context
+
+The application content area now exposes a compact breadcrumb/context strip. Its title is driven by the same navigation link that controls workspace visibility, so direct navigation, browser history and sidebar navigation share one source of truth.
+
+- The current workspace label is announced through an accessible polite live region.
+- The context strip is responsive and collapses its secondary hint on narrow screens.
+- Reduced-motion preferences disable smooth document scrolling.
+- No workspace health, authorization, execution or readiness status is inferred or displayed by this component.
+
+Validation adds static regression checks for the context element, navigation-driven title update, responsive behavior and reduced-motion handling. Browser-level visual and keyboard acceptance remains a separate gate.
