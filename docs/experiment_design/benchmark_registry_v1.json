@@ -94,7 +94,7 @@
       "url": "https://github.com/mangopy/tool-retrieval-benchmark",
       "version": "ACL_2025_release_to_pin",
       "license": "verify_at_acquisition",
-      "notes": "Official ACL 2025 code/data; heterogeneous retrieval corpus (~7.6k tasks, ~43k tools). Not an MCP execution or safety ground-truth benchmark."
+      "notes": "Official HF data repos: mangopy/ToolRet-Queries and mangopy/ToolRet-Tools. The upstream config.py lists query configs and tool categories. Pin one immutable HF revision for both repositories; this is a heterogeneous retrieval benchmark, not MCP execution or safety ground truth."
     },
     {
       "id": "mcptox",
