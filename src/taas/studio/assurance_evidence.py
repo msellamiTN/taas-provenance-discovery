@@ -17,6 +17,7 @@ from typing import Any, Mapping
 
 EVIDENCE_TYPES = frozenset({
     "tool_schema_validation", "trusted_effect_assessment", "provenance_verification",
+    "human_approval",
 })
 _HASH = re.compile(r"^[0-9a-f]{64}$")
 
@@ -265,6 +266,42 @@ def get_verified_evidence(evidence_id: str, *, expected_type: str,
     if observed > current + timedelta(minutes=2) or expires <= current:
         raise EvidenceError("Assurance evidence is not currently fresh")
     return record
+
+
+def list_verified_evidence_for_subject(subject_binding: dict[str, Any], *,
+                                       expected_type: str | None = None,
+                                       environ: Mapping[str, str] | None = None,
+                                       now: datetime | None = None) -> dict[str, Any]:
+    """Return every stored record bound to an exact subject, verified independently.
+
+    Each record is re-verified for integrity, attestation and freshness. Records
+    that fail verification are reported under ``invalid`` with a bounded reason;
+    they never count as satisfied evidence.
+    """
+    if not isinstance(subject_binding, dict) or not subject_binding:
+        raise EvidenceError("subject_binding must be a non-empty object")
+    binding_hash = canonical_hash(subject_binding)
+    db = _connect(environ)
+    try:
+        rows = db.execute(
+            "SELECT evidence_id, evidence_type FROM assurance_evidence "
+            "WHERE subject_binding_sha256=? ORDER BY created_at DESC",
+            (binding_hash,),
+        ).fetchall()
+    finally:
+        db.close()
+    valid: list[dict[str, Any]] = []
+    invalid: list[dict[str, Any]] = []
+    for row in rows:
+        if expected_type is not None and row["evidence_type"] != expected_type:
+            continue
+        try:
+            record = inspect_verified_evidence(row["evidence_id"], environ=environ, now=now)
+        except EvidenceError as exc:
+            invalid.append({"evidence_id": row["evidence_id"], "reason": str(exc)})
+            continue
+        valid.append(record)
+    return {"count": len(valid), "valid": valid, "invalid": invalid}
 
 
 def inspect_verified_evidence(evidence_id: str, *,
