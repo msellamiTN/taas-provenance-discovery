@@ -320,3 +320,48 @@ def test_year_difference_is_not_covered_by_retrieval_goals_alone():
         and "compute_exact" in item["message"]
         for item in diagnostics
     )
+
+
+
+def test_v2_oncology_objective_preserves_all_three_required_operations_and_scope():
+    objective = (
+        "For a report I have to prepare on oncology with machine learning, help me "
+        "identify the last related study published on november 2024 containing the "
+        "word cancer in its title and retrieve the abstract of the article. "
+        "Translate only the title of the study into spanish while keeping the abstract "
+        "of the study in its original language. Find the type of cancer discussed in "
+        "the article and tell me who published the first literature and in which year."
+    )
+    frame = derive_objective_contract(objective)
+
+    assert frame["required_goal_classes"] == ["search", "extract", "translate"]
+    assert frame["temporal_scope"] == {
+        "kind": "explicit_calendar_month",
+        "expression": "month_year",
+        "matched_text": "november 2024",
+        "reference_date": None,
+        "anchor_required": False,
+        "business_timezone_required": False,
+        "start_inclusive": "2024-11-01",
+        "end_exclusive": "2024-12-01",
+        "resolution_status": "resolved",
+    }
+    assert frame["selection"]["mode"] == "top_k"
+    assert frame["selection"]["limit"] == 1
+    assert frame["selection"]["order"] == "descending"
+    assert frame["selection"]["order_by_concept"] == "publication_date"
+    assert frame["selection"]["source_field_unresolved"] is True
+
+    from taas.studio.objective_contract import build_outcome_coverage
+    coverage = build_outcome_coverage(objective, {
+        "goals": [
+            {"id": "g1", "class": "search"},
+            {"id": "g2", "class": "translate"},
+        ]
+    })
+    assert coverage["summary"] == {"required": 3, "covered": 2, "missing": 1}
+    assert [item["goal_class"] for item in coverage["outcomes"]] == [
+        "search", "extract", "translate"
+    ]
+    assert coverage["outcomes"][1]["status"] == "missing"
+    assert coverage["semantic_correctness_verified"] is False
