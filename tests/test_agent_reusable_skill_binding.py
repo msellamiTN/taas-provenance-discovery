@@ -125,7 +125,8 @@ def test_binding_fails_closed_for_draft_skill_and_digest_mismatch(registries):
     with pytest.raises(AgentSkillBindingConflict, match="must be published"):
         resolve_agent_skill_references(manifest)
 
-    publish_skill()
+    skill_registry.transition("date-difference", "1.0.0", "validated", actor="test-reviewer")
+    skill_registry.transition("date-difference", "1.0.0", "published", actor="test-publisher")
     manifest = validate_agent_manifest(agent_manifest("0" * 64))
     with pytest.raises(AgentSkillBindingConflict, match="digest does not match"):
         resolve_agent_skill_references(manifest)
@@ -175,7 +176,8 @@ def test_authenticated_agent_api_rejects_unpublished_or_unpinned_skill(registrie
     assert response.status_code == 409
     assert "must be published" in response.json()["detail"]
 
-    publish_skill()
+    skill_registry.transition("date-difference", "1.0.0", "validated", actor="test-reviewer")
+    skill_registry.transition("date-difference", "1.0.0", "published", actor="test-publisher")
     payload = agent_manifest("f" * 64)
     response = client.post("/api/v1/agents", json=payload, headers=headers)
     assert response.status_code == 409
