@@ -240,6 +240,7 @@ def load_mcptoolbenchpp_track(raw_root: str | Path) -> DatasetTrack:
             "raw_root": str(Path(raw_root).resolve()),
             "source_revisions_file": str((Path(raw_root) / "SOURCES.txt").resolve()),
             "source_revisions_sha256": _sha256_file(Path(raw_root) / "SOURCES.txt"),
+            "source_revisions": (Path(raw_root) / "SOURCES.txt").read_text(encoding="utf-8"),
             "selection_rule": "exactly one resolved function_call_label; ambiguous/multiple labels excluded",
         },
     )
@@ -981,6 +982,7 @@ def run_campaign(
         "B1": {"status": "BLOCKED_DATA", "reason": "No B1 source data/split is present in the tracked repository tree."},
         "B1m": {"status": "BLOCKED_DATA", "reason": "No B1m source data/split is present in the tracked repository tree."},
         "mcp_atlas_public": {"status": "BLOCKED_DIAGNOSTIC_MAPPING", "reason": "Trajectory-to-enabled-tool identity resolution and a coverage-only diagnostic must be frozen before scoring; trajectories are not exhaustive gold sets."},
+        "rag_mcp": {"status": "NOT_RUN_AS_DISTINCT_METHOD", "reason": "E5 global dense retrieval is reported separately; the registered RAG-MCP adaptation requires its own frozen method/configuration and must not be relabelled as E5."},
         "mcp_zero": {"status": "BLOCKED_ADAPTATION_INPUTS", "reason": "E8's single-tool requests do not include frozen GoalSpecs or the official active-request loop."},
         "per_subtask": {"status": "BLOCKED_ADAPTATION_INPUTS", "reason": "Requires frozen goal decompositions; not inferred from evaluator qrels."},
         "colt_adapted": {"status": "BLOCKED_TRAIN_SPLIT", "reason": "No declared ToolRet/MCPToolBench++ train/test task-tool bundle split is supplied to E8."},
@@ -1005,6 +1007,7 @@ def run_campaign(
         "protocol": {
             "candidate_pool": "complete source-specific corpus for each separate dataset track",
             "ranking_cutoffs": list(K_VALUES),
+            "baseline_suite_executed": list(REQUIRED_BASELINES),
             "primary_metrics": ["Hit@1", "Hit@5", "MRR@10", "macro Hit@1"],
             "secondary_metrics": ["Precision@k", "Recall@k", "nDCG@k", "paired task/server sign-flip tests"],
             "multiple_testing": "Holm adjustment over the declared pairwise baseline-metric family within each track",
@@ -1016,6 +1019,11 @@ def run_campaign(
         "models": models,
         "tracks": track_runs,
         "blocked_or_not_comparable": blocked,
+        "protocol_baseline_status": {
+            "preregistered_catalog_ids": ["bm25", "dense_lsa", "rag_mcp", "mcp_zero", "per_subtask", "colt_adapted", "toolscope_adapted", "cmtf_adapted"],
+            "executed_retrieval_controls": list(REQUIRED_BASELINES),
+            "blocked_or_not_comparable": sorted(blocked),
+        },
         "scientific_limitations": [
             "ToolRet is a heterogeneous tool-retrieval track and is not pooled with MCP-only metrics.",
             "MCPToolBench++ includes only tasks with exactly one resolved gold tool; multi-tool, ambiguous and unresolved examples are counted as exclusions.",
