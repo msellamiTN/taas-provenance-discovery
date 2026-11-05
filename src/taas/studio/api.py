@@ -38,6 +38,7 @@ from taas.studio.agent_skill_bindings import (
 )
 from taas.studio import agent_registry
 from taas.studio import skill_registry
+from taas.studio import skill_dependency_graph
 from taas.studio.skill_spec import validate_skill_manifest
 from taas.studio import release_readiness
 from taas.studio.authorization_preflight import (
@@ -1488,6 +1489,31 @@ def skill_get(skill_id: str, version: str) -> dict[str, Any]:
     return {
         **resource, "semantic_correctness_verified": False,
         "tools_authorized": False, "execution_enabled": False,
+    }
+
+
+@app.get(
+    "/api/v1/skills/{skill_id}/versions/{version}/dependency-graph",
+    dependencies=[Depends(require_api_token)],
+)
+def skill_dependency_graph_get(skill_id: str, version: str) -> dict[str, Any]:
+    """Return a read-only, exact-pin dependency DAG for a published Skill."""
+    try:
+        resource = skill_registry.get_version(skill_id, version)
+        graph = skill_dependency_graph.resolve_skill_dependency_graph(
+            skill_id, version, resource["manifest_sha256"]
+        )
+    except skill_registry.SkillRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except skill_dependency_graph.SkillDependencyNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except skill_dependency_graph.SkillDependencyGraphError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {
+        **graph,
+        "semantic_correctness_verified": False,
+        "tools_authorized": False,
+        "execution_enabled": False,
     }
 
 
