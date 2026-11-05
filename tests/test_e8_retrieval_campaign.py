@@ -61,7 +61,7 @@ def test_toolret_loader_rejects_qrels_outside_full_corpus(tmp_path):
         e8.load_toolret_track(tmp_path)
 
 
-def test_mcp_toolbench_track_uses_only_single_resolved_target(monkeypatch):
+def test_mcp_toolbench_track_uses_only_single_resolved_target(monkeypatch, tmp_path):
     tools = [
         RawTool("s1", "search", "Search", {}, None, None, "MCPToolBench++", "web"),
         RawTool("s2", "write", "Write", {}, None, None, "MCPToolBench++", "web"),
