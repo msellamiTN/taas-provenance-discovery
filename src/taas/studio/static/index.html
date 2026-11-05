@@ -332,6 +332,34 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   @media(max-width:900px){.workspace-context{margin-bottom:12px}}
   @media(max-width:560px){.workspace-context{min-height:40px;padding:8px 10px}.workspace-context-hint{display:none}}
   @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+  /* UX-3: API-backed platform overview */
+  .overview-dashboard{display:grid;gap:14px;margin:0 0 18px}
+  .overview-dashboard-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  .overview-dashboard-head h3{margin:3px 0;font-size:17px;letter-spacing:-.25px}
+  .overview-dashboard-head p{margin:4px 0 0;color:var(--muted);font-size:12px;line-height:1.5}
+  .overview-dashboard-state{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:11px}
+  .overview-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .overview-metric{min-width:0;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface,#fff)}
+  .overview-metric-label{display:block;color:var(--muted);font-size:11px;font-weight:650}
+  .overview-metric-value{display:block;margin-top:7px;color:var(--ink);font-size:25px;line-height:1.1;font-weight:760;letter-spacing:-.7px}
+  .overview-metric-state{display:block;margin-top:6px;color:var(--muted);font-size:10px;overflow-wrap:anywhere}
+  .overview-resource-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .overview-resource-panel{min-width:0;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface,#fff)}
+  .overview-resource-panel h4{margin:0;font-size:13px}
+  .overview-resource-list{display:grid;gap:8px;margin:11px 0 0;padding:0;list-style:none}
+  .overview-resource-list li{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+  .overview-resource-main{display:grid;gap:3px;min-width:0}
+  .overview-resource-main strong{font-size:11px;overflow-wrap:anywhere}
+  .overview-resource-main small,.overview-resource-meta{color:var(--muted);font-size:10px;overflow-wrap:anywhere}
+  .overview-resource-state{flex:0 0 auto;padding:3px 7px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:9px;font-weight:650}
+  .overview-empty{margin:10px 0 0;color:var(--muted);font-size:11px;line-height:1.5}
+  .overview-shortcuts{display:flex;gap:8px;flex-wrap:wrap}
+  .overview-shortcuts a{display:inline-flex;align-items:center;min-height:34px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:11px;font-weight:650;text-decoration:none}
+  .overview-shortcuts a:hover{border-color:var(--accent);color:var(--accent)}
+  @media(max-width:900px){.overview-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:620px){.overview-resource-grid{grid-template-columns:1fr}.overview-dashboard-head{align-items:stretch}}
+  @media(max-width:420px){.overview-metrics{gap:7px}.overview-metric{padding:10px}.overview-metric-value{font-size:21px}}
 </style>
 </head>
 <body>
@@ -368,7 +396,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <a href="#evidence-explorer">Evidence explorer</a>
       <span class="nav-label">OPERATE &amp; OBSERVE</span>
       <a href="#workspace">Benchmark workspace</a>
-      <a href="#runtime">Runtime diagnostics</a>
+      <a class="overview-shortcut" href="#runtime">Runtime diagnostics</a>
       <div class="nav-foot"><span class="nav-status-dot"></span><span>Governed execution<br><small>MCP invocation not enabled</small></span></div>
     </nav>
     <div class="studio-content">
@@ -406,9 +434,28 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     <details style="margin-top:10px"><summary class="subtle" style="cursor:pointer">Runtime diagnostics detail</summary><pre id="runtime-overview-details" style="min-height:80px">No runtime status snapshot.</pre></details>
   </section>
   <div id="overview-workspace">\n  <div class="hero" id="overview">
-    <div><div class="eyebrow">Toolkit-as-a-Service · Control plane</div><h2>Discovery workspace</h2><p>Move from benchmark intent to a reviewed GoalSpec, select candidate tools from the retained registry, and inspect a provenance-aware discovery decision—all in one guided workspace.</p></div>
-    <span class="pill"><span class="pill-dot"></span> Discovery preview · execution disabled</span>
+    <div><div class="eyebrow">Toolkit-as-a-Service · Control plane</div><h2>Platform overview</h2><p>A live, evidence-aware view of the resources and services currently reported by TaaS Core. Select a workspace to continue engineering.</p></div>
+    <span class="pill">Read-only overview · no execution</span>
   </div>
+  <section class="overview-dashboard" aria-labelledby="overview-dashboard-title">
+    <div class="overview-dashboard-head">
+      <div><div class="eyebrow">PLATFORM PULSE</div><h3 id="overview-dashboard-title">Your TaaS environment</h3><p>Counts reflect the latest records returned by Core APIs, not global totals unless the endpoint explicitly reports a total.</p></div>
+      <div class="overview-dashboard-state"><span id="overview-dashboard-status" role="status" aria-live="polite">Not loaded · connect the Studio API, then refresh.</span><button id="overview-dashboard-refresh" class="secondary" type="button">Refresh overview</button></div>
+    </div>
+    <div class="overview-metrics" aria-label="Resource summary">
+      <div class="overview-metric"><span class="overview-metric-label">Agent versions</span><strong class="overview-metric-value" id="overview-agent-count">—</strong><small class="overview-metric-state" id="overview-agent-state">Not loaded</small></div>
+      <div class="overview-metric"><span class="overview-metric-label">Skill versions</span><strong class="overview-metric-value" id="overview-skill-count">—</strong><small class="overview-metric-state" id="overview-skill-state">Not loaded</small></div>
+      <div class="overview-metric"><span class="overview-metric-label">Registered tools</span><strong class="overview-metric-value" id="overview-tool-count">—</strong><small class="overview-metric-state" id="overview-tool-state">Not loaded</small></div>
+      <div class="overview-metric"><span class="overview-metric-label">Configured MCP servers</span><strong class="overview-metric-value" id="overview-mcp-count">—</strong><small class="overview-metric-state" id="overview-mcp-state">Not loaded</small></div>
+    </div>
+    <div class="overview-resource-grid">
+      <section class="overview-resource-panel" aria-labelledby="overview-recent-agents-title"><h4 id="overview-recent-agents-title">Recent Agent versions</h4><ul class="overview-resource-list" id="overview-recent-agents"><li class="overview-empty">Connect to Core to load Agent versions.</li></ul></section>
+      <section class="overview-resource-panel" aria-labelledby="overview-recent-skills-title"><h4 id="overview-recent-skills-title">Recent Skill versions</h4><ul class="overview-resource-list" id="overview-recent-skills"><li class="overview-empty">Connect to Core to load Skill versions.</li></ul></section>
+    </div>
+    <div class="overview-shortcuts" aria-label="Workspace shortcuts">
+      <a class="overview-shortcut" href="#agent-goal-panel">Build an Agent</a><a class="overview-shortcut" href="#bench-tools">Explore tools</a><a class="overview-shortcut" href="#hypergraph-explorer">Open Hypergraph</a><a class="overview-shortcut" href="#evidence-explorer">Inspect evidence</a><a class="overview-shortcut" href="#runtime">Runtime diagnostics</a>
+    </div>
+  </section>
   <section class="taas-pipeline" aria-label="TaaS engineering lifecycle">
     <div class="pipeline-heading"><div><div class="eyebrow">TaaS engineering lifecycle</div><h2>From intent to governed execution</h2></div><span class="pill">Execution invocation not yet enabled</span></div>
     <div class="pipeline-steps">
@@ -1641,6 +1688,75 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     if(!r.ok) throw new Error(formatApiError(d.detail||d,"HTTP "+r.status));
     return d;
   };
+
+  const renderOverviewResourceList = (elementId, records, kind, emptyMessage) => {
+    const list=$(elementId); list.replaceChildren();
+    if(!records.length){
+      const empty=document.createElement("li"); empty.className="overview-empty";
+      empty.textContent=emptyMessage||("No "+kind+" versions are currently returned by the registry.");
+      list.append(empty); return;
+    }
+    records.slice(0,5).forEach(record=>{
+      const item=document.createElement("li");
+      const main=document.createElement("span"); main.className="overview-resource-main";
+      const title=document.createElement("strong");
+      title.textContent=(record.agent_id||record.skill_id||"Unknown")+(record.version?" · "+record.version:"");
+      const meta=document.createElement("small");
+      meta.textContent="Updated "+(record.updated_at||record.created_at||"timestamp not reported");
+      const state=document.createElement("span"); state.className="overview-resource-state";
+      state.textContent=record.revoked===true?"revoked":(record.lifecycle_state||"state unavailable");
+      main.append(title,meta); item.append(main,state); list.append(item);
+    });
+  };
+
+  const refreshPlatformOverview = async () => {
+    const button=$("overview-dashboard-refresh"), status=$("overview-dashboard-status");
+    button.disabled=true; status.textContent="Loading live Core resource summaries…";
+    ["agent","skill","tool","mcp"].forEach(key=>{
+      $("overview-"+key+"-count").textContent="—";
+      $("overview-"+key+"-state").textContent="Loading…";
+    });
+    const requests=await Promise.allSettled([
+      apiGet("/api/v1/agents?limit=100"),
+      apiGet("/api/v1/skills?limit=100"),
+      apiGet("/api/v1/bench/tools?source=all&limit=1&offset=0"),
+      apiGet("/api/v1/mcp/servers")
+    ]);
+    const labels=["Agent versions","Skill versions","Tool registry","MCP server configuration"];
+    let available=0;
+    const failed=[];
+    const showMetric=(key,value,detail)=>{
+      $("overview-"+key+"-count").textContent=String(value);
+      $("overview-"+key+"-state").textContent=detail;
+    };
+    if(requests[0].status==="fulfilled"){
+      const data=requests[0].value, versions=Array.isArray(data.versions)?data.versions:[];
+      showMetric("agent",data.count??versions.length,"Returned registry records · latest 100 maximum");
+      renderOverviewResourceList("overview-recent-agents",versions,"Agent");
+      available++;
+    }else{showMetric("agent","Unavailable",String(requests[0].reason?.message||requests[0].reason));renderOverviewResourceList("overview-recent-agents",[],"Agent","Agent registry unavailable: "+String(requests[0].reason?.message||requests[0].reason));failed.push(labels[0]);}
+    if(requests[1].status==="fulfilled"){
+      const data=requests[1].value, versions=Array.isArray(data.versions)?data.versions:[];
+      showMetric("skill",data.count??versions.length,"Returned registry records · latest 100 maximum");
+      renderOverviewResourceList("overview-recent-skills",versions,"Skill");
+      available++;
+    }else{showMetric("skill","Unavailable",String(requests[1].reason?.message||requests[1].reason));renderOverviewResourceList("overview-recent-skills",[],"Skill","Skill registry unavailable: "+String(requests[1].reason?.message||requests[1].reason));failed.push(labels[1]);}
+    if(requests[2].status==="fulfilled"){
+      const data=requests[2].value;
+      showMetric("tool",data.total??(Array.isArray(data.tools)?data.tools.length:0),"Registry total reported by Core");
+      available++;
+    }else{showMetric("tool","Unavailable",String(requests[2].reason?.message||requests[2].reason));failed.push(labels[2]);}
+    if(requests[3].status==="fulfilled"){
+      const servers=Array.isArray(requests[3].value.servers)?requests[3].value.servers:[];
+      showMetric("mcp",servers.length,"Configured servers returned by Core");
+      available++;
+    }else{showMetric("mcp","Unavailable",String(requests[3].reason?.message||requests[3].reason));failed.push(labels[3]);}
+    if(available===4)status.textContent="All four resource sources loaded from TaaS Core.";
+    else if(available>0)status.textContent="Partial data · "+available+"/4 sources loaded. Unavailable: "+failed.join(", ")+".";
+    else status.textContent="Overview unavailable · connect or verify the Studio API. "+failed.join(", ")+".";
+    button.disabled=false;
+  };
+  $("overview-dashboard-refresh").addEventListener("click",refreshPlatformOverview);
   const loadDatasets = async () => {
     const d=await apiGet("/api/v1/bench/datasets"); bench.datasets=d.datasets||[];
     $("bench-dataset-count").textContent=bench.datasets.length+" datasets";
@@ -2274,7 +2390,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     } finally { button.disabled = false; }
   });
 
-  // Restore the last successful Core response after a page refresh. This is
+  // The overview is explicitly refreshed by the user after Studio authentication.\n\n  // Restore the last successful Core response after a page refresh. This is
   // ephemeral per-tab UI state, not durable run history; the API token is never stored.
   restoreLastDiscoveryResult();
 
