@@ -1745,4 +1745,12 @@ def studio_home():
     page = Path(__file__).parent / "static" / "index.html"
     if not page.is_file():
         raise HTTPException(status_code=404, detail="Studio frontend is not installed")
-    return FileResponse(page, media_type="text/html")
+    return FileResponse(
+        page,
+        media_type="text/html",
+        headers={
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+            "Expires": "0",
+        },
+    )
