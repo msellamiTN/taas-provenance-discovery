@@ -82,7 +82,8 @@ def _declared_effects(tool: RawTool) -> dict[str, Any]:
         "open_world_hint": annotations.get("openWorldHint"),
         "evidence_class": "declared",
         "observed_effects": None,
-        "effect_claims": [],
+        "effect_claims": ["read(*)"] if annotations.get("readOnlyHint") is True else [],
+        "effects": ["read(*)"] if annotations.get("readOnlyHint") is True else [],
     }
 
 
@@ -103,7 +104,7 @@ def run_effect_baseline(baseline_id: str, tools: Sequence[RawTool]) -> dict[str,
     for tool in tools:
         if baseline_id == "effects_declared":
             declared = _declared_effects(tool)
-            effects = []
+            effects = list(declared["effects"])
             source = "MCP annotations (declarations only; not observed effects)"
         else:
             effects = sorted(str(e) for e in lexical_effects(
