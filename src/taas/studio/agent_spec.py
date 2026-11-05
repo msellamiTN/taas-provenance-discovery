@@ -123,6 +123,11 @@ class AgentSpec(StrictModel):
         skill_ids = [item.id for item in self.skills]
         if len(skill_ids) != len(set(skill_ids)):
             raise ValueError("skills contains duplicate skill IDs")
+        skill_instruction_chars = sum(len(item.instructions) for item in self.skills)
+        if skill_instruction_chars > 24000:
+            raise ValueError("combined skill instructions must not exceed 24000 characters")
+        if len(self.instructions) + skill_instruction_chars > 36000:
+            raise ValueError("combined Agent instructions and skill instructions must not exceed 36000 characters")
         grants = [(item.server_id, item.tool_name) for item in self.tool_allowlist]
         if len(grants) != len(set(grants)):
             raise ValueError("tool_allowlist contains duplicate server_id/tool_name grants")
