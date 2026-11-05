@@ -1689,11 +1689,11 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     return d;
   };
 
-  const renderOverviewResourceList = (elementId, records, kind) => {
+  const renderOverviewResourceList = (elementId, records, kind, emptyMessage) => {
     const list=$(elementId); list.replaceChildren();
     if(!records.length){
       const empty=document.createElement("li"); empty.className="overview-empty";
-      empty.textContent="No "+kind+" versions are currently returned by the registry.";
+      empty.textContent=emptyMessage||("No "+kind+" versions are currently returned by the registry.");
       list.append(empty); return;
     }
     records.slice(0,5).forEach(record=>{
@@ -1734,23 +1734,23 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       showMetric("agent",data.count??versions.length,"Returned registry records · latest 100 maximum");
       renderOverviewResourceList("overview-recent-agents",versions,"Agent");
       available++;
-    }else{showMetric("agent","Unavailable",requests[0].reason.message);renderOverviewResourceList("overview-recent-agents",[],"Agent");failed.push(labels[0]);}
+    }else{showMetric("agent","Unavailable",String(requests[0].reason?.message||requests[0].reason));renderOverviewResourceList("overview-recent-agents",[],"Agent","Agent registry unavailable: "+String(requests[0].reason?.message||requests[0].reason));failed.push(labels[0]);}
     if(requests[1].status==="fulfilled"){
       const data=requests[1].value, versions=Array.isArray(data.versions)?data.versions:[];
       showMetric("skill",data.count??versions.length,"Returned registry records · latest 100 maximum");
       renderOverviewResourceList("overview-recent-skills",versions,"Skill");
       available++;
-    }else{showMetric("skill","Unavailable",requests[1].reason.message);renderOverviewResourceList("overview-recent-skills",[],"Skill");failed.push(labels[1]);}
+    }else{showMetric("skill","Unavailable",String(requests[1].reason?.message||requests[1].reason));renderOverviewResourceList("overview-recent-skills",[],"Skill","Skill registry unavailable: "+String(requests[1].reason?.message||requests[1].reason));failed.push(labels[1]);}
     if(requests[2].status==="fulfilled"){
       const data=requests[2].value;
       showMetric("tool",data.total??(Array.isArray(data.tools)?data.tools.length:0),"Registry total reported by Core");
       available++;
-    }else{showMetric("tool","Unavailable",requests[2].reason.message);failed.push(labels[2]);}
+    }else{showMetric("tool","Unavailable",String(requests[2].reason?.message||requests[2].reason));failed.push(labels[2]);}
     if(requests[3].status==="fulfilled"){
       const servers=Array.isArray(requests[3].value.servers)?requests[3].value.servers:[];
       showMetric("mcp",servers.length,"Configured servers returned by Core");
       available++;
-    }else{showMetric("mcp","Unavailable",requests[3].reason.message);failed.push(labels[3]);}
+    }else{showMetric("mcp","Unavailable",String(requests[3].reason?.message||requests[3].reason));failed.push(labels[3]);}
     if(available===4)status.textContent="All four resource sources loaded from TaaS Core.";
     else if(available>0)status.textContent="Partial data · "+available+"/4 sources loaded. Unavailable: "+failed.join(", ")+".";
     else status.textContent="Overview unavailable · connect or verify the Studio API. "+failed.join(", ")+".";
