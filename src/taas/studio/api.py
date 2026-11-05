@@ -55,7 +55,7 @@ from taas.studio.ollama_runtime import get_ollama_runtime
 from taas.studio.mcp_registry import MCPRegistryError, inspect_server as inspect_mcp_server, list_servers as list_mcp_servers
 from taas.types import KINDS
 from taas.studio.assurance_routes import build_assurance_router
-from taas.hypergraph_projection import project_hypergraph
+from taas.hypergraph_projection import project_hypergraph, project_skill_dependency_graph
 
 app = FastAPI(
     title="TaaS Core Studio API",
@@ -1511,6 +1511,36 @@ def skill_dependency_graph_get(skill_id: str, version: str) -> dict[str, Any]:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
     return {
         **graph,
+        "semantic_correctness_verified": False,
+        "tools_authorized": False,
+        "execution_enabled": False,
+    }
+
+
+@app.get(
+    "/api/v1/hypergraph/skills/{skill_id}/versions/{version}",
+    dependencies=[Depends(require_api_token)],
+)
+def skill_hypergraph_projection_get(skill_id: str, version: str) -> dict[str, Any]:
+    """Return a read-only Core Hypergraph projection of an exact published Skill DAG."""
+    try:
+        resource = skill_registry.get_version(skill_id, version)
+        graph = skill_dependency_graph.resolve_skill_dependency_graph(
+            skill_id, version, resource["manifest_sha256"]
+        )
+        projection = project_skill_dependency_graph(graph)
+    except skill_registry.SkillRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except skill_dependency_graph.SkillDependencyNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except skill_dependency_graph.SkillDependencyGraphError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {
+        "skill_dependency_graph": graph,
+        "hypergraph_projection": projection,
+        "projection_source": "taas_core_skill_dependency_resolver",
         "semantic_correctness_verified": False,
         "tools_authorized": False,
         "execution_enabled": False,

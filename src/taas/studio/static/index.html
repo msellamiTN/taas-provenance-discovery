@@ -560,6 +560,22 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
           <aside class="hg-inspector" aria-live="polite"><h3 id="hg-inspector-title">Select a graph element</h3><div id="hg-inspector-body" class="subtle">Select a semantic type or hyperedge to inspect its server-provided attributes.</div></aside>
         </div>
         <div class="hg-legend"><span class="hg-key"><i class="hg-swatch type"></i>Semantic type</span><span class="hg-key"><i class="hg-swatch"></i>Tool hyperedge</span><span class="hg-key"><i class="hg-swatch model"></i>Model edge</span><span class="hg-key"><i class="hg-swatch bridge"></i>Bridge</span><span class="hg-key">Solid outline = reachable state supplied by Core</span></div>
+        <div class="hg-skill-panel" style="padding:14px;border-top:1px solid var(--line);background:#fbfcfe">
+          <div class="panel-head"><div><h3 style="margin:0;font-size:13px">Reusable Skill dependency graph</h3><p class="subtle" style="margin:4px 0 0">Load a published Skill's exact-pin dependency DAG into the same Hypergraph Explorer. These are composition relationships, not capability or authorization edges.</p></div><span class="pill">Read-only · exact pins</span></div>
+          <div style="display:grid;grid-template-columns:minmax(180px,1fr) minmax(120px,.45fr) auto;gap:9px;align-items:end">
+            <div class="field"><label for="hg-skill-id">Skill ID</label><input id="hg-skill-id" autocomplete="off" placeholder="root-skill"></div>
+            <div class="field"><label for="hg-skill-version">Version</label><input id="hg-skill-version" autocomplete="off" value="1.0.0"></div>
+            <button id="hg-skill-load" type="button">Load Skill DAG</button>
+          </div>
+          <div id="hg-skill-status" class="hg-status" role="status" aria-live="polite">No Skill dependency graph loaded.</div>
+          <div id="hg-skill-summary" class="result-grid" hidden></div>
+          <div id="hg-skill-graph" hidden>
+            <div style="overflow-x:auto"><table class="coverage-table"><thead><tr><th>Skill node</th><th>Exact version</th><th>Lifecycle</th><th>Manifest SHA-256</th><th>Role</th></tr></thead><tbody id="hg-skill-nodes"></tbody></table></div>
+            <h4 style="font-size:12px;margin:14px 0 4px">Dependency hyperedges</h4>
+            <div style="overflow-x:auto"><table class="coverage-table"><thead><tr><th>Source Skill</th><th>Relation</th><th>Target Skill</th><th>Authorization</th><th>Execution</th></tr></thead><tbody id="hg-skill-edges"></tbody></table></div>
+            <details><summary>Exact graph provenance and bounds</summary><pre id="hg-skill-provenance"></pre></details>
+          </div>
+        </div>
         <div id="hg-status" class="hg-status" role="status" aria-live="polite">No discovery projection loaded. This view never calculates reachability or invokes tools.</div>
       </section>
 
@@ -2158,6 +2174,67 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     } finally { button.disabled = false; }
   });
 
+
+  // Skill DAG projection is loaded from the authenticated Core endpoint.
+  // The browser only renders the exact server-returned pins and relations.
+  $("hg-skill-load").addEventListener("click", async () => {
+    const skillId = $("hg-skill-id").value.trim();
+    const version = $("hg-skill-version").value.trim();
+    const button = $("hg-skill-load");
+    const status = $("hg-skill-status");
+    const summary = $("hg-skill-summary");
+    const graphView = $("hg-skill-graph");
+    summary.hidden = true; summary.replaceChildren(); graphView.hidden = true;
+    if (!/^[a-z][a-z0-9-]{2,62}$/.test(skillId) || !/^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$/.test(version)) {
+      status.textContent = "Enter a valid Skill ID and semantic version.";
+      return;
+    }
+    button.disabled = true; status.textContent = "Resolving exact published Skill pins through TaaS Core…";
+    try {
+      const data = await apiGet("/api/v1/hypergraph/skills/" + encodeURIComponent(skillId) + "/versions/" + encodeURIComponent(version));
+      const projection = data.hypergraph_projection;
+      if (!projection || projection.schema !== "taas.hypergraph-projection/v1" || projection.projection_domain !== "skill_dependency_dag") {
+        throw new Error("Core returned an unsupported Skill graph projection.");
+      }
+      const nodes = projection.vertices || [], edges = projection.hyperedges || [];
+      [["Skills", nodes.length], ["Dependencies", edges.length], ["Graph digest", (projection.graph_metadata?.graph_sha256 || "").slice(0, 16) + "…"]].forEach(([label, value]) => {
+        const card = document.createElement("div"); card.className = "metric";
+        const caption = document.createElement("span"); caption.className = "subtle"; caption.textContent = label;
+        const strong = document.createElement("strong"); strong.style.fontSize = "13px"; strong.textContent = String(value);
+        card.append(caption, strong); summary.append(card);
+      });
+      $("hg-skill-nodes").replaceChildren();
+      nodes.forEach(node => {
+        const tr = document.createElement("tr");
+        [node.skill_id, node.version, node.lifecycle_state, node.manifest_sha256, node.root ? "Root" : "Dependency"].forEach(value => {
+          const td = document.createElement("td"); td.textContent = String(value ?? "Not reported"); tr.append(td);
+        });
+        $("hg-skill-nodes").append(tr);
+      });
+      $("hg-skill-edges").replaceChildren();
+      edges.forEach(edge => {
+        const tr = document.createElement("tr");
+        [edge.from.id + "@" + edge.from.version, edge.relation, edge.to.id + "@" + edge.to.version, edge.authorization_effect, edge.execution_effect].forEach(value => {
+          const td = document.createElement("td"); td.textContent = String(value); tr.append(td);
+        });
+        $("hg-skill-edges").append(tr);
+      });
+      $("hg-skill-provenance").textContent = JSON.stringify({
+        projection_id: projection.projection_id,
+        root: projection.graph_metadata?.root,
+        graph_sha256: projection.graph_metadata?.graph_sha256,
+        topological_order: projection.graph_metadata?.topological_order,
+        limits: data.skill_dependency_graph?.limits,
+        semantic_correctness_verified: data.semantic_correctness_verified,
+        tools_authorized: data.tools_authorized,
+        execution_enabled: data.execution_enabled
+      }, null, 2);
+      summary.hidden = false; graphView.hidden = false;
+      status.textContent = "Loaded " + nodes.length + " exact-pinned Skill nodes and " + edges.length + " dependency hyperedges from TaaS Core. No authorization or execution was performed.";
+    } catch (error) {
+      status.textContent = "Skill dependency graph unavailable: " + error.message;
+    } finally { button.disabled = false; }
+  });
 
   // Restore the last successful Core response after a page refresh. This is
   // ephemeral per-tab UI state, not durable run history; the API token is never stored.
