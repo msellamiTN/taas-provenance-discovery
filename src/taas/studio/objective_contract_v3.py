@@ -79,6 +79,35 @@ def _clause_modality(text: str, evidence: dict[str, Any]) -> list[re.Match[str]]
     return list(_MODALITY_MARKERS.finditer(text, start, end))
 
 
+def _source_clauses(text: str) -> list[dict[str, Any]]:
+    """Segment punctuation-delimited clauses with exact original offsets."""
+    clauses: list[dict[str, Any]] = []
+    start = 0
+    for index, char in enumerate(text):
+        if char in ";.!?\\n":
+            end = index
+            left = start
+            while left < end and text[left].isspace():
+                left += 1
+            right = end
+            while right > left and text[right - 1].isspace():
+                right -= 1
+            if left < right:
+                clauses.append({"id": f"clause_{len(clauses) + 1}", "span": {"start": left, "end": right}, "text": text[left:right], "outcome_refs": [], "clarification_refs": []})
+            start = index + 1
+    left = start
+    while left < len(text) and text[left].isspace():
+        left += 1
+    right = len(text)
+    while right > left and text[right - 1].isspace():
+        right -= 1
+    if left < right:
+        clauses.append({"id": f"clause_{len(clauses) + 1}", "span": {"start": left, "end": right}, "text": text[left:right], "outcome_refs": [], "clarification_refs": []})
+    return clauses
+
+def _clause_for_offset(clauses: list[dict[str, Any]], offset: int) -> dict[str, Any] | None:
+    return next((item for item in clauses if item["span"]["start"] <= offset < item["span"]["end"]), None)
+
 def derive_objective_contract_v3(
     objective: str,
     reference_date: Any = None,
@@ -90,6 +119,7 @@ def derive_objective_contract_v3(
     candidates = list(v2.get("required_goal_classes", []))
     clarifications: list[dict[str, Any]] = []
     outcomes: list[dict[str, Any]] = []
+    clauses = _source_clauses(original)
 
     for index, goal_class in enumerate(candidates, start=1):
         evidence = _source_evidence(original, goal_class)
