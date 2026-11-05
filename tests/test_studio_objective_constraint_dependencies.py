@@ -150,3 +150,91 @@ def test_core_gap_classification_does_not_change_gap_membership():
 
     assert set(result["tool_required_goal_ids"] + result["model_capability_gap_goal_ids"]) == set(gap_ids)
     assert result["status"] == "tool_and_model_capability_gaps_detected"
+
+
+def test_retrieved_record_target_is_not_misrepresented_as_user_or_source_input():
+    from taas.studio.api import canonicalize_retrieval_target_inputs
+
+    contract = {
+        "constraints": {
+            "inputs": {
+                "source_data_required": True,
+                "user_supplied_content": False,
+            }
+        }
+    }
+    spec = {
+        "prompt_inputs": ["customer_records"],
+        "goals": [
+            {
+                "id": "g1",
+                "class": "retrieve",
+                "in": ["customer_records"],
+                "out": "record[]",
+                "desc": "Retrieve customer records",
+                "deps": [],
+            },
+            {
+                "id": "g2",
+                "class": "aggregate",
+                "in": ["record[]"],
+                "out": "number",
+                "desc": "Calculate average transaction amount",
+                "deps": ["g1"],
+            },
+        ],
+    }
+
+    normalized, events = canonicalize_retrieval_target_inputs(spec, contract)
+
+    assert normalized["prompt_inputs"] == []
+    assert normalized["goals"][0]["in"] == []
+    assert normalized["goals"][0]["out"] == "record[]"
+    assert normalized["goals"][1]["in"] == ["record[]"]
+    assert [event["rule"] for event in events] == [
+        "retrieved_collection_is_output_not_source_input",
+        "retrieved_collection_is_output_not_user_prompt_input",
+    ]
+    assert spec["prompt_inputs"] == ["customer_records"]
+    assert spec["goals"][0]["in"] == ["customer_records"]
+
+
+def test_retrieval_input_canonicalization_is_disabled_for_user_supplied_content():
+    from taas.studio.api import canonicalize_retrieval_target_inputs
+
+    spec = {
+        "prompt_inputs": ["customer_records"],
+        "goals": [{"id": "g1", "class": "retrieve", "in": ["customer_records"]}],
+    }
+    contract = {
+        "constraints": {
+            "inputs": {
+                "source_data_required": True,
+                "user_supplied_content": True,
+            }
+        }
+    }
+
+    normalized, events = canonicalize_retrieval_target_inputs(spec, contract)
+
+    assert normalized == spec
+    assert events == []
+
+
+def test_self_dependencies_are_removed_with_auditable_provenance_only():
+    from taas.studio.api import canonicalize_self_dependencies
+
+    spec = {
+        "goals": [
+            {"id": "g1", "deps": ["g1", "g0"]},
+            {"id": "g0", "deps": []},
+        ]
+    }
+
+    normalized, events = canonicalize_self_dependencies(spec)
+
+    assert normalized["goals"][0]["deps"] == ["g0"]
+    assert normalized["goals"][1]["deps"] == []
+    assert events[0]["removed"] == ["g1"]
+    assert events[0]["rule"] == "self_dependency_removed"
+    assert spec["goals"][0]["deps"] == ["g1", "g0"]
