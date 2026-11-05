@@ -1,0 +1,67 @@
+name: Publish TAAS Studio E8 to Hugging Face
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: taas-studio-hf-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout deployment branch
+        uses: actions/checkout@v4
+
+      - name: Install Hugging Face CLI with OIDC support
+        run: |
+          python -m pip install --upgrade "huggingface_hub>=1.19.0"
+          hf --version
+
+      - name: Validate and extract deployment package
+        env:
+          BUNDLE: deploy/TAAS_Studio_E8_ZeroGPU_Deployment.zip
+          OUTPUT_DIR: ${{ runner.temp }}/taas-studio-space
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from zipfile import ZipFile
+
+          archive = Path(os.environ["BUNDLE"])
+          target = Path(os.environ["OUTPUT_DIR"])
+          if not archive.is_file():
+              raise SystemExit(f"Missing deployment bundle: {archive}")
+
+          required = {"README.md", "app.py", "e8_job.py", "run_e8_job.sh", "requirements.txt"}
+          with ZipFile(archive) as zf:
+              names = set(zf.namelist())
+              missing = required - names
+              if missing:
+                  raise SystemExit(f"Deployment bundle is incomplete: {sorted(missing)}")
+              for name in names:
+                  p = Path(name)
+                  if p.is_absolute() or ".." in p.parts:
+                      raise SystemExit(f"Unsafe archive path: {name}")
+              zf.extractall(target)
+
+          for name in sorted(required):
+              path = target / name
+              if not path.is_file() or path.stat().st_size == 0:
+                  raise SystemExit(f"Missing/empty deployed file: {name}")
+          print("Validated files:", ", ".join(sorted(required)))
+          PY
+
+      - name: Publish files to TAAS Studio Space
+        env:
+          HF_OIDC_RESOURCE: spaces/MSellami/TAAS_Studio
+          OUTPUT_DIR: ${{ runner.temp }}/taas-studio-space
+        run: |
+          hf upload MSellami/TAAS_Studio "$OUTPUT_DIR" . \
+            --repo-type=space \
+            --commit-message="Deploy PaMCP E8 ZeroGPU workbench from ${GITHUB_SHA::7}"
