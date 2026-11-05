@@ -28,7 +28,7 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
-          notebooks = [Path("notebooks/PaMCP_MultiBenchmark_v1.ipynb"), Path("notebooks/PaMCP_Core_Protocol_v2.ipynb")]
+          notebooks = [Path("notebooks/PaMCP_MultiBenchmark_v1.ipynb"), Path("notebooks/PaMCP_Core_Protocol_v2.ipynb"), Path("notebooks/PaMCP_Section_A_Preflight.ipynb")]
           for path in notebooks:
               notebook = json.loads(path.read_text())
               assert notebook.get("nbformat") == 4, f"{path}: invalid notebook format"
