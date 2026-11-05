@@ -8,7 +8,7 @@ from __future__ import annotations
 import copy
 from typing import Any
 
-from taas.studio import skill_registry
+from taas.studio import skill_dependency_graph
 
 
 class AgentSkillBindingError(RuntimeError):
@@ -23,11 +23,13 @@ class AgentSkillBindingConflict(AgentSkillBindingError):
     pass
 
 
-def resolve_agent_skill_references(manifest: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-    """Return a copy with exact published registry Skills materialized for context.
+def resolve_agent_skill_references(
+    manifest: dict[str, Any],
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Materialize exact published Skill DAGs in deterministic dependency-first order.
 
-    Each Agent reference pins both semantic version and the registry manifest digest.
-    Mutable aliases/latest tags are deliberately unsupported.
+    Agent references pin the root Skill ID, version and manifest digest. Every
+    transitive dependency is independently pinned by its parent manifest.
     """
     resolved_manifest = copy.deepcopy(manifest)
     spec = resolved_manifest.get("spec", {})
@@ -35,60 +37,90 @@ def resolve_agent_skill_references(manifest: dict[str, Any]) -> tuple[dict[str, 
     if not references:
         return resolved_manifest, []
 
-    embedded_ids = {
-        str(skill.get("id"))
-        for skill in spec.get("skills", [])
+    embedded = [
+        skill for skill in spec.get("skills", [])
         if isinstance(skill, dict)
-    }
+    ]
+    embedded_ids = {str(skill.get("id")) for skill in embedded}
     resolved: list[dict[str, Any]] = []
-    external_skills: list[dict[str, Any]] = []
+    materialized: dict[str, dict[str, Any]] = {}
+    materialized_pins: dict[str, tuple[str, str]] = {}
 
     for reference in references:
         skill_id = str(reference["id"])
         version = str(reference["version"])
         try:
-            resource = skill_registry.get_version(skill_id, version)
-        except skill_registry.SkillRegistryNotFound as exc:
-            raise AgentSkillBindingNotFound(
-                f"Referenced Skill {skill_id}@{version} does not exist"
-            ) from exc
-
-        if resource.get("lifecycle_state") != "published":
-            raise AgentSkillBindingConflict(
-                f"Referenced Skill {skill_id}@{version} must be published; "
-                f"current state is {resource.get('lifecycle_state')!r}"
+            graph = skill_dependency_graph.resolve_skill_dependency_graph(
+                skill_id,
+                version,
+                str(reference["manifest_sha256"]),
             )
-        actual_digest = resource.get("manifest_sha256")
-        if actual_digest != reference.get("manifest_sha256"):
-            raise AgentSkillBindingConflict(
-                f"Referenced Skill {skill_id}@{version} manifest digest does not match the pinned digest"
-            )
+        except skill_dependency_graph.SkillDependencyNotFound as exc:
+            raise AgentSkillBindingNotFound(str(exc)) from exc
+        except skill_dependency_graph.SkillDependencyGraphError as exc:
+            raise AgentSkillBindingConflict(str(exc)) from exc
 
-        skill_manifest = resource["manifest"]
-        metadata = skill_manifest["metadata"]
-        skill_spec = skill_manifest["spec"]
-        if metadata.get("id") != skill_id or metadata.get("version") != version:
-            raise AgentSkillBindingConflict("Skill Registry returned a mismatched immutable identity")
-        if skill_id in embedded_ids:
-            raise AgentSkillBindingConflict(
-                f"Skill {skill_id} is defined both as an embedded Skill and a reusable reference"
-            )
+        for node in graph["nodes"]:
+            node_id = node["id"]
+            pin = (node["version"], node["manifest_sha256"])
+            if node_id in embedded_ids:
+                raise AgentSkillBindingConflict(
+                    f"Skill {node_id} is defined both as an embedded Skill and a reusable dependency"
+                )
+            prior_pin = materialized_pins.get(node_id)
+            if prior_pin is not None and prior_pin != pin:
+                raise AgentSkillBindingConflict(
+                    f"Agent references conflicting versions or digests for Skill {node_id}"
+                )
+            materialized_pins[node_id] = pin
+            if node_id not in materialized:
+                materialized[node_id] = {
+                    "id": node_id,
+                    "name": node["name"],
+                    "version": node["version"],
+                    "description": "",
+                    "instructions": node["instructions"],
+                    "trigger_phrases": list(node["trigger_phrases"]),
+                }
 
-        external_skills.append({
-            "id": skill_id,
-            "name": metadata["name"],
-            "version": version,
-            "description": metadata.get("description", ""),
-            "instructions": skill_spec["instructions"],
-            "trigger_phrases": list(skill_spec["trigger_phrases"]),
-        })
-        resolved.append({
+        root_record = {
             "id": skill_id,
             "version": version,
-            "manifest_sha256": actual_digest,
-            "lifecycle_state": resource["lifecycle_state"],
+            "manifest_sha256": reference["manifest_sha256"],
+            "lifecycle_state": "published",
             "source": "skill_registry",
-        })
+        }
+        if len(graph["nodes"]) > 1:
+            root_record["dependency_graph_sha256"] = graph["graph_sha256"]
+            root_record["resolved_dependencies"] = [
+                {
+                    "id": node["id"],
+                    "version": node["version"],
+                    "manifest_sha256": node["manifest_sha256"],
+                }
+                for node in graph["nodes"]
+                if (node["id"], node["version"]) != (skill_id, version)
+            ]
+        resolved.append(root_record)
 
-    spec.setdefault("skills", []).extend(external_skills)
+    combined_skills = embedded + list(materialized.values())
+    if len(combined_skills) > 32:
+        raise AgentSkillBindingConflict(
+            "Resolved embedded and reusable Skills exceed the Agent limit of 32"
+        )
+    instruction_chars = sum(
+        len(str(skill.get("instructions", ""))) for skill in combined_skills
+    )
+    if instruction_chars > 24000:
+        raise AgentSkillBindingConflict(
+            "Resolved Skill instructions exceed the Agent limit of 24000 characters"
+        )
+    if len(str(spec.get("instructions", ""))) + instruction_chars > 36000:
+        raise AgentSkillBindingConflict(
+            "Resolved Agent and Skill instructions exceed the 36000-character context limit"
+        )
+
+    # Dict insertion order follows deterministic dependency-first topological
+    # order from each graph. Shared nodes are materialized once.
+    spec.setdefault("skills", []).extend(materialized.values())
     return resolved_manifest, resolved
