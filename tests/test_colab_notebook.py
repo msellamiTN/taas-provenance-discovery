@@ -66,6 +66,8 @@ def test_colab_notebook_pins_the_integrated_model_agent_studio_revision() -> Non
 def test_colab_covers_objective_constraint_dependency_namespace() -> None:
     _, _, code = notebook_source()
     assert "canonicalize_objective_constraint_dependencies" in code
+    assert "canonicalize_retrieval_target_inputs" in code
+    assert "canonicalize_self_dependencies" in code
     assert "tests/test_studio_objective_constraint_dependencies.py" in code
     assert "Objective Contract constraint/dependency namespace separation OK" in code
     assert f'TAAS_COMMIT = "{INTEGRATED_STUDIO_COMMIT}"' in code
