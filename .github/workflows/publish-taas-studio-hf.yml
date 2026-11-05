@@ -1,7 +1,12 @@
 name: Publish TAAS Studio E8 to Hugging Face
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - hf-space-deploy
+    paths:
+      - deploy/TAAS_Studio_E8_ZeroGPU_Deployment.zip
+      - .github/taas-hf-deploy-enabled
 
 permissions:
   contents: read
@@ -57,7 +62,7 @@ jobs:
           print("Validated files:", ", ".join(sorted(required)))
           PY
 
-      - name: Publish files to TAAS Studio Space
+      - name: Publish files to TAAS Studio Space using OIDC
         env:
           HF_OIDC_RESOURCE: spaces/MSellami/TAAS_Studio
           OUTPUT_DIR: ${{ runner.temp }}/taas-studio-space
