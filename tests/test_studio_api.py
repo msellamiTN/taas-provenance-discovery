@@ -988,7 +988,7 @@ def test_benchmark_task_import_synchronizes_registry_selection_and_clears_demo_t
 def test_benchmark_registry_selection_stays_synchronized_and_blocks_stale_demo_discovery():
     response = client.get("/")
     assert response.status_code == 200
-    page = response.text
+    page = response.text.replace("\r\n", "\n")
     assert "if(bench.selectedTask)" in page
     assert 'if(bench.selectedTask){\n          $("bench-goal-review").checked=false;' in page
     assert "syncBenchmarkToolsToRequest()" in page
@@ -1027,6 +1027,16 @@ def test_benchmark_discovery_requires_explicit_goal_spec_review():
     assert 'if(!$("bench-goal-review").checked)' in run_handler
     assert "review the GoalSpec against the selected task prompt" in run_handler
 
+
+
+def test_api_json_parsing_survives_empty_or_truncated_proxy_responses():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text.replace("\r\n", "\n")
+    assert "const readJsonResponse = async (response) =>" in page
+    assert "empty response body; the request may have been cut by a proxy timeout" in page
+    assert page.count("readJsonResponse(response)") + page.count("readJsonResponse(r)") >= 10
+    assert ".json()" not in page
 
 
 def test_visual_goal_editor_requires_authored_goal_description():
