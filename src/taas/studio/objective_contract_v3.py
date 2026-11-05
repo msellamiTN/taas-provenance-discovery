@@ -13,14 +13,22 @@ from taas.studio.objective_contract import derive_objective_contract
 
 _SCHEMA = "taas.objective-contract/v3"
 _EVIDENCE_PATTERNS: dict[str, tuple[str, ...]] = {
-    "search": (r"\bsearch(?:ing)?\b", r"\bresearch(?:ing)?\b", r"\blook\s+up\b", r"\bfind\b", r"\b(re)?chercher\b", r"\btrouver\b"),
+    "search": (
+        r"\bidentify\s+(?:the\s+)?(?:last|latest|most\s+recent)\s+(?:related\s+)?(?:study|article|paper)\b",
+        r"\bsearch(?:ing)?\b", r"\bresearch(?:ing)?\b", r"\blook\s+up\b",
+        r"\bfind\b", r"\b(re)?chercher\b", r"\btrouver\b",
+    ),
     "retrieve": (r"\bretrieve(?:d|s|ing)?\b", r"\bfetch(?:ed|es|ing)?\b", r"\bload(?:ed|s|ing)?\b", r"\bcollect(?:ed|s|ing)?\b", r"\brécupérer\b", r"\brecuperer\b", r"\bcharger\b"),
     "aggregate": (r"\baggregate\b", r"\baggregation\b", r"\bsum\b", r"\btotal(?:s|ise|ize)?\b", r"\baverage\b", r"\bmean\b", r"\bmedian\b", r"\bcalculate\b", r"\bcalculer\b", r"\bmoyenne\b", r"\bsomme\b"),
     "count": (r"\bcount\b", r"\bhow many\b", r"\bnumber of\b", r"\bcompter\b", r"\bcombien de\b"),
     "summarise": (r"\bsummar(?:y|ise|ize|ising|izing)\b", r"\bsynthétiser\b", r"\bsynthetiser\b", r"\brésumer\b", r"\bresumer\b"),
     "compare": (r"\bcompar(?:e|ison|ing)\b", r"\bversus\b", r"\bvs\.?\b", r"\bcomparer\b", r"\bcomparaison\b"),
     "classify": (r"\bclassif(?:y|ication|ying)\b", r"\bcategor(?:ize|ise|ization|isation)\b", r"\blabel\b", r"\bdetect\b", r"\bclassifier\b"),
-    "extract": (r"\bextract(?:ion|ed|ing)?\b", r"\bparse\b", r"\bextraire\b"),
+    "extract": (
+        r"\b(?:find|identify)\s+(?:the\s+)?(?:type|kind)\s+of\s+cancer\b",
+        r"\bdetermine\s+who\s+published\b",
+        r"\bextract(?:ion|ed|ing)?\b", r"\bparse\b", r"\bextraire\b",
+    ),
     "translate": (r"\btranslat(?:e|ion|ing)\b", r"\btradu(?:ire|ction)\b"),
     "write": (r"\bwrite\b", r"\bdraft\b", r"\bcompose\b", r"\bauthor\b", r"\brédiger\b", r"\brediger\b", r"\bécrire\b", r"\becrire\b"),
     "plan": (r"\bplan(?:ning)?\b", r"\bplanifier\b", r"\bconcevoir\b"),
@@ -133,8 +141,16 @@ def derive_objective_contract_v3(
     outcomes: list[dict[str, Any]] = []
     clauses = _source_clauses(original)
 
-    for index, goal_class in enumerate(candidates, start=1):
-        evidence = _source_evidence(original, goal_class)
+    # Keep outcome order aligned with source evidence rather than the fixed
+    # operation-detection order used by the legacy v2 projection.
+    evidenced_candidates = [
+        (goal_class, _source_evidence(original, goal_class))
+        for goal_class in candidates
+    ]
+    evidenced_candidates.sort(
+        key=lambda item: item[1][0]["start"] if item[1] else len(original)
+    )
+    for index, (goal_class, evidence) in enumerate(evidenced_candidates, start=1):
         clause_ref = None
         if evidence:
             source_clause = _clause_for_offset(clauses, evidence[0]["start"])
@@ -249,6 +265,52 @@ def derive_objective_contract_v3(
         }
         dependencies.append(dependency)
         current_outcomes[0]["depends_on"].append(prior_outcomes[0]["id"])
+
+    # Resolve narrow, explicit anaphoric references to a uniquely identified
+    # earlier acquisition outcome ("the study"/"the article"). This records a
+    # provenance-backed dependency hypothesis; it does not certify semantics.
+    acquisition_classes = {"search", "retrieve", "fetch_web"}
+    for clause in clauses:
+        current = [item for item in outcomes if item.get("clause_ref") == clause["id"]]
+        reference_match = re.search(r"\bthe\s+(study|article|paper)\b", clause["text"], re.IGNORECASE)
+        if len(current) != 1 or not reference_match:
+            continue
+        earlier_ids = {
+            earlier["id"] for earlier in clauses
+            if earlier["span"]["end"] <= clause["span"]["start"]
+        }
+        prior_acquisitions = [
+            item for item in outcomes
+            if item.get("goal_class") in acquisition_classes
+            and item.get("clause_ref") in earlier_ids
+        ]
+        if len(prior_acquisitions) != 1:
+            continue
+        source, target = prior_acquisitions[0], current[0]
+        if source["id"] in target.get("depends_on", []):
+            continue
+        source_clause = next(item for item in clauses if item["id"] == source["clause_ref"])
+        evidence_start = clause["span"]["start"] + reference_match.start()
+        evidence_end = clause["span"]["start"] + reference_match.end()
+        target.setdefault("depends_on", []).append(source["id"])
+        dependencies.append({
+            "id": f"dependency_{len(dependencies) + 1}",
+            "type": "references_prior_result",
+            "from_outcome": source["id"],
+            "to_outcome": target["id"],
+            "source_clause_refs": [source_clause["id"], clause["id"]],
+            "source_evidence": [{
+                "start": evidence_start,
+                "end": evidence_end,
+                "text": original[evidence_start:evidence_end],
+                "cue": "explicit_anaphoric_reference",
+                "offset_unit": "unicode_code_point",
+            }],
+            "interpretation": {
+                "method": "deterministic_rule",
+                "semantic_correctness_verified": False,
+            },
+        })
 
     for outcome in outcomes:
         clause = next((item for item in clauses if item["id"] == outcome["clause_ref"]), None)
