@@ -41,3 +41,10 @@ The canonical Colab notebook includes the Objective Contract v3 test module and 
 ## Clause provenance graph increment
 
 The v3 projection now includes a `clauses` collection. Clauses are conservative punctuation/newline-delimited source segments with exact Unicode code-point spans into the unchanged objective. Each emitted outcome carries a `clause_ref`; each clause lists its linked `outcome_refs` and `clarification_refs`. This is a provenance association only: it does not infer causal or execution dependencies between clauses. The validator checks clause span integrity, unique clause IDs, outcome-to-clause references, and reverse-reference consistency. Clauses without supported operation evidence remain visible without being promoted to outcomes.
+
+
+## Explicit semantic dependency relations
+
+The next increment emits a `precedes` dependency only when a clause begins with an explicit `then`, `after`, or `once` cue and the immediately preceding clause and current clause each resolve to exactly one source-grounded outcome. The relation records both outcome IDs, both clause IDs, and the exact marker span. The target outcome mirrors the relation through `depends_on`.
+
+If either endpoint is ambiguous, the engine emits a blocking clarification instead of a relation. Mere clause order does not create a dependency. Condition and alternative relation arrays remain empty until their scope and endpoints can be resolved with equally conservative rules. All emitted relations remain proposals: semantic correctness is unverified, human review is required, discovery remains blocked, and no execution is introduced.
