@@ -180,6 +180,54 @@ def derive_objective_contract_v3(
             },
         })
 
+    # Resolve only explicit cross-clause sequencing cues with one grounded
+    # outcome on each side. Textual order alone never creates a dependency.
+    dependencies: list[dict[str, Any]] = []
+    relation_cue = re.compile(r"^\\s*(then|after|once)\\b", re.IGNORECASE)
+    for clause_index, clause in enumerate(clauses):
+        cue_match = relation_cue.search(clause["text"])
+        if not cue_match or clause_index == 0:
+            continue
+        previous = clauses[clause_index - 1]
+        prior_outcomes = [item for item in outcomes if item.get("clause_ref") == previous["id"]]
+        current_outcomes = [item for item in outcomes if item.get("clause_ref") == clause["id"]]
+        if len(prior_outcomes) != 1 or len(current_outcomes) != 1:
+            clarifications.append({
+                "id": f"clarification_{len(clarifications) + 1}",
+                "question": "Clarify which preceding and following outcomes this sequencing phrase connects.",
+                "reason": "dependency_endpoints_ambiguous",
+                "affected_goal_classes": sorted({item["goal_class"] for item in prior_outcomes + current_outcomes}),
+                "clause_ref": clause["id"],
+                "blocking": True,
+                "source_evidence": [{
+                    "start": clause["span"]["start"] + cue_match.start(1),
+                    "end": clause["span"]["start"] + cue_match.end(1),
+                    "text": cue_match.group(1),
+                    "cue": "explicit_dependency_marker",
+                    "offset_unit": "unicode_code_point",
+                }],
+            })
+            continue
+        relation_id = f"dependency_{len(dependencies) + 1}"
+        evidence_start = clause["span"]["start"] + cue_match.start(1)
+        evidence_end = clause["span"]["start"] + cue_match.end(1)
+        dependency = {
+            "id": relation_id,
+            "type": "precedes",
+            "from_outcome": prior_outcomes[0]["id"],
+            "to_outcome": current_outcomes[0]["id"],
+            "source_clause_refs": [previous["id"], clause["id"]],
+            "source_evidence": [{
+                "start": evidence_start, "end": evidence_end,
+                "text": original[evidence_start:evidence_end],
+                "cue": "explicit_dependency_marker",
+                "offset_unit": "unicode_code_point",
+            }],
+            "interpretation": {"method": "deterministic_rule", "semantic_correctness_verified": False},
+        }
+        dependencies.append(dependency)
+        current_outcomes[0]["depends_on"].append(prior_outcomes[0]["id"])
+
     for outcome in outcomes:
         clause = next((item for item in clauses if item["id"] == outcome["clause_ref"]), None)
         if clause: clause["outcome_refs"].append(outcome["id"])
@@ -199,7 +247,7 @@ def derive_objective_contract_v3(
         "outcomes": outcomes,
         "conditions": [],
         "alternatives": [],
-        "dependencies": [],
+        "dependencies": dependencies,
         "inputs": [],
         "outputs": [],
         "constraints": v2.get("constraints", {}),
@@ -260,6 +308,31 @@ def validate_objective_contract_v3(contract: dict[str, Any]) -> list[str]:
                 continue
             if original[start:end] != evidence.get("text"):
                 errors.append("evidence_span_text_mismatch")
+    outcome_by_id = {item.get("id"): item for item in contract.get("outcomes", [])}
+    dependency_ids: set[str] = set()
+    for dependency in contract.get("dependencies", []):
+        dep_id = dependency.get("id")
+        if not dep_id or dep_id in dependency_ids:
+            errors.append("dependency_id_missing_or_duplicate")
+        dependency_ids.add(dep_id)
+        source_id, target_id = dependency.get("from_outcome"), dependency.get("to_outcome")
+        if source_id not in outcome_by_id or target_id not in outcome_by_id:
+            errors.append("dependency_outcome_ref_invalid")
+            continue
+        if source_id == target_id:
+            errors.append("dependency_self_reference")
+        if source_id not in outcome_by_id[target_id].get("depends_on", []):
+            errors.append("dependency_outcome_link_inconsistent")
+        clause_refs = dependency.get("source_clause_refs", [])
+        if len(clause_refs) != 2 or any(ref not in clause_ids for ref in clause_refs):
+            errors.append("dependency_clause_ref_invalid")
+        for evidence in dependency.get("source_evidence", []):
+            start, end = evidence.get("start"), evidence.get("end")
+            if not isinstance(start, int) or not isinstance(end, int) or start < 0 or end <= start or end > len(original):
+                errors.append("dependency_evidence_span_out_of_bounds")
+            elif original[start:end] != evidence.get("text"):
+                errors.append("dependency_evidence_span_text_mismatch")
+
     for clause in clauses:
         for outcome_ref in clause.get("outcome_refs", []):
             outcome = next((item for item in contract.get("outcomes", []) if item.get("id") == outcome_ref), None)
