@@ -114,7 +114,10 @@ def test_agent_decompose_performs_only_one_bounded_refinement(monkeypatch):
     assert response["conformance"]["accepted_for_human_review"] is True
     assert response["conformance"]["auto_applied"] is False
     assert response["conformance"]["semantic_correctness_verified"] is False
-    assert response["core_analysis"]["status"] == "capability_gap_detected"
+    assert response["core_analysis"]["status"] == "tool_and_model_capability_gaps_detected"
+    assert response["core_analysis"]["tool_required_goal_ids"] == ["g1"]
+    assert response["core_analysis"]["model_capability_gap_goal_ids"] == ["g2"]
+    assert response["core_analysis"]["gap_goal_ids"] == ["g1", "g2"]
     assert response["core_analysis"]["goal_order"] == ["g1", "g2"]
     assert response["objective_contract"]["operation"] == "aggregate"
     assert response["objective_coverage"]["summary"] == {
