@@ -129,6 +129,7 @@ def test_instruction_and_skill_digests_are_stable_and_content_is_not_in_trace():
         manifest["spec"]["instructions"].encode("utf-8")
     ).hexdigest()
     assert trace["instructions_sha256"] == expected
+    assert len(trace["effective_context_sha256"]) == 64
     assert trace["skills"][0]["instructions_sha256"] == hashlib.sha256(
         manifest["spec"]["skills"][0]["instructions"].encode("utf-8")
     ).hexdigest()
