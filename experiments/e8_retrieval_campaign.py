@@ -33,12 +33,13 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import TruncatedSVD
 
 from taas.data.registries import load_mcptoolbenchpp
 from taas.experiments.evaluation_metrics import ranking_metrics
 
 
-REQUIRED_BASELINES = ("random", "bm25", "tfidf", "e5_dense", "bm25_e5_rrf", "cross_encoder")
+REQUIRED_BASELINES = ("random", "bm25", "tfidf", "dense_lsa", "e5_dense", "bm25_e5_rrf", "cross_encoder")
 K_VALUES = (1, 5, 10)
 RRF_K0 = 60
 CROSS_ENCODER_CANDIDATE_K = 100
@@ -297,6 +298,34 @@ def _tfidf_rankings(
         scores = (query @ matrix.T).toarray().ravel()
         result[task.task_id] = _rank_scores(scores, ids, top_k)
     return result
+
+
+def _lsa_rankings(
+    docs: Sequence[ToolDocument], tasks: Sequence[DiscoveryTask], top_k: int,
+    dimension: int = 128, seed: int = 0,
+) -> dict[str, list[str]]:
+    """Explicit LSA surrogate (TF-IDF + truncated SVD), not a neural dense encoder."""
+    ids = [x.tool_id for x in docs]
+    vectorizer = TfidfVectorizer(
+        tokenizer=_tokenize, preprocessor=None, token_pattern=None,
+        lowercase=False, norm="l2", sublinear_tf=True,
+    )
+    matrix = vectorizer.fit_transform([x.text for x in docs])
+    components = min(dimension, matrix.shape[0] - 1, matrix.shape[1] - 1)
+    if components < 1:
+        raise ValueError("LSA requires at least two documents and two vocabulary terms")
+    svd = TruncatedSVD(n_components=components, random_state=seed, n_iter=7)
+    tool_vectors = svd.fit_transform(matrix)
+    tool_norms = np.linalg.norm(tool_vectors, axis=1, keepdims=True)
+    tool_vectors = tool_vectors / np.maximum(tool_norms, 1e-12)
+    query_vectors = svd.transform(vectorizer.transform([x.query for x in tasks]))
+    query_norms = np.linalg.norm(query_vectors, axis=1, keepdims=True)
+    query_vectors = query_vectors / np.maximum(query_norms, 1e-12)
+    scores = query_vectors @ tool_vectors.T
+    return {
+        task.task_id: _rank_scores(np.asarray(scores[i], dtype=float), ids, top_k)
+        for i, task in enumerate(tasks)
+    }
 
 
 def _load_sentence_models(
@@ -583,7 +612,7 @@ def evaluate_track(
 
     paired = []
     if "bm25" in rankings:
-        for competitor in ("tfidf", "random", "e5_dense", "bm25_e5_rrf", "cross_encoder"):
+        for competitor in ("tfidf", "dense_lsa", "random", "e5_dense", "bm25_e5_rrf", "cross_encoder"):
             if competitor not in rankings:
                 continue
             for metric, k in (("hit", 1), ("hit", 5), ("mrr", 10), ("ndcg", 10)):
@@ -867,6 +896,18 @@ def run_campaign(
             cache_hits.append("tfidf")
         rankings["tfidf"] = cached
 
+        # LSA is retained as the explicitly labelled non-neural dense surrogate.
+        lsa_path = run_dir / f"{track.dataset_id}_dense_lsa_rankings.json"
+        lsa_meta = run_dir / f"{track.dataset_id}_dense_lsa_cache.json"
+        cached = _load_ranking_cache(lsa_path, lsa_meta, cache_key("dense_lsa"),
+                                     task_ids, tool_ids, top_k)
+        if cached is None:
+            cached = _lsa_rankings(docs, tasks, top_k, dimension=128, seed=0)
+            _save_ranking_cache(lsa_path, lsa_meta, cached, cache_key("dense_lsa"), "dense_lsa")
+        else:
+            cache_hits.append("dense_lsa")
+        rankings["dense_lsa"] = cached
+
         # E5 and truncated-union RRF are computed together and cached separately.
         dense_path = run_dir / f"{track.dataset_id}_e5_dense_rankings.json"
         dense_meta = run_dir / f"{track.dataset_id}_e5_dense_cache.json"
@@ -917,6 +958,15 @@ def run_campaign(
             "source": track.source_manifest,
             "baseline_status": {baseline: "EXECUTED" for baseline in rankings},
             "baseline_ids_executed": list(rankings),
+            "baseline_fidelity": {
+                "bm25": "native lexical baseline",
+                "tfidf": "native lexical baseline",
+                "random": "deterministic sanity baseline",
+                "dense_lsa": "surrogate: TF-IDF plus truncated SVD",
+                "e5_dense": "pinned neural dense encoder",
+                "bm25_e5_rrf": "adaptation: reciprocal-rank fusion over BM25/E5 top-100 candidates",
+                "cross_encoder": "reranker adaptation over BM25 top-100 candidates",
+            },
             "cache_hits": cache_hits,
             "cache_misses": [baseline for baseline in rankings if baseline not in cache_hits],
             "plots": plots,
@@ -930,6 +980,7 @@ def run_campaign(
     blocked = {
         "B1": {"status": "BLOCKED_DATA", "reason": "No B1 source data/split is present in the tracked repository tree."},
         "B1m": {"status": "BLOCKED_DATA", "reason": "No B1m source data/split is present in the tracked repository tree."},
+        "mcp_atlas_public": {"status": "BLOCKED_DIAGNOSTIC_MAPPING", "reason": "Trajectory-to-enabled-tool identity resolution and a coverage-only diagnostic must be frozen before scoring; trajectories are not exhaustive gold sets."},
         "mcp_zero": {"status": "BLOCKED_ADAPTATION_INPUTS", "reason": "E8's single-tool requests do not include frozen GoalSpecs or the official active-request loop."},
         "per_subtask": {"status": "BLOCKED_ADAPTATION_INPUTS", "reason": "Requires frozen goal decompositions; not inferred from evaluator qrels."},
         "colt_adapted": {"status": "BLOCKED_TRAIN_SPLIT", "reason": "No declared ToolRet/MCPToolBench++ train/test task-tool bundle split is supplied to E8."},
