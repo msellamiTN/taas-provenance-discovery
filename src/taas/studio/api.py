@@ -381,7 +381,7 @@ def canonicalize_arithmetic_expressions_from_effects(
         return candidate, []
 
     arithmetic_functions = {"sum", "count", "avg", "mean", "min", "max"}
-    token_pattern = re.compile(r"[A-Za-z_][A-Za-z0-9_.]*|\\d+(?:\\.\\d+)?|[()+\\-*/%,]")
+    token_pattern = re.compile(r"[A-Za-z_][A-Za-z0-9_.]*|[0-9]+(?:[.][0-9]+)?|[()+*/%,+-]")
     events: list[dict[str, Any]] = []
 
     def is_arithmetic_expression(value: Any) -> bool:
