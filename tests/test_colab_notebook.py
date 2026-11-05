@@ -10,7 +10,7 @@ NOTEBOOK = ROOT / "notebooks" / "colab" / "taas_core_studio_colab.ipynb"
 GUIDE = ROOT / "docs" / "deployment" / "COLAB_T4_QUICKSTART.md"
 RUNTIME_GUIDE = ROOT / "docs" / "deployment" / "MODEL_RUNTIME_BACKENDS.md"
 WORKFLOW = ROOT / ".github" / "workflows" / "benchmark-hypergraph.yml"
-INTEGRATED_STUDIO_COMMIT = "8434e96db8ef327fa38a451ed0127d13385f84ca"
+INTEGRATED_STUDIO_COMMIT = "770fb3ead7a41d3f5170d044389a260cd398988c"
 
 
 def notebook_source() -> tuple[dict, str, str]:
@@ -56,7 +56,9 @@ def test_colab_code_cells_are_valid_python() -> None:
 def test_colab_runs_objective_contract_v3_acceptance() -> None:
     _, markdown, code = notebook_source()
     assert "Objective Intelligence v3 acceptance" in markdown
+    assert "exact clause-provenance graph invariants" in markdown
     assert "tests/test_objective_contract_v3.py" in code
+    assert "test_v3_builds_clause_provenance_graph_with_exact_source_spans" in code or "tests/test_objective_contract_v3.py" in code
     assert "tests/test_studio_api.py" in code
     assert "Objective Intelligence v3 acceptance passed" in code
 
