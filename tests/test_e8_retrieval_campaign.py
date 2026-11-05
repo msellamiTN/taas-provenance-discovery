@@ -73,6 +73,7 @@ def test_mcp_toolbench_track_uses_only_single_resolved_target(monkeypatch):
         Task("ambig", "search ambiguous", "MCPToolBench++", "web", ["s1::search|s2::search"], [], 1),
     ]
     monkeypatch.setattr(e8, "load_mcptoolbenchpp", lambda _: (tools, tasks))
+    (tmp_path / "SOURCES.txt").write_text("MCPToolBenchPP test revision\\n")
     track = e8.load_mcptoolbenchpp_track(tmp_path)
     assert [x.task_id for x in track.tasks] == ["web::one"]
     assert track.qrels == {"web::one": {"s1::search": 1.0}}
@@ -109,5 +110,6 @@ def test_mcp_toolbench_cluster_mapping_uses_gold_server(monkeypatch, tmp_path):
     tools = [RawTool("provider-z", "lookup", "Lookup", {}, None, None, "MCPToolBench++", "search")]
     tasks = [Task("q", "lookup", "MCPToolBench++", "search", ["provider-z::lookup"], [], 1)]
     monkeypatch.setattr(e8, "load_mcptoolbenchpp", lambda _: (tools, tasks))
+    (tmp_path / "SOURCES.txt").write_text("MCPToolBenchPP test revision\\n")
     track = e8.load_mcptoolbenchpp_track(tmp_path)
     assert track.cluster_by_task == {"search::q": "provider-z"}
