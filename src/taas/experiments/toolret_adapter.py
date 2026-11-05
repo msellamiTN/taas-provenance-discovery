@@ -7,6 +7,7 @@ query's positive labels would create severe candidate-set leakage.
 from __future__ import annotations
 
 from pathlib import Path
+import json
 from typing import Any, Mapping, Sequence
 
 from taas.experiments.benchmark_adapters import _sha256, _write_json
@@ -87,13 +88,42 @@ def adapt_toolret_records(
     missing_labels = set()
     for row in task_records:
         task_id = str(row.get("id", row.get("task_id", ""))).strip()
-        query = str(row.get("query", row.get("prompt", ""))).strip()
+        query_value = row.get("query", row.get("prompt", ""))
+        query = str(query_value).strip() if query_value is not None else ""
         if not task_id or not query:
-            raise ValueError("ToolRet task requires id and query")
+            context = {
+                "row_index": len(discovery_tasks),
+                "available_fields": sorted(str(k) for k in row.keys()),
+                "id": row.get("id", row.get("task_id")),
+                "query_preview": query[:120],
+                "query_is_null": query_value is None,
+                "category": row.get("category"),
+                "task": row.get("task"),
+            }
+            raise ValueError(
+                "Malformed ToolRet query record (expected non-empty id/task_id and query/prompt). "
+                f"Record context: {context}. Check the source config and pinned HF revision."
+            )
         if task_id in seen_tasks:
             raise ValueError(f"Duplicate ToolRet task ID: {task_id}")
         seen_tasks.add(task_id)
         labels = row.get("labels", []) or []
+        # Hugging Face exposes the nested qrels as a JSON-encoded string.
+        # Decode explicitly; iterating a string would silently discard every label.
+        if isinstance(labels, str):
+            try:
+                labels = json.loads(labels) if labels.strip() else []
+            except json.JSONDecodeError as exc:
+                raise ValueError(
+                    f"Invalid JSON in ToolRet labels for task {task_id}: {exc}"
+                ) from exc
+        if isinstance(labels, dict):
+            labels = labels.get("labels", labels.get("relevance_judgments", []))
+        if not isinstance(labels, list):
+            raise ValueError(
+                f"ToolRet labels for task {task_id} must decode to a list; "
+                f"got {type(labels).__name__}"
+            )
         judgments = []
         for label in labels:
             if not isinstance(label, dict):
@@ -181,7 +211,13 @@ def adapt_toolret_hf(
         dataset = load_dataset(query_repo, config, revision=query_revision)
         split_name = "queries" if "queries" in dataset else next(iter(dataset.keys()))
         for row in dataset[split_name]:
-            task_records.append(dict(row) | {"task": config})
+            record = dict(row) | {"task": config}
+            # Dataset IDs are only guaranteed unique inside their source config.
+            raw_id = str(record.get("id", record.get("task_id", ""))).strip()
+            if raw_id:
+                record["id"] = f"{config}::{raw_id}"
+            record["category"] = record.get("category") or config
+            task_records.append(record)
     for config in t_configs:
         dataset = load_dataset(tool_repo, config, revision=tool_revision)
         split_name = "tools" if "tools" in dataset else next(iter(dataset.keys()))
@@ -199,6 +235,12 @@ def adapt_toolret_hf(
     }
     manifest["counts"]["query_configs"] = len(q_configs)
     manifest["counts"]["tool_configs"] = len(t_configs)
+    manifest["counts"]["raw_query_rows"] = len(task_records)
+    manifest["counts"]["qrel_tasks"] = manifest["counts"]["tasks_with_qrels"]
+    manifest["source_revisions"]["query_config_row_counts"] = {
+        config: sum(1 for row in task_records if row.get("task") == config)
+        for config in q_configs
+    }
     _write_json(Path(output_dir) / "manifest.json", manifest)
     return manifest
 
