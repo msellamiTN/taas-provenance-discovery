@@ -284,3 +284,176 @@ def project_skill_dependency_graph(skill_graph: dict[str, Any]) -> dict[str, Any
     }
     body["projection_id"] = _stable_id("hgp", body)
     return body
+
+
+_TRACE_BOUNDS = {"clauses": 64, "outcomes": 64, "skills": 32, "edges": 256}
+
+
+def _skill_vertex_id(skill_id: str, version: Any) -> str:
+    return f"skill:{skill_id}@{version}" if isinstance(version, str) and version else f"skill:{skill_id}"
+
+
+def project_objective_skill_traceability(trace: dict[str, Any]) -> dict[str, Any]:
+    """Project an Objective-to-Skill traceability record into the shared explorer schema.
+
+    These relations are lexical/structural provenance only: a skill triggered in a
+    clause is associated with that clause, never asserted to have produced an
+    outcome, a goal, a capability, an authorization, or an execution.
+    """
+    if not isinstance(trace, dict) or trace.get("schema") != "taas.objective-skill-traceability/v1":
+        raise ValueError("invalid objective_skill_traceability payload")
+    clauses = trace.get("clauses", [])
+    outcomes = trace.get("outcome_provenance", [])
+    skills = trace.get("skill_selection", [])
+    goals = trace.get("goal_provenance", [])
+    for name, items, limit in (
+        ("clauses", clauses, _TRACE_BOUNDS["clauses"]),
+        ("outcome_provenance", outcomes, _TRACE_BOUNDS["outcomes"]),
+        ("skill_selection", skills, _TRACE_BOUNDS["skills"]),
+        ("goal_provenance", goals, _TRACE_BOUNDS["edges"]),
+    ):
+        if not isinstance(items, list) or len(items) > limit:
+            raise ValueError(f"objective traceability {name} missing or exceeds projection bounds")
+
+    vertices: dict[str, dict[str, Any]] = {}
+    hyperedges: list[dict[str, Any]] = []
+    seen_edges: set[tuple[str, str, str]] = set()
+
+    def add_edge(kind: str, relation: str, source_vertex: str, target_vertex: str,
+                 extra: dict[str, Any]) -> None:
+        key = (relation, source_vertex, target_vertex)
+        if key in seen_edges:
+            return
+        if len(hyperedges) >= _TRACE_BOUNDS["edges"]:
+            raise ValueError("objective traceability edges exceed projection bounds")
+        seen_edges.add(key)
+        hyperedges.append({
+            "id": _stable_id("objtrace", {
+                "relation": relation, "from": source_vertex, "to": target_vertex,
+            }),
+            "kind": kind,
+            "relation": relation,
+            "source_vertex": source_vertex,
+            "target_vertex": target_vertex,
+            "authorization_effect": "none",
+            "execution_effect": "none",
+            **extra,
+        })
+
+    for clause in clauses:
+        if not isinstance(clause, dict) or not clause.get("clause_id"):
+            raise ValueError("malformed objective clause in traceability record")
+        clause_id = str(clause["clause_id"])
+        vertices[f"clause:{clause_id}"] = {
+            "id": f"clause:{clause_id}",
+            "kind": "objective_clause",
+            "clause_id": clause_id,
+            "span": clause.get("span"),
+            "outcome_refs": list(clause.get("outcome_refs", [])),
+        }
+
+    for outcome in outcomes:
+        if not isinstance(outcome, dict) or not outcome.get("outcome_id"):
+            raise ValueError("malformed outcome provenance in traceability record")
+        outcome_id = str(outcome["outcome_id"])
+        clause_ref = outcome.get("clause_ref")
+        vertices[f"outcome:{outcome_id}"] = {
+            "id": f"outcome:{outcome_id}",
+            "kind": "objective_outcome",
+            "outcome_id": outcome_id,
+            "goal_class": outcome.get("goal_class"),
+            "coverage_status": outcome.get("coverage_status"),
+            "source_evidence": list(outcome.get("source_evidence", [])),
+        }
+        if isinstance(clause_ref, str) and f"clause:{clause_ref}" in vertices:
+            add_edge(
+                "objective_derivation", "derives_outcome",
+                f"clause:{clause_ref}", f"outcome:{outcome_id}",
+                {"clause_ref": clause_ref, "outcome_id": outcome_id},
+            )
+
+    for skill in skills:
+        if not isinstance(skill, dict) or not skill.get("skill_id"):
+            raise ValueError("malformed skill selection in traceability record")
+        skill_id = str(skill["skill_id"])
+        vertex_id = _skill_vertex_id(skill_id, skill.get("version"))
+        vertices[vertex_id] = {
+            "id": vertex_id,
+            "kind": "skill",
+            "skill_id": skill_id,
+            "version": skill.get("version"),
+            "selected": bool(skill.get("selected")),
+            "source": skill.get("source", "embedded"),
+            "instructions_sha256": skill.get("instructions_sha256"),
+            "registry_manifest_sha256": skill.get("registry_manifest_sha256"),
+            "selection_policy": skill.get("selection_policy"),
+        }
+        for trigger in skill.get("matched_triggers", []) or []:
+            if not isinstance(trigger, dict):
+                continue
+            for occurrence in trigger.get("occurrences", []) or []:
+                clause_ref = occurrence.get("clause_ref") if isinstance(occurrence, dict) else None
+                if isinstance(clause_ref, str) and f"clause:{clause_ref}" in vertices:
+                    add_edge(
+                        "skill_trigger_match", "triggered_in",
+                        vertex_id, f"clause:{clause_ref}",
+                        {
+                            "skill_id": skill_id,
+                            "clause_ref": clause_ref,
+                            "trigger_phrase": trigger.get("phrase"),
+                            "occurrence_span": {
+                                "start": occurrence.get("start"),
+                                "end": occurrence.get("end"),
+                            },
+                            "match_kind": "lexical_substring_not_semantic_proof",
+                        },
+                    )
+
+    for goal in goals:
+        if not isinstance(goal, dict) or not goal.get("goal_id"):
+            raise ValueError("malformed goal provenance in traceability record")
+        goal_id = str(goal["goal_id"])
+        outcome_id = goal.get("linked_outcome_id")
+        vertices[f"goal:{goal_id}"] = {
+            "id": f"goal:{goal_id}",
+            "kind": "goalspec_goal",
+            "goal_id": goal_id,
+            "goal_class": goal.get("goal_class"),
+        }
+        if isinstance(outcome_id, str) and f"outcome:{outcome_id}" in vertices:
+            add_edge(
+                "objective_coverage", "covered_by",
+                f"outcome:{outcome_id}", f"goal:{goal_id}",
+                {"outcome_id": outcome_id, "goal_id": goal_id},
+            )
+
+    vertex_list = sorted(vertices.values(), key=lambda item: item["id"])
+    hyperedges.sort(key=lambda item: item["id"])
+    body = {
+        "schema": PROJECTION_SCHEMA,
+        "projection_domain": "objective_skill_traceability",
+        "vertices": vertex_list,
+        "hyperedges": hyperedges,
+        "bridges": [],
+        "graph_metadata": {
+            "objective_sha256": trace.get("objective_sha256"),
+            "agent_context_status": trace.get("agent_context_status"),
+            "coverage_summary": trace.get("coverage_summary"),
+            "provenance_scope": "lexical_trigger_and_clause_binding_only_not_semantic_proof",
+            "semantic_correctness_verified": False,
+            "tools_authorized": False,
+            "execution_enabled": False,
+        },
+        "summary": {
+            "vertex_count": len(vertex_list),
+            "hyperedge_count": len(hyperedges),
+            "bridge_count": 0,
+            "clause_count": sum(1 for v in vertex_list if v["kind"] == "objective_clause"),
+            "outcome_count": sum(1 for v in vertex_list if v["kind"] == "objective_outcome"),
+            "goal_count": sum(1 for v in vertex_list if v["kind"] == "goalspec_goal"),
+            "skill_count": sum(1 for v in vertex_list if v["kind"] == "skill"),
+            "covered_goal_count": len(goals),
+        },
+    }
+    body["projection_id"] = _stable_id("hgp", body)
+    return body
