@@ -33,6 +33,7 @@ from taas.studio.agent_spec import validate_agent_manifest
 from taas.studio.agent_context import build_agent_intelligence_context
 from taas.studio.objective_traceability import build_objective_skill_traceability
 from taas.studio import policy_engine
+from taas.studio.tool_intelligence import build_tool_intelligence
 from taas.studio.agent_skill_bindings import (
     AgentSkillBindingConflict,
     AgentSkillBindingError,
@@ -1096,6 +1097,13 @@ def discover(request: DiscoverRequest) -> dict[str, Any]:
             "stats": result.compose.stats,
         },
         "discovery_diagnostics": discovery_diagnostics,
+        "tool_intelligence": build_tool_intelligence(
+            contracts=getattr(engine.H, "contracts", {}) or {},
+            diagnostics=discovery_diagnostics,
+            goals=list(result.spec.goals),
+            toolkit=result.toolkit,
+            certificate=certificate,
+        ),
         "discovery_time_seconds": result.time_s,
         "hypergraph_projection_status": projection_status,
         "hypergraph_projection": hypergraph_projection,
