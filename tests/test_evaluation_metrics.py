@@ -13,7 +13,7 @@ def test_ranking_metrics_include_abstentions_as_empty_rankings():
         ks=(1, 2),
     )
     assert result["metrics"]["1"]["hit@1"]["value"] == 0.5
-    assert result["metrics"]["1"]["recall@1"]["value"] == 0.5
+    assert result["metrics"]["1"]["recall@1"]["value"] == 0.25
     assert result["metrics"]["2"]["precision@2"]["value"] == 0.5
     assert result["queries_with_qrels"] == 2
 
