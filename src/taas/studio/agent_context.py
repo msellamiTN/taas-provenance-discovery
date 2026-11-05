@@ -6,6 +6,7 @@ change authorization, or bypass the canonical GoalSpec/Core contract.
 from __future__ import annotations
 
 import hashlib
+import json
 from typing import Any
 
 
@@ -63,6 +64,9 @@ def build_agent_intelligence_context(
         "instructions": instructions,
         "skills": selected,
     }
+    effective_context = json.dumps(
+        context, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    )
     trace = {
         "schema": "taas.agent-intelligence-context/v1",
         "status": "injected" if instructions or selected else "empty",
@@ -71,6 +75,7 @@ def build_agent_intelligence_context(
         "agent_lifecycle_state": lifecycle_state,
         "manifest_sha256": manifest_sha256,
         "instructions_sha256": _sha256(instructions) if instructions else None,
+        "effective_context_sha256": _sha256(effective_context) if instructions or selected else None,
         "instructions_injected": bool(instructions),
         "skills": skill_trace,
         "selected_skill_ids": [item["id"] for item in selected],
