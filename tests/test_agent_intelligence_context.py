@@ -8,6 +8,7 @@ from pydantic import ValidationError
 from taas.studio.agent_context import build_agent_intelligence_context
 from taas.studio.agent_spec import validate_agent_manifest
 from taas.studio.analyst_contract import build_analyst_system_prompt
+from taas.studio.model_runtime import HuggingFaceModelRuntime
 
 
 def _manifest():
@@ -137,3 +138,42 @@ def test_agent_context_never_claims_authorization_or_execution_authority():
     assert trace["context_authority"] == (
         "guidance_only_core_contract_and_governance_remain_authoritative"
     )
+
+
+
+def test_legacy_manifest_without_skills_keeps_its_original_canonical_shape():
+    manifest = _manifest()
+    manifest["spec"].pop("skills")
+    normalized = validate_agent_manifest(manifest)
+    assert "skills" not in normalized["spec"]
+
+
+def test_runtime_decompose_passes_agent_context_to_the_actual_system_message():
+    manifest = validate_agent_manifest(_manifest())
+    context, _ = build_agent_intelligence_context(
+        manifest, "Calculate the year difference between two dates."
+    )
+    runtime = HuggingFaceModelRuntime()
+    captured = {}
+
+    def fake_generate(messages, max_new_tokens, temperature):
+        captured["messages"] = messages
+        return {
+            "text": '{"prompt_inputs":["text"],"goals":[{"id":"g1","desc":"Compute the requested date difference","class":"compute_exact","in":["datetime"],"out":"number","eff":[],"sigma":"native","n":1,"exactness":"exact","deps":[],"lang":"en","optional":false}]}',
+            "latency_seconds": 0.01,
+            "input_tokens": 10,
+            "output_tokens": 20,
+            "model_id": "org/model",
+            "provider": "huggingface",
+            "device": "cpu",
+            "dtype": "float32",
+        }
+
+    runtime._generate = fake_generate
+    result = runtime.decompose(
+        "Calculate the year difference between two dates.",
+        agent_context=context,
+    )
+    assert result["json_valid"] is True
+    assert "AGENT INSTRUCTIONS" in captured["messages"][0]["content"]
+    assert "SELECTED AGENT SKILL: Multi-source date difference" in captured["messages"][0]["content"]
