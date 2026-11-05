@@ -141,6 +141,17 @@ def load_json_records(path: str | Path, collection_keys: Sequence[str] = ()) -> 
     return rows
 
 
+def discovery_task_view(task: TaskRecord) -> dict[str, Any]:
+    """Task fields visible to the discovery system; excludes all evaluator targets."""
+    return {
+        "dataset_id": task.dataset_id,
+        "task_id": task.task_id,
+        "prompt": task.prompt,
+        "split": task.split,
+        "source_record_id": task.source_record_id,
+    }
+
+
 def discovery_view(tool: ToolRecord) -> dict[str, Any]:
     """Fields allowed to discovery; intentionally excludes evaluator labels."""
     return {
