@@ -245,31 +245,37 @@ def load_mcptoolbenchpp_track(raw_root: str | Path) -> DatasetTrack:
 
 
 def _rank_scores(scores: np.ndarray, ids: Sequence[str], top_k: int | None = None) -> list[str]:
-    order = sorted(range(len(ids)), key=lambda i: (-float(scores[i]), ids[i]))
-    if top_k is not None:
-        order = order[:top_k]
-    return [ids[i] for i in order]
+    if top_k is None or top_k >= len(ids):
+        order = sorted(range(len(ids)), key=lambda i: (-float(scores[i]), ids[i]))
+    else:
+        # Partition first, then break exact score ties by stable tool ID.
+        boundary = np.partition(scores, len(scores) - top_k)[len(scores) - top_k]
+        above = [i for i, value in enumerate(scores) if float(value) > float(boundary)]
+        tied = [i for i, value in enumerate(scores) if float(value) == float(boundary)]
+        above.sort(key=lambda i: (-float(scores[i]), ids[i]))
+        tied.sort(key=lambda i: ids[i])
+        order = above + tied[:max(0, top_k - len(above))]
+        order.sort(key=lambda i: (-float(scores[i]), ids[i]))
+    return [ids[i] for i in order[:top_k]] if top_k is not None else [ids[i] for i in order]
 
 
 def _bm25_rankings(
     docs: Sequence[ToolDocument], tasks: Sequence[DiscoveryTask], top_k: int
 ) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
-    ids = [x.tool_id for x in docs]
-    tokenized = [_tokenize(x.text) for x in docs]
-    if not tokenized or not any(tokenized):
-        raise ValueError("BM25 corpus contains no lexical tokens")
-    try:
-            except ImportError as exc:
-        raise RuntimeError("Install the benchmark-hf extra to run BM25") from exc
     try:
         from rank_bm25 import BM25Okapi
     except ImportError as exc:
         raise RuntimeError("Install the benchmark-hf extra to run BM25") from exc
+    ids = [x.tool_id for x in docs]
+    tokenized = [_tokenize(x.text) for x in docs]
+    if not tokenized or not any(tokenized):
+        raise ValueError("BM25 corpus contains no lexical tokens")
     model = BM25Okapi(tokenized)
     all_rankings, candidates = {}, {}
+    candidate_k = min(len(ids), max(top_k, CROSS_ENCODER_CANDIDATE_K))
     for task in tasks:
         scores = np.asarray(model.get_scores(_tokenize(task.query)), dtype=float)
-        ranked = _rank_scores(scores, ids)
+        ranked = _rank_scores(scores, ids, candidate_k)
         all_rankings[task.task_id] = ranked[:top_k]
         candidates[task.task_id] = ranked[:CROSS_ENCODER_CANDIDATE_K]
     return all_rankings, candidates
@@ -310,7 +316,6 @@ def _dense_and_hybrid_rankings(
     encoder: Any, rrf_k0: int = RRF_K0,
 ) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
     ids = [x.tool_id for x in docs]
-    # E5 convention: explicitly distinguish query and passage inputs.
     passages = ["passage: " + x.text for x in docs]
     queries = ["query: " + x.query for x in tasks]
     passage_vectors = encoder.encode(
@@ -322,22 +327,19 @@ def _dense_and_hybrid_rankings(
         normalize_embeddings=True, show_progress_bar=True,
     )
     dense_rankings, hybrid_rankings = {}, {}
-    dense_orderings = []
-    dense_orderings = []
+    dense_candidates = {}
     for i, task in enumerate(tasks):
         dense_scores = np.asarray(passage_vectors @ query_vectors[i], dtype=float)
-        dense_order = _rank_scores(dense_scores, ids)
-        dense_orderings.append(dense_order)
+        dense_order = _rank_scores(dense_scores, ids, min(CROSS_ENCODER_CANDIDATE_K, len(ids)))
+        dense_candidates[task.task_id] = dense_order
         dense_rankings[task.task_id] = dense_order[:top_k]
 
     bm25_all, _ = _bm25_rankings(docs, tasks, max(top_k, CROSS_ENCODER_CANDIDATE_K))
-    for i, task in enumerate(tasks):
+    for task in tasks:
         fused = defaultdict(float)
-        for rank, tool_id in enumerate(bm25_all[task.task_id], start=1):
+        for rank, tool_id in enumerate(bm25_all[task.task_id][:CROSS_ENCODER_CANDIDATE_K], start=1):
             fused[tool_id] += 1.0 / (rrf_k0 + rank)
-        for rank, tool_id in enumerate(
-            dense_orderings[i], start=1
-        ):
+        for rank, tool_id in enumerate(dense_candidates[task.task_id], start=1):
             fused[tool_id] += 1.0 / (rrf_k0 + rank)
         hybrid_rankings[task.task_id] = sorted(
             fused, key=lambda tool_id: (-fused[tool_id], tool_id)
@@ -393,16 +395,15 @@ def _paired_sign_flip_pvalue(
     left: Mapping[str, float], right: Mapping[str, float], clusters: Mapping[str, str] | None,
     seed: int = 20261105, permutations: int = 20000,
 ) -> dict[str, Any]:
-    """Two-sided paired sign-flip test; resample independent tasks or server clusters."""
+    """Two-sided paired sign-flip test over tasks or independent server clusters."""
     ids = sorted(set(left) & set(right))
     if not ids:
-        return {"p_value": None, "n": 0, "unit": "none"}
+        return {"p_value_two_sided": None, "n_tasks": 0, "n_independent_units": 0, "unit": "none"}
     differences = {key: float(left[key]) - float(right[key]) for key in ids}
-    if clusters:
+    if clusters and all(task_id in clusters for task_id in ids):
         groups = defaultdict(list)
         for task_id, value in differences.items():
-            if task_id in clusters:
-                groups[clusters[task_id]].append(value)
+            groups[clusters[task_id]].append(value)
         samples = [sum(values) / len(values) for _, values in sorted(groups.items())]
         unit = "target_server_cluster"
     else:
@@ -411,13 +412,14 @@ def _paired_sign_flip_pvalue(
     observed = abs(sum(samples) / len(samples))
     n = len(samples)
     if n <= 18:
-        signs = range(1 << n)
         exceed = 0
         total = 1 << n
-        for mask in signs:
+        for mask in range(total):
             value = abs(sum((sample if (mask >> i) & 1 else -sample)
                             for i, sample in enumerate(samples)) / n)
             exceed += value >= observed - 1e-15
+        p_value = exceed / total
+        method = "exact sign flip"
     else:
         rng = random.Random(seed)
         exceed = 0
@@ -426,14 +428,54 @@ def _paired_sign_flip_pvalue(
             value = abs(sum(sample if rng.getrandbits(1) else -sample
                             for sample in samples) / n)
             exceed += value >= observed - 1e-15
+        p_value = (exceed + 1) / (total + 1)
+        method = "Monte Carlo sign flip"
     return {
         "estimate_left_minus_right": sum(samples) / n,
-        "p_value_two_sided": (exceed + 1) / (total + 1),
+        "p_value_two_sided": p_value,
         "n_tasks": len(ids),
         "n_independent_units": n,
         "unit": unit,
-        "method": "exact sign flip" if n <= 18 else "Monte Carlo sign flip",
+        "method": method,
         "permutations": total,
+        "seed": seed,
+    }
+
+
+def _paired_bootstrap_ci(
+    left: Mapping[str, float], right: Mapping[str, float],
+    clusters: Mapping[str, str] | None, seed: int = 20261105,
+    resamples: int = 5000,
+) -> dict[str, Any]:
+    """Paired percentile CI, resampling tasks or whole target-server clusters."""
+    ids = sorted(set(left) & set(right))
+    if not ids:
+        return {"estimate": None, "lower": None, "upper": None, "n_tasks": 0}
+    diffs = {task_id: float(left[task_id]) - float(right[task_id]) for task_id in ids}
+    task_estimate = sum(diffs.values()) / len(diffs)
+    if clusters and all(task_id in clusters for task_id in ids):
+        groups = defaultdict(list)
+        for task_id, value in diffs.items():
+            groups[clusters[task_id]].append(value)
+        units = [sum(values) / len(values) for _, values in sorted(groups.items())]
+        unit_name = "target_server_cluster"
+    else:
+        units = [diffs[task_id] for task_id in ids]
+        unit_name = "task"
+    rng = random.Random(seed)
+    draws = sorted(sum(rng.choices(units, k=len(units))) / len(units)
+                   for _ in range(resamples))
+    lo = int(0.025 * resamples)
+    hi = min(resamples - 1, int(0.975 * resamples))
+    return {
+        "estimate_task_weighted": task_estimate,
+        "lower": draws[lo],
+        "upper": draws[hi],
+        "n_tasks": len(ids),
+        "n_independent_units": len(units),
+        "resampling_unit": unit_name,
+        "confidence": 0.95,
+        "resamples": resamples,
         "seed": seed,
     }
 
@@ -521,9 +563,11 @@ def evaluate_track(
                 left = _per_task_metric(rankings[competitor], track.qrels, metric, k)
                 right = _per_task_metric(rankings["bm25"], track.qrels, metric, k)
                 test = _paired_sign_flip_pvalue(left, right, track.cluster_by_task)
+                ci = _paired_bootstrap_ci(left, right, track.cluster_by_task)
                 paired.append({
                     "track": track.dataset_id, "contrast": f"{competitor}_minus_bm25",
                     "metric": f"{metric}@{k}", "p_value_raw": test.get("p_value_two_sided"),
+                    "paired_bootstrap_ci": ci,
                     **test,
                 })
         _holm_adjust(paired)
