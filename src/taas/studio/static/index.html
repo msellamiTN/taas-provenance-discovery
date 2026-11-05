@@ -649,6 +649,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     </div>
     <section id="agent-goal-panel" style="box-shadow:none;padding:14px;margin-top:14px">
       <h2>3 · Objective Engineering · TaaS Core</h2><p class="muted">Canonical entry point for operational prompts. TaaS Core frames the objective, the selected model proposes a GoalSpec, and deterministic validation plus actual Core gap_analysis inspect it. Tool discovery follows only after human review. The proposal is never an execution authorization.</p>
+      <div class="field"><label for="agent-context-select">Saved Agent context · instructions and objective-triggered skills</label><div class="inline-actions"><select id="agent-context-select" aria-label="Saved Agent version"><option value="">No Agent context · use Core analyst defaults</option></select><button id="agent-context-refresh" type="button" class="secondary">Refresh Agents</button></div><p id="agent-context-status" class="subtle" role="status" aria-live="polite">Select a saved Agent version to inject its instructions and matching skills into both initial and refinement prompts. Tool grants are not passed to the LLM.</p></div>
       <label for="agent-goal-prompt">Agent objective</label><textarea id="agent-goal-prompt" rows="3" maxlength="12000" style="min-height:90px" placeholder="Find current information, summarize it, and save a Markdown report…"></textarea><p class="subtle">The original objective is preserved by the API; verify the complete text here before preparing it.</p>
       <button id="agent-decompose" type="button">Prepare objective with TaaS Core</button><div id="agent-decompose-status" class="status" role="status" aria-live="polite">No decomposition requested.</div><div id="agent-outcome-coverage" class="outcome-coverage" aria-live="polite"></div>
       <div id="agent-objective-contract-v3" class="outcome-coverage" aria-live="polite"></div><pre id="agent-decompose-result">The model's GoalSpec proposal will appear here.</pre>
@@ -674,6 +675,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       "model_id": "Qwen/Qwen2.5-0.5B-Instruct"
     },
     "instructions": "Help the operator summarize support requests.",
+    "skills": [],
     "goal_spec_template": null,
     "tool_allowlist": [],
     "resources": {
@@ -1685,6 +1687,33 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     if(!response.ok) throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
     return data;
   };
+  const refreshAgentContextOptions = async (preferredValue = "") => {
+    const select=$("agent-context-select");
+    const previous=preferredValue||select.value;
+    const data=await apiGet("/api/v1/agents?limit=100");
+    select.replaceChildren(new Option("No Agent context · use Core analyst defaults",""));
+    (data.versions||[]).forEach(item=>{
+      const value=item.agent_id+"@"+item.version;
+      const label=item.agent_id+" @ "+item.version+" · "+item.lifecycle_state;
+      select.add(new Option(label,value));
+    });
+    if([...select.options].some(option=>option.value===previous))select.value=previous;
+    $("agent-context-status").textContent=(data.count||0)+" saved Agent version(s) available. The selected version's instructions and matching skills are injected into decomposition; its tool allowlist remains outside the LLM context.";
+    return data;
+  };
+  $("agent-context-refresh").addEventListener("click",async()=>{
+    const button=$("agent-context-refresh");button.disabled=true;
+    $("agent-context-status").textContent="Loading immutable Agent versions…";
+    try{await refreshAgentContextOptions();}
+    catch(error){$("agent-context-status").textContent="Unable to load saved Agent versions: "+error.message;}
+    finally{button.disabled=false;}
+  });
+  $("agent-context-select").addEventListener("change",()=>{
+    const value=$("agent-context-select").value;
+    $("agent-context-status").textContent=value
+      ?"Agent context selected: "+value+". Instructions and objective-triggered skills will be included in the analyst prompt. Tool grants are not sent to the LLM."
+      :"No Agent context selected. The Core analyst contract and Objective Contract remain active.";
+  });
   const refreshLoadedModel = async () => {
     const state=await apiGet("/api/v1/models/runtime");$("runtime-model-details").textContent=JSON.stringify(state,null,2);
     if($("runtime-provider").value==="ollama"){
@@ -1785,7 +1814,15 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   let pendingAgentGoalSpec=null;
   $("agent-decompose").addEventListener("click",async()=>{
     const button=$("agent-decompose");button.disabled=true;$("agent-decompose-status").textContent="Preparing objective through TaaS Core…";$("agent-apply-goals").disabled=true;pendingAgentGoalSpec=null;
-    try{const result=await runtimePost("/api/v1/objectives/prepare",{provider:$("runtime-provider").value,prompt:$("agent-goal-prompt").value,max_new_tokens:1200});$("agent-decompose-result").textContent=JSON.stringify(result,null,2);
+    try{
+      const body={provider:$("runtime-provider").value,prompt:$("agent-goal-prompt").value,max_new_tokens:1200};
+      const selectedAgent=$("agent-context-select").value;
+      if(selectedAgent){
+        const split=selectedAgent.lastIndexOf("@");
+        body.agent_id=selectedAgent.slice(0,split);
+        body.agent_version=selectedAgent.slice(split+1);
+      }
+      const result=await runtimePost("/api/v1/objectives/prepare",body);$("agent-decompose-result").textContent=JSON.stringify(result,null,2);
       renderObjectiveCoverage(result.objective_coverage);
       renderObjectiveContractV3(result.objective_intelligence_v3,result.objective_contract_v3);
       const diagnostics=result.semantic_diagnostics||[];
@@ -1871,6 +1908,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       agentValidateSavedButton.disabled=false;
       $("agent-manifest-result").textContent=JSON.stringify(result,null,2);
       $("agent-manifest-status").textContent="Saved immutable draft "+result.agent_id+"@"+result.version+" · SHA-256 "+result.manifest_sha256;
+      try{await refreshAgentContextOptions(result.agent_id+"@"+result.version);}catch(error){$("agent-context-status").textContent="Agent saved, but context list refresh failed: "+error.message;}
     }catch(error){
       resetAgentRegistrySelection();
       $("agent-manifest-result").textContent=error.message;
