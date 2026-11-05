@@ -96,7 +96,7 @@ def test_v3_validator_rejects_discovery_authorization():
 
 
 def test_v3_builds_clause_provenance_graph_with_exact_source_spans():
-    objective = "Search the web for papers; draft a summary.\\nDo not send it."
+    objective = "Search the web for papers; draft a summary.\nDo not send it."
     contract = derive_objective_contract_v3(objective)
     clauses = contract["clauses"]
     assert [item["text"] for item in clauses] == [
