@@ -20,8 +20,9 @@ def _decode_json_cell(value: Any, field: str, task_id: str) -> Any:
     if isinstance(value, str):
         try:
             return json.loads(value)
-        except json.JSONDecodeError as exc:
-            raise ValueError(f"MCP-Atlas {field} is not valid JSON for task {task_id}") from exc
+        except json.JSONDecodeError:
+            # The official harness also accepts comma-separated tool-name strings.
+            return [item.strip() for item in value.split(",") if item.strip()]
     raise ValueError(f"MCP-Atlas {field} must be JSON text, object, or list for task {task_id}")
 
 
@@ -41,9 +42,12 @@ def adapt_mcp_atlas_records(records: Sequence[Mapping[str, Any]], output_dir: st
             raise ValueError(f"ENABLED_TOOLS must decode to a list for task {task_id}")
         task_tool_ids = []
         for source_tool in enabled:
-            if not isinstance(source_tool, dict):
-                raise ValueError(f"Enabled tool must be an object in task {task_id}")
-            tool = dict(source_tool)
+            if isinstance(source_tool, str):
+                tool = {"name": source_tool, "server_id": "mcp_atlas_unresolved_server"}
+            elif isinstance(source_tool, dict):
+                tool = dict(source_tool)
+            else:
+                raise ValueError(f"Enabled tool must be a name or object in task {task_id}")
             name = str(tool.get("name") or tool.get("tool_name") or "").strip()
             if not name:
                 raise ValueError(f"Enabled tool without name in task {task_id}")
@@ -95,6 +99,7 @@ def adapt_mcp_atlas_records(records: Sequence[Mapping[str, Any]], output_dir: st
             "The public Hugging Face release contains 500 tasks; it is not the full 1,000-task benchmark.",
             "GTFA_CLAIMS supports claims-based answer evaluation, not tool-set correctness by itself.",
             "TRAJECTORY is a successful reference trace, not proof that no alternative valid composition exists.",
+            "Some ENABLED_TOOLS rows contain names only; those tool records have no schema/description and unresolved server identity.",
             "Tool identity remains unresolved when the source row does not identify a server.",
             "Live execution requires the benchmark's pinned Docker harness and server configuration.",
         ],
