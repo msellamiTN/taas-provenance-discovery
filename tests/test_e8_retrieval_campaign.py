@@ -132,3 +132,28 @@ def test_mcp_toolbench_cluster_mapping_uses_gold_server(monkeypatch, tmp_path):
     }]))
     track = e8.load_mcptoolbenchpp_track(tmp_path)
     assert track.cluster_by_task == {"search::q": "provider-z"}
+
+
+def test_mcp_toolbench_similar_tools_are_sensitivity_only(tmp_path):
+    task = e8.DiscoveryTask("web::q", "search a record", "web")
+    primary = {"web::q": {"s1::search": 1.0}}
+    secondary = {"web::q": {"s1::search": 1.0, "s2::find": 1.0}}
+    track = e8.DatasetTrack(
+        "mcptoolbenchpp_single_target",
+        [task],
+        [
+            e8.ToolDocument("s1::search", "search", "web", "s1"),
+            e8.ToolDocument("s2::find", "find", "web", "s2"),
+        ],
+        primary,
+        {"web::q": "s1"},
+        {},
+        {},
+        secondary,
+    )
+    rankings = {"test_ranker": {"web::q": ["s2::find"]}}
+    result = e8.evaluate_track(track, rankings, {}, tmp_path)
+    primary_hit = result["metrics"]["test_ranker"]["metrics"]["overall"]["metrics"]["1"]["hit@1"]["value"]
+    sensitivity_hit = result["similar_tools_sensitivity_metrics"]["test_ranker"]["metrics"]["1"]["hit@1"]["value"]
+    assert primary_hit == 0.0
+    assert sensitivity_hit == 1.0
