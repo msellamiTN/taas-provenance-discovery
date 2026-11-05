@@ -238,3 +238,84 @@ def test_self_dependencies_are_removed_with_auditable_provenance_only():
     assert events[0]["removed"] == ["g1"]
     assert events[0]["rule"] == "self_dependency_removed"
     assert spec["goals"][0]["deps"] == ["g1", "g0"]
+
+
+def test_arithmetic_expression_is_not_a_goal_effect():
+    from taas.studio.api import canonicalize_arithmetic_expressions_from_effects
+
+    spec = {
+        "goals": [
+            {
+                "id": "g1",
+                "class": "aggregate",
+                "desc": "Calculate the average transaction amount",
+                "eff": ["sum(record.amount) / record.count"],
+            }
+        ]
+    }
+
+    normalized, events = canonicalize_arithmetic_expressions_from_effects(spec)
+
+    assert normalized["goals"][0]["eff"] == []
+    assert events[0]["removed"] == ["sum(record.amount) / record.count"]
+    assert events[0]["rule"] == "arithmetic_expression_misplaced_in_effects"
+    assert spec["goals"][0]["eff"] == ["sum(record.amount) / record.count"]
+
+
+def test_arithmetic_effect_repair_preserves_real_boundary_effects():
+    from taas.studio.api import canonicalize_arithmetic_expressions_from_effects
+
+    spec = {
+        "goals": [
+            {
+                "id": "g1",
+                "class": "aggregate",
+                "eff": ["read(db)", "sum(record.amount) / record.count"],
+            },
+            {
+                "id": "g2",
+                "class": "retrieve",
+                "eff": ["read(db)"],
+            },
+        ]
+    }
+
+    normalized, events = canonicalize_arithmetic_expressions_from_effects(spec)
+
+    assert normalized["goals"][0]["eff"] == ["read(db)"]
+    assert normalized["goals"][1]["eff"] == ["read(db)"]
+    assert len(events) == 1
+
+
+def test_arithmetic_effect_repair_does_not_remove_unknown_function_or_non_arithmetic_effect():
+    from taas.studio.api import canonicalize_arithmetic_expressions_from_effects
+
+    spec = {
+        "goals": [
+            {
+                "id": "g1",
+                "class": "aggregate",
+                "eff": ["execute(query)", "read(db)", "custom(record)"],
+            }
+        ]
+    }
+
+    normalized, events = canonicalize_arithmetic_expressions_from_effects(spec)
+
+    assert normalized == spec
+    assert events == []
+
+
+def test_arithmetic_effect_repair_is_limited_to_computational_goal_classes():
+    from taas.studio.api import canonicalize_arithmetic_expressions_from_effects
+
+    spec = {
+        "goals": [
+            {"id": "g1", "class": "retrieve", "eff": ["sum(record.amount) / record.count"]}
+        ]
+    }
+
+    normalized, events = canonicalize_arithmetic_expressions_from_effects(spec)
+
+    assert normalized == spec
+    assert events == []
