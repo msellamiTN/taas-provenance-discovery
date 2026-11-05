@@ -193,3 +193,15 @@ def test_colab_reuses_the_single_studio_runtime_and_proxy_without_browser_automa
     assert "Fresh Colab proxy URL generated" in code
     assert 'wait_http(f"http://{APP_HEALTH_HOST}:{APP_PORT}/health")' in code
     assert "playwright" not in code.lower()
+
+
+
+def test_colab_covers_agent_instruction_and_skill_injection() -> None:
+    _, markdown, code = notebook_source()
+    assert "Agent Intelligence Context acceptance" in markdown
+    assert "tests/test_agent_intelligence_context.py" in code
+    assert "RUN_LIVE_AGENT_CONTEXT_TEST" in code
+    assert "/api/v1/objectives/prepare" in code
+    assert "agent_intelligence_context" in code
+    assert "selected_skill_ids" in code
+    assert "tool_execution" in code
