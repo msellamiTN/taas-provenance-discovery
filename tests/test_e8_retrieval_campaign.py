@@ -97,7 +97,38 @@ def test_mcp_toolbench_track_uses_only_single_resolved_target(monkeypatch, tmp_p
 def test_rank_scores_are_deterministic_under_ties():
     ids = ["tool-b", "tool-a", "tool-c"]
     import numpy as np
-    assert e8._rank_scores(np.array([1.0, 1.0, 0.0]), ids) == ["tool-a", "tool-b", "tool-c"]
+    scores = np.array([1.0, 1.0, 0.0])
+    assert e8._rank_scores(scores, ids) == ["tool-a", "tool-b", "tool-c"]
+    assert e8._rank_scores(scores, ids, top_k=1) == ["tool-a"]
+    assert e8._rank_scores(scores, ids, top_k=2) == ["tool-a", "tool-b"]
+    assert e8._rank_scores(scores, ids, top_k=0) == []
+
+
+def test_random_baseline_is_task_stable_and_top_k_bounded():
+    docs = [e8.ToolDocument(f"tool::{i}", f"tool {i}", "c", "s") for i in range(100)]
+    tasks = [e8.DiscoveryTask("q1", "find one", "c"), e8.DiscoveryTask("q2", "find two", "c")]
+    first = e8._random_rankings(docs, tasks, 5, 123)
+    second = e8._random_rankings(docs, tasks, 5, 123)
+    assert first == second
+    assert all(len(values) == 5 and len(set(values)) == 5 for values in first.values())
+    assert first["q1"] != first["q2"]
+
+
+def test_lsa_query_scoring_can_be_chunked():
+    docs = [
+        e8.ToolDocument("s::a", "search customer records by name", "c", "s"),
+        e8.ToolDocument("s::b", "write customer record", "c", "s"),
+        e8.ToolDocument("s::c", "delete customer record", "c", "s"),
+        e8.ToolDocument("s::d", "read invoice document", "c", "s"),
+    ]
+    tasks = [
+        e8.DiscoveryTask("q1", "search customer", "c"),
+        e8.DiscoveryTask("q2", "read invoice", "c"),
+        e8.DiscoveryTask("q3", "write customer", "c"),
+    ]
+    whole = e8._lsa_rankings(docs, tasks, 2, dimension=2, query_chunk_size=10)
+    chunked = e8._lsa_rankings(docs, tasks, 2, dimension=2, query_chunk_size=1)
+    assert chunked == whole
 
 
 def test_paired_sign_flip_uses_exact_two_sided_test_for_small_n():
