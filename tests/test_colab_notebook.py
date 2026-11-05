@@ -75,6 +75,8 @@ def test_colab_covers_objective_constraint_dependency_namespace() -> None:
     assert "Objective Contract constraint/dependency namespace separation OK" in code
     assert f'TAAS_COMMIT = "{INTEGRATED_STUDIO_COMMIT}"' in code
     assert "Retrieve records matching the provided query from the configured source." in code
+    assert "Can you get me the year difference between the creation date of the" in code
+    assert "Year-difference contract and retrieval-only rejection checks OK" in code
 
 
 def test_colab_distinguishes_external_tool_requirements_from_model_gaps() -> None:
