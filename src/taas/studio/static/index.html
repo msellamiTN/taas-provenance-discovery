@@ -1792,7 +1792,8 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       const coreNeedsClarification=result.core_analysis?.status==="clarification_required";
       const accepted=result.conformance?.accepted_for_human_review===true;
       const missingOutcomes=(result.objective_coverage?.summary?.missing||0)>0;
-      const v3Blockers=(result.objective_intelligence_v3?.blocking_clarification_count||0)>0;\n      const v3StructurallyValid=result.objective_intelligence_v3?.structurally_valid===true;
+      const v3Blockers=(result.objective_intelligence_v3?.blocking_clarification_count||0)>0;
+      const v3StructurallyValid=result.objective_intelligence_v3?.structurally_valid===true;
       if(result.json_valid&&result.structural_validation?.valid&&accepted&&!hasErrors&&!coreNeedsClarification&&!missingOutcomes&&!v3Blockers&&v3StructurallyValid){
         pendingAgentGoalSpec=result.goal_spec;$("agent-apply-goals").disabled=false;
         $("agent-semantic-diagnostics").className="goal-validation"+(diagnostics.length?"":" valid");
