@@ -151,16 +151,19 @@ def adapt_toolret_records(
 
 def adapt_toolret_hf(
     output_dir: str | Path,
-    revision: str,
+    query_revision: str,
+    tool_revision: str,
     query_configs: Sequence[str] | None = None,
     tool_configs: Sequence[str] | None = None,
 ) -> dict[str, Any]:
     """Load official ToolRet HF query/tool repositories at an immutable revision.
 
-    The revision argument is mandatory so that a run never silently follows main.
+    Both repository revisions are mandatory because the query and tool corpora
+    are separate Hugging Face repositories with independent commit histories.
     """
-    if not revision or revision.lower() in {"main", "master", "latest"}:
-        raise ValueError("Pass an immutable Hugging Face commit/revision, not a moving branch")
+    for revision in (query_revision, tool_revision):
+        if not revision or revision.lower() in {"main", "master", "latest"}:
+            raise ValueError("Pass immutable Hugging Face commits for both repositories")
     try:
         from datasets import get_dataset_config_names, load_dataset
     except ImportError as exc:
@@ -168,19 +171,19 @@ def adapt_toolret_hf(
 
     query_repo = "mangopy/ToolRet-Queries"
     tool_repo = "mangopy/ToolRet-Tools"
-    q_configs = list(query_configs or get_dataset_config_names(query_repo, revision=revision))
-    t_configs = list(tool_configs or get_dataset_config_names(tool_repo, revision=revision))
+    q_configs = list(query_configs or get_dataset_config_names(query_repo, revision=query_revision))
+    t_configs = list(tool_configs or get_dataset_config_names(tool_repo, revision=tool_revision))
     if not q_configs or not t_configs:
         raise ValueError("ToolRet query and tool config lists must both be non-empty")
 
     task_records, corpus_records = [], []
     for config in q_configs:
-        dataset = load_dataset(query_repo, config, revision=revision)
+        dataset = load_dataset(query_repo, config, revision=query_revision)
         split_name = "queries" if "queries" in dataset else next(iter(dataset.keys()))
         for row in dataset[split_name]:
             task_records.append(dict(row) | {"task": config})
     for config in t_configs:
-        dataset = load_dataset(tool_repo, config, revision=revision)
+        dataset = load_dataset(tool_repo, config, revision=tool_revision)
         split_name = "tools" if "tools" in dataset else next(iter(dataset.keys()))
         for row in dataset[split_name]:
             corpus_records.append(dict(row) | {"category": config})
@@ -189,7 +192,8 @@ def adapt_toolret_hf(
     manifest["source_revisions"] = {
         "query_repository": query_repo,
         "tool_repository": tool_repo,
-        "revision": revision,
+        "query_revision": query_revision,
+        "tool_revision": tool_revision,
         "query_configs": q_configs,
         "tool_configs": t_configs,
     }
