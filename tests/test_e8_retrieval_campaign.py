@@ -65,6 +65,7 @@ def test_mcp_toolbench_track_uses_only_single_resolved_target(monkeypatch, tmp_p
     tools = [
         RawTool("s1", "search", "Search", {}, None, None, "MCPToolBench++", "web"),
         RawTool("s2", "write", "Write", {}, None, None, "MCPToolBench++", "web"),
+        RawTool("s2", "find", "Find", {}, None, None, "MCPToolBench++", "web"),
     ]
     tasks = [
         Task("one", "search a record", "MCPToolBench++", "web", ["s1::search"], [], 1),
@@ -74,9 +75,21 @@ def test_mcp_toolbench_track_uses_only_single_resolved_target(monkeypatch, tmp_p
     ]
     monkeypatch.setattr(e8, "load_mcptoolbenchpp", lambda _: (tools, tasks))
     (tmp_path / "SOURCES.txt").write_text("MCPToolBenchPP test revision\\n")
+    raw_category = tmp_path / "mcptoolbenchpp"
+    raw_category.mkdir()
+    (raw_category / "web.json").write_text(json.dumps([{
+        "uuid": "one", "mcp_tools_dict": {"s1": ["search"], "s2": ["find"]},
+        "function_call_label": [{
+            "name": "search", "mcp_server": "s1",
+            "similar_tools": [{"name": "find", "mcp_server": "s2"}],
+        }],
+    }]))
     track = e8.load_mcptoolbenchpp_track(tmp_path)
     assert [x.task_id for x in track.tasks] == ["web::one"]
     assert track.qrels == {"web::one": {"s1::search": 1.0}}
+    assert track.secondary_qrels == {"web::one": {"s1::search": 1.0, "s2::find": 1.0}}
+    assert track.exclusions["similar_tools_total"] == 1
+    assert track.exclusions["similar_tools_resolved"] == 1
     assert track.exclusions["not_single_gold_tool"] == 1
     assert track.exclusions["unresolved_or_ambiguous_gold"] == 2
 
@@ -111,5 +124,11 @@ def test_mcp_toolbench_cluster_mapping_uses_gold_server(monkeypatch, tmp_path):
     tasks = [Task("q", "lookup", "MCPToolBench++", "search", ["provider-z::lookup"], [], 1)]
     monkeypatch.setattr(e8, "load_mcptoolbenchpp", lambda _: (tools, tasks))
     (tmp_path / "SOURCES.txt").write_text("MCPToolBenchPP test revision\\n")
+    raw_category = tmp_path / "mcptoolbenchpp"
+    raw_category.mkdir()
+    (raw_category / "search.json").write_text(json.dumps([{
+        "uuid": "q", "mcp_tools_dict": {"provider-z": ["lookup"]},
+        "function_call_label": [{"name": "lookup", "mcp_server": "provider-z", "similar_tools": []}],
+    }]))
     track = e8.load_mcptoolbenchpp_track(tmp_path)
     assert track.cluster_by_task == {"search::q": "provider-z"}
