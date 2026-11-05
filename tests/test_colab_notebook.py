@@ -10,7 +10,7 @@ NOTEBOOK = ROOT / "notebooks" / "colab" / "taas_core_studio_colab.ipynb"
 GUIDE = ROOT / "docs" / "deployment" / "COLAB_T4_QUICKSTART.md"
 RUNTIME_GUIDE = ROOT / "docs" / "deployment" / "MODEL_RUNTIME_BACKENDS.md"
 WORKFLOW = ROOT / ".github" / "workflows" / "benchmark-hypergraph.yml"
-INTEGRATED_STUDIO_COMMIT = "17ec0ef375d2018914c2cc07133e00980e5d9d99"
+INTEGRATED_STUDIO_COMMIT = "4891d573ac8b59d2a5f90da529973109945f8d0d"
 
 
 def notebook_source() -> tuple[dict, str, str]:
@@ -62,6 +62,14 @@ def test_colab_runs_objective_contract_v3_acceptance() -> None:
     assert "test_v3_builds_clause_provenance_graph_with_exact_source_spans" in code or "tests/test_objective_contract_v3.py" in code
     assert "tests/test_studio_api.py" in code
     assert "Objective Intelligence v3 acceptance passed" in code
+
+def test_colab_runs_reusable_skill_registry_acceptance() -> None:
+    _, _, code = notebook_source()
+    assert "tests/test_skill_registry.py" in code
+    assert "tests/test_skill_registry_api.py" in code
+    assert "Reusable Skill Registry acceptance tests failed" in code
+    assert "Reusable Skill Registry unit and authenticated API tests passed." in code
+
 
 def test_colab_notebook_pins_the_integrated_model_agent_studio_revision() -> None:
     _, markdown, code = notebook_source()
