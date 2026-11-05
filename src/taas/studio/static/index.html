@@ -663,7 +663,13 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     </section>
     <section id="agent-manifest-panel" style="box-shadow:none;padding:22px;margin-top:14px;border:1px solid var(--line);border-radius:12px;background:#fff">
       <div class="panel-head"><div><div class="eyebrow">Agent resource · v1alpha1</div><h2 style="margin:4px 0">Define an Agent manifest</h2></div><span class="pill">Draft · not published</span></div>
-      <p class="muted">Describe the agent's model, instructions, exact tool grants, resource budget and approval policy. Validate the contract before any future save or publish action.</p>
+      <p class="muted">Describe the agent's model, instructions, embedded or registry-backed Skills, exact tool grants, resource budget and approval policy. Reusable references must pin a published Skill version and its manifest digest.</p>
+      <div class="inline-actions">
+        <select id="agent-skill-registry-select" aria-label="Published reusable Skill version"><option value="">Select a published Skill version</option></select>
+        <button id="agent-skill-registry-refresh" type="button" class="secondary">Load published Skills</button>
+        <button id="agent-skill-registry-add" type="button" class="secondary" disabled>Add pinned Skill reference</button>
+      </div>
+      <div id="agent-skill-registry-status" class="status" role="status" aria-live="polite">Reusable Skills are resolved by exact ID, version and SHA-256 digest. Only published versions can be referenced.</div>
       <label for="agent-manifest-json">Declarative manifest · JSON</label>
       <textarea id="agent-manifest-json" rows="22" spellcheck="false" style="min-height:390px;width:100%;font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace">{
   "apiVersion": "taas.ai/v1alpha1",
@@ -681,6 +687,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     },
     "instructions": "Help the operator summarize support requests.",
     "skills": [],
+    "skill_refs": [],
     "goal_spec_template": null,
     "tool_allowlist": [],
     "resources": {
@@ -1692,6 +1699,52 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     if(!response.ok) throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
     return data;
   };
+
+  let publishedSkillOptions = [];
+  const refreshReusableSkillOptions = async () => {
+    const select=$("agent-skill-registry-select");
+    const data=await apiGet("/api/v1/skills?limit=200");
+    publishedSkillOptions=(data.versions||[]).filter(item=>item.lifecycle_state==="published");
+    select.replaceChildren(new Option("Select a published Skill version",""));
+    publishedSkillOptions.forEach(item=>{
+      const value=item.skill_id+"@"+item.version;
+      select.add(new Option(item.skill_id+" @ "+item.version+" · "+item.manifest_sha256.slice(0,12),value));
+    });
+    $("agent-skill-registry-add").disabled=publishedSkillOptions.length===0;
+    $("agent-skill-registry-status").textContent=publishedSkillOptions.length
+      +" published immutable Skill version(s) available. Select one to pin its exact version and manifest digest into the Agent manifest.";
+    return publishedSkillOptions;
+  };
+  $("agent-skill-registry-refresh").addEventListener("click",async()=>{
+    const button=$("agent-skill-registry-refresh");button.disabled=true;
+    $("agent-skill-registry-status").textContent="Loading published Skill versions…";
+    try{await refreshReusableSkillOptions();}
+    catch(error){$("agent-skill-registry-status").textContent="Unable to load reusable Skills: "+error.message;}
+    finally{button.disabled=false;}
+  });
+  $("agent-skill-registry-select").addEventListener("change",()=>{
+    $("agent-skill-registry-add").disabled=!$("agent-skill-registry-select").value;
+  });
+  $("agent-skill-registry-add").addEventListener("click",()=>{
+    try{
+      const selected=$("agent-skill-registry-select").value;
+      const skill=publishedSkillOptions.find(item=>item.skill_id+"@"+item.version===selected);
+      if(!skill)throw new Error("Select a published Skill version first.");
+      const manifest=JSON.parse($("agent-manifest-json").value);
+      manifest.spec=manifest.spec||{};
+      manifest.spec.skill_refs=manifest.spec.skill_refs||[];
+      if(manifest.spec.skill_refs.some(ref=>ref.id===skill.skill_id))
+        throw new Error("This Skill ID is already referenced. Update its pinned version explicitly in the manifest.");
+      if((manifest.spec.skills||[]).some(ref=>ref.id===skill.skill_id))
+        throw new Error("This Skill ID is already embedded. Remove the embedded definition before adding a registry reference.");
+      manifest.spec.skill_refs.push({
+        id:skill.skill_id,version:skill.version,manifest_sha256:skill.manifest_sha256
+      });
+      $("agent-manifest-json").value=JSON.stringify(manifest,null,2);
+      $("agent-skill-registry-status").textContent="Pinned "+skill.skill_id+" @ "+skill.version+". Validate the Agent manifest to recheck publication state and digest integrity.";
+    }catch(error){$("agent-skill-registry-status").textContent="Skill reference not added: "+error.message;}
+  });
+
   const refreshAgentContextOptions = async (preferredValue = "") => {
     const select=$("agent-context-select");
     const previous=preferredValue||select.value;
