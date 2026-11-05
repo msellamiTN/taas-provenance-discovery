@@ -2185,7 +2185,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     const summary = $("hg-skill-summary");
     const graphView = $("hg-skill-graph");
     summary.hidden = true; summary.replaceChildren(); graphView.hidden = true;
-    if (!/^[a-z][a-z0-9-]{2,62}$/.test(skillId) || !/^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$/.test(version)) {
+    if (!/^[a-z][a-z0-9-]{2,62}$/.test(skillId) || !/^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$/.test(version)) {
       status.textContent = "Enter a valid Skill ID and semantic version.";
       return;
     }
