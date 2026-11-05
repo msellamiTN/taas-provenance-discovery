@@ -70,18 +70,20 @@ def run_typing_baseline(baseline_id: str, tools: Sequence[RawTool]) -> dict[str,
     }
 
 
-def _declared_effects(tool: RawTool) -> list[str]:
+def _declared_effects(tool: RawTool) -> dict[str, Any]:
+    """Preserve MCP annotation claims without converting them into observed effects.
+
+    In particular, readOnlyHint=False is not evidence of a write operation.
+    """
     annotations = tool.annotations or {}
-    effects: set[Effect] = set()
-    if annotations.get("readOnlyHint") is True:
-        effects.add(Effect("read", "*"))
-    elif annotations.get("readOnlyHint") is False:
-        effects.add(Effect("write", "*"))
-    if annotations.get("destructiveHint") is True:
-        effects.add(Effect("delete", "*"))
-    if annotations.get("openWorldHint") is True:
-        effects.add(Effect("egress", "*"))
-    return sorted(str(e) for e in effects)
+    return {
+        "read_only_hint": annotations.get("readOnlyHint"),
+        "destructive_hint": annotations.get("destructiveHint"),
+        "open_world_hint": annotations.get("openWorldHint"),
+        "evidence_class": "declared",
+        "observed_effects": None,
+        "effect_claims": [],
+    }
 
 
 def run_effect_baseline(baseline_id: str, tools: Sequence[RawTool]) -> dict[str, Any]:
@@ -100,14 +102,21 @@ def run_effect_baseline(baseline_id: str, tools: Sequence[RawTool]) -> dict[str,
         raise KeyError(f"Unsupported effect baseline: {baseline_id}")
     for tool in tools:
         if baseline_id == "effects_declared":
-            effects = _declared_effects(tool)
-            source = "MCP annotations"
+            declared = _declared_effects(tool)
+            effects = []
+            source = "MCP annotations (declarations only; not observed effects)"
         else:
             effects = sorted(str(e) for e in lexical_effects(
                 tool.name, tool.description,
                 list(((tool.input_schema or {}).get("properties") or {}).keys())))
             source = "name + description + argument names"
-        rows.append({"tool_id": tool.id, "effects": effects, "evidence_source": source})
+        row = {"tool_id": tool.id, "effects": effects, "evidence_source": source}
+        if baseline_id == "effects_declared":
+            row.update(declared)
+        else:
+            row["evidence_class"] = "inferred"
+            row["observed_effects"] = None
+        rows.append(row)
     return {
         "baseline_id": baseline_id,
         "status": "completed",
