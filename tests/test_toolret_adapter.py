@@ -38,3 +38,22 @@ def test_toolret_adapter_rejects_qrel_outside_full_corpus(tmp_path):
         assert "absent from corpus" in str(exc)
     else:
         raise AssertionError("Expected missing qrel corpus document to fail")
+
+
+
+def test_toolret_adapter_decodes_huggingface_json_string_qrels(tmp_path):
+    corpus = [
+        {"id": "tool-1", "doc": {"name": "lookup", "description": "Look up data"}},
+    ]
+    tasks = [{
+        "id": "apigen::query-1",
+        "query": "Look up a record",
+        "labels": '[{"id":"tool-1","relevance":2}]',
+        "task": "apigen",
+    }]
+    manifest = adapt_toolret_records(tasks, corpus, tmp_path)
+    references = json.loads((tmp_path / "evaluator" / "task_references.json").read_text())
+    assert references[0]["relevance_judgments"] == [
+        {"tool_id": "toolret::tool-1", "relevance": 2}
+    ]
+    assert manifest["counts"]["tasks_with_qrels"] == 1
