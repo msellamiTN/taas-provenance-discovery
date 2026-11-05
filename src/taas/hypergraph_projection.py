@@ -182,3 +182,105 @@ def project_hypergraph(
     }
     body["projection_id"] = _stable_id("hgp", body)
     return body
+
+
+
+def project_skill_dependency_graph(skill_graph: dict[str, Any]) -> dict[str, Any]:
+    """Project an exact-pin Skill DAG into the shared Hypergraph Explorer schema.
+
+    Skill dependency relations are a distinct graph domain. They are not
+    semantic-type reachability, tool capability edges, trust attestations,
+    authorization grants, or execution paths.
+    """
+    root = skill_graph.get("root")
+    nodes = skill_graph.get("nodes")
+    edges = skill_graph.get("edges")
+    if not isinstance(root, dict) or not isinstance(nodes, list) or not isinstance(edges, list):
+        raise ValueError("invalid Skill dependency graph payload")
+    if not nodes or len(nodes) > 32 or len(edges) > 128:
+        raise ValueError("Skill dependency graph is empty or exceeds projection bounds")
+
+    vertices: list[dict[str, Any]] = []
+    node_keys: set[tuple[str, str]] = set()
+    for node in nodes:
+        if not isinstance(node, dict):
+            raise ValueError("malformed Skill dependency node")
+        skill_id, version, digest = node.get("id"), node.get("version"), node.get("manifest_sha256")
+        if not all(isinstance(value, str) and value for value in (skill_id, version, digest)):
+            raise ValueError("Skill dependency nodes require exact id, version and digest")
+        key = (skill_id, version)
+        if key in node_keys:
+            raise ValueError("duplicate Skill dependency node")
+        node_keys.add(key)
+        vertices.append({
+            "id": f"skill:{skill_id}@{version}",
+            "kind": "skill",
+            "skill_id": skill_id,
+            "version": version,
+            "manifest_sha256": digest,
+            "lifecycle_state": node.get("lifecycle_state"),
+            "name": node.get("name") or skill_id,
+            "description": node.get("description") or "",
+            "source": node.get("source") or "skill_registry",
+            "root": key == (root.get("id"), root.get("version")),
+        })
+
+    hyperedges: list[dict[str, Any]] = []
+    seen_edges: set[tuple[tuple[str, str], tuple[str, str]]] = set()
+    for edge in edges:
+        if not isinstance(edge, dict) or edge.get("relation") != "depends_on":
+            raise ValueError("unsupported or malformed Skill dependency relation")
+        source, target = edge.get("from"), edge.get("to")
+        if not isinstance(source, dict) or not isinstance(target, dict):
+            raise ValueError("Skill dependency edges require from/to pins")
+        source_key = (source.get("id"), source.get("version"))
+        target_key = (target.get("id"), target.get("version"))
+        if source_key not in node_keys or target_key not in node_keys or source_key == target_key:
+            raise ValueError("Skill dependency edge references an unknown or identical node")
+        edge_key = (source_key, target_key)
+        if edge_key in seen_edges:
+            raise ValueError("duplicate Skill dependency edge")
+        seen_edges.add(edge_key)
+        hyperedges.append({
+            "id": _stable_id("skilldep", {
+                "from": {"id": source_key[0], "version": source_key[1]},
+                "to": {"id": target_key[0], "version": target_key[1]},
+                "relation": "depends_on",
+            }),
+            "kind": "skill_dependency",
+            "from": {"id": source_key[0], "version": source_key[1]},
+            "to": {"id": target_key[0], "version": target_key[1]},
+            "source_vertex": f"skill:{source_key[0]}@{source_key[1]}",
+            "target_vertex": f"skill:{target_key[0]}@{target_key[1]}",
+            "relation": "depends_on",
+            "authorization_effect": "none",
+            "execution_effect": "none",
+        })
+
+    vertices.sort(key=lambda item: item["id"])
+    hyperedges.sort(key=lambda item: item["id"])
+    body = {
+        "schema": PROJECTION_SCHEMA,
+        "projection_domain": "skill_dependency_dag",
+        "vertices": vertices,
+        "hyperedges": hyperedges,
+        "bridges": [],
+        "graph_metadata": {
+            "root": dict(root),
+            "graph_sha256": skill_graph.get("graph_sha256"),
+            "topological_order": list(skill_graph.get("topological_order", [])),
+            "semantic_correctness_verified": False,
+            "tools_authorized": False,
+            "execution_enabled": False,
+        },
+        "summary": {
+            "vertex_count": len(vertices),
+            "hyperedge_count": len(hyperedges),
+            "bridge_count": 0,
+            "skill_count": len(vertices),
+            "dependency_count": len(hyperedges),
+            "root_skill_count": sum(1 for item in vertices if item["root"]),
+        },
+    }
+    body["projection_id"] = _stable_id("hgp", body)
+    return body
