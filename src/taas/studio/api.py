@@ -117,7 +117,7 @@ class AgentDecomposeRequest(BaseModel):
     context: str = Field(default="", max_length=8000)
     max_new_tokens: int = Field(default=1200, ge=1, le=2048)
     agent_id: str | None = Field(default=None, pattern=r"^[a-z][a-z0-9-]{2,62}$")
-    agent_version: str | None = Field(default=None, pattern=r"^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$")
+    agent_version: str | None = Field(default=None, pattern=r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$")
 
     @model_validator(mode="after")
     def require_agent_reference_pair(self):
