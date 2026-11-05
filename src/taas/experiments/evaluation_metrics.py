@@ -29,7 +29,8 @@ def ranking_metrics(
     evaluated query set as empty rankings, so unconditional metrics penalize them.
     """
     query_ids = sorted(relevance)
-    result = {"queries_with_qrels": sum(bool(relevance[q]) for q in query_ids),\n              "queries_missing_qrels": len(set(rankings) - set(relevance)), "metrics": {}}
+    result = {"queries_with_qrels": sum(bool(relevance[q]) for q in query_ids),
+        "queries_missing_qrels": len(set(rankings) - set(relevance)), "metrics": {}}
     for k in ks:
         if k < 1:
             raise ValueError("Every k must be >= 1")
