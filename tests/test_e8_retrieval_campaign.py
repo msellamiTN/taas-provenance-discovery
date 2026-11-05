@@ -188,3 +188,113 @@ def test_mcp_toolbench_similar_tools_are_sensitivity_only(tmp_path):
     sensitivity_hit = result["similar_tools_sensitivity_metrics"]["test_ranker"]["metrics"]["1"]["hit@1"]["value"]
     assert primary_hit == 0.0
     assert sensitivity_hit == 1.0
+
+
+def _cross_encoder_fixture():
+    docs = [
+        e8.ToolDocument("s::a", "search document", "c", "s"),
+        e8.ToolDocument("s::b", "lookup record", "c", "s"),
+    ]
+    tasks = [
+        e8.DiscoveryTask(f"q{i}", f"query {i}", "c")
+        for i in range(5)
+    ]
+    candidates = {task.task_id: ["s::a", "s::b"] for task in tasks}
+    return docs, tasks, candidates
+
+
+def test_cross_encoder_checkpoints_resume_completed_task_batches(tmp_path):
+    import numpy as np
+
+    docs, tasks, candidates = _cross_encoder_fixture()
+
+    class InterruptingReranker:
+        def __init__(self):
+            self.calls = 0
+
+        def predict(self, pairs, batch_size=64, show_progress_bar=False):
+            self.calls += 1
+            if self.calls == 2:
+                raise RuntimeError("simulated Colab interruption")
+            return np.arange(len(pairs), dtype=float)
+
+    interrupted = InterruptingReranker()
+    checkpoint_dir = tmp_path / "cross_encoder_batches"
+    with pytest.raises(RuntimeError, match="simulated Colab interruption"):
+        e8._cross_encoder_rankings(
+            docs, tasks, candidates, interrupted, 1,
+            checkpoint_dir=checkpoint_dir,
+            checkpoint_key="fixture-v1",
+            task_chunk_size=2,
+        )
+
+    assert interrupted.calls == 2
+    assert (checkpoint_dir / "batch_00000.json").is_file()
+    assert not (checkpoint_dir / "batch_00001.json").exists()
+
+    class CountingReranker:
+        def __init__(self):
+            self.calls = 0
+
+        def predict(self, pairs, batch_size=64, show_progress_bar=False):
+            self.calls += 1
+            return np.arange(len(pairs), dtype=float)
+
+    resumed = CountingReranker()
+    stats = {}
+    rankings = e8._cross_encoder_rankings(
+        docs, tasks, candidates, resumed, 1,
+        checkpoint_dir=checkpoint_dir,
+        checkpoint_key="fixture-v1",
+        task_chunk_size=2,
+        checkpoint_stats=stats,
+    )
+
+    assert set(rankings) == {task.task_id for task in tasks}
+    assert resumed.calls == 2  # The first of three batches was restored.
+    assert stats == {
+        "task_chunk_size": 2,
+        "total_batches": 3,
+        "reused_batches": 1,
+        "computed_batches": 2,
+        "checkpoint_dir": str(checkpoint_dir),
+    }
+
+    no_work = CountingReranker()
+    all_cached_stats = {}
+    cached_rankings = e8._cross_encoder_rankings(
+        docs, tasks, candidates, no_work, 1,
+        checkpoint_dir=checkpoint_dir,
+        checkpoint_key="fixture-v1",
+        task_chunk_size=2,
+        checkpoint_stats=all_cached_stats,
+    )
+    assert cached_rankings == rankings
+    assert no_work.calls == 0
+    assert all_cached_stats["reused_batches"] == 3
+    assert all_cached_stats["computed_batches"] == 0
+
+
+def test_cross_encoder_checkpoint_rejects_fingerprint_mismatch(tmp_path):
+    import numpy as np
+
+    docs, tasks, candidates = _cross_encoder_fixture()
+
+    class Reranker:
+        def predict(self, pairs, batch_size=64, show_progress_bar=False):
+            return np.arange(len(pairs), dtype=float)
+
+    checkpoint_dir = tmp_path / "cross_encoder_batches"
+    e8._cross_encoder_rankings(
+        docs, tasks, candidates, Reranker(), 1,
+        checkpoint_dir=checkpoint_dir,
+        checkpoint_key="fixture-v1",
+        task_chunk_size=2,
+    )
+    with pytest.raises(ValueError, match="fingerprint mismatch"):
+        e8._cross_encoder_rankings(
+            docs, tasks, candidates, Reranker(), 1,
+            checkpoint_dir=checkpoint_dir,
+            checkpoint_key="fixture-v2",
+            task_chunk_size=2,
+        )
