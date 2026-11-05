@@ -10,10 +10,10 @@
         "registry"
       ],
       "status": "existing_source",
-      "url": "https://github.com/",
+      "url": "https://github.com/msellamiTN/taas-provenance-discovery/blob/research/pamcp-experimental-v1/src/taas/data/registries.py",
       "version": null,
       "license": "verify_at_acquisition",
-      "notes": "Use the exact pinned snapshot already used by E1; preserve source IDs and definition hashes."
+      "notes": "Existing local ingestion path reads data/raw/livemcpbench/tools.json. The original upstream source URL/revision must be recovered from the E1 acquisition record before any new external re-download."
     },
     {
       "id": "mcp_toolbench_pp",
@@ -23,10 +23,10 @@
         "single_tool_retrieval"
       ],
       "status": "existing_source_subset",
-      "url": "https://huggingface.co/datasets",
+      "url": "https://github.com/msellamiTN/taas-provenance-discovery/blob/research/pamcp-experimental-v1/src/taas/data/registries.py",
       "version": null,
       "license": "verify_at_acquisition",
-      "notes": "Current E1 subset is 87 tools/10 servers; do not describe it as the full upstream population without validating source coverage."
+      "notes": "Existing local ingestion path reads data/raw/mcptoolbenchpp/*.json. The E1 snapshot is 87 tools/10 servers; recover the original upstream source URL/revision and explain subset selection before describing it as a full dataset."
     },
     {
       "id": "live_mcpbench",
@@ -53,7 +53,7 @@
       "url": "https://huggingface.co/datasets/ScaleAI/MCP-Atlas",
       "version": "HF dataset revision to pin",
       "license": "CC-BY-4.0 (public HF release; verify dataset card at acquisition)",
-      "notes": "Public HF release is 500 tasks; benchmark description covers 1,000 total (500 public + 500 private). Do not report the private half as locally available. Includes ENABLED_TOOLS, PROMPT, GTFA_CLAIMS and TRAJECTORY; task success oracle is claims-based."
+      "notes": "Public HF release is 500 tasks; full benchmark is 1,000 tasks (500 public + 500 private). The repo README/harness is https://github.com/scaleapi/mcp-atlas. Parquet fields: TASK, ENABLED_TOOLS, PROMPT, GTFA_CLAIMS, TRAJECTORY. Claims score answers; trajectory is diagnostic, not exhaustive toolchain ground truth."
     },
     {
       "id": "mcpverse",
