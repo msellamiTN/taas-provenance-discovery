@@ -10,7 +10,7 @@ NOTEBOOK = ROOT / "notebooks" / "colab" / "taas_core_studio_colab.ipynb"
 GUIDE = ROOT / "docs" / "deployment" / "COLAB_T4_QUICKSTART.md"
 RUNTIME_GUIDE = ROOT / "docs" / "deployment" / "MODEL_RUNTIME_BACKENDS.md"
 WORKFLOW = ROOT / ".github" / "workflows" / "benchmark-hypergraph.yml"
-INTEGRATED_STUDIO_COMMIT = "9c0d94200759ed7b0aea743d78c02606c390bae7"
+INTEGRATED_STUDIO_COMMIT = "b0bd7006494d4779e3e0b47cfaa8430aeee0bec5"
 
 
 def notebook_source() -> tuple[dict, str, str]:
@@ -128,7 +128,7 @@ def test_colab_objective_matrix_covers_local_and_external_workflows() -> None:
 
 def test_colab_installs_and_verifies_optional_hugging_face_runtime() -> None:
     _, _, code = notebook_source()
-    assert '"-e", ".[studio,hf]"' in code
+    assert '"-e", ".[test,studio,hf]"' in code
     assert "importlib.import_module('torch')" in code
     assert "importlib.import_module('transformers')" in code
     assert "importlib.import_module('safetensors')" in code
