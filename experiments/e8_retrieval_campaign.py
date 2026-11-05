@@ -259,6 +259,9 @@ def _bm25_rankings(
     if not tokenized or not any(tokenized):
         raise ValueError("BM25 corpus contains no lexical tokens")
     try:
+            except ImportError as exc:
+        raise RuntimeError("Install the benchmark-hf extra to run BM25") from exc
+    try:
         from rank_bm25 import BM25Okapi
     except ImportError as exc:
         raise RuntimeError("Install the benchmark-hf extra to run BM25") from exc
@@ -319,6 +322,7 @@ def _dense_and_hybrid_rankings(
         normalize_embeddings=True, show_progress_bar=True,
     )
     dense_rankings, hybrid_rankings = {}, {}
+    dense_orderings = []
     dense_orderings = []
     for i, task in enumerate(tasks):
         dense_scores = np.asarray(passage_vectors @ query_vectors[i], dtype=float)
