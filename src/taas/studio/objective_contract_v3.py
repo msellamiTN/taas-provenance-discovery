@@ -183,7 +183,7 @@ def derive_objective_contract_v3(
     # Resolve only explicit cross-clause sequencing cues with one grounded
     # outcome on each side. Textual order alone never creates a dependency.
     dependencies: list[dict[str, Any]] = []
-    relation_cue = re.compile(r"^\\s*(then|after|once)\\b", re.IGNORECASE)
+    relation_cue = re.compile(r"^\s*(then|after|once)\b", re.IGNORECASE)
     for clause_index, clause in enumerate(clauses):
         cue_match = relation_cue.search(clause["text"])
         if not cue_match or clause_index == 0:
