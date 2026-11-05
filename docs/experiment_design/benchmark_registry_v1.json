@@ -50,10 +50,10 @@
         "execution"
       ],
       "status": "candidate_external",
-      "url": "https://labs.scale.com/leaderboard/mcp_atlas",
-      "version": null,
-      "license": "verify_at_acquisition",
-      "notes": "Check public/private split availability, executable server access, benchmark terms and oracle access."
+      "url": "https://huggingface.co/datasets/ScaleAI/MCP-Atlas",
+      "version": "HF dataset revision to pin",
+      "license": "CC-BY-4.0 (public HF release; verify dataset card at acquisition)",
+      "notes": "Public HF release is 500 tasks; benchmark description covers 1,000 total (500 public + 500 private). Do not report the private half as locally available. Includes ENABLED_TOOLS, PROMPT, GTFA_CLAIMS and TRAJECTORY; task success oracle is claims-based."
     },
     {
       "id": "mcpverse",
@@ -91,10 +91,10 @@
         "scalability"
       ],
       "status": "candidate_external",
-      "url": "https://aclanthology.org/2025.findings-acl.1258/",
+      "url": "https://github.com/mangopy/tool-retrieval-benchmark",
       "version": "ACL_2025_release_to_pin",
       "license": "verify_at_acquisition",
-      "notes": "Heterogeneous tool retrieval benchmark; not direct evidence of MCP execution or safety."
+      "notes": "Official ACL 2025 code/data; heterogeneous retrieval corpus (~7.6k tasks, ~43k tools). Not an MCP execution or safety ground-truth benchmark."
     },
     {
       "id": "mcptox",
@@ -104,10 +104,10 @@
         "adversarial_robustness"
       ],
       "status": "candidate_external",
-      "url": "https://ojs.aaai.org/index.php/AAAI/article/view/40895",
+      "url": "https://github.com/stefanoamorelli/inspect-evals-mcptox",
       "version": "AAAI_2026_release_to_pin",
       "license": "verify_at_acquisition",
-      "notes": "Use for poisoning robustness; do not treat attack labels as a general operational-effect oracle."
+      "notes": "Third-party Inspect Evals port; pin the exact upstream commit (documented d45705b0a7ae6697c851e311187b06bf7488b13f in current reference) and verify original dataset license. Tool poisoning labels are not operational-effect labels."
     },
     {
       "id": "injecagent",
@@ -116,10 +116,10 @@
         "indirect_prompt_injection"
       ],
       "status": "candidate_external",
-      "url": "https://github.com/llm-sec/llm-sec-benchmark",
+      "url": "https://github.com/uiuc-kang-lab/InjecAgent",
       "version": null,
       "license": "verify_at_acquisition",
-      "notes": "Map attack outcomes to explicit PaMCP threat-model events; confirm upstream repository and release before acquisition."
+      "notes": "Official 1,054-case indirect prompt injection benchmark; validate license and task schema before adapter implementation."
     },
     {
       "id": "bfcl",
@@ -132,20 +132,20 @@
       "url": "https://gorilla.cs.berkeley.edu/leaderboard.html",
       "version": "v4_to_pin",
       "license": "verify_at_acquisition",
-      "notes": "Function-call correctness benchmark; not a standalone MCP provenance or safety dataset."
+      "notes": "BFCL V4 includes single/multiple/parallel and multi-turn/agentic function-call evaluations. Pin benchmark code/data commit; not MCP provenance or effect ground truth."
     },
     {
       "id": "tau_bench",
-      "name": "tau-bench",
+      "name": "τ³-bench (tau2-bench repository)",
       "role": [
         "policy_compliance",
         "stateful_execution"
       ],
       "status": "candidate_external",
-      "url": "https://github.com/sierra-research/tau-bench",
-      "version": "release_to_pin",
+      "url": "https://github.com/sierra-research/tau2-bench",
+      "version": "v1.0.1_or_later_to_pin",
       "license": "verify_at_acquisition",
-      "notes": "Use its stateful task oracle; report domain-specific results separately."
+      "notes": "Use current τ³-bench release rather than stale tau-bench repository tasks. Pin release and evaluator; domain-specific policy/state benchmark, not MCP discovery."
     },
     {
       "id": "mcp_universe",
@@ -155,10 +155,10 @@
         "multi_domain_tasks"
       ],
       "status": "candidate_external",
-      "url": "https://mcp-universe.github.io/",
+      "url": "https://github.com/SalesforceAIResearch/MCP-Universe",
       "version": "release_to_pin",
       "license": "verify_at_acquisition",
-      "notes": "Verify current benchmark release, server setup and evaluator determinism."
+      "notes": "Official Salesforce AI Research repository; pin a release/commit and inspect the current benchmark task and evaluator schemas."
     },
     {
       "id": "r_judge",
