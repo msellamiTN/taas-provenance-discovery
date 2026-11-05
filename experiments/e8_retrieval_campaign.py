@@ -286,13 +286,22 @@ def load_mcptoolbenchpp_track(raw_root: str | Path) -> DatasetTrack:
 
 
 def _rank_scores(scores: np.ndarray, ids: Sequence[str], top_k: int | None = None) -> list[str]:
+    if len(scores) != len(ids):
+        raise ValueError("Score vector and candidate ID lengths differ")
+    if not ids:
+        return []
+    if top_k is not None and top_k <= 0:
+        return []
     if top_k is None or top_k >= len(ids):
         order = sorted(range(len(ids)), key=lambda i: (-float(scores[i]), ids[i]))
     else:
-        # Partition first, then break exact score ties by stable tool ID.
-        boundary = np.partition(scores, len(scores) - top_k)[len(scores) - top_k]
-        above = [i for i, value in enumerate(scores) if float(value) > float(boundary)]
-        tied = [i for i, value in enumerate(scores) if float(value) == float(boundary)]
+        # NumPy performs the full-vector threshold scan in compiled code. Only
+        # the strictly-above-threshold and boundary-tie candidates are sorted
+        # in Python, avoiding a Python loop over all 44k candidates per query.
+        boundary_indices = np.argpartition(scores, len(scores) - top_k)[len(scores) - top_k:]
+        boundary = float(np.min(scores[boundary_indices]))
+        above = np.flatnonzero(scores > boundary).tolist()
+        tied = np.flatnonzero(scores == boundary).tolist()
         above.sort(key=lambda i: (-float(scores[i]), ids[i]))
         tied.sort(key=lambda i: ids[i])
         order = above + tied[:max(0, top_k - len(above))]
@@ -342,9 +351,15 @@ def _tfidf_rankings(
 
 def _lsa_rankings(
     docs: Sequence[ToolDocument], tasks: Sequence[DiscoveryTask], top_k: int,
-    dimension: int = 128, seed: int = 0,
+    dimension: int = 128, seed: int = 0, query_chunk_size: int = 64,
 ) -> dict[str, list[str]]:
-    """Explicit LSA surrogate (TF-IDF + truncated SVD), not a neural dense encoder."""
+    """Explicit LSA surrogate (TF-IDF + truncated SVD), not a neural dense encoder.
+
+    Query scoring is chunked so the complete ToolRet query-by-corpus matrix is
+    never materialized (which would require >1 GiB for the pinned track).
+    """
+    if query_chunk_size < 1:
+        raise ValueError("query_chunk_size must be positive")
     ids = [x.tool_id for x in docs]
     vectorizer = TfidfVectorizer(
         tokenizer=_tokenize, preprocessor=None, token_pattern=None,
@@ -358,14 +373,20 @@ def _lsa_rankings(
     tool_vectors = svd.fit_transform(matrix)
     tool_norms = np.linalg.norm(tool_vectors, axis=1, keepdims=True)
     tool_vectors = tool_vectors / np.maximum(tool_norms, 1e-12)
-    query_vectors = svd.transform(vectorizer.transform([x.query for x in tasks]))
-    query_norms = np.linalg.norm(query_vectors, axis=1, keepdims=True)
-    query_vectors = query_vectors / np.maximum(query_norms, 1e-12)
-    scores = query_vectors @ tool_vectors.T
-    return {
-        task.task_id: _rank_scores(np.asarray(scores[i], dtype=float), ids, top_k)
-        for i, task in enumerate(tasks)
-    }
+    result: dict[str, list[str]] = {}
+    for start in range(0, len(tasks), query_chunk_size):
+        chunk = tasks[start:start + query_chunk_size]
+        query_vectors = svd.transform(
+            vectorizer.transform([task.query for task in chunk])
+        )
+        query_norms = np.linalg.norm(query_vectors, axis=1, keepdims=True)
+        query_vectors = query_vectors / np.maximum(query_norms, 1e-12)
+        score_block = query_vectors @ tool_vectors.T
+        for offset, task in enumerate(chunk):
+            result[task.task_id] = _rank_scores(
+                np.asarray(score_block[offset], dtype=float), ids, top_k
+            )
+    return result
 
 
 def _load_sentence_models(
@@ -456,11 +477,14 @@ def _random_rankings(
     docs: Sequence[ToolDocument], tasks: Sequence[DiscoveryTask], top_k: int, seed: int
 ) -> dict[str, list[str]]:
     ids = [x.tool_id for x in docs]
+    sample_size = min(max(0, top_k), len(ids))
     result = {}
     for task in tasks:
-        order = list(ids)
-        random.Random(_stable_seed(seed, task.task_id)).shuffle(order)
-        result[task.task_id] = order[:top_k]
+        # sample(k) is distributionally equivalent to the first k elements of
+        # a uniformly shuffled corpus, without shuffling all 44k IDs per query.
+        result[task.task_id] = random.Random(
+            _stable_seed(seed, task.task_id)
+        ).sample(ids, sample_size)
     return result
 
 
@@ -807,7 +831,7 @@ def _write_per_task_csv(
         writer.writeheader()
         for baseline, ranking in rankings.items():
             for metric, k in (("precision", 1), ("recall", 1), ("mrr", 10),
-                              ("ndcg", 10), ("hit", 1), ("hit", 5), ("ndcg", 10)):
+                              ("ndcg", 10), ("hit", 1), ("hit", 5)):
                 values = _per_task_metric(ranking, track.qrels, metric, k)
                 category_by_id = {task.task_id: task.category for task in track.tasks}
                 for task_id, value in values.items():
