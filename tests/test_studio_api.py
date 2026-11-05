@@ -246,6 +246,8 @@ def test_studio_home_serves_browser_workspace():
     assert "<title>TaaS Studio — Tool Intelligence Platform</title>" in response.text
     assert '<strong>TaaS Studio</strong>' in response.text
     assert "/api/v1/objectives/discover" in response.text
+    assert response.headers["cache-control"] == "no-store, no-cache, must-revalidate, max-age=0"
+    assert response.headers["pragma"] == "no-cache"
 
 
 def test_studio_frontend_keeps_goal_metrics_disjoint_and_runtime_claims_precise():
