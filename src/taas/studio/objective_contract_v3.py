@@ -64,6 +64,18 @@ def _source_evidence(objective: str, goal_class: str) -> list[dict[str, Any]]:
             }]
     return []
 
+def _operation_classes_in_clause(clause_text: str) -> set[str]:
+    """Return distinct operation classes lexically evidenced in one source clause.
+
+    This is an ambiguity guard only. It does not create GoalSpec outcomes or
+    assert semantic equivalence between lexical cues and executable operations.
+    """
+    found: set[str] = set()
+    for goal_class, patterns in _EVIDENCE_PATTERNS.items():
+        if any(re.search(pattern, clause_text, flags=re.IGNORECASE) for pattern in patterns):
+            found.add(goal_class)
+    return found
+
 
 def _clause_bounds(text: str, position: int) -> tuple[int, int]:
     """Return conservative punctuation-delimited clause bounds around a source offset."""
@@ -191,12 +203,22 @@ def derive_objective_contract_v3(
         previous = clauses[clause_index - 1]
         prior_outcomes = [item for item in outcomes if item.get("clause_ref") == previous["id"]]
         current_outcomes = [item for item in outcomes if item.get("clause_ref") == clause["id"]]
-        if len(prior_outcomes) != 1 or len(current_outcomes) != 1:
+        prior_lexical_classes = _operation_classes_in_clause(previous["text"])
+        current_lexical_classes = _operation_classes_in_clause(clause["text"])
+        if (
+            len(prior_outcomes) != 1
+            or len(current_outcomes) != 1
+            or len(prior_lexical_classes) > 1
+            or len(current_lexical_classes) > 1
+        ):
             clarifications.append({
                 "id": f"clarification_{len(clarifications) + 1}",
                 "question": "Clarify which preceding and following outcomes this sequencing phrase connects.",
                 "reason": "dependency_endpoints_ambiguous",
-                "affected_goal_classes": sorted({item["goal_class"] for item in prior_outcomes + current_outcomes}),
+                "affected_goal_classes": sorted(
+                    {item["goal_class"] for item in prior_outcomes + current_outcomes}
+                    | prior_lexical_classes | current_lexical_classes
+                ),
                 "clause_ref": clause["id"],
                 "blocking": True,
                 "source_evidence": [{
@@ -316,6 +338,17 @@ def validate_objective_contract_v3(contract: dict[str, Any]) -> list[str]:
             errors.append("dependency_id_missing_or_duplicate")
         dependency_ids.add(dep_id)
         source_id, target_id = dependency.get("from_outcome"), dependency.get("to_outcome")
+        clause_refs = dependency.get("source_clause_refs", [])
+        if len(clause_refs) != 2 or any(ref not in clause_ids for ref in clause_refs):
+            errors.append("dependency_clause_ref_invalid")
+        # Validate provenance independently of endpoint validity. A dangling
+        # endpoint must not suppress detection of forged source evidence.
+        for evidence in dependency.get("source_evidence", []):
+            start, end = evidence.get("start"), evidence.get("end")
+            if not isinstance(start, int) or not isinstance(end, int) or start < 0 or end <= start or end > len(original):
+                errors.append("dependency_evidence_span_out_of_bounds")
+            elif original[start:end] != evidence.get("text"):
+                errors.append("dependency_evidence_span_text_mismatch")
         if source_id not in outcome_by_id or target_id not in outcome_by_id:
             errors.append("dependency_outcome_ref_invalid")
             continue
@@ -323,15 +356,6 @@ def validate_objective_contract_v3(contract: dict[str, Any]) -> list[str]:
             errors.append("dependency_self_reference")
         if source_id not in outcome_by_id[target_id].get("depends_on", []):
             errors.append("dependency_outcome_link_inconsistent")
-        clause_refs = dependency.get("source_clause_refs", [])
-        if len(clause_refs) != 2 or any(ref not in clause_ids for ref in clause_refs):
-            errors.append("dependency_clause_ref_invalid")
-        for evidence in dependency.get("source_evidence", []):
-            start, end = evidence.get("start"), evidence.get("end")
-            if not isinstance(start, int) or not isinstance(end, int) or start < 0 or end <= start or end > len(original):
-                errors.append("dependency_evidence_span_out_of_bounds")
-            elif original[start:end] != evidence.get("text"):
-                errors.append("dependency_evidence_span_text_mismatch")
 
     for clause in clauses:
         for outcome_ref in clause.get("outcome_refs", []):
