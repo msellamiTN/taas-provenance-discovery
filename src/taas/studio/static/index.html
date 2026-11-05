@@ -319,6 +319,19 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   .outcome-status.covered{background:#e8f5ee;color:#17633c}
   .outcome-status.missing{background:#fff1e8;color:#99420b}
   .outcome-coverage-note{margin:9px 0 0;color:var(--muted);font-size:11px;line-height:1.45}
+
+  /* UX-2: persistent workspace context */
+  .workspace-context{display:flex;align-items:center;gap:9px;min-height:44px;margin:0 0 16px;padding:9px 13px;border:1px solid var(--line);border-radius:11px;background:var(--surface);box-shadow:0 1px 2px rgba(20,35,58,.025)}
+  .workspace-context-crumb{color:var(--muted);font-size:11px;font-weight:600}
+  .workspace-context-separator{color:#a4afbf;font-size:12px}
+  .workspace-context-title{color:var(--ink);font-size:12px;font-weight:750;letter-spacing:-.1px}
+  .workspace-context-spacer{flex:1}
+  .workspace-context-hint{color:var(--muted);font-size:10px}
+  .studio-content{min-width:0}
+  .studio-content > section,.studio-content > .grid,.studio-content > .hero{scroll-margin-top:16px}
+  @media(max-width:900px){.workspace-context{margin-bottom:12px}}
+  @media(max-width:560px){.workspace-context{min-height:40px;padding:8px 10px}.workspace-context-hint{display:none}}
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
@@ -359,6 +372,13 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <div class="nav-foot"><span class="nav-status-dot"></span><span>Governed execution<br><small>MCP invocation not enabled</small></span></div>
     </nav>
     <div class="studio-content">
+      <div class="workspace-context" aria-label="Current Studio workspace">
+        <span class="workspace-context-crumb">TaaS Studio</span>
+        <span class="workspace-context-separator" aria-hidden="true">/</span>
+        <strong id="studio-workspace-context-title" class="workspace-context-title" aria-live="polite">Overview</strong>
+        <span class="workspace-context-spacer"></span>
+        <span class="workspace-context-hint">Workspace navigation</span>
+      </div>
 
   <section id="evidence-explorer" class="section-anchor" style="margin-bottom:18px">
     <div class="panel-head"><div><div class="eyebrow">ASSURE · Evidence</div><h2 style="margin:4px 0">Evidence explorer</h2>
@@ -874,6 +894,10 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       if (item === link) item.setAttribute("aria-current", "page");
       else item.removeAttribute("aria-current");
     });
+    const workspaceContextTitle = document.getElementById("studio-workspace-context-title");
+    if (workspaceContextTitle) {
+      workspaceContextTitle.textContent = link.textContent.replace(/\\s+/g, " ").trim();
+    }
     if (updateHistory && window.location.hash !== href) {
       history.pushState({studioWorkspace: targetId}, "", href);
     }
