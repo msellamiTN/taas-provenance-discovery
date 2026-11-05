@@ -34,6 +34,7 @@ from taas.studio.agent_context import build_agent_intelligence_context
 from taas.studio.objective_traceability import build_objective_skill_traceability
 from taas.studio import policy_engine
 from taas.studio.tool_intelligence import build_tool_intelligence
+from taas.studio import tool_registry
 from taas.studio.agent_skill_bindings import (
     AgentSkillBindingConflict,
     AgentSkillBindingError,
@@ -933,6 +934,44 @@ def bench_tasks(
         } for item in page],
         "gold_labels_exposed": False,
     }
+
+
+@app.get("/api/v1/tools", dependencies=[Depends(require_api_token)])
+def tool_registry_search(
+    q: str | None = Query(None, max_length=300),
+    server: str | None = Query(None, max_length=128),
+    source: str | None = Query(None, max_length=64),
+    offset: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=200),
+) -> dict[str, Any]:
+    """Search retained-registry tool identities with definition-hash pins."""
+    return tool_registry.search_registry_tools(
+        q=q, server=server, source=source, offset=offset, limit=limit
+    )
+
+
+@app.get("/api/v1/tools/{server}/{name}", dependencies=[Depends(require_api_token)])
+def tool_registry_resolve(server: str, name: str) -> dict[str, Any]:
+    """Resolve one exact server::name tool; verify its stored definition hash."""
+    identity = tool_registry.resolve_registry_tool(server, name)
+    if identity is None:
+        raise HTTPException(status_code=404, detail=f"Unknown registry tool: {server}::{name}")
+    return identity
+
+
+def _tool_attestation_lookup(binding: dict[str, Any]) -> dict[str, Any]:
+    return assurance_evidence.list_verified_evidence_for_subject(binding)
+
+
+@app.get("/api/v1/tools/{server}/{name}/intelligence", dependencies=[Depends(require_api_token)])
+def tool_capability_intelligence(server: str, name: str) -> dict[str, Any]:
+    """Structured capability profile with declared/observed/attested evidence axis."""
+    profile = tool_registry.build_capability_profile(
+        server, name, attestation_lookup=_tool_attestation_lookup
+    )
+    if profile is None:
+        raise HTTPException(status_code=404, detail=f"Unknown registry tool: {server}::{name}")
+    return profile
 
 
 @app.get("/api/v1/bench/tools", dependencies=[Depends(require_api_token)])
