@@ -14,6 +14,9 @@ from taas.experiments.benchmark_io import normalize_tool
 
 
 def _toolret_doc(source_id: str, doc: Mapping[str, Any]) -> dict[str, Any]:
+    documentation = doc.get("documentation")
+    if documentation is not None and not doc.get("description"):
+        doc = dict(doc) | {"description": str(documentation)}
     params = doc.get("parameters", doc.get("input_schema", {})) or {}
     if isinstance(params, list):
         properties = {}
@@ -38,7 +41,7 @@ def _toolret_doc(source_id: str, doc: Mapping[str, Any]) -> dict[str, Any]:
         input_schema = {}
     return {
         "tool_id": f"toolret::{source_id}",
-        "name": doc.get("name", source_id),
+        "name": doc.get("name", doc.get("tool_name", source_id)),
         "description": doc.get("description", ""),
         "input_schema": input_schema,
         "output_schema": doc.get("output_schema", {}),
@@ -58,8 +61,12 @@ def adapt_toolret_records(
     for row in corpus_records:
         source_id = str(row.get("id", row.get("tool_id", ""))).strip()
         doc = row.get("doc", row)
-        if not source_id or not isinstance(doc, dict):
-            raise ValueError("ToolRet corpus rows require id/tool_id and a doc object")
+        if not source_id:
+            raise ValueError("ToolRet corpus rows require id/tool_id")
+        if isinstance(doc, str):
+            doc = {"documentation": doc, "name": row.get("name", source_id)}
+        if not isinstance(doc, dict):
+            raise ValueError("ToolRet corpus doc must be an object or documentation string")
         normalized = normalize_tool(_toolret_doc(source_id, doc), "toolret")
         payload = {
             "dataset_id": normalized.dataset_id, "tool_id": normalized.tool_id,
