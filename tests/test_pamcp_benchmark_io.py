@@ -1,6 +1,7 @@
 from taas.experiments.benchmark_io import (
     complete_set_recall,
     discovery_view,
+    discovery_task_view,
     normalize_task,
     normalize_tool,
     retrieval_coverage,
@@ -27,6 +28,9 @@ def test_normalize_task_preserves_multiple_acceptable_sets():
         "acceptable_tool_sets": [["weather::forecast"], ["search::weather", "weather::read"]],
     }, "fixture")
     assert len(task.acceptable_tool_sets) == 2
+    visible = discovery_task_view(task)
+    assert "target_tool_ids" not in visible
+    assert "acceptable_tool_sets" not in visible
 
 
 def test_safety_metrics_return_none_without_independent_reference():
