@@ -79,11 +79,15 @@ def test_colab_covers_objective_constraint_dependency_namespace() -> None:
 
 def test_colab_distinguishes_external_tool_requirements_from_model_gaps() -> None:
     _, _, code = notebook_source()
+    # Retrieval-only classification is checked deterministically without model inference.
     assert 'core.get("status") == "tool_requirements_detected"' in code
+    assert 'retrieval_only.get("tool_required_goal_ids") == ["g1"]' in code
+    assert 'retrieval_only.get("model_capability_gap_goal_ids") == []' in code
+    # The optional compound live test keeps external-tool and native-skill gaps distinct.
+    assert 'core.get("status") == "tool_and_model_capability_gaps_detected"' in code
     assert 'core.get("tool_required_goal_ids") == ["g1"]' in code
-    assert 'core.get("model_capability_gap_goal_ids") == []' in code
-    assert 'core.get("gap_goal_ids") == ["g1"]' in code
-    assert 'core.get("goals", [{}])[0].get("rho") == 0.0' in code
+    assert 'core.get("model_capability_gap_goal_ids") == ["g2"]' in code
+    assert 'core.get("gap_goal_ids") == ["g1", "g2"]' in code
     assert 'calibrated_profile_matched") is False' in code
 
 
