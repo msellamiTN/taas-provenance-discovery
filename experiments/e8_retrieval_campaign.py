@@ -804,10 +804,6 @@ def run_campaign(
         "cross_encoder_revision": cross_revision,
         "device": device,
     }
-    encoder, reranker = _load_sentence_models(
-        e5_model, e5_revision, cross_model, cross_revision, device
-    )
-
     track_runs: dict[str, Any] = {}
     all_tracks = [toolret, mcp]
     track_fingerprints = {
@@ -819,6 +815,7 @@ def run_campaign(
         for track in all_tracks
     }
     run_context = {
+        "runner_commit": _git_value(root, "rev-parse", "HEAD"),
         "models": models,
         "track_fingerprints": track_fingerprints,
         "top_k": top_k,
