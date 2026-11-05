@@ -79,6 +79,35 @@ def _clause_modality(text: str, evidence: dict[str, Any]) -> list[re.Match[str]]
     return list(_MODALITY_MARKERS.finditer(text, start, end))
 
 
+def _source_clauses(text: str) -> list[dict[str, Any]]:
+    """Segment punctuation-delimited clauses with exact original offsets."""
+    clauses: list[dict[str, Any]] = []
+    start = 0
+    for index, char in enumerate(text):
+        if char in ";.!?\n":
+            end = index
+            left = start
+            while left < end and text[left].isspace():
+                left += 1
+            right = end
+            while right > left and text[right - 1].isspace():
+                right -= 1
+            if left < right:
+                clauses.append({"id": f"clause_{len(clauses) + 1}", "span": {"start": left, "end": right}, "text": text[left:right], "outcome_refs": [], "clarification_refs": []})
+            start = index + 1
+    left = start
+    while left < len(text) and text[left].isspace():
+        left += 1
+    right = len(text)
+    while right > left and text[right - 1].isspace():
+        right -= 1
+    if left < right:
+        clauses.append({"id": f"clause_{len(clauses) + 1}", "span": {"start": left, "end": right}, "text": text[left:right], "outcome_refs": [], "clarification_refs": []})
+    return clauses
+
+def _clause_for_offset(clauses: list[dict[str, Any]], offset: int) -> dict[str, Any] | None:
+    return next((item for item in clauses if item["span"]["start"] <= offset < item["span"]["end"]), None)
+
 def derive_objective_contract_v3(
     objective: str,
     reference_date: Any = None,
@@ -90,15 +119,21 @@ def derive_objective_contract_v3(
     candidates = list(v2.get("required_goal_classes", []))
     clarifications: list[dict[str, Any]] = []
     outcomes: list[dict[str, Any]] = []
+    clauses = _source_clauses(original)
 
     for index, goal_class in enumerate(candidates, start=1):
         evidence = _source_evidence(original, goal_class)
+        clause_ref = None
+        if evidence:
+            source_clause = _clause_for_offset(clauses, evidence[0]["start"])
+            clause_ref = source_clause["id"] if source_clause else None
         if not evidence:
             clarifications.append({
                 "id": f"clarification_{len(clarifications) + 1}",
                 "question": f"Confirm whether '{goal_class}' is an intended operation.",
                 "reason": "no_direct_source_evidence",
                 "affected_goal_classes": [goal_class],
+                "clause_ref": clause_ref,
                 "blocking": True,
                 "source_evidence": [],
             })
@@ -120,6 +155,7 @@ def derive_objective_contract_v3(
                         "cue": "modality_marker",
                         "offset_unit": "unicode_code_point",
                     }],
+                    "clause_ref": clause_ref,
                     "clause_span": {
                         "start": _clause_bounds(original, evidence[0]["start"])[0],
                         "end": _clause_bounds(original, evidence[0]["start"])[1],
@@ -130,6 +166,7 @@ def derive_objective_contract_v3(
         outcomes.append({
             "id": f"outcome_{index}",
             "goal_class": goal_class,
+            "clause_ref": clause_ref,
             "requirement": "required",
             "modality": "asserted",
             "source_evidence": evidence,
@@ -143,6 +180,13 @@ def derive_objective_contract_v3(
             },
         })
 
+    for outcome in outcomes:
+        clause = next((item for item in clauses if item["id"] == outcome["clause_ref"]), None)
+        if clause: clause["outcome_refs"].append(outcome["id"])
+    for clarification in clarifications:
+        clause = next((item for item in clauses if item["id"] == clarification.get("clause_ref")), None)
+        if clause: clause["clarification_refs"].append(clarification["id"])
+
     return {
         "schema": _SCHEMA,
         "contract_version": "3.0",
@@ -151,6 +195,7 @@ def derive_objective_contract_v3(
             "locale": locale or "und",
             "normalization": "none",
         },
+        "clauses": clauses,
         "outcomes": outcomes,
         "conditions": [],
         "alternatives": [],
@@ -184,12 +229,24 @@ def validate_objective_contract_v3(contract: dict[str, Any]) -> list[str]:
         original = ""
     if objective.get("normalization") != "none":
         errors.append("original_text_must_remain_unnormalized")
+    clauses = contract.get("clauses", [])
+    clause_ids: set[str] = set()
+    for clause in clauses:
+        clause_id = clause.get("id")
+        if not clause_id or clause_id in clause_ids: errors.append("clause_id_missing_or_duplicate")
+        clause_ids.add(clause_id)
+        span = clause.get("span", {})
+        start, end = span.get("start"), span.get("end")
+        if not isinstance(start, int) or not isinstance(end, int) or start < 0 or end <= start or end > len(original):
+            errors.append("clause_span_out_of_bounds")
+        elif original[start:end] != clause.get("text"): errors.append("clause_span_text_mismatch")
     ids: set[str] = set()
     for outcome in contract.get("outcomes", []):
         outcome_id = outcome.get("id")
         if not outcome_id or outcome_id in ids:
             errors.append("outcome_id_missing_or_duplicate")
         ids.add(outcome_id)
+        if outcome.get("clause_ref") not in clause_ids: errors.append("outcome_clause_ref_invalid")
         if outcome.get("requirement") not in {"required", "conditional", "optional", "alternative", "negated"}:
             errors.append("invalid_requirement")
         if outcome.get("modality") not in {"asserted", "conditional", "optional", "alternative", "negated"}:
@@ -203,6 +260,13 @@ def validate_objective_contract_v3(contract: dict[str, Any]) -> list[str]:
                 continue
             if original[start:end] != evidence.get("text"):
                 errors.append("evidence_span_text_mismatch")
+    for clause in clauses:
+        for outcome_ref in clause.get("outcome_refs", []):
+            outcome = next((item for item in contract.get("outcomes", []) if item.get("id") == outcome_ref), None)
+            if outcome is None or outcome.get("clause_ref") != clause.get("id"): errors.append("clause_outcome_reference_inconsistent")
+        for clarification_ref in clause.get("clarification_refs", []):
+            clarification = next((item for item in contract.get("clarifications", []) if item.get("id") == clarification_ref), None)
+            if clarification is None or clarification.get("clause_ref") != clause.get("id"): errors.append("clause_clarification_reference_inconsistent")
     if contract.get("review", {}).get("required") is not True:
         errors.append("human_review_not_required")
     if contract.get("review", {}).get("semantic_correctness_verified") is not False:
