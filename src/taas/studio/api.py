@@ -39,6 +39,7 @@ from taas.studio.agent_skill_bindings import (
 from taas.studio import agent_registry
 from taas.studio import skill_registry
 from taas.studio import skill_dependency_graph
+from taas.studio import assurance_evidence
 from taas.studio.skill_spec import validate_skill_manifest
 from taas.studio import release_readiness
 from taas.studio.authorization_preflight import (
@@ -1501,7 +1502,7 @@ def skill_dependency_graph_get(skill_id: str, version: str) -> dict[str, Any]:
     try:
         resource = skill_registry.get_version(skill_id, version)
         graph = skill_dependency_graph.resolve_skill_dependency_graph(
-            skill_id, version, resource["manifest_sha256"]
+            skill_id, version, resource["manifest_sha256"], allow_revoked=True
         )
     except skill_registry.SkillRegistryNotFound as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
@@ -1526,7 +1527,7 @@ def skill_hypergraph_projection_get(skill_id: str, version: str) -> dict[str, An
     try:
         resource = skill_registry.get_version(skill_id, version)
         graph = skill_dependency_graph.resolve_skill_dependency_graph(
-            skill_id, version, resource["manifest_sha256"]
+            skill_id, version, resource["manifest_sha256"], allow_revoked=True
         )
         projection = project_skill_dependency_graph(graph)
     except skill_registry.SkillRegistryNotFound as exc:
@@ -1587,6 +1588,166 @@ def skill_publish_version(skill_id: str, version: str) -> dict[str, Any]:
     return {
         **resource, "published_as_guidance": True,
         "semantic_correctness_verified": False, "tools_authorized": False,
+        "execution_enabled": False,
+    }
+
+
+class SkillSignatureRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    publisher_id: str = Field(default="", max_length=128,
+                              pattern=r"^$|^[A-Za-z0-9][A-Za-z0-9_.:@/-]{0,127}$")
+    statement: str = Field(default="", max_length=500)
+
+
+def _skill_signature_binding(resource: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "skill_id": resource["skill_id"],
+        "version": resource["version"],
+        "manifest_sha256": resource["manifest_sha256"],
+    }
+
+
+@app.post("/api/v1/skills/{skill_id}/versions/{version}/sign",
+          status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_api_token)])
+def skill_sign_version(skill_id: str, version: str,
+                       request: SkillSignatureRequest) -> dict[str, Any]:
+    """Attest a registry signature for a published Skill version.
+
+    The signature is a service-attested supply-chain record bound to the exact
+    manifest digest. It proves registry issuance and integrity; it is not a
+    portable third-party identity, authorization, or execution right.
+    """
+    try:
+        resource = skill_registry.get_version(skill_id, version)
+    except skill_registry.SkillRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    if resource.get("lifecycle_state") != "published":
+        raise HTTPException(
+            status_code=409,
+            detail="Only published Skill versions can be signed",
+        )
+    if resource.get("revoked"):
+        raise HTTPException(
+            status_code=409, detail="Revoked Skill versions cannot be signed",
+        )
+    actor = os.environ.get("TAAS_STUDIO_ACTOR", "studio-api")
+    publisher = request.publisher_id or actor
+    try:
+        envelope = assurance_evidence.attest_evidence(
+            evidence_type="publisher_signature",
+            subject_binding=_skill_signature_binding(resource),
+            issuer="taas-studio",
+            assessor=actor,
+            method="registry_manifest_signature",
+            payload={"publisher_id": publisher, "statement": request.statement},
+        )
+        record = assurance_evidence.store_evidence(envelope)
+    except assurance_evidence.EvidenceConfigurationError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except assurance_evidence.EvidenceError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return {
+        "signature": {
+            "evidence_id": record["evidence_id"],
+            "evidence_type": record["evidence_type"],
+            "subject_binding": record["subject_binding"],
+            "publisher_id": publisher,
+            "signed_by": record["assessor"],
+            "observed_at": record["observed_at"],
+            "expires_at": record["expires_at"],
+        },
+        "signature_scope": "registry_attested_not_portable_identity",
+        "integrity_verified": True,
+        "tools_authorized": False,
+        "execution_enabled": False,
+        "assessor_claim_truth_verified": False,
+    }
+
+
+@app.get("/api/v1/skills/{skill_id}/versions/{version}/signature",
+         dependencies=[Depends(require_api_token)])
+def skill_signature_status(skill_id: str, version: str) -> dict[str, Any]:
+    """Return verified signature records bound to this exact Skill version."""
+    try:
+        resource = skill_registry.get_version(skill_id, version)
+    except skill_registry.SkillRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    try:
+        found = assurance_evidence.list_verified_evidence_for_subject(
+            _skill_signature_binding(resource), expected_type="publisher_signature"
+        )
+    except assurance_evidence.EvidenceError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    return {
+        "skill_id": skill_id,
+        "version": version,
+        "manifest_sha256": resource["manifest_sha256"],
+        "verified": found["count"] > 0,
+        "signatures": [
+            {
+                "evidence_id": item["evidence_id"],
+                "publisher_id": item["payload"].get("publisher_id"),
+                "signed_by": item["assessor"],
+                "observed_at": item["observed_at"],
+                "expires_at": item["expires_at"],
+            }
+            for item in found["valid"]
+        ],
+        "invalid_records": found["invalid"],
+        "signature_scope": "registry_attested_not_portable_identity",
+        "tools_authorized": False,
+        "execution_enabled": False,
+    }
+
+
+class SkillRevocationRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    reason: str = Field(min_length=1, max_length=500)
+
+
+@app.post("/api/v1/skills/{skill_id}/versions/{version}/revoke",
+          dependencies=[Depends(require_api_token)])
+def skill_revoke_version(skill_id: str, version: str,
+                         request: SkillRevocationRequest) -> dict[str, Any]:
+    """Record an immutable revocation for a Skill version.
+
+    Revoked versions refuse new dependency-graph resolution for binding and new
+    signatures. The immutable version and its revocations remain inspectable;
+    revocation is a provenance event, not a deletion or authorization change.
+    """
+    try:
+        revocation = skill_registry.revoke_version(
+            skill_id, version, reason=request.reason,
+            actor=os.environ.get("TAAS_STUDIO_ACTOR", "studio-api"),
+        )
+    except skill_registry.SkillRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except skill_registry.SkillRegistryConflict as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {
+        "revocation": revocation,
+        "revoked": True,
+        "semantic_correctness_verified": False,
+        "tools_authorized": False,
+        "execution_enabled": False,
+    }
+
+
+@app.get("/api/v1/skills/{skill_id}/versions/{version}/revocation",
+         dependencies=[Depends(require_api_token)])
+def skill_revocation_status(skill_id: str, version: str) -> dict[str, Any]:
+    """Inspect the immutable revocation record for a Skill version, if any."""
+    try:
+        skill_registry.get_version(skill_id, version)
+    except skill_registry.SkillRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    revocation = skill_registry.get_revocation(skill_id, version)
+    return {
+        "skill_id": skill_id,
+        "version": version,
+        "revoked": revocation is not None,
+        "revocation": revocation,
+        "tools_authorized": False,
         "execution_enabled": False,
     }
 

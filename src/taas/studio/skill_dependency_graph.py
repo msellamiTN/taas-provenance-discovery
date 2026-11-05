@@ -47,6 +47,7 @@ def resolve_skill_dependency_graph(
     max_nodes: int = 32,
     max_depth: int = 16,
     max_edges: int = 128,
+    allow_revoked: bool = False,
 ) -> dict[str, Any]:
     """Resolve a published root Skill and all exact pinned dependencies.
 
@@ -117,6 +118,11 @@ def resolve_skill_dependency_graph(
                 f"Referenced Skill {node_id}@{node_version} must be published; "
                 f"current state is {resource.get('lifecycle_state')!r}"
             )
+        if resource.get("revoked") and not allow_revoked:
+            raise SkillDependencyConflict(
+                f"Referenced Skill {node_id}@{node_version} has been revoked and "
+                "cannot be resolved for binding"
+            )
         actual_digest = resource.get("manifest_sha256")
         if actual_digest != reference["manifest_sha256"]:
             raise SkillDependencyConflict(
@@ -143,6 +149,7 @@ def resolve_skill_dependency_graph(
             "version": node_version,
             "manifest_sha256": actual_digest,
             "lifecycle_state": resource["lifecycle_state"],
+            "revoked": bool(resource.get("revoked")),
             "name": metadata.get("name", node_id),
             "description": metadata.get("description", ""),
             "instructions": spec.get("instructions", ""),
