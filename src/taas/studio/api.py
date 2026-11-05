@@ -32,6 +32,8 @@ from taas.studio.models import ModelCatalogError, get_model_details, inspect_mod
 from taas.studio.agent_spec import validate_agent_manifest
 from taas.studio.agent_context import build_agent_intelligence_context
 from taas.studio import agent_registry
+from taas.studio import skill_registry
+from taas.studio.skill_spec import validate_skill_manifest
 from taas.studio import release_readiness
 from taas.studio.authorization_preflight import (
     AuthorizationConfigurationError,
@@ -1405,6 +1407,108 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except ModelRuntimeError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.post("/api/v1/skills/validate", dependencies=[Depends(require_api_token)])
+def skill_manifest_validate(payload: dict[str, Any]) -> dict[str, Any]:
+    """Validate a reusable Skill manifest without persisting or activating it."""
+    try:
+        manifest = validate_skill_manifest(payload)
+    except ValidationError as exc:
+        raise HTTPException(status_code=422, detail=exc.errors(include_context=False, include_input=False)) from exc
+    return {
+        "valid": True, "manifest": manifest, "lifecycle_state": "draft",
+        "semantic_correctness_verified": False, "tools_authorized": False,
+        "execution_enabled": False,
+    }
+
+
+@app.post("/api/v1/skills", status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_api_token)])
+def skill_create(payload: dict[str, Any]) -> dict[str, Any]:
+    """Persist a new immutable Skill version in draft state."""
+    try:
+        manifest = validate_skill_manifest(payload)
+        resource = skill_registry.create_draft(
+            manifest, actor=os.environ.get("TAAS_STUDIO_ACTOR", "studio-api")
+        )
+    except ValidationError as exc:
+        raise HTTPException(status_code=422, detail=exc.errors(include_context=False, include_input=False)) from exc
+    except skill_registry.SkillRegistryConflict as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=422, detail="Skill manifest must contain only strict JSON values") from exc
+    return {
+        **resource, "semantic_correctness_verified": False,
+        "tools_authorized": False, "execution_enabled": False,
+    }
+
+
+@app.get("/api/v1/skills", dependencies=[Depends(require_api_token)])
+def skill_list(skill_id: str | None = Query(default=None, max_length=63),
+               limit: int = Query(default=100, ge=1, le=500)) -> dict[str, Any]:
+    return skill_registry.list_versions(skill_id=skill_id, limit=limit)
+
+
+@app.get("/api/v1/skills/events", dependencies=[Depends(require_api_token)])
+def skill_events(skill_id: str | None = Query(default=None, max_length=63),
+                 limit: int = Query(default=200, ge=1, le=1000)) -> dict[str, Any]:
+    return skill_registry.list_events(skill_id=skill_id, limit=limit)
+
+
+@app.get("/api/v1/skills/{skill_id}/versions/{version}", dependencies=[Depends(require_api_token)])
+def skill_get(skill_id: str, version: str) -> dict[str, Any]:
+    try:
+        resource = skill_registry.get_version(skill_id, version)
+    except skill_registry.SkillRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return {
+        **resource, "semantic_correctness_verified": False,
+        "tools_authorized": False, "execution_enabled": False,
+    }
+
+
+@app.post("/api/v1/skills/{skill_id}/versions/{version}/validate", dependencies=[Depends(require_api_token)])
+def skill_validate_saved_version(skill_id: str, version: str) -> dict[str, Any]:
+    """Revalidate immutable stored bytes and advance draft -> validated."""
+    try:
+        resource = skill_registry.get_version(skill_id, version)
+        manifest = validate_skill_manifest(resource["manifest"])
+        if manifest != resource["manifest"]:
+            raise HTTPException(status_code=409, detail="Stored Skill manifest is not canonical")
+        resource = skill_registry.transition(
+            skill_id, version, "validated",
+            actor=os.environ.get("TAAS_STUDIO_ACTOR", "studio-api"),
+        )
+    except ValidationError as exc:
+        raise HTTPException(status_code=422, detail=exc.errors(include_context=False, include_input=False)) from exc
+    except skill_registry.SkillRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except skill_registry.SkillRegistryConflict as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {
+        **resource, "validation_scope": "structural_schema_and_field_invariants",
+        "semantic_correctness_verified": False, "tools_authorized": False,
+        "execution_enabled": False,
+    }
+
+
+@app.post("/api/v1/skills/{skill_id}/versions/{version}/publish", dependencies=[Depends(require_api_token)])
+def skill_publish_version(skill_id: str, version: str) -> dict[str, Any]:
+    """Publish a validated Skill as reusable guidance; this grants no capabilities."""
+    try:
+        resource = skill_registry.transition(
+            skill_id, version, "published",
+            actor=os.environ.get("TAAS_STUDIO_ACTOR", "studio-api"),
+        )
+    except skill_registry.SkillRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except skill_registry.SkillRegistryConflict as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {
+        **resource, "published_as_guidance": True,
+        "semantic_correctness_verified": False, "tools_authorized": False,
+        "execution_enabled": False,
+    }
 
 
 @app.post("/api/v1/agents/validate", dependencies=[Depends(require_api_token)])
