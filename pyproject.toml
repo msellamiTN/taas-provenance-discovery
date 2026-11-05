@@ -15,7 +15,7 @@ llm = ["anthropic>=0.40"]
 probe = ["mcp>=1.0"]
 studio = ["fastapi>=0.110", "uvicorn[standard]>=0.27", "httpx>=0.27", "pydantic>=2.6"]
 experiment = ["jsonschema>=4.21", "pandas>=2.1", "pyarrow>=14"]
-benchmark-hf = ["datasets>=3.0"]
+benchmark-hf = ["datasets>=3.0", "rank-bm25>=0.2.2"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
