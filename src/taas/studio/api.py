@@ -41,6 +41,7 @@ from taas.studio import skill_registry
 from taas.studio import skill_dependency_graph
 from taas.studio.skill_spec import validate_skill_manifest
 from taas.studio import release_readiness
+from taas.studio import assurance_evidence
 from taas.studio.authorization_preflight import (
     AuthorizationConfigurationError,
     build_authorization_preflight,
@@ -1759,7 +1760,104 @@ def agent_release_readiness(agent_id: str, version: str) -> dict[str, Any]:
         except agent_registry.AgentRegistryError:
             snapshot = None
 
-    return release_readiness.evaluate_release_readiness(agent=agent, snapshot=snapshot)
+    return release_readiness.evaluate_release_readiness(
+        agent=agent, snapshot=snapshot,
+        evidence_lookup=release_readiness.evidence_store_lookup(agent),
+    )
+
+
+class AgentHumanApprovalRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    note: str = Field(default="", max_length=1000)
+    ttl_seconds: int = Field(default=86400, ge=300, le=2592000)
+
+
+def _release_subject_or_http(agent_id: str, version: str) -> dict[str, Any]:
+    try:
+        return agent_registry.get_version(agent_id, version)
+    except agent_registry.AgentRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.post("/api/v1/agents/{agent_id}/versions/{version}/approvals", status_code=status.HTTP_201_CREATED,
+          dependencies=[Depends(require_api_token)])
+def agent_record_human_approval(agent_id: str, version: str,
+                                request: AgentHumanApprovalRequest) -> dict[str, Any]:
+    """Record an attested human approval bound to the exact Agent version.
+
+    The approval is an immutable evidence record, never an authorization,
+    tool grant, or execution right. It only satisfies the release-readiness
+    human-approval check while fresh and while the bound digests are unchanged.
+    """
+    agent = _release_subject_or_http(agent_id, version)
+    if agent.get("lifecycle_state") not in {"validated", "published"}:
+        raise HTTPException(
+            status_code=409,
+            detail="Human approval requires a validated or published Agent version",
+        )
+    binding = release_readiness.build_release_subject_binding(agent)
+    actor = os.environ.get("TAAS_STUDIO_ACTOR", "studio-api")
+    try:
+        envelope = assurance_evidence.attest_evidence(
+            evidence_type="human_approval",
+            subject_binding=binding,
+            issuer="taas-studio",
+            assessor=actor,
+            method="studio_operator_approval",
+            payload={"decision": "approved", "note": request.note},
+            ttl_seconds=request.ttl_seconds,
+        )
+        record = assurance_evidence.store_evidence(envelope)
+    except assurance_evidence.EvidenceConfigurationError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except assurance_evidence.EvidenceError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return {
+        "approval": {
+            "evidence_id": record["evidence_id"],
+            "evidence_type": record["evidence_type"],
+            "subject_binding": record["subject_binding"],
+            "assessor": record["assessor"],
+            "observed_at": record["observed_at"],
+            "expires_at": record["expires_at"],
+        },
+        "integrity_verified": True,
+        "authorization_granted": False,
+        "execution_enabled": False,
+        "assessor_claim_truth_verified": False,
+    }
+
+
+@app.get("/api/v1/agents/{agent_id}/versions/{version}/approvals", dependencies=[Depends(require_api_token)])
+def agent_list_human_approvals(agent_id: str, version: str) -> dict[str, Any]:
+    """List verified human approval records bound to this exact Agent version."""
+    agent = _release_subject_or_http(agent_id, version)
+    binding = release_readiness.build_release_subject_binding(agent)
+    try:
+        found = assurance_evidence.list_verified_evidence_for_subject(
+            binding, expected_type="human_approval"
+        )
+    except assurance_evidence.EvidenceError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    return {
+        "agent_id": agent_id,
+        "version": version,
+        "subject_binding": binding,
+        "count": found["count"],
+        "approvals": [
+            {
+                "evidence_id": item["evidence_id"],
+                "assessor": item["assessor"],
+                "observed_at": item["observed_at"],
+                "expires_at": item["expires_at"],
+                "payload": item["payload"],
+            }
+            for item in found["valid"]
+        ],
+        "invalid_records": found["invalid"],
+        "authorization_granted": False,
+        "execution_enabled": False,
+    }
 
 
 @app.get("/api/v1/agents/events", dependencies=[Depends(require_api_token)])
