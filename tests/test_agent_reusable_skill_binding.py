@@ -73,7 +73,7 @@ def registries(monkeypatch, tmp_path):
     return tmp_path
 
 
-def test_agent_manifest_accepts_exact_skill_reference_and_preserves_legacy_shape():
+def test_agent_manifest_accepts_exact_skill_reference_and_preserves_legacy_shape(registries):
     published = publish_skill()
     normalized = validate_agent_manifest(agent_manifest(published["manifest_sha256"]))
     assert normalized["spec"]["skill_refs"][0]["id"] == "date-difference"
@@ -85,7 +85,7 @@ def test_agent_manifest_accepts_exact_skill_reference_and_preserves_legacy_shape
     assert "skill_refs" not in normalized_legacy["spec"]
 
 
-def test_agent_manifest_rejects_duplicate_or_embedded_reference_collisions():
+def test_agent_manifest_rejects_duplicate_or_embedded_reference_collisions(registries):
     published = publish_skill()
     payload = agent_manifest(published["manifest_sha256"])
     payload["spec"]["skill_refs"].append(dict(payload["spec"]["skill_refs"][0]))
@@ -116,7 +116,7 @@ def test_binding_resolves_exact_published_version_and_context_provenance(registr
     assert [item["id"] for item in context["skills"]] == ["date-difference"]
     assert trace["selected_skill_ids"] == ["date-difference"]
     assert trace["skills"][0]["instructions_sha256"]
-    assert "tool" not in str(context).lower() or "tool" not in str(context).lower()
+    assert set(context["skills"][0]) == {"id", "name", "description", "instructions"}
 
 
 def test_binding_fails_closed_for_draft_skill_and_digest_mismatch(registries):
