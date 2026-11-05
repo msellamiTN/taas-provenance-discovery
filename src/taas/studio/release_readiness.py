@@ -9,11 +9,12 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from typing import Any
+from typing import Any, Callable, Mapping
 
 from pydantic import ValidationError
 
 from taas.studio.agent_spec import validate_agent_manifest
+from taas.studio import assurance_evidence
 
 
 def _canonical_sha256(value: Any) -> str:
@@ -30,8 +31,41 @@ def _check(checks: dict[str, bool], blockers: list[dict[str, str]], key: str,
         blockers.append({"code": reason, "detail": detail})
 
 
+def build_release_subject_binding(agent: dict[str, Any]) -> dict[str, Any]:
+    """Exact identity that assurance evidence and approvals must be bound to.
+
+    Evidence recorded against a different manifest digest or MCP snapshot never
+    satisfies this binding, so tampering with either artifact voids the gate.
+    """
+    return {
+        "agent_id": agent.get("agent_id"),
+        "version": agent.get("version"),
+        "manifest_sha256": agent.get("manifest_sha256"),
+        "registry_snapshot_id": agent.get("registry_snapshot_id"),
+    }
+
+
+def evidence_store_lookup(agent: dict[str, Any],
+                          environ: Mapping[str, str] | None = None) -> Callable[[str], dict[str, Any]]:
+    """Look up verified assurance evidence for one Agent version binding."""
+    binding = build_release_subject_binding(agent)
+
+    def lookup(expected_type: str) -> dict[str, Any]:
+        try:
+            found = assurance_evidence.list_verified_evidence_for_subject(
+                binding, expected_type=expected_type, environ=environ
+            )
+        except assurance_evidence.EvidenceError as exc:
+            return {"available": False, "record": None, "error": str(exc)}
+        record = found["valid"][0] if found["valid"] else None
+        return {"available": record is not None, "record": record, "error": None}
+
+    return lookup
+
+
 def evaluate_release_readiness(
-    *, agent: dict[str, Any], snapshot: dict[str, Any] | None
+    *, agent: dict[str, Any], snapshot: dict[str, Any] | None,
+    evidence_lookup: Callable[[str], dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Return a deterministic readiness report without granting execution rights."""
     checks: dict[str, bool] = {}
@@ -142,25 +176,53 @@ def evaluate_release_readiness(
 
     approval = spec.get("approval", {}) if isinstance(spec, dict) else {}
     requires_assurance = approval.get("require_assurance", True) is True
-    # The current repository has no trusted release evidence bundle store or
-    # assessor-verification pipeline. Never infer evidence from client payloads.
-    checks["trusted_assurance_evidence_verified"] = False
-    blockers.append({
-        "code": "trusted_assurance_evidence_pipeline_not_integrated",
-        "detail": "A trusted, verifiable assurance evidence bundle is not yet integrated into release validation.",
-    })
+    evidence_summary: dict[str, Any] = {}
+
+    def _evidence_check(check_key: str, evidence_type: str,
+                        missing_code: str, missing_detail: str,
+                        not_integrated_code: str, not_integrated_detail: str) -> None:
+        if evidence_lookup is None:
+            checks[check_key] = False
+            blockers.append({"code": not_integrated_code, "detail": not_integrated_detail})
+            evidence_summary[evidence_type] = {"available": False, "reason": "not_integrated"}
+            return
+        outcome = evidence_lookup(evidence_type)
+        record = outcome.get("record")
+        checks[check_key] = bool(outcome.get("available") and isinstance(record, dict))
+        evidence_summary[evidence_type] = {
+            "available": checks[check_key],
+            "evidence_id": record.get("evidence_id") if isinstance(record, dict) else None,
+            "issuer": record.get("issuer") if isinstance(record, dict) else None,
+            "assessor": record.get("assessor") if isinstance(record, dict) else None,
+            "expires_at": record.get("expires_at") if isinstance(record, dict) else None,
+            "error": outcome.get("error"),
+        }
+        if not checks[check_key]:
+            detail = missing_detail
+            if outcome.get("error"):
+                detail = detail + " Evidence lookup failed closed: " + str(outcome["error"])
+            blockers.append({"code": missing_code, "detail": detail})
+
+    _evidence_check(
+        "trusted_assurance_evidence_verified", "provenance_verification",
+        "trusted_assurance_evidence_missing_or_expired",
+        "No valid, fresh assurance evidence is bound to this exact Agent version and registry snapshot.",
+        "trusted_assurance_evidence_pipeline_not_integrated",
+        "A trusted, verifiable assurance evidence bundle is not yet integrated into release validation.",
+    )
     if not requires_assurance:
         warnings.append({
             "code": "agent_assurance_not_required_by_manifest",
             "detail": "The Agent manifest does not require assurance; platform governance may still require it.",
         })
 
-    # A configured human-approval policy is not itself an approval record.
-    checks["human_approval_record_verified"] = False
-    blockers.append({
-        "code": "human_approval_workflow_not_integrated",
-        "detail": "No trusted human approval record or approval workflow is available to this release gate.",
-    })
+    _evidence_check(
+        "human_approval_record_verified", "human_approval",
+        "human_approval_record_missing_or_expired",
+        "No valid, fresh human approval record is bound to this exact Agent version and registry snapshot.",
+        "human_approval_workflow_not_integrated",
+        "No trusted human approval record or approval workflow is available to this release gate.",
+    )
 
     ready = bool(checks) and all(checks.values()) and not blockers
     if ready:
@@ -191,6 +253,7 @@ def evaluate_release_readiness(
         "warnings": warnings,
         "resolved_tool_grants": resolved,
         "unresolved_tool_grants": unresolved,
+        "evidence": evidence_summary,
         "decision_scope": "release_readiness_diagnostic_only",
         "authorization_granted": False,
         "execution_enabled": False,

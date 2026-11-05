@@ -245,3 +245,15 @@ def test_colab_runs_skill_hypergraph_projection_acceptance() -> None:
     assert "tests/test_skill_hypergraph_projection.py" in code
     assert "Skill Hypergraph projection acceptance tests failed" in code
     assert "Skill DAG to Core Hypergraph projection and authenticated Studio API tests passed." in code
+
+
+def test_colab_quick_tunnel_is_optional_and_keeps_token_gate() -> None:
+    _, markdown, code = notebook_source()
+    assert "public Cloudflare tunnel" in markdown
+    assert "ENABLE_QUICK_TUNNEL = False" in code
+    assert "cloudflared" in code
+    assert "trycloudflare" in code
+    assert "not an authentication mechanism" in markdown
+    assert "tunnel_process" in code
+    assert "tunnel_log" in code
+

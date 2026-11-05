@@ -928,7 +928,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         headers: { "Authorization": "Bearer " + token, "Cache-Control": "no-cache" },
         cache: "no-store"
       });
-      const data = await response.json();
+      const data = await readJsonResponse(response);
       if (!response.ok) throw new Error(formatApiError(data.detail || data, "HTTP " + response.status));
       const host = data.host || {}, hardware = data.hardware || {}, gpu = hardware.gpu || {};
       $("runtime-cpu").textContent = host.cpu_count ?? "Not reported";
@@ -1291,7 +1291,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       getGoalSpec();
       const body=readRequest();
       const response=await fetch("/api/v1/goals/validate",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify(body.goal_spec)});
-      const data=await response.json();if(!response.ok)throw new Error(data.detail||("HTTP "+response.status));
+      const data=await readJsonResponse(response);if(!response.ok)throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
       box.className="goal-validation valid";
       box.textContent="Server validation passed · "+data.goal_count+" goal(s) · topological order: "+data.goal_order.join(" → ")+". Structural validity only; semantic correctness is not automatically verified.";
     }catch(e){box.className="goal-validation invalid";box.textContent="Server validation failed: "+e.message;}
@@ -1323,7 +1323,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       const response = await fetch("/api/v1/models/search?" + params.toString(), {
         headers: { "Authorization": "Bearer " + token }
       });
-      const data = await response.json();
+      const data = await readJsonResponse(response);
       if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
       const models = data.models || [];
       $("model-status").textContent = data.count + " model metadata record(s). Repository metadata only; weights downloaded: no.";
@@ -1369,7 +1369,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     $("model-memory-status").textContent="Waiting for model metadata.";
     try{
       const response=await fetch("/api/v1/models/detail?"+new URLSearchParams({model_id:modelId}),{headers:{"Authorization":"Bearer "+token}});
-      const data=await response.json();if(!response.ok)throw new Error(data.detail||("HTTP "+response.status));
+      const data=await readJsonResponse(response);if(!response.ok)throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
       selectedModelRecord=data;
       $("model-selected-subtitle").textContent=[data.pipeline_tag,data.library_name,data.license].filter(Boolean).join(" · ")||"Repository metadata";
       $("model-selected-state").textContent="Metadata inspected · weights not downloaded";
@@ -1414,7 +1414,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     $("model-selected-artifacts").textContent="Inspecting repository files metadata…";
     try{
       const response=await fetch("/api/v1/models/artifacts?"+new URLSearchParams({model_id:selectedModelRecord.model_id}),{headers:{"Authorization":"Bearer "+$("token").value.trim()}});
-      const data=await response.json();if(!response.ok)throw new Error(data.detail||("HTTP "+response.status));
+      const data=await readJsonResponse(response);if(!response.ok)throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
       selectedModelArtifacts=data;
       $("model-selected-artifacts").textContent=JSON.stringify(data,null,2);
       $("model-selected-state").textContent="Artifacts inspected · runtime compatibility unverified";
@@ -1432,7 +1432,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       const kvComplete=kvKeys.every(key=>Number.isInteger(arch[key])&&arch[key]>0);
       if(kvComplete){for(const key of kvKeys)body[key]=arch[key];if(Number.isInteger(context)&&context>0)body.context_length=context;}
       const response=await fetch("/api/v1/models/estimate-memory",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+$("token").value.trim()},body:JSON.stringify(body)});
-      const data=await response.json();if(!response.ok)throw new Error(data.detail||("HTTP "+response.status));
+      const data=await readJsonResponse(response);if(!response.ok)throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
       $("model-memory-results").textContent=JSON.stringify(data,null,2);
       $("model-memory-status").textContent="Estimate calculated from reported parameter count"+(data.kv_cache_memory_gib!==null?" and complete KV-cache dimensions.":"; KV cache excluded because complete architecture dimensions were unavailable.");
     }catch(e){$("model-memory-status").textContent="Memory estimate failed: "+e.message;}
@@ -1452,7 +1452,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       const response = await fetch("/api/v1/models/artifacts?" + params.toString(), {
         headers: { "Authorization": "Bearer " + token }
       });
-      const data = await response.json();
+      const data = await readJsonResponse(response);
       if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
       $("artifact-status").textContent =
         data.file_count + " repository file(s) inspected · weights downloaded: no · T4 compatibility: not verified.";
@@ -1469,7 +1469,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     $("gpu-status").textContent = "Checking host GPU and CUDA…";
     try {
       const response = await fetch("/api/v1/runtime/hardware", { headers: { "Authorization": "Bearer " + token } });
-      const data = await response.json();
+      const data = await readJsonResponse(response);
       if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
       const backendAvailable = data.cuda_available === true && data.torch_installed === true;
       $("gpu-status").textContent = backendAvailable
@@ -1528,7 +1528,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
         body: JSON.stringify(body)
       });
-      const data = await response.json();
+      const data = await readJsonResponse(response);
       if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
       const benchmarkTaskNotEvaluated = Boolean(bench.selectedTask);
       renderDiscoveryResult(data, {benchmarkTaskNotEvaluated});
@@ -1595,10 +1595,24 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     }
     return fallback || "Request failed.";
   };
+  const readJsonResponse = async (response) => {
+    const text=await response.text();
+    const emptyMsg="empty response body; the request may have been cut by a proxy timeout or a server restart. Retry, or inspect the Studio server log.";
+    if(!text.trim()){
+      if(response.ok) throw new Error("HTTP "+response.status+": "+emptyMsg);
+      return {detail:"HTTP "+response.status+": "+emptyMsg};
+    }
+    try{return JSON.parse(text);}
+    catch(e){
+      const msg="response was not valid JSON ("+text.slice(0,200)+")";
+      if(response.ok) throw new Error("HTTP "+response.status+": "+msg);
+      return {detail:"HTTP "+response.status+": "+msg};
+    }
+  };
   const apiGet = async (path) => {
     const token=tokenValue(); if(!token) throw new Error("Connect to TaaS Studio in the application header first.");
     const r=await fetch(path,{headers:{"Authorization":"Bearer "+token}});
-    const d=await r.json();
+    const d=await readJsonResponse(r);
     if(r.status===401){markStudioAuthRejected();throw new Error("Studio API rejected the bearer token. Reconnect in the header, then retry.");}
     if(!r.ok) throw new Error(formatApiError(d.detail||d,"HTTP "+r.status));
     return d;
@@ -1710,7 +1724,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   const runtimePost = async (path, body) => {
     const token=tokenValue(); if(!token) throw new Error("Connect to TaaS Studio in the application header first.");
     const response=await fetch(path,{method:"POST",headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify(body)});
-    const data=await response.json();
+    const data=await readJsonResponse(response);
     if(response.status===401){markStudioAuthRejected();throw new Error("Studio API rejected the bearer token. Reconnect in the header, then retry.");}
     if(!response.ok) throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
     return data;
