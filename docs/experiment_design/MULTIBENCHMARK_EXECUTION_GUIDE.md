@@ -109,3 +109,30 @@ The GitHub Actions PaMCP workbench workflow includes these tests and validates t
 ## 9. Publication rule
 
 A benchmark adapter passing unit tests proves schema-handling behavior only. It does not prove benchmark fidelity, successful task execution, independent ground truth, or PaMCP superiority. Those claims require a pinned acquisition, source-specific validation, independent oracle, and completed experiment run.
+## 2.1 MCP-Atlas public parquet adapter
+
+The public dataset card specifies a parquet row with TASK, ENABLED_TOOLS, PROMPT, GTFA_CLAIMS, and TRAJECTORY. It contains 500 public tasks under CC-BY-4.0. Install the parquet dependency already declared by the experiment extra.
+
+```bash
+hf download ScaleAI/MCP-Atlas --repo-type dataset --local-dir data/raw/mcp_atlas
+python - <<'PY'
+from pathlib import Path
+from taas.experiments.mcp_atlas_adapter import adapt_mcp_atlas_parquet
+
+files = sorted(Path("data/raw/mcp_atlas").glob("*.parquet"))
+if len(files) != 1:
+    raise RuntimeError(f"Expected one parquet file, found {len(files)}")
+print(adapt_mcp_atlas_parquet(files[0], "data/processed/mcp_atlas_public"))
+PY
+```
+
+The adapter keeps per-task ENABLED_TOOLS visibility separate from the global union of definitions. It puts GTFA_CLAIMS and TRAJECTORY only in the evaluator directory. A successful trajectory is not assumed to be the only valid toolchain.
+
+## 2.2 ToolRet adapter
+
+ToolRet requires the complete candidate corpus in addition to query records with graded qrels. Do not construct the corpus from positive labels. Convert the upstream source files to two JSON arrays with these shapes:
+
+- Corpus: `{ "id": "source-tool-id", "doc": { "name": "...", "description": "...", "parameters": {} } }`
+- Task: `{ "id": "query-id", "query": "...", "labels": [{ "id": "source-tool-id", "relevance": 2 }] }`
+
+Then call adapt_toolret_records(tasks, corpus, output_dir, task_source_path, corpus_source_path) from taas.experiments.toolret_adapter. The adapter preserves graded relevance judgments in evaluator-only files and keeps ToolRet IDs source-local; it does not fabricate MCP server identities.
