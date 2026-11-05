@@ -1043,6 +1043,16 @@ def test_api_json_parsing_survives_empty_or_truncated_proxy_responses():
     assert ".json()" not in page
 
 
+def test_served_page_script_has_no_literal_escape_syntax_error():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    assert ";\\n" not in page
+    script = page.split("<script>", 1)[1].split("</script>", 1)[0]
+    for match in re.finditer(r"[;{}()]\\[a-zA-Z]", script):
+        assert False, f"literal backslash escape in script near: {script[max(0, match.start()-60):match.start()+20]!r}"
+
+
 
 def test_studio_navigation_shell_has_valid_targets_and_accessible_skip_link():
     from pathlib import Path
