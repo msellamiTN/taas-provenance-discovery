@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
@@ -241,3 +242,16 @@ def test_objective_prepare_api_resolves_saved_agent_and_reuses_context_for_refin
     assert trace["manifest_sha256"] == "b" * 64
     assert trace["selected_skill_ids"] == ["multi-source-date-difference"]
     assert response["workflow"]["tool_execution"] == "disabled"
+
+
+
+def test_studio_objective_panel_selects_and_submits_saved_agent_version():
+    root = Path(__file__).resolve().parents[1]
+    page = (root / "src" / "taas" / "studio" / "static" / "index.html").read_text(
+        encoding="utf-8"
+    )
+    assert 'id="agent-context-select"' in page
+    assert 'id="agent-context-refresh"' in page
+    assert 'apiGet("/api/v1/agents?limit=100")' in page
+    assert "body.agent_id=selectedAgent.slice(0,split)" in page
+    assert "body.agent_version=selectedAgent.slice(split+1)" in page
