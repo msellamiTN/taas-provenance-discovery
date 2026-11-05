@@ -23,7 +23,7 @@ Example:
 }
 ```
 
-The v1 resolver selects a skill when one or more declared trigger phrases occur in the original objective, case-insensitively. This is deterministic and auditable, but lexical matching is not semantic relevance proof. Unmatched skills are not injected.
+The manifest bounds combined skill instruction text to 24,000 characters and total Agent-plus-skill instruction text to 36,000 characters. The v1 resolver selects a skill when one or more declared trigger phrases occur in the original objective, case-insensitively. This is deterministic and auditable, but lexical matching is not semantic relevance proof. Unmatched skills are not injected.
 
 ## Runtime flow
 
