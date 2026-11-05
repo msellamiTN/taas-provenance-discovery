@@ -97,6 +97,14 @@ class AgentSkill(StrictModel):
         return normalized
 
 
+class AgentSkillReference(StrictModel):
+    """Exact immutable reference to a published reusable Skill Registry version."""
+
+    id: str = Field(min_length=3, max_length=63, pattern=r"^[a-z][a-z0-9-]{2,62}$")
+    version: str = Field(pattern=_SEMVER.pattern)
+    manifest_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+
 class AgentResources(StrictModel):
     max_new_tokens: int = Field(default=1024, ge=1, le=2048)
     timeout_seconds: int = Field(default=120, ge=1, le=3600)
@@ -113,6 +121,7 @@ class AgentSpec(StrictModel):
     model: AgentModelBinding
     instructions: str = Field(min_length=1, max_length=12000)
     skills: list[AgentSkill] = Field(default_factory=list, max_length=32)
+    skill_refs: list[AgentSkillReference] = Field(default_factory=list, max_length=32)
     goal_spec_template: dict | None = None
     tool_allowlist: list[AgentToolGrant] = Field(default_factory=list, max_length=100)
     resources: AgentResources = Field(default_factory=AgentResources)
@@ -123,6 +132,11 @@ class AgentSpec(StrictModel):
         skill_ids = [item.id for item in self.skills]
         if len(skill_ids) != len(set(skill_ids)):
             raise ValueError("skills contains duplicate skill IDs")
+        skill_ref_ids = [item.id for item in self.skill_refs]
+        if len(skill_ref_ids) != len(set(skill_ref_ids)):
+            raise ValueError("skill_refs contains duplicate Skill IDs")
+        if set(skill_ids) & set(skill_ref_ids):
+            raise ValueError("embedded skills and reusable skill_refs must not share IDs")
         skill_instruction_chars = sum(len(item.instructions) for item in self.skills)
         if skill_instruction_chars > 24000:
             raise ValueError("combined skill instructions must not exceed 24000 characters")
@@ -155,4 +169,6 @@ def validate_agent_manifest(payload: dict) -> dict:
     # immutable versions created by earlier Studio builds verifiable.
     if "skills" not in payload.get("spec", {}):
         normalized["spec"].pop("skills", None)
+    if "skill_refs" not in payload.get("spec", {}):
+        normalized["spec"].pop("skill_refs", None)
     return normalized
