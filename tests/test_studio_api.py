@@ -988,7 +988,7 @@ def test_benchmark_task_import_synchronizes_registry_selection_and_clears_demo_t
 def test_benchmark_registry_selection_stays_synchronized_and_blocks_stale_demo_discovery():
     response = client.get("/")
     assert response.status_code == 200
-    page = response.text
+    page = response.text.replace("\r\n", "\n")
     assert "if(bench.selectedTask)" in page
     assert 'if(bench.selectedTask){\n          $("bench-goal-review").checked=false;' in page
     assert "syncBenchmarkToolsToRequest()" in page
