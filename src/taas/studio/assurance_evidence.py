@@ -18,6 +18,7 @@ from typing import Any, Mapping
 EVIDENCE_TYPES = frozenset({
     "tool_schema_validation", "trusted_effect_assessment", "provenance_verification",
     "human_approval",
+    "publisher_signature",
 })
 _HASH = re.compile(r"^[0-9a-f]{64}$")
 
