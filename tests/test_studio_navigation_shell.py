@@ -37,3 +37,18 @@ def test_model_and_agent_workspaces_have_distinct_navigation_targets():
     for target in ("model-runtime-panel", "agent-chat-panel", "agent-goal-panel"):
         assert f'href="#{target}"' in html
         assert f'id="{target}"' in html
+
+
+def test_workspace_context_bar_tracks_the_active_navigation_destination():
+    html = STUDIO_HTML.read_text(encoding="utf-8")
+    assert 'id="studio-workspace-context-title"' in html
+    assert 'aria-live="polite"' in html
+    assert 'workspaceContextTitle.textContent = link.textContent' in html
+    assert 'class="workspace-context"' in html
+
+
+def test_workspace_context_bar_is_responsive_and_respects_reduced_motion():
+    html = STUDIO_HTML.read_text(encoding="utf-8")
+    assert ".workspace-context" in html
+    assert "@media(max-width:560px)" in html
+    assert "@media(prefers-reduced-motion:reduce)" in html
