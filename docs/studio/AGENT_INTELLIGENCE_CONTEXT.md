@@ -32,7 +32,7 @@ The manifest bounds combined skill instruction text to 24,000 characters and tot
 3. The context resolver selects matching skills and computes SHA-256 digests for Agent and skill instructions.
 4. The Objective Analyst receives Agent instructions and selected skill guidance in its system context.
 5. The same context is supplied to the bounded refinement attempt.
-6. The API response includes `agent_intelligence_context` trace metadata: Agent identity/version, lifecycle state, manifest digest, instruction digest, selected skill IDs, skill digests, matched triggers, and resolver policy.
+6. The API response includes `agent_intelligence_context` trace metadata: Agent identity/version, lifecycle state, manifest digest, instruction digest, effective context digest, selected skill IDs, skill digests, matched triggers, and resolver policy.
 
 The trace does not echo the full instruction or skill text.
 
