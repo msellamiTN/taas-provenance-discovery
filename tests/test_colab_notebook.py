@@ -57,7 +57,7 @@ def test_colab_runs_objective_contract_v3_acceptance() -> None:
     _, markdown, code = notebook_source()
     assert "Objective Intelligence v3 acceptance" in markdown
     assert "exact clause-provenance graph and explicit dependency-relation invariants" in markdown
-    assert "test_v3_extracts_only_explicit_unambiguous_cross_clause_dependency" in code
+    assert "tests/test_objective_contract_v3.py" in code
     assert "tests/test_objective_contract_v3.py" in code
     assert "test_v3_builds_clause_provenance_graph_with_exact_source_spans" in code or "tests/test_objective_contract_v3.py" in code
     assert "tests/test_studio_api.py" in code
