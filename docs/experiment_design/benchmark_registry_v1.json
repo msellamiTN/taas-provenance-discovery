@@ -1,0 +1,186 @@
+{
+  "schema_version": "1.0.0",
+  "title": "PaMCP MultiBenchmark source registry",
+  "policy": "Registry entries describe candidate sources, not downloaded or validated local assets. A source is eligible for an experiment only after its exact release, license, split and schema have been recorded in a local acquisition manifest.",
+  "datasets": [
+    {
+      "id": "live_mcptool",
+      "name": "LiveMCPTool",
+      "role": [
+        "registry"
+      ],
+      "status": "existing_source",
+      "url": "https://github.com/",
+      "version": null,
+      "license": "verify_at_acquisition",
+      "notes": "Use the exact pinned snapshot already used by E1; preserve source IDs and definition hashes."
+    },
+    {
+      "id": "mcp_toolbench_pp",
+      "name": "MCPToolBench++",
+      "role": [
+        "registry",
+        "single_tool_retrieval"
+      ],
+      "status": "existing_source_subset",
+      "url": "https://huggingface.co/datasets",
+      "version": null,
+      "license": "verify_at_acquisition",
+      "notes": "Current E1 subset is 87 tools/10 servers; do not describe it as the full upstream population without validating source coverage."
+    },
+    {
+      "id": "live_mcpbench",
+      "name": "LiveMCPBench",
+      "role": [
+        "multi_tool_retrieval",
+        "composition"
+      ],
+      "status": "existing_source",
+      "url": "https://github.com/",
+      "version": null,
+      "license": "verify_at_acquisition",
+      "notes": "Resolve tasks to exact tool definitions and preserve task-level valid-set semantics."
+    },
+    {
+      "id": "mcp_atlas",
+      "name": "MCP-Atlas",
+      "role": [
+        "single_tool_retrieval",
+        "multi_tool_retrieval",
+        "execution"
+      ],
+      "status": "candidate_external",
+      "url": "https://labs.scale.com/leaderboard/mcp_atlas",
+      "version": null,
+      "license": "verify_at_acquisition",
+      "notes": "Check public/private split availability, executable server access, benchmark terms and oracle access."
+    },
+    {
+      "id": "mcpverse",
+      "name": "MCPVerse",
+      "role": [
+        "retrieval",
+        "scalability",
+        "registry_evolution"
+      ],
+      "status": "candidate_external",
+      "url": "https://github.com/hailsham/mcpverse",
+      "version": "v1.1_snapshot_to_verify",
+      "license": "verify_at_acquisition",
+      "notes": "Prefer time-invariant task subset; pin exact commit and verify live server availability."
+    },
+    {
+      "id": "toolathlon",
+      "name": "Toolathlon",
+      "role": [
+        "composition",
+        "long_horizon_execution",
+        "experience_reuse"
+      ],
+      "status": "candidate_external",
+      "url": "https://github.com/hkust-nlp/Toolathlon",
+      "version": "verified_release_to_pin",
+      "license": "verify_at_acquisition",
+      "notes": "Pin the verified release; preserve programmatic evaluator and environment setup."
+    },
+    {
+      "id": "toolret",
+      "name": "ToolRet",
+      "role": [
+        "large_scale_retrieval",
+        "scalability"
+      ],
+      "status": "candidate_external",
+      "url": "https://aclanthology.org/2025.findings-acl.1258/",
+      "version": "ACL_2025_release_to_pin",
+      "license": "verify_at_acquisition",
+      "notes": "Heterogeneous tool retrieval benchmark; not direct evidence of MCP execution or safety."
+    },
+    {
+      "id": "mcptox",
+      "name": "MCPTox",
+      "role": [
+        "tool_poisoning",
+        "adversarial_robustness"
+      ],
+      "status": "candidate_external",
+      "url": "https://ojs.aaai.org/index.php/AAAI/article/view/40895",
+      "version": "AAAI_2026_release_to_pin",
+      "license": "verify_at_acquisition",
+      "notes": "Use for poisoning robustness; do not treat attack labels as a general operational-effect oracle."
+    },
+    {
+      "id": "injecagent",
+      "name": "InjecAgent",
+      "role": [
+        "indirect_prompt_injection"
+      ],
+      "status": "candidate_external",
+      "url": "https://github.com/llm-sec/llm-sec-benchmark",
+      "version": null,
+      "license": "verify_at_acquisition",
+      "notes": "Map attack outcomes to explicit PaMCP threat-model events; confirm upstream repository and release before acquisition."
+    },
+    {
+      "id": "bfcl",
+      "name": "Berkeley Function Calling Leaderboard V4",
+      "role": [
+        "function_calling",
+        "multi_tool_call"
+      ],
+      "status": "candidate_external",
+      "url": "https://gorilla.cs.berkeley.edu/leaderboard.html",
+      "version": "v4_to_pin",
+      "license": "verify_at_acquisition",
+      "notes": "Function-call correctness benchmark; not a standalone MCP provenance or safety dataset."
+    },
+    {
+      "id": "tau_bench",
+      "name": "tau-bench",
+      "role": [
+        "policy_compliance",
+        "stateful_execution"
+      ],
+      "status": "candidate_external",
+      "url": "https://github.com/sierra-research/tau-bench",
+      "version": "release_to_pin",
+      "license": "verify_at_acquisition",
+      "notes": "Use its stateful task oracle; report domain-specific results separately."
+    },
+    {
+      "id": "mcp_universe",
+      "name": "MCP-Universe",
+      "role": [
+        "mcp_execution",
+        "multi_domain_tasks"
+      ],
+      "status": "candidate_external",
+      "url": "https://mcp-universe.github.io/",
+      "version": "release_to_pin",
+      "license": "verify_at_acquisition",
+      "notes": "Verify current benchmark release, server setup and evaluator determinism."
+    },
+    {
+      "id": "r_judge",
+      "name": "R-Judge",
+      "role": [
+        "risk_awareness"
+      ],
+      "status": "candidate_external",
+      "url": "https://rjudgebench.github.io/",
+      "version": "release_to_pin",
+      "license": "CC-BY-NC-SA_terms_to_review",
+      "notes": "Risk-awareness labels are not operational-effect ground truth; check non-commercial/share-alike obligations."
+    }
+  ],
+  "acquisition_requirements": [
+    "Record exact repository commit, release tag or dataset revision.",
+    "Record license text and permitted use before redistribution or commercial use.",
+    "Store source archive checksum and acquisition timestamp.",
+    "Record original split and evaluator version; do not silently regenerate labels.",
+    "Record schema mapping and every lossy normalization.",
+    "Keep evaluator labels in a separate path unavailable to discovery-time code.",
+    "Run task-, tool- and server-disjoint leakage checks where the benchmark permits.",
+    "Represent unavailable labels as null/unknown, never as negative examples."
+  ]
+}
