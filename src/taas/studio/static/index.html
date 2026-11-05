@@ -650,7 +650,8 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     <section id="agent-goal-panel" style="box-shadow:none;padding:14px;margin-top:14px">
       <h2>3 · Objective Engineering · TaaS Core</h2><p class="muted">Canonical entry point for operational prompts. TaaS Core frames the objective, the selected model proposes a GoalSpec, and deterministic validation plus actual Core gap_analysis inspect it. Tool discovery follows only after human review. The proposal is never an execution authorization.</p>
       <label for="agent-goal-prompt">Agent objective</label><textarea id="agent-goal-prompt" rows="3" maxlength="12000" style="min-height:90px" placeholder="Find current information, summarize it, and save a Markdown report…"></textarea><p class="subtle">The original objective is preserved by the API; verify the complete text here before preparing it.</p>
-      <button id="agent-decompose" type="button">Prepare objective with TaaS Core</button><div id="agent-decompose-status" class="status" role="status" aria-live="polite">No decomposition requested.</div><div id="agent-outcome-coverage" class="outcome-coverage" aria-live="polite"></div><pre id="agent-decompose-result">The model's GoalSpec proposal will appear here.</pre>
+      <button id="agent-decompose" type="button">Prepare objective with TaaS Core</button><div id="agent-decompose-status" class="status" role="status" aria-live="polite">No decomposition requested.</div><div id="agent-outcome-coverage" class="outcome-coverage" aria-live="polite"></div>
+      <div id="agent-objective-contract-v3" class="outcome-coverage" aria-live="polite"></div><pre id="agent-decompose-result">The model's GoalSpec proposal will appear here.</pre>
       <div id="agent-semantic-diagnostics" class="goal-validation" role="status" aria-live="polite">Semantic diagnostics appear after decomposition. Heuristic warnings are not a correctness proof.</div>
       <div class="inline-actions"><button id="agent-apply-goals" type="button" class="secondary" disabled>Apply proposal to GoalSpec editor</button><span class="subtle">Applying replaces the current visual GoalSpec draft; review and validate it before discovery.</span></div>
     </section>
@@ -1746,17 +1747,53 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     const note=document.createElement("p");note.className="outcome-coverage-note";note.textContent="Coverage shows structural mapping only. It is not proof of semantic correctness, data availability, tool capability or execution success. Human review remains mandatory.";
     root.appendChild(note);
   }
+  function renderObjectiveContractV3(view,contract){
+    const root=$("agent-objective-contract-v3");root.replaceChildren();
+    if(!view||!contract){root.textContent="Objective Contract v3 is not available.";return;}
+    const heading=document.createElement("div");heading.className="outcome-coverage-summary";
+    const blockers=contract.clarifications||[];
+    heading.textContent="Objective Intelligence v3 · "+(view.status||"unknown")+" · "+(view.blocking_clarification_count||0)+" blocking clarification(s)";
+    root.appendChild(heading);
+    const note=document.createElement("p");note.className="outcome-coverage-note";
+    note.textContent="This is a conservative, evidence-linked interpretation of the original text. It is not a semantic proof and never authorizes discovery.";
+    root.appendChild(note);
+    const outcomes=contract.outcomes||[];
+    if(outcomes.length){
+      const list=document.createElement("div");list.className="objective-v3-outcomes";
+      outcomes.forEach(outcome=>{
+        const item=document.createElement("div");item.className="tool-row";
+        const body=document.createElement("div");
+        const title=document.createElement("strong");title.textContent=(outcome.goal_class||"outcome")+" · "+(outcome.requirement||"unclassified");
+        const evidence=document.createElement("small");
+        evidence.textContent=(outcome.source_evidence||[]).map(span=>'"'+span.text+'" ['+span.start+":"+span.end+"]").join("; ")||"No source evidence";
+        body.append(title,evidence);item.appendChild(body);list.appendChild(item);
+      });
+      root.appendChild(list);
+    }
+    if(blockers.length){
+      const title=document.createElement("p");title.className="subtle";title.textContent="Clarifications required before this objective can proceed:";
+      root.appendChild(title);
+      blockers.forEach(item=>{
+        const row=document.createElement("div");row.className="goal-validation invalid";
+        const question=document.createElement("strong");question.textContent=item.question||"Clarification required";
+        const reason=document.createElement("div");reason.textContent=(item.reason||"unresolved")+" · affects: "+(item.affected_goal_classes||[]).join(", ");
+        row.append(question,reason);root.appendChild(row);
+      });
+    }
+  }
   let pendingAgentGoalSpec=null;
   $("agent-decompose").addEventListener("click",async()=>{
     const button=$("agent-decompose");button.disabled=true;$("agent-decompose-status").textContent="Preparing objective through TaaS Core…";$("agent-apply-goals").disabled=true;pendingAgentGoalSpec=null;
     try{const result=await runtimePost("/api/v1/objectives/prepare",{provider:$("runtime-provider").value,prompt:$("agent-goal-prompt").value,max_new_tokens:1200});$("agent-decompose-result").textContent=JSON.stringify(result,null,2);
       renderObjectiveCoverage(result.objective_coverage);
+      renderObjectiveContractV3(result.objective_intelligence_v3,result.objective_contract_v3);
       const diagnostics=result.semantic_diagnostics||[];
       const hasErrors=diagnostics.some(x=>x.severity==="error");
       const coreNeedsClarification=result.core_analysis?.status==="clarification_required";
       const accepted=result.conformance?.accepted_for_human_review===true;
       const missingOutcomes=(result.objective_coverage?.summary?.missing||0)>0;
-      if(result.json_valid&&result.structural_validation?.valid&&accepted&&!hasErrors&&!coreNeedsClarification&&!missingOutcomes){
+      const v3Blockers=(result.objective_intelligence_v3?.blocking_clarification_count||0)>0;
+      if(result.json_valid&&result.structural_validation?.valid&&accepted&&!hasErrors&&!coreNeedsClarification&&!missingOutcomes&&!v3Blockers){
         pendingAgentGoalSpec=result.goal_spec;$("agent-apply-goals").disabled=false;
         $("agent-semantic-diagnostics").className="goal-validation"+(diagnostics.length?"":" valid");
         const core=result.core_analysis||{};
@@ -1782,7 +1819,9 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       else{
         pendingAgentGoalSpec=null;$("agent-apply-goals").disabled=true;
         $("agent-semantic-diagnostics").className="goal-validation invalid";
-        $("agent-semantic-diagnostics").textContent=coreNeedsClarification
+        $("agent-semantic-diagnostics").textContent=v3Blockers
+          ? "Objective Contract v3 requires clarification: rewrite or clarify the flagged clause, then prepare the objective again."
+          : coreNeedsClarification
           ? "Core requires clarification: "+(result.core_analysis?.clarification||"unresolved GoalSpec input.")
           : hasErrors
             ? "Core rejected objective conformance: "+diagnostics.filter(x=>x.severity==="error").map(x=>x.code+": "+x.message).join(" | ")
