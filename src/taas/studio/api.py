@@ -31,6 +31,7 @@ from taas.provenance import DEFAULT_TRUST
 from taas.studio.models import ModelCatalogError, get_model_details, inspect_model_artifacts, search_models
 from taas.studio.agent_spec import validate_agent_manifest
 from taas.studio.agent_context import build_agent_intelligence_context
+from taas.studio.objective_traceability import build_objective_skill_traceability
 from taas.studio.agent_skill_bindings import (
     AgentSkillBindingConflict,
     AgentSkillBindingNotFound,
@@ -1398,6 +1399,13 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
         result["objective_coverage"] = build_outcome_coverage(
             request.prompt,
             result.get("goal_spec") if isinstance(result.get("goal_spec"), dict) else None,
+        )
+        result["objective_skill_traceability"] = build_objective_skill_traceability(
+            objective=request.prompt,
+            contract_v3=objective_contract_v3,
+            coverage=result["objective_coverage"],
+            agent_context_trace=agent_context_trace,
+            goal_spec=result.get("goal_spec") if isinstance(result.get("goal_spec"), dict) else None,
         )
         result["core_analysis"] = core_analysis
         result["attempt_history"] = attempt_history
