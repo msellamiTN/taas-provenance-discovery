@@ -32,8 +32,10 @@ from taas.studio.models import ModelCatalogError, get_model_details, inspect_mod
 from taas.studio.agent_spec import validate_agent_manifest
 from taas.studio.agent_context import build_agent_intelligence_context
 from taas.studio.objective_traceability import build_objective_skill_traceability
+from taas.studio import policy_engine
 from taas.studio.agent_skill_bindings import (
     AgentSkillBindingConflict,
+    AgentSkillBindingError,
     AgentSkillBindingNotFound,
     resolve_agent_skill_references,
 )
@@ -1937,6 +1939,119 @@ def agent_publish_version(
         "tools_authorized": False,
         "execution_enabled": False,
     }
+
+
+class PolicyEvaluateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    subject: dict[str, Any]
+    facts: dict[str, Any] = Field(default_factory=dict)
+
+
+@app.post("/api/v1/policy/evaluate", dependencies=[Depends(require_api_token)])
+def policy_evaluate(request: PolicyEvaluateRequest) -> dict[str, Any]:
+    """Evaluate a governance verdict over a caller-asserted fact bundle.
+
+    Facts supplied by the caller are labeled, never verified server-side; use the
+    per-subject verdict endpoints for registry-assembled facts.
+    """
+    try:
+        verdict = policy_engine.evaluate_policy(request.subject, request.facts)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    verdict["facts_source"] = "caller_asserted"
+    return verdict
+
+
+def _gather_agent_skill_trust(manifest: dict[str, Any]) -> dict[str, Any]:
+    """Assemble per-skill trust facts for the policy engine (fail closed)."""
+    signature_required = os.environ.get("TAAS_POLICY_REQUIRE_SIGNATURES", "") == "1"
+    try:
+        _, external_refs = resolve_agent_skill_references(manifest)
+    except AgentSkillBindingError as exc:
+        return {"resolution_error": str(exc), "skills": [], "signature_required": signature_required}
+    except Exception as exc:
+        return {"resolution_error": f"binding_resolution_failed:{type(exc).__name__}",
+                "skills": [], "signature_required": signature_required}
+    skills = []
+    for ref in external_refs:
+        entry = {
+            "skill_id": ref.get("id"),
+            "version": ref.get("version"),
+            "manifest_sha256": ref.get("manifest_sha256"),
+            "resolution": "resolved",
+            "revoked": False,
+            "signature_required": signature_required,
+            "signature_verified": None,
+        }
+        try:
+            entry["revoked"] = skill_registry.is_revoked(ref["id"], ref["version"])
+        except Exception:
+            entry["revoked"] = None
+        binding = {
+            "skill_id": ref.get("id"),
+            "version": ref.get("version"),
+            "manifest_sha256": ref.get("manifest_sha256"),
+        }
+        try:
+            found = assurance_evidence.list_verified_evidence_for_subject(
+                binding, expected_type="publisher_signature"
+            )
+            entry["signature_verified"] = found["count"] > 0
+        except assurance_evidence.EvidenceError:
+            entry["signature_verified"] = None
+        skills.append(entry)
+    return {"skills": skills, "signature_required": signature_required}
+
+
+@app.get("/api/v1/agents/{agent_id}/versions/{version}/policy-verdict",
+         dependencies=[Depends(require_api_token)])
+def agent_policy_verdict(agent_id: str, version: str) -> dict[str, Any]:
+    """Server-assembled governance verdict for an exact Agent version.
+
+    Diagnostic only: 'allow' means governance checks are satisfied — it never
+    grants authorization or execution.
+    """
+    agent = _release_subject_or_http(agent_id, version)
+    snapshot = None
+    snapshot_id = agent.get("registry_snapshot_id")
+    if snapshot_id:
+        try:
+            snapshot = agent_registry.get_mcp_snapshot(snapshot_id)
+        except agent_registry.AgentRegistryError:
+            snapshot = None
+    readiness = release_readiness.evaluate_release_readiness(
+        agent=agent, snapshot=snapshot,
+        evidence_lookup=release_readiness.evidence_store_lookup(agent),
+    )
+    binding = release_readiness.build_release_subject_binding(agent)
+    try:
+        found = assurance_evidence.list_verified_evidence_for_subject(binding)
+        evidence_summary = {
+            "verified_records": found["count"],
+            "invalid_records": len(found.get("invalid", [])),
+        }
+    except assurance_evidence.EvidenceError as exc:
+        evidence_summary = {"verified_records": 0, "invalid_records": 0, "error": str(exc)}
+
+    manifest = agent.get("manifest", {})
+    facts = {
+        "release_readiness": readiness,
+        "evidence_summary": evidence_summary,
+        "skill_trust": _gather_agent_skill_trust(manifest),
+    }
+    verdict = policy_engine.evaluate_policy(
+        {
+            "kind": "agent_version",
+            "agent_id": agent_id,
+            "version": version,
+            "manifest_sha256": agent.get("manifest_sha256"),
+            "registry_snapshot_id": snapshot_id,
+        },
+        facts,
+    )
+    verdict["facts_source"] = "registry_assembled"
+    verdict["release_readiness"] = readiness
+    return verdict
 
 
 @app.get("/api/v1/agents/{agent_id}/versions/{version}/release-readiness", dependencies=[Depends(require_api_token)])
