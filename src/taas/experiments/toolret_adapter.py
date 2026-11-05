@@ -139,6 +139,7 @@ def adapt_toolret_records(
         discovery_tasks.append({
             "dataset_id": "toolret", "task_id": task_id, "prompt": query,
             "split": row.get("split"),
+            "category": row.get("category") or row.get("task") or "unspecified",
         })
         evaluator_refs.append({
             "dataset_id": "toolret", "task_id": task_id,
