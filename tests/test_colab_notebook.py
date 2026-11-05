@@ -8,8 +8,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 NOTEBOOK = ROOT / "notebooks" / "colab" / "taas_core_studio_colab.ipynb"
 GUIDE = ROOT / "docs" / "deployment" / "COLAB_T4_QUICKSTART.md"
+RUNTIME_GUIDE = ROOT / "docs" / "deployment" / "MODEL_RUNTIME_BACKENDS.md"
 WORKFLOW = ROOT / ".github" / "workflows" / "benchmark-hypergraph.yml"
-INTEGRATED_STUDIO_COMMIT = "593a7fd9c6dda70e350ec865bc8f1c390b041bba"
+INTEGRATED_STUDIO_COMMIT = "468973c390bcd6b28e93620744177e34892a644e"
 
 
 def notebook_source() -> tuple[dict, str, str]:
@@ -31,7 +32,15 @@ def test_colab_notebook_is_valid_and_has_operator_guide() -> None:
     notebook, markdown, _ = notebook_source()
     assert notebook["nbformat"] == 4
     assert GUIDE.is_file()
+    assert RUNTIME_GUIDE.is_file()
     assert "COLAB_T4_QUICKSTART.md" in markdown
+    assert "CPU / CUDA / Ollama" in markdown
+
+
+def test_colab_quickstart_has_no_escaped_table_newline() -> None:
+    guide = GUIDE.read_text(encoding="utf-8")
+    assert "|\\n| Discovery returns 422" not in guide
+    assert "| Discovery returns 422 |" in guide
 
 
 def test_colab_code_cells_are_valid_python() -> None:
@@ -54,12 +63,69 @@ def test_colab_notebook_pins_the_integrated_model_agent_studio_revision() -> Non
     assert "Hypergraph Explorer" in markdown
 
 
+def test_colab_covers_objective_constraint_dependency_namespace() -> None:
+    _, _, code = notebook_source()
+    assert "canonicalize_objective_constraint_dependencies" in code
+    assert "canonicalize_retrieval_target_inputs" in code
+    assert "canonicalize_self_dependencies" in code
+    assert "canonicalize_arithmetic_expressions_from_effects" in code
+    assert "Retrieve customer records and calculate the average transaction amount" in code
+    assert "tool_and_model_capability_gaps_detected" in code
+    assert "tests/test_studio_objective_constraint_dependencies.py" in code
+    assert "Objective Contract constraint/dependency namespace separation OK" in code
+    assert f'TAAS_COMMIT = "{INTEGRATED_STUDIO_COMMIT}"' in code
+    assert "Retrieve records matching the provided query from the configured source." in code
+    assert "Can you get me the year difference between the creation date of the" in code
+    assert "Year-difference contract and retrieval-only rejection checks OK" in code
+
+
+def test_colab_distinguishes_external_tool_requirements_from_model_gaps() -> None:
+    _, _, code = notebook_source()
+    # Retrieval-only classification is checked deterministically without model inference.
+    assert 'core.get("status") == "tool_requirements_detected"' in code
+    assert 'retrieval_only.get("tool_required_goal_ids") == ["g1"]' in code
+    assert 'retrieval_only.get("model_capability_gap_goal_ids") == []' in code
+    # The optional compound live test keeps external-tool and native-skill gaps distinct.
+    assert 'core.get("status") == "tool_and_model_capability_gaps_detected"' in code
+    assert 'core.get("tool_required_goal_ids") == ["g1"]' in code
+    assert 'core.get("model_capability_gap_goal_ids") == ["g2"]' in code
+    assert 'core.get("gap_goal_ids") == ["g1", "g2"]' in code
+    assert 'calibrated_profile_matched") is False' in code
+
+
+def test_colab_objective_matrix_covers_local_and_external_workflows() -> None:
+    _, _, code = notebook_source()
+    for phrase in (
+        "Summarise the document supplied in the prompt.",
+        "Translate this paragraph into French.",
+        "Compare these two provided architectures.",
+        "Identify anomalies in the supplied sensor data.",
+        "Create a report from several external sources.",
+        "Count all invoices issued this year.",
+        "Calculate average sales by region.",
+        "Supplied-content vs external-source routing checks OK",
+    ):
+        assert phrase in code
+    assert 'assert contract["source_data_required"] is False' in code
+    assert "importlib.reload(objective_contract)" in code
+    assert "importlib.invalidate_caches()" in code
+    assert "studio_api = importlib.reload(studio_api)" in code
+    assert "missing_agent_api" in code
+    assert 'contract["contract_version"] == "2.0"' in code
+    assert 'assert contract["source_data_required"] is True' in code
+
+
 def test_colab_installs_and_verifies_optional_hugging_face_runtime() -> None:
     _, _, code = notebook_source()
     assert '"-e", ".[studio,hf]"' in code
     assert "importlib.import_module('torch')" in code
     assert "importlib.import_module('transformers')" in code
     assert "importlib.import_module('safetensors')" in code
+    assert "importlib.import_module('sentencepiece')" in code
+    assert "importlib.import_module('tiktoken')" in code
+    assert "importlib.import_module('taas.studio.ollama_runtime')" in code
+    assert "ENABLE_OLLAMA = False" in code
+    assert "TAAS_OLLAMA_BASE_URL" in code
 
 
 def test_colab_notebook_uses_safe_loopback_proxy_and_ephemeral_token() -> None:
@@ -111,6 +177,8 @@ def test_colab_reuses_the_single_studio_runtime_and_proxy_without_browser_automa
     _, markdown, code = notebook_source()
     assert "one checkout" in markdown
     assert "one Studio process" in markdown
-    assert 'if "proxy_url" not in globals() or not proxy_url:' in code
+    assert "proxy_url = output.eval_js" in code
     assert "google.colab.kernel.proxyPort" in code
+    assert "Fresh Colab proxy URL generated" in code
+    assert 'wait_http(f"http://{APP_HEALTH_HOST}:{APP_PORT}/health")' in code
     assert "playwright" not in code.lower()

@@ -239,7 +239,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 .taas-pipeline{margin:0 0 18px;padding:17px 18px}
 .pipeline-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:13px}
 .pipeline-heading h2{margin:4px 0 0;font-size:16px}
-.pipeline-steps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.pipeline-steps{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
 .pipeline-step{display:flex;flex-direction:column;gap:5px;min-width:0;padding:11px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);text-decoration:none;transition:border-color .12s,background .12s}
 .pipeline-step:hover{border-color:#b9c9ed;background:#f8faff}
 .pipeline-step:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
@@ -304,7 +304,17 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     .hg-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.hg-actions button{margin:0;white-space:nowrap}.hg-actions .secondary{background:#fff}
     @media(max-width:850px){.hg-layout{grid-template-columns:1fr}.hg-inspector{border-left:0;border-top:1px solid var(--line)}}
 
-\n/* Compact, readable navigation on tablet and mobile. */\n@media(max-width:900px){.studio-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:4px}.studio-nav .nav-brand{grid-column:1/-1;width:auto}.studio-nav a{min-width:0;overflow-wrap:anywhere;line-height:1.35}}\n@media(max-width:560px){.studio-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;padding:9px}.studio-nav a{min-height:36px;padding:7px 8px;font-size:11px}}\n</style>
+\n/* Compact, readable navigation on tablet and mobile. */\n@media(max-width:900px){.studio-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:4px}.studio-nav .nav-brand{grid-column:1/-1;width:auto}.studio-nav a{min-width:0;overflow-wrap:anywhere;line-height:1.35}}\n@media(max-width:560px){.studio-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;padding:9px}.studio-nav a{min-height:36px;padding:7px 8px;font-size:11px}}\n
+  .outcome-coverage{margin:12px 0;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface,#fff)}
+  .outcome-coverage-summary{font-size:13px;font-weight:650;margin-bottom:9px;color:var(--text)}
+  .outcome-coverage-table{width:100%;border-collapse:collapse;font-size:12px}
+  .outcome-coverage-table th,.outcome-coverage-table td{text-align:left;padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  .outcome-coverage-table th{color:var(--muted);font-weight:600}
+  .outcome-status{display:inline-block;padding:3px 7px;border-radius:999px;font-size:11px;font-weight:650;white-space:nowrap}
+  .outcome-status.covered{background:#e8f5ee;color:#17633c}
+  .outcome-status.missing{background:#fff1e8;color:#99420b}
+  .outcome-coverage-note{margin:9px 0 0;color:var(--muted);font-size:11px;line-height:1.45}
+</style>
 </head>
 <body>
 <header class="studio-header">
@@ -328,8 +338,8 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <span class="nav-label">BUILD</span>
       <a href="#models">Model catalog</a>
       <a href="#model-runtime-panel">Model runtime</a>
-      <a href="#agent-chat-panel">Agent workspace</a>
-      <a href="#agent-goal-panel">Agent design</a>
+      <a href="#agent-goal-panel">Objective Engineering</a>
+      <a href="#agent-chat-panel">Model inference sandbox</a>
       <span class="nav-label">TOOLS &amp; DISCOVERY</span>
       <a href="#bench-tools">Tool registry</a>
       <a href="#mcp-studio">MCP connections</a>
@@ -377,12 +387,13 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   <section class="taas-pipeline" aria-label="TaaS engineering lifecycle">
     <div class="pipeline-heading"><div><div class="eyebrow">TaaS engineering lifecycle</div><h2>From intent to governed execution</h2></div><span class="pill">Execution invocation not yet enabled</span></div>
     <div class="pipeline-steps">
-      <a class="pipeline-step" href="#agent-goal-panel"><span class="pipeline-index">01</span><strong>Agent planning</strong><small>Model-assisted GoalSpec proposal</small></a>
-      <a class="pipeline-step" href="#mcp-studio"><span class="pipeline-index">02</span><strong>Tool intelligence</strong><small>Inspect MCP contracts and metadata</small></a>
-      <a class="pipeline-step" href="#goal-editor"><span class="pipeline-index">03</span><strong>Goal contract</strong><small>Review types, effects and dependencies</small></a>
-      <a class="pipeline-step" href="#discovery"><span class="pipeline-index">04</span><strong>Discovery</strong><small>Find candidate toolkits and bindings</small></a>
-      <a class="pipeline-step" href="#certificate-panel"><span class="pipeline-index">05</span><strong>Assurance</strong><small>Inspect certificate and counterexamples</small></a>
-      <div class="pipeline-step pipeline-disabled" aria-disabled="true"><span class="pipeline-index">06</span><strong>Execution gateway</strong><small>Authorization primitives only · no invocation API</small></div>
+      <a class="pipeline-step" href="#agent-goal-panel"><span class="pipeline-index">01</span><strong>Objective intelligence</strong><small>Interpret intent, scope, constraints and ambiguity</small></a>
+      <a class="pipeline-step" href="#agent-goal-panel"><span class="pipeline-index">02</span><strong>GoalSpec decomposition</strong><small>Model proposal · typed goals · dependencies</small></a>
+      <a class="pipeline-step" href="#agent-goal-panel"><span class="pipeline-index">03</span><strong>Core validation</strong><small>Theta · conformance · gap analysis</small></a>
+      <a class="pipeline-step" href="#mcp-studio"><span class="pipeline-index">04</span><strong>Tool intelligence</strong><small>Inspect MCP contracts and capabilities</small></a>
+      <a class="pipeline-step" href="#discovery"><span class="pipeline-index">05</span><strong>Discovery &amp; hypergraph</strong><small>Match tools, compose candidates and inspect reachability</small></a>
+      <a class="pipeline-step" href="#certificate-panel"><span class="pipeline-index">06</span><strong>Assurance &amp; decision</strong><small>Evidence, provenance, certificates and counterexamples</small></a>
+      <div class="pipeline-step pipeline-disabled" aria-disabled="true"><span class="pipeline-index">07</span><strong>Governed execution</strong><small>Authorization and isolated invocation · not enabled</small></div>
     </div>
   </section>
   </div>\n  <section id="workspace" class="section-anchor" style="margin-bottom:18px">
@@ -443,6 +454,10 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         <div class="panel-head" style="margin:12px 0 4px"><h3>Goal contracts</h3><span class="count" id="goal-count">0 goals</span></div>
         <div id="goal-cards"></div>
         <div class="goal-actions"><button id="goal-add" type="button" class="secondary">Add goal</button><button id="goal-validate" type="button" class="secondary">Validate GoalSpec</button><span class="subtle">Validation checks structure, types, references and dependency cycles; it does not generate or prove goal semantics.</span></div>
+        <label style="display:flex;align-items:flex-start;gap:9px;font-weight:500;margin-top:12px">
+          <input id="goal-semantic-review" type="checkbox" style="width:auto;margin-top:2px">
+          <span>I reviewed the original objective, GoalSpec operations, scope, types, dependencies, effects and selected tool metadata. This review is not a correctness proof or execution authorization.</span>
+        </label>
         <div id="goal-validation" class="goal-validation" role="status" aria-live="polite">GoalSpec has not been validated.</div>
       </div>
       <details class="advanced-json">
@@ -512,6 +527,19 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <p id="explanation" class="muted" aria-live="polite">Run a request to see why TaaS selected a toolkit or abstained.</p>
       <h2>Selected toolkit</h2>
       <pre id="toolkit">No discovery result yet.</pre>
+      <section class="certificate-panel" id="discovery-diagnostics-panel" hidden aria-labelledby="discovery-diagnostics-title">
+        <div class="certificate-head"><h3 id="discovery-diagnostics-title">Discovery pipeline diagnostics</h3><span id="discovery-diagnostics-stage" class="certificate-state">Not reported</span></div>
+        <p id="discovery-diagnostics-summary" class="subtle">Core registry, policy eligibility and candidate retrieval diagnostics appear after discovery.</p>
+        <div class="certificate-checks" aria-live="polite">
+          <div class="certificate-check"><strong id="discovery-diagnostics-contracts">—</strong><small>Indexed contracts</small></div>
+          <div class="certificate-check"><strong id="discovery-diagnostics-eligible">—</strong><small>Policy-eligible tools</small></div>
+          <div class="certificate-check"><strong id="discovery-diagnostics-candidates">—</strong><small>Retrieved candidates</small></div>
+          <div class="certificate-check"><strong id="discovery-diagnostics-consistency">—</strong><small>Eligibility count consistency</small></div>
+        </div>
+        <h3 style="font-size:12px;margin:12px 0 4px">Per-tool eligibility evidence</h3>
+        <div style="overflow-x:auto"><table class="coverage-table"><thead><tr><th>Tool</th><th>Eligible</th><th>Evidence strengths</th><th>Exclusion reasons</th></tr></thead><tbody id="discovery-diagnostics-tools"></tbody></table></div>
+        <details><summary>Raw diagnostic payload</summary><pre id="discovery-diagnostics-raw"></pre></details>
+      </section>
       <section id="hypergraph-explorer" class="hg-shell" aria-labelledby="hg-title">
         <div class="hg-toolbar">
           <div><div class="eyebrow">DISCOVER · SEMANTIC GRAPH</div><h3 id="hg-title" style="margin:4px 0;font-size:14px">Hypergraph Explorer</h3><div id="hg-summary" class="hg-meta">Run discovery to load the authoritative Core projection.</div></div>
@@ -593,29 +621,36 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 
   <section id="agent-studio" class="section-anchor" style="margin-bottom:18px">
     <div class="panel-head"><div><div class="eyebrow">Model &amp; Agent workspace</div><h2 style="margin:4px 0">Load a model and build an agent</h2></div><span class="pill">Real local inference · authenticated API</span></div>
-    <p class="muted">Host diagnostics below and model runtime state are separate views. The selected Hugging Face model is downloaded and loaded by the same process that runs this Studio API. If that process runs inside Colab, inference runs in that Colab runtime. This does not remotely connect Studio to a separate Colab session.</p>
+    <p class="muted">Host diagnostics below and model runtime state are separate views. Hugging Face weights run inside the process hosting this Studio API. Ollama runs in a separate daemon selected through the provider control. If Studio runs inside Colab, local CPU/CUDA/Ollama inference runs in that Colab VM; this does not remotely connect Studio to a separate Colab session.</p>
     <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px">
       <section id="model-runtime-panel" style="box-shadow:none;padding:14px">
-        <h2>1 · Model runtime</h2><label for="runtime-model-id">Hugging Face model ID</label>
+        <h2>1 · Model runtime</h2>
+        <label for="runtime-provider">Inference provider</label>
+        <select id="runtime-provider" style="width:100%;padding:9px;border:1px solid #d4dce8;border-radius:8px">
+          <option value="huggingface">Hugging Face · Transformers</option>
+          <option value="ollama">Ollama · local or configured API</option>
+        </select>
+        <label for="runtime-model-id" id="runtime-model-label">Hugging Face model ID</label>
         <input id="runtime-model-id" value="Qwen/Qwen2.5-0.5B-Instruct" maxlength="257" autocomplete="off">
-        <label for="runtime-device">Execution device</label>
+        <label for="runtime-device" id="runtime-device-label">Execution device</label>
         <select id="runtime-device" style="width:100%;padding:9px;border:1px solid #d4dce8;border-radius:8px"><option value="auto">Automatic · CUDA when available, otherwise CPU</option><option value="cpu">CPU</option><option value="cuda">CUDA GPU · require CUDA</option></select>
+        <p class="subtle" id="runtime-provider-help">Hugging Face loads weights inside the TaaS process. CPU is supported; CUDA is optional.</p>
         <div class="inline-actions"><button id="runtime-model-load" type="button">Download &amp; load model</button><button id="runtime-model-refresh" type="button" class="secondary">Refresh model state</button></div>
         <div id="runtime-model-status" class="status" role="status" aria-live="polite">No model loaded by this process.</div><pre id="runtime-model-details">Model runtime state has not been queried.</pre>
-        <p class="subtle">Remote repository code execution is disabled (<code>trust_remote_code=false</code>). CPU uses FP32; CUDA uses BF16 when supported, otherwise FP16. A successful load is not inferred from catalog metadata.</p>
+        <p class="subtle">Hugging Face: remote repository code execution is disabled (<code>trust_remote_code=false</code>); CPU uses FP32 and CUDA uses BF16/FP16. Ollama is a separate configured service; its device placement and quantization are managed by Ollama. The Studio never treats model metadata as proof of a successful load.</p>
       </section>
       <section id="agent-chat-panel" style="box-shadow:none;padding:14px">
-        <h2>2 · Agent chat</h2><label for="agent-system">Agent instructions</label>
+        <h2>2 · Model inference sandbox</h2><p class="subtle">Free-form inference only. It does not create a GoalSpec, run TaaS Core gap analysis, discover tools, or authorize execution. Start operational objectives in the Core-first Objective Engineering workflow below.</p><label for="agent-system">Agent instructions</label>
         <textarea id="agent-system" rows="3" style="min-height:75px">You are a precise assistant. Be explicit about uncertainty and do not claim to have executed tools.</textarea>
         <label for="agent-message">Message</label><textarea id="agent-message" rows="4" style="min-height:110px" placeholder="Ask the loaded model a question…"></textarea>
         <label for="agent-max-tokens">Maximum new tokens</label><input id="agent-max-tokens" type="number" min="1" max="2048" value="512">
-        <button id="agent-chat-send" type="button">Run inference</button><div id="agent-chat-status" class="status" role="status" aria-live="polite">Load a model before sending a message.</div><pre id="agent-chat-result">Inference output will appear here.</pre>
+        <div class="inline-actions"><button id="agent-route-prompt-core" type="button">Prepare this prompt with TaaS Core</button><button id="agent-chat-send" type="button" class="secondary">Run inference only</button></div><div id="agent-chat-status" class="status" role="status" aria-live="polite">Load a model before sending a message.</div><pre id="agent-chat-result">Inference output will appear here.</pre>
       </section>
     </div>
     <section id="agent-goal-panel" style="box-shadow:none;padding:14px;margin-top:14px">
-      <h2>3 · Goal-oriented agent design</h2><p class="muted">Ask the loaded model to decompose a natural-language objective into the canonical TaaS GoalSpec. The result is a proposal, not a semantic correctness proof and not an execution plan authorization.</p>
-      <label for="agent-goal-prompt">Agent objective</label><textarea id="agent-goal-prompt" rows="3" style="min-height:90px" placeholder="Find current information, summarize it, and save a Markdown report…"></textarea>
-      <button id="agent-decompose" type="button">Decompose objective with loaded model</button><div id="agent-decompose-status" class="status" role="status" aria-live="polite">No decomposition requested.</div><pre id="agent-decompose-result">The model's GoalSpec proposal will appear here.</pre>
+      <h2>3 · Objective Engineering · TaaS Core</h2><p class="muted">Canonical entry point for operational prompts. TaaS Core frames the objective, the selected model proposes a GoalSpec, and deterministic validation plus actual Core gap_analysis inspect it. Tool discovery follows only after human review. The proposal is never an execution authorization.</p>
+      <label for="agent-goal-prompt">Agent objective</label><textarea id="agent-goal-prompt" rows="3" maxlength="12000" style="min-height:90px" placeholder="Find current information, summarize it, and save a Markdown report…"></textarea><p class="subtle">The original objective is preserved by the API; verify the complete text here before preparing it.</p>
+      <button id="agent-decompose" type="button">Prepare objective with TaaS Core</button><div id="agent-decompose-status" class="status" role="status" aria-live="polite">No decomposition requested.</div><div id="agent-outcome-coverage" class="outcome-coverage" aria-live="polite"></div><pre id="agent-decompose-result">The model's GoalSpec proposal will appear here.</pre>
       <div id="agent-semantic-diagnostics" class="goal-validation" role="status" aria-live="polite">Semantic diagnostics appear after decomposition. Heuristic warnings are not a correctness proof.</div>
       <div class="inline-actions"><button id="agent-apply-goals" type="button" class="secondary" disabled>Apply proposal to GoalSpec editor</button><span class="subtle">Applying replaces the current visual GoalSpec draft; review and validate it before discovery.</span></div>
     </section>
@@ -1032,6 +1067,35 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
           $("counterexample-detail").textContent=JSON.stringify(counter.witness||{},null,2);
         }
   
+        const diag=data.discovery_diagnostics||null;
+        const diagPanel=$("discovery-diagnostics-panel");
+        diagPanel.hidden=!diag||diag.available!==true;
+        if(!diagPanel.hidden){
+          $("discovery-diagnostics-stage").textContent=String(diag.pipeline_stage||"stage unavailable").replaceAll("_"," ");
+          $("discovery-diagnostics-summary").textContent=
+            "Policy encoding: "+(diag.policy?.encoding||"unknown")+
+            " · evidence threshold: "+(diag.policy?.minimum_evidence_strength??"unknown")+
+            " · composition eligible count: "+(diag.eligibility?.composition_reported_eligible_count??"not reported")+
+            ". This report explains discovery filters; it does not authorize execution.";
+          $("discovery-diagnostics-contracts").textContent=String(diag.index_live_count??0)+" / "+String(diag.registry_contract_count??0);
+          $("discovery-diagnostics-eligible").textContent=String(diag.eligibility?.eligible_count??0);
+          $("discovery-diagnostics-candidates").textContent=String(diag.candidate_retrieval?.candidate_count??0);
+          const consistent=diag.eligibility?.composition_count_matches_preflight;
+          $("discovery-diagnostics-consistency").textContent=consistent===true?"MATCH":consistent===false?"MISMATCH":"N/A";
+          const rows=$("discovery-diagnostics-tools");rows.replaceChildren();
+          (diag.tools||[]).forEach(tool=>{
+            const row=document.createElement("tr");
+            const values=[
+              tool.tool_id||"unknown",
+              tool.eligible===true?"Eligible":"Excluded",
+              JSON.stringify(tool.property_strengths||{}),
+              (tool.exclusions||[]).length?JSON.stringify(tool.exclusions):"No policy/visibility exclusion reported"
+            ];
+            values.forEach(value=>{const cell=document.createElement("td");cell.textContent=String(value);row.append(cell);});
+            rows.append(row);
+          });
+          $("discovery-diagnostics-raw").textContent=JSON.stringify(diag,null,2);
+        }
         renderHypergraphProjection(data.hypergraph_projection_status === "available" ? data.hypergraph_projection : null);
         $("response").textContent = JSON.stringify(data, null, 2);
   };
@@ -1087,6 +1151,16 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   const readRequest = () => JSON.parse($("payload").value);
   const writeRequest = body => { $("payload").value=JSON.stringify(body,null,2); goalJsonManuallyEdited=false; };
   $("payload").addEventListener("input",()=>{goalJsonManuallyEdited=true;$("goal-validation").className="goal-validation";$("goal-validation").textContent="Advanced JSON was edited. Reload the visual editor before validating or running discovery.";});
+  const invalidateHumanReview = () => { const review=$("goal-semantic-review"); if(review) review.checked=false; };
+  $("goal-prompt").addEventListener("input",invalidateHumanReview);
+  $("goal-prompt-inputs").addEventListener("input",invalidateHumanReview);
+  $("goal-cards").addEventListener("input",invalidateHumanReview);
+  $("goal-cards").addEventListener("change",invalidateHumanReview);
+  $("goal-cards").addEventListener("click",invalidateHumanReview);
+  $("goal-add").addEventListener("click",invalidateHumanReview);
+  $("bench-tools").addEventListener("change",invalidateHumanReview);
+  $("mcp-tool-list").addEventListener("change",invalidateHumanReview);
+  $("payload").addEventListener("input",invalidateHumanReview);
   const getGoalSpec = () => {
     const body=readRequest(); body.goal_spec=body.goal_spec||{};
     body.goal_spec.prompt=goalSpecState.prompt||"";
@@ -1195,7 +1269,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     try{
       const gs=readRequest().goal_spec||{};
       goalSpecState={prompt:gs.prompt||"",prompt_inputs_text:(gs.prompt_inputs||["text"]).join(", "),goals:Array.isArray(gs.goals)?gs.goals.map(g=>({...g,n:g.n??1,in:[...(g.in||[])],eff:[...(g.eff||[])],deps:[...(g.deps||[])]})):[]};
-      goalJsonManuallyEdited=false;if(bench.selectedTask)$("bench-goal-review").checked=false;renderGoalEditor();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Visual editor reloaded from the JSON payload.";
+      goalJsonManuallyEdited=false;invalidateHumanReview();if(bench.selectedTask)$("bench-goal-review").checked=false;renderGoalEditor();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Visual editor reloaded from the JSON payload.";
     }catch(e){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent="Cannot reload editor: "+e.message;}
   });
   try{
@@ -1382,6 +1456,10 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     try { body = JSON.parse($("payload").value); }
     catch (e) { setDiscoveryStatus("Invalid JSON: " + e.message); return; }
     if(goalJsonManuallyEdited){setDiscoveryStatus("Reload the visual editor from the advanced JSON before validation or discovery.");return;}
+    if(!$("goal-semantic-review").checked){
+      setDiscoveryStatus("Discovery blocked: review the objective-to-GoalSpec mapping and selected tool metadata, then confirm the human-review checkbox.");
+      return;
+    }
     if(bench.selectedTask){
       if(!$("bench-goal-review").checked){
         setDiscoveryStatus("Benchmark discovery blocked: review the GoalSpec against the selected task prompt and confirm the review checkbox.");
@@ -1405,14 +1483,15 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     if (!token) { setDiscoveryStatus("Enter the Studio API token first."); return; }
     const goalErrors=validateGoalSpecLocal();
     if(goalErrors.length){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent=goalErrors.join(" ");setDiscoveryStatus("Correct the GoalSpec validation errors before discovery.");return;}
+    body.human_review_confirmed = true;
     run.disabled = true;
     hgRun.disabled = true;
-    setDiscoveryStatus("Running discovery through the existing TaaS Core runtime…");
+    setDiscoveryStatus("Running reviewed discovery through TaaS Core…");
     $("toolkit").textContent = "Waiting for API response…";
     $("response").textContent = "";
     // Preserve the last successful Core projection until a fresh response arrives.
     try {
-      const response = await fetch("/api/v1/discover", {
+      const response = await fetch("/api/v1/objectives/discover", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
         body: JSON.stringify(body)
@@ -1464,6 +1543,11 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     return true;
   };
   const tokenValue = () => $("token").value.trim();
+  const markStudioAuthRejected = () => {
+    $("studio-auth").classList.remove("connected");
+    $("studio-auth-status").textContent = "Token rejected by the Studio API · reconnect to verify the current runtime token";
+    $("studio-auth-disconnect").disabled = false;
+  };
   const formatApiError = (detail, fallback) => {
     if (typeof detail === "string" && detail.trim()) return detail;
     if (Array.isArray(detail)) return detail.map(item => {
@@ -1482,7 +1566,10 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   const apiGet = async (path) => {
     const token=tokenValue(); if(!token) throw new Error("Connect to TaaS Studio in the application header first.");
     const r=await fetch(path,{headers:{"Authorization":"Bearer "+token}});
-    const d=await r.json(); if(!r.ok) throw new Error(formatApiError(d.detail||d,"HTTP "+r.status)); return d;
+    const d=await r.json();
+    if(r.status===401){markStudioAuthRejected();throw new Error("Studio API rejected the bearer token. Reconnect in the header, then retry.");}
+    if(!r.ok) throw new Error(formatApiError(d.detail||d,"HTTP "+r.status));
+    return d;
   };
   const loadDatasets = async () => {
     const d=await apiGet("/api/v1/bench/datasets"); bench.datasets=d.datasets||[];
@@ -1562,7 +1649,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     try{
       const prompt=bench.selectedTask.query||"";
       if(goalSpecState.prompt!==prompt){goalSpecState.goals=[];$("bench-goal-review").checked=false;}
-      goalSpecState.prompt=prompt;renderGoalEditor();getGoalSpec();
+      invalidateHumanReview();goalSpecState.prompt=prompt;renderGoalEditor();getGoalSpec();
       const importedToolCount=syncBenchmarkToolsToRequest();
       $("bench-status").textContent="Task prompt copied to GoalSpec. "+
         (importedToolCount?importedToolCount+" selected registry tool(s) synchronized; review their relevance. ":"No registry tools selected; choose tools relevant to this task. ")+
@@ -1575,6 +1662,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     try{
       const count=syncBenchmarkToolsToRequest();
       if(!count)throw new Error("Select at least one registry tool before importing.");
+      invalidateHumanReview();
       $("bench-status").textContent=count+" selected registry tool(s) synchronized with the discovery request. Demo/sample tools were removed. Review GoalSpec alignment before running.";
     }catch(e){$("bench-status").textContent="Cannot add tools: "+e.message;}
   });
@@ -1590,43 +1678,130 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   const runtimePost = async (path, body) => {
     const token=tokenValue(); if(!token) throw new Error("Connect to TaaS Studio in the application header first.");
     const response=await fetch(path,{method:"POST",headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify(body)});
-    const data=await response.json(); if(!response.ok) throw new Error(formatApiError(data.detail||data,"HTTP "+response.status)); return data;
+    const data=await response.json();
+    if(response.status===401){markStudioAuthRejected();throw new Error("Studio API rejected the bearer token. Reconnect in the header, then retry.");}
+    if(!response.ok) throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
+    return data;
   };
   const refreshLoadedModel = async () => {
     const state=await apiGet("/api/v1/models/runtime");$("runtime-model-details").textContent=JSON.stringify(state,null,2);
-    $("runtime-model-status").textContent=state.model_loaded ? "Loaded · "+state.model_id+" · "+state.device+" · "+state.dtype : "No model loaded by this process.";return state;
+    if($("runtime-provider").value==="ollama"){
+      const ollama=state.providers?.ollama||{};
+      $("runtime-model-status").textContent=!ollama.available
+        ?"Ollama unavailable · "+(ollama.last_error||"Check the daemon and endpoint.")
+        :ollama.model_selected
+          ?"Ollama model selected · "+ollama.model_selected+" · weights load on first inference"
+          :"Ollama reachable · select an installed model tag.";
+    }else{
+      $("runtime-model-status").textContent=state.model_loaded ? "Loaded · "+state.model_id+" · "+state.device+" · "+state.dtype : "No Hugging Face model loaded by this process.";
+    }
+    return state;
   };
+  $("runtime-provider").addEventListener("change",()=>{
+    const ollama=$("runtime-provider").value==="ollama";
+    $("runtime-model-label").textContent=ollama?"Ollama model tag":"Hugging Face model ID";
+    $("runtime-model-id").value=ollama?"qwen2.5:0.5b":"Qwen/Qwen2.5-0.5B-Instruct";
+    $("runtime-model-id").placeholder=ollama?"e.g. qwen2.5:0.5b":"owner/model";
+    $("runtime-device").hidden=ollama;$("runtime-device-label").hidden=ollama;
+    $("runtime-model-load").textContent=ollama?"Select installed Ollama model":"Download & load model";
+    $("runtime-provider-help").textContent=ollama
+      ?"Ollama runs as a separate daemon. Start it and install a model first; configure TAAS_OLLAMA_BASE_URL when it is not at 127.0.0.1:11434. Model selection validates installation; Ollama loads weights on first inference."
+      :"Hugging Face loads weights inside the TaaS process. CPU is supported; CUDA is optional. Tokenizers use fast mode with a slow-mode fallback.";
+  });
   $("runtime-model-refresh").addEventListener("click",async()=>{ $("runtime-model-status").textContent="Reading model runtime state…";try{await refreshLoadedModel();}catch(e){$("runtime-model-status").textContent="Status request failed: "+e.message;} });
   $("runtime-model-load").addEventListener("click",async()=>{
-    const button=$("runtime-model-load");button.disabled=true;$("runtime-model-status").textContent="Loading model weights. The first load may take time and download model files…";
-    try{const state=await runtimePost("/api/v1/models/load",{model_id:$("runtime-model-id").value.trim(),device:$("runtime-device").value});$("runtime-model-details").textContent=JSON.stringify(state,null,2);$("runtime-model-status").textContent="Model loaded · "+state.model_id+" · "+state.device+" · "+state.dtype;}
+    const button=$("runtime-model-load");button.disabled=true;const selectedProvider=$("runtime-provider").value;$("runtime-model-status").textContent=selectedProvider==="ollama"?"Validating that the model tag is installed in Ollama…":"Loading model weights. The first load may take time and download model files…";
+    try{const provider=$("runtime-provider").value;const state=await runtimePost("/api/v1/models/load",{provider,model_id:$("runtime-model-id").value.trim(),device:provider==="ollama"?"auto":$("runtime-device").value});$("runtime-model-details").textContent=JSON.stringify(state,null,2);$("runtime-model-status").textContent=provider==="ollama"?"Ollama model selected · "+state.model_selected+" · weights load on first inference":"Model loaded · "+state.model_id+" · "+state.device+" · "+state.dtype;}
     catch(e){$("runtime-model-status").textContent="Model load failed: "+e.message;}finally{button.disabled=false;}
   });
   $("agent-chat-send").addEventListener("click",async()=>{
     const button=$("agent-chat-send");button.disabled=true;$("agent-chat-status").textContent="Generating with the loaded model…";
-    try{const result=await runtimePost("/api/v1/models/chat",{message:$("agent-message").value,system:$("agent-system").value,max_new_tokens:Number($("agent-max-tokens").value||512),temperature:0.2});
-      $("agent-chat-result").textContent=result.text+"\n\n"+JSON.stringify({model_id:result.model_id,device:result.device,dtype:result.dtype,latency_seconds:result.latency_seconds,input_tokens:result.input_tokens,output_tokens:result.output_tokens},null,2);
+    try{const result=await runtimePost("/api/v1/models/chat",{provider:$("runtime-provider").value,message:$("agent-message").value,system:$("agent-system").value,max_new_tokens:Number($("agent-max-tokens").value||512),temperature:0.2});
+      $("agent-chat-result").textContent=result.text+"\n\n"+JSON.stringify({provider:result.provider,model_id:result.model_id,device:result.device,dtype:result.dtype,latency_seconds:result.latency_seconds,input_tokens:result.input_tokens,output_tokens:result.output_tokens},null,2);
       $("agent-chat-status").textContent="Inference completed · "+result.latency_seconds+"s · "+result.output_tokens+" generated tokens.";
     }catch(e){$("agent-chat-status").textContent="Inference failed: "+e.message;}finally{button.disabled=false;}
   });
+  function renderObjectiveCoverage(coverage){
+    const root=$("agent-outcome-coverage");root.replaceChildren();
+    if(!coverage||!Array.isArray(coverage.outcomes)){root.textContent="Outcome coverage is not available for this response.";return;}
+    const summary=document.createElement("div");summary.className="outcome-coverage-summary";
+    const counts=coverage.summary||{};
+    summary.textContent="Objective outcomes · "+(counts.covered??0)+"/"+(counts.required??coverage.outcomes.length)+" mapped · "+(counts.missing??0)+" missing";
+    root.appendChild(summary);
+    if(!coverage.outcomes.length){const empty=document.createElement("p");empty.className="subtle";empty.textContent="No explicit operation outcome was detected. Review the original objective and clarify its expected result.";root.appendChild(empty);return;}
+    const table=document.createElement("table");table.className="outcome-coverage-table";
+    const head=document.createElement("thead"),headRow=document.createElement("tr");
+    ["Required outcome","Coverage","Goal / input evidence"].forEach(label=>{const th=document.createElement("th");th.textContent=label;headRow.appendChild(th);});
+    head.appendChild(headRow);table.appendChild(head);
+    const body=document.createElement("tbody");
+    const labels={covered_by_goal:"Mapped to GoalSpec",covered_by_supplied_input:"Supplied input",missing:"Missing"};
+    coverage.outcomes.forEach(outcome=>{
+      const tr=document.createElement("tr");
+      const outcomeCell=document.createElement("td");outcomeCell.textContent=outcome.goal_class||"Unspecified";
+      const statusCell=document.createElement("td");const status=document.createElement("span");status.className="outcome-status "+(outcome.status==="missing"?"missing":"covered");status.textContent=labels[outcome.status]||outcome.status||"Unknown";statusCell.appendChild(status);
+      const evidenceCell=document.createElement("td");const evidence=[...(outcome.goal_ids||[]),...(outcome.input_types||[]).map(value=>"input: "+value)];evidenceCell.textContent=evidence.length?evidence.join(", "):"No matching goal or supplied input";
+      tr.append(outcomeCell,statusCell,evidenceCell);body.appendChild(tr);
+    });
+    table.appendChild(body);root.appendChild(table);
+    const note=document.createElement("p");note.className="outcome-coverage-note";note.textContent="Coverage shows structural mapping only. It is not proof of semantic correctness, data availability, tool capability or execution success. Human review remains mandatory.";
+    root.appendChild(note);
+  }
   let pendingAgentGoalSpec=null;
   $("agent-decompose").addEventListener("click",async()=>{
-    const button=$("agent-decompose");button.disabled=true;$("agent-decompose-status").textContent="Decomposing objective with the loaded model…";$("agent-apply-goals").disabled=true;pendingAgentGoalSpec=null;
-    try{const result=await runtimePost("/api/v1/agents/decompose",{prompt:$("agent-goal-prompt").value,max_new_tokens:1200});$("agent-decompose-result").textContent=JSON.stringify(result,null,2);
-      if(result.json_valid&&result.structural_validation?.valid){
+    const button=$("agent-decompose");button.disabled=true;$("agent-decompose-status").textContent="Preparing objective through TaaS Core…";$("agent-apply-goals").disabled=true;pendingAgentGoalSpec=null;
+    try{const result=await runtimePost("/api/v1/objectives/prepare",{provider:$("runtime-provider").value,prompt:$("agent-goal-prompt").value,max_new_tokens:1200});$("agent-decompose-result").textContent=JSON.stringify(result,null,2);
+      renderObjectiveCoverage(result.objective_coverage);
+      const diagnostics=result.semantic_diagnostics||[];
+      const hasErrors=diagnostics.some(x=>x.severity==="error");
+      const coreNeedsClarification=result.core_analysis?.status==="clarification_required";
+      const accepted=result.conformance?.accepted_for_human_review===true;
+      const missingOutcomes=(result.objective_coverage?.summary?.missing||0)>0;
+      if(result.json_valid&&result.structural_validation?.valid&&accepted&&!hasErrors&&!coreNeedsClarification&&!missingOutcomes){
         pendingAgentGoalSpec=result.goal_spec;$("agent-apply-goals").disabled=false;
-        const diagnostics=result.semantic_diagnostics||[];
-        $("agent-semantic-diagnostics").className="goal-validation"+(diagnostics.some(x=>x.severity==="error")?" invalid":diagnostics.length?"":" valid");
-        $("agent-semantic-diagnostics").textContent=diagnostics.length
-          ? "Semantic review required · "+diagnostics.length+" heuristic diagnostic(s): "+diagnostics.map(x=>x.code+": "+x.message+" Suggested action: "+x.suggestion).join(" | ")
-          : "No heuristic issue detected. This is not proof of semantic correctness; review the objective-to-goal mapping.";
-        $("agent-decompose-status").textContent="GoalSpec proposal parsed and structurally valid. Semantic correctness is not verified; review diagnostics before applying.";
+        $("agent-semantic-diagnostics").className="goal-validation"+(diagnostics.length?"":" valid");
+        const core=result.core_analysis||{};
+        const toolRequired=core.tool_required_goal_ids||[];
+        const modelGaps=core.model_capability_gap_goal_ids||[];
+        const gapText=toolRequired.length&&modelGaps.length
+          ? "Tool-required goals: "+toolRequired.join(", ")+". Uncovered model-native capability goals: "+modelGaps.join(", ")+". "
+          : toolRequired.length
+            ? "Tool-required goals: "+toolRequired.join(", ")+". These goals require tool discovery; rho=0 is expected for external operations and is not a claim that the model should perform them natively. "
+            : modelGaps.length
+              ? "Uncovered model-native capability goals: "+modelGaps.join(", ")+". "
+              : "No uncovered model-native capability identified by the current profile. ";
+        const profile=core.model_profile||{};
+        const calibration=profile.calibrated_profile_matched
+          ? "Matched calibrated profile: "+profile.model_id+". "
+          : "No matching calibrated profile; unmeasured model-native skills remain uncovered in strict mode. This does not change the classification of external tool-required goals. ";
+        $("agent-semantic-diagnostics").textContent=(diagnostics.length
+          ? "Human review required · "+diagnostics.map(x=>x.code+": "+x.message+" Suggested action: "+x.suggestion).join(" | ")
+          : "No configured objective-alignment error detected. ")
+          +gapText+calibration+"Review the objective-to-goal mapping; this is not a correctness proof.";
+        $("agent-decompose-status").textContent="Core-analyzed GoalSpec proposal. "+(result.attempt_history||[]).length+" attempt(s). Human review is required before applying.";
       }
-      else{$("agent-semantic-diagnostics").className="goal-validation invalid";$("agent-semantic-diagnostics").textContent="No semantic review: response did not pass parsing and structural validation.";$("agent-decompose-status").textContent="Model response is not an acceptable GoalSpec. Inspect the response and refine the objective.";}
+      else{
+        pendingAgentGoalSpec=null;$("agent-apply-goals").disabled=true;
+        $("agent-semantic-diagnostics").className="goal-validation invalid";
+        $("agent-semantic-diagnostics").textContent=coreNeedsClarification
+          ? "Core requires clarification: "+(result.core_analysis?.clarification||"unresolved GoalSpec input.")
+          : hasErrors
+            ? "Core rejected objective conformance: "+diagnostics.filter(x=>x.severity==="error").map(x=>x.code+": "+x.message).join(" | ")
+            : missingOutcomes
+              ? "Objective coverage is incomplete: "+(result.objective_coverage?.summary?.missing||0)+" required outcome(s) have no matching goal or supplied input. Refine the proposal before applying."
+              : "No acceptable GoalSpec: structural validation or Core conformance failed. Inspect attempt history and diagnostics.";
+        $("agent-decompose-status").textContent="GoalSpec was not accepted for human review. Apply is disabled; refine the objective or resolve the reported Core constraints.";
+      }
     }catch(e){$("agent-decompose-status").textContent="Agent decomposition failed: "+e.message;}finally{button.disabled=false;}
   });
+  $("agent-route-prompt-core").addEventListener("click",()=>{
+    const prompt=$("agent-message").value.trim();
+    if(!prompt){$("agent-chat-status").textContent="Enter a prompt first, then route it through TaaS Core.";return;}
+    $("agent-goal-prompt").value=prompt;
+    $("agent-goal-panel").scrollIntoView({behavior:"smooth",block:"start"});
+    $("agent-decompose").click();
+  });
   $("agent-apply-goals").addEventListener("click",()=>{
-    if(!pendingAgentGoalSpec)return;const spec=pendingAgentGoalSpec;goalSpecState.prompt=spec.prompt||$("agent-goal-prompt").value.trim();
+    if(!pendingAgentGoalSpec)return;invalidateHumanReview();const spec=pendingAgentGoalSpec;goalSpecState.prompt=spec.prompt||$("agent-goal-prompt").value.trim();
     goalSpecState.prompt_inputs_text=(spec.prompt_inputs||["text"]).join(", ");
     goalSpecState.goals=(spec.goals||[]).map(g=>({id:g.id,class:g.class,in:g.in||[],out:g.out,eff:g.eff||[],sigma:g.sigma||"native",desc:g.desc||"",deps:g.deps||[],n:g.n||1,exactness:g.exactness||"tolerant",lang:g.lang||"en",optional:Boolean(g.optional)}));
     renderGoalEditor();getGoalSpec();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Agent proposal applied as an editable draft. Review objective coverage, semantic diagnostics, types and dependencies; then validate before discovery. Applying does not prove correctness or authorize execution.";
@@ -1801,7 +1976,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   $("mcp-import-tools").addEventListener("click",()=>{
     try{const body=JSON.parse($("payload").value);const byKey=new Map((Array.isArray(body.tools)?body.tools:[]).map(t=>[(t.server||"")+"::"+(t.name||""),t]));let added=0;
       inspectedMcpTools.filter(t=>selectedMcpToolKeys.has(t.server+"::"+t.name)).forEach(t=>{byKey.set(t.server+"::"+t.name,{server:t.server,name:t.name,description:t.description||"",input_schema:t.input_schema||{},output_schema:t.output_schema||null,annotations:t.annotations||null,source:"mcp-live-inspection",category:"mcp"});added++;});
-      body.tools=[...byKey.values()];$("payload").value=JSON.stringify(body,null,2);$("mcp-server-status").textContent=added+" MCP tool contract(s) added to discovery request. Review GoalSpec and policy before discovery.";
+      body.tools=[...byKey.values()];$("payload").value=JSON.stringify(body,null,2);invalidateHumanReview();$("mcp-server-status").textContent=added+" MCP tool contract(s) added to discovery request. Review GoalSpec and policy before discovery.";
       if(bench.selectedTask){$("bench-goal-review").checked=false;$("bench-status").textContent="MCP tools added. Review selected tools against the active task and reconfirm before discovery.";}
     }catch(e){$("mcp-server-status").textContent="Could not update discovery request: "+e.message;}
   });

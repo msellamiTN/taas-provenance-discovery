@@ -41,20 +41,21 @@ def test_catalog_selection_does_not_claim_runtime_compatibility_or_execute_code(
     html = PAGE.read_text(encoding="utf-8")
     assert "weights downloaded: no" in html
     assert "runtime compatibility unverified" in html
-    assert "model_code_executed" in html or "Remote repository code execution is disabled" in html
+    assert "model_code_executed" in html or "remote repository code execution is disabled" in html
     assert "trust_remote_code=false" in html
 
 def test_overview_exposes_taas_lifecycle_and_marks_execution_gateway_truthfully():
     html = PAGE.read_text(encoding="utf-8")
     for marker in (
         "TaaS engineering lifecycle",
-        "Agent planning",
+        "Objective intelligence",
+        "GoalSpec decomposition",
+        "Core validation",
         "Tool intelligence",
-        "Goal contract",
-        "Discovery",
-        "Assurance",
-        "Execution gateway",
-        "Authorization primitives only · no invocation API",
+        "Discovery &amp; hypergraph",
+        "Assurance &amp; decision",
+        "Governed execution",
+        "Authorization and isolated invocation · not enabled",
     ):
         assert marker in html
     assert 'document.querySelectorAll(".pipeline-step[href]")' in html

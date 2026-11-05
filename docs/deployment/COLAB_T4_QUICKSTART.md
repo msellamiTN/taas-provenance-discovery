@@ -1,9 +1,9 @@
-# TaaS Studio on Google Colab T4 — quickstart
+# TaaS Studio on Google Colab — CPU, CUDA and Ollama quickstart
 
 ## One-click launch
 
 1. Open [the Colab notebook](../../notebooks/colab/taas_core_studio_colab.ipynb).
-2. Select **Runtime → Change runtime type → T4 GPU** when available.
+2. Select **Runtime → Change runtime type → T4 GPU** when available; CPU-only runtimes are also supported.
 3. Run the notebook cells from top to bottom.
 4. Wait for the package import and /health + /ready checks.
 5. Open the generated **TaaS Studio** browser link.
@@ -23,11 +23,17 @@ The Studio includes an authenticated **Runtime · GPU diagnostics** panel. Enter
 
 This endpoint is diagnostic only. It does not install CUDA, PyTorch, model weights or an inference engine, and it does not allocate GPU memory or run a model.
 
-## Current capability boundary
+## Model runtime backends
 
-This PR milestone launches the existing **TaaS discovery workspace**. It does not yet provide Hugging Face model search/download/load, model-backed chat, agent orchestration, MCP server invocation, live execution streaming or persistent run history. These must be implemented and tested before being advertised as available.
+The integrated Model/Agent Studio supports:
 
-The Colab notebook installs the package into the active interpreter and verifies the taas import before starting Uvicorn. If installation fails, it prints the pip output and stops instead of continuing into a misleading profile-import error.
+- **Hugging Face Transformers on CPU** — supported without a GPU. Automatic mode selects CPU when CUDA is unavailable.
+- **Hugging Face Transformers on CUDA** — optional acceleration when Colab allocates a compatible GPU.
+- **Ollama** — optional separate daemon in the same Colab VM or at an operator-configured endpoint. Set `TAAS_OLLAMA_BASE_URL` before launching Uvicorn when the daemon is not at `http://127.0.0.1:11434`.
+
+The notebook installs the Hugging Face extras, including `sentencepiece` and `tiktoken`, and includes an opt-in Ollama setup cell. Ollama is not installed or started by default. See [Model Runtime Backends](MODEL_RUNTIME_BACKENDS.md) for setup, memory guidance, tokenizer fallback behavior, and troubleshooting.
+
+A Hugging Face model load is an actual weight-load operation inside the TaaS process. Ollama model selection validates an installed tag; Ollama loads weights lazily on the first inference. Device placement and quantization for Ollama remain managed by Ollama.
 
 ## Valid discovery example
 
@@ -59,7 +65,7 @@ Important contract rules:
 - `sigma` is one of `native`, `data`, `effect`, or `unreliable`.
 - Semantic output types must agree with the tool contract. The demo uses `record[]` on both sides.
 - The demo policy uses `lmin: ann` because its synthetic read-only evidence comes from an MCP annotation; an `obs` threshold would correctly exclude annotation-only evidence.
-- A successful discovery response returns the canonical parsed GoalSpec, including `in`, `out`, `eff`, `desc`, and `deps`.
+- A successful discovery response returns the canonical parsed GoalSpec, including `in`, `out`, `eff`, `desc`, and `deps`. Before discovery, review the objective-to-GoalSpec mapping and selected tool metadata, then confirm the Studio human-review checkbox. The API rejects discovery with HTTP 409 when this confirmation is absent; editing the prompt, GoalSpec or tool selection invalidates the confirmation.
 
 An `abstained` result remains a valid safety outcome. Inspect `counterexample`, `gap`, `composition.stats.per_goal`, and the eligible/candidate counts; do not weaken policy or type checks merely to obtain a selected toolkit.
 
@@ -89,6 +95,7 @@ A measured model profile can be configured later through a dedicated Studio conf
 | API exits | Inspect /content/taas-studio.log. |
 | /ready returns 503 | Confirm the generated API token is present in the notebook runtime and rerun launch. |
 | Discovery returns 401 | Paste the current runtime's token into the Studio token field. |
+| Discovery returns 409 | Review the objective, GoalSpec, effects, dependencies and selected tool metadata, then confirm the human-review checkbox. Any subsequent edits require reconfirmation. |
 | Discovery returns 422 | Check GoalSpec, policy and engine fields against the current TaaS core contract. |
 | Colab proxy returns `RpcError(NOT_FOUND)` | Confirm `/health` and `/ready` passed, then verify Uvicorn binds to `0.0.0.0:8000`, not loopback-only. Rerun the proxy-link cell after the server is ready. |
 | Colab proxy fails for another reason | Confirm the runtime remains connected and rerun the proxy-link cell. |
@@ -186,7 +193,7 @@ For a reproducible operator check:
 
 1. In Colab, select **Runtime → Disconnect and delete runtime** to remove stale server processes and proxy state.
 2. Reopen the maintained notebook from the PR link and run every cell from the top.
-3. Confirm the printed commit equals `4a3e4e460f2556f6556b1ef4736f991337cf32c2`.
+3. Confirm the printed commit equals `7859cd76670f00ec54f0b245ca6b257f8cb9c83e`.
 4. Confirm installation/import checks complete, then verify both health and readiness return HTTP 200.
 5. Open the generated proxy URL and connect with the ephemeral token from that runtime only.
 6. Record runtime type, Python version, GPU allocation, model repository/revision, device, precision, load outcome, inference outcome, latency and peak memory when an actual model test is performed.

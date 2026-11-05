@@ -1,0 +1,215 @@
+import pytest
+from fastapi import HTTPException
+
+from taas.studio.api import (
+    canonicalize_declared_plural_types,
+    canonicalize_single_goal_input_dependencies,
+    prepare_agent_candidate,
+    validate_studio_goal_spec,
+)
+from taas.studio.analyst_contract import build_analyst_system_prompt, build_refinement_context
+
+
+def test_declared_plural_type_is_canonicalized_without_mutating_model_object():
+    spec = {
+        "prompt_inputs": ["text"],
+        "goals": [{
+            "id": "g1", "class": "retrieve", "desc": "Retrieve records",
+            "in": ["query"], "out": "records[]", "deps": [],
+        }],
+    }
+    normalized, events = canonicalize_declared_plural_types(spec)
+    assert normalized["goals"][0]["out"] == "record[]"
+    assert events[0]["from"] == "records[]"
+    assert events[0]["to"] == "record[]"
+    assert spec["goals"][0]["out"] == "records[]"
+
+
+def test_undeclared_plural_type_is_not_guessed():
+    spec = {
+        "prompt_inputs": ["text"],
+        "goals": [{
+            "id": "g1", "class": "retrieve", "desc": "Retrieve widgets",
+            "in": ["query"], "out": "widgets[]", "deps": [],
+        }],
+    }
+    normalized, events = canonicalize_declared_plural_types(spec)
+    assert normalized["goals"][0]["out"] == "widgets[]"
+    assert events == []
+
+
+def test_exact_user_objective_replaces_truncated_model_echo():
+    objective = "Retrieve records matching the provided query from the configured source."
+    candidate = {
+        "text": "model raw output",
+        "goal_spec": {
+            "prompt": "Retrieve records matching the provided query from the configured sourc",
+            "prompt_inputs": ["text"],
+            "goals": [{
+                "id": "g1", "class": "retrieve", "desc": "Retrieve records",
+                "in": ["query"], "out": "records[]", "deps": [],
+            }],
+        },
+    }
+    prepared = prepare_agent_candidate(candidate, objective)
+    assert prepared["goal_spec"]["prompt"] == objective
+    assert prepared["objective_prompt_preserved"] is True
+    assert prepared["normalization_events"][0]["to"] == "record[]"
+    assert candidate["goal_spec"]["prompt"].endswith("sourc")
+
+
+def _retrieval_goal_spec(effects):
+    return {
+        "prompt": "Retrieve records matching the provided query from the configured source.",
+        "prompt_inputs": ["text"],
+        "goals": [{
+            "id": "retrieve_records",
+            "desc": "Retrieve records matching the provided query from the configured source",
+            "class": "retrieve",
+            "in": ["query"],
+            "out": "record[]",
+            "eff": effects,
+            "sigma": "data",
+            "n": 100,
+            "exactness": "tolerant",
+            "deps": [],
+            "lang": "en",
+            "optional": False,
+        }],
+    }
+
+
+def test_retrieval_effect_contract_accepts_read_without_internal_exec():
+    validate_studio_goal_spec(_retrieval_goal_spec(["read(source)"]))
+
+
+def test_execute_query_is_rejected_as_an_invalid_effect():
+    with pytest.raises(HTTPException) as exc:
+        validate_studio_goal_spec(_retrieval_goal_spec(["read(source)", "execute(query)"]))
+    assert "invalid effect 'execute(query)'" in exc.value.detail
+
+
+def test_analyst_prompt_and_refinement_explain_retrieval_effect_semantics():
+    prompt = build_analyst_system_prompt()
+    refinement = build_refinement_context(
+        "Retrieve records matching the provided query from the configured source.",
+        '{"eff":["execute(query)"]}',
+        [{"code": "goalspec_structural_nonconformance", "severity": "error",
+          "message": "invalid effect execute(query)"}],
+    )
+    for text in (prompt, refinement):
+        assert "execute(query)" in text
+        assert "read(source)" in text
+        assert "backend implementation details" in text
+
+
+
+def test_single_goal_query_input_is_not_a_goal_dependency():
+    spec = _retrieval_goal_spec(["read(source)"])
+    spec["prompt_inputs"] = ["query"]
+    spec["goals"][0]["in"] = ["query"]
+    spec["goals"][0]["deps"] = []
+    validate_studio_goal_spec(spec)
+
+
+def test_prompt_input_name_cannot_be_used_as_a_dependency_id():
+    spec = _retrieval_goal_spec(["read(source)"])
+    spec["prompt_inputs"] = ["query"]
+    spec["goals"][0]["in"] = ["query"]
+    spec["goals"][0]["deps"] = ["query"]
+    with pytest.raises(HTTPException, match="unknown dependency"):
+        validate_studio_goal_spec(spec)
+
+
+def test_analyst_prompt_and_refinement_define_dependency_namespace():
+    prompt = build_analyst_system_prompt()
+    refinement = build_refinement_context(
+        "Retrieve records matching the provided query from the configured source.",
+        '{"prompt_inputs":["query"],"deps":["query"]}',
+        [{"code": "goalspec_structural_nonconformance", "severity": "error",
+          "message": "goal retrieve_records references unknown dependency 'query'"}],
+    )
+    for text in (prompt, refinement):
+        assert "deps" in text
+        assert "goal IDs" in text
+        assert "input names" in text
+        assert "single-goal" in text
+
+
+
+def test_single_goal_input_name_dependency_is_removed_with_provenance():
+    objective = "Retrieve records matching the provided query from the configured source."
+    raw = (
+        '{"prompt_inputs":["query"],"goals":[{"id":"retrieve_records",'
+        '"in":["query"],"out":"records[]","deps":["query"]}]}'
+    )
+    candidate = {
+        "text": raw,
+        "goal_spec": {
+            "prompt": objective,
+            "prompt_inputs": ["query"],
+            "goals": [{
+                "id": "retrieve_records",
+                "desc": objective,
+                "class": "retrieve",
+                "in": ["query"],
+                "out": "records[]",
+                "eff": ["read(source)"],
+                "sigma": "data",
+                "n": 100,
+                "exactness": "tolerant",
+                "deps": ["query"],
+                "lang": "en",
+                "optional": False,
+            }],
+        },
+    }
+
+    prepared = prepare_agent_candidate(candidate, objective)
+
+    assert prepared["goal_spec"]["goals"][0]["deps"] == []
+    assert prepared["goal_spec"]["goals"][0]["out"] == "record[]"
+    assert prepared["normalization_events"] == [
+        {
+            "path": "goals[0].out",
+            "from": "records[]",
+            "to": "record[]",
+            "rule": "trailing_plural_s_to_declared_theta_type",
+        },
+        {
+            "path": "goals[0].deps",
+            "from": ["query"],
+            "to": [],
+            "removed": ["query"],
+            "rule": "single_goal_input_name_not_dependency",
+            "reason": (
+                "A dependency must reference another goal ID; this one-goal candidate "
+                "declared the removed value as an input name, not as a goal."
+            ),
+        },
+    ]
+    assert prepared["text"] == raw
+    validate_studio_goal_spec(prepared["goal_spec"])
+
+
+def test_multi_goal_dependency_graph_is_never_canonicalized_by_input_name_rule():
+    spec = {
+        "prompt_inputs": ["query"],
+        "goals": [
+            {"id": "g1", "in": ["query"], "deps": []},
+            {"id": "g2", "in": ["query"], "deps": ["query"]},
+        ],
+    }
+    normalized, events = canonicalize_single_goal_input_dependencies(spec)
+    assert normalized == spec
+    assert events == []
+
+
+def test_unknown_single_goal_dependency_is_not_removed():
+    spec = {
+        "prompt_inputs": ["query"],
+        "goals": [{"id": "g1", "in": ["query"], "deps": ["missing_goal"]}],
+    }
+    normalized, events = canonicalize_single_goal_input_dependencies(spec)
+    assert normalized["goals"][0]["deps"] == ["missing_goal"]
+    assert events == []

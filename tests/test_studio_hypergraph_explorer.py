@@ -58,6 +58,7 @@ def test_live_studio_api_projects_real_core_discovery(monkeypatch):
     assert 'id="hg-canvas"' in home.text
 
     payload = {
+        "human_review_confirmed": True,
         "goal_spec": {
             "prompt": "List orders for a customer",
             "prompt_inputs": ["identifier"],
