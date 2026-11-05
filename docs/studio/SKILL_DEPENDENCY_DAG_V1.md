@@ -49,3 +49,29 @@ The current trigger-phrase selection behavior remains unchanged. Dependency reso
 ## Acceptance
 
 `tests/test_skill_dependency_graph.py` covers legacy canonical compatibility, strict dependency pins, deterministic topological order, exact digest checks, unpublished dependencies, cycles, conflicting versions, graph bounds and Agent transitive materialization.
+
+
+## Hypergraph Explorer integration
+
+The authenticated endpoint `GET /api/v1/hypergraph/skills/{skill_id}/versions/{version}`
+resolves the exact published root and its transitive dependencies through the
+Skill Dependency DAG resolver, then projects that result into the shared
+`taas.hypergraph-projection/v1` envelope.
+
+The projection domain is explicitly `skill_dependency_dag`:
+
+- Skill vertices preserve the exact ID, semantic version, canonical manifest
+  SHA-256, lifecycle state, registry source and root/dependency role.
+- Directed `depends_on` hyperedges preserve the source and target pins.
+- The graph digest and deterministic topological order are carried as
+  provenance metadata.
+- Dependency edges explicitly have no authorization or execution effect.
+
+The Hypergraph Explorer exposes a read-only Skill DAG inspector alongside the
+existing semantic capability projection. It renders server-returned nodes,
+edges and digests; it does not compute graph semantics in the browser.
+
+This is a separate graph domain within the same projection envelope. Skill
+nodes and dependency edges are not semantic data types, tools, model edges,
+trust evidence, policy decisions, or execution routes. Invalid or unresolved
+graphs fail closed (404 for missing records, 409 for inconsistent DAGs).
