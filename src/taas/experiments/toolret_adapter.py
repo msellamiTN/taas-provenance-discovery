@@ -207,15 +207,30 @@ def adapt_toolret_hf(
         raise ValueError("ToolRet query and tool config lists must both be non-empty")
 
     task_records, corpus_records = [], []
+    excluded_query_rows = []
+    raw_query_rows = 0
     for config in q_configs:
         dataset = load_dataset(query_repo, config, revision=query_revision)
         split_name = "queries" if "queries" in dataset else next(iter(dataset.keys()))
-        for row in dataset[split_name]:
+        for row_index, row in enumerate(dataset[split_name]):
+            raw_query_rows += 1
             record = dict(row) | {"task": config}
             # Dataset IDs are only guaranteed unique inside their source config.
-            raw_id = str(record.get("id", record.get("task_id", ""))).strip()
-            if raw_id:
-                record["id"] = f"{config}::{raw_id}"
+            raw_id = str(record.get("id", record.get("task_id", "")) or "").strip()
+            query_value = record.get("query", record.get("prompt"))
+            query = str(query_value).strip() if query_value is not None else ""
+            if not query:
+                # Do not substitute the retrieval instruction for the user query:
+                # they are distinct benchmark conditions in the ToolRet paper.
+                excluded_query_rows.append({
+                    "config": config, "row_index": row_index,
+                    "source_id": raw_id or None,
+                    "reason": "missing_or_empty_query",
+                })
+                continue
+            if not raw_id:
+                raw_id = f"row_{row_index}"
+            record["id"] = f"{config}::{raw_id}"
             record["category"] = record.get("category") or config
             task_records.append(record)
     for config in t_configs:
@@ -235,8 +250,13 @@ def adapt_toolret_hf(
     }
     manifest["counts"]["query_configs"] = len(q_configs)
     manifest["counts"]["tool_configs"] = len(t_configs)
-    manifest["counts"]["raw_query_rows"] = len(task_records)
+    manifest["counts"]["raw_query_rows"] = raw_query_rows
+    manifest["counts"]["excluded_query_rows"] = len(excluded_query_rows)
     manifest["counts"]["qrel_tasks"] = manifest["counts"]["tasks_with_qrels"]
+    manifest["data_quality"] = {
+        "excluded_query_rows": excluded_query_rows,
+        "policy": "Rows without a non-empty query are excluded and reported; instruction is never substituted for query.",
+    }
     manifest["source_revisions"]["query_config_row_counts"] = {
         config: sum(1 for row in task_records if row.get("task") == config)
         for config in q_configs
