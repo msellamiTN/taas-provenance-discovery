@@ -52,6 +52,15 @@ def _connect() -> sqlite3.Connection:
         BEFORE UPDATE ON skill_events BEGIN SELECT RAISE(ABORT, 'Skill lifecycle events are append-only'); END""")
     db.execute("""CREATE TRIGGER IF NOT EXISTS skill_events_no_delete
         BEFORE DELETE ON skill_events BEGIN SELECT RAISE(ABORT, 'Skill lifecycle events are append-only'); END""")
+    db.execute("""CREATE TABLE IF NOT EXISTS skill_revocations (
+        skill_id TEXT NOT NULL, version TEXT NOT NULL, manifest_sha256 TEXT NOT NULL,
+        revoked_by TEXT NOT NULL, reason TEXT NOT NULL, occurred_at TEXT NOT NULL,
+        PRIMARY KEY (skill_id, version),
+        FOREIGN KEY (skill_id, version) REFERENCES skill_versions(skill_id, version))""")
+    db.execute("""CREATE TRIGGER IF NOT EXISTS skill_revocations_no_update
+        BEFORE UPDATE ON skill_revocations BEGIN SELECT RAISE(ABORT, 'Skill revocations are immutable'); END""")
+    db.execute("""CREATE TRIGGER IF NOT EXISTS skill_revocations_no_delete
+        BEFORE DELETE ON skill_revocations BEGIN SELECT RAISE(ABORT, 'Skill revocations are immutable'); END""")
     if os.name == "posix":
         try:
             os.chmod(path.parent, 0o700); os.chmod(path, 0o600)
@@ -92,6 +101,69 @@ def create_draft(manifest: dict[str, Any], actor: str = "studio-api") -> dict[st
         db.close()
     return get_version(skill_id,version)
 
+def is_revoked(skill_id: str, version: str) -> bool:
+    db = _connect()
+    try:
+        row = db.execute(
+            "SELECT 1 FROM skill_revocations WHERE skill_id=? AND version=?",
+            (skill_id, version),
+        ).fetchone()
+    finally:
+        db.close()
+    return row is not None
+
+
+def get_revocation(skill_id: str, version: str) -> dict[str, Any] | None:
+    db = _connect()
+    try:
+        row = db.execute(
+            "SELECT skill_id,version,manifest_sha256,revoked_by,reason,occurred_at "
+            "FROM skill_revocations WHERE skill_id=? AND version=?",
+            (skill_id, version),
+        ).fetchone()
+    finally:
+        db.close()
+    return dict(row) if row is not None else None
+
+
+def revoke_version(skill_id: str, version: str, *, reason: str,
+                   actor: str = "studio-api") -> dict[str, Any]:
+    """Record an immutable revocation for a Skill version.
+
+    Revocation never deletes or mutates the Skill version; it marks it unfit
+    for new bindings. Existing immutable references remain inspectable.
+    """
+    if not isinstance(reason, str) or not reason.strip() or len(reason) > 500:
+        raise SkillRegistryConflict("Revocation reason must be 1-500 characters")
+    db = _connect()
+    try:
+        db.execute("BEGIN IMMEDIATE")
+        row = db.execute("SELECT lifecycle_state,manifest_sha256 FROM skill_versions "
+                         "WHERE skill_id=? AND version=?", (skill_id, version)).fetchone()
+        if row is None:
+            db.rollback()
+            raise SkillRegistryNotFound(f"Skill version {skill_id}@{version} was not found")
+        if row["lifecycle_state"] == "draft":
+            db.rollback()
+            raise SkillRegistryConflict("Draft Skill versions cannot be revoked")
+        now = _now()
+        try:
+            db.execute("""INSERT INTO skill_revocations
+                (skill_id,version,manifest_sha256,revoked_by,reason,occurred_at)
+                VALUES (?,?,?,?,?,?)""",
+                (skill_id, version, row["manifest_sha256"], actor, reason.strip(), now))
+        except sqlite3.IntegrityError as exc:
+            db.rollback()
+            raise SkillRegistryConflict(f"Skill version {skill_id}@{version} is already revoked") from exc
+        _event(db, skill_id=skill_id, version=version, event_type="skill.revoked",
+               from_state=row["lifecycle_state"], to_state="revoked",
+               digest=row["manifest_sha256"], actor=actor, occurred_at=now)
+        db.commit()
+    finally:
+        db.close()
+    return get_revocation(skill_id, version)
+
+
 def get_version(skill_id: str, version: str) -> dict[str, Any]:
     db=_connect()
     try:
@@ -101,6 +173,7 @@ def get_version(skill_id: str, version: str) -> dict[str, Any]:
     if row is None: raise SkillRegistryNotFound(f"Skill version {skill_id}@{version} was not found")
     return {"skill_id":row["skill_id"],"version":row["version"],"manifest":json.loads(row["manifest_json"]),
             "manifest_sha256":row["manifest_sha256"],"lifecycle_state":row["lifecycle_state"],
+            "revoked": is_revoked(skill_id, version),
             "created_at":row["created_at"],"updated_at":row["updated_at"]}
 
 def list_versions(skill_id: str | None = None, limit: int = 100) -> dict[str, Any]:
@@ -113,7 +186,8 @@ def list_versions(skill_id: str | None = None, limit: int = 100) -> dict[str, An
             rows=db.execute("""SELECT skill_id,version,manifest_sha256,lifecycle_state,created_at,updated_at
                 FROM skill_versions WHERE skill_id=? ORDER BY created_at DESC,version LIMIT ?""",(skill_id,limit)).fetchall()
     finally: db.close()
-    return {"count":len(rows),"versions":[dict(row) for row in rows],"persistence":"sqlite","tenant_isolation":False}
+    versions = [{**dict(row), "revoked": is_revoked(row["skill_id"], row["version"])} for row in rows]
+    return {"count":len(versions),"versions":versions,"persistence":"sqlite","tenant_isolation":False}
 
 def transition(skill_id: str, version: str, target_state: str, actor: str = "studio-api") -> dict[str, Any]:
     allowed={"draft":"validated","validated":"published"}
