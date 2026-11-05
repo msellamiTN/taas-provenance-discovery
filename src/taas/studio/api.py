@@ -1316,7 +1316,7 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
         result["objective_contract_v3"] = objective_contract_v3
         result["objective_intelligence_v3"] = {
             "schema": "taas.objective-intelligence/v1",
-            "status": "clarification_required" if objective_contract_v3.get("clarifications") else "ready_for_human_review",
+            "status": "clarification_required" if any(item.get("blocking") is True for item in objective_contract_v3.get("clarifications", [])) else "ready_for_human_review",
             "structurally_valid": not objective_contract_v3_errors,
             "validation_errors": objective_contract_v3_errors,
             "blocking_clarification_count": sum(1 for item in objective_contract_v3.get("clarifications", []) if item.get("blocking") is True),
