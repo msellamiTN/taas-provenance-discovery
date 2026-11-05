@@ -64,10 +64,10 @@
         "registry_evolution"
       ],
       "status": "candidate_external",
-      "url": "https://github.com/hailsham/mcpverse",
-      "version": "v1.1_snapshot_to_verify",
-      "license": "verify_at_acquisition",
-      "notes": "Prefer time-invariant task subset; pin exact commit and verify live server availability."
+      "url": "https://github.com/hailsham/mcpverse/blob/995cc9eab953120c760b90d4e8e41ffa7fdc88f1/mcpverse/data/mcpverse_time_invariant_v1.1.csv",
+      "version": "995cc9eab953120c760b90d4e8e41ffa7fdc88f1",
+      "license": "Apache-2.0 (repository license; verify task/data component terms before redistribution)",
+      "notes": "The pinned v1.1 time-invariant CSV is task metadata only (question_id, question, MCP, tool, complexity, answer, eval_method, time-sensitive). It does not provide full tool schemas. Use the MCPVerse native runtime for execution; LLM-as-a-judge rows remain judge-based."
     },
     {
       "id": "toolathlon",
