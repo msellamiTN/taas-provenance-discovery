@@ -169,6 +169,59 @@ def test_discovery_abstention_does_not_manufacture_hypergraph_projection(monkeyp
     assert data["execution_performed"] is False
 
 
+
+def test_objective_prepare_exposes_v3_contract_and_never_authorizes_discovery(monkeypatch):
+    import taas.studio.api as api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+
+    class FakeRuntime:
+        def decompose(self, prompt, context, max_new_tokens):
+            return {
+                "json_valid": True,
+                "text": "{\"goal_spec\": {\"goals\": []}}",
+                "model_id": "test-model",
+                "latency_seconds": 0.01,
+                "goal_spec": {
+                    "prompt": prompt,
+                    "prompt_inputs": ["text"],
+                    "goals": [{
+                        "id": "g1", "class": "search", "in": ["text"],
+                        "out": "record[]", "eff": ["read(web)"],
+                        "sigma": "data", "deps": [], "desc": "Search the web for research papers.",
+                    }],
+                },
+            }
+
+    monkeypatch.setattr(api, "get_model_runtime", lambda: FakeRuntime())
+    response = client.post(
+        "/api/v1/objectives/prepare",
+        headers={"Authorization": "Bearer test-token"},
+        json={"provider": "huggingface", "prompt": "Search the web for research papers."},
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    contract = data["objective_contract_v3"]
+    view = data["objective_intelligence_v3"]
+    assert contract["schema"] == "taas.objective-contract/v3"
+    assert contract["objective"]["text"] == "Search the web for research papers."
+    assert view["structurally_valid"] is True
+    assert view["semantic_correctness_verified"] is False
+    assert view["discovery_authorized"] is False
+    assert data["workflow"]["tool_execution"] == "disabled"
+
+
+def test_studio_frontend_renders_v3_clarifications_and_blocks_apply():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    assert 'id="agent-objective-contract-v3"' in page
+    assert "renderObjectiveContractV3" in page
+    assert "blocking_clarification_count" in page
+    assert "&&!v3Blockers" in page
+    assert "v3StructurallyValid=result.objective_intelligence_v3?.structurally_valid===true" in page
+    assert "&&!v3Blockers&&v3StructurallyValid" in page
+
 def test_default_profile_is_uncalibrated_and_fail_closed(monkeypatch):
     from taas.studio.api import load_profile
 

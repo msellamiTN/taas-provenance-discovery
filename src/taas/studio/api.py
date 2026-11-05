@@ -40,6 +40,7 @@ from taas.studio.runtime import estimate_model_memory, probe_hardware, probe_run
 from taas.studio.model_runtime import ModelRuntimeError, get_model_runtime
 from taas.studio.analyst_contract import validate_theta_types, build_refinement_context, load_analyst_contract
 from taas.studio.objective_contract import (build_objective_context, derive_objective_contract, diagnose_objective_alignment, build_outcome_coverage)
+from taas.studio.objective_contract_v3 import derive_objective_contract_v3, validate_objective_contract_v3
 from taas.studio.ollama_runtime import get_ollama_runtime
 from taas.studio.mcp_registry import MCPRegistryError, inspect_server as inspect_mcp_server, list_servers as list_mcp_servers
 from taas.types import KINDS
@@ -1125,6 +1126,8 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
         # TaaS Core contributes an objective frame before generation. The model is
         # not given the MCP registry; capability matching remains a later Core stage.
         objective_contract = derive_objective_contract(request.prompt)
+        objective_contract_v3 = derive_objective_contract_v3(request.prompt)
+        objective_contract_v3_errors = validate_objective_contract_v3(objective_contract_v3)
         objective_context = build_objective_context(request.prompt)
         base_context = request.context.strip()
         if base_context:
@@ -1310,6 +1313,16 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
 
         # Return the full deterministic objective frame as inspectable provenance.
         result["objective_contract"] = objective_contract
+        result["objective_contract_v3"] = objective_contract_v3
+        result["objective_intelligence_v3"] = {
+            "schema": "taas.objective-intelligence/v1",
+            "status": "clarification_required" if any(item.get("blocking") is True for item in objective_contract_v3.get("clarifications", [])) else "ready_for_human_review",
+            "structurally_valid": not objective_contract_v3_errors,
+            "validation_errors": objective_contract_v3_errors,
+            "blocking_clarification_count": sum(1 for item in objective_contract_v3.get("clarifications", []) if item.get("blocking") is True),
+            "semantic_correctness_verified": False,
+            "discovery_authorized": False,
+        }
         result["objective_coverage"] = build_outcome_coverage(
             request.prompt,
             result.get("goal_spec") if isinstance(result.get("goal_spec"), dict) else None,
