@@ -659,6 +659,21 @@ def evaluate_track(
             },
         }
 
+    secondary_metrics = {}
+    if track.secondary_qrels:
+        for baseline, per_task in rankings.items():
+            secondary_metrics[baseline] = ranking_metrics(
+                per_task, track.secondary_qrels, ks=K_VALUES
+            )
+        (output_dir / f"{track.dataset_id}_similar_tools_sensitivity_metrics.json").write_text(
+            json.dumps({
+                "label_semantics": "primary target plus source-annotated similar_tools",
+                "not_primary_gold": True,
+                "metrics": secondary_metrics,
+            }, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+
     paired = []
     if "bm25" in rankings:
         for competitor in ("tfidf", "dense_lsa", "random", "e5_dense", "bm25_e5_rrf", "cross_encoder"):
@@ -709,6 +724,7 @@ def evaluate_track(
         "metrics": metrics,
         "paired_tests": paired,
         "candidate_recall_at_100": candidate_recall,
+        "similar_tools_sensitivity_metrics": secondary_metrics,
     }
 
 
@@ -1020,6 +1036,10 @@ def run_campaign(
             "paired_tests_file": f"{track.dataset_id}_paired_tests.json",
             "elapsed_seconds": time.perf_counter() - start,
             "candidate_recall_at_100": result["candidate_recall_at_100"],
+            "similar_tools_sensitivity_metrics": (
+                f"{track.dataset_id}_similar_tools_sensitivity_metrics.json"
+                if result["similar_tools_sensitivity_metrics"] else None
+            ),
         }
 
     # B1/B1m and planning/agent adapters are not silently replaced by other corpora.
