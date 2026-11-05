@@ -119,3 +119,46 @@ def test_v3_validator_rejects_forged_clause_reference_and_span():
     errors = validate_objective_contract_v3(contract)
     assert "outcome_clause_ref_invalid" in errors
     assert "clause_span_text_mismatch" in errors
+
+
+
+def test_v3_extracts_only_explicit_unambiguous_cross_clause_dependency():
+    objective = "Search the sources. Then summarize the results."
+    contract = derive_objective_contract_v3(objective)
+
+    assert len(contract["dependencies"]) == 1
+    relation = contract["dependencies"][0]
+    assert relation["type"] == "precedes"
+    assert relation["source_clause_refs"] == ["clause_1", "clause_2"]
+    assert relation["from_outcome"] == "outcome_1"
+    assert relation["to_outcome"] == "outcome_2"
+    evidence = relation["source_evidence"][0]
+    assert objective[evidence["start"]:evidence["end"]] == "Then"
+    target = next(item for item in contract["outcomes"] if item["id"] == "outcome_2")
+    assert target["depends_on"] == ["outcome_1"]
+    assert contract["review"]["semantic_correctness_verified"] is False
+    assert contract["review"]["discovery_blocked"] is True
+    assert validate_objective_contract_v3(contract) == []
+
+
+def test_v3_does_not_guess_dependency_endpoints_when_prior_clause_has_multiple_outcomes():
+    contract = derive_objective_contract_v3(
+        "Search and retrieve the sources. Then summarize the results."
+    )
+    assert contract["dependencies"] == []
+    assert any(
+        item["reason"] == "dependency_endpoints_ambiguous"
+        for item in contract["clarifications"]
+    )
+    assert contract["review"]["discovery_blocked"] is True
+
+
+def test_v3_validator_rejects_forged_dependency_evidence_and_dangling_endpoint():
+    contract = derive_objective_contract_v3(
+        "Search the sources. Then summarize the results."
+    )
+    contract["dependencies"][0]["source_evidence"][0]["text"] = "forged"
+    contract["dependencies"][0]["to_outcome"] = "missing"
+    errors = validate_objective_contract_v3(contract)
+    assert "dependency_evidence_span_text_mismatch" in errors
+    assert "dependency_outcome_ref_invalid" in errors
