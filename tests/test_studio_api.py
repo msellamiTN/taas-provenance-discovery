@@ -1033,6 +1033,16 @@ def test_visual_goal_editor_requires_authored_goal_description():
     assert "goal description is required; describe the intended operation" in response.text
 
 
+def test_api_json_parsing_survives_empty_or_truncated_proxy_responses():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text.replace("\r\n", "\n")
+    assert "const readJsonResponse = async (response) =>" in page
+    assert "empty response body; the request may have been cut by a proxy timeout" in page
+    assert page.count("readJsonResponse(response)") + page.count("readJsonResponse(r)") >= 10
+    assert ".json()" not in page
+
+
 
 def test_studio_navigation_shell_has_valid_targets_and_accessible_skip_link():
     from pathlib import Path
