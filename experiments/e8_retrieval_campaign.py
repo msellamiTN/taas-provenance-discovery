@@ -442,7 +442,7 @@ def _per_task_metric(
 
 def _paired_sign_flip_pvalue(
     left: Mapping[str, float], right: Mapping[str, float], clusters: Mapping[str, str] | None,
-    seed: int = 20261105, permutations: int = 20000,
+    seed: int = 20261105, permutations: int = 5000,
 ) -> dict[str, Any]:
     """Two-sided paired sign-flip test over tasks or independent server clusters."""
     ids = sorted(set(left) & set(right))
@@ -470,13 +470,16 @@ def _paired_sign_flip_pvalue(
         p_value = exceed / total
         method = "exact sign flip"
     else:
-        rng = random.Random(seed)
+        rng = np.random.default_rng(seed)
         exceed = 0
         total = permutations
-        for _ in range(permutations):
-            value = abs(sum(sample if rng.getrandbits(1) else -sample
-                            for sample in samples) / n)
-            exceed += value >= observed - 1e-15
+        sample_array = np.asarray(samples, dtype=float)
+        chunk_size = 256
+        for offset in range(0, permutations, chunk_size):
+            count = min(chunk_size, permutations - offset)
+            signs = rng.choice(np.array([-1.0, 1.0]), size=(count, n))
+            values = np.abs((signs * sample_array[None, :]).mean(axis=1))
+            exceed += int(np.count_nonzero(values >= observed - 1e-15))
         p_value = (exceed + 1) / (total + 1)
         method = "Monte Carlo sign flip"
     return {
@@ -511,9 +514,15 @@ def _paired_bootstrap_ci(
     else:
         units = [diffs[task_id] for task_id in ids]
         unit_name = "task"
-    rng = random.Random(seed)
-    draws = sorted(sum(rng.choices(units, k=len(units))) / len(units)
-                   for _ in range(resamples))
+    rng = np.random.default_rng(seed)
+    unit_values = np.asarray(units, dtype=float)
+    draws = np.empty(resamples, dtype=float)
+    chunk_size = 256
+    for offset in range(0, resamples, chunk_size):
+        count = min(chunk_size, resamples - offset)
+        indices = rng.integers(0, len(unit_values), size=(count, len(unit_values)))
+        draws[offset:offset + count] = unit_values[indices].mean(axis=1)
+    draws.sort()
     lo = int(0.025 * resamples)
     hi = min(resamples - 1, int(0.975 * resamples))
     return {
