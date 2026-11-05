@@ -116,12 +116,18 @@ def derive_objective_contract(
     lower = text.casefold()
     total = bool(re.search(r"\b(sum|summation|total|aggregate|average|avg|mean|median|minimum|maximum|calculate\s+(?:the\s+)?(?:total|average)|somme|totaliser|calculer\s+(?:le\s+)?(?:total|la\s+somme|la\s+moyenne)|moyenne|médiane|mediane)\b", lower))
     count = bool(re.search(r"\b(count|how many|number of|compter|combien de|nombre de)\b", lower))
+    year_difference = bool(re.search(
+        r"\byear\s+difference\s+between\b|"
+        r"\bdifference\s+in\s+years\s+between\b|"
+        r"\b(?:calculate|compute|find|get)\s+(?:the\s+)?(?:year\s+)?difference\s+between\b",
+        lower,
+    ))
     summary = bool(re.search(r"\b(summarize|summarise|summary|résumer|resumer|résumé|resume|synthétiser|synthetiser)\b", lower))
     compare = bool(re.search(r"\b(compare|comparison|versus|vs|comparer|comparaison)\b", lower))
     search_intent = bool(re.search(r"\b(search|look\s+up|find|discover|research|chercher|rechercher|trouver|étudier|etudier)\b", lower))
     retrieval_intent = bool(re.search(r"\b(retrieve|fetch|load|collect|list|show|get|récupérer|recuperer|charger|collecter|lister|afficher|obtenir)\b", lower))
     operation = (
-        "aggregate" if total else "count" if count else "summarise" if summary
+        "compute_exact" if year_difference else "aggregate" if total else "count" if count else "summarise" if summary
         else "compare" if compare else "search" if search_intent
         else "retrieve" if retrieval_intent else "general"
     )
@@ -172,6 +178,7 @@ def derive_objective_contract(
     elif source_data_required:
         required.append("retrieve")
     for cue, cls in (
+        (year_difference, "compute_exact"),
         (total, "aggregate"), (count, "count"), (summary, "summarise"),
         (compare, "compare"),
         (bool(re.search(r"\b(classify|categorize|categorise|label|detect|identify\s+anomalies|classer|classifier|catégoriser|categoriser|détecter|detecter)\b", lower)), "classify"),
@@ -285,9 +292,9 @@ def derive_objective_contract(
             "date_or_range_constraint": temporal is not None,
         },
         "computation": {
-            "numeric_result_required": bool(count or (total and not grouped_aggregation)),
+            "numeric_result_required": bool(year_difference or count or (total and not grouped_aggregation)),
             "grouped_result_required": grouped_aggregation,
-            "exactness_required": "exact" if total or count else None,
+            "exactness_required": "exact" if year_difference or total or count else None,
         },
         "temporal": temporal,
         "unresolved_concepts": sorted(unresolved),
@@ -314,9 +321,9 @@ def derive_objective_contract(
         },
         "operation": operation,
         "required_goal_classes": required,
-        "numeric_result_required": bool(count or (total and not grouped_aggregation)),
+        "numeric_result_required": bool(year_difference or count or (total and not grouped_aggregation)),
         "grouped_result_required": grouped_aggregation,
-        "exactness_required": "exact" if total or count else None,
+        "exactness_required": "exact" if year_difference or total or count else None,
         "scope": {
             "all_matching_items": all_scope,
             "date_or_range_constraint": temporal is not None,
@@ -427,7 +434,7 @@ def diagnose_objective_alignment(objective: str, spec: dict[str, Any]) -> list[d
 
     numeric_ops = [g for g in goals if str(g.get("class", "")).casefold()
                    in {"aggregate", "compute_exact", "count"}]
-    required_numeric_classes = set(contract["required_goal_classes"]) & {"aggregate", "count"}
+    required_numeric_classes = set(contract["required_goal_classes"]) & {"aggregate", "count", "compute_exact"}
     required_numeric_goals = [
         g for g in numeric_ops
         if str(g.get("class", "")).casefold() in required_numeric_classes
