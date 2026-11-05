@@ -305,7 +305,11 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     .hg-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.hg-actions button{margin:0;white-space:nowrap}.hg-actions .secondary{background:#fff}
     @media(max-width:850px){.hg-layout{grid-template-columns:1fr}.hg-inspector{border-left:0;border-top:1px solid var(--line)}}
 
-\n/* Compact, readable navigation on tablet and mobile. */\n@media(max-width:900px){.studio-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:4px}.studio-nav .nav-brand{grid-column:1/-1;width:auto}.studio-nav a{min-width:0;overflow-wrap:anywhere;line-height:1.35}}\n@media(max-width:560px){.studio-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;padding:9px}.studio-nav a{min-height:36px;padding:7px 8px;font-size:11px}}\n
+
+/* Compact, readable navigation on tablet and mobile. */
+@media(max-width:900px){.studio-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:4px}.studio-nav .nav-brand{grid-column:1/-1;width:auto}.studio-nav a{min-width:0;overflow-wrap:anywhere;line-height:1.35}}
+@media(max-width:560px){.studio-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;padding:9px}.studio-nav a{min-height:36px;padding:7px 8px;font-size:11px}}
+
   .outcome-coverage{margin:12px 0;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface,#fff)}
   .outcome-coverage-summary{font-size:13px;font-weight:650;margin-bottom:9px;color:var(--text)}
   .outcome-coverage-table{width:100%;border-collapse:collapse;font-size:12px}
