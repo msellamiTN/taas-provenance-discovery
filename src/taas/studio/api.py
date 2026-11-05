@@ -274,6 +274,129 @@ def canonicalize_declared_plural_types(spec: dict[str, Any]) -> tuple[dict[str, 
     return candidate, events
 
 
+def canonicalize_retrieval_target_inputs(
+    spec: dict[str, Any],
+    objective_contract: dict[str, Any] | None,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Remove a retrieved-record target incorrectly emitted as a user/source input.
+
+    This narrow repair applies only when the Objective Contract says source data
+    is required but no user-supplied content is expected, and a retrieve goal
+    labels its input with an undeclared collection placeholder ending in
+    '_records' (or exactly 'records'). The retrieved collection remains the
+    goal output and its business concept remains in the authored description.
+    No schema/domain is inferred; the event is retained for human review.
+    """
+    candidate = copy.deepcopy(spec)
+    constraints = objective_contract.get("constraints") if isinstance(objective_contract, dict) else None
+    inputs_contract = constraints.get("inputs") if isinstance(constraints, dict) else None
+    if not isinstance(inputs_contract, dict):
+        return candidate, []
+    if inputs_contract.get("source_data_required") is not True or inputs_contract.get("user_supplied_content") is not False:
+        return candidate, []
+
+    try:
+        _, theta = load_analyst_contract()
+    except RuntimeError:
+        return candidate, []
+    allowed_types = set(theta.get("common_types", []))
+    if "record[]" not in allowed_types:
+        return candidate, []
+
+    def is_retrieved_collection_placeholder(value: Any) -> bool:
+        return (
+            isinstance(value, str)
+            and value not in allowed_types
+            and (value == "records" or bool(re.fullmatch(r"[a-z][a-z0-9_]*_records", value)))
+        )
+
+    goals = candidate.get("goals")
+    if not isinstance(goals, list):
+        return candidate, []
+    removed_values: set[str] = set()
+    events: list[dict[str, Any]] = []
+    for index, goal in enumerate(goals):
+        if not isinstance(goal, dict) or goal.get("class") != "retrieve":
+            continue
+        values = goal.get("in")
+        if not isinstance(values, list):
+            continue
+        removed = [value for value in values if is_retrieved_collection_placeholder(value)]
+        if not removed:
+            continue
+        goal["in"] = [value for value in values if value not in removed]
+        removed_values.update(removed)
+        events.append({
+            "path": f"goals[{index}].in",
+            "from": copy.deepcopy(values),
+            "to": copy.deepcopy(goal["in"]),
+            "removed": copy.deepcopy(removed),
+            "rule": "retrieved_collection_is_output_not_source_input",
+            "reason": (
+                "The Objective Contract requires configured source data and states that no user-supplied "
+                "content is expected. The retrieved collection is represented by the retrieve goal output; "
+                "its business concept remains in the goal description."
+            ),
+        })
+
+    prompt_inputs = candidate.get("prompt_inputs")
+    if isinstance(prompt_inputs, list) and removed_values:
+        removed_prompt_inputs = [
+            value for value in prompt_inputs
+            if isinstance(value, str) and value in removed_values
+        ]
+        if removed_prompt_inputs:
+            candidate["prompt_inputs"] = [
+                value for value in prompt_inputs if value not in removed_prompt_inputs
+            ]
+            events.append({
+                "path": "prompt_inputs",
+                "from": copy.deepcopy(prompt_inputs),
+                "to": copy.deepcopy(candidate["prompt_inputs"]),
+                "removed": copy.deepcopy(removed_prompt_inputs),
+                "rule": "retrieved_collection_is_output_not_user_prompt_input",
+                "reason": (
+                    "The Objective Contract states that the source data is not user-supplied. "
+                    "The retrieved collection is therefore not a prompt input type."
+                ),
+            })
+    return candidate, events
+
+
+def canonicalize_self_dependencies(
+    spec: dict[str, Any],
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Remove impossible self-edges from the GoalSpec DAG with explicit provenance."""
+    candidate = copy.deepcopy(spec)
+    goals = candidate.get("goals")
+    if not isinstance(goals, list):
+        return candidate, []
+    events: list[dict[str, Any]] = []
+    for index, goal in enumerate(goals):
+        if not isinstance(goal, dict) or not isinstance(goal.get("id"), str):
+            continue
+        deps = goal.get("deps")
+        if not isinstance(deps, list):
+            continue
+        removed = [dep for dep in deps if dep == goal["id"]]
+        if not removed:
+            continue
+        remaining = [dep for dep in deps if dep != goal["id"]]
+        goal["deps"] = remaining
+        events.append({
+            "path": f"goals[{index}].deps",
+            "from": copy.deepcopy(deps),
+            "to": copy.deepcopy(remaining),
+            "removed": copy.deepcopy(removed),
+            "rule": "self_dependency_removed",
+            "reason": (
+                "A GoalSpec dependency must reference a distinct prerequisite goal. "
+                "Self-dependencies are invalid DAG edges and cannot express a valid prerequisite."
+            ),
+        })
+    return candidate, events
+
+
 def canonicalize_single_goal_input_dependencies(
     spec: dict[str, Any],
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
@@ -401,6 +524,10 @@ def prepare_agent_candidate(
     spec = prepared.get("goal_spec")
     if isinstance(spec, dict):
         normalized, type_events = canonicalize_declared_plural_types(spec)
+        normalized, retrieval_input_events = canonicalize_retrieval_target_inputs(
+            normalized, objective_contract
+        )
+        normalized, self_dependency_events = canonicalize_self_dependencies(normalized)
         normalized, input_dependency_events = canonicalize_single_goal_input_dependencies(normalized)
         normalized, constraint_dependency_events = canonicalize_objective_constraint_dependencies(
             normalized, objective_contract
@@ -410,7 +537,8 @@ def prepare_agent_candidate(
         normalized["prompt"] = original_objective
         prepared["goal_spec"] = normalized
         prepared["normalization_events"] = (
-            type_events + input_dependency_events + constraint_dependency_events
+            type_events + retrieval_input_events + self_dependency_events
+            + input_dependency_events + constraint_dependency_events
         )
         prepared["objective_prompt_preserved"] = True
     return prepared
@@ -963,6 +1091,36 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
                         "suggestion": (
                             "Review this explicit canonicalization. Goal dependencies must reference "
                             "other goal IDs; this one-goal candidate has no distinct prerequisite goal."
+                        ),
+                    })
+                elif event.get("rule") in (
+                    "retrieved_collection_is_output_not_source_input",
+                    "retrieved_collection_is_output_not_user_prompt_input",
+                ):
+                    diagnostics.append({
+                        "code": "retrieval_target_input_canonicalized",
+                        "severity": "warning",
+                        "message": (
+                            f"{event['path']}: removed retrieved collection placeholder(s) "
+                            f"{event['removed']!r} from the input list; the collection remains "
+                            "the retrieval goal's output and the raw model output is retained."
+                        ),
+                        "suggestion": (
+                            "Review the source-data interpretation and ensure the goal description "
+                            "preserves the requested business concept."
+                        ),
+                    })
+                elif event.get("rule") == "self_dependency_removed":
+                    diagnostics.append({
+                        "code": "invalid_self_dependency_canonicalized",
+                        "severity": "warning",
+                        "message": (
+                            f"{event['path']}: removed self-dependency {event['removed']!r}; "
+                            "the raw model output is retained."
+                        ),
+                        "suggestion": (
+                            "Review the dependency graph. Dependencies must identify distinct "
+                            "prerequisite goals; other unknown dependencies remain validation errors."
                         ),
                     })
                 elif event.get("rule") == "objective_constraint_name_not_goal_dependency":
