@@ -313,8 +313,9 @@ def _load_sentence_models(
 
 def _dense_and_hybrid_rankings(
     docs: Sequence[ToolDocument], tasks: Sequence[DiscoveryTask], top_k: int,
-    encoder: Any, rrf_k0: int = RRF_K0,
-) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
+    encoder: Any, bm25_candidates: Mapping[str, Sequence[str]],
+    rrf_k0: int = RRF_K0,
+) -> tuple[dict[str, list[str]], dict[str, list[str]], dict[str, list[str]]]:
     ids = [x.tool_id for x in docs]
     passages = ["passage: " + x.text for x in docs]
     queries = ["query: " + x.query for x in tasks]
@@ -326,25 +327,31 @@ def _dense_and_hybrid_rankings(
         queries, batch_size=64, convert_to_numpy=True,
         normalize_embeddings=True, show_progress_bar=True,
     )
-    dense_rankings, hybrid_rankings = {}, {}
-    dense_candidates = {}
-    for i, task in enumerate(tasks):
-        dense_scores = np.asarray(passage_vectors @ query_vectors[i], dtype=float)
-        dense_order = _rank_scores(dense_scores, ids, min(CROSS_ENCODER_CANDIDATE_K, len(ids)))
-        dense_candidates[task.task_id] = dense_order
-        dense_rankings[task.task_id] = dense_order[:top_k]
+    dense_rankings, hybrid_rankings, dense_candidates = {}, {}, {}
+    # Chunk query-document matrix multiplication to bound peak memory on Colab.
+    query_chunk_size = 64
+    for start in range(0, len(tasks), query_chunk_size):
+        end = min(len(tasks), start + query_chunk_size)
+        score_block = query_vectors[start:end] @ passage_vectors.T
+        for offset, task in enumerate(tasks[start:end]):
+            dense_order = _rank_scores(
+                np.asarray(score_block[offset], dtype=float),
+                ids,
+                min(CROSS_ENCODER_CANDIDATE_K, len(ids)),
+            )
+            dense_candidates[task.task_id] = dense_order
+            dense_rankings[task.task_id] = dense_order[:top_k]
 
-    bm25_all, _ = _bm25_rankings(docs, tasks, max(top_k, CROSS_ENCODER_CANDIDATE_K))
     for task in tasks:
         fused = defaultdict(float)
-        for rank, tool_id in enumerate(bm25_all[task.task_id][:CROSS_ENCODER_CANDIDATE_K], start=1):
+        for rank, tool_id in enumerate(bm25_candidates[task.task_id], start=1):
             fused[tool_id] += 1.0 / (rrf_k0 + rank)
         for rank, tool_id in enumerate(dense_candidates[task.task_id], start=1):
             fused[tool_id] += 1.0 / (rrf_k0 + rank)
         hybrid_rankings[task.task_id] = sorted(
             fused, key=lambda tool_id: (-fused[tool_id], tool_id)
         )[:top_k]
-    return dense_rankings, hybrid_rankings
+    return dense_rankings, hybrid_rankings, dense_candidates
 
 
 def _cross_encoder_rankings(
@@ -353,15 +360,27 @@ def _cross_encoder_rankings(
     candidates: Mapping[str, Sequence[str]],
     reranker: Any,
     top_k: int,
-) -> tuple[dict[str, list[str]], dict[str, float]]:
+) -> dict[str, list[str]]:
     doc_by_id = {x.tool_id: x.text for x in docs}
-    result, candidate_recall = {}, {}
-    for task in tasks:
-        candidate_ids = list(candidates[task.task_id])[:CROSS_ENCODER_CANDIDATE_K]
-        pairs = [(task.query, doc_by_id[tool_id]) for tool_id in candidate_ids]
-        scores = np.asarray(reranker.predict(pairs, batch_size=64, show_progress_bar=False), dtype=float)
-        result[task.task_id] = _rank_scores(scores, candidate_ids, top_k)
-    return result, candidate_recall
+    result = {}
+    task_chunk_size = 32
+    for start in range(0, len(tasks), task_chunk_size):
+        chunk = tasks[start:start + task_chunk_size]
+        pairs = []
+        bounds = []
+        for task in chunk:
+            candidate_ids = list(candidates[task.task_id])[:CROSS_ENCODER_CANDIDATE_K]
+            left = len(pairs)
+            pairs.extend((task.query, doc_by_id[tool_id]) for tool_id in candidate_ids)
+            bounds.append((task.task_id, candidate_ids, left, len(pairs)))
+        if not pairs:
+            continue
+        scores = np.asarray(
+            reranker.predict(pairs, batch_size=64, show_progress_bar=False), dtype=float
+        )
+        for task_id, candidate_ids, left, right in bounds:
+            result[task_id] = _rank_scores(scores[left:right], candidate_ids, top_k)
+    return result
 
 
 def _random_rankings(
