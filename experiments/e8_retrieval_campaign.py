@@ -571,6 +571,14 @@ def evaluate_track(
         metrics[baseline] = {
             "metrics": {"overall": overall},
             "macro_hit1_by_category": _macro_hit1_by_category(track, per_task),
+            "macro_hit@1": {
+                "value": (
+                    sum(x["hit@1"] for x in _macro_hit1_by_category(track, per_task).values())
+                    / len(_macro_hit1_by_category(track, per_task))
+                    if _macro_hit1_by_category(track, per_task) else None
+                ),
+                "n_categories": len(_macro_hit1_by_category(track, per_task)),
+            },
         }
 
     paired = []
@@ -709,7 +717,9 @@ def run_campaign(
         rankings["random"] = _random_rankings(docs, tasks, top_k, seed)
         rankings["bm25"], candidate_sets["bm25"] = _bm25_rankings(docs, tasks, top_k)
         rankings["tfidf"] = _tfidf_rankings(docs, tasks, top_k)
-        dense, hybrid = _dense_and_hybrid_rankings(docs, tasks, top_k, encoder)
+        dense, hybrid, _dense_candidates = _dense_and_hybrid_rankings(
+            docs, tasks, top_k, encoder, candidate_sets["bm25"]
+        )
         rankings["e5_dense"] = dense
         rankings["bm25_e5_rrf"] = hybrid
         cross, _ = _cross_encoder_rankings(
@@ -751,11 +761,9 @@ def run_campaign(
         "experiment_id": "E8",
         "title": "Single-tool retrieval quality",
         "run_id": run_id,
-        "status": "completed" if all(
-            status == "EXECUTED"
-            for track in track_runs.values()
-            for status in track["baseline_status"].values()
-        ) else "partial",
+        "status": "partial",
+        "execution_scope_status": "EXECUTED_SELECTED_RETRIEVAL_BASELINES",
+        "completion_gate": "E8 remains partial until all preregistered baselines and B1/B1m data are available or formally ruled out.",
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
         "repository": {
             "branch": _git_value(root, "branch", "--show-current"),
@@ -787,6 +795,7 @@ def run_campaign(
             "MCP-Zero, per-subtask, ToolScope and CMTF are not falsely reported as executed in this retrieval-only run.",
             "No tool execution, observed effects, security oracle or task-success claims are evaluated by E8.",
             "The historical ToolRet BM25/TF-IDF/Random aggregate is a previous execution and is not silently pooled with this new run.",
+            "This execution covers the lexical, dense E5, RRF hybrid and cross-encoder retrieval controls; registered planning/composition adaptations remain blocked as recorded above.",
         ],
     }
     (run_dir / "MANIFEST.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
