@@ -28,6 +28,10 @@ Each dependency pins Skill ID, semantic version and canonical manifest digest. F
 - Resolved Agent context is additionally bounded by the existing 32-Skill and instruction-character limits.
 - A deterministic graph SHA-256 commits to the root pin, node pins, edges and topological order.
 
+## API
+
+Authenticated read-only endpoint: `GET /api/v1/skills/{skill_id}/versions/{version}/dependency-graph`. It returns the exact root pin, dependency-first nodes, directed `depends_on` edges, topological order, deterministic graph digest, configured bounds and explicit non-authorization flags. Missing roots return 404; invalid, unpublished or inconsistent graphs return 409.
+
 ## Agent integration
 
 Agent `skill_refs` continue to pin root Skill versions. During Agent lifecycle validation and Objective preparation, the resolver materializes each root and its transitive dependencies in dependency-first order. The root reference provenance includes the dependency graph digest and exact transitive dependency pins.
