@@ -31,6 +31,7 @@ from taas.provenance import DEFAULT_TRUST
 from taas.studio.models import ModelCatalogError, get_model_details, inspect_model_artifacts, search_models
 from taas.studio.agent_spec import validate_agent_manifest
 from taas.studio import agent_registry
+from taas.studio import release_readiness
 from taas.studio.authorization_preflight import (
     AuthorizationConfigurationError,
     build_authorization_preflight,
@@ -1499,6 +1500,29 @@ def agent_publish_version(
         "tools_authorized": False,
         "execution_enabled": False,
     }
+
+
+@app.get("/api/v1/agents/{agent_id}/versions/{version}/release-readiness", dependencies=[Depends(require_api_token)])
+def agent_release_readiness(agent_id: str, version: str) -> dict[str, Any]:
+    """Assess release readiness from immutable Agent and MCP snapshot evidence.
+
+    This is a release diagnostic only: it never grants authorization, creates
+    approvals, or enables execution.
+    """
+    try:
+        agent = agent_registry.get_version(agent_id, version)
+    except agent_registry.AgentRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    snapshot = None
+    snapshot_id = agent.get("registry_snapshot_id")
+    if snapshot_id:
+        try:
+            snapshot = agent_registry.get_mcp_snapshot(snapshot_id)
+        except agent_registry.AgentRegistryError:
+            snapshot = None
+
+    return release_readiness.evaluate_release_readiness(agent=agent, snapshot=snapshot)
 
 
 @app.get("/api/v1/agents/events", dependencies=[Depends(require_api_token)])
