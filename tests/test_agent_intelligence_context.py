@@ -5,6 +5,8 @@ import hashlib
 import pytest
 from pydantic import ValidationError
 
+from taas.studio.api import AgentDecomposeRequest
+
 from taas.studio.agent_context import build_agent_intelligence_context
 from taas.studio.agent_spec import validate_agent_manifest
 from taas.studio.analyst_contract import build_analyst_system_prompt
@@ -177,3 +179,18 @@ def test_runtime_decompose_passes_agent_context_to_the_actual_system_message():
     assert result["json_valid"] is True
     assert "AGENT INSTRUCTIONS" in captured["messages"][0]["content"]
     assert "SELECTED AGENT SKILL: Multi-source date difference" in captured["messages"][0]["content"]
+
+
+
+def test_decomposition_request_requires_agent_id_and_version_together():
+    with pytest.raises(ValidationError):
+        AgentDecomposeRequest(prompt="Calculate a date difference.", agent_id="research-assistant")
+    with pytest.raises(ValidationError):
+        AgentDecomposeRequest(prompt="Calculate a date difference.", agent_version="1.0.0")
+    request = AgentDecomposeRequest(
+        prompt="Calculate a date difference.",
+        agent_id="research-assistant",
+        agent_version="1.2.0",
+    )
+    assert request.agent_id == "research-assistant"
+    assert request.agent_version == "1.2.0"
