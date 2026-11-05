@@ -363,6 +363,80 @@ def canonicalize_retrieval_target_inputs(
     return candidate, events
 
 
+def canonicalize_arithmetic_expressions_from_effects(
+    spec: dict[str, Any],
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Remove arithmetic expressions mistakenly placed in the effect vocabulary.
+
+    GoalSpec effects encode boundary side effects (read/write/delete/egress/exec/
+    money/session), not the mathematical operation performed by a model-side
+    aggregate. This narrowly recognizes arithmetic expressions only on
+    aggregate/compute_exact/count goals. It does not validate the formula or
+    infer its fields; raw model output and the exact removed expression remain
+    available in provenance for human review.
+    """
+    candidate = copy.deepcopy(spec)
+    goals = candidate.get("goals")
+    if not isinstance(goals, list):
+        return candidate, []
+
+    arithmetic_functions = {"sum", "count", "avg", "mean", "min", "max"}
+    token_pattern = re.compile(r"[A-Za-z_][A-Za-z0-9_.]*|\\d+(?:\\.\\d+)?|[()+\\-*/%,]")
+    events: list[dict[str, Any]] = []
+
+    def is_arithmetic_expression(value: Any) -> bool:
+        if not isinstance(value, str) or not value.strip():
+            return False
+        compact = re.sub(r"\\s+", "", value)
+        tokens = token_pattern.findall(value)
+        if not tokens or "".join(tokens) != compact:
+            return False
+        if not any(token in {"+", "-", "*", "/"} for token in tokens) and not any(
+            tokens[i] in arithmetic_functions and i + 1 < len(tokens) and tokens[i + 1] == "("
+            for i in range(len(tokens))
+        ):
+            return False
+        depth = 0
+        for index, token in enumerate(tokens):
+            if token == "(":
+                depth += 1
+                if index == 0 or tokens[index - 1] not in arithmetic_functions:
+                    # Parentheses may group arithmetic, but not invoke an unknown function.
+                    if index == 0 or tokens[index - 1] not in {"+", "-", "*", "/", "("}:
+                        return False
+            elif token == ")":
+                depth -= 1
+                if depth < 0:
+                    return False
+        return depth == 0
+
+    for index, goal in enumerate(goals):
+        if not isinstance(goal, dict) or goal.get("class") not in {
+            "aggregate", "compute_exact", "count"
+        }:
+            continue
+        effects = goal.get("eff")
+        if not isinstance(effects, list):
+            continue
+        removed = [effect for effect in effects if is_arithmetic_expression(effect)]
+        if not removed:
+            continue
+        goal["eff"] = [effect for effect in effects if effect not in removed]
+        events.append({
+            "path": f"goals[{index}].eff",
+            "from": copy.deepcopy(effects),
+            "to": copy.deepcopy(goal["eff"]),
+            "removed": copy.deepcopy(removed),
+            "rule": "arithmetic_expression_misplaced_in_effects",
+            "reason": (
+                "GoalSpec effects encode boundary side effects, not arithmetic expressions. "
+                "The expression is retained in normalization provenance and the raw model output; "
+                "its mathematical correctness and field assumptions are not validated by this repair."
+            ),
+        })
+    return candidate, events
+
+
 def canonicalize_self_dependencies(
     spec: dict[str, Any],
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
@@ -528,6 +602,7 @@ def prepare_agent_candidate(
             normalized, objective_contract
         )
         normalized, self_dependency_events = canonicalize_self_dependencies(normalized)
+        normalized, arithmetic_effect_events = canonicalize_arithmetic_expressions_from_effects(normalized)
         normalized, input_dependency_events = canonicalize_single_goal_input_dependencies(normalized)
         normalized, constraint_dependency_events = canonicalize_objective_constraint_dependencies(
             normalized, objective_contract
@@ -538,7 +613,7 @@ def prepare_agent_candidate(
         prepared["goal_spec"] = normalized
         prepared["normalization_events"] = (
             type_events + retrieval_input_events + self_dependency_events
-            + input_dependency_events + constraint_dependency_events
+            + arithmetic_effect_events + input_dependency_events + constraint_dependency_events
         )
         prepared["objective_prompt_preserved"] = True
     return prepared
@@ -1108,6 +1183,19 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
                         "suggestion": (
                             "Review the source-data interpretation and ensure the goal description "
                             "preserves the requested business concept."
+                        ),
+                    })
+                elif event.get("rule") == "arithmetic_expression_misplaced_in_effects":
+                    diagnostics.append({
+                        "code": "arithmetic_expression_removed_from_effects",
+                        "severity": "warning",
+                        "message": (
+                            f"{event['path']}: removed arithmetic expression(s) {event['removed']!r} "
+                            "from the effect list; effects describe boundary side effects, not calculations."
+                        ),
+                        "suggestion": (
+                            "Review the goal description and formula assumptions. This repair does not "
+                            "validate referenced fields, aggregation semantics, or numerical correctness."
                         ),
                     })
                 elif event.get("rule") == "self_dependency_removed":
