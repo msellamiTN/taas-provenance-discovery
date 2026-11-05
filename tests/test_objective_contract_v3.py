@@ -162,3 +162,44 @@ def test_v3_validator_rejects_forged_dependency_evidence_and_dangling_endpoint()
     errors = validate_objective_contract_v3(contract)
     assert "dependency_evidence_span_text_mismatch" in errors
     assert "dependency_outcome_ref_invalid" in errors
+
+
+
+def test_v3_oncology_objective_preserves_clause_order_month_scope_and_article_dependencies():
+    objective = (
+        "For a report I have to prepare on oncology with machine learning, help me "
+        "identify the last related study published on november 2024 containing the "
+        "word cancer in its title and retrieve the abstract of the article. "
+        "Translate only the title of the study into spanish while keeping the abstract "
+        "of the study in its original language. Find the type of cancer discussed in "
+        "the article and tell me who published the first literature and in which year."
+    )
+    contract = derive_objective_contract_v3(objective)
+
+    assert [item["goal_class"] for item in contract["outcomes"]] == [
+        "search", "translate", "extract"
+    ]
+    assert [item["clause_ref"] for item in contract["outcomes"]] == [
+        "clause_1", "clause_2", "clause_3"
+    ]
+    temporal = contract["constraints"]["temporal"]
+    assert temporal["start_inclusive"] == "2024-11-01"
+    assert temporal["end_exclusive"] == "2024-12-01"
+    selection = contract["constraints"]["selection"]
+    assert selection["limit"] == 1
+    assert selection["order"] == "descending"
+    assert selection["order_by_concept"] == "publication_date"
+
+    dependencies = contract["dependencies"]
+    assert {(item["from_outcome"], item["to_outcome"]) for item in dependencies} == {
+        ("outcome_1", "outcome_2"),
+        ("outcome_1", "outcome_3"),
+    }
+    assert all(item["interpretation"]["semantic_correctness_verified"] is False for item in dependencies)
+    for dependency in dependencies:
+        evidence = dependency["source_evidence"][0]
+        assert objective[evidence["start"]:evidence["end"]] == evidence["text"]
+    assert contract["review"]["required"] is True
+    assert contract["review"]["discovery_blocked"] is True
+    assert contract["review"]["semantic_correctness_verified"] is False
+    assert validate_objective_contract_v3(contract) == []

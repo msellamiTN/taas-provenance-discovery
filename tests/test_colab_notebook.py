@@ -10,7 +10,7 @@ NOTEBOOK = ROOT / "notebooks" / "colab" / "taas_core_studio_colab.ipynb"
 GUIDE = ROOT / "docs" / "deployment" / "COLAB_T4_QUICKSTART.md"
 RUNTIME_GUIDE = ROOT / "docs" / "deployment" / "MODEL_RUNTIME_BACKENDS.md"
 WORKFLOW = ROOT / ".github" / "workflows" / "benchmark-hypergraph.yml"
-INTEGRATED_STUDIO_COMMIT = "97457611c375342cc5c50d6ec3a5936f10d26d3e"
+INTEGRATED_STUDIO_COMMIT = "49daf5efa319a05f391e465d2bb670801ab7d45d"
 
 
 def notebook_source() -> tuple[dict, str, str]:
@@ -51,6 +51,16 @@ def test_colab_code_cells_are_valid_python() -> None:
         source = "".join(cell.get("source", []))
         compile(source, f"colab-cell-{index}", "exec")
 
+
+
+def test_colab_runs_oncology_objective_outcome_temporal_regression() -> None:
+    _, markdown, code = notebook_source()
+    assert "oncology objective regression" in markdown
+    assert "tests/test_objective_contract_v2.py" in code
+    assert "tests/test_objective_contract_v3.py" in code
+    assert "objective_regression_tests" in code
+    assert "November 2024" in code
+    assert "top-one" in code and "publication-date" in code
 
 
 def test_colab_runs_objective_contract_v3_acceptance() -> None:

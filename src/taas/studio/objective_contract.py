@@ -64,6 +64,35 @@ def _temporal_scope(lower: str, reference_date: date | datetime | str | None) ->
                 "end_exclusive": None,
                 "resolution_status": "unresolved" if anchor is None else "anchored_not_materialized",
             }
+
+    # Absolute month/year expressions have deterministic calendar bounds and
+    # do not require a relative-date anchor or business timezone.
+    month_numbers = {
+        "january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6,
+        "july": 7, "august": 8, "september": 9, "october": 10, "november": 11,
+        "december": 12, "janvier": 1, "février": 2, "fevrier": 2, "mars": 3,
+        "avril": 4, "mai": 5, "juin": 6, "juillet": 7, "août": 8, "aout": 8,
+        "septembre": 9, "octobre": 10, "novembre": 11, "décembre": 12, "decembre": 12,
+    }
+    month_names = "|".join(sorted((re.escape(name) for name in month_numbers), key=len, reverse=True))
+    month_year = re.search(rf"\b({month_names})\s+(\d{{4}})\b", lower)
+    if month_year:
+        month_name, year_text = month_year.group(1), month_year.group(2)
+        month_number, year_number = month_numbers[month_name], int(year_text)
+        start = date(year_number, month_number, 1)
+        end = date(year_number + (month_number == 12), 1 if month_number == 12 else month_number + 1, 1)
+        return {
+            "kind": "explicit_calendar_month",
+            "expression": "month_year",
+            "matched_text": month_year.group(0),
+            "reference_date": None,
+            "anchor_required": False,
+            "business_timezone_required": False,
+            "start_inclusive": start.isoformat(),
+            "end_exclusive": end.isoformat(),
+            "resolution_status": "resolved",
+        }
+
     # Explicit ranges require date-shaped endpoints; "from the configured source"
     # is a source phrase, not a date range.
     month = (
@@ -124,7 +153,10 @@ def derive_objective_contract(
     ))
     summary = bool(re.search(r"\b(summarize|summarise|summary|résumer|resumer|résumé|resume|synthétiser|synthetiser)\b", lower))
     compare = bool(re.search(r"\b(compare|comparison|versus|vs|comparer|comparaison)\b", lower))
-    search_intent = bool(re.search(r"\b(search|look\s+up|find|discover|research|chercher|rechercher|trouver|étudier|etudier)\b", lower))
+    search_intent = bool(
+        re.search(r"\b(search|look\s+up|find|discover|research|chercher|rechercher|trouver|étudier|etudier)\b", lower)
+        or re.search(r"\bidentify\s+(?:the\s+)?(?:last|latest|most\s+recent)\s+(?:related\s+)?(?:study|article|paper)\b", lower)
+    )
     retrieval_intent = bool(re.search(r"\b(retrieve|fetch|load|collect|list|show|get|récupérer|recuperer|charger|collecter|lister|afficher|obtenir)\b", lower))
     operation = (
         "compute_exact" if year_difference else "aggregate" if total else "count" if count else "summarise" if summary
@@ -135,7 +167,27 @@ def derive_objective_contract(
 
     all_scope = bool(re.search(r"\b(all|every|each|entire|complete|tous|toutes|chaque|ensemble complet)\b", lower))
     temporal = _temporal_scope(lower, reference_date)
-    recency_scope = bool(re.search(r"\b(latest|recent|newest|current|up[- ]to[- ]date|dernier|dernière|derniere|récent|recent|actuel|actuelle)\b", lower))
+    recency_scope = bool(re.search(
+        r"\b(latest|recent|newest|current|up[- ]to[- ]date|last|dernier|dernière|derniere|récent|recent|actuel|actuelle)\b",
+        lower,
+    ))
+    # "last/latest" becomes an explicit top-one ordering constraint. The
+    # publication-date concept is grounded by "published"; the source column
+    # remains unresolved until schema discovery.
+    publication_order = bool(re.search(r"\b(published|publication|publication\s+date)\b", lower))
+    selection = None
+    if recency_scope and publication_order:
+        selection = {
+            "mode": "top_k",
+            "limit": 1,
+            "order": "descending",
+            "order_by_concept": "publication_date",
+            "source_field_unresolved": True,
+            "matched_cue": next(
+                (m.group(0) for m in re.finditer(r"\b(latest|newest|last|most\s+recent)\b", lower)),
+                None,
+            ),
+        }
     multi_source_intent = bool(re.search(
         r"\b(?:from|across|à partir de|a partir de)\s+"
         r"(?:multiple|several|various|different|many|plusieurs|diverses|différentes|differentes)\s+"
@@ -182,7 +234,12 @@ def derive_objective_contract(
         (total, "aggregate"), (count, "count"), (summary, "summarise"),
         (compare, "compare"),
         (bool(re.search(r"\b(classify|categorize|categorise|label|detect|identify\s+anomalies|classer|classifier|catégoriser|categoriser|détecter|detecter)\b", lower)), "classify"),
-        (bool(re.search(r"\b(extract|parse|identify\s+entities|extraire|analyser)\b", lower)), "extract"),
+        (bool(re.search(
+            r"\b(extract|parse|identify\s+entities|extraire|analyser)\b|"
+            r"\b(?:find|identify)\s+(?:the\s+)?(?:type|kind)\s+of\s+cancer\b|"
+            r"\bdetermine\s+who\s+published\b",
+            lower,
+        )), "extract"),
         (bool(re.search(r"\b(translate|translation|traduire|traduction)\b", lower)), "translate"),
         (bool(re.search(r"\b(convert\s+format|reformat|format\s+as)\b", lower)), "convert_format"),
         (bool(re.search(r"\b(write|draft|compose|author|rédiger|rediger|écrire|ecrire)\b", lower)), "write"),
@@ -297,6 +354,7 @@ def derive_objective_contract(
             "exactness_required": "exact" if year_difference or total or count else None,
         },
         "temporal": temporal,
+        "selection": selection,
         "unresolved_concepts": sorted(unresolved),
         "ambiguities": ["currency_policy"] if currency_ambiguity else [],
     }
@@ -329,6 +387,7 @@ def derive_objective_contract(
             "date_or_range_constraint": temporal is not None,
         },
         "temporal_scope": temporal,
+        "selection": selection,
         "source_data_required": source_data_required,
         "user_supplied_content": user_supplied_content,
         "theta_domain_candidates": matched_domains,
