@@ -10,7 +10,7 @@ NOTEBOOK = ROOT / "notebooks" / "colab" / "taas_core_studio_colab.ipynb"
 GUIDE = ROOT / "docs" / "deployment" / "COLAB_T4_QUICKSTART.md"
 RUNTIME_GUIDE = ROOT / "docs" / "deployment" / "MODEL_RUNTIME_BACKENDS.md"
 WORKFLOW = ROOT / ".github" / "workflows" / "benchmark-hypergraph.yml"
-INTEGRATED_STUDIO_COMMIT = "8fb0a997bdc455981dfe67406ccb4395bee65dc9"
+INTEGRATED_STUDIO_COMMIT = "18e577d46f1c0b5e896a144a817ddef2b06d988a"
 
 
 def notebook_source() -> tuple[dict, str, str]:
@@ -237,3 +237,11 @@ def test_colab_covers_agent_instruction_and_skill_injection() -> None:
     assert "agent_intelligence_context" in code
     assert "selected_skill_ids" in code
     assert "tool_execution" in code
+
+
+
+def test_colab_runs_skill_hypergraph_projection_acceptance() -> None:
+    _, _, code = notebook_source()
+    assert "tests/test_skill_hypergraph_projection.py" in code
+    assert "Skill Hypergraph projection acceptance tests failed" in code
+    assert "Skill DAG to Core Hypergraph projection and authenticated Studio API tests passed." in code
