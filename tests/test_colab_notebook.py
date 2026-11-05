@@ -10,7 +10,7 @@ NOTEBOOK = ROOT / "notebooks" / "colab" / "taas_core_studio_colab.ipynb"
 GUIDE = ROOT / "docs" / "deployment" / "COLAB_T4_QUICKSTART.md"
 RUNTIME_GUIDE = ROOT / "docs" / "deployment" / "MODEL_RUNTIME_BACKENDS.md"
 WORKFLOW = ROOT / ".github" / "workflows" / "benchmark-hypergraph.yml"
-INTEGRATED_STUDIO_COMMIT = "64d0895687dd87aaca4c8ad553a2085d5d3b936a"
+INTEGRATED_STUDIO_COMMIT = "b76299e7f88eddc148eec13c01b849182d5ecee7"
 
 
 def notebook_source() -> tuple[dict, str, str]:
@@ -68,6 +68,9 @@ def test_colab_covers_objective_constraint_dependency_namespace() -> None:
     assert "canonicalize_objective_constraint_dependencies" in code
     assert "canonicalize_retrieval_target_inputs" in code
     assert "canonicalize_self_dependencies" in code
+    assert "canonicalize_arithmetic_expressions_from_effects" in code
+    assert "Retrieve customer records and calculate the average transaction amount" in code
+    assert "tool_and_model_capability_gaps_detected" in code
     assert "tests/test_studio_objective_constraint_dependencies.py" in code
     assert "Objective Contract constraint/dependency namespace separation OK" in code
     assert f'TAAS_COMMIT = "{INTEGRATED_STUDIO_COMMIT}"' in code
