@@ -450,26 +450,113 @@ def _cross_encoder_rankings(
     candidates: Mapping[str, Sequence[str]],
     reranker: Any,
     top_k: int,
+    checkpoint_dir: str | Path | None = None,
+    checkpoint_key: str | None = None,
+    task_chunk_size: int = 16,
+    checkpoint_stats: dict[str, Any] | None = None,
 ) -> dict[str, list[str]]:
+    """Rerank BM25 candidates with atomic, resumable task-batch checkpoints.
+
+    Each checkpoint represents a complete contiguous batch of query rankings.
+    An interruption during inference recomputes at most the active batch; prior
+    completed batches are validated and reused on resume.
+    """
+    if task_chunk_size < 1:
+        raise ValueError("task_chunk_size must be positive")
+    if checkpoint_dir is not None and not checkpoint_key:
+        raise ValueError("checkpoint_key is required when checkpoint_dir is supplied")
+
     doc_by_id = {x.tool_id: x.text for x in docs}
-    result = {}
-    task_chunk_size = 32
-    for start in range(0, len(tasks), task_chunk_size):
+    checkpoint_root = Path(checkpoint_dir) if checkpoint_dir is not None else None
+    if checkpoint_root is not None:
+        checkpoint_root.mkdir(parents=True, exist_ok=True)
+
+    result: dict[str, list[str]] = {}
+    total_batches = (len(tasks) + task_chunk_size - 1) // task_chunk_size
+    stats = {
+        "task_chunk_size": task_chunk_size,
+        "total_batches": total_batches,
+        "reused_batches": 0,
+        "computed_batches": 0,
+        "checkpoint_dir": str(checkpoint_root) if checkpoint_root is not None else None,
+    }
+
+    for batch_index, start in enumerate(range(0, len(tasks), task_chunk_size)):
         chunk = tasks[start:start + task_chunk_size]
+        expected_task_ids = [task.task_id for task in chunk]
+        checkpoint_path = (
+            checkpoint_root / f"batch_{batch_index:05d}.json"
+            if checkpoint_root is not None else None
+        )
+
+        if checkpoint_path is not None and checkpoint_path.is_file():
+            payload = json.loads(checkpoint_path.read_text(encoding="utf-8"))
+            if payload.get("checkpoint_key") != checkpoint_key:
+                raise ValueError(
+                    f"Cross-encoder checkpoint fingerprint mismatch: {checkpoint_path}"
+                )
+            if payload.get("task_ids") != expected_task_ids:
+                raise ValueError(
+                    f"Cross-encoder checkpoint task coverage mismatch: {checkpoint_path}"
+                )
+            batch_rankings = payload.get("rankings")
+            if not isinstance(batch_rankings, dict) or set(batch_rankings) != set(expected_task_ids):
+                raise ValueError(
+                    f"Cross-encoder checkpoint ranking payload is invalid: {checkpoint_path}"
+                )
+            for task_id in expected_task_ids:
+                ranked = batch_rankings[task_id]
+                allowed = set(list(candidates[task_id])[:CROSS_ENCODER_CANDIDATE_K])
+                if (not isinstance(ranked, list) or len(ranked) > top_k
+                        or len(ranked) != len(set(ranked))
+                        or any(tool_id not in allowed for tool_id in ranked)):
+                    raise ValueError(
+                        f"Cross-encoder checkpoint contains invalid rankings for {task_id}"
+                    )
+            result.update({task_id: list(batch_rankings[task_id]) for task_id in expected_task_ids})
+            stats["reused_batches"] += 1
+            continue
+
         pairs = []
         bounds = []
         for task in chunk:
             candidate_ids = list(candidates[task.task_id])[:CROSS_ENCODER_CANDIDATE_K]
+            if any(tool_id not in doc_by_id for tool_id in candidate_ids):
+                raise ValueError(f"Cross-encoder candidate references an unknown tool for {task.task_id}")
             left = len(pairs)
             pairs.extend((task.query, doc_by_id[tool_id]) for tool_id in candidate_ids)
             bounds.append((task.task_id, candidate_ids, left, len(pairs)))
-        if not pairs:
-            continue
-        scores = np.asarray(
-            reranker.predict(pairs, batch_size=64, show_progress_bar=False), dtype=float
-        )
+
+        if pairs:
+            scores = np.asarray(
+                reranker.predict(pairs, batch_size=64, show_progress_bar=False), dtype=float
+            ).reshape(-1)
+            if len(scores) != len(pairs):
+                raise ValueError(
+                    f"Cross-encoder returned {len(scores)} scores for {len(pairs)} query-tool pairs"
+                )
+        else:
+            scores = np.asarray([], dtype=float)
+
+        batch_rankings = {}
         for task_id, candidate_ids, left, right in bounds:
-            result[task_id] = _rank_scores(scores[left:right], candidate_ids, top_k)
+            batch_rankings[task_id] = _rank_scores(scores[left:right], candidate_ids, top_k)
+
+        # Write only after the entire task batch has been ranked successfully.
+        if checkpoint_path is not None:
+            _atomic_json(checkpoint_path, {
+                "checkpoint_key": checkpoint_key,
+                "batch_index": batch_index,
+                "task_ids": expected_task_ids,
+                "rankings": batch_rankings,
+            })
+        result.update(batch_rankings)
+        stats["computed_batches"] += 1
+
+    if checkpoint_stats is not None:
+        checkpoint_stats.update(stats)
+    if set(result) != {task.task_id for task in tasks}:
+        raise ValueError("Cross-encoder ranking output does not cover every discovery task")
     return result
 
 
@@ -1017,19 +1104,44 @@ def run_campaign(
         rankings["bm25_e5_rrf"] = hybrid_cached
 
         # Cross-encoder is evaluated on the fixed BM25 top-100 candidate pool.
+        # Each complete task batch is checkpointed independently to Drive.
         cross_path = run_dir / f"{track.dataset_id}_cross_encoder_rankings.json"
         cross_meta = run_dir / f"{track.dataset_id}_cross_encoder_cache.json"
+        cross_checkpoint_dir = run_dir / f"{track.dataset_id}_cross_encoder_batches"
+        cross_checkpoint_key = _json_fingerprint({
+            "ranking_cache_key": cache_key("cross_encoder"),
+            "candidate_pool_fingerprint": _json_fingerprint([
+                (task.task_id, list(candidate_sets["bm25"][task.task_id]))
+                for task in tasks
+            ]),
+            "task_chunk_size": 16,
+            "candidate_k": CROSS_ENCODER_CANDIDATE_K,
+            "predict_batch_size": 64,
+        })
+        cross_checkpoint_stats: dict[str, Any] = {}
         cached = _load_ranking_cache(cross_path, cross_meta, cache_key("cross_encoder"),
                                      task_ids, tool_ids, top_k)
         if cached is None:
             cached = _cross_encoder_rankings(
-                docs, tasks, candidate_sets["bm25"], reranker, top_k
+                docs, tasks, candidate_sets["bm25"], reranker, top_k,
+                checkpoint_dir=cross_checkpoint_dir,
+                checkpoint_key=cross_checkpoint_key,
+                task_chunk_size=16,
+                checkpoint_stats=cross_checkpoint_stats,
             )
             _save_ranking_cache(
                 cross_path, cross_meta, cached, cache_key("cross_encoder"), "cross_encoder"
             )
         else:
             cache_hits.append("cross_encoder")
+            cross_checkpoint_stats = {
+                "mode": "whole_baseline_cache_hit",
+                "task_chunk_size": 16,
+                "total_batches": (len(tasks) + 15) // 16,
+                "reused_batches": (len(tasks) + 15) // 16,
+                "computed_batches": 0,
+                "checkpoint_dir": str(cross_checkpoint_dir),
+            }
         rankings["cross_encoder"] = cached
 
         # Rankings are fully materialized before evaluator qrels are accessed.
@@ -1060,6 +1172,7 @@ def run_campaign(
             "paired_tests_file": f"{track.dataset_id}_paired_tests.json",
             "elapsed_seconds": time.perf_counter() - start,
             "candidate_recall_at_100": result["candidate_recall_at_100"],
+            "cross_encoder_checkpoint": cross_checkpoint_stats,
             "similar_tools_sensitivity_metrics": (
                 f"{track.dataset_id}_similar_tools_sensitivity_metrics.json"
                 if result["similar_tools_sensitivity_metrics"] else None
