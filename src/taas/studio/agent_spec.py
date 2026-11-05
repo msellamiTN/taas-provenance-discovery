@@ -145,4 +145,9 @@ class AgentManifest(StrictModel):
 def validate_agent_manifest(payload: dict) -> dict:
     """Return a normalized JSON-compatible manifest or raise Pydantic ValidationError."""
     manifest = AgentManifest.model_validate(payload)
-    return manifest.model_dump(mode="json")
+    normalized = manifest.model_dump(mode="json")
+    # Preserve the canonical byte shape of pre-skills manifests. This keeps
+    # immutable versions created by earlier Studio builds verifiable.
+    if "skills" not in payload.get("spec", {}):
+        normalized["spec"].pop("skills", None)
+    return normalized
