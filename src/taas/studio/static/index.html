@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2310213d%22/%3E%3Cpath d=%22M16 48V16h8l8 13 8-13h8v32h-8V29l-8 12-8-12v19z%22 fill=%22white%22/%3E%3C/svg%3E">
   <title>TaaS Studio — Tool Intelligence Platform</title>
   <style>
     :root { color-scheme: light; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
@@ -322,7 +323,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   <form id="studio-auth" class="studio-auth" aria-label="Studio authentication" autocomplete="off">
     <div class="studio-auth-copy"><strong>Studio authentication</strong><span id="studio-auth-status" role="status" aria-live="polite">Not connected · token stays in this page's memory</span></div>
     <label class="sr-only" for="token">Studio API bearer token</label>
-    <input id="token" type="password" autocomplete="new-password" spellcheck="false" placeholder="Paste Studio API token" aria-describedby="studio-auth-status">
+    <input id="token" name="studio_api_token" type="password" autocomplete="current-password" spellcheck="false" placeholder="Paste Studio API token" aria-describedby="studio-auth-status">
     <button id="studio-auth-toggle" class="secondary" type="button" aria-label="Show token">Show</button>
     <button id="studio-auth-connect" type="button">Connect</button>
     <button id="studio-auth-disconnect" class="secondary" type="button" disabled>Disconnect</button>
@@ -1806,7 +1807,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       blockers.forEach(item=>{
         const row=document.createElement("div");row.className="goal-validation invalid";
         const question=document.createElement("strong");question.textContent=item.question||"Clarification required";
-        const reason=document.createElement("div");reason.textContent=(item.reason||"unresolved")+" · affects: "+(item.affected_goal_classes||[]).join(", ");
+        const reason=document.createElement("div");reason.textContent=String(item.reason||"unresolved")+" - affects: "+(Array.isArray(item.affected_goal_classes)?item.affected_goal_classes.join(", "):"");
         row.append(question,reason);root.appendChild(row);
       });
     }
