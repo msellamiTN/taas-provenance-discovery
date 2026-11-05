@@ -29,7 +29,7 @@ def ranking_metrics(
     evaluated query set as empty rankings, so unconditional metrics penalize them.
     """
     query_ids = sorted(relevance)
-    result = {"queries_with_qrels": len(query_ids), "queries_missing_qrels": 0, "metrics": {}}
+    result = {"queries_with_qrels": sum(bool(relevance[q]) for q in query_ids),\n              "queries_missing_qrels": len(set(rankings) - set(relevance)), "metrics": {}}
     for k in ks:
         if k < 1:
             raise ValueError("Every k must be >= 1")
@@ -48,7 +48,7 @@ def ranking_metrics(
             reciprocal_rank.append(1.0 / first if first is not None else 0.0)
             gains = [max(0.0, 2.0 ** float(qrels.get(tool, 0.0)) - 1.0) for tool in ranked]
             dcg = sum(gain / math.log2(rank + 1) for rank, gain in enumerate(gains, 1))
-            ideal = sorted((max(0.0, 2.0 * float(g) - 1.0) for g in qrels.values()), reverse=True)[:k]
+            ideal = sorted((max(0.0, 2.0 ** float(g) - 1.0) for g in qrels.values()), reverse=True)[:k]
             idcg = sum(gain / math.log2(rank + 1) for rank, gain in enumerate(ideal, 1))
             ndcg.append(dcg / idcg if idcg > 0 else 0.0)
         result["metrics"][str(k)] = {
