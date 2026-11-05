@@ -58,7 +58,11 @@ from taas.studio.ollama_runtime import get_ollama_runtime
 from taas.studio.mcp_registry import MCPRegistryError, inspect_server as inspect_mcp_server, list_servers as list_mcp_servers
 from taas.types import KINDS
 from taas.studio.assurance_routes import build_assurance_router
-from taas.hypergraph_projection import project_hypergraph, project_skill_dependency_graph
+from taas.hypergraph_projection import (
+    project_hypergraph,
+    project_objective_skill_traceability,
+    project_skill_dependency_graph,
+)
 
 app = FastAPI(
     title="TaaS Core Studio API",
@@ -1551,6 +1555,32 @@ def skill_hypergraph_projection_get(skill_id: str, version: str) -> dict[str, An
         "skill_dependency_graph": graph,
         "hypergraph_projection": projection,
         "projection_source": "taas_core_skill_dependency_resolver",
+        "semantic_correctness_verified": False,
+        "tools_authorized": False,
+        "execution_enabled": False,
+    }
+
+
+class ObjectiveTraceabilityProjectionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    traceability: dict[str, Any]
+
+
+@app.post(
+    "/api/v1/hypergraph/objective-traceability",
+    dependencies=[Depends(require_api_token)],
+)
+def objective_traceability_hypergraph_projection(
+    request: ObjectiveTraceabilityProjectionRequest,
+) -> dict[str, Any]:
+    """Project a prepare-response objective_skill_traceability record read-only."""
+    try:
+        projection = project_objective_skill_traceability(request.traceability)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return {
+        "hypergraph_projection": projection,
+        "projection_source": "prepare_response_objective_skill_traceability",
         "semantic_correctness_verified": False,
         "tools_authorized": False,
         "execution_enabled": False,

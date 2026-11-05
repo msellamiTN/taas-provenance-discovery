@@ -38,3 +38,22 @@ objective clause span -> derived outcome (v3) -> GoalSpec goal (coverage)
 - Audit which outcomes a model's GoalSpec covers and which clauses they trace to.
 - Pin every skill to `manifest_sha256` / `registry_manifest_sha256` for
   supply-chain verification (complements `SKILL_TRUST_SUPPLY_CHAIN.md`).
+
+## Hypergraph projection
+
+`POST /api/v1/hypergraph/objective-traceability` accepts a prepare response's
+`objective_skill_traceability` record and returns a read-only
+`taas.hypergraph-projection/v1` graph (`projection_domain:
+objective_skill_traceability`) for the explorer:
+
+- **Vertices**: `objective_clause` (with exact spans), `objective_outcome`
+  (goal_class + coverage_status + source_evidence), `goalspec_goal`, and `skill`
+  (selected flag, exact pins).
+- **Relations**: `derives_outcome` (clause→outcome), `covered_by`
+  (outcome→goal), `triggered_in` (skill→clause, carrying trigger phrase +
+  occurrence span + `match_kind: lexical_substring_not_semantic_proof`).
+- Skill vertices reuse `skill:{id}@{version}` ids so traceability graphs merge
+  with Skill-DAG projections in combined explorer views.
+- Every edge carries `authorization_effect: none` and `execution_effect: none`;
+  the projection asserts provenance linkage only — never capability, grant, or
+  execution. Edges referencing unknown vertices are skipped, never invented.
