@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Any, Sequence
 
 from taas.data.registries import RawTool
-from taas.effects import Effect, lexical_effects
+from taas.effects import lexical_effects
 from taas.types import KINDS, parse_type, tau_arg, tau_out
 
 
