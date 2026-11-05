@@ -23,7 +23,7 @@ import sys
 import time
 import zipfile
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping, Sequence
@@ -69,6 +69,7 @@ class DatasetTrack:
     cluster_by_task: dict[str, str]
     exclusions: dict[str, int]
     source_manifest: dict[str, Any]
+    secondary_qrels: dict[str, dict[str, float]] = field(default_factory=dict)
 
 
 def _sha256_file(path: Path) -> str:
@@ -189,8 +190,9 @@ def load_toolret_track(processed_dir: str | Path) -> DatasetTrack:
 
 
 def load_mcptoolbenchpp_track(raw_root: str | Path) -> DatasetTrack:
-    """Load MCPToolBench++ but evaluate only unambiguous, exactly-one-target requests."""
-    tools_raw, tasks_raw = load_mcptoolbenchpp(Path(raw_root))
+    """Load only single-primary-target tasks; retain similar_tools as sensitivity qrels."""
+    raw_root = Path(raw_root)
+    tools_raw, tasks_raw = load_mcptoolbenchpp(raw_root)
     tools_by_id = {tool.id: tool for tool in tools_raw}
     docs = [
         ToolDocument(
@@ -204,8 +206,18 @@ def load_mcptoolbenchpp_track(raw_root: str | Path) -> DatasetTrack:
         )
         for tool in tools_raw
     ]
+
+    # Read raw annotations because the shared registry loader intentionally stores
+    # only the primary function_call_label and does not retain similar_tools.
+    raw_task_rows: dict[tuple[str, str], dict[str, Any]] = {}
+    for source_file in sorted((raw_root / "mcptoolbenchpp").glob("*.json")):
+        category = source_file.stem
+        for row in json.loads(source_file.read_text(encoding="utf-8")):
+            raw_task_rows[(category, str(row.get("uuid") or ""))] = row
+
     task_rows: list[DiscoveryTask] = []
     qrels: dict[str, dict[str, float]] = {}
+    secondary_qrels: dict[str, dict[str, float]] = {}
     clusters: dict[str, str] = {}
     exclusions = defaultdict(int)
     for task in tasks_raw:
@@ -220,13 +232,37 @@ def load_mcptoolbenchpp_track(raw_root: str | Path) -> DatasetTrack:
         if "|" in target or target.startswith("unknown::") or target not in tools_by_id:
             exclusions["unresolved_or_ambiguous_gold"] += 1
             continue
-        # Category-qualified task IDs prevent source UUID collisions across files.
         task_id = f"{task.category}::{task.id}"
         if task_id in qrels:
             raise ValueError(f"Duplicate MCPToolBench++ task ID after category qualification: {task_id}")
         task_rows.append(DiscoveryTask(task_id, task.query, task.category or "unspecified"))
         qrels[task_id] = {target: 1.0}
         clusters[task_id] = tools_by_id[target].server
+
+        raw_row = raw_task_rows.get((task.category, task.id), {})
+        labels = raw_row.get("function_call_label") or []
+        primary_label = labels[0] if labels else {}
+        similar = primary_label.get("similar_tools") or []
+        accepted = {target: 1.0}
+        server_by_name = {
+            name: server
+            for server, names in (raw_row.get("mcp_tools_dict") or {}).items()
+            for name in names
+        }
+        for alternative in similar:
+            name = str(alternative.get("name") or "").strip()
+            if not name:
+                exclusions["similar_tool_missing_name"] += 1
+                continue
+            server = str(alternative.get("mcp_server") or server_by_name.get(name) or "unknown")
+            alternative_id = f"{server}::{name}"
+            exclusions["similar_tools_total"] += 1
+            if alternative_id in tools_by_id:
+                accepted[alternative_id] = 1.0
+                exclusions["similar_tools_resolved"] += 1
+            else:
+                exclusions["similar_tools_unresolved"] += 1
+        secondary_qrels[task_id] = accepted
 
     exclusions["tasks_evaluated"] = len(task_rows)
     exclusions["tasks_excluded"] = exclusions["tasks_total"] - len(task_rows)
@@ -237,12 +273,15 @@ def load_mcptoolbenchpp_track(raw_root: str | Path) -> DatasetTrack:
         "mcptoolbenchpp_single_target", task_rows, docs, qrels, clusters,
         dict(exclusions),
         {
-            "raw_root": str(Path(raw_root).resolve()),
-            "source_revisions_file": str((Path(raw_root) / "SOURCES.txt").resolve()),
-            "source_revisions_sha256": _sha256_file(Path(raw_root) / "SOURCES.txt"),
-            "source_revisions": (Path(raw_root) / "SOURCES.txt").read_text(encoding="utf-8"),
-            "selection_rule": "exactly one resolved function_call_label; ambiguous/multiple labels excluded",
+            "raw_root": str(raw_root.resolve()),
+            "source_revisions_file": str((raw_root / "SOURCES.txt").resolve()),
+            "source_revisions_sha256": _sha256_file(raw_root / "SOURCES.txt"),
+            "source_revisions": (raw_root / "SOURCES.txt").read_text(encoding="utf-8"),
+            "selection_rule": "exactly one resolved primary function_call_label; ambiguous/multiple labels excluded",
+            "primary_metric_semantics": "primary function_call_label only",
+            "sensitivity_metric_semantics": "primary target plus source-annotated similar_tools that resolve into the candidate corpus",
         },
+        secondary_qrels,
     )
 
 
