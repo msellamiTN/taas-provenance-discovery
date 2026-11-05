@@ -58,6 +58,7 @@ jobs:
             tests/test_pamcp_benchmark_io.py \
             tests/test_pamcp_benchmark_adapters.py \
             tests/test_mcp_atlas_adapter.py \
+            tests/test_toolret_adapter.py \
             tests/test_declared_effects_are_not_observations.py
       - name: Run existing Studio API tests
         run: python -m pytest -q tests/test_studio_api.py
