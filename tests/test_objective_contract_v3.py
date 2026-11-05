@@ -93,3 +93,29 @@ def test_v3_validator_rejects_discovery_authorization():
     contract = derive_objective_contract_v3("Search the web for papers.")
     contract["review"]["discovery_blocked"] = False
     assert "discovery_must_remain_blocked" in validate_objective_contract_v3(contract)
+
+
+def test_v3_builds_clause_provenance_graph_with_exact_source_spans():
+    objective = "Search the web for papers; draft a summary.\\nDo not send it."
+    contract = derive_objective_contract_v3(objective)
+    clauses = contract["clauses"]
+    assert [item["text"] for item in clauses] == [
+        "Search the web for papers", "draft a summary", "Do not send it"
+    ]
+    for clause in clauses:
+        span = clause["span"]
+        assert objective[span["start"]:span["end"]] == clause["text"]
+    search = next(item for item in contract["outcomes"] if item["goal_class"] == "search")
+    assert search["clause_ref"] == clauses[0]["id"]
+    assert search["id"] in clauses[0]["outcome_refs"]
+    assert any(item["clause_ref"] == clauses[2]["id"] for item in contract["clarifications"])
+    assert validate_objective_contract_v3(contract) == []
+
+
+def test_v3_validator_rejects_forged_clause_reference_and_span():
+    contract = derive_objective_contract_v3("Search the web for papers.")
+    contract["outcomes"][0]["clause_ref"] = "missing_clause"
+    contract["clauses"][0]["text"] = "forged"
+    errors = validate_objective_contract_v3(contract)
+    assert "outcome_clause_ref_invalid" in errors
+    assert "clause_span_text_mismatch" in errors
