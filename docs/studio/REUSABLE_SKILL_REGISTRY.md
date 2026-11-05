@@ -38,4 +38,4 @@ All endpoints require the Studio bearer token.
 - Skills do not add tools to an Agent allowlist, expose the MCP registry, grant data access, authorize calls, or execute actions.
 - Existing Agent-embedded skills remain supported for backward compatibility.
 - Tenant isolation is not implemented by this single-service SQLite registry.
-- v1 does not yet bind external Skill references into Agent manifests or resolve published Skills during decomposition. That is the next integration slice; until then, this registry is an independently managed resource API.
+- Agent manifests can now bind exact published Skill versions through `spec.skill_refs`, pinning ID, semantic version, and canonical manifest digest. Agent validation, creation, publication, and Objective preparation resolve these references fail-closed; selected instructions are included in the Agent Intelligence Context trace. See `AGENT_REUSABLE_SKILL_BINDINGS.md`.
