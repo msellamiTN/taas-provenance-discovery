@@ -93,12 +93,15 @@ results/definitive/E8/<run-id>/
 The runner:
 - records source and model fingerprints in RUN_STATE.json;
 - writes per-baseline ranking caches atomically;
-- skips a cache only when its data/model/config fingerprint and task/candidate coverage match;
+- checkpoints Cross-Encoder rankings after each contiguous batch of 16 tasks (at most 1,600 query-tool pairs with the BM25 top-100 pool);
+- validates the checkpoint key, ordered task coverage, candidate membership, uniqueness and ranking length before reusing a batch;
+- writes each completed batch atomically; an interruption during a batch recomputes only that active batch;
+- skips a whole baseline only when its data/model/config fingerprint and task/candidate coverage match;
 - rejects resumption when source hashes, model revisions, top_k, seed or runner commit differ;
 - refuses to modify a finalized run containing MANIFEST.json;
-- writes raw rankings, per-task metrics, aggregate metrics, paired tests, exclusions, PNG plots, source hashes and a ZIP bundle.
+- writes raw rankings, per-task metrics, aggregate metrics, paired tests, exclusions, PNG plots, source hashes and a ZIP bundle. Per-batch Cross-Encoder files are retained in the run bundle as audit/checkpoint evidence.
 
-To resume an interrupted run, rerun with the same --run-id, the same input snapshots, the same model revisions, device, top_k and seed. A changed configuration requires a new run ID.
+To resume an interrupted run, rerun with the same --run-id, the same input snapshots, the same model revisions, device, top_k and seed. Keep OUTPUT_ROOT on persistent Google Drive. A changed configuration requires a new run ID.
 
 ## Colab execution
 
