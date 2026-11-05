@@ -269,11 +269,12 @@ class HuggingFaceModelRuntime:
             max_new_tokens, temperature,
         )
 
-    def decompose(self, prompt: str, context: str = "", max_new_tokens: int = 1200) -> dict[str, Any]:
+    def decompose(self, prompt: str, context: str = "", max_new_tokens: int = 1200,
+                  agent_context: dict[str, Any] | None = None) -> dict[str, Any]:
         if not prompt.strip():
             raise ValueError("prompt must not be empty")
         try:
-            system = build_analyst_system_prompt()
+            system = build_analyst_system_prompt(agent_context)
         except RuntimeError as exc:
             raise ModelRuntimeError(str(exc)) from exc
         user_content = "Objective:\n" + prompt.strip()

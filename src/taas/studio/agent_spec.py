@@ -75,6 +75,28 @@ class AgentToolGrant(StrictModel):
         return value
 
 
+class AgentSkill(StrictModel):
+    """A versioned, objective-triggered skill bundled into an immutable Agent version."""
+
+    id: str = Field(min_length=3, max_length=63, pattern=r"^[a-z][a-z0-9-]{2,62}$")
+    name: str = Field(min_length=1, max_length=120)
+    version: str = Field(pattern=_SEMVER.pattern)
+    description: str = Field(default="", max_length=1000)
+    instructions: str = Field(min_length=1, max_length=8000)
+    trigger_phrases: list[str] = Field(min_length=1, max_length=20)
+
+    @field_validator("trigger_phrases")
+    @classmethod
+    def validate_trigger_phrases(cls, values: list[str]) -> list[str]:
+        normalized = [value.strip() for value in values]
+        if any(not value or len(value) > 160 for value in normalized):
+            raise ValueError("skill trigger phrases must contain 1-160 non-empty characters")
+        folded = [value.casefold() for value in normalized]
+        if len(folded) != len(set(folded)):
+            raise ValueError("skill trigger phrases must be unique (case-insensitive)")
+        return normalized
+
+
 class AgentResources(StrictModel):
     max_new_tokens: int = Field(default=1024, ge=1, le=2048)
     timeout_seconds: int = Field(default=120, ge=1, le=3600)
@@ -90,6 +112,7 @@ class AgentApprovalPolicy(StrictModel):
 class AgentSpec(StrictModel):
     model: AgentModelBinding
     instructions: str = Field(min_length=1, max_length=12000)
+    skills: list[AgentSkill] = Field(default_factory=list, max_length=32)
     goal_spec_template: dict | None = None
     tool_allowlist: list[AgentToolGrant] = Field(default_factory=list, max_length=100)
     resources: AgentResources = Field(default_factory=AgentResources)
@@ -97,6 +120,14 @@ class AgentSpec(StrictModel):
 
     @model_validator(mode="after")
     def unique_tool_grants(self):
+        skill_ids = [item.id for item in self.skills]
+        if len(skill_ids) != len(set(skill_ids)):
+            raise ValueError("skills contains duplicate skill IDs")
+        skill_instruction_chars = sum(len(item.instructions) for item in self.skills)
+        if skill_instruction_chars > 24000:
+            raise ValueError("combined skill instructions must not exceed 24000 characters")
+        if len(self.instructions) + skill_instruction_chars > 36000:
+            raise ValueError("combined Agent instructions and skill instructions must not exceed 36000 characters")
         grants = [(item.server_id, item.tool_name) for item in self.tool_allowlist]
         if len(grants) != len(set(grants)):
             raise ValueError("tool_allowlist contains duplicate server_id/tool_name grants")
@@ -119,4 +150,9 @@ class AgentManifest(StrictModel):
 def validate_agent_manifest(payload: dict) -> dict:
     """Return a normalized JSON-compatible manifest or raise Pydantic ValidationError."""
     manifest = AgentManifest.model_validate(payload)
-    return manifest.model_dump(mode="json")
+    normalized = manifest.model_dump(mode="json")
+    # Preserve the canonical byte shape of pre-skills manifests. This keeps
+    # immutable versions created by earlier Studio builds verifiable.
+    if "skills" not in payload.get("spec", {}):
+        normalized["spec"].pop("skills", None)
+    return normalized

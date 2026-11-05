@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2310213d%22/%3E%3Cpath d=%22M16 48V16h8l8 13 8-13h8v32h-8V29l-8 12-8-12v19z%22 fill=%22white%22/%3E%3C/svg%3E">
   <title>TaaS Studio — Tool Intelligence Platform</title>
   <style>
     :root { color-scheme: light; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
@@ -304,7 +305,11 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     .hg-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.hg-actions button{margin:0;white-space:nowrap}.hg-actions .secondary{background:#fff}
     @media(max-width:850px){.hg-layout{grid-template-columns:1fr}.hg-inspector{border-left:0;border-top:1px solid var(--line)}}
 
-\n/* Compact, readable navigation on tablet and mobile. */\n@media(max-width:900px){.studio-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:4px}.studio-nav .nav-brand{grid-column:1/-1;width:auto}.studio-nav a{min-width:0;overflow-wrap:anywhere;line-height:1.35}}\n@media(max-width:560px){.studio-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;padding:9px}.studio-nav a{min-height:36px;padding:7px 8px;font-size:11px}}\n
+
+/* Compact, readable navigation on tablet and mobile. */
+@media(max-width:900px){.studio-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:4px}.studio-nav .nav-brand{grid-column:1/-1;width:auto}.studio-nav a{min-width:0;overflow-wrap:anywhere;line-height:1.35}}
+@media(max-width:560px){.studio-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;padding:9px}.studio-nav a{min-height:36px;padding:7px 8px;font-size:11px}}
+
   .outcome-coverage{margin:12px 0;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface,#fff)}
   .outcome-coverage-summary{font-size:13px;font-weight:650;margin-bottom:9px;color:var(--text)}
   .outcome-coverage-table{width:100%;border-collapse:collapse;font-size:12px}
@@ -322,7 +327,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   <form id="studio-auth" class="studio-auth" aria-label="Studio authentication" autocomplete="off">
     <div class="studio-auth-copy"><strong>Studio authentication</strong><span id="studio-auth-status" role="status" aria-live="polite">Not connected · token stays in this page's memory</span></div>
     <label class="sr-only" for="token">Studio API bearer token</label>
-    <input id="token" type="password" autocomplete="new-password" spellcheck="false" placeholder="Paste Studio API token" aria-describedby="studio-auth-status">
+    <input id="token" name="studio_api_token" type="password" autocomplete="current-password" spellcheck="false" placeholder="Paste Studio API token" aria-describedby="studio-auth-status">
     <button id="studio-auth-toggle" class="secondary" type="button" aria-label="Show token">Show</button>
     <button id="studio-auth-connect" type="button">Connect</button>
     <button id="studio-auth-disconnect" class="secondary" type="button" disabled>Disconnect</button>
@@ -649,6 +654,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     </div>
     <section id="agent-goal-panel" style="box-shadow:none;padding:14px;margin-top:14px">
       <h2>3 · Objective Engineering · TaaS Core</h2><p class="muted">Canonical entry point for operational prompts. TaaS Core frames the objective, the selected model proposes a GoalSpec, and deterministic validation plus actual Core gap_analysis inspect it. Tool discovery follows only after human review. The proposal is never an execution authorization.</p>
+      <div class="field"><label for="agent-context-select">Saved Agent context · instructions and objective-triggered skills</label><div class="inline-actions"><select id="agent-context-select" aria-label="Saved Agent version"><option value="">No Agent context · use Core analyst defaults</option></select><button id="agent-context-refresh" type="button" class="secondary">Refresh Agents</button></div><p id="agent-context-status" class="subtle" role="status" aria-live="polite">Select a saved Agent version to inject its instructions and matching skills into both initial and refinement prompts. Tool grants are not passed to the LLM.</p></div>
       <label for="agent-goal-prompt">Agent objective</label><textarea id="agent-goal-prompt" rows="3" maxlength="12000" style="min-height:90px" placeholder="Find current information, summarize it, and save a Markdown report…"></textarea><p class="subtle">The original objective is preserved by the API; verify the complete text here before preparing it.</p>
       <button id="agent-decompose" type="button">Prepare objective with TaaS Core</button><div id="agent-decompose-status" class="status" role="status" aria-live="polite">No decomposition requested.</div><div id="agent-outcome-coverage" class="outcome-coverage" aria-live="polite"></div>
       <div id="agent-objective-contract-v3" class="outcome-coverage" aria-live="polite"></div><pre id="agent-decompose-result">The model's GoalSpec proposal will appear here.</pre>
@@ -674,6 +680,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       "model_id": "Qwen/Qwen2.5-0.5B-Instruct"
     },
     "instructions": "Help the operator summarize support requests.",
+    "skills": [],
     "goal_spec_template": null,
     "tool_allowlist": [],
     "resources": {
@@ -1685,6 +1692,33 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     if(!response.ok) throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
     return data;
   };
+  const refreshAgentContextOptions = async (preferredValue = "") => {
+    const select=$("agent-context-select");
+    const previous=preferredValue||select.value;
+    const data=await apiGet("/api/v1/agents?limit=100");
+    select.replaceChildren(new Option("No Agent context · use Core analyst defaults",""));
+    (data.versions||[]).forEach(item=>{
+      const value=item.agent_id+"@"+item.version;
+      const label=item.agent_id+" @ "+item.version+" · "+item.lifecycle_state;
+      select.add(new Option(label,value));
+    });
+    if([...select.options].some(option=>option.value===previous))select.value=previous;
+    $("agent-context-status").textContent=(data.count||0)+" saved Agent version(s) available. The selected version's instructions and matching skills are injected into decomposition; its tool allowlist remains outside the LLM context.";
+    return data;
+  };
+  $("agent-context-refresh").addEventListener("click",async()=>{
+    const button=$("agent-context-refresh");button.disabled=true;
+    $("agent-context-status").textContent="Loading immutable Agent versions…";
+    try{await refreshAgentContextOptions();}
+    catch(error){$("agent-context-status").textContent="Unable to load saved Agent versions: "+error.message;}
+    finally{button.disabled=false;}
+  });
+  $("agent-context-select").addEventListener("change",()=>{
+    const value=$("agent-context-select").value;
+    $("agent-context-status").textContent=value
+      ?"Agent context selected: "+value+". Instructions and objective-triggered skills will be included in the analyst prompt. Tool grants are not sent to the LLM."
+      :"No Agent context selected. The Core analyst contract and Objective Contract remain active.";
+  });
   const refreshLoadedModel = async () => {
     const state=await apiGet("/api/v1/models/runtime");$("runtime-model-details").textContent=JSON.stringify(state,null,2);
     if($("runtime-provider").value==="ollama"){
@@ -1777,7 +1811,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       blockers.forEach(item=>{
         const row=document.createElement("div");row.className="goal-validation invalid";
         const question=document.createElement("strong");question.textContent=item.question||"Clarification required";
-        const reason=document.createElement("div");reason.textContent=(item.reason||"unresolved")+" · affects: "+(item.affected_goal_classes||[]).join(", ");
+        const reason=document.createElement("div");reason.textContent=String(item.reason||"unresolved")+" - affects: "+(Array.isArray(item.affected_goal_classes)?item.affected_goal_classes.join(", "):"");
         row.append(question,reason);root.appendChild(row);
       });
     }
@@ -1785,7 +1819,15 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   let pendingAgentGoalSpec=null;
   $("agent-decompose").addEventListener("click",async()=>{
     const button=$("agent-decompose");button.disabled=true;$("agent-decompose-status").textContent="Preparing objective through TaaS Core…";$("agent-apply-goals").disabled=true;pendingAgentGoalSpec=null;
-    try{const result=await runtimePost("/api/v1/objectives/prepare",{provider:$("runtime-provider").value,prompt:$("agent-goal-prompt").value,max_new_tokens:1200});$("agent-decompose-result").textContent=JSON.stringify(result,null,2);
+    try{
+      const body={provider:$("runtime-provider").value,prompt:$("agent-goal-prompt").value,max_new_tokens:1200};
+      const selectedAgent=$("agent-context-select").value;
+      if(selectedAgent){
+        const split=selectedAgent.lastIndexOf("@");
+        body.agent_id=selectedAgent.slice(0,split);
+        body.agent_version=selectedAgent.slice(split+1);
+      }
+      const result=await runtimePost("/api/v1/objectives/prepare",body);$("agent-decompose-result").textContent=JSON.stringify(result,null,2);
       renderObjectiveCoverage(result.objective_coverage);
       renderObjectiveContractV3(result.objective_intelligence_v3,result.objective_contract_v3);
       const diagnostics=result.semantic_diagnostics||[];
@@ -1871,6 +1913,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       agentValidateSavedButton.disabled=false;
       $("agent-manifest-result").textContent=JSON.stringify(result,null,2);
       $("agent-manifest-status").textContent="Saved immutable draft "+result.agent_id+"@"+result.version+" · SHA-256 "+result.manifest_sha256;
+      try{await refreshAgentContextOptions(result.agent_id+"@"+result.version);}catch(error){$("agent-context-status").textContent="Agent saved, but context list refresh failed: "+error.message;}
     }catch(error){
       resetAgentRegistrySelection();
       $("agent-manifest-result").textContent=error.message;

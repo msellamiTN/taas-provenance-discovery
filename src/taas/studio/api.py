@@ -17,7 +17,7 @@ from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException, Query, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from taas.contracts import extract_contract
 from taas.studio.discovery_diagnostics import build_discovery_diagnostics
@@ -30,6 +30,7 @@ from taas.policy import Policy
 from taas.provenance import DEFAULT_TRUST
 from taas.studio.models import ModelCatalogError, get_model_details, inspect_model_artifacts, search_models
 from taas.studio.agent_spec import validate_agent_manifest
+from taas.studio.agent_context import build_agent_intelligence_context
 from taas.studio import agent_registry
 from taas.studio import release_readiness
 from taas.studio.authorization_preflight import (
@@ -115,6 +116,14 @@ class AgentDecomposeRequest(BaseModel):
     prompt: str = Field(min_length=1, max_length=12000)
     context: str = Field(default="", max_length=8000)
     max_new_tokens: int = Field(default=1200, ge=1, le=2048)
+    agent_id: str | None = Field(default=None, pattern=r"^[a-z][a-z0-9-]{2,62}$")
+    agent_version: str | None = Field(default=None, pattern=r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$")
+
+    @model_validator(mode="after")
+    def require_agent_reference_pair(self):
+        if (self.agent_id is None) != (self.agent_version is None):
+            raise ValueError("agent_id and agent_version must be supplied together")
+        return self
 
 
 class AgentPublishRequest(BaseModel):
@@ -1134,7 +1143,35 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
         if base_context:
             base_context += "\n\n"
         base_context += objective_context
-        result = runtime.decompose(request.prompt, base_context, request.max_new_tokens)
+        agent_context = None
+        agent_context_trace = {
+            "schema": "taas.agent-intelligence-context/v1",
+            "status": "not_configured",
+            "instructions_injected": False,
+            "skills": [],
+            "selected_skill_ids": [],
+            "context_authority": "guidance_only_core_contract_and_governance_remain_authoritative",
+        }
+        if request.agent_id and request.agent_version:
+            try:
+                saved_agent = agent_registry.get_version(request.agent_id, request.agent_version)
+            except agent_registry.AgentRegistryNotFound as exc:
+                raise HTTPException(status_code=404, detail=str(exc)) from exc
+            manifest = validate_agent_manifest(saved_agent["manifest"])
+            agent_context, agent_context_trace = build_agent_intelligence_context(
+                manifest,
+                request.prompt,
+                manifest_sha256=saved_agent.get("manifest_sha256"),
+                lifecycle_state=saved_agent.get("lifecycle_state"),
+            )
+        if agent_context is None:
+            # Preserve the legacy runtime call contract for callers without an Agent binding.
+            result = runtime.decompose(request.prompt, base_context, request.max_new_tokens)
+        else:
+            result = runtime.decompose(
+                request.prompt, base_context, request.max_new_tokens,
+                agent_context=agent_context,
+            )
         result = prepare_agent_candidate(result, request.prompt, objective_contract)
 
         def assess(candidate: dict[str, Any]) -> tuple[bool, list[dict[str, str]], Any]:
@@ -1255,9 +1292,15 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
             refinement_context = base_context + "\n\n" + build_refinement_context(
                 request.prompt, prior_text, diagnostics
             )
-            refined = runtime.decompose(
-                request.prompt, refinement_context, request.max_new_tokens
-            )
+            if agent_context is None:
+                refined = runtime.decompose(
+                    request.prompt, refinement_context, request.max_new_tokens
+                )
+            else:
+                refined = runtime.decompose(
+                    request.prompt, refinement_context, request.max_new_tokens,
+                    agent_context=agent_context,
+                )
             refined = prepare_agent_candidate(refined, request.prompt, objective_contract)
             attempts = 2
             accepted, refined_diagnostics, structural_error = assess(refined)
@@ -1313,6 +1356,7 @@ def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
             }
 
         # Return the full deterministic objective frame as inspectable provenance.
+        result["agent_intelligence_context"] = agent_context_trace
         result["objective_contract"] = objective_contract
         result["objective_contract_v3"] = objective_contract_v3
         result["objective_intelligence_v3"] = {
@@ -1701,4 +1745,12 @@ def studio_home():
     page = Path(__file__).parent / "static" / "index.html"
     if not page.is_file():
         raise HTTPException(status_code=404, detail="Studio frontend is not installed")
-    return FileResponse(page, media_type="text/html")
+    return FileResponse(
+        page,
+        media_type="text/html",
+        headers={
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+            "Expires": "0",
+        },
+    )
