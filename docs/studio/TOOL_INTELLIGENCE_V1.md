@@ -59,3 +59,61 @@ required, confidence), output type + confidence + assignment source,
 declared effects + evidence kind/method, provenance (source, category,
 contract fingerprint). `structural_profile_only: true`; no invocation,
 authorization, or execution implied.
+
+## v1.2 — Explainable Hybrid Retrieval
+
+`taas.studio.tool_service` builds one cached `DiscoveryEngine` over the full
+retained-registry contract set (`_tool_engine()`); the index, retriever and
+hypergraph are shared across requests — retrieval state is never rebuilt per
+call.
+
+`POST /api/v1/tools/retrieve` → `taas.retrieval-explanation/v1`. Body:
+
+| Field | Default | Meaning |
+|---|---|---|
+| `query` | — | Retrieval text (required) |
+| `goal_output` | `null` | Optional type context (Θ type string) for the structural component |
+| `eligible_tool_ids` | `null` | Restrict ranking to these `server::name` ids (unknown ids → `unknown_tool_ids`, never silently dropped) |
+| `components` | `["lex","den","str"]` | Subset selection; any other value → 422 |
+| `k` | `10` | 1–100 |
+| `type_filter` | `true` | Drop zero-structural tools when `goal_output` set |
+| `prompt_inputs` | `[]` | Reachability seed types for the structural component |
+| `include_hypergraph` | `false` | Fold a filtered `taas.hypergraph-projection/v1` (v1.4) into the response |
+| `policy` | `{}` | Optional eligibility policy — adds `eligible` flag per result |
+
+Per result: `tool_id`, `rank`, `fused` score (== `HybridRetriever.scores()`
+exactly), `component_scores` `{lex,den,str}`, `rrf_contribution`
+(`1/(k0+rank)` per selected component), `eligible`, `serves_goals` when
+`goal_output` is set. `score_semantics:
+retrieval_relevance_only_not_capability_evidence_eligibility_or_authorization`.
+
+## v1.3 — Eligibility Explanation
+
+`POST /api/v1/tools/eligibility` → `taas.eligibility-explanation/v1`.
+Mirrors `eligible_set` exactly; explains per tool:
+
+- **positive encoding** — `required_properties`: strength vs `lmin`, `met`;
+  rejection `required_property_below_strength:{prop}`
+- **closed_world encoding** — `forbidden_properties`: strength vs `lmin`,
+  `violated`; rejection `forbidden_property_at_strength:{prop}`
+- **visibility** — `visible`; rejection `not_in_policy_visible_set`
+
+Also returns the engine's full `eligible_ids` set and a summary
+(`evaluated/eligible/rejected/unknown`). `eligibility_semantics:
+policy_evidence_strength_only_not_relevance_capability_or_authorization`.
+
+## v1.4 — Hypergraph Context on Retrieval
+
+`include_hypergraph: true` on `/tools/retrieve` attaches
+`hypergraph_projection` — a read-only filtered projection
+(`project_hypergraph`) covering the returned top-K tools, their semantic
+types, reachability and derivations. No new route; deterministic; no
+authorization/execution effect.
+
+## v1.5 — Registry-Backed Discovery
+
+`POST /api/v1/objectives/discover` accepts `registry_tool_ids` as an
+exclusive alternative to inline `tools` (both → 422; neither → 422). Each id
+must resolve exactly against the retained registry (`server::name`); any
+unresolved id → 422 with the list. Resolved contracts carry their registry
+definition hash and provenance; the response marks `tool_source`.
