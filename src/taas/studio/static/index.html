@@ -360,6 +360,27 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   @media(max-width:900px){.overview-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media(max-width:620px){.overview-resource-grid{grid-template-columns:1fr}.overview-dashboard-head{align-items:stretch}}
   @media(max-width:420px){.overview-metrics{gap:7px}.overview-metric{padding:10px}.overview-metric-value{font-size:21px}}
+
+/* Agent Engineering Workspace v1 */
+.agent-workspace{display:grid;grid-template-columns:minmax(260px,.8fr) minmax(0,1.4fr);gap:16px;align-items:start}
+.agent-workspace .agent-card{border:1px solid var(--line);border-radius:11px;background:#fbfcff;padding:16px;min-width:0}
+.agent-workspace .agent-card h3{margin:0 0 8px;font-size:14px}
+.agent-workspace .agent-card textarea{min-height:150px;font-family:Inter,ui-sans-serif,system-ui,sans-serif;line-height:1.55}
+.agent-trace-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0}
+.agent-trace-metric{padding:11px;border:1px solid var(--line);border-radius:9px;background:#fff;min-width:0}
+.agent-trace-metric strong{display:block;font-size:18px;margin-top:3px;overflow-wrap:anywhere}
+.agent-trace-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
+.agent-trace-table th,.agent-trace-table td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;overflow-wrap:anywhere}
+.agent-trace-table th{color:#5d6c82;font-weight:750;background:#f8faff}
+.agent-trace-list{display:grid;gap:8px;margin-top:10px}
+.agent-trace-item{padding:11px;border:1px solid var(--line);border-radius:9px;background:#fff;min-width:0}
+.agent-trace-item strong{font-size:12px}
+.agent-trace-item small{display:block;color:var(--muted);font-size:10px;margin-top:4px;overflow-wrap:anywhere}
+.agent-trace-boundary{padding:11px 13px;border:1px solid #eadcb9;border-left:3px solid #c18b32;border-radius:9px;background:#fffaf0;color:#715522;font-size:11px;line-height:1.55;margin:12px 0}
+.agent-trace-state{font-size:11px;color:var(--muted);margin:10px 0}
+.agent-trace-state.error{color:#a13f2e}.agent-trace-state.success{color:#176b49}
+@media(max-width:850px){.agent-workspace{grid-template-columns:1fr}.agent-trace-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){.agent-trace-grid{grid-template-columns:1fr}.agent-trace-table{font-size:10px}.agent-trace-table th,.agent-trace-table td{padding:7px 5px}}
 </style>
 </head>
 <body>
@@ -385,6 +406,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <a href="#models">Model catalog</a>
       <a href="#model-runtime-panel">Model runtime</a>
       <a href="#agent-goal-panel">Objective Engineering</a>
+      <a href="#agent-engineering-workspace">Agent Engineering</a>
       <a href="#agent-chat-panel">Model inference sandbox</a>
       <span class="nav-label">TOOLS &amp; DISCOVERY</span>
       <a href="#bench-tools">Tool registry</a>
@@ -407,6 +429,32 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         <span class="workspace-context-spacer"></span>
         <span class="workspace-context-hint">Workspace navigation</span>
       </div>
+
+    <section id="agent-engineering-workspace" class="section-anchor" style="margin-bottom:18px" aria-labelledby="agent-engineering-title">
+    <div class="panel-head"><div><div class="eyebrow">BUILD · AGENT ENGINEERING</div><h2 id="agent-engineering-title" style="margin:4px 0">Objective-to-Agent traceability</h2><p class="subtle" style="margin:4px 0 0">Prepare an Objective with TaaS Core and inspect the returned GoalSpec, outcome coverage and exact-pinned Skill associations in one workspace.</p></div><span class="pill">Core-backed · review required</span></div>
+    <div class="agent-trace-boundary"><strong>Interpretation boundary.</strong> Skill-trigger links are lexical phrase matches within objective clause spans. Outcome/Goal links are structural coverage records. These associations are not semantic proof, capability evidence, policy approval, authorization, or execution.</div>
+    <div class="agent-workspace">
+      <div class="agent-card">
+        <h3>1 · Objective input</h3>
+        <div class="field"><label for="agent-engineering-provider">Inference provider</label><select id="agent-engineering-provider"><option value="huggingface">Hugging Face runtime</option><option value="ollama">Ollama runtime</option></select></div>
+        <div class="field"><label for="agent-engineering-objective">Objective</label><textarea id="agent-engineering-objective" maxlength="12000" placeholder="Describe the outcome the Agent should achieve. Include required operations, source constraints and temporal requirements."></textarea></div>
+        <div class="field"><label for="agent-engineering-context">Additional context · optional</label><textarea id="agent-engineering-context" maxlength="8000" style="min-height:85px" placeholder="Constraints or domain context to provide to the Objective Analyst."></textarea></div>
+        <div class="inline-actions"><button id="agent-engineering-prepare" type="button">Prepare Objective</button><button id="agent-engineering-clear" class="secondary" type="button">Clear</button></div>
+        <div id="agent-engineering-status" class="agent-trace-state" role="status" aria-live="polite">No Objective has been prepared in this workspace.</div>
+      </div>
+      <div class="agent-card">
+        <h3>2 · Traceability overview</h3>
+        <div id="agent-engineering-summary" class="agent-trace-grid" hidden></div>
+        <div id="agent-engineering-trace" class="subtle" aria-live="polite">Prepare an Objective to inspect its Core-generated provenance.</div>
+        <div id="agent-engineering-goals" class="agent-trace-list"></div>
+      </div>
+    </div>
+    <section style="margin-top:14px;box-shadow:none;padding:15px" aria-labelledby="agent-engineering-raw-title">
+      <div class="panel-head"><h3 id="agent-engineering-raw-title" style="margin:0;font-size:13px">Core response · exact payload</h3><span class="pill">Read-only response</span></div>
+      <pre id="agent-engineering-raw" style="min-height:100px">No Core response received.</pre>
+    </section>
+    <p class="subtle" style="margin-top:10px">This workspace calls <code>POST /api/v1/objectives/prepare</code> only after an explicit user action. It does not publish an Agent, start discovery, request authorization, or execute tools. Save/publish workflows are not implied by this trace view.</p>
+  </section>
 
   <section id="evidence-explorer" class="section-anchor" style="margin-bottom:18px">
     <div class="panel-head"><div><div class="eyebrow">ASSURE · Evidence</div><h2 style="margin:4px 0">Evidence explorer</h2>
@@ -2389,6 +2437,61 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       status.textContent = "Skill dependency graph unavailable: " + error.message;
     } finally { button.disabled = false; }
   });
+
+
+  // Agent Engineering Workspace: explicit Objective preparation through TaaS Core.
+  const agentEngineeringPrepare = $("agent-engineering-prepare");
+  const agentEngineeringStatus = $("agent-engineering-status");
+  const agentEngineeringRaw = $("agent-engineering-raw");
+  const agentEngineeringTrace = $("agent-engineering-trace");
+  const agentEngineeringSummary = $("agent-engineering-summary");
+  const agentEngineeringGoals = $("agent-engineering-goals");
+  const renderAgentMetric = (label, value) => {
+    const card=document.createElement("div");card.className="agent-trace-metric";
+    const caption=document.createElement("span");caption.className="subtle";caption.textContent=label;
+    const strong=document.createElement("strong");strong.textContent=String(value ?? "Not reported");
+    card.append(caption,strong);return card;
+  };
+  const renderAgentTrace = data => {
+    const trace=data.objective_skill_traceability||{};
+    const outcomes=Array.isArray(trace.outcome_provenance)?trace.outcome_provenance:[];
+    const skills=Array.isArray(trace.skill_selection)?trace.skill_selection:[];
+    const goals=Array.isArray(trace.goal_provenance)?trace.goal_provenance:[];
+    const coverage=trace.coverage_summary||{};
+    agentEngineeringSummary.replaceChildren(
+      renderAgentMetric("Required outcomes",coverage.required??outcomes.length),
+      renderAgentMetric("Covered outcomes",coverage.covered??"Not reported"),
+      renderAgentMetric("Triggered Skill records",skills.filter(item=>item.selected).length)
+    );agentEngineeringSummary.hidden=false;
+    agentEngineeringTrace.replaceChildren();
+    const scope=document.createElement("p");scope.className="subtle";scope.textContent="Provenance scope: "+(trace.provenance_scope||"Not reported")+" · semantic correctness verified: "+String(trace.semantic_correctness_verified===true);agentEngineeringTrace.append(scope);
+    const table=document.createElement("table");table.className="agent-trace-table";
+    const head=document.createElement("thead"),headRow=document.createElement("tr");
+    ["Outcome","Source clause","Coverage","Goal IDs","Skills triggered in clause"].forEach(label=>{const th=document.createElement("th");th.textContent=label;headRow.append(th);});head.append(headRow);table.append(head);
+    const body=document.createElement("tbody");
+    outcomes.forEach(item=>{const row=document.createElement("tr");[item.outcome_id,item.clause_ref,item.coverage_status,(item.covered_by_goal_ids||[]).join(", ")||"—",(item.skills_triggered_in_clause||[]).join(", ")||"—"].forEach(value=>{const td=document.createElement("td");td.textContent=String(value??"—");row.append(td);});body.append(row);});
+    if(!outcomes.length){const row=document.createElement("tr"),cell=document.createElement("td");cell.colSpan=5;cell.textContent="No outcome provenance was returned.";row.append(cell);body.append(row);}
+    table.append(body);agentEngineeringTrace.append(table);
+    agentEngineeringGoals.replaceChildren();
+    skills.forEach(skill=>{const item=document.createElement("div");item.className="agent-trace-item";const title=document.createElement("strong");title.textContent=(skill.skill_id||"Unknown Skill")+" · "+(skill.version||"version not reported")+(skill.selected?" · selected":" · not selected");const detail=document.createElement("small");const triggerText=(skill.matched_triggers||[]).map(t=>{const spans=(t.occurrences||[]).map(o=>String(o.clause_ref||"unmapped")+" ["+o.start+"–"+o.end+"]").join(", ");return t.phrase+(spans?" → "+spans:"");}).join(" | ");detail.textContent="Source: "+(skill.source||"not reported")+" · selection policy: "+(skill.selection_policy||"not reported")+" · triggers: "+(triggerText||"none");item.append(title,detail);if(skill.registry_manifest_sha256){const digest=document.createElement("small");digest.textContent="Registry manifest SHA-256: "+skill.registry_manifest_sha256;item.append(digest);}agentEngineeringGoals.append(item);});
+    goals.forEach(goal=>{const item=document.createElement("div");item.className="agent-trace-item";const title=document.createElement("strong");title.textContent="Goal "+(goal.goal_id||"unknown")+" · "+(goal.goal_class||"class not reported");const detail=document.createElement("small");detail.textContent="Outcome: "+(goal.linked_outcome_id||"not linked")+" · clause: "+(goal.clause_ref||"not linked")+" · Skills associated in clause: "+((goal.skills_triggered_in_clause||[]).join(", ")||"none");item.append(title,detail);agentEngineeringGoals.append(item);});
+    if(!skills.length&&!goals.length){const empty=document.createElement("p");empty.className="subtle";empty.textContent="No Skill selection or Goal provenance records were returned.";agentEngineeringGoals.append(empty);}
+  };
+  agentEngineeringPrepare.addEventListener("click",async()=>{
+    const token=$("token").value.trim(),prompt=$("agent-engineering-objective").value.trim();
+    if(!token){agentEngineeringStatus.className="agent-trace-state error";agentEngineeringStatus.textContent="Connect Studio with a valid bearer token before preparing an Objective.";return;}
+    if(!prompt){agentEngineeringStatus.className="agent-trace-state error";agentEngineeringStatus.textContent="Enter an Objective before requesting preparation.";return;}
+    agentEngineeringPrepare.disabled=true;agentEngineeringStatus.className="agent-trace-state";agentEngineeringStatus.textContent="Preparing Objective with TaaS Core…";
+    try{
+      const response=await fetch("/api/v1/objectives/prepare",{method:"POST",headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json","Cache-Control":"no-cache"},cache:"no-store",body:JSON.stringify({provider:$("agent-engineering-provider").value,prompt,context:$("agent-engineering-context").value.trim()})});
+      const data=await readJsonResponse(response);if(!response.ok)throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
+      agentEngineeringRaw.textContent=JSON.stringify(data,null,2);renderAgentTrace(data);
+      const coverage=data.objective_coverage?.summary||{};
+      agentEngineeringStatus.className="agent-trace-state success";agentEngineeringStatus.textContent="Core response received · "+(coverage.covered??"Not reported")+" covered / "+(coverage.required??"Not reported")+" required outcomes · human review remains required.";
+    }catch(error){agentEngineeringStatus.className="agent-trace-state error";agentEngineeringStatus.textContent="Objective preparation failed: "+error.message;agentEngineeringRaw.textContent="No successful response is available. "+error.message;agentEngineeringSummary.hidden=true;agentEngineeringTrace.textContent="Traceability unavailable until a successful Core response is received.";agentEngineeringGoals.replaceChildren();}
+    finally{agentEngineeringPrepare.disabled=false;}
+  });
+  $("agent-engineering-clear").addEventListener("click",()=>{$("agent-engineering-objective").value="";$("agent-engineering-context").value="";agentEngineeringSummary.hidden=true;agentEngineeringTrace.textContent="Prepare an Objective to inspect its Core-generated provenance.";agentEngineeringGoals.replaceChildren();agentEngineeringRaw.textContent="No Core response received.";agentEngineeringStatus.className="agent-trace-state";agentEngineeringStatus.textContent="Workspace cleared. No API request was made.";});
 
   // The overview is explicitly refreshed by the user after Studio authentication.\n\n  // Restore the last successful Core response after a page refresh. This is
   // ephemeral per-tab UI state, not durable run history; the API token is never stored.
