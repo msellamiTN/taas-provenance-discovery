@@ -662,6 +662,7 @@ def test_e18_factorial_preview_runs_all_eight_frozen_cells_with_shared_inputs():
     for item in result["results"]:
         assert item["evaluator_labels_accessed"] is False
         assert item["mcp_tools_executed"] is False
+        assert item["model_profile_fingerprint"] == result["shared_inputs"]["model_profile_fingerprint"]
         if item["factors"]["S"] == 0:
             assert item["certificate"] is None
             assert item["certificate_valid"] is False
