@@ -426,7 +426,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   </form>
 </header>
 <main>
-  <div class="notice" role="note"><strong>Execution safety boundary.</strong> Model and Agent workspaces can inspect models, run local inference when explicitly loaded, and draft GoalSpecs for review. Discovery and assurance inspect tool capability and evidence; they do not invoke MCP tools. Governed MCP execution, isolated workers, and durable run history are not enabled in this build.</div>
+  <div class="notice" role="note"><strong>Execution safety boundary.</strong> Model and Agent workspaces can inspect models, run local inference when explicitly loaded, and draft GoalSpecs for review. Discovery and assurance inspect tool capability and evidence; persisted discovery history and audit inspection are read-only pre-execution observations. Governed MCP execution and isolated workers are not enabled in this build.</div>
   <a class="skip-link" href="#overview-workspace">Skip to Studio workspace</a>
   <div class="studio-layout">
     <nav class="studio-nav" aria-label="Studio sections">
@@ -445,6 +445,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <a href="#discovery">Tool discovery</a>
       <a href="#hypergraph-explorer">Hypergraph explorer</a>
       <a href="#certificate-panel">Assurance center</a>
+      <a href="#discovery-observability">Discovery history &amp; audit</a>
       <a href="#evidence-explorer">Evidence explorer</a>
       <span class="nav-label">OPERATE &amp; OBSERVE</span>
       <a href="#workspace">Benchmark workspace</a>
@@ -573,7 +574,8 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <div class="pipeline-step pipeline-disabled" aria-disabled="true"><span class="pipeline-index">07</span><strong>Governed execution</strong><small>Authorization and isolated invocation · not enabled</small></div>
     </div>
   </section>
-  </div>\n  <section id="workspace" class="section-anchor" style="margin-bottom:18px">
+  </div>
+  <section id="workspace" class="section-anchor" style="margin-bottom:18px">
     <div class="panel-head"><div><div class="eyebrow">01 · Explore</div><h2 style="margin:4px 0">Benchmark &amp; tool workspace</h2></div><span class="pill">Repository-retained data · no upstream fetch</span></div>
     <div class="workspace-grid">
       <section style="box-shadow:none;padding:14px">
@@ -770,6 +772,28 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     </section>
   </div>
 
+  <section id="discovery-observability" class="section-anchor" style="margin:0 0 18px">
+    <div class="panel-head"><div><div class="eyebrow">OPERATE &amp; OBSERVE</div><h2 style="margin:4px 0">Discovery history &amp; audit integrity</h2></div><span class="pill">Read-only · pre-execution observations</span></div>
+    <div class="notice" role="note">Persisted discovery runs record analysis and selection decisions. They are not proof of tool invocation, task completion, authorization, or governed execution.</div>
+    <div class="grid" style="grid-template-columns:repeat(2,minmax(0,1fr));gap:14px">
+      <section style="box-shadow:none">
+        <div class="panel-head"><h3>Persisted discovery runs</h3><button id="obs-refresh-runs" class="secondary" type="button">Refresh runs</button></div>
+        <div id="obs-runs-status" class="status subtle" role="status" aria-live="polite">Connect to Studio, then load persisted runs.</div>
+        <div id="obs-runs-list" class="listbox" style="max-height:340px"><div class="subtle" style="padding:12px">No run history loaded.</div></div>
+        <div class="field"><label for="obs-run-id">Inspect run ID</label><input id="obs-run-id" placeholder="Paste a discovery_run_id" style="width:100%"></div>
+        <div class="inline-actions"><button id="obs-load-run" type="button" class="secondary">Load run details</button></div>
+        <pre id="obs-run-detail">Select or enter a persisted run to inspect its record.</pre>
+      </section>
+      <section style="box-shadow:none">
+        <div class="panel-head"><h3>Audit ledger</h3><div class="inline-actions"><button id="obs-refresh-audit" class="secondary" type="button">Load events</button><button id="obs-verify-audit" type="button">Verify chain</button></div></div>
+        <div id="obs-audit-status" class="status subtle" role="status" aria-live="polite">Audit events have not been loaded.</div>
+        <div id="obs-audit-verification" class="status subtle" role="status" aria-live="polite">Hash-chain integrity has not been checked.</div>
+        <div id="obs-audit-events" class="listbox" style="max-height:420px"><div class="subtle" style="padding:12px">No audit events loaded.</div></div>
+        <pre id="obs-audit-detail">Select an audit event to inspect its complete record.</pre>
+      </section>
+    </div>
+    <p class="subtle">Integrity verification reports the Core ledger's hash-chain result. A valid chain establishes tamper-evident ordering/integrity of recorded events, not truth of event claims or execution proof.</p>
+  </section>
   <section id="runtime" class="section-anchor" style="margin-bottom:18px">
     <h2>Runtime · GPU diagnostics</h2>
     <p class="muted">Host GPU visibility and CUDA inference readiness are separate checks. A detected GPU does not mean a model runtime is installed or loaded.</p>
@@ -2629,7 +2653,65 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   });
   $("agent-engineering-clear").addEventListener("click",()=>{$("agent-engineering-objective").value="";$("agent-engineering-context").value="";agentEngineeringSummary.hidden=true;agentEngineeringTrace.textContent="Prepare an Objective to inspect its Core-generated provenance.";agentEngineeringGoals.replaceChildren();agentEngineeringRaw.textContent="No Core response received.";agentEngineeringStatus.className="agent-trace-state";agentEngineeringStatus.textContent="Workspace cleared. No API request was made.";});
 
-  // The overview is explicitly refreshed by the user after Studio authentication.\n\n  // Restore the last successful Core response after a page refresh. This is
+  // The overview is explicitly refreshed by the user after Studio authentication.\n\n  // UX-F02: read-only discovery history and audit integrity workspace.
+  const obsRenderRecordList = (host, records, emptyText, onSelect) => {
+    host.replaceChildren();
+    if (!Array.isArray(records) || records.length === 0) {
+      const empty=document.createElement("div"); empty.className="subtle"; empty.style.padding="12px"; empty.textContent=emptyText; host.append(empty); return;
+    }
+    records.forEach((record,index)=>{
+      const button=document.createElement("button"); button.type="button"; button.className="list-item";
+      const title=document.createElement("strong");
+      const id=record.run_id || record.discovery_run_id || record.event_id || record.id || ("Record "+(index+1));
+      title.textContent=String(record.event_type || record.status || record.type || "Record")+" · "+String(id);
+      const meta=document.createElement("small");
+      meta.textContent=[record.created_at || record.timestamp,record.tool_source,record.record_semantics].filter(Boolean).map(String).join(" · ") || "Core-recorded observation";
+      button.append(title,meta); button.addEventListener("click",()=>onSelect(record)); host.append(button);
+    });
+  };
+  const obsRefreshRuns = async () => {
+    $("obs-runs-status").textContent="Loading persisted discovery runs…";
+    try {
+      const data=await apiGet("/api/v1/discovery/runs?limit=50");
+      const records=Array.isArray(data.runs)?data.runs:(Array.isArray(data.records)?data.records:[]);
+      obsRenderRecordList($("obs-runs-list"),records,"No persisted discovery runs returned.",record=>{
+        const id=record.run_id || record.discovery_run_id || record.id || "";
+        $("obs-run-id").value=String(id); $("obs-run-detail").textContent=JSON.stringify(record,null,2);
+      });
+      $("obs-runs-status").textContent="Core returned "+records.length+" persisted run record(s). Analysis observations only; execution is not implied.";
+    } catch(error) {$("obs-runs-status").textContent="Could not load discovery history: "+error.message;}
+  };
+  const obsLoadRun = async () => {
+    const id=$("obs-run-id").value.trim();
+    if(!id){$("obs-run-detail").textContent="Enter a discovery run ID.";return;}
+    $("obs-run-detail").textContent="Loading run…";
+    try {const data=await apiGet("/api/v1/discovery/runs/"+encodeURIComponent(id));$("obs-run-detail").textContent=JSON.stringify(data,null,2);}
+    catch(error) {$("obs-run-detail").textContent="Run lookup failed: "+error.message;}
+  };
+  const obsRefreshAudit = async () => {
+    $("obs-audit-status").textContent="Loading hash-chained audit events…";
+    try {
+      const data=await apiGet("/api/v1/audit/events?limit=100");
+      const records=Array.isArray(data.events)?data.events:[];
+      obsRenderRecordList($("obs-audit-events"),records,"No audit events returned.",record=>$("obs-audit-detail").textContent=JSON.stringify(record,null,2));
+      $("obs-audit-status").textContent="Core returned "+records.length+" event(s) · "+String(data.record_semantics || "record semantics not reported")+".";
+    } catch(error) {$("obs-audit-status").textContent="Could not load audit events: "+error.message;}
+  };
+  const obsVerifyAudit = async () => {
+    const status=$("obs-audit-verification"); status.textContent="Recomputing the audit hash chain…";
+    try {
+      const data=await apiGet("/api/v1/audit/verify"),valid=data.chain_valid===true;
+      status.className="status "+(valid?"ok":"error");
+      status.textContent=valid?"Hash chain valid · Core reports no divergence.":"Hash chain not verified · first divergence: "+String(data.first_divergence ?? "not reported")+".";
+      $("obs-audit-detail").textContent=JSON.stringify(data,null,2);
+    } catch(error) {status.className="status error";status.textContent="Verification request failed: "+error.message;}
+  };
+  $("obs-refresh-runs").addEventListener("click",obsRefreshRuns);
+  $("obs-load-run").addEventListener("click",obsLoadRun);
+  $("obs-refresh-audit").addEventListener("click",obsRefreshAudit);
+  $("obs-verify-audit").addEventListener("click",obsVerifyAudit);
+
+  // Restore the last successful Core response after a page refresh. This is
   // ephemeral per-tab UI state, not durable run history; the API token is never stored.
   restoreLastDiscoveryResult();
 
