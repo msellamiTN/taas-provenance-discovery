@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 import taas.studio.api as studio_api
 from taas.policy import Policy
 from taas.studio import tool_registry, tool_service
-from tests.test_tool_retrieval_explanation import TOOLS, SNAPSHOT
+from .test_tool_retrieval_explanation import TOOLS, SNAPSHOT
 
 
 @pytest.fixture(autouse=True)

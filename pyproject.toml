@@ -21,5 +21,5 @@ mcp = ["mcp>=1.9"]
 where = ["src"]
 
 [tool.pytest.ini_options]
-pythonpath = ["src"]
+pythonpath = ["src", "."]
 testpaths = ["tests"]
