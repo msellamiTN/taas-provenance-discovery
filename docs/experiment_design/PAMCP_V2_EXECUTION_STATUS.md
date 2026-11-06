@@ -63,13 +63,13 @@ The E8 runner deliberately writes a `partial` manifest for its selected retrieva
 
 ## E18 factorial preview orchestration
 
-The new `run_pamcp_factorial_preview` executes the eight frozen G×P×S cells in catalog order with one shared model profile and shared registry, GoalSpec and policy fingerprints. It checks the exact factor tuple per cell and asserts that evaluator labels and MCP tools are not accessed. The CI test executes all eight variants on a tiny synthetic contract fixture and verifies that every `S=0` cell remains uncertified and disables backward closure and joint checks. This is a software preview, not confirmatory E18 evidence or a PaMCP performance score.
+The new `run_pamcp_factorial_preview` executes the eight frozen G×P×S cells in catalog order with one shared model profile and shared registry, GoalSpec and policy fingerprints. It checks the exact factor tuple per cell and asserts that evaluator labels and MCP tools are not accessed. The CI test executes all eight variants on a tiny synthetic contract fixture and verifies that every `S=0` cell remains uncertified and disables backward closure and joint checks. This is a software preview, not confirmatory E18 evidence or a PaMCP performance score. The Studio preview API now routes a request containing all eight variants through this shared-input runner and returns the `pamcp_factorial_preview` metadata; subset previews retain their existing single-variant path.
 
 ## Current CI evidence
 
-- Latest E18 factorial preview test commit: `ccc889055402c36e1d9a4b58188e41a836141d56`.
-- Push run: [#42304921992](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/42304921992) — success.
-- Pull-request run: [#42304930100](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/42304930100) — success.
+- Latest E18 Studio integration test commit: `d57bc771691245b40fec22aad64afd9831299f32`.
+- Push run: [#42305179009](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/42305179009) — success.
+- Pull-request run: [#42305188431](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/42305188431) — success.
 - PaMCP tests: **107 passed, 6 warnings**.
 - Studio API tests: **61 passed, 1 warning**.
 - Four notebooks syntax-validated; 22 experiment IDs and 31 baseline IDs validated.
