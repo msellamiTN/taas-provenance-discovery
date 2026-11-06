@@ -5,6 +5,11 @@ on:
     branches: ["feature/e8-cpu-fasttext-v2"]
     paths:
       - "experiments/e8_cpu_static_embedding.py"
+      - "experiments/e8_retrieval_campaign.py"
+      - "src/taas/data/registries.py"
+      - "scripts/fetch_mcptoolbenchpp.py"
+      - "tests/test_e8_retrieval_campaign.py"
+      - "tests/test_fetch_mcptoolbenchpp.py"
       - "tests/test_e8_cpu_static_embedding.py"
       - "notebooks/E8_CPU_StaticEmbedding_v2_Colab.ipynb"
       - "docs/experiment_design/E8_CPU_STATIC_EMBEDDING_v2.json"
@@ -37,7 +42,7 @@ jobs:
           python -m pip install -e ".[test]"
       - name: Validate E8 module and protocol JSON
         run: |
-          python -m py_compile experiments/e8_cpu_static_embedding.py
+          python -m compileall -q experiments scripts src/taas/data
           python -m json.tool docs/experiment_design/E8_CPU_STATIC_EMBEDDING_v2.json > /dev/null
       - name: Validate E8 Colab notebook structure and Python syntax
         run: |
@@ -66,5 +71,5 @@ jobs:
           assert all("pytest', '-q'" not in s for s in sources)
           print(f"Validated {len(sources)} code cells in {path}")
           PY
-      - name: Run E8 CPU static embedding unit tests
-        run: python -m pytest -vv --tb=long -ra tests/test_e8_cpu_static_embedding.py
+      - name: Run E8 CPU static embedding and retrieval campaign tests
+        run: python -m pytest -vv --tb=long -ra tests/test_e8_cpu_static_embedding.py tests/test_e8_retrieval_campaign.py tests/test_fetch_mcptoolbenchpp.py
