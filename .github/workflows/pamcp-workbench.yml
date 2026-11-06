@@ -79,5 +79,42 @@ jobs:
             tests/test_e8_retrieval_campaign.py \
             tests/test_mcpverse_adapter.py \
             tests/test_declared_effects_are_not_observations.py
+      - name: Execute descriptive E1 registry characterization
+        run: |
+          RUN_ID="E1-${GITHUB_SHA}-${GITHUB_RUN_ID}"
+          python experiments/colab/e1_registry_characterization.py --root . --output results/ci --run-id "${RUN_ID}"
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          run_id = f"E1-{os.environ['GITHUB_SHA']}-{os.environ['GITHUB_RUN_ID']}"
+          run_dir = Path("results/ci/E1") / run_id
+          manifest = json.loads((run_dir / "MANIFEST.json").read_text(encoding="utf-8"))
+          summary = json.loads((run_dir / "summary.json").read_text(encoding="utf-8"))
+          assert manifest["experiment"]["id"] == "E1"
+          assert manifest["experiment"]["catalog_status_before_run"] == "planned_not_run"
+          assert summary["registry"]["tool_rows"] > 0
+          assert summary["guardrails"]["silver_labels_read"] is False
+          assert summary["guardrails"]["task_gold_labels_read"] is False
+          assert summary["guardrails"]["mcp_servers_executed"] is False
+          print(json.dumps({
+              "status": "EXECUTED",
+              "run_id": run_id,
+              "registry_sha256": manifest["inputs"]["registry_sha256"],
+              "tool_rows": summary["registry"]["tool_rows"],
+              "unique_tool_ids": summary["registry"]["unique_tool_ids"],
+              "source_count": summary["registry"]["source_count"],
+              "published_hash_mismatches": summary["metadata_completeness"]["published_hash_mismatches"],
+              "artifact_dir": str(run_dir)
+          }, indent=2))
+          PY
+      - name: Upload E1 reproducibility artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pamcp-e1-${{ github.sha }}-${{ github.run_id }}
+          path: results/ci/E1/E1-${{ github.sha }}-${{ github.run_id }}/
+          if-no-files-found: error
+          retention-days: 30
       - name: Run existing Studio API tests
         run: python -m pytest -q tests/test_studio_api.py
