@@ -21,7 +21,7 @@ def test_ux8_navigation_and_six_panels_are_present():
 
 def test_ux8_uses_evidence_states_and_does_not_claim_conformance():
     html = _studio_html()
-    for marker in ("NOT_RUN", "UNKNOWN", "WCAG 2.2 AA is a target", "not a certification"):
+    for marker in ("NOT_RUN", "UNKNOWN", "WCAG 2.2 AA is the target", "not a certification"):
         assert marker in html
 
 
