@@ -9,8 +9,8 @@ from fastapi.testclient import TestClient
 
 import taas.studio.api as studio_api
 from taas.studio import discovery_runs, tool_registry, tool_service
-from tests.test_registry_tool_discovery import GOAL_SPEC, FakeEngine
-from tests.test_tool_retrieval_explanation import TOOLS, SNAPSHOT
+from .test_registry_tool_discovery import GOAL_SPEC, FakeEngine
+from .test_tool_retrieval_explanation import TOOLS, SNAPSHOT
 
 
 @pytest.fixture(autouse=True)

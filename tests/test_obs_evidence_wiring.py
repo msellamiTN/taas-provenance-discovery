@@ -6,7 +6,7 @@ import pytest
 
 from taas.provenance import EvidenceStore
 from taas.studio import tool_registry, tool_service
-from tests.test_tool_retrieval_explanation import TOOLS, SNAPSHOT
+from .test_tool_retrieval_explanation import TOOLS, SNAPSHOT
 
 
 @pytest.fixture(autouse=True)

@@ -7,7 +7,7 @@ import taas.studio.api as studio_api
 from taas.data.registries import RawTool
 from taas.policy import Policy
 from taas.studio import tool_registry, tool_service
-from tests.test_tool_retrieval_explanation import TOOLS, SNAPSHOT  # reuse fixtures
+from .test_tool_retrieval_explanation import TOOLS, SNAPSHOT  # reuse fixtures
 
 
 @pytest.fixture(autouse=True)
