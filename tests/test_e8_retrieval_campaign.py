@@ -308,11 +308,22 @@ def test_mcp_toolbench_loader_reports_missing_category_files(tmp_path):
         load_mcptoolbenchpp(tmp_path)
 
 
-def test_mcp_toolbench_loader_rejects_empty_category_json(tmp_path):
+def test_mcp_toolbench_loader_rejects_incomplete_category_set(tmp_path):
     from taas.data.registries import load_mcptoolbenchpp
 
     category = tmp_path / "mcptoolbenchpp"
     category.mkdir()
     (category / "browser.json").write_text("[]", encoding="utf-8")
+    with pytest.raises(FileNotFoundError, match="missing=.*file_system"):
+        load_mcptoolbenchpp(tmp_path)
+
+
+def test_mcp_toolbench_loader_rejects_empty_category_json(tmp_path):
+    from taas.data.registries import load_mcptoolbenchpp
+
+    category = tmp_path / "mcptoolbenchpp"
+    category.mkdir()
+    for name in ("browser", "file_system", "finance", "map", "pay", "search"):
+        (category / f"{name}.json").write_text("[]", encoding="utf-8")
     with pytest.raises(ValueError, match="empty or not a JSON list"):
         load_mcptoolbenchpp(tmp_path)

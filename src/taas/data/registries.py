@@ -79,11 +79,15 @@ def _pp_files(raw: Path) -> list[Path]:
     """Return MCPToolBench++ category JSON files; fail clearly when absent."""
     directory = Path(raw) / "mcptoolbenchpp"
     files = sorted(directory.glob("*.json")) if directory.is_dir() else []
-    if not files:
+    expected = {"browser", "file_system", "finance", "map", "pay", "search"}
+    found = {path.stem for path in files}
+    if found != expected:
+        missing, unexpected = sorted(expected - found), sorted(found - expected)
         raise FileNotFoundError(
-            "MCPToolBench++ raw category JSON files are missing. "
-            f"Expected six pinned category files under {directory}. "
-            "Restore them with: python scripts/fetch_mcptoolbenchpp.py"
+            "MCPToolBench++ raw category set is incomplete or unexpected. "
+            f"Directory: {directory}; missing={missing}; unexpected={unexpected}. "
+            "Restore the pinned six-category snapshot with: "
+            "python scripts/fetch_mcptoolbenchpp.py"
         )
     return files
 
