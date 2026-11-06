@@ -139,6 +139,10 @@ def run_pamcp_variant(
             "clarification": gap.clarify,
             "certificate": None,
             "certificate_valid": False,
+            "model_profile": profile.model_id,
+            "model_profile_fingerprint": _canonical_fingerprint(profile),
+            "model_profile_strict": profile.strict,
+            "refinement_iterations_allowed": refine_k,
             "evaluator_labels_accessed": False,
             "mcp_tools_executed": False,
         }
@@ -167,6 +171,7 @@ def run_pamcp_variant(
         "raw_context_tokens": raw_tokens(engine.H, selected),
         "sanitized_manifest_tokens": 0,
         "model_profile": profile.model_id,
+        "model_profile_fingerprint": _canonical_fingerprint(profile),
         "model_profile_strict": profile.strict,
         "refinement_iterations_allowed": refine_k,
         "evaluator_labels_accessed": False,
