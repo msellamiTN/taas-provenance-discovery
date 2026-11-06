@@ -64,6 +64,6 @@ def test_platform_overview_does_not_claim_model_inventory_or_operational_readine
 
 def test_platform_overview_ids_are_unique():
     html = HTML.read_text(encoding="utf-8")
-    ids = re.findall(r'\\bid="([^"]+)"', html)
+    ids = re.findall(r'id="([^"]+)"', html)
     overview_ids = [value for value in ids if value.startswith("platform-overview") or value.startswith("overview-")]
     assert len(overview_ids) == len(set(overview_ids))
