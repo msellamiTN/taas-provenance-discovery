@@ -49,7 +49,8 @@ def test_goal_examples_require_explicit_replacement_and_invalidate_review():
 
 def test_goal_dependency_views_refresh_when_the_draft_changes():
     html = _studio_html()
-    assert 'const syncGoalSpec = () => {\n    try{getGoalSpec();renderGoalDependencyViews();' in html
+    sync_body = html.split("const syncGoalSpec = () => {", 1)[1].split("};", 1)[0]
+    assert "try{getGoalSpec();renderGoalDependencyViews();" in sync_body
     assert 'goalViewState.mode="table"' in html
     assert 'goalViewState.mode="graph"' in html
 
