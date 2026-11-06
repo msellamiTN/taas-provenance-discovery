@@ -217,8 +217,7 @@ def run_pamcp_factorial_preview(
 
     profile = load_preview_profile()
     registry_fingerprint = _canonical_fingerprint([
-        {"tool_id": contract.tool, "definition_hash": contract.h}
-        for contract in sorted(contracts, key=lambda item: item.tool)
+        contract for contract in sorted(contracts, key=lambda item: item.tool)
     ])
     goal_fingerprint = _canonical_fingerprint(goal_spec)
     policy_fingerprint = _canonical_fingerprint(policy)
