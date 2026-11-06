@@ -10,7 +10,7 @@ NOTEBOOK = ROOT / "notebooks" / "colab" / "taas_core_studio_colab.ipynb"
 GUIDE = ROOT / "docs" / "deployment" / "COLAB_T4_QUICKSTART.md"
 RUNTIME_GUIDE = ROOT / "docs" / "deployment" / "MODEL_RUNTIME_BACKENDS.md"
 WORKFLOW = ROOT / ".github" / "workflows" / "benchmark-hypergraph.yml"
-INTEGRATED_STUDIO_COMMIT = "d172fdcd73703eb5afc20495bb03cb0b2a3cf5f6"
+INTEGRATED_STUDIO_COMMIT = "0fb7fa42cc776b6119d2a3fd54a96f302f8ec890"
 
 
 def notebook_source() -> tuple[dict, str, str]:
@@ -93,6 +93,20 @@ def test_colab_runs_reusable_skill_registry_acceptance() -> None:
     assert "tests/test_skill_registry_api.py" in code
     assert "Reusable Skill Registry acceptance tests failed" in code
     assert "Reusable Skill Registry unit and authenticated API tests passed." in code
+
+
+def test_colab_runs_tool_intelligence_acceptance() -> None:
+    _, markdown, code = notebook_source()
+    assert "Tool Intelligence acceptance" in markdown
+    assert "tests/test_tool_registry.py" in code
+    assert "tests/test_tool_retrieval_explanation.py" in code
+    assert "tests/test_tool_eligibility.py" in code
+    assert "tests/test_registry_tool_discovery.py" in code
+    assert "taas.retrieval-explanation/v1" in code
+    assert "taas.eligibility-explanation/v1" in code
+    assert "include_hypergraph" in code
+    assert "registry_tool_ids" in code
+    assert "Tool Intelligence acceptance OK" in code
 
 
 def test_colab_notebook_pins_the_integrated_model_agent_studio_revision() -> None:
