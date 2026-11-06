@@ -15,6 +15,17 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[3]
 
+# "book"/"reserve" classify as transact only as transaction verbs with a booking
+# object. Bare nouns ("borrow his book", "nature reserve") must not mint a
+# required financial outcome — a missed cue is a soft miss; a false required
+# outcome hard-blocks the objective.
+_BOOKING_TRANSACTION_CUE = (
+    r"\b(?:book(?:ed|ing|s)?|reserve(?:d|s|ing)?|réserver|reserver)\s+"
+    r"(?:(?:an?|the|un|une|deux|trois|\d+|\w+|my|your|his|her|our|their)\s+){0,2}"
+    r"\w*(?:ticket|flight|seat|room|hotel|table|restaurant|appointment|reservation|venue|"
+    r"cab|ride|show|cruise|meeting|billet|vol|chambre)s?\w*\b"
+)
+
 
 def _theta() -> dict[str, Any]:
     path = ROOT / "data" / "processed" / "theta.json"
@@ -248,7 +259,10 @@ def derive_objective_contract(
         (bool(re.search(r"\b(answer|explain|respond|describe|define|expliquer|décrire|decrire|définir|definir)\b", lower)), "answer"),
         (bool(re.search(r"\b(save|store|persist|write\s+to|enregistrer|sauvegarder|stocker)\b", lower)), "store"),
         (bool(re.search(r"\b(send|email|notify|message\s+to|envoyer|transmettre|notifier)\b", lower)), "send"),
-        (bool(re.search(r"\b(book|reserve|purchase|pay|transfer\s+funds|réserver|reserver|acheter|payer|transférer|transferer)\b", lower)), "transact"),
+        (bool(re.search(
+            _BOOKING_TRANSACTION_CUE
+            + r"|\bpurchase\b|\bpay\b|\btransfer\s+funds\b|\bacheter\b|\bpayer\b|\btransférer\b|\btransferer\b",
+            lower)), "transact"),
         (bool(re.search(r"\b(execute|run\s+(?:the\s+)?(?:script|command|query)|deploy|exécuter|executer|lancer|déployer|deployer)\b", lower)), "execute"),
         (bool(re.search(r"\b(browse|navigate\s+to|open\s+(?:the\s+)?website|click\s+through|naviguer|parcourir|ouvrir\s+(?:le\s+)?site|cliquer)\b", lower)), "navigate_browser"),
         (bool(re.search(r"\b(generate|create|draw|render|générer|generer|créer|creer)\s+(?:(?:an?|un|une)\s+)?(?:image|picture|video|audio|diagram|chart|illustration|schéma|schema)\b", lower)), "render_media"),

@@ -203,3 +203,33 @@ def test_v3_oncology_objective_preserves_clause_order_month_scope_and_article_de
     assert contract["review"]["discovery_blocked"] is True
     assert contract["review"]["semantic_correctness_verified"] is False
     assert validate_objective_contract_v3(contract) == []
+
+
+def test_transact_cue_requires_booking_object_not_noun():
+    """Regression: 'borrow his book' (noun) must not mint a transact outcome."""
+    orwell = (
+        "I need to do a presentation about George Orwell and my friend is going "
+        "to borrow me his book. I will meet him in 1000 5th Avenue. Also I do not "
+        "know the name of the book, the only thing I remember is that the title "
+        "begins with a number."
+    )
+    contract = derive_objective_contract_v3(orwell)
+    assert not any(o["goal_class"] == "transact" for o in contract["outcomes"])
+
+    for prompt in (
+        "Book a flight to Rome tomorrow.",
+        "Please reserve a table for two at the restaurant.",
+        "Réserver une chambre à Paris.",
+        "Booked two tickets for the show.",
+    ):
+        classes = [o["goal_class"] for o in derive_objective_contract_v3(prompt)["outcomes"]]
+        assert "transact" in classes, prompt
+
+
+def test_nature_reserve_and_pay_still_classify_correctly():
+    contract = derive_objective_contract_v3(
+        "Describe the nature reserve near the coast."
+    )
+    assert not any(o["goal_class"] == "transact" for o in contract["outcomes"])
+    contract = derive_objective_contract_v3("Pay the invoice for last month's order.")
+    assert any(o["goal_class"] == "transact" for o in contract["outcomes"])
