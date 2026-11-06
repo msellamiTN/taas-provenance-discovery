@@ -3213,7 +3213,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       const stillMatched=[...right.values()].filter(item=>item.status==="matched"&&left.has(keyOf(item))&&left.get(keyOf(item)).status==="matched").length;
       const affected=[...new Set(changes.flatMap(change=>[change.itemA?.goal_id,change.itemB?.goal_id]).filter(Boolean))];
       const impact={still_matched:stillMatched,now_unmatched:0,now_incompatible:0,needs_review:0};
-      for(const change of changes){const statusNow=change.itemB?.status;if(statusNow==="unmatched")impact.now_unmatched++;else if(statusNow==="incompatible")impact.now_incompatible++;else if(statusNow==="not_comparable"||!statusNow)impact.needs_review++;}
+      for(const change of changes){if(!change.itemB)continue;const statusNow=change.itemB.status;if(statusNow==="unmatched")impact.now_unmatched++;else if(statusNow==="incompatible")impact.now_incompatible++;else if(statusNow==="not_comparable"||!statusNow)impact.needs_review++;}
       return {schema_version:"taas.evidence-diff.v1",compared_at:new Date().toISOString(),baseline:{captured_at:a.captured_at??null,goal_fingerprint:a.fingerprints.goal_spec,toolset_fingerprint:a.fingerprints.toolset},compared:{captured_at:b.captured_at??null,goal_fingerprint:b.fingerprints.goal_spec,toolset_fingerprint:b.fingerprints.toolset},fingerprint_changes:{goal_spec:a.fingerprints.goal_spec!==b.fingerprints.goal_spec,toolset:a.fingerprints.toolset!==b.fingerprints.toolset},counts:{added:changes.filter(x=>x.kind==="added").length,removed:changes.filter(x=>x.kind==="removed").length,modified:changes.filter(x=>x.kind==="modified").length,still_matched:stillMatched,affected_goals:affected.length},impact,changes,semantics:{comparison_type:"local metadata evidence diff",execution_performed:false,execution_record:false,authorization_granted:false,semantic_correctness_proven:false,goal_fulfilment_proven:false}};
     };
     const safe=(tag,text,className)=>{const node=document.createElement(tag);if(className)node.className=className;node.textContent=String(text??"");return node;};
@@ -3240,7 +3240,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       const fp=safe("p","GoalSpec fingerprint changed: "+data.fingerprint_changes.goal_spec+" · Toolset fingerprint changed: "+data.fingerprint_changes.toolset,"subtle");impact.append(fp);
     };
     const load=(side,file)=>{
-      state[side]=null;state.result=null;results.hidden=true;compare.disabled=!(state.a&&state.b);
+      state[side]=null;state.result=null;results.hidden=true;compare.disabled=!($6("ux6-snapshot-a").files.length&&$6("ux6-snapshot-b").files.length);
       $6("ux6-file-"+side+"-name").textContent=file?file.name+" · "+file.size+" bytes":"No "+(side==="a"?"baseline":"comparison")+" selected.";
       setStatus("Select two UX-5 evidence JSON exports. The files remain in this browser tab.");
     };
