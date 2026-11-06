@@ -64,7 +64,7 @@ class Task:
 
 
 def load_livemcptool(raw: Path = RAW) -> list[RawTool]:
-    data = json.load(open(raw / "livemcpbench" / "tools.json"))
+    data = json.load(open(raw / "livemcpbench" / "tools.json", encoding="utf-8"))
     out = []
     for s in data:
         for key, v in s["tools"].items():
@@ -84,7 +84,7 @@ def load_mcptoolbenchpp(raw: Path = RAW) -> tuple[list[RawTool], list[Task]]:
     tasks: list[Task] = []
     for f in _pp_files(raw):
         cat = f.stem
-        for r in json.load(open(f)):
+        for r in json.load(open(f, encoding="utf-8")):
             srv = {n: s for s, names in r.get("mcp_tools_dict", {}).items() for n in names}
             for t in r["tools"]:
                 rt = RawTool(srv.get(t["name"], "unknown"), t["name"], (t.get("description") or "").strip(),
@@ -112,7 +112,7 @@ def load_livemcpbench_tasks(registry: list[RawTool], raw: Path = RAW) -> list[Ta
     for t in registry:
         by_name.setdefault(t.name, []).append(t.id)
     tasks = []
-    for q in json.load(open(raw / "livemcpbench" / "all_annotations.json")):
+    for q in json.load(open(raw / "livemcpbench" / "all_annotations.json", encoding="utf-8")):
         meta = q["Annotator Metadata"]
         names = [re.sub(r"^\d+\.\s*", "", l).strip().strip("`") for l in meta["Tools"].split("\n") if l.strip()]
         gold, unres = [], []
@@ -161,7 +161,7 @@ def build_all(write: bool = True) -> dict:
     }
     if write:
         PROCESSED.mkdir(parents=True, exist_ok=True)
-        json.dump(out, open(PROCESSED / "registry_merged.json", "w"), indent=1, ensure_ascii=False)
+        json.dump(out, open(PROCESSED / "registry_merged.json", "w", encoding="utf-8"), indent=1, ensure_ascii=False)
     return out
 
 
@@ -169,7 +169,7 @@ def load_processed() -> dict:
     p = PROCESSED / "registry_merged.json"
     if not p.exists():
         return build_all(write=True)
-    return json.load(open(p))
+    return json.load(open(p, encoding="utf-8"))
 
 
 def raw_tools_from_processed(d: dict) -> list[RawTool]:

@@ -98,7 +98,7 @@ def test_colab_runs_reusable_skill_registry_acceptance() -> None:
 def test_colab_runs_tool_intelligence_acceptance() -> None:
     _, markdown, code = notebook_source()
     assert "Tool Intelligence acceptance" in markdown
-    assert "tests/test_tool_registry.py" in code
+    assert "tests/test_tool_registry_intelligence.py" in code
     assert "tests/test_tool_retrieval_explanation.py" in code
     assert "tests/test_tool_eligibility.py" in code
     assert "tests/test_registry_tool_discovery.py" in code
