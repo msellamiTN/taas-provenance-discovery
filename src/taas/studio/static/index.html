@@ -1486,6 +1486,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       optionalWrap.append(optional,document.createTextNode("Optional goal (not a mandatory coverage requirement)"));card.append(optionalWrap);
       root.append(card);
     });
+    renderGoalDependencyViews();
   };
 
   // UX-2: display-only projections of declared GoalSpec dependencies.
