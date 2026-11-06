@@ -66,7 +66,7 @@ jobs:
               )
               compile(source, f"{path}:cell_{i}", "exec")
               sources.append(source)
-          assert any("E8_COLAB_VALIDATION_REVISION = 2026-11-06-r4" in s for s in sources)
+          assert any("E8_COLAB_VALIDATION_REVISION = 2026-11-06-r5" in s for s in sources)
           assert any("'--tb=long'" in s and "'-vv'" in s for s in sources)
           assert all("pytest', '-q'" not in s for s in sources)
           print(f"Validated {len(sources)} code cells in {path}")
