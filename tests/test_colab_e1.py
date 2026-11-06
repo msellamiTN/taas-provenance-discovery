@@ -121,7 +121,7 @@ def test_master_colab_uses_catalog_matched_descriptive_e1_runner():
     cells = _master_colab_code_cells()
     e1 = next(cell for cell in cells if "Execute the catalog-matched metadata-only E1" in cell)
     assert 'experiments" / "colab" / "e1_registry_characterization.py' in e1
-    assert "experiments" / "e1_protocol_runner.py" not in e1
+    assert 'experiments" / "e1_protocol_runner.py' not in e1
     assert "catalog_status_before_run" in e1
     assert '["inputs"]["registry_sha256"]' in e1
     assert '"scope": "descriptive_registry_characterization_only"' in e1
