@@ -9,3 +9,13 @@ dist/
 
 # raw MCPToolBench++ request files (33 MB) are re-downloaded by scripts/fetch_data.sh
 data/raw/mcptoolbenchpp/*.json
+
+# local review clones and run artifacts — never commit
+.trace-review/
+.trunk-review/
+.trust-review/
+.playwright-mcp/
+audit-test.sqlite3
+uvicorn-acc.log
+docs/studio/taas-studio-e2e.png
+NUL
