@@ -701,6 +701,20 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
           <p id="goal-alignment-summary" class="goal-alignment-summary" role="status" aria-live="polite">Not evaluated. Refresh to compare GoalSpec semantic labels with explicitly declared tool-schema labels.</p>
           <div style="overflow-x:auto"><table class="goal-alignment-table"><thead><tr><th>Goal</th><th>Declared input labels</th><th>Declared output label</th><th>Metadata comparison</th></tr></thead><tbody id="goal-alignment-body"><tr><td colspan="4">No comparison performed.</td></tr></tbody></table></div>
           <div class="goal-alignment-note">Only exact labels explicitly supplied through the JSON Schema extension <code>x-taas-semantic-type</code> or <code>x-taas-semantic-types</code> are compared. Ordinary JSON Schema types, field names, descriptions, tool names, MCP annotations and effects are not translated into GoalSpec semantics. A metadata match is not proof of semantic compatibility, tool correctness, reachability, policy eligibility or execution.</div>
+          <div class="goal-evidence-ledger" aria-labelledby="goal-evidence-title">
+            <h4 id="goal-evidence-title">Alignment review &amp; evidence ledger</h4>
+            <p class="subtle">Create a page-session snapshot of the latest metadata comparison. Review acknowledgement is explicit and is invalid when GoalSpec or selected schema metadata changes.</p>
+            <label for="goal-evidence-reviewer">Reviewer label (optional; not authenticated identity)</label>
+            <input id="goal-evidence-reviewer" type="text" maxlength="120" autocomplete="off" placeholder="Reviewer label">
+            <div class="inline-actions">
+              <button id="goal-evidence-snapshot" type="button" class="secondary">Capture evidence snapshot</button>
+              <button id="goal-evidence-ack" type="button" class="secondary" disabled>Acknowledge review</button>
+              <button id="goal-evidence-export" type="button" class="secondary" disabled>Export JSON</button>
+            </div>
+            <p id="goal-evidence-status" class="goal-alignment-summary" role="status" aria-live="polite">No evidence snapshot captured. Refresh the metadata comparison first.</p>
+            <div id="goal-evidence-findings" class="subtle" aria-live="polite">No evidence findings.</div>
+            <p class="goal-alignment-note">Evidence is a local page-session record. Fingerprints are non-cryptographic change detectors, not signatures or authenticity proofs. Acknowledgement records review of metadata comparison only; it grants no authorization and is not proof of semantic correctness, goal fulfilment or execution. No credentials are included.</p>
+          </div>
         </section>
       </div>
       <details class="advanced-json">
@@ -1658,9 +1672,123 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     if(!goals.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=4;td.textContent="No GoalSpec goals are available.";tr.append(td);body.append(tr);}
     const inputSummary=[...new Set(inputLabels.map(x=>x.type))].sort(),outputSummary=[...new Set(outputLabels.map(x=>x.type))].sort();
     summary.textContent="Compared "+goals.length+" goal(s) with "+basket.length+" tool(s) from "+source+". Exact-label rows: "+matched+"; unmatched rows: "+unmatched+"; not comparable: "+unknown+". Tool input labels: "+(inputSummary.join(", ")||"none reported")+". Tool output labels: "+(outputSummary.join(", ")||"none reported")+".";
+    if(alignmentEvidenceSnapshot&&!ensureEvidenceFresh())invalidateAlignmentEvidence("GoalSpec or toolset changed since snapshot");
   };
   $("goal-alignment-refresh").addEventListener("click",renderGoalToolAlignment);
+
+  // UX-5: page-session evidence snapshots for the explicit UX-4 metadata comparison.
+  let lastAlignmentModel=null, alignmentEvidenceSnapshot=null;
+  const stableEvidenceJson=value=>{
+    if(Array.isArray(value))return "["+value.map(stableEvidenceJson).join(",")+"]";
+    if(value&&typeof value==="object")return "{"+Object.keys(value).sort().map(key=>JSON.stringify(key)+":"+stableEvidenceJson(value[key])).join(",")+"}";
+    return JSON.stringify(value);
+  };
+  // FNV-1a is deliberately labelled non-cryptographic; this only detects UI-state drift.
+  const evidenceFingerprint=value=>{
+    const text=stableEvidenceJson(value);let hash=0x811c9dc5;
+    for(let i=0;i<text.length;i++){hash^=text.charCodeAt(i);hash=Math.imul(hash,0x01000193)>>>0;}
+    return "fnv1a32:"+hash.toString(16).padStart(8,"0");
+  };
+  const currentAlignmentInputs=()=>{
+    const request=readRequest();
+    const hasBasket=typeof bench!=="undefined"&&bench.selectedTools instanceof Map&&bench.selectedTools.size>0;
+    const tools=hasBasket?[...bench.selectedTools.values()]:(Array.isArray(request.tools)?request.tools:[]);
+    return {request,tools,source:hasBasket?"current registry selection basket":"tools in canonical discovery request",
+      goals:goalSpecState&&Array.isArray(goalSpecState.goals)?goalSpecState.goals:[]};
+  };
+  const alignmentFingerprints=inputs=>({
+    goal_spec:evidenceFingerprint(inputs.goals.map(goal=>({id:goal.id??null,class:goal.class??null,in:Array.isArray(goal.in)?goal.in:[],out:goal.out??null,deps:Array.isArray(goal.deps)?goal.deps:[]}))),
+    toolset:evidenceFingerprint(inputs.tools.map(tool=>({server:tool.server??null,name:tool.name??null,registry_id:tool.registry_id??tool.id??null,input_schema:tool.input_schema??null,output_schema:tool.output_schema??null})))
+  });
+  const invalidateAlignmentEvidence=reason=>{
+    if(!alignmentEvidenceSnapshot)return;
+    alignmentEvidenceSnapshot.stale=true;
+    const status=$("goal-evidence-status");
+    if(status)status.textContent="Review invalidated: "+reason+". Refresh the comparison and capture a new snapshot.";
+    $("goal-evidence-ack").disabled=true;$("goal-evidence-export").disabled=true;
+  };
+  const renderEvidenceFindings=snapshot=>{
+    const host=$("goal-evidence-findings");host.replaceChildren();
+    const summary=document.createElement("div");
+    summary.textContent=snapshot.findings.length+" finding(s) · GoalSpec "+snapshot.fingerprints.goal_spec+" · toolset "+snapshot.fingerprints.toolset;
+    host.append(summary);
+    snapshot.findings.forEach(item=>{
+      const row=document.createElement("div");row.className="bench-basket-item";
+      const copy=document.createElement("span");
+      copy.textContent=item.goal_id+" · "+item.direction+" · "+item.required_label+" · "+item.status+" · "+item.explanation;
+      row.append(copy);host.append(row);
+    });
+  };
+  const captureAlignmentEvidence=()=>{
+    const inputs=currentAlignmentInputs(),fingerprints=alignmentFingerprints(inputs),inputLabels=[],outputLabels=[];
+    inputs.tools.forEach(tool=>{
+      const identity=String(tool.server||"unknown-server")+"/"+String(tool.name||"unnamed-tool");
+      inputLabels.push(...collectExplicitToolLabels(tool.input_schema,identity,"input"));
+      outputLabels.push(...collectExplicitToolLabels(tool.output_schema,identity,"output"));
+    });
+    const findings=[];
+    inputs.goals.forEach(goal=>{
+      const goalId=String(goal.id||"unnamed");
+      const requiredInputs=Array.isArray(goal.in)?goal.in:[];
+      requiredInputs.forEach(label=>{
+        const matches=inputLabels.filter(item=>item.type===label);
+        findings.push({goal_id:goalId,direction:"input",required_label:String(label),status:matches.length?"matched":(!inputs.tools.length||(!inputLabels.length&&!outputLabels.length)?"not_comparable":"unmatched"),
+          explanation:matches.length?"Exact explicit schema-label equality":(!inputs.tools.length?"No tool metadata supplied":(!inputLabels.length&&!outputLabels.length?"No explicit TaaS semantic labels in selected schemas":"No exact input-label match")),
+          evidence:matches.map(item=>({tool:item.tool,schema_direction:item.direction,schema_path:item.path,semantic_label:item.type}))});
+      });
+      const outputLabel=String(goal.out||"not specified"),matches=outputLabels.filter(item=>item.type===outputLabel);
+      findings.push({goal_id:goalId,direction:"output",required_label:outputLabel,status:matches.length?"matched":(!inputs.tools.length||(!inputLabels.length&&!outputLabels.length)?"not_comparable":"unmatched"),
+        explanation:matches.length?"Exact explicit schema-label equality":(!inputs.tools.length?"No tool metadata supplied":(!inputLabels.length&&!outputLabels.length?"No explicit TaaS semantic labels in selected schemas":"No exact output-label match")),
+        evidence:matches.map(item=>({tool:item.tool,schema_direction:item.direction,schema_path:item.path,semantic_label:item.type}))});
+    });
+    return {schema_version:"taas.alignment-evidence.v1",captured_at:new Date().toISOString(),
+      reviewer_label:$("goal-evidence-reviewer").value.trim()||"reviewer not recorded",
+      reviewer_identity:"not authenticated by this workspace",source:inputs.source,
+      fingerprints:{...fingerprints,algorithm:"FNV-1a 32-bit (non-cryptographic)"},
+      goal_count:inputs.goals.length,tool_count:inputs.tools.length,findings,
+      review:{status:"pending",acknowledged_at:null,acknowledged_by:null,
+        scope:"human acknowledgement of metadata comparison only; not authorization or proof"},
+      semantics:{record_type:"local UI observation",execution_performed:false,execution_record:false,
+        authorization_granted:false,semantic_correctness_proven:false,goal_fulfilment_proven:false}};
+  };
+  const ensureEvidenceFresh=()=>{
+    if(!alignmentEvidenceSnapshot||alignmentEvidenceSnapshot.stale)return false;
+    let current;try{current=alignmentFingerprints(currentAlignmentInputs());}catch(_){return false;}
+    const captured=alignmentEvidenceSnapshot.fingerprints;
+    return current.goal_spec===captured.goal_spec&&current.toolset===captured.toolset;
+  };
+  $("goal-evidence-snapshot").addEventListener("click",()=>{
+    try{
+      renderGoalToolAlignment();
+      alignmentEvidenceSnapshot=captureAlignmentEvidence();
+      renderEvidenceFindings(alignmentEvidenceSnapshot);
+      $("goal-evidence-status").textContent="Snapshot captured in this page session · pending human review · not persisted by TaaS Core.";
+      $("goal-evidence-ack").disabled=false;$("goal-evidence-export").disabled=false;
+    }catch(error){$("goal-evidence-status").textContent="Snapshot unavailable: "+error.message;}
+  });
+  $("goal-evidence-ack").addEventListener("click",()=>{
+    if(!alignmentEvidenceSnapshot||!ensureEvidenceFresh()){
+      invalidateAlignmentEvidence("GoalSpec or toolset fingerprint changed");return;
+    }
+    alignmentEvidenceSnapshot.review={status:"acknowledged",acknowledged_at:new Date().toISOString(),
+      acknowledged_by:alignmentEvidenceSnapshot.reviewer_label,
+      scope:"human acknowledgement of metadata comparison only; not authorization or proof"};
+    $("goal-evidence-status").textContent="Review acknowledged by "+alignmentEvidenceSnapshot.reviewer_label+" · metadata comparison only.";
+    $("goal-evidence-export").disabled=false;
+  });
+  $("goal-evidence-export").addEventListener("click",()=>{
+    if(!alignmentEvidenceSnapshot||!ensureEvidenceFresh()){
+      invalidateAlignmentEvidence("GoalSpec or toolset fingerprint changed");return;
+    }
+    const payload={...alignmentEvidenceSnapshot};
+    delete payload.stale;
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+    const url=URL.createObjectURL(blob),link=document.createElement("a");
+    link.href=url;link.download="taas-alignment-evidence.json";document.body.append(link);link.click();link.remove();URL.revokeObjectURL(url);
+    $("goal-evidence-status").textContent="Evidence JSON exported · local snapshot; no Core persistence or execution.";
+  });
   const syncGoalSpec = () => {
+    invalidateAlignmentEvidence("GoalSpec editor changed");
     try{getGoalSpec();renderGoalDependencyViews();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Draft updated. Validate before discovery.";}
     catch(e){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent="Cannot sync editor: "+e.message;}
   };
