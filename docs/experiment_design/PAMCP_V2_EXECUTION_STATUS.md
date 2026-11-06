@@ -37,7 +37,7 @@
 | E15 | Cost per request and scalability | **BLOCKED_DATA / IMPLEMENTATION GAP** | Frozen catalog requires ToolRet, MCPVerse registry/tool pool and controlled synthetic clones; metrics are per-stage p50/p95 latency, memory and exact/greedy gap. No E15-specific runner currently exists; `experiments/e7_scalability.py` is E7 and must not be relabelled as E15. Synthetic expansion parameters and exact/greedy comparison contract must be sourced/preregistered, not guessed. |
 | E16 | Registry and model evolution | **BLOCKED_DATA** | Requires versioned snapshots and a controlled update/invalidation sequence. |
 | E17 | Counterexample-guided refinement | **BLOCKED_ORACLE** | Requires independently verified valid/invalid compositions and counterexamples. |
-| E18 | Component and primary mechanism ablation | **READY_LOCAL for previews only** | Eight G×P×S cells are catalogued; confirmatory execution requires the same frozen independent task/contract oracle and matched conditions for all eight. |
+| E18 | Component and primary mechanism ablation | **PREVIEW EXECUTED (software only); confirmatory BLOCKED_ORACLE** | New shared-input eight-cell runner executed in CI on a tiny fixture; confirmatory execution still requires the same frozen independent task/contract oracle and matched conditions for all eight. |
 | E19 | LLM role configurations | **BLOCKED_DATA** | Requires fixed task set, role definitions and equal model/token/time budgets. |
 | E20 | Sensitivity to cost and utility weights | **BLOCKED_DATA** | Requires frozen development set and preregistered weight grid. |
 | E21 | Experience reuse | **BLOCKED_DATA** | Requires confirmed train-only trajectories and held-out test tasks; AutoTool applies here, not as an E8 retrieval baseline. |
