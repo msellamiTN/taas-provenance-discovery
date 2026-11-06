@@ -55,7 +55,7 @@ jobs:
                   continue
               source = "".join(cell.get("source", []))
               # The Colab-only %cd magic is the sole IPython line in this notebook.
-              source = "\\n".join(
+              source = "\n".join(
                   line for line in source.splitlines()
                   if not line.lstrip().startswith("%")
               )
