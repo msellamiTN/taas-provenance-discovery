@@ -36,6 +36,8 @@ from taas.studio import policy_engine
 from taas.studio.tool_intelligence import build_tool_intelligence
 from taas.studio import tool_registry
 from taas.studio import tool_service
+from taas.studio import discovery_runs
+from taas.studio import audit_ledger
 from taas.studio.agent_skill_bindings import (
     AgentSkillBindingConflict,
     AgentSkillBindingError,
@@ -969,7 +971,8 @@ def _tool_attestation_lookup(binding: dict[str, Any]) -> dict[str, Any]:
 def tool_capability_intelligence(server: str, name: str) -> dict[str, Any]:
     """Structured capability profile with declared/observed/attested evidence axis."""
     profile = tool_registry.build_capability_profile(
-        server, name, attestation_lookup=_tool_attestation_lookup
+        server, name, evidence_store=tool_service.configured_evidence_store(),
+        attestation_lookup=_tool_attestation_lookup
     )
     if profile is None:
         raise HTTPException(status_code=404, detail=f"Unknown registry tool: {server}::{name}")
@@ -1034,6 +1037,84 @@ def tool_eligibility(request: ToolEligibilityRequest) -> dict[str, Any]:
         return tool_service.eligibility_explain(policy, request.tool_ids)
     except (TypeError, ValueError, KeyError) as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+class ToolCompareRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    tool_ids: list[str] = Field(min_length=2, max_length=8)
+    query: str | None = Field(default=None, max_length=4000)
+    goal_output: str | None = None
+    policy: dict[str, Any] | None = None
+
+
+@app.post("/api/v1/tools/compare", dependencies=[Depends(require_api_token)])
+def tool_compare(request: ToolCompareRequest) -> dict[str, Any]:
+    """Deterministic side-by-side comparison of registry-resolved tools."""
+    if len(set(request.tool_ids)) != len(request.tool_ids):
+        raise HTTPException(status_code=422, detail="tool_ids must be distinct")
+    malformed = [t for t in request.tool_ids if "::" not in t]
+    if malformed:
+        raise HTTPException(status_code=422, detail={
+            "message": "tool_ids must be exact server::name registry ids",
+            "malformed": malformed,
+        })
+    policy = None
+    if request.policy is not None:
+        try:
+            policy = Policy.make(
+                name=str(request.policy.get("name", "tool-compare")),
+                required=request.policy.get("required", []),
+                allowed=request.policy.get("allowed", ["read(*)", "egress(*)", "session"]),
+                lmin=request.policy.get("lmin", "obs"),
+                forbidden=request.policy.get("forbidden", []),
+                encoding=request.policy.get("encoding", "positive"),
+                visible=(frozenset(request.policy["visible"]) if request.policy.get("visible") else None),
+            )
+        except (TypeError, ValueError, KeyError) as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+    try:
+        return tool_service.compare_tools(
+            request.tool_ids, policy=policy, query=request.query,
+            goal_out=request.goal_output,
+            evidence_store=tool_service.configured_evidence_store(),
+            attestation_lookup=_tool_attestation_lookup,
+        )
+    except (TypeError, ValueError, KeyError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@app.get("/api/v1/discovery/runs", dependencies=[Depends(require_api_token)])
+def discovery_run_list(
+    limit: int = 50,
+    status: str | None = None,
+    tool_id: str | None = None,
+) -> dict[str, Any]:
+    """List persisted discovery runs (newest first). Observability, not execution proof."""
+    return discovery_runs.list_discovery_runs(limit=limit, status=status, tool_id=tool_id)
+
+
+@app.get("/api/v1/discovery/runs/{run_id}", dependencies=[Depends(require_api_token)])
+def discovery_run_get(run_id: str) -> dict[str, Any]:
+    """Fetch one persisted discovery run by id."""
+    run = discovery_runs.get_discovery_run(run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail=f"Unknown discovery run: {run_id}")
+    return run
+
+
+@app.get("/api/v1/audit/events", dependencies=[Depends(require_api_token)])
+def audit_event_list(limit: int = 100, event_type: str | None = None) -> dict[str, Any]:
+    """List audit-ledger events (oldest first). Read-only."""
+    events = audit_ledger.list_events(limit=limit, event_type=event_type)
+    return {"schema": "taas.audit-events/v1", "events": events,
+            "count": len(events),
+            "record_semantics": "tamper_evident_event_log_not_execution_proof"}
+
+
+@app.get("/api/v1/audit/verify", dependencies=[Depends(require_api_token)])
+def audit_chain_verify() -> dict[str, Any]:
+    """Recompute the event hash chain and report the first divergence, if any."""
+    return audit_ledger.verify_chain()
 
 
 @app.get("/api/v1/bench/tools", dependencies=[Depends(require_api_token)])
@@ -1143,7 +1224,8 @@ def discover(request: DiscoverRequest) -> dict[str, Any]:
             status_code=422,
             detail="Discovery requires at least one tool (tools or registry_tool_ids).",
         )
-    contracts = [extract_contract(tool) for tool in raw_tools]
+    evidence_store = tool_service.configured_evidence_store()
+    contracts = [extract_contract(tool, store=evidence_store) for tool in raw_tools]
 
     policy_data = request.policy
     try:
@@ -1192,9 +1274,39 @@ def discover(request: DiscoverRequest) -> dict[str, Any]:
     counterexample = (
         result.counterexample.to_dict() if result.counterexample is not None else None
     )
+    # Persist the analysis record; run ids must never be fabricated on failure.
+    tool_source = "registry_tool_ids" if request.registry_tool_ids else "request_tools"
+    try:
+        discovery_run_id = discovery_runs.record_discovery_run(
+            goal_spec=request.goal_spec,
+            request={"goal_spec": request.goal_spec,
+                     "tool_source": tool_source,
+                     "tool_ids": sorted(c.tool for c in contracts),
+                     "policy": request.policy, "engine": request.engine},
+            tool_source=tool_source,
+            tool_ids=sorted(c.tool for c in contracts),
+            tool_hashes={c.tool: c.h for c in contracts},
+            policy_fingerprint=policy.name,
+            status="abstained" if result.abstained else "selected",
+            certificate=certificate,
+            hypergraph_projection=hypergraph_projection,
+        )
+        if discovery_run_id is not None:
+            try:
+                audit_ledger.append_event(
+                    "discovery_run",
+                    {"run_id": discovery_run_id},
+                    {"status": "abstained" if result.abstained else "selected",
+                     "tool_source": tool_source},
+                )
+            except Exception:
+                pass
+    except Exception:
+        discovery_run_id = None
     return {
         "status": "abstained" if result.abstained else "selected",
-        "tool_source": "registry_tool_ids" if request.registry_tool_ids else "request_tools",
+        "tool_source": tool_source,
+        "discovery_run_id": discovery_run_id,
         "selected_tools": result.toolkit or [],
         # Return the canonical GoalSpec vocabulary accepted by parse_goal_spec.
         # Do not rename out/desc/deps/eff to presentation-only aliases.
@@ -1237,6 +1349,7 @@ def discover(request: DiscoverRequest) -> dict[str, Any]:
             toolkit=result.toolkit,
             certificate=certificate,
         ),
+        "discovery_run_persisted": discovery_run_id is not None,
         "discovery_time_seconds": result.time_s,
         "hypergraph_projection_status": projection_status,
         "hypergraph_projection": hypergraph_projection,
@@ -2253,6 +2366,21 @@ def agent_record_human_approval(agent_id: str, version: str,
     binding = release_readiness.build_release_subject_binding(agent)
     actor = os.environ.get("TAAS_STUDIO_ACTOR", "studio-api")
     try:
+        existing = assurance_evidence.list_verified_evidence_for_subject(
+            binding, expected_type="human_approval")
+    except assurance_evidence.EvidenceError:
+        existing = {"valid": []}
+    for record in existing.get("valid", []):
+        if record.get("assessor") == actor:
+            raise HTTPException(
+                status_code=409,
+                detail=(
+                    "A fresh human approval by this assessor already exists for "
+                    "this exact Agent version binding; renewal requires expiry "
+                    "or a distinct assessor."
+                ),
+            )
+    try:
         envelope = assurance_evidence.attest_evidence(
             evidence_type="human_approval",
             subject_binding=binding,
@@ -2263,6 +2391,16 @@ def agent_record_human_approval(agent_id: str, version: str,
             ttl_seconds=request.ttl_seconds,
         )
         record = assurance_evidence.store_evidence(envelope)
+        try:
+            audit_ledger.append_event(
+                "approval",
+                {"agent_id": agent_id, "version": version,
+                 "evidence_id": record["evidence_id"]},
+                {"assessor": actor, "decision": "approved",
+                 "expires_at": record["expires_at"]},
+            )
+        except Exception:
+            pass
     except assurance_evidence.EvidenceConfigurationError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except assurance_evidence.EvidenceError as exc:

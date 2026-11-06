@@ -237,3 +237,77 @@ def test_approval_payload_rejects_extra_fields(client):
         headers=headers(),
     )
     assert response.status_code == 422
+
+
+def test_approval_replay_by_same_assessor_is_409(client, monkeypatch):
+    monkeypatch.setenv("TAAS_AUDIT_LEDGER_PATH",
+                       str(__import__("pathlib").Path.cwd() / "audit-test.sqlite3"))
+    agent_id, version = _create_and_validate(client)
+    first = client.post(
+        f"/api/v1/agents/{agent_id}/versions/{version}/approvals",
+        json={}, headers=headers(),
+    )
+    assert first.status_code == 201
+    replay = client.post(
+        f"/api/v1/agents/{agent_id}/versions/{version}/approvals",
+        json={}, headers=headers(),
+    )
+    assert replay.status_code == 409
+    assert "already exists" in replay.json()["detail"]
+
+
+def test_approval_by_distinct_assessor_is_allowed(client, monkeypatch):
+    agent_id, version = _create_and_validate(client)
+    first = client.post(
+        f"/api/v1/agents/{agent_id}/versions/{version}/approvals",
+        json={}, headers=headers(),
+    )
+    assert first.status_code == 201
+    monkeypatch.setenv("TAAS_STUDIO_ACTOR", "second-operator")
+    second = client.post(
+        f"/api/v1/agents/{agent_id}/versions/{version}/approvals",
+        json={}, headers=headers(),
+    )
+    assert second.status_code == 201
+    assert second.json()["approval"]["assessor"] == "second-operator"
+
+
+def test_approval_event_lands_in_audit_ledger(client, monkeypatch, tmp_path):
+    monkeypatch.setenv("TAAS_AUDIT_LEDGER_PATH", str(tmp_path / "audit.sqlite3"))
+    from taas.studio import audit_ledger
+    agent_id, version = _create_and_validate(client)
+    created = client.post(
+        f"/api/v1/agents/{agent_id}/versions/{version}/approvals",
+        json={}, headers=headers(),
+    )
+    assert created.status_code == 201
+    events = audit_ledger.list_events(event_type="approval")
+    assert len(events) == 1
+    assert events[0]["subject"]["agent_id"] == agent_id
+    assert events[0]["payload"]["assessor"] == "release-operator"
+    assert audit_ledger.verify_chain()["chain_valid"] is True
+
+
+def test_approval_renewal_blocked_while_prior_record_fresh_and_expiry_verified(client):
+    agent_id, version = _create_and_validate(client)
+    short = client.post(
+        f"/api/v1/agents/{agent_id}/versions/{version}/approvals",
+        json={"ttl_seconds": 300}, headers=headers(),
+    )
+    assert short.status_code == 201
+    # While the first approval is still fresh, a same-assessor replay is a 409.
+    renewed = client.post(
+        f"/api/v1/agents/{agent_id}/versions/{version}/approvals",
+        json={}, headers=headers(),
+    )
+    assert renewed.status_code == 409
+    # After the TTL horizon the stored record is no longer verified-fresh —
+    # expiry is enforced by the evidence layer, so renewal becomes legal then.
+    from datetime import datetime, timedelta, timezone
+    from taas.studio import assurance_evidence, release_readiness
+    future = datetime.now(timezone.utc) + timedelta(seconds=400)
+    listing = assurance_evidence.list_verified_evidence_for_subject(
+        release_readiness.build_release_subject_binding(
+            _agent_record(client, agent_id, version)),
+        expected_type="human_approval", now=future)
+    assert listing["count"] == 0
