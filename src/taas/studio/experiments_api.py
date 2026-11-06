@@ -26,7 +26,7 @@ from taas.data.registries import RawTool
 from taas.experiments.baseline_runner import run_baseline
 from taas.experiments.registry_baselines import run_effect_baseline, run_typing_baseline
 from taas.experiments.policy_baselines import run_policy_baseline
-from taas.experiments.variant_runner import run_pamcp_variant
+from taas.experiments.variant_runner import run_pamcp_variant, run_pamcp_factorial_preview
 from taas.goals import parse_goal_spec
 from taas.policy import Policy
 from taas.retrieval import HybridRetriever
@@ -383,25 +383,57 @@ def baseline_preview(payload: BaselinePreviewRequest) -> dict[str, Any]:
 
 
     variant_results = []
-    for variant_id in payload.pamcp_variants:
+    factorial_preview = None
+    if len(payload.pamcp_variants) == 8 and set(payload.pamcp_variants) == set(FACTORIAL_VARIANTS):
         try:
-            variant_result = run_pamcp_variant(
-                variant_id, contracts, payload.goal_spec, policy, top_k=payload.top_k
+            factorial_result = run_pamcp_factorial_preview(
+                contracts, payload.goal_spec, policy, top_k=payload.top_k
             )
-        except (ValueError, TypeError, KeyError, OverflowError) as exc:
-            variant_result = {
-                "variant_id": variant_id,
-                "status": "invalid_variant_configuration",
-                "selected_tool_ids": [],
+            factorial_preview = {
+                key: value for key, value in factorial_result.items() if key != "results"
+            }
+            variant_results = [
+                {"variant": item["variant_id"], "result": item}
+                for item in factorial_result["results"]
+            ]
+        except (ValueError, TypeError, KeyError, OverflowError, RuntimeError) as exc:
+            factorial_preview = {
+                "status": "invalid_factorial_configuration",
                 "error": f"{type(exc).__name__}: {exc}",
             }
-        variant_results.append({"variant": variant_id, "result": variant_result})
+            variant_results = [
+                {
+                    "variant": variant_id,
+                    "result": {
+                        "variant_id": variant_id,
+                        "status": "invalid_variant_configuration",
+                        "selected_tool_ids": [],
+                        "error": factorial_preview["error"],
+                    },
+                }
+                for variant_id in payload.pamcp_variants
+            ]
+    else:
+        for variant_id in payload.pamcp_variants:
+            try:
+                variant_result = run_pamcp_variant(
+                    variant_id, contracts, payload.goal_spec, policy, top_k=payload.top_k
+                )
+            except (ValueError, TypeError, KeyError, OverflowError) as exc:
+                variant_result = {
+                    "variant_id": variant_id,
+                    "status": "invalid_variant_configuration",
+                    "selected_tool_ids": [],
+                    "error": f"{type(exc).__name__}: {exc}",
+                }
+            variant_results.append({"variant": variant_id, "result": variant_result})
 
     return {
         "experiment_id": payload.experiment_id,
         "baseline_count": len(results),
         "pamcp_variant_count": len(variant_results),
         "pamcp_variant_results": variant_results,
+        "pamcp_factorial_preview": factorial_preview,
         "registry_snapshot": {"tool_count": len(pool), "sha256": registry_hash},
         "goal_spec": payload.goal_spec,
         "results": results,
