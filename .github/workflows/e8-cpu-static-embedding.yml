@@ -90,5 +90,26 @@ jobs:
           assert manifest["servers"] == 10
           print(json.dumps(manifest, indent=2))
           PY
+          PYTHONPATH=src python - <<'PY'
+          import json
+          from pathlib import Path
+          from taas.data.registries import load_mcptoolbenchpp
+          from experiments.e8_retrieval_campaign import load_mcptoolbenchpp_track
+
+          raw_root = Path(__import__("os").environ["RUNNER_TEMP"]) / "e8-mcp-data" / "raw"
+          tools, tasks = load_mcptoolbenchpp(raw_root)
+          track = load_mcptoolbenchpp_track(raw_root)
+          assert len(tools) == 87, len(tools)
+          assert len(tasks) == 1509, len(tasks)
+          assert len(track.tasks) > 0
+          assert len(track.qrels) == len(track.tasks)
+          assert len(track.secondary_qrels) == len(track.tasks)
+          print(json.dumps({
+              "raw_tools": len(tools),
+              "raw_tasks": len(tasks),
+              "strict_e8_tasks": len(track.tasks),
+              "strict_e8_exclusions": track.exclusions,
+          }, indent=2))
+          PY
       - name: Run E8 CPU static embedding and retrieval campaign tests
         run: python -m pytest -vv --tb=long -ra tests/test_e8_cpu_static_embedding.py tests/test_e8_retrieval_campaign.py tests/test_fetch_mcptoolbenchpp.py
