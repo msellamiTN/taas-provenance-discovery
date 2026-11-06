@@ -8,13 +8,17 @@ never capability, evidence trust, eligibility or authorization claims.
 """
 from __future__ import annotations
 
+import json
+import os
 from functools import lru_cache
+from pathlib import Path
 from typing import Any, Iterable, Sequence
 
 from taas.composer import eligible_set
 from taas.contracts import extract_contract
 from taas.engine import DiscoveryEngine
 from taas.model_profile import ModelProfile
+from taas.provenance import EvidenceStore, ProvenanceRecord
 from taas.retrieval import structural_score
 from taas.studio import tool_registry
 from taas.types import SemType, parse_type, subtype
@@ -22,16 +26,86 @@ from taas.types import SemType, parse_type, subtype
 RETRIEVAL_SCHEMA = "taas.retrieval-explanation/v1"
 _COMPONENTS = ("lex", "den", "str")
 
+EVIDENCE_STORE_ENV = "TAAS_EVIDENCE_STORE"
+
+
+def load_evidence_store(path: str | Path) -> EvidenceStore:
+    """Load obs/att provenance records from a JSONL file.
+
+    One JSON object per line::
+
+        {"tool": "server::name", "definition_hash": "<h>",
+         "prop": "read_only", "ptype": "obs"|"att",
+         "signer": "...", "kappa": 0.0-1.0, "method": "...",
+         "effects": ["read(fs)"]}
+
+    ``prop`` lines append a provenance record for ``(tool, h)``; ``effects``
+    sets the observed-effect list for that pair. Malformed lines are skipped —
+    never silently fabricated. Stale definition hashes simply never match at
+    contract-extraction time.
+    """
+    store = EvidenceStore()
+    for line in Path(path).read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        try:
+            rec = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(rec, dict):
+            continue
+        tool, h = rec.get("tool"), rec.get("definition_hash")
+        if not isinstance(tool, str) or not isinstance(h, str):
+            continue
+        if isinstance(rec.get("effects"), list):
+            store.set_observed_effects(tool, h, [str(e) for e in rec["effects"]])
+        prop = rec.get("prop")
+        if not isinstance(prop, str):
+            continue
+        try:
+            store.add(tool, h, prop, ProvenanceRecord(
+                ptype=rec.get("ptype", "obs"),
+                signer=rec.get("signer"),
+                kappa=float(rec.get("kappa", 1.0)),
+                method=str(rec.get("method", "external")),
+            ))
+        except ValueError:
+            continue
+    return store
+
+
+@lru_cache(maxsize=1)
+def _evidence_store() -> EvidenceStore | None:
+    """Shared obs/att evidence store when TAAS_EVIDENCE_STORE points at a file."""
+    path = os.environ.get(EVIDENCE_STORE_ENV)
+    if not path:
+        return None
+    p = Path(path)
+    if not p.is_file():
+        return None
+    try:
+        return load_evidence_store(p)
+    except OSError:
+        return None
+
+
+def configured_evidence_store() -> EvidenceStore | None:
+    """Public accessor for API surfaces that wire the shared store."""
+    return _evidence_store()
+
 
 @lru_cache(maxsize=1)
 def _tool_engine() -> DiscoveryEngine:
     """Fitted Core engine over the retained registry; shared, read-only."""
-    contracts = [extract_contract(raw) for raw in tool_registry._raw_tools().values()]
+    store = _evidence_store()
+    contracts = [extract_contract(raw, store=store) for raw in tool_registry._raw_tools().values()]
     return DiscoveryEngine(contracts, ModelProfile(model_id="registry-service", strict=True))
 
 
 def reset_tool_service_caches() -> None:
     _tool_engine.cache_clear()
+    _evidence_store.cache_clear()
 
 
 def _per_component_scores(
@@ -146,6 +220,7 @@ def explainable_retrieve(
         "eligible_count": len(eligible),
         "results": results,
         "score_semantics": "retrieval_relevance_only_not_capability_evidence_eligibility_or_authorization",
+        "evidence_store_wired": _evidence_store() is not None,
         "execution_performed": False,
         "semantic_correctness_verified": False,
     }
@@ -239,6 +314,121 @@ def eligibility_explain(policy: Any, tool_ids: Sequence[str] | None = None) -> d
             "unknown": len(unknown),
         },
         "eligibility_semantics": "policy_evidence_strength_only_not_relevance_capability_or_authorization",
+        "evidence_store_wired": _evidence_store() is not None,
+        "execution_performed": False,
+        "semantic_correctness_verified": False,
+    }
+
+
+COMPARE_SCHEMA = "taas.tool-compare/v1"
+
+
+def compare_tools(
+    tool_ids: Sequence[str],
+    *,
+    policy: Any = None,
+    query: str | None = None,
+    goal_out: SemType | str | None = None,
+    evidence_store: Any = None,
+    attestation_lookup: Any = None,
+) -> dict[str, Any]:
+    """Deterministic side-by-side comparison of exact registry tools.
+
+    Capability rows reuse ``build_capability_profile``; evidence strengths come
+    from the shared index; eligibility verdicts reuse the ``eligible_set``
+    semantics; optional retrieval scores reuse the same per-component math as
+    ``explainable_retrieve`` restricted to the compared ids. Comparison is
+    structural — never a relevance/capability/authorization verdict by itself.
+    """
+    engine = _tool_engine()
+    index = engine.index
+    live = set(index.to_ids(index.live))
+    known = sorted(t for t in tool_ids if t in live)
+    unknown = sorted(t for t in tool_ids if t not in live)
+
+    capability_rows: dict[str, Any] = {}
+    for tool_id in known:
+        server, name = tool_id.split("::", 1)
+        profile = tool_registry.build_capability_profile(
+            server, name, evidence_store=evidence_store,
+            attestation_lookup=attestation_lookup,
+        )
+        capability_rows[tool_id] = profile
+
+    diff_fields: dict[str, dict[str, Any]] = {}
+    def _collect(field: str, values: dict[str, Any]) -> None:
+        distinct = {str(v) for v in values.values()}
+        if len(distinct) > 1:
+            diff_fields[field] = values
+
+    _collect("tool_class", {t: capability_rows[t]["capability"]["tool_class"] for t in capability_rows})
+    _collect("output_type", {t: capability_rows[t]["capability"]["output_type"] for t in capability_rows})
+    _collect("evidence_kind", {t: capability_rows[t]["effects"]["evidence_kind"] for t in capability_rows})
+    _collect("declared_effects", {
+        t: sorted(capability_rows[t]["effects"]["declared_effects"]) for t in capability_rows})
+    _collect("required_credentials", {
+        t: sorted(capability_rows[t]["capability"]["required_credentials"]) for t in capability_rows})
+
+    strengths = {t: index.strengths.get(t, {}) for t in known}
+
+    eligibility: dict[str, Any] | None = None
+    if policy is not None:
+        eligible_ids = set(eligible_set(index, policy))
+        eligibility = {
+            t: {"eligible": t in eligible_ids}
+            for t in known
+        }
+        for t in known:
+            sub = eligibility_explain(policy, [t])
+            eligibility[t]["rejection_reasons"] = sub["tools"][0]["rejection_reasons"] if sub["tools"] else []
+
+    retrieval: dict[str, Any] | None = None
+    if query is not None:
+        out_type = parse_type(goal_out) if goal_out else None
+        reach = engine.H.reach([], [], [], engine.profile)
+        comp_scores = _per_component_scores(
+            engine.retriever, query, out_type, known, reach.types, _COMPONENTS)
+        tables = _rrf_tables(comp_scores, engine.retriever.k0)
+        fused = {t: sum(tbl.get(t, {}).get("rrf_contribution", 0.0) for tbl in tables.values())
+                 for t in known}
+        retrieval = {
+            "query": query,
+            "goal_out": str(out_type) if out_type else None,
+            "scores": {
+                t: {
+                    "fused": fused[t],
+                    "components": {
+                        name: tbl.get(t, {"score": 0.0, "rank": None, "rrf_contribution": 0.0})
+                        for name, tbl in tables.items()
+                    },
+                }
+                for t in known
+            },
+        }
+
+    return {
+        "schema": COMPARE_SCHEMA,
+        "tools": {
+            t: {
+                "capability": capability_rows[t]["capability"] if t in capability_rows else None,
+                "effects": capability_rows[t]["effects"] if t in capability_rows else None,
+                "evidence_summary": capability_rows[t]["evidence_summary"] if t in capability_rows else None,
+                "property_strengths": strengths.get(t, {}),
+                "definition_hash_verified": (
+                    capability_rows[t]["identity"].get("definition_hash_verified")
+                    if t in capability_rows else None
+                ),
+            }
+            for t in known
+        },
+        "differences": diff_fields,
+        "eligibility": eligibility,
+        "retrieval": retrieval,
+        "unknown_tool_ids": unknown,
+        "summary": {"compared": len(known), "unknown": len(unknown),
+                    "differing_fields": sorted(diff_fields)},
+        "comparison_semantics": "structural_capability_evidence_eligibility_diff_only_not_authorization",
+        "evidence_store_wired": evidence_store is not None,
         "execution_performed": False,
         "semantic_correctness_verified": False,
     }
