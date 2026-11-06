@@ -58,6 +58,6 @@ def test_ux8_script_is_local_only_and_does_not_execute_checks():
 
 def test_ux8_documents_governance_and_pending_acceptance():
     doc = (Path(__file__).parents[1] / "docs" / "studio" / "UX_8_PLATFORM_GOVERNANCE_QUALITY.md").read_text(encoding="utf-8")
-    assert "does not imply that an assessment was run" in doc
+    assert "must not imply that an assessment was run" in doc
     assert "Governed MCP execution and isolated workers remain disabled" in doc
     assert "Acceptance still required" in doc
