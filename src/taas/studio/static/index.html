@@ -490,6 +490,28 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 @media(max-width:1050px){.ux6-layout{grid-template-columns:190px minmax(0,1fr)}.ux6-layout>section:last-child{grid-column:1/-1}.ux6-summary{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:700px){.ux6-toolbar,.ux6-layout{grid-template-columns:1fr}.ux6-layout>section:last-child{grid-column:auto}.ux6-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.ux6-diff-grid{grid-template-columns:1fr}}
 
+
+/* UX-7: runtime observability is intentionally empty until a real runtime adapter exists. */
+.ux7-shell{display:grid;gap:14px}
+.ux7-banner{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:13px 15px;border:1px solid #e6c978;background:#fff8e8;border-radius:10px}
+.ux7-banner strong{display:block;color:#775719;font-size:13px}.ux7-banner p{margin:4px 0 0;color:#775719;font-size:11px}
+.ux7-overview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.ux7-stat,.ux7-panel{min-width:0;background:#fff;border:1px solid var(--line);border-radius:11px;padding:14px}
+.ux7-stat strong{display:block;font-size:20px;color:var(--ink)}.ux7-stat small{color:var(--muted);font-size:10px}
+.ux7-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(260px,.7fr);gap:12px}
+.ux7-tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:9px}
+.ux7-tabs button{margin:0;background:#f4f6fa;color:var(--ink);border:1px solid var(--line);font-size:11px}
+.ux7-tabs button[aria-pressed=true]{background:#e9efff;border-color:#b8c9f2;color:#234a9a}
+.ux7-tab-panel[hidden]{display:none}
+.ux7-empty{padding:22px 14px;text-align:center;border:1px dashed #cbd4e2;border-radius:9px;background:#fafbfd;color:var(--muted)}
+.ux7-empty strong{display:block;color:var(--ink);font-size:13px;margin-bottom:5px}.ux7-empty p{font-size:11px;line-height:1.55;margin:0}
+.ux7-kv{display:grid;grid-template-columns:130px minmax(0,1fr);gap:0;font-size:11px}
+.ux7-kv dt,.ux7-kv dd{margin:0;padding:9px 7px;border-bottom:1px solid #edf0f5;overflow-wrap:anywhere}.ux7-kv dt{font-weight:700;color:#52627a}
+.ux7-boundary{margin-top:10px;padding:11px;border:1px solid #cbd9f5;border-radius:9px;background:#f3f7ff;color:#29436f;font-size:10px;line-height:1.55}
+.ux7-actions{display:flex;gap:8px;flex-wrap:wrap}.ux7-actions button:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:850px){.ux7-overview{grid-template-columns:repeat(2,minmax(0,1fr))}.ux7-grid{grid-template-columns:1fr}}
+@media(max-width:520px){.ux7-overview{grid-template-columns:1fr 1fr}.ux7-kv{grid-template-columns:100px minmax(0,1fr)}}
+
   </style>
 </head>
 <body>
@@ -528,6 +550,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <a href="#discovery-observability">Discovery history &amp; audit</a>
       <a href="#evidence-explorer">Evidence explorer</a>
       <a href="#evidence-diff-impact">Evidence Diff &amp; Impact (UX-6)</a>
+      <a href="#runtime-observability">Runtime &amp; Observability (UX-7)</a>
       <span class="nav-label">OPERATE &amp; OBSERVE</span>
       <a href="#workspace">Benchmark workspace</a>
       <a class="overview-shortcut" href="#runtime">Runtime diagnostics</a>
@@ -903,6 +926,45 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     </div>
     <p class="subtle">Integrity verification reports the Core ledger's hash-chain result. A valid chain establishes tamper-evident ordering/integrity of recorded events, not truth of event claims or execution proof.</p>
   </section>
+
+  <section id="runtime-observability" class="section-anchor" style="margin-bottom:18px" aria-labelledby="ux7-title">
+    <div class="panel-head"><div><div class="eyebrow">OPERATE · UX-7</div><h2 id="ux7-title" style="margin:4px 0">Isolated Runtime &amp; Execution Observability</h2><p class="subtle" style="margin:4px 0 0">Inspect runtime configuration and genuine execution evidence when an authorized runtime integration is available.</p></div><span class="pill">Observation only · execution disabled</span></div>
+    <div class="ux7-shell">
+      <div class="ux7-banner" role="status" aria-live="polite"><div><strong>Execution is disabled</strong><p>No runtime adapter or isolated worker is configured in this Studio instance. No execution session data is available.</p></div><div class="ux7-actions"><button type="button" disabled aria-disabled="true" title="Execution requires a separately authorized runtime capability">Run execution · unavailable</button><button type="button" class="secondary" disabled>Export session</button></div></div>
+      <div class="ux7-overview" aria-label="Runtime overview">
+        <div class="ux7-stat"><strong>Not configured</strong><small>Runtime environments</small></div>
+        <div class="ux7-stat"><strong>Not reported</strong><small>Worker health</small></div>
+        <div class="ux7-stat"><strong>0 available</strong><small>Verified session records</small></div>
+        <div class="ux7-stat"><strong>Not reported</strong><small>Resource utilization</small></div>
+      </div>
+      <div class="ux7-grid">
+        <section class="ux7-panel" aria-labelledby="ux7-observe-title">
+          <div class="panel-head"><h3 id="ux7-observe-title" style="margin:0;font-size:13px">Execution observability</h3><span class="count">No records</span></div>
+          <div class="ux7-tabs" role="tablist" aria-label="Observability views">
+            <button type="button" role="tab" id="ux7-tab-sessions" aria-controls="ux7-view-sessions" aria-selected="true" aria-pressed="true">Sessions</button>
+            <button type="button" role="tab" id="ux7-tab-timeline" aria-controls="ux7-view-timeline" aria-selected="false" aria-pressed="false">Timeline</button>
+            <button type="button" role="tab" id="ux7-tab-logs" aria-controls="ux7-view-logs" aria-selected="false" aria-pressed="false">Logs</button>
+            <button type="button" role="tab" id="ux7-tab-traces" aria-controls="ux7-view-traces" aria-selected="false" aria-pressed="false">Traces</button>
+            <button type="button" role="tab" id="ux7-tab-metrics" aria-controls="ux7-view-metrics" aria-selected="false" aria-pressed="false">Metrics</button>
+            <button type="button" role="tab" id="ux7-tab-diagnostics" aria-controls="ux7-view-diagnostics" aria-selected="false" aria-pressed="false">Diagnostics</button>
+          </div>
+          <div id="ux7-view-sessions" class="ux7-tab-panel" role="tabpanel" aria-labelledby="ux7-tab-sessions"><div class="ux7-empty"><strong>No execution sessions</strong><p>Session records will appear only when supplied by a configured, authorized runtime integration. Discovery and metadata records are not execution sessions.</p></div></div>
+          <div id="ux7-view-timeline" class="ux7-tab-panel" role="tabpanel" aria-labelledby="ux7-tab-timeline" hidden><div class="ux7-empty"><strong>No runtime event timeline</strong><p>Lifecycle events are not available. No events have been synthesized for this view.</p></div></div>
+          <div id="ux7-view-logs" class="ux7-tab-panel" role="tabpanel" aria-labelledby="ux7-tab-logs" hidden><div class="ux7-empty"><strong>No runtime logs</strong><p>Structured logs will be displayed only when genuine runtime records are connected.</p></div></div>
+          <div id="ux7-view-traces" class="ux7-tab-panel" role="tabpanel" aria-labelledby="ux7-tab-traces" hidden><div class="ux7-empty"><strong>No distributed traces</strong><p>No trace provider is configured. Trace identifiers and spans are not fabricated.</p></div></div>
+          <div id="ux7-view-metrics" class="ux7-tab-panel" role="tabpanel" aria-labelledby="ux7-tab-metrics" hidden><div class="ux7-empty"><strong>No runtime metrics</strong><p>CPU, memory, disk, latency and throughput remain unavailable until measured data is supplied.</p></div></div>
+          <div id="ux7-view-diagnostics" class="ux7-tab-panel" role="tabpanel" aria-labelledby="ux7-tab-diagnostics" hidden><div class="ux7-empty"><strong>Runtime diagnostics unavailable</strong><p>Configure and validate a runtime adapter before diagnostics can report operational state.</p></div></div>
+        </section>
+        <section class="ux7-panel" aria-labelledby="ux7-isolation-title">
+          <div class="panel-head"><h3 id="ux7-isolation-title" style="margin:0;font-size:13px">Runtime &amp; isolation boundary</h3><span class="pill">Unconfigured</span></div>
+          <dl class="ux7-kv"><dt>Runtime adapter</dt><dd>Not configured</dd><dt>Worker pool</dt><dd>Not configured</dd><dt>Sandbox boundary</dt><dd>Not verified</dd><dt>Network policy</dt><dd>Not reported</dd><dt>Secret scope</dt><dd>Not reported</dd><dt>Authorization</dt><dd>Not granted</dd><dt>Execution state</dt><dd>Disabled</dd></dl>
+          <div class="ux7-boundary"><strong>Governance boundary</strong><br>Observability is not authorization. Runtime logs and traces, when available, are observations—not proof of semantic correctness or goal fulfilment. Discovery metadata and assurance evidence are not execution records. No isolated worker is launched by this workspace.</div>
+        </section>
+      </div>
+      <p class="subtle">This workspace is a read-only UX surface. It adds no runtime API, worker, MCP invocation, approval mutation, authorization grant, execution, persistence, or fabricated operational telemetry.</p>
+    </div>
+  </section>
+
   <section id="runtime" class="section-anchor" style="margin-bottom:18px">
     <h2>Runtime · GPU diagnostics</h2>
     <p class="muted">Host GPU visibility and CUDA inference readiness are separate checks. A detected GPU does not mean a model runtime is installed or loaded.</p>
@@ -3185,6 +3247,32 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   // Restore the last successful Core response after a page refresh. This is
   // ephemeral per-tab UI state, not durable run history; the API token is never stored.
   restoreLastDiscoveryResult();
+
+
+
+  // UX-7: accessible local tabs over explicit empty states; no runtime or execution calls.
+  (() => {
+    const tabs=[...document.querySelectorAll('#runtime-observability [role="tab"]')];
+    const panels=[...document.querySelectorAll('#runtime-observability [role="tabpanel"]')];
+    const activate=(tab,moveFocus=false)=>{
+      tabs.forEach(item=>{const active=item===tab;item.setAttribute('aria-selected',String(active));item.setAttribute('aria-pressed',String(active));item.tabIndex=active?0:-1;});
+      panels.forEach(panel=>{panel.hidden=panel.id!==tab.getAttribute('aria-controls');});
+      if(moveFocus)tab.focus();
+    };
+    tabs.forEach((tab,index)=>{
+      tab.addEventListener('click',()=>activate(tab));
+      tab.addEventListener('keydown',event=>{
+        let next=index;
+        if(event.key==='ArrowRight')next=(index+1)%tabs.length;
+        else if(event.key==='ArrowLeft')next=(index+tabs.length-1)%tabs.length;
+        else if(event.key==='Home')next=0;
+        else if(event.key==='End')next=tabs.length-1;
+        else return;
+        event.preventDefault();activate(tabs[next],true);
+      });
+    });
+    if(tabs.length)activate(tabs[0]);
+  })();
 
 
   // UX-6: compare two user-selected UX-5 evidence exports locally; no API or execution.
