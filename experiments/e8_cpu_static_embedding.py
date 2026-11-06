@@ -196,7 +196,7 @@ def load_pretrained_model(model_path: str | Path):
     try:
         import fasttext
     except ImportError as exc:
-        raise RuntimeError("Install pinned fasttext-wheel==0.9.2") from exc
+        raise RuntimeError("Install pinned fasttext-new==0.1.0 and expose it through install_as_fasttext().") from exc
     path = Path(model_path)
     if not path.is_file(): raise FileNotFoundError(f"Pretrained FastText model not found: {path}")
     model = fasttext.load_model(str(path)); dimension = int(model.get_dimension())
@@ -293,7 +293,7 @@ def run_track(track: Any, model: Any, output_dir: str | Path,
                            "retrieval_per_query": retrieval_seconds / max(1, len(track.tasks))},
         "runtime": {"python": platform.python_version(), "platform": platform.platform(),
                     "cpu_count": os.cpu_count(),
-                    "fasttext_package_version": _package_version("fasttext-wheel"),
+                    "fasttext_package_version": _package_version("fasttext-new"),
                     "device": "cpu", "cpu_only": True},
         "model_sha256": model_fingerprint, "source_manifest": track.source_manifest,
     }
