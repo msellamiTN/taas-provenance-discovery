@@ -52,3 +52,10 @@ def test_goal_dependency_views_refresh_when_the_draft_changes():
     assert 'const syncGoalSpec = () => {\n    try{getGoalSpec();renderGoalDependencyViews();' in html
     assert 'goalViewState.mode="table"' in html
     assert 'goalViewState.mode="graph"' in html
+
+
+def test_goal_editor_render_refreshes_dependency_views():
+    html = _studio_html()
+    start = html.index("const renderGoalEditor = () => {")
+    end = html.index("// UX-2: display-only projections of declared GoalSpec dependencies.", start)
+    assert "renderGoalDependencyViews();" in html[start:end]
