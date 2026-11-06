@@ -298,3 +298,110 @@ def test_cross_encoder_checkpoint_rejects_fingerprint_mismatch(tmp_path):
             checkpoint_key="fixture-v2",
             task_chunk_size=2,
         )
+
+
+def test_run_campaign_end_to_end_smoke_is_partial_and_keeps_protocol_baselines_blocked(
+    tmp_path, monkeypatch
+):
+    """Exercise the full artifact pipeline with tiny fixtures, not benchmark evidence."""
+    from taas.data.registries import RawTool, Task
+
+    toolret = tmp_path / "toolret"
+    (toolret / "discovery").mkdir(parents=True)
+    (toolret / "evaluator").mkdir()
+    toolret_tools = [
+        {"tool_id": "tr::search", "name": "search", "description": "search customer records",
+         "input_schema": {"type": "object", "properties": {"query": {"type": "string"}}}},
+        {"tool_id": "tr::lookup", "name": "lookup", "description": "lookup invoice records",
+         "input_schema": {"type": "object", "properties": {"invoice": {"type": "string"}}}},
+        {"tool_id": "tr::write", "name": "write", "description": "write customer records",
+         "input_schema": {"type": "object", "properties": {"record": {"type": "string"}}}},
+    ]
+    toolret_tasks = [
+        {"task_id": "tr-q1", "prompt": "search customer records", "category": "customer"},
+        {"task_id": "tr-q2", "prompt": "lookup invoice records", "category": "invoice"},
+    ]
+    (toolret / "manifest.json").write_text(json.dumps({"dataset_id": "fixture-toolret"}))
+    (toolret / "discovery" / "tools.json").write_text(json.dumps(toolret_tools))
+    (toolret / "discovery" / "tasks.json").write_text(json.dumps(toolret_tasks))
+    (toolret / "evaluator" / "task_references.json").write_text(json.dumps([
+        {"task_id": "tr-q1", "relevance_judgments": [{"tool_id": "tr::search", "relevance": 2}]},
+        {"task_id": "tr-q2", "relevance_judgments": [{"tool_id": "tr::lookup", "relevance": 2}]},
+    ]))
+
+    raw_root = tmp_path / "raw"
+    (raw_root / "mcptoolbenchpp").mkdir(parents=True)
+    (raw_root / "SOURCES.txt").write_text("fixture-only; not a benchmark source revision\n")
+    mcp_tools = [
+        RawTool("s1", "search", "Search customer records", {}, None, None, "MCPToolBench++", "web"),
+        RawTool("s1", "lookup", "Lookup invoice records", {}, None, None, "MCPToolBench++", "web"),
+        RawTool("s1", "write", "Write customer records", {}, None, None, "MCPToolBench++", "web"),
+    ]
+    mcp_tasks = [
+        Task("mcp-q1", "search customer records", "MCPToolBench++", "web", ["s1::search"], [], 1),
+        Task("mcp-q2", "lookup invoice records", "MCPToolBench++", "web", ["s1::lookup"], [], 1),
+    ]
+    monkeypatch.setattr(e8, "load_mcptoolbenchpp", lambda _: (mcp_tools, mcp_tasks))
+    (raw_root / "mcptoolbenchpp" / "web.json").write_text(json.dumps([
+        {"uuid": "mcp-q1", "mcp_tools_dict": {"s1": ["search", "lookup", "write"]},
+         "function_call_label": [{"name": "search", "mcp_server": "s1", "similar_tools": []}]},
+        {"uuid": "mcp-q2", "mcp_tools_dict": {"s1": ["search", "lookup", "write"]},
+         "function_call_label": [{"name": "lookup", "mcp_server": "s1", "similar_tools": []}]},
+    ]))
+
+    def fake_dense(docs, tasks, top_k, encoder, bm25_candidates):
+        ids = [doc.tool_id for doc in docs]
+        dense = {task.task_id: ids[:top_k] for task in tasks}
+        candidates = {task.task_id: ids[:min(100, len(ids))] for task in tasks}
+        hybrid = {task.task_id: list(bm25_candidates[task.task_id][:top_k]) for task in tasks}
+        return dense, hybrid, candidates
+
+    def fake_cross(docs, tasks, candidates, reranker, top_k, **kwargs):
+        return {task.task_id: list(candidates[task.task_id][:top_k]) for task in tasks}
+
+    monkeypatch.setattr(e8, "_load_sentence_models", lambda *args: (object(), object()))
+    monkeypatch.setattr(e8, "_dense_and_hybrid_rankings", fake_dense)
+    monkeypatch.setattr(e8, "_cross_encoder_rankings", fake_cross)
+
+    run_dir = e8.run_campaign(
+        root=tmp_path,
+        output_root=tmp_path / "results",
+        toolret_dir=toolret,
+        raw_root=raw_root,
+        e5_model="fixture/e5",
+        e5_revision="fixture-e5-sha",
+        cross_model="fixture/cross-encoder",
+        cross_revision="fixture-cross-sha",
+        device="cpu",
+        top_k=10,
+        seed=7,
+        run_id="E8-fixture-smoke",
+    )
+    manifest = json.loads((run_dir / "MANIFEST.json").read_text())
+    assert manifest["status"] == "partial"
+    assert manifest["execution_scope_status"] == "EXECUTED_SELECTED_RETRIEVAL_BASELINES"
+    assert set(manifest["tracks"]) == {"toolret_heterogeneous", "mcptoolbenchpp_single_target"}
+    assert all(
+        set(track["baseline_ids_executed"]) == set(e8.REQUIRED_BASELINES)
+        for track in manifest["tracks"].values()
+    )
+    assert manifest["protocol_baseline_status"]["preregistered_catalog_ids"] == [
+        "bm25", "dense_lsa", "rag_mcp", "mcp_zero",
+        "per_subtask", "colt_adapted", "toolscope_adapted", "cmtf_adapted",
+    ]
+    assert manifest["blocked_or_not_comparable"]["mcp_zero"]["status"] == "BLOCKED_ADAPTATION_INPUTS"
+    assert manifest["blocked_or_not_comparable"]["colt_adapted"]["status"] == "BLOCKED_TRAIN_SPLIT"
+    assert manifest["blocked_or_not_comparable"]["toolscope_adapted"]["status"] == "NOT_COMPARABLE_IN_CURRENT_TRACK"
+    assert manifest["blocked_or_not_comparable"]["cmtf_adapted"]["status"] == "BLOCKED_CONTRACT_ORACLE"
+    assert (run_dir / "toolret_heterogeneous_metrics.json").is_file()
+    assert (run_dir / "mcptoolbenchpp_single_target_metrics.json").is_file()
+    assert (run_dir / "FILE_HASHES.json").is_file()
+    assert (run_dir.parent / "E8-fixture-smoke.zip").is_file()
+    with pytest.raises(FileExistsError, match="immutable"):
+        e8.run_campaign(
+            root=tmp_path, output_root=tmp_path / "results",
+            toolret_dir=toolret, raw_root=raw_root,
+            e5_model="fixture/e5", e5_revision="fixture-e5-sha",
+            cross_model="fixture/cross-encoder", cross_revision="fixture-cross-sha",
+            device="cpu", top_k=10, seed=7, run_id="E8-fixture-smoke",
+        )
