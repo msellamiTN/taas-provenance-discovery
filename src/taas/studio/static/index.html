@@ -2445,11 +2445,12 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   };
   commandOpen.addEventListener("click", openCommandPalette);
   commandSearch.addEventListener("input", () => { commandActiveIndex = 0; renderCommandResults(); });
-  commandSearch.addEventListener("keydown", event => {
+  commandDialog.addEventListener("keydown", event => {
     const options = [...commandResults.querySelectorAll("button[role='option']")];
-    if (event.key === "ArrowDown" && options.length) { event.preventDefault(); commandActiveIndex = (commandActiveIndex + 1) % options.length; renderCommandResults(); commandResults.querySelectorAll("button")[commandActiveIndex]?.focus(); }
-    if (event.key === "ArrowUp" && options.length) { event.preventDefault(); commandActiveIndex = (commandActiveIndex + options.length - 1) % options.length; renderCommandResults(); commandResults.querySelectorAll("button")[commandActiveIndex]?.focus(); }
-    if (event.key === "Enter" && options.length) { event.preventDefault(); options[commandActiveIndex]?.click(); }
+    if (!options.length) return;
+    if (event.key === "ArrowDown") { event.preventDefault(); commandActiveIndex = (commandActiveIndex + 1) % options.length; renderCommandResults(); commandResults.querySelectorAll("button")[commandActiveIndex]?.focus(); }
+    if (event.key === "ArrowUp") { event.preventDefault(); commandActiveIndex = (commandActiveIndex + options.length - 1) % options.length; renderCommandResults(); commandResults.querySelectorAll("button")[commandActiveIndex]?.focus(); }
+    if (event.key === "Enter" && event.target === commandSearch) { event.preventDefault(); options[commandActiveIndex]?.click(); }
   });
   commandDialog.addEventListener("click", event => { if (event.target === commandDialog) commandDialog.close(); });
   commandDialog.addEventListener("close", () => commandOpen.focus());
