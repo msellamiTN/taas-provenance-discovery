@@ -61,16 +61,20 @@ The v2 core protocol says E1 is runnable descriptively and independent reference
 
 The E8 runner deliberately writes a `partial` manifest for its selected retrieval controls and preserves the registered MCP-style baselines as blocked/not-comparable when their required GoalSpecs, training splits, equivalence oracle or independent typed contracts are absent. The end-to-end fixture test exercises both dataset-track loaders, ranking stages, metric/plot outputs, manifest generation, checksums, ZIP creation and immutable-run refusal. It uses tiny synthetic fixtures and monkeypatched model stages; it is strictly a software regression test, not a ToolRet or MCPToolBench++ measurement.
 
+## E18 factorial preview orchestration
+
+The new `run_pamcp_factorial_preview` executes the eight frozen G×P×S cells in catalog order with one shared model profile and shared registry, GoalSpec and policy fingerprints. It checks the exact factor tuple per cell and asserts that evaluator labels and MCP tools are not accessed. The CI test executes all eight variants on a tiny synthetic contract fixture and verifies that every `S=0` cell remains uncertified and disables backward closure and joint checks. This is a software preview, not confirmatory E18 evidence or a PaMCP performance score.
+
 ## Current CI evidence
 
-- Latest E8 fixture test commit: `91a62b29a97f995765a3bf5f18012c68d0f21031`.
-- Push run: [#42304462707](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/42304462707) — success.
-- PaMCP tests: 106 passed, 6 warnings.
-- Studio API tests: 61 passed, 1 warning.
+- Latest E18 factorial preview test commit: `ccc889055402c36e1d9a4b58188e41a836141d56`.
+- Push run: [#42304921992](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/42304921992) — success.
+- Pull-request run: [#42304930100](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/42304930100) — success.
+- PaMCP tests: **107 passed, 6 warnings**.
+- Studio API tests: **61 passed, 1 warning**.
 - Four notebooks syntax-validated; 22 experiment IDs and 31 baseline IDs validated.
-- E1 descriptive CI execution and artifact upload also succeeded.
-
-The paired pull-request run for this same commit must also pass before this iteration is closed.
+- E1 descriptive CI execution and artifact upload succeeded in both workflows.
+- E8 end-to-end fixture pipeline and E18 all-eight-cell preview tests passed; neither is a real benchmark result.
 
 ## Next execution order
 
