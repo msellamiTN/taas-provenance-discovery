@@ -139,6 +139,19 @@
     .certificate-panel details { margin-top:10px; }
     .certificate-panel summary { cursor:pointer; font-size:11px; font-weight:700; color:#52627a; }
     @media(max-width:720px) { .certificate-checks { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    /* UX-4: conservative, explicit-label-only GoalSpec/toolset comparison */
+    .goal-alignment-panel{margin-top:14px;padding:13px;border:1px solid #dfe6f0;border-radius:10px;background:#fbfcfe}
+    .goal-alignment-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .goal-alignment-head h4{margin:0;font-size:12px}
+    .goal-alignment-summary{margin:8px 0;color:var(--muted);font-size:11px;line-height:1.5}
+    .goal-alignment-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
+    .goal-alignment-table th,.goal-alignment-table td{padding:8px;border-bottom:1px solid #e7ecf2;text-align:left;vertical-align:top;overflow-wrap:anywhere}
+    .goal-alignment-table th{color:#52627a;font-weight:700}
+    .goal-alignment-tag{display:inline-block;margin:2px 3px 2px 0;padding:2px 6px;border-radius:5px;background:#eef2f8;color:#42536d;font-size:10px}
+    .goal-alignment-tag.match{background:#eaf7f0;color:#176b49}
+    .goal-alignment-tag.unknown{background:#fff5e5;color:#875b16}
+    .goal-alignment-note{margin-top:9px;padding:9px 10px;border-radius:7px;background:#f1f4f8;color:#58677c;font-size:10px;line-height:1.5}
+    @media(max-width:720px){.goal-alignment-table{min-width:620px}}
 
     /* UX-1: persistent, capability-aware Studio navigation shell */
     .skip-link { position:absolute; left:-10000px; top:8px; z-index:100; padding:10px 14px; background:#fff; color:#17315c; border:2px solid var(--blue); border-radius:8px; }
@@ -683,6 +696,12 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
           <span>I reviewed the original objective, GoalSpec operations, scope, types, dependencies, effects and selected tool metadata. This review is not a correctness proof or execution authorization.</span>
         </label>
         <div id="goal-validation" class="goal-validation" role="status" aria-live="polite">GoalSpec has not been validated.</div>
+        <section class="goal-alignment-panel" aria-labelledby="goal-alignment-title">
+          <div class="goal-alignment-head"><h4 id="goal-alignment-title">Toolset-to-Goal alignment inspector</h4><button id="goal-alignment-refresh" type="button" class="secondary">Refresh metadata comparison</button></div>
+          <p id="goal-alignment-summary" class="goal-alignment-summary" role="status" aria-live="polite">Not evaluated. Refresh to compare GoalSpec semantic labels with explicitly declared tool-schema labels.</p>
+          <div style="overflow-x:auto"><table class="goal-alignment-table"><thead><tr><th>Goal</th><th>Declared input labels</th><th>Declared output label</th><th>Metadata comparison</th></tr></thead><tbody id="goal-alignment-body"><tr><td colspan="4">No comparison performed.</td></tr></tbody></table></div>
+          <div class="goal-alignment-note">Only exact labels explicitly supplied through the JSON Schema extension <code>x-taas-semantic-type</code> or <code>x-taas-semantic-types</code> are compared. Ordinary JSON Schema types, field names, descriptions, tool names, MCP annotations and effects are not translated into GoalSpec semantics. A metadata match is not proof of semantic compatibility, tool correctness, reachability, policy eligibility or execution.</div>
+        </section>
       </div>
       <details class="advanced-json">
         <summary>Advanced · inspect or edit the complete discovery JSON</summary>
@@ -1570,6 +1589,77 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     for(const id of byId.keys())if(!visit(id)){errors.push("Dependency graph contains a cycle.");break;}
     return errors;
   };
+  // UX-4: conservative comparison of explicit TaaS semantic labels only.
+  const collectExplicitToolLabels = (schema,toolName,direction) => {
+    const found=[],seen=new Set();let visited=0;
+    const add=(value,path)=>{
+      const values=Array.isArray(value)?value:[value];
+      values.forEach(label=>{
+        if(typeof label!=="string"||!label.trim())return;
+        const normalized=label.trim();
+        if(!/^[a-z_]+(?::[a-z0-9_-]+)?(\\[\\])?$/.test(normalized))return;
+        const key=normalized+"|"+path;
+        if(!seen.has(key)){seen.add(key);found.push({type:normalized,path,tool:toolName,direction});}
+      });
+    };
+    const walk=(node,path,depth)=>{
+      if(!node||typeof node!=="object"||Array.isArray(node)||depth>8||visited>=200)return;
+      visited++;
+      if(Object.prototype.hasOwnProperty.call(node,"x-taas-semantic-type"))add(node["x-taas-semantic-type"],path);
+      if(Object.prototype.hasOwnProperty.call(node,"x-taas-semantic-types"))add(node["x-taas-semantic-types"],path);
+      if(node.properties&&typeof node.properties==="object"&&!Array.isArray(node.properties))
+        Object.keys(node.properties).sort().forEach(key=>walk(node.properties[key],path+".properties."+key,depth+1));
+      if(node.items&&typeof node.items==="object")walk(node.items,path+".items",depth+1);
+      if(Array.isArray(node.prefixItems))node.prefixItems.forEach((item,index)=>walk(item,path+".prefixItems["+index+"]",depth+1));
+      if(node.additionalProperties&&typeof node.additionalProperties==="object")walk(node.additionalProperties,path+".additionalProperties",depth+1);
+    };
+    walk(schema,"$",0);return found;
+  };
+  const renderGoalToolAlignment = () => {
+    const summary=$("goal-alignment-summary"),body=$("goal-alignment-body");body.replaceChildren();
+    let request;
+    try{request=readRequest();}catch(error){summary.textContent="Cannot compare: discovery JSON is invalid ("+error.message+").";return;}
+    const basket=(typeof bench!=="undefined"&&bench.selectedTools instanceof Map&&bench.selectedTools.size)
+      ?[...bench.selectedTools.values()]
+      :(Array.isArray(request.tools)?request.tools:[]);
+    const source=(typeof bench!=="undefined"&&bench.selectedTools instanceof Map&&bench.selectedTools.size)
+      ?"current registry selection basket":"tools in canonical discovery request";
+    const inputLabels=[],outputLabels=[];
+    basket.forEach(tool=>{
+      const name=String(tool.server||"unknown-server")+"/"+String(tool.name||"unnamed-tool");
+      inputLabels.push(...collectExplicitToolLabels(tool.input_schema,name,"input"));
+      outputLabels.push(...collectExplicitToolLabels(tool.output_schema,name,"output"));
+    });
+    const inputSet=new Set(inputLabels.map(x=>x.type)),outputSet=new Set(outputLabels.map(x=>x.type));
+    const goals=goalSpecState&&Array.isArray(goalSpecState.goals)?goalSpecState.goals:[];
+    let matched=0,unmatched=0,unknown=0;
+    const addTag=(cell,value,kind)=>{
+      const tag=document.createElement("span");tag.className="goal-alignment-tag "+kind;tag.textContent=value;cell.append(tag);
+    };
+    goals.forEach(goal=>{
+      const tr=document.createElement("tr"),goalCell=document.createElement("td");goalCell.textContent=String(goal.id||"unnamed")+" · "+String(goal.class||"unclassified");tr.append(goalCell);
+      const inputs=document.createElement("td"),required=(goal.in||[]);
+      if(!required.length){inputs.textContent="No declared input types";}
+      else required.forEach(type=>addTag(inputs,String(type),inputSet.has(type)?"match":"unknown"));
+      const output=document.createElement("td"),out=String(goal.out||"not specified");
+      addTag(output,out,outputSet.has(out)?"match":"unknown");
+      const result=document.createElement("td");
+      const inputMissing=required.filter(type=>!inputSet.has(type)),outputMatch=outputSet.has(out);
+      if(!basket.length){result.textContent="No tool metadata supplied";unknown++;}
+      else if(!inputLabels.length&&!outputLabels.length){result.textContent="Not comparable: selected schemas contain no explicit TaaS semantic labels";unknown++;}
+      else{
+        const exactInputs=required.filter(type=>inputSet.has(type)).length;
+        const parts=[exactInputs+"/"+required.length+" exact input-label match(es)",outputMatch?"exact output-label match":"no exact output-label match"];
+        result.textContent=parts.join(" · ");
+        if(inputMissing.length||!outputMatch)unmatched++;else matched++;
+      }
+      tr.append(inputs,output,result);body.append(tr);
+    });
+    if(!goals.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=4;td.textContent="No GoalSpec goals are available.";tr.append(td);body.append(tr);}
+    const inputSummary=[...new Set(inputLabels.map(x=>x.type))].sort(),outputSummary=[...new Set(outputLabels.map(x=>x.type))].sort();
+    summary.textContent="Compared "+goals.length+" goal(s) with "+basket.length+" tool(s) from "+source+". Exact-label rows: "+matched+"; unmatched rows: "+unmatched+"; not comparable: "+unknown+". Tool input labels: "+(inputSummary.join(", ")||"none reported")+". Tool output labels: "+(outputSummary.join(", ")||"none reported")+".";
+  };
+  $("goal-alignment-refresh").addEventListener("click",renderGoalToolAlignment);
   const syncGoalSpec = () => {
     try{getGoalSpec();renderGoalDependencyViews();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Draft updated. Validate before discovery.";}
     catch(e){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent="Cannot sync editor: "+e.message;}
