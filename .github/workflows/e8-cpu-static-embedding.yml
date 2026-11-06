@@ -66,10 +66,29 @@ jobs:
               )
               compile(source, f"{path}:cell_{i}", "exec")
               sources.append(source)
-          assert any("E8_COLAB_VALIDATION_REVISION = 2026-11-06-r3" in s for s in sources)
+          assert any("E8_COLAB_VALIDATION_REVISION = 2026-11-06-r4" in s for s in sources)
           assert any("'--tb=long'" in s and "'-vv'" in s for s in sources)
           assert all("pytest', '-q'" not in s for s in sources)
           print(f"Validated {len(sources)} code cells in {path}")
+          PY
+      - name: Restore pinned MCPToolBench++ snapshot (integration test)
+        run: |
+          python scripts/fetch_mcptoolbenchpp.py --raw-root "$RUNNER_TEMP/e8-mcp-data/raw"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path(__import__("os").environ["RUNNER_TEMP"]) / "e8-mcp-data" / "raw"
+          manifest = json.loads((root / "MCPTOOLBENCHPP_MANIFEST.json").read_text())
+          category_dir = root / "mcptoolbenchpp"
+          expected = {"browser", "file_system", "finance", "map", "pay", "search"}
+          found = {p.stem for p in category_dir.glob("*.json")}
+          assert found == expected, (expected, found)
+          assert manifest["revision"] == "2bd35e58ed5ebe79bbb12df0f9919a34ed2cb037"
+          assert manifest["tasks"] == 1509
+          assert manifest["candidate_tools"] == 87
+          assert manifest["servers"] == 10
+          print(json.dumps(manifest, indent=2))
           PY
       - name: Run E8 CPU static embedding and retrieval campaign tests
         run: python -m pytest -vv --tb=long -ra tests/test_e8_cpu_static_embedding.py tests/test_e8_retrieval_campaign.py tests/test_fetch_mcptoolbenchpp.py
