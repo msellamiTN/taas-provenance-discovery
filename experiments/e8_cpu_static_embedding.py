@@ -7,6 +7,9 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import gzip
+import shutil
+import urllib.request
 import importlib.metadata
 import json
 import os
@@ -28,10 +31,8 @@ from taas.experiments.evaluation_metrics import ranking_metrics
 
 TOKEN_RE = re.compile(r"[a-z0-9_]+")
 DEFAULT_CONFIG = {
-    "model": "fasttext-skipgram", "dimension": 300, "window": 5,
-    "minn": 3, "maxn": 6, "negative": 5, "epoch": 10,
-    "min_count": 1, "thread": 1, "loss": "ns",
-    "top_k": 10, "checkpoint_tasks": 16,
+    "model": "cc.en.300.bin", "model_url": "https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.en.300.bin.gz",
+    "dimension": 300, "top_k": 10, "checkpoint_tasks": 16, "min_free_disk_gb": 8.0,
 }
 
 
@@ -168,44 +169,61 @@ def rank_embeddings_checkpointed(query_vectors, tool_vectors, tool_ids,
     return result
 
 
-def train_fasttext(documents: Sequence[ToolDocument], output_path: str | Path,
-                   config: Mapping[str, Any] | None = None):
-    """Train Skip-gram on tool documents only; queries and qrels are never included."""
-    cfg = dict(DEFAULT_CONFIG)
-    if config:
-        cfg.update(config)
-    if cfg["thread"] != 1:
-        raise ValueError("Reference configuration requires thread=1")
-    if cfg["dimension"] < 1 or cfg["minn"] < 1 or cfg["maxn"] < cfg["minn"]:
-        raise ValueError("Invalid FastText dimension or character n-gram range")
-    if not documents:
-        raise ValueError("Cannot train FastText on an empty corpus")
+def download_pretrained_model(output_path: str | Path, url: str | None = None, min_free_gb: float = 8.0) -> dict[str, Any]:
+    """Stream-decompress the official pretrained binary; never train or fine-tune."""
+    target = Path(output_path); target.parent.mkdir(parents=True, exist_ok=True)
+    free_gb = shutil.disk_usage(target.parent).free / (1024 ** 3)
+    if free_gb < min_free_gb:
+        raise RuntimeError(f"Insufficient free disk: {free_gb:.2f} GiB available; {min_free_gb:.2f} GiB required")
+    source = url or DEFAULT_CONFIG["model_url"]; temporary = target.with_name(target.name + ".part")
+    try:
+        request = urllib.request.Request(source, headers={"User-Agent": "TaaS-E8-v2/1.0"})
+        with urllib.request.urlopen(request, timeout=120) as response:
+            with gzip.GzipFile(fileobj=response, mode="rb") as compressed:
+                with temporary.open("wb") as output:
+                    shutil.copyfileobj(compressed, output, length=1024 * 1024)
+                    output.flush(); os.fsync(output.fileno())
+        if not temporary.is_file() or temporary.stat().st_size < 1024 * 1024:
+            raise RuntimeError("Downloaded FastText model is unexpectedly small")
+        os.replace(temporary, target)
+    except Exception:
+        temporary.unlink(missing_ok=True); raise
+    return {"path": str(target), "bytes": target.stat().st_size, "sha256": _sha256(target),
+            "source_url": source, "download_format": "gzip_stream_decompressed", "training_performed": False}
+
+def load_pretrained_model(model_path: str | Path):
+    """Load the official 300d Common Crawl FastText binary with subword/OOV support."""
     try:
         import fasttext
     except ImportError as exc:
         raise RuntimeError("Install pinned fasttext-wheel==0.9.2") from exc
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8",
-                                     suffix=".txt", delete=False) as stream:
-        corpus = Path(stream.name)
-        for document in documents:
-            tokens = tokenize(document.text)
-            if tokens:
-                stream.write(" ".join(tokens) + "\n")
-    try:
-        model = fasttext.train_unsupervised(
-            str(corpus), model="skipgram", dim=int(cfg["dimension"]),
-            ws=int(cfg["window"]), minn=int(cfg["minn"]), maxn=int(cfg["maxn"]),
-            neg=int(cfg["negative"]), epoch=int(cfg["epoch"]),
-            minCount=int(cfg["min_count"]), thread=int(cfg["thread"]),
-            loss=str(cfg["loss"]),
-        )
-        model.save_model(str(output_path))
-    finally:
-        corpus.unlink(missing_ok=True)
+    path = Path(model_path)
+    if not path.is_file(): raise FileNotFoundError(f"Pretrained FastText model not found: {path}")
+    model = fasttext.load_model(str(path)); dimension = int(model.get_dimension())
+    if dimension != 300: raise ValueError(f"Expected cc.en.300 (300d), got {dimension}d")
     return model
 
+def prepare_pretrained_model(model_path: str | Path | None = None, cache_dir: str | Path | None = None, min_free_gb: float = 8.0):
+    """Use a supplied model, a persistent external cache, or ephemeral download by default."""
+    from tempfile import TemporaryDirectory
+    if model_path is not None:
+        path = Path(model_path)
+        if not path.is_file(): raise FileNotFoundError(path)
+        digest = _sha256(path); model = load_pretrained_model(path)
+        return model, digest, {"path": str(path), "bytes": path.stat().st_size, "sha256": digest, "source": "user_supplied_local_file", "ephemeral": False, "training_performed": False}
+    if cache_dir is not None:
+        path = Path(cache_dir) / "cc.en.300.bin"
+        if not path.is_file(): download_pretrained_model(path, min_free_gb=min_free_gb)
+        digest = _sha256(path); model = load_pretrained_model(path)
+        return model, digest, {"path": str(path), "bytes": path.stat().st_size, "sha256": digest, "source": DEFAULT_CONFIG["model_url"], "ephemeral": False, "training_performed": False}
+    temporary = TemporaryDirectory(prefix='taas-e8-fasttext-'); path = Path(temporary.name) / 'cc.en.300.bin'
+    try:
+        meta = download_pretrained_model(path, min_free_gb=min_free_gb); model = load_pretrained_model(path)
+        details = {**meta, "source": DEFAULT_CONFIG["model_url"], "ephemeral": True, "deleted_after_load": True}
+        path.unlink(missing_ok=True); temporary.cleanup()
+        return model, meta["sha256"], details
+    except Exception:
+        temporary.cleanup(); raise
 
 def _sha256(path: Path) -> str:
     digest = hashlib.sha256()
@@ -263,7 +281,7 @@ def run_track(track: Any, model: Any, output_dir: str | Path,
     )
     result = {
         "experiment": "E8-CPU-StaticEmbedding-v2", "track": track.dataset_id,
-        "status": "executed", "method": "fasttext_skipgram_idf_weighted_mean_cosine",
+        "status": "executed", "method": "pretrained_fasttext_cc_en_300_idf_weighted_mean_cosine",
         "config": cfg,
         "counts": {"tasks": len(track.tasks), "candidate_tools": len(track.tools),
                    "qrel_tasks": sum(bool(track.qrels.get(t.task_id)) for t in track.tasks),
@@ -288,39 +306,31 @@ def run_track(track: Any, model: Any, output_dir: str | Path,
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--root", type=Path, default=Path.cwd())
-    parser.add_argument("--raw-root", type=Path, default=Path("data/raw"))
-    parser.add_argument("--toolret-dir", type=Path, default=Path("data/processed/toolret"))
-    parser.add_argument("--output-root", type=Path, default=Path("results/E8-CPU-StaticEmbedding-v2"))
-    parser.add_argument("--dimension", type=int, default=300)
-    parser.add_argument("--top-k", type=int, default=10)
-    args = parser.parse_args()
-    os.environ["CUDA_VISIBLE_DEVICES"] = ""
-    root = args.root.resolve()
-    os.chdir(root)
+    parser.add_argument('--root', type=Path, default=Path.cwd())
+    parser.add_argument('--raw-root', type=Path, default=Path('data/raw'))
+    parser.add_argument('--toolret-dir', type=Path, default=Path('data/processed/toolret'))
+    parser.add_argument('--output-root', type=Path, default=Path('results/E8-CPU-StaticEmbedding-v2'))
+    parser.add_argument('--model-path', type=Path, default=None, help='Use an existing cc.en.300.bin')
+    parser.add_argument('--model-cache-dir', type=Path, default=None, help='Persist model outside repository; default is ephemeral')
+    parser.add_argument('--min-free-disk-gb', type=float, default=8.0)
+    parser.add_argument('--top-k', type=int, default=10)
+    args = parser.parse_args(); os.environ['CUDA_VISIBLE_DEVICES'] = ''
+    root = args.root.resolve(); os.chdir(root)
     raw = args.raw_root if args.raw_root.is_absolute() else root / args.raw_root
     toolret = args.toolret_dir if args.toolret_dir.is_absolute() else root / args.toolret_dir
     output = args.output_root if args.output_root.is_absolute() else root / args.output_root
-    cfg = dict(DEFAULT_CONFIG, dimension=args.dimension, top_k=args.top_k)
+    cfg = dict(DEFAULT_CONFIG, top_k=args.top_k, min_free_disk_gb=args.min_free_disk_gb)
     tracks = [load_toolret_track(toolret), load_mcptoolbenchpp_track(raw)]
+    model, model_hash, model_metadata = prepare_pretrained_model(args.model_path, args.model_cache_dir, args.min_free_disk_gb)
     for track in tracks:
         directory = output / track.dataset_id
-        model_path = directory / "fasttext_model.bin"
-        directory.mkdir(parents=True, exist_ok=True)
-        if model_path.is_file():
-            import fasttext
-            model = fasttext.load_model(str(model_path))
-        else:
-            model = train_fasttext(track.tools, model_path, cfg)
-        model_hash = _sha256(model_path)
         result = run_track(track, model, directory, model_hash, cfg)
-        print(json.dumps({"track": track.dataset_id, "tasks": result["counts"]["tasks"],
-                          "candidate_tools": result["counts"]["candidate_tools"],
-                          "Hit@1": result["metrics_primary_qrels"]["metrics"]["1"]["hit@1"]["value"],
-                          "Hit@5": result["metrics_primary_qrels"]["metrics"]["5"]["hit@5"]["value"],
-                          "MRR@10": result["metrics_primary_qrels"]["metrics"]["10"]["mrr@10"]["value"]},
-                         indent=2))
-
+        result['model'] = model_metadata
+        (directory / 'metrics.json').write_text(json.dumps(result, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+        print(json.dumps({'track': track.dataset_id, 'tasks': result['counts']['tasks'], 'candidate_tools': result['counts']['candidate_tools'],
+                          'Hit@1': result['metrics_primary_qrels']['metrics']['1']['hit@1']['value'],
+                          'Hit@5': result['metrics_primary_qrels']['metrics']['5']['hit@5']['value'],
+                          'MRR@10': result['metrics_primary_qrels']['metrics']['10']['mrr@10']['value']}, indent=2))
 
 if __name__ == "__main__":
     main()
