@@ -139,7 +139,7 @@ def test_master_colab_e2_intake_is_preregistered_and_fingerprint_gated():
         assert variable in e2
     assert "sha256(e2_registry) == e1_record.get(\"registry_sha256\")" in e2
     assert '"status": "BLOCKED_ORACLE"' in e2
-    assert '"status": "PREPARED_NOT_RUN"' in e2
+    assert '"preparation_status": "PREPARED_NOT_RUN"' in e2
     assert 'e2_manifest.get("llm_silver_labels_used_as_gold") is not False' in e2
 
 
