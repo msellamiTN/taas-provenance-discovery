@@ -319,6 +319,68 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   .outcome-status.covered{background:#e8f5ee;color:#17633c}
   .outcome-status.missing{background:#fff1e8;color:#99420b}
   .outcome-coverage-note{margin:9px 0 0;color:var(--muted);font-size:11px;line-height:1.45}
+
+  /* UX-2: persistent workspace context */
+  .workspace-context{display:flex;align-items:center;gap:9px;min-height:44px;margin:0 0 16px;padding:9px 13px;border:1px solid var(--line);border-radius:11px;background:var(--surface);box-shadow:0 1px 2px rgba(20,35,58,.025)}
+  .workspace-context-crumb{color:var(--muted);font-size:11px;font-weight:600}
+  .workspace-context-separator{color:#a4afbf;font-size:12px}
+  .workspace-context-title{color:var(--ink);font-size:12px;font-weight:750;letter-spacing:-.1px}
+  .workspace-context-spacer{flex:1}
+  .workspace-context-hint{color:var(--muted);font-size:10px}
+  .studio-content{min-width:0}
+  .studio-content > section,.studio-content > .grid,.studio-content > .hero{scroll-margin-top:16px}
+  @media(max-width:900px){.workspace-context{margin-bottom:12px}}
+  @media(max-width:560px){.workspace-context{min-height:40px;padding:8px 10px}.workspace-context-hint{display:none}}
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+  /* UX-3: API-backed platform overview */
+  .overview-dashboard{display:grid;gap:14px;margin:0 0 18px}
+  .overview-dashboard-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  .overview-dashboard-head h3{margin:3px 0;font-size:17px;letter-spacing:-.25px}
+  .overview-dashboard-head p{margin:4px 0 0;color:var(--muted);font-size:12px;line-height:1.5}
+  .overview-dashboard-state{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:11px}
+  .overview-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .overview-metric{min-width:0;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface,#fff)}
+  .overview-metric-label{display:block;color:var(--muted);font-size:11px;font-weight:650}
+  .overview-metric-value{display:block;margin-top:7px;color:var(--ink);font-size:25px;line-height:1.1;font-weight:760;letter-spacing:-.7px}
+  .overview-metric-state{display:block;margin-top:6px;color:var(--muted);font-size:10px;overflow-wrap:anywhere}
+  .overview-resource-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .overview-resource-panel{min-width:0;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface,#fff)}
+  .overview-resource-panel h4{margin:0;font-size:13px}
+  .overview-resource-list{display:grid;gap:8px;margin:11px 0 0;padding:0;list-style:none}
+  .overview-resource-list li{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+  .overview-resource-main{display:grid;gap:3px;min-width:0}
+  .overview-resource-main strong{font-size:11px;overflow-wrap:anywhere}
+  .overview-resource-main small,.overview-resource-meta{color:var(--muted);font-size:10px;overflow-wrap:anywhere}
+  .overview-resource-state{flex:0 0 auto;padding:3px 7px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:9px;font-weight:650}
+  .overview-empty{margin:10px 0 0;color:var(--muted);font-size:11px;line-height:1.5}
+  .overview-shortcuts{display:flex;gap:8px;flex-wrap:wrap}
+  .overview-shortcuts a{display:inline-flex;align-items:center;min-height:34px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:11px;font-weight:650;text-decoration:none}
+  .overview-shortcuts a:hover{border-color:var(--accent);color:var(--accent)}
+  @media(max-width:900px){.overview-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:620px){.overview-resource-grid{grid-template-columns:1fr}.overview-dashboard-head{align-items:stretch}}
+  @media(max-width:420px){.overview-metrics{gap:7px}.overview-metric{padding:10px}.overview-metric-value{font-size:21px}}
+
+/* Agent Engineering Workspace v1 */
+.agent-workspace{display:grid;grid-template-columns:minmax(260px,.8fr) minmax(0,1.4fr);gap:16px;align-items:start}
+.agent-workspace .agent-card{border:1px solid var(--line);border-radius:11px;background:#fbfcff;padding:16px;min-width:0}
+.agent-workspace .agent-card h3{margin:0 0 8px;font-size:14px}
+.agent-workspace .agent-card textarea{min-height:150px;font-family:Inter,ui-sans-serif,system-ui,sans-serif;line-height:1.55}
+.agent-trace-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0}
+.agent-trace-metric{padding:11px;border:1px solid var(--line);border-radius:9px;background:#fff;min-width:0}
+.agent-trace-metric strong{display:block;font-size:18px;margin-top:3px;overflow-wrap:anywhere}
+.agent-trace-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
+.agent-trace-table th,.agent-trace-table td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;overflow-wrap:anywhere}
+.agent-trace-table th{color:#5d6c82;font-weight:750;background:#f8faff}
+.agent-trace-list{display:grid;gap:8px;margin-top:10px}
+.agent-trace-item{padding:11px;border:1px solid var(--line);border-radius:9px;background:#fff;min-width:0}
+.agent-trace-item strong{font-size:12px}
+.agent-trace-item small{display:block;color:var(--muted);font-size:10px;margin-top:4px;overflow-wrap:anywhere}
+.agent-trace-boundary{padding:11px 13px;border:1px solid #eadcb9;border-left:3px solid #c18b32;border-radius:9px;background:#fffaf0;color:#715522;font-size:11px;line-height:1.55;margin:12px 0}
+.agent-trace-state{font-size:11px;color:var(--muted);margin:10px 0}
+.agent-trace-state.error{color:#a13f2e}.agent-trace-state.success{color:#176b49}
+@media(max-width:850px){.agent-workspace{grid-template-columns:1fr}.agent-trace-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){.agent-trace-grid{grid-template-columns:1fr}.agent-trace-table{font-size:10px}.agent-trace-table th,.agent-trace-table td{padding:7px 5px}}
 </style>
 </head>
 <body>
@@ -344,6 +406,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <a href="#models">Model catalog</a>
       <a href="#model-runtime-panel">Model runtime</a>
       <a href="#agent-goal-panel">Objective Engineering</a>
+      <a href="#agent-engineering-workspace">Agent Engineering</a>
       <a href="#agent-chat-panel">Model inference sandbox</a>
       <span class="nav-label">TOOLS &amp; DISCOVERY</span>
       <a href="#bench-tools">Tool registry</a>
@@ -355,10 +418,43 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <a href="#evidence-explorer">Evidence explorer</a>
       <span class="nav-label">OPERATE &amp; OBSERVE</span>
       <a href="#workspace">Benchmark workspace</a>
-      <a href="#runtime">Runtime diagnostics</a>
+      <a class="overview-shortcut" href="#runtime">Runtime diagnostics</a>
       <div class="nav-foot"><span class="nav-status-dot"></span><span>Governed execution<br><small>MCP invocation not enabled</small></span></div>
     </nav>
     <div class="studio-content">
+      <div class="workspace-context" aria-label="Current Studio workspace">
+        <span class="workspace-context-crumb">TaaS Studio</span>
+        <span class="workspace-context-separator" aria-hidden="true">/</span>
+        <strong id="studio-workspace-context-title" class="workspace-context-title" aria-live="polite">Overview</strong>
+        <span class="workspace-context-spacer"></span>
+        <span class="workspace-context-hint">Workspace navigation</span>
+      </div>
+
+    <section id="agent-engineering-workspace" class="section-anchor" style="margin-bottom:18px" aria-labelledby="agent-engineering-title">
+    <div class="panel-head"><div><div class="eyebrow">BUILD · AGENT ENGINEERING</div><h2 id="agent-engineering-title" style="margin:4px 0">Objective-to-Agent traceability</h2><p class="subtle" style="margin:4px 0 0">Prepare an Objective with TaaS Core and inspect the returned GoalSpec, outcome coverage and exact-pinned Skill associations in one workspace.</p></div><span class="pill">Core-backed · review required</span></div>
+    <div class="agent-trace-boundary"><strong>Interpretation boundary.</strong> Skill-trigger links are lexical phrase matches within objective clause spans. Outcome/Goal links are structural coverage records. These associations are not semantic proof, capability evidence, policy approval, authorization, or execution.</div>
+    <div class="agent-workspace">
+      <div class="agent-card">
+        <h3>1 · Objective input</h3>
+        <div class="field"><label for="agent-engineering-provider">Inference provider</label><select id="agent-engineering-provider"><option value="huggingface">Hugging Face runtime</option><option value="ollama">Ollama runtime</option></select></div>
+        <div class="field"><label for="agent-engineering-objective">Objective</label><textarea id="agent-engineering-objective" maxlength="12000" placeholder="Describe the outcome the Agent should achieve. Include required operations, source constraints and temporal requirements."></textarea></div>
+        <div class="field"><label for="agent-engineering-context">Additional context · optional</label><textarea id="agent-engineering-context" maxlength="8000" style="min-height:85px" placeholder="Constraints or domain context to provide to the Objective Analyst."></textarea></div>
+        <div class="inline-actions"><button id="agent-engineering-prepare" type="button">Prepare Objective</button><button id="agent-engineering-clear" class="secondary" type="button">Clear</button></div>
+        <div id="agent-engineering-status" class="agent-trace-state" role="status" aria-live="polite">No Objective has been prepared in this workspace.</div>
+      </div>
+      <div class="agent-card">
+        <h3>2 · Traceability overview</h3>
+        <div id="agent-engineering-summary" class="agent-trace-grid" hidden></div>
+        <div id="agent-engineering-trace" class="subtle" aria-live="polite">Prepare an Objective to inspect its Core-generated provenance.</div>
+        <div id="agent-engineering-goals" class="agent-trace-list"></div>
+      </div>
+    </div>
+    <section style="margin-top:14px;box-shadow:none;padding:15px" aria-labelledby="agent-engineering-raw-title">
+      <div class="panel-head"><h3 id="agent-engineering-raw-title" style="margin:0;font-size:13px">Core response · exact payload</h3><span class="pill">Read-only response</span></div>
+      <pre id="agent-engineering-raw" style="min-height:100px">No Core response received.</pre>
+    </section>
+    <p class="subtle" style="margin-top:10px">This workspace calls <code>POST /api/v1/objectives/prepare</code> only after an explicit user action. It does not publish an Agent, start discovery, request authorization, or execute tools. Save/publish workflows are not implied by this trace view.</p>
+  </section>
 
   <section id="evidence-explorer" class="section-anchor" style="margin-bottom:18px">
     <div class="panel-head"><div><div class="eyebrow">ASSURE · Evidence</div><h2 style="margin:4px 0">Evidence explorer</h2>
@@ -386,9 +482,28 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     <details style="margin-top:10px"><summary class="subtle" style="cursor:pointer">Runtime diagnostics detail</summary><pre id="runtime-overview-details" style="min-height:80px">No runtime status snapshot.</pre></details>
   </section>
   <div id="overview-workspace">\n  <div class="hero" id="overview">
-    <div><div class="eyebrow">Toolkit-as-a-Service · Control plane</div><h2>Discovery workspace</h2><p>Move from benchmark intent to a reviewed GoalSpec, select candidate tools from the retained registry, and inspect a provenance-aware discovery decision—all in one guided workspace.</p></div>
-    <span class="pill"><span class="pill-dot"></span> Discovery preview · execution disabled</span>
+    <div><div class="eyebrow">Toolkit-as-a-Service · Control plane</div><h2>Platform overview</h2><p>A live, evidence-aware view of the resources and services currently reported by TaaS Core. Select a workspace to continue engineering.</p></div>
+    <span class="pill">Read-only overview · no execution</span>
   </div>
+  <section class="overview-dashboard" aria-labelledby="overview-dashboard-title">
+    <div class="overview-dashboard-head">
+      <div><div class="eyebrow">PLATFORM PULSE</div><h3 id="overview-dashboard-title">Your TaaS environment</h3><p>Counts reflect the latest records returned by Core APIs, not global totals unless the endpoint explicitly reports a total.</p></div>
+      <div class="overview-dashboard-state"><span id="overview-dashboard-status" role="status" aria-live="polite">Not loaded · connect the Studio API, then refresh.</span><button id="overview-dashboard-refresh" class="secondary" type="button">Refresh overview</button></div>
+    </div>
+    <div class="overview-metrics" aria-label="Resource summary">
+      <div class="overview-metric"><span class="overview-metric-label">Agent versions</span><strong class="overview-metric-value" id="overview-agent-count">—</strong><small class="overview-metric-state" id="overview-agent-state">Not loaded</small></div>
+      <div class="overview-metric"><span class="overview-metric-label">Skill versions</span><strong class="overview-metric-value" id="overview-skill-count">—</strong><small class="overview-metric-state" id="overview-skill-state">Not loaded</small></div>
+      <div class="overview-metric"><span class="overview-metric-label">Registered tools</span><strong class="overview-metric-value" id="overview-tool-count">—</strong><small class="overview-metric-state" id="overview-tool-state">Not loaded</small></div>
+      <div class="overview-metric"><span class="overview-metric-label">Configured MCP servers</span><strong class="overview-metric-value" id="overview-mcp-count">—</strong><small class="overview-metric-state" id="overview-mcp-state">Not loaded</small></div>
+    </div>
+    <div class="overview-resource-grid">
+      <section class="overview-resource-panel" aria-labelledby="overview-recent-agents-title"><h4 id="overview-recent-agents-title">Recent Agent versions</h4><ul class="overview-resource-list" id="overview-recent-agents"><li class="overview-empty">Connect to Core to load Agent versions.</li></ul></section>
+      <section class="overview-resource-panel" aria-labelledby="overview-recent-skills-title"><h4 id="overview-recent-skills-title">Recent Skill versions</h4><ul class="overview-resource-list" id="overview-recent-skills"><li class="overview-empty">Connect to Core to load Skill versions.</li></ul></section>
+    </div>
+    <div class="overview-shortcuts" aria-label="Workspace shortcuts">
+      <a class="overview-shortcut" href="#agent-goal-panel">Build an Agent</a><a class="overview-shortcut" href="#bench-tools">Explore tools</a><a class="overview-shortcut" href="#hypergraph-explorer">Open Hypergraph</a><a class="overview-shortcut" href="#evidence-explorer">Inspect evidence</a><a class="overview-shortcut" href="#runtime">Runtime diagnostics</a>
+    </div>
+  </section>
   <section class="taas-pipeline" aria-label="TaaS engineering lifecycle">
     <div class="pipeline-heading"><div><div class="eyebrow">TaaS engineering lifecycle</div><h2>From intent to governed execution</h2></div><span class="pill">Execution invocation not yet enabled</span></div>
     <div class="pipeline-steps">
@@ -874,6 +989,10 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       if (item === link) item.setAttribute("aria-current", "page");
       else item.removeAttribute("aria-current");
     });
+    const workspaceContextTitle = document.getElementById("studio-workspace-context-title");
+    if (workspaceContextTitle) {
+      workspaceContextTitle.textContent = link.textContent.replace(/\s+/g, " ").trim();
+    }
     if (updateHistory && window.location.hash !== href) {
       history.pushState({studioWorkspace: targetId}, "", href);
     }
@@ -1617,6 +1736,75 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     if(!r.ok) throw new Error(formatApiError(d.detail||d,"HTTP "+r.status));
     return d;
   };
+
+  const renderOverviewResourceList = (elementId, records, kind, emptyMessage) => {
+    const list=$(elementId); list.replaceChildren();
+    if(!records.length){
+      const empty=document.createElement("li"); empty.className="overview-empty";
+      empty.textContent=emptyMessage||("No "+kind+" versions are currently returned by the registry.");
+      list.append(empty); return;
+    }
+    records.slice(0,5).forEach(record=>{
+      const item=document.createElement("li");
+      const main=document.createElement("span"); main.className="overview-resource-main";
+      const title=document.createElement("strong");
+      title.textContent=(record.agent_id||record.skill_id||"Unknown")+(record.version?" · "+record.version:"");
+      const meta=document.createElement("small");
+      meta.textContent="Updated "+(record.updated_at||record.created_at||"timestamp not reported");
+      const state=document.createElement("span"); state.className="overview-resource-state";
+      state.textContent=record.revoked===true?"revoked":(record.lifecycle_state||"state unavailable");
+      main.append(title,meta); item.append(main,state); list.append(item);
+    });
+  };
+
+  const refreshPlatformOverview = async () => {
+    const button=$("overview-dashboard-refresh"), status=$("overview-dashboard-status");
+    button.disabled=true; status.textContent="Loading live Core resource summaries…";
+    ["agent","skill","tool","mcp"].forEach(key=>{
+      $("overview-"+key+"-count").textContent="—";
+      $("overview-"+key+"-state").textContent="Loading…";
+    });
+    const requests=await Promise.allSettled([
+      apiGet("/api/v1/agents?limit=100"),
+      apiGet("/api/v1/skills?limit=100"),
+      apiGet("/api/v1/bench/tools?source=all&limit=1&offset=0"),
+      apiGet("/api/v1/mcp/servers")
+    ]);
+    const labels=["Agent versions","Skill versions","Tool registry","MCP server configuration"];
+    let available=0;
+    const failed=[];
+    const showMetric=(key,value,detail)=>{
+      $("overview-"+key+"-count").textContent=String(value);
+      $("overview-"+key+"-state").textContent=detail;
+    };
+    if(requests[0].status==="fulfilled"){
+      const data=requests[0].value, versions=Array.isArray(data.versions)?data.versions:[];
+      showMetric("agent",data.count??versions.length,"Returned registry records · latest 100 maximum");
+      renderOverviewResourceList("overview-recent-agents",versions,"Agent");
+      available++;
+    }else{showMetric("agent","Unavailable",String(requests[0].reason?.message||requests[0].reason));renderOverviewResourceList("overview-recent-agents",[],"Agent","Agent registry unavailable: "+String(requests[0].reason?.message||requests[0].reason));failed.push(labels[0]);}
+    if(requests[1].status==="fulfilled"){
+      const data=requests[1].value, versions=Array.isArray(data.versions)?data.versions:[];
+      showMetric("skill",data.count??versions.length,"Returned registry records · latest 100 maximum");
+      renderOverviewResourceList("overview-recent-skills",versions,"Skill");
+      available++;
+    }else{showMetric("skill","Unavailable",String(requests[1].reason?.message||requests[1].reason));renderOverviewResourceList("overview-recent-skills",[],"Skill","Skill registry unavailable: "+String(requests[1].reason?.message||requests[1].reason));failed.push(labels[1]);}
+    if(requests[2].status==="fulfilled"){
+      const data=requests[2].value;
+      showMetric("tool",data.total??(Array.isArray(data.tools)?data.tools.length:0),"Registry total reported by Core");
+      available++;
+    }else{showMetric("tool","Unavailable",String(requests[2].reason?.message||requests[2].reason));failed.push(labels[2]);}
+    if(requests[3].status==="fulfilled"){
+      const servers=Array.isArray(requests[3].value.servers)?requests[3].value.servers:[];
+      showMetric("mcp",servers.length,"Configured servers returned by Core");
+      available++;
+    }else{showMetric("mcp","Unavailable",String(requests[3].reason?.message||requests[3].reason));failed.push(labels[3]);}
+    if(available===4)status.textContent="All four resource sources loaded from TaaS Core.";
+    else if(available>0)status.textContent="Partial data · "+available+"/4 sources loaded. Unavailable: "+failed.join(", ")+".";
+    else status.textContent="Overview unavailable · connect or verify the Studio API. "+failed.join(", ")+".";
+    button.disabled=false;
+  };
+  $("overview-dashboard-refresh").addEventListener("click",refreshPlatformOverview);
   const loadDatasets = async () => {
     const d=await apiGet("/api/v1/bench/datasets"); bench.datasets=d.datasets||[];
     $("bench-dataset-count").textContent=bench.datasets.length+" datasets";
@@ -2250,7 +2438,62 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     } finally { button.disabled = false; }
   });
 
-  // Restore the last successful Core response after a page refresh. This is
+
+  // Agent Engineering Workspace: explicit Objective preparation through TaaS Core.
+  const agentEngineeringPrepare = $("agent-engineering-prepare");
+  const agentEngineeringStatus = $("agent-engineering-status");
+  const agentEngineeringRaw = $("agent-engineering-raw");
+  const agentEngineeringTrace = $("agent-engineering-trace");
+  const agentEngineeringSummary = $("agent-engineering-summary");
+  const agentEngineeringGoals = $("agent-engineering-goals");
+  const renderAgentMetric = (label, value) => {
+    const card=document.createElement("div");card.className="agent-trace-metric";
+    const caption=document.createElement("span");caption.className="subtle";caption.textContent=label;
+    const strong=document.createElement("strong");strong.textContent=String(value ?? "Not reported");
+    card.append(caption,strong);return card;
+  };
+  const renderAgentTrace = data => {
+    const trace=data.objective_skill_traceability||{};
+    const outcomes=Array.isArray(trace.outcome_provenance)?trace.outcome_provenance:[];
+    const skills=Array.isArray(trace.skill_selection)?trace.skill_selection:[];
+    const goals=Array.isArray(trace.goal_provenance)?trace.goal_provenance:[];
+    const coverage=trace.coverage_summary||{};
+    agentEngineeringSummary.replaceChildren(
+      renderAgentMetric("Required outcomes",coverage.required??outcomes.length),
+      renderAgentMetric("Covered outcomes",coverage.covered??"Not reported"),
+      renderAgentMetric("Triggered Skill records",skills.filter(item=>item.selected).length)
+    );agentEngineeringSummary.hidden=false;
+    agentEngineeringTrace.replaceChildren();
+    const scope=document.createElement("p");scope.className="subtle";scope.textContent="Provenance scope: "+(trace.provenance_scope||"Not reported")+" · semantic correctness verified: "+String(trace.semantic_correctness_verified===true);agentEngineeringTrace.append(scope);
+    const table=document.createElement("table");table.className="agent-trace-table";
+    const head=document.createElement("thead"),headRow=document.createElement("tr");
+    ["Outcome","Source clause","Coverage","Goal IDs","Skills triggered in clause"].forEach(label=>{const th=document.createElement("th");th.textContent=label;headRow.append(th);});head.append(headRow);table.append(head);
+    const body=document.createElement("tbody");
+    outcomes.forEach(item=>{const row=document.createElement("tr");[item.outcome_id,item.clause_ref,item.coverage_status,(item.covered_by_goal_ids||[]).join(", ")||"—",(item.skills_triggered_in_clause||[]).join(", ")||"—"].forEach(value=>{const td=document.createElement("td");td.textContent=String(value??"—");row.append(td);});body.append(row);});
+    if(!outcomes.length){const row=document.createElement("tr"),cell=document.createElement("td");cell.colSpan=5;cell.textContent="No outcome provenance was returned.";row.append(cell);body.append(row);}
+    table.append(body);agentEngineeringTrace.append(table);
+    agentEngineeringGoals.replaceChildren();
+    skills.forEach(skill=>{const item=document.createElement("div");item.className="agent-trace-item";const title=document.createElement("strong");title.textContent=(skill.skill_id||"Unknown Skill")+" · "+(skill.version||"version not reported")+(skill.selected?" · selected":" · not selected");const detail=document.createElement("small");const triggerText=(skill.matched_triggers||[]).map(t=>{const spans=(t.occurrences||[]).map(o=>String(o.clause_ref||"unmapped")+" ["+o.start+"–"+o.end+"]").join(", ");return t.phrase+(spans?" → "+spans:"");}).join(" | ");detail.textContent="Source: "+(skill.source||"not reported")+" · selection policy: "+(skill.selection_policy||"not reported")+" · triggers: "+(triggerText||"none");item.append(title,detail);if(skill.registry_manifest_sha256){const digest=document.createElement("small");digest.textContent="Registry manifest SHA-256: "+skill.registry_manifest_sha256;item.append(digest);}agentEngineeringGoals.append(item);});
+    goals.forEach(goal=>{const item=document.createElement("div");item.className="agent-trace-item";const title=document.createElement("strong");title.textContent="Goal "+(goal.goal_id||"unknown")+" · "+(goal.goal_class||"class not reported");const detail=document.createElement("small");detail.textContent="Outcome: "+(goal.linked_outcome_id||"not linked")+" · clause: "+(goal.clause_ref||"not linked")+" · Skills associated in clause: "+((goal.skills_triggered_in_clause||[]).join(", ")||"none");item.append(title,detail);agentEngineeringGoals.append(item);});
+    if(!skills.length&&!goals.length){const empty=document.createElement("p");empty.className="subtle";empty.textContent="No Skill selection or Goal provenance records were returned.";agentEngineeringGoals.append(empty);}
+  };
+  agentEngineeringPrepare.addEventListener("click",async()=>{
+    const token=$("token").value.trim(),prompt=$("agent-engineering-objective").value.trim();
+    if(!token){agentEngineeringStatus.className="agent-trace-state error";agentEngineeringStatus.textContent="Connect Studio with a valid bearer token before preparing an Objective.";return;}
+    if(!prompt){agentEngineeringStatus.className="agent-trace-state error";agentEngineeringStatus.textContent="Enter an Objective before requesting preparation.";return;}
+    agentEngineeringPrepare.disabled=true;agentEngineeringStatus.className="agent-trace-state";agentEngineeringStatus.textContent="Preparing Objective with TaaS Core…";
+    try{
+      const response=await fetch("/api/v1/objectives/prepare",{method:"POST",headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json","Cache-Control":"no-cache"},cache:"no-store",body:JSON.stringify({provider:$("agent-engineering-provider").value,prompt,context:$("agent-engineering-context").value.trim()})});
+      const data=await readJsonResponse(response);if(!response.ok)throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
+      agentEngineeringRaw.textContent=JSON.stringify(data,null,2);renderAgentTrace(data);
+      const coverage=data.objective_coverage?.summary||{};
+      agentEngineeringStatus.className="agent-trace-state success";agentEngineeringStatus.textContent="Core response received · "+(coverage.covered??"Not reported")+" covered / "+(coverage.required??"Not reported")+" required outcomes · human review remains required.";
+    }catch(error){agentEngineeringStatus.className="agent-trace-state error";agentEngineeringStatus.textContent="Objective preparation failed: "+error.message;agentEngineeringRaw.textContent="No successful response is available. "+error.message;agentEngineeringSummary.hidden=true;agentEngineeringTrace.textContent="Traceability unavailable until a successful Core response is received.";agentEngineeringGoals.replaceChildren();}
+    finally{agentEngineeringPrepare.disabled=false;}
+  });
+  $("agent-engineering-clear").addEventListener("click",()=>{$("agent-engineering-objective").value="";$("agent-engineering-context").value="";agentEngineeringSummary.hidden=true;agentEngineeringTrace.textContent="Prepare an Objective to inspect its Core-generated provenance.";agentEngineeringGoals.replaceChildren();agentEngineeringRaw.textContent="No Core response received.";agentEngineeringStatus.className="agent-trace-state";agentEngineeringStatus.textContent="Workspace cleared. No API request was made.";});
+
+  // The overview is explicitly refreshed by the user after Studio authentication.\n\n  // Restore the last successful Core response after a page refresh. This is
   // ephemeral per-tab UI state, not durable run history; the API token is never stored.
   restoreLastDiscoveryResult();
 

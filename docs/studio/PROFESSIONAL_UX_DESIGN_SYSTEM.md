@@ -31,3 +31,31 @@ Updated the existing HTML/CSS presentation layer only. Existing endpoint calls, 
 ## Validation status
 
 Static regression tests cover design tokens, keyboard focus, responsive breakpoints, reduced-motion support, and preservation of the execution-disabled trust message. Browser screenshot review, keyboard walkthrough, contrast audit, and automated browser tests remain required before production release.
+
+
+## UX-2 — Persistent workspace context
+
+The application content area now exposes a compact breadcrumb/context strip. Its title is driven by the same navigation link that controls workspace visibility, so direct navigation, browser history and sidebar navigation share one source of truth.
+
+- The current workspace label is announced through an accessible polite live region.
+- The context strip is responsive and collapses its secondary hint on narrow screens.
+- Reduced-motion preferences disable smooth document scrolling.
+- No workspace health, authorization, execution or readiness status is inferred or displayed by this component.
+
+Validation adds static regression checks for the context element, navigation-driven title update, responsive behavior and reduced-motion handling. Browser-level visual and keyboard acceptance remains a separate gate.
+
+
+## UX-3 — API-backed platform overview
+
+The Overview workspace now provides a read-only summary using existing authenticated Core endpoints:
+
+- Agent versions: `GET /api/v1/agents?limit=100`
+- Skill versions: `GET /api/v1/skills?limit=100`
+- Tool registry total: `GET /api/v1/bench/tools?source=all&limit=1&offset=0`
+- Configured MCP servers: `GET /api/v1/mcp/servers`
+
+The dashboard shows recent Agent and Skill version records returned by the registries, preserving their lifecycle state and revocation flag. It labels Agent/Skill figures as returned records (maximum 100), and labels the tool count as the Core-reported registry total. It does not invent a model inventory: the current model API is search-driven rather than a platform-owned model registry list.
+
+Each resource request is handled independently. Loading, empty, partial-data and unavailable states are distinct. Values are rendered with DOM text nodes; API values are not injected as HTML. The overview contains navigation shortcuts only and does not initiate discovery, authorization, model loading or execution.
+
+Validation adds static checks for the four endpoint contracts, partial/unavailable behavior, lifecycle labels and responsive layouts. Browser-level interaction and live API verification remain pending.
