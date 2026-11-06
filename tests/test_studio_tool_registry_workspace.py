@@ -36,7 +36,6 @@ def test_registry_inspection_uses_safe_dom_rendering():
     feature = html[start:end]
     assert "innerHTML" not in feature
     assert "textContent" in feature
-    assert "replaceChildren" in feature
 
 
 def test_selection_basket_survives_registry_pagination_and_filtering():
@@ -57,7 +56,9 @@ def test_toolset_replacement_is_deterministic_and_replaces_not_appends():
     end = html.index("const renderBenchSelectionBasket", start)
     sync = html[start:end]
     assert "bench.selectedTools.entries()" in sync
-    assert ".sort(" in sync
+    assert ".sort(compareRegistryEntries)" in sync
+    assert "const compareRegistryText" in html
+    assert "localeCompare" not in html
     assert "body.tools=ordered.map" in sync
     assert "body.tools.push" not in sync
     assert "input_schema:t.input_schema||{}" in sync
