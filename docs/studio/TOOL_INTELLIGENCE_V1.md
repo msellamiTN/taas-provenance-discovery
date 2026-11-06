@@ -117,3 +117,33 @@ exclusive alternative to inline `tools` (both → 422; neither → 422). Each id
 must resolve exactly against the retained registry (`server::name`); any
 unresolved id → 422 with the list. Resolved contracts carry their registry
 definition hash and provenance; the response marks `tool_source`.
+
+## v1.6 — Tool Comparison
+
+`POST /api/v1/tools/compare` → `taas.tool-compare/v1`. Body: `tool_ids`
+(2–8 distinct `server::name`), optional `query`/`goal_output`, optional
+`policy`. Per tool: capability profile (reuses `build_capability_profile`),
+evidence summary + index property strengths, `definition_hash_verified`,
+eligibility verdict + rejection reasons, optional per-component retrieval
+scores restricted to the compared ids (exact `HybridRetriever.scores()`
+parity). `differences` lists diverging fields only.
+`comparison_semantics: structural_capability_evidence_eligibility_diff_only_not_authorization`.
+
+## Observation-evidence wiring
+
+`TAAS_EVIDENCE_STORE` may point at a JSONL file of obs/att records:
+
+```json
+{"tool": "server::name", "definition_hash": "<h>", "prop": "read_only",
+ "ptype": "obs", "kappa": 0.9, "method": "probe", "signer": "..."}
+{"tool": "server::name", "definition_hash": "<h>", "effects": ["read(db)"]}
+```
+
+`tool_service._evidence_store()` loads it once and shares it across
+`_tool_engine()` (contract extraction), the intelligence profile, compare,
+and the discover path — so verified obs/att records upgrade `eff_record.ptype`
+exactly as `extract_contract` defines. `lex`/`ann` records are rejected by
+the store (re-derived from the definition); malformed lines are skipped;
+stale hashes never match. Absent store → unchanged behavior, with
+`evidence_store_wired: false` reported honestly on retrieve/eligibility/
+compare responses.
