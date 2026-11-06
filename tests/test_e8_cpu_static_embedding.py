@@ -33,7 +33,7 @@ def test_streamed_gzip_download_and_hash(tmp_path,monkeypatch):
         def __enter__(self): return self
         def __exit__(self,*args): self.close()
     monkeypatch.setattr('urllib.request.urlopen',lambda *a,**k: Response(compressed.getvalue()))
-    monkeypatch.setattr('shutil.disk_usage',lambda p: shutil._ntuple_diskusage(20,1,19))
+    monkeypatch.setattr('shutil.disk_usage',lambda p: shutil._ntuple_diskusage(20 * 1024**3, 1 * 1024**3, 19 * 1024**3))
     meta=download_pretrained_model(tmp_path/'cc.en.300.bin','https://example.invalid/model.gz',8)
     assert (tmp_path/'cc.en.300.bin').read_bytes()==payload and meta['bytes']==len(payload) and len(meta['sha256'])==64
 def test_download_fails_closed_on_low_disk(tmp_path,monkeypatch):
