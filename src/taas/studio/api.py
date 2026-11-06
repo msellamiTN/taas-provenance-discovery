@@ -35,6 +35,7 @@ from taas.studio.objective_traceability import build_objective_skill_traceabilit
 from taas.studio import policy_engine
 from taas.studio.tool_intelligence import build_tool_intelligence
 from taas.studio import tool_registry
+from taas.studio import tool_service
 from taas.studio.agent_skill_bindings import (
     AgentSkillBindingConflict,
     AgentSkillBindingError,
@@ -105,7 +106,8 @@ class ModelMemoryEstimateRequest(BaseModel):
 class DiscoverRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     goal_spec: dict[str, Any]
-    tools: list[ToolInput] = Field(min_length=1, max_length=500)
+    tools: list[ToolInput] = Field(default_factory=list, max_length=500)
+    registry_tool_ids: list[str] = Field(default_factory=list, max_length=500)
     provider: str = Field(default="huggingface", pattern="^(huggingface|ollama)$")
     model_id: str | None = Field(default=None, min_length=3, max_length=257)
     human_review_confirmed: bool = False
@@ -974,6 +976,66 @@ def tool_capability_intelligence(server: str, name: str) -> dict[str, Any]:
     return profile
 
 
+class ToolRetrieveRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    query: str = Field(min_length=1, max_length=2000)
+    goal_out: str | None = Field(default=None, max_length=128)
+    k: int = Field(default=10, ge=1, le=32)
+    components: list[str] | None = Field(default=None, max_length=3)
+    type_filter: bool = True
+    prompt_inputs: list[str] = Field(default_factory=list, max_length=32)
+    include_hypergraph: bool = False
+    policy: dict[str, Any] = Field(default_factory=dict)
+
+
+@app.post("/api/v1/tools/retrieve", dependencies=[Depends(require_api_token)])
+def tool_retrieve(request: ToolRetrieveRequest) -> dict[str, Any]:
+    """Goal-oriented hybrid retrieval over the registry with score explanation."""
+    policy_data = request.policy
+    try:
+        policy = Policy.make(
+            name=str(policy_data.get("name", "tool-intelligence")),
+            required=policy_data.get("required", []),
+            allowed=policy_data.get("allowed", ["read(*)", "egress(*)", "session"]),
+            lmin=policy_data.get("lmin", "obs"),
+            forbidden=policy_data.get("forbidden", []),
+            encoding=policy_data.get("encoding", "positive"),
+        )
+        return tool_service.explainable_retrieve(
+            request.query, request.goal_out,
+            policy=policy, k=request.k, components=request.components,
+            type_filter=request.type_filter, prompt_inputs=request.prompt_inputs,
+            include_hypergraph=request.include_hypergraph,
+        )
+    except (TypeError, ValueError, KeyError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+class ToolEligibilityRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    tool_ids: list[str] | None = Field(default=None, max_length=64)
+    policy: dict[str, Any] = Field(default_factory=dict)
+
+
+@app.post("/api/v1/tools/eligibility", dependencies=[Depends(require_api_token)])
+def tool_eligibility(request: ToolEligibilityRequest) -> dict[str, Any]:
+    """Explain policy eligibility/rejection per tool with evidence strengths."""
+    policy_data = request.policy
+    try:
+        policy = Policy.make(
+            name=str(policy_data.get("name", "tool-intelligence")),
+            required=policy_data.get("required", []),
+            allowed=policy_data.get("allowed", ["read(*)", "egress(*)", "session"]),
+            lmin=policy_data.get("lmin", "obs"),
+            forbidden=policy_data.get("forbidden", []),
+            encoding=policy_data.get("encoding", "positive"),
+            visible=(frozenset(policy_data["visible"]) if policy_data.get("visible") else None),
+        )
+        return tool_service.eligibility_explain(policy, request.tool_ids)
+    except (TypeError, ValueError, KeyError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
 @app.get("/api/v1/bench/tools", dependencies=[Depends(require_api_token)])
 def bench_tools(
     source: str = Query("LiveMCPTool", pattern="^(LiveMCPTool|MCPToolBench\\+\\+|all)$"),
@@ -1049,7 +1111,38 @@ def discover(request: DiscoverRequest) -> dict[str, Any]:
         profile = ModelProfile(model_id=request.model_id, strict=True)
     else:
         profile = configured_profile
-    raw_tools = [RawTool(**tool.model_dump()) for tool in request.tools]
+    if request.tools and request.registry_tool_ids:
+        raise HTTPException(
+            status_code=422,
+            detail="Supply either tools or registry_tool_ids, not both.",
+        )
+    if request.registry_tool_ids:
+        raw_tools = []
+        unresolved = []
+        for tool_id in request.registry_tool_ids:
+            if "::" not in tool_id:
+                unresolved.append(tool_id)
+                continue
+            raw = tool_registry._raw_tools().get(tool_id)
+            if raw is None:
+                unresolved.append(tool_id)
+            else:
+                raw_tools.append(raw)
+        if unresolved:
+            raise HTTPException(
+                status_code=422,
+                detail={
+                    "message": "registry_tool_ids must resolve to exact server::name registry tools",
+                    "unresolved": unresolved,
+                },
+            )
+    else:
+        raw_tools = [RawTool(**tool.model_dump()) for tool in request.tools]
+    if not raw_tools:
+        raise HTTPException(
+            status_code=422,
+            detail="Discovery requires at least one tool (tools or registry_tool_ids).",
+        )
     contracts = [extract_contract(tool) for tool in raw_tools]
 
     policy_data = request.policy
@@ -1101,6 +1194,7 @@ def discover(request: DiscoverRequest) -> dict[str, Any]:
     )
     return {
         "status": "abstained" if result.abstained else "selected",
+        "tool_source": "registry_tool_ids" if request.registry_tool_ids else "request_tools",
         "selected_tools": result.toolkit or [],
         # Return the canonical GoalSpec vocabulary accepted by parse_goal_spec.
         # Do not rename out/desc/deps/eff to presentation-only aliases.
