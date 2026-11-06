@@ -429,6 +429,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 .command-palette-hint{padding:9px 14px;border-top:1px solid var(--line);color:var(--muted);font-size:10px}
 @media(max-width:900px){.command-palette-trigger{margin:0;flex:1}}
 
+.goal-design-tools{display:flex;align-items:end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:12px 0;padding:12px;border:1px solid var(--line);border-radius:10px;background:#f7f9fc}.goal-view-switch,.goal-example-control{display:flex;align-items:end;gap:7px;flex-wrap:wrap}.goal-view-switch button,.goal-example-control button{margin:0}.goal-view-switch button[aria-pressed="true"]{background:#18345e;color:#fff}.goal-example-control label{display:block;margin:0 0 5px;color:#50617a;font-size:11px;font-weight:700}.goal-example-control select{min-width:210px;padding:8px 10px;font:12px Inter,system-ui,sans-serif}.goal-example-note{flex-basis:100%;color:#8a5a13;font-size:10px}.goal-visual-panel{margin:10px 0 14px;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fff}.goal-visual-panel[hidden]{display:none}.goal-graph-scroll{overflow:auto;max-width:100%}#goal-graph-svg{display:block;min-width:560px;width:100%;height:auto}.goal-graph-node{fill:#f5f8ff;stroke:#9db4df;stroke-width:1.5}.goal-graph-node-label{fill:#18345e;font-size:12px;font-weight:700}.goal-graph-node-meta{fill:#53647d;font-size:10px}.goal-graph-edge{fill:none;stroke:#7892bd;stroke-width:1.8}.goal-graph-text{margin:10px 0 0;padding-left:22px;color:#53647d;font-size:11px;line-height:1.6}.goal-dependency-table{width:100%;border-collapse:collapse;font-size:11px}.goal-dependency-table th,.goal-dependency-table td{padding:9px 8px;border-bottom:1px solid #e7ecf2;text-align:left;vertical-align:top;overflow-wrap:anywhere}.goal-dependency-table th{color:#52627a;background:#f7f9fc}@media(max-width:650px){.goal-design-tools{align-items:stretch}.goal-example-control{width:100%}.goal-example-control select{min-width:0;flex:1}}
 </style>
 </head>
 <body>
@@ -650,6 +651,12 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         <div class="field"><label for="goal-prompt-inputs">Prompt-provided semantic context · comma-separated types</label><input id="goal-prompt-inputs" value="text" placeholder="text, record:customer[]"></div>
         <div class="panel-head" style="margin:12px 0 4px"><h3>Goal contracts</h3><span class="count" id="goal-count">0 goals</span></div>
         <div id="goal-cards"></div>
+
+        <div class="goal-design-tools"><div><div class="subtle" style="margin-bottom:6px;font-weight:700">Dependency representation</div><div class="goal-view-switch" role="group" aria-label="Goal dependency representation"><button id="goal-view-graph" type="button" class="secondary" aria-pressed="true">Graph</button><button id="goal-view-table" type="button" class="secondary" aria-pressed="false">Table</button></div></div>
+        <div class="goal-example-control"><div><label for="goal-example">Illustrative GoalSpec template</label><select id="goal-example"><option value="">Choose an example…</option><option value="research">Web research → summary</option><option value="data-report">Read data → aggregate → report</option></select></div><button id="goal-example-load" type="button" class="secondary">Replace draft with example</button></div><div class="goal-example-note">Templates replace the draft only after an explicit click. Review and adapt every goal before validation; examples are not semantic recommendations.</div></div>
+        <section id="goal-dependency-graph" class="goal-visual-panel" aria-label="Goal dependency graph"><div class="panel-head"><h3>Dependency graph</h3><span class="subtle">Arrows point from prerequisite to dependent goal.</span></div><div class="goal-graph-scroll"><svg id="goal-graph-svg" viewBox="0 0 900 180" role="img" aria-label="Directed goal dependency graph"></svg></div><ol id="goal-graph-text" class="goal-graph-text" aria-label="Text equivalent of dependency graph"></ol><div id="goal-graph-status" class="subtle" role="status" aria-live="polite"></div></section>
+        <section id="goal-dependency-table-panel" class="goal-visual-panel" hidden aria-label="Goal dependency table"><div class="panel-head"><h3>Dependency table</h3><span class="subtle">Same goal and dependency data as the graph.</span></div><div style="overflow-x:auto"><table class="goal-dependency-table"><thead><tr><th>Goal</th><th>Operation</th><th>Output</th><th>Inputs</th><th>Depends on</th><th>Effects</th></tr></thead><tbody id="goal-dependency-table-body"></tbody></table></div></section>
+
         <div class="goal-actions"><button id="goal-add" type="button" class="secondary">Add goal</button><button id="goal-validate" type="button" class="secondary">Validate GoalSpec</button><span class="subtle">Validation checks structure, types, references and dependency cycles; it does not generate or prove goal semantics.</span></div>
         <label style="display:flex;align-items:flex-start;gap:9px;font-weight:500;margin-top:12px">
           <input id="goal-semantic-review" type="checkbox" style="width:auto;margin-top:2px">
@@ -1480,6 +1487,43 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       root.append(card);
     });
   };
+
+  // UX-2: display-only projections of declared GoalSpec dependencies.
+  const goalViewState={mode:"graph"};
+  const svgElement=(name,attrs={})=>{const el=document.createElementNS("http://www.w3.org/2000/svg",name);Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,String(v)));return el;};
+  const renderGoalDependencyViews=()=>{
+    if(!goalSpecState)return;
+    $("goal-dependency-graph").hidden=goalViewState.mode!=="graph";$("goal-dependency-table-panel").hidden=goalViewState.mode!=="table";
+    $("goal-view-graph").setAttribute("aria-pressed",String(goalViewState.mode==="graph"));$("goal-view-table").setAttribute("aria-pressed",String(goalViewState.mode==="table"));
+    const goals=goalSpecState.goals,byId=new Map(goals.map(g=>[g.id,g])),indegree=new Map(goals.map(g=>[g.id,0])),children=new Map(goals.map(g=>[g.id,[]]));
+    goals.forEach(g=>(g.deps||[]).forEach(d=>{if(byId.has(d)){indegree.set(g.id,indegree.get(g.id)+1);children.get(d).push(g.id);}}));
+    const queue=goals.filter(g=>indegree.get(g.id)===0).map(g=>g.id),level=new Map(queue.map(id=>[id,0])),ordered=[];
+    while(queue.length){const id=queue.shift();ordered.push(byId.get(id));(children.get(id)||[]).forEach(c=>{level.set(c,Math.max(level.get(c)||0,(level.get(id)||0)+1));indegree.set(c,indegree.get(c)-1);if(indegree.get(c)===0)queue.push(c);});}
+    const cyclic=ordered.length!==goals.length;if(cyclic){ordered.splice(0,ordered.length,...goals);level.clear();goals.forEach((g,i)=>level.set(g.id,i));}
+    const layers=new Map();ordered.forEach(g=>{const l=level.get(g.id)||0;if(!layers.has(l))layers.set(l,[]);layers.get(l).push(g);});
+    const nw=220,nh=54,gx=76,gy=22,pad=24,maxL=Math.max(0,...layers.keys()),maxR=Math.max(1,...Array.from(layers.values()).map(a=>a.length)),svg=$("goal-graph-svg");
+    svg.replaceChildren();svg.setAttribute("viewBox","0 0 "+Math.max(560,pad*2+(maxL+1)*(nw+gx)-gx)+" "+Math.max(120,pad*2+maxR*(nh+gy)-gy));
+    const pos=new Map();layers.forEach((items,l)=>items.forEach((g,r)=>pos.set(g.id,{x:pad+l*(nw+gx),y:pad+r*(nh+gy)})));
+    const defs=svgElement("defs"),marker=svgElement("marker",{id:"goal-arrowhead",markerWidth:8,markerHeight:8,refX:6,refY:3,orient:"auto"});marker.append(svgElement("path",{d:"M0,0 L0,6 L7,3 z",fill:"#7892bd"}));defs.append(marker);svg.append(defs);
+    goals.forEach(g=>(g.deps||[]).forEach(d=>{const a=pos.get(d),b=pos.get(g.id);if(!a||!b)return;const x=a.x+nw,y=a.y+nh/2,tx=b.x,ty=b.y+nh/2,m=(x+tx)/2;svg.append(svgElement("path",{d:"M "+x+" "+y+" C "+m+" "+y+", "+m+" "+ty+", "+tx+" "+ty,class:"goal-graph-edge","marker-end":"url(#goal-arrowhead)"}));}));
+    ordered.forEach(g=>{const p=pos.get(g.id),group=svgElement("g");group.append(svgElement("rect",{x:p.x,y:p.y,width:nw,height:nh,rx:8,class:"goal-graph-node"}));const t=svgElement("text",{x:p.x+11,y:p.y+20,class:"goal-graph-node-label"});t.textContent=(g.id||"unnamed")+" · "+(g.class||"unclassified");group.append(t);const m=svgElement("text",{x:p.x+11,y:p.y+39,class:"goal-graph-node-meta"});m.textContent="out: "+(g.out||"not specified");group.append(m);svg.append(group);});
+    const list=$("goal-graph-text");list.replaceChildren();ordered.forEach(g=>{const li=document.createElement("li");li.textContent=(g.id||"unnamed")+" depends on: "+((g.deps||[]).join(", ")||"none");list.append(li);});
+    $("goal-graph-status").textContent=cyclic?"Cycle detected; graph falls back to editor order. Run structural validation.":goals.length+" goal(s) · "+layers.size+" dependency layer(s). Declared dependencies only, not proof of data compatibility.";
+    const body=$("goal-dependency-table-body");body.replaceChildren();goals.forEach(g=>{const tr=document.createElement("tr");[g.id,g.class,g.out,(g.in||[]).join(", ")||"—",(g.deps||[]).join(", ")||"—",(g.eff||[]).join(", ")||"—"].forEach(v=>{const td=document.createElement("td");td.textContent=String(v??"—");tr.append(td);});body.append(tr);});
+  };
+  $("goal-view-graph").addEventListener("click",()=>{goalViewState.mode="graph";renderGoalDependencyViews();});
+  $("goal-view-table").addEventListener("click",()=>{goalViewState.mode="table";renderGoalDependencyViews();});
+  const GOAL_EXAMPLES={
+    research:{prompt:"Find a current technical topic and produce a concise evidence-based summary.",prompt_inputs_text:"text",goals:[
+      {id:"g1",class:"fetch_web",in:["query:web"],out:"document:web",eff:["egress(web)"],sigma:"data",desc:"Retrieve relevant current source material for the topic",deps:[],n:3,exactness:"tolerant",lang:"en",optional:false},
+      {id:"g2",class:"summarise",in:["document:web"],out:"text",eff:[],sigma:"unreliable",desc:"Summarise the retrieved source material",deps:["g1"],n:1,exactness:"tolerant",lang:"en",optional:false}]},
+    "data-report":{prompt:"Read a supplied data file, aggregate its records, and prepare a report.",prompt_inputs_text:"text, path:file",goals:[
+      {id:"g1",class:"retrieve",in:["path:file"],out:"table:data",eff:["read(fs)"],sigma:"data",desc:"Read the supplied data file into a structured table",deps:[],n:1,exactness:"tolerant",lang:"en",optional:false},
+      {id:"g2",class:"aggregate",in:["table:data"],out:"table:summary",eff:[],sigma:"native",desc:"Aggregate the data into a summary table",deps:["g1"],n:1,exactness:"tolerant",lang:"en",optional:false},
+      {id:"g3",class:"create_document",in:["table:summary"],out:"path:file",eff:["write(fs)"],sigma:"effect",desc:"Write the summary as a report file",deps:["g2"],n:1,exactness:"tolerant",lang:"en",optional:false}]}
+  };
+  $("goal-example-load").addEventListener("click",()=>{const ex=GOAL_EXAMPLES[$("goal-example").value];if(!ex){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent="Choose an example template first.";return;}goalSpecState={prompt:ex.prompt,prompt_inputs_text:ex.prompt_inputs_text,goals:ex.goals.map(g=>({...g,in:[...g.in],eff:[...g.eff],deps:[...g.deps]}))};invalidateHumanReview();renderGoalEditor();syncGoalSpec();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Illustrative example loaded. Review prompt, goals, types, effects and dependencies, then validate; no semantic correctness is implied.";});
+
   const validateGoalSpecLocal = () => {
     const errors=[], ids=new Set(), goals=goalSpecState.goals;
     if(!goalSpecState.prompt.trim())errors.push("Natural-language objective is empty.");
@@ -1506,7 +1550,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     return errors;
   };
   const syncGoalSpec = () => {
-    try{getGoalSpec();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Draft updated. Validate before discovery.";}
+    try{getGoalSpec();renderGoalDependencyViews();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Draft updated. Validate before discovery.";}
     catch(e){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent="Cannot sync editor: "+e.message;}
   };
   $("goal-prompt").addEventListener("input",()=>{goalSpecState.prompt=$("goal-prompt").value;syncGoalSpec();});
@@ -1538,7 +1582,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   try{
     const initial=readRequest();const gs=initial.goal_spec||{};
     goalSpecState={prompt:gs.prompt||"",prompt_inputs_text:(gs.prompt_inputs||["text"]).join(", "),goals:Array.isArray(gs.goals)?gs.goals.map(g=>({...g,n:g.n??1,in:[...(g.in||[])],eff:[...(g.eff||[])],deps:[...(g.deps||[])]})):[]};
-    renderGoalEditor();
+    renderGoalEditor();renderGoalDependencyViews();
   }catch(e){goalSpecState={prompt:"",prompt_inputs_text:"text",goals:[defaultGoal(1)]};renderGoalEditor();}
 
   $("model-search").addEventListener("click", async () => {
