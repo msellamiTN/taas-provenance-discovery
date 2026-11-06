@@ -655,6 +655,7 @@ def test_e18_factorial_preview_runs_all_eight_frozen_cells_with_shared_inputs():
     assert len(result["shared_inputs"]["registry_fingerprint"]) == 64
     assert len(result["shared_inputs"]["goal_spec_fingerprint"]) == 64
     assert len(result["shared_inputs"]["policy_fingerprint"]) == 64
+    assert len(result["shared_inputs"]["model_profile_fingerprint"]) == 64
     assert {item["model_profile"] for item in result["results"]} == {
         result["shared_inputs"]["model_profile"]
     }
