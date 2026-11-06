@@ -349,11 +349,30 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   .outcome-status.covered{background:#e8f5ee;color:#17633c}
   .outcome-status.missing{background:#fff1e8;color:#99420b}
   .outcome-coverage-note{margin:9px 0 0;color:var(--muted);font-size:11px;line-height:1.45}
+
+/* UX-3 — keyboard-accessible Studio command palette */
+.command-palette-trigger{margin:0 0 0 14px;min-height:34px;padding:7px 11px;background:#263955;border-color:#40516d;color:#e8effb;font-size:10px;white-space:nowrap}
+.command-palette-trigger:hover:not(:disabled){background:#344a6c;border-color:#526b91}
+.command-palette{width:min(620px,calc(100vw - 28px));max-width:none;max-height:min(72vh,680px);padding:0;border:1px solid #dce3ee;border-radius:14px;background:#fff;color:var(--ink);box-shadow:0 24px 80px rgba(12,25,48,.28)}
+.command-palette::backdrop{background:rgba(12,25,48,.48);backdrop-filter:blur(2px)}
+.command-palette-head{padding:15px;border-bottom:1px solid var(--line)}
+.command-palette-head strong{display:block;font-size:13px;margin-bottom:8px}
+.command-palette-head input{font:13px Inter,system-ui,sans-serif}
+.command-palette-results{padding:8px;max-height:calc(72vh - 110px);overflow:auto}
+.command-palette-item{display:flex;width:100%;align-items:center;justify-content:space-between;gap:12px;margin:0;padding:10px 11px;border:0;border-radius:8px;background:#fff;color:var(--ink);text-align:left;box-shadow:none}
+.command-palette-item:hover,.command-palette-item:focus-visible{background:#edf2ff;color:#284eae;outline:0}
+.command-palette-item span{font-size:12px;font-weight:650}
+.command-palette-item small{color:var(--muted);font-size:10px}
+.command-palette-empty{padding:20px 12px;text-align:center;color:var(--muted);font-size:12px}
+.command-palette-hint{padding:9px 14px;border-top:1px solid var(--line);color:var(--muted);font-size:10px}
+@media(max-width:900px){.command-palette-trigger{margin:0;flex:1}}
+
 </style>
 </head>
 <body>
 <header class="studio-header">
   <div class="studio-header-brand"><h1>TaaS Studio</h1><p>Engineer AI systems. Discover tools. Assure decisions. — model, agent &amp; tool intelligence</p></div>
+  <button id="command-palette-open" class="command-palette-trigger" type="button" aria-haspopup="dialog" aria-controls="studio-command-palette">Quick switcher <kbd>Ctrl K</kbd></button>
   <form id="studio-auth" class="studio-auth" aria-label="Studio authentication" autocomplete="off">
     <div class="studio-auth-copy"><strong>Studio authentication</strong><span id="studio-auth-status" role="status" aria-live="polite">Not connected · token stays in this page's memory</span></div>
     <label class="sr-only" for="token">Studio API bearer token</label>
@@ -789,6 +808,16 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   </div>
 
 </main>
+<dialog id="studio-command-palette" class="command-palette" aria-labelledby="command-palette-title">
+  <div class="command-palette-head">
+    <strong id="command-palette-title">Go to a Studio workspace</strong>
+    <label class="sr-only" for="command-palette-search">Search Studio workspaces</label>
+    <input id="command-palette-search" type="search" autocomplete="off" placeholder="Search workspaces, tools and operations…">
+  </div>
+  <div id="command-palette-results" class="command-palette-results" role="listbox" aria-label="Studio destinations"></div>
+  <div class="command-palette-hint">Enter to open · Esc to close · Ctrl K / ⌘ K to toggle</div>
+</dialog>
+
 <script>
 (() => {
   const $ = (id) => document.getElementById(id);
@@ -2369,6 +2398,65 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     } catch (error) {
       status.textContent = "Skill dependency graph unavailable: " + error.message;
     } finally { button.disabled = false; }
+  });
+
+
+  // UX-3: keyboard-accessible command palette for the existing Studio navigation.
+  // Destinations are derived from the rendered navigation; no parallel route registry.
+  const commandDialog = $("studio-command-palette");
+  const commandSearch = $("command-palette-search");
+  const commandResults = $("command-palette-results");
+  const commandOpen = $("command-palette-open");
+  let commandDestinations = [];
+  let commandActiveIndex = 0;
+  const collectCommandDestinations = () => [...document.querySelectorAll(".studio-nav a[href^='#']")]
+    .filter(link => link.textContent.trim() && link.getAttribute("href").length > 1)
+    .map(link => ({ label: link.textContent.trim(), href: link.getAttribute("href"), group:
+      link.previousElementSibling?.classList.contains("nav-label") ? link.previousElementSibling.textContent.trim() : "STUDIO" }));
+  const renderCommandResults = () => {
+    const query = commandSearch.value.trim().toLocaleLowerCase();
+    const filtered = commandDestinations.filter(item => (item.label+" "+item.group+" "+item.href).toLocaleLowerCase().includes(query));
+    commandResults.replaceChildren();
+    if (!filtered.length) {
+      const empty = document.createElement("div"); empty.className = "command-palette-empty";
+      empty.textContent = "No matching Studio destination."; commandResults.append(empty); return;
+    }
+    commandActiveIndex = Math.min(commandActiveIndex, filtered.length - 1);
+    filtered.forEach((item, index) => {
+      const button = document.createElement("button"); button.type = "button";
+      button.className = "command-palette-item"; button.setAttribute("role", "option");
+      button.setAttribute("aria-selected", index === commandActiveIndex ? "true" : "false");
+      const label = document.createElement("span"); label.textContent = item.label;
+      const group = document.createElement("small"); group.textContent = item.group;
+      button.append(label, group);
+      button.addEventListener("click", () => {
+        commandDialog.close(); window.location.hash = item.href;
+        const target = document.querySelector(item.href);
+        if (target) target.scrollIntoView({behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start"});
+      });
+      commandResults.append(button);
+    });
+  };
+  const openCommandPalette = () => {
+    commandDestinations = collectCommandDestinations(); commandSearch.value = ""; commandActiveIndex = 0;
+    renderCommandResults();
+    if (!commandDialog.open) commandDialog.showModal();
+    commandSearch.focus();
+  };
+  commandOpen.addEventListener("click", openCommandPalette);
+  commandSearch.addEventListener("input", () => { commandActiveIndex = 0; renderCommandResults(); });
+  commandSearch.addEventListener("keydown", event => {
+    const options = [...commandResults.querySelectorAll("button[role='option']")];
+    if (event.key === "ArrowDown" && options.length) { event.preventDefault(); commandActiveIndex = (commandActiveIndex + 1) % options.length; renderCommandResults(); commandResults.querySelectorAll("button")[commandActiveIndex]?.focus(); }
+    if (event.key === "ArrowUp" && options.length) { event.preventDefault(); commandActiveIndex = (commandActiveIndex + options.length - 1) % options.length; renderCommandResults(); commandResults.querySelectorAll("button")[commandActiveIndex]?.focus(); }
+    if (event.key === "Enter" && options.length) { event.preventDefault(); options[commandActiveIndex]?.click(); }
+  });
+  commandDialog.addEventListener("click", event => { if (event.target === commandDialog) commandDialog.close(); });
+  commandDialog.addEventListener("close", () => commandOpen.focus());
+  document.addEventListener("keydown", event => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k" && !event.altKey) {
+      event.preventDefault(); if (commandDialog.open) commandDialog.close(); else openCommandPalette();
+    }
   });
 
   // Restore the last successful Core response after a page refresh. This is
