@@ -89,6 +89,23 @@
     .goal-editor input,.goal-editor select,.goal-editor textarea { width:100%; box-sizing:border-box; padding:8px 9px; border:1px solid #d4dce8; border-radius:7px; background:#fff; color:#172033; font:12px Inter,system-ui,sans-serif; }
     .goal-editor textarea { min-height:52px; resize:vertical; }
     .goal-editor .goal-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px 10px; }
+    /* UX-3: registry detail inspector and explicit selection basket */
+    .bench-registry-tools{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(260px,.8fr);gap:12px;margin-top:12px;align-items:start}
+    .bench-tool-inspector,.bench-selection-panel{min-width:0;border:1px solid var(--line);border-radius:10px;background:#fbfcfe;padding:12px}
+    .bench-tool-inspector h4,.bench-selection-panel h4{margin:0 0 8px;font-size:12px}
+    .bench-tool-inspector pre{max-height:360px;min-height:90px;margin:8px 0 0;overflow:auto}
+    .bench-tool-row{display:flex;gap:8px;align-items:flex-start;border-bottom:1px solid #edf0f5;padding:9px 10px}
+    .bench-tool-row:last-child{border-bottom:0}
+    .bench-tool-row input{width:auto;min-height:0;margin:3px 0 0}
+    .bench-tool-row .tool-copy{flex:1;min-width:0}
+    .bench-tool-row strong{display:block;font-size:11px;overflow-wrap:anywhere}
+    .bench-tool-row small{display:block;color:var(--muted);font-size:10px;line-height:1.4;margin-top:3px}
+    .bench-tool-row button{flex:0 0 auto;min-height:28px;padding:4px 8px;font-size:10px}
+    .bench-basket-item{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #e9edf3;font-size:10px}
+    .bench-basket-item:last-child{border-bottom:0}
+    .bench-basket-item span{overflow-wrap:anywhere}
+    .bench-basket-item button{min-height:25px;padding:3px 7px;font-size:10px}
+    @media(max-width:720px){.bench-registry-tools{grid-template-columns:1fr}}
     .goal-card { margin-top:11px; padding:12px; border:1px solid #e1e7f0; border-radius:9px; background:#fff; }
     .goal-card-head { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:5px; }
     .goal-card-head strong { font-size:12px; }
@@ -122,6 +139,19 @@
     .certificate-panel details { margin-top:10px; }
     .certificate-panel summary { cursor:pointer; font-size:11px; font-weight:700; color:#52627a; }
     @media(max-width:720px) { .certificate-checks { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    /* UX-4: conservative, explicit-label-only GoalSpec/toolset comparison */
+    .goal-alignment-panel{margin-top:14px;padding:13px;border:1px solid #dfe6f0;border-radius:10px;background:#fbfcfe}
+    .goal-alignment-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .goal-alignment-head h4{margin:0;font-size:12px}
+    .goal-alignment-summary{margin:8px 0;color:var(--muted);font-size:11px;line-height:1.5}
+    .goal-alignment-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
+    .goal-alignment-table th,.goal-alignment-table td{padding:8px;border-bottom:1px solid #e7ecf2;text-align:left;vertical-align:top;overflow-wrap:anywhere}
+    .goal-alignment-table th{color:#52627a;font-weight:700}
+    .goal-alignment-tag{display:inline-block;margin:2px 3px 2px 0;padding:2px 6px;border-radius:5px;background:#eef2f8;color:#42536d;font-size:10px}
+    .goal-alignment-tag.match{background:#eaf7f0;color:#176b49}
+    .goal-alignment-tag.unknown{background:#fff5e5;color:#875b16}
+    .goal-alignment-note{margin-top:9px;padding:9px 10px;border-radius:7px;background:#f1f4f8;color:#58677c;font-size:10px;line-height:1.5}
+    @media(max-width:720px){.goal-alignment-table{min-width:620px}}
 
     /* UX-1: persistent, capability-aware Studio navigation shell */
     .skip-link { position:absolute; left:-10000px; top:8px; z-index:100; padding:10px 14px; background:#fff; color:#17315c; border:2px solid var(--blue); border-radius:8px; }
@@ -429,7 +459,38 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 .command-palette-hint{padding:9px 14px;border-top:1px solid var(--line);color:var(--muted);font-size:10px}
 @media(max-width:900px){.command-palette-trigger{margin:0;flex:1}}
 
-</style>
+.goal-design-tools{display:flex;align-items:end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:12px 0;padding:12px;border:1px solid var(--line);border-radius:10px;background:#f7f9fc}.goal-view-switch,.goal-example-control{display:flex;align-items:end;gap:7px;flex-wrap:wrap}.goal-view-switch button,.goal-example-control button{margin:0}.goal-view-switch button[aria-pressed="true"]{background:#18345e;color:#fff}.goal-example-control label{display:block;margin:0 0 5px;color:#50617a;font-size:11px;font-weight:700}.goal-example-control select{min-width:210px;padding:8px 10px;font:12px Inter,system-ui,sans-serif}.goal-example-note{flex-basis:100%;color:#8a5a13;font-size:10px}.goal-visual-panel{margin:10px 0 14px;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fff}.goal-visual-panel[hidden]{display:none}.goal-graph-scroll{overflow:auto;max-width:100%}#goal-graph-svg{display:block;min-width:560px;width:100%;height:auto}.goal-graph-node{fill:#f5f8ff;stroke:#9db4df;stroke-width:1.5}.goal-graph-node-label{fill:#18345e;font-size:12px;font-weight:700}.goal-graph-node-meta{fill:#53647d;font-size:10px}.goal-graph-edge{fill:none;stroke:#7892bd;stroke-width:1.8}.goal-graph-text{margin:10px 0 0;padding-left:22px;color:#53647d;font-size:11px;line-height:1.6}.goal-dependency-table{width:100%;border-collapse:collapse;font-size:11px}.goal-dependency-table th,.goal-dependency-table td{padding:9px 8px;border-bottom:1px solid #e7ecf2;text-align:left;vertical-align:top;overflow-wrap:anywhere}.goal-dependency-table th{color:#52627a;background:#f7f9fc}@media(max-width:650px){.goal-design-tools{align-items:stretch}.goal-example-control{width:100%}.goal-example-control select{min-width:0;flex:1}}
+
+/* UX-6: local comparison of two exported UX-5 evidence snapshots */
+.ux6-toolbar{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
+.ux6-file-card,.ux6-panel{min-width:0;border:1px solid var(--line);border-radius:11px;background:#fff;padding:14px}
+.ux6-file-card label{display:block;font-size:11px;font-weight:750;color:#52627a;margin:0 0 7px}
+.ux6-file-card input{font:11px Inter,system-ui,sans-serif;padding:9px}
+.ux6-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin:14px 0}
+.ux6-metric{border:1px solid var(--line);border-radius:10px;background:#fff;padding:12px;min-width:0}
+.ux6-metric strong{display:block;font-size:21px;letter-spacing:-.5px}
+.ux6-metric small{display:block;color:var(--muted);font-size:10px;line-height:1.4}
+.ux6-layout{display:grid;grid-template-columns:minmax(180px,.72fr) minmax(0,1.8fr) minmax(230px,.9fr);gap:12px;align-items:start}
+.ux6-filter{display:flex;flex-direction:column;gap:5px}
+.ux6-filter button{margin:0;text-align:left;background:#fff;color:var(--ink);border:1px solid transparent;padding:9px 10px;font-size:11px}
+.ux6-filter button[aria-pressed=true]{background:var(--blue-soft);border-color:#dce5fb;color:var(--blue-strong)}
+.ux6-change{padding:12px;border:1px solid var(--line);border-radius:9px;margin:8px 0;background:#fff}
+.ux6-change h4{margin:0 0 5px;font-size:12px}
+.ux6-change p{margin:4px 0;color:var(--muted);font-size:10px;line-height:1.5;overflow-wrap:anywhere}
+.ux6-diff-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+.ux6-diff-side{min-width:0;padding:9px;border-radius:7px;background:#f5f7fa;font:10px ui-monospace,monospace;overflow-wrap:anywhere}
+.ux6-diff-side.added{background:#eff9f2;border:1px solid #d4eddd}
+.ux6-diff-side.removed{background:#fff2f1;border:1px solid #f3d8d5}
+.ux6-status{display:inline-flex;border-radius:99px;padding:3px 7px;font-size:10px;font-weight:750;background:#edf1f6;color:#52627a}
+.ux6-status.added{background:#eaf7f0;color:#176b49}.ux6-status.removed{background:#fff0ed;color:#a13f2e}.ux6-status.modified{background:#edf3ff;color:#315fce}
+.ux6-impact-row{display:flex;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid #edf0f5;font-size:11px}
+.ux6-impact-row:last-child{border-bottom:0}
+.ux6-empty{padding:20px;text-align:center;color:var(--muted);font-size:11px}
+.ux6-boundary{margin-top:12px;padding:10px 12px;border-radius:8px;background:#fff8e9;border:1px solid #f0dfb7;color:#76551b;font-size:10px;line-height:1.5}
+@media(max-width:1050px){.ux6-layout{grid-template-columns:190px minmax(0,1fr)}.ux6-layout>section:last-child{grid-column:1/-1}.ux6-summary{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:700px){.ux6-toolbar,.ux6-layout{grid-template-columns:1fr}.ux6-layout>section:last-child{grid-column:auto}.ux6-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.ux6-diff-grid{grid-template-columns:1fr}}
+
+  </style>
 </head>
 <body>
 <header class="studio-header">
@@ -466,6 +527,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <a href="#certificate-panel">Assurance center</a>
       <a href="#discovery-observability">Discovery history &amp; audit</a>
       <a href="#evidence-explorer">Evidence explorer</a>
+      <a href="#evidence-diff-impact">Evidence Diff &amp; Impact (UX-6)</a>
       <span class="nav-label">OPERATE &amp; OBSERVE</span>
       <a href="#workspace">Benchmark workspace</a>
       <a class="overview-shortcut" href="#runtime">Runtime diagnostics</a>
@@ -616,8 +678,11 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         <div class="field"><label for="bench-tool-search">Search servers, tools and descriptions</label><input id="bench-tool-search" type="search" placeholder="Search tool registry…" style="width:100%"></div>
         <div id="bench-tools" class="listbox"><div class="subtle" style="padding:12px">Tool registry has not been loaded.</div></div>
         <div class="inline-actions"><button id="bench-tool-prev" class="secondary" type="button">Previous</button><button id="bench-tool-next" class="secondary" type="button">Next</button><span class="subtle" id="bench-tool-page">Page 1</span></div>
-        <div class="inline-actions"><button id="bench-add-tools" type="button">Sync selected tools to discovery</button><span class="subtle" id="bench-selected-count">0 selected</span></div>
-        <p class="subtle">Registry descriptions, schemas and annotations are declarations—not proof of runtime behavior or trusted provenance.</p>
+        <div class="bench-registry-tools">
+          <section class="bench-tool-inspector" aria-labelledby="bench-tool-inspector-title"><h4 id="bench-tool-inspector-title">Tool detail inspector</h4><div id="bench-tool-inspector-status" class="subtle" role="status" aria-live="polite">Choose Inspect on a registry record to examine its returned metadata.</div><pre id="bench-tool-inspector-data">No tool inspected.</pre></section>
+          <section class="bench-selection-panel" aria-labelledby="bench-selection-title"><div class="panel-head"><h4 id="bench-selection-title">Selection basket</h4><span class="count" id="bench-selected-count">0 selected</span></div><div id="bench-selection-basket" aria-live="polite"><div class="subtle">No tools selected.</div></div><div class="inline-actions"><button id="bench-add-tools" type="button">Replace discovery toolset with basket</button><button id="bench-clear-tools" type="button" class="secondary">Clear basket</button></div><p class="subtle">The basket survives registry pagination and filtering in this page session. Replacing the request toolset is explicit and invalidates human review.</p></section>
+        </div>
+        <p class="subtle">Registry descriptions, schemas, effects and annotations are declarations—not proof of runtime behavior, semantic correctness, trusted provenance or authorization.</p>
       </section>
     </div>
     <div class="workspace-foot"><div><strong style="font-size:12px">Guided workflow</strong><div class="subtle">Select a task → review its intent → author/verify GoalSpec → select tools → run discovery.</div></div><span class="pill">Gold labels reserved for evaluation</span></div>
@@ -650,12 +715,38 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         <div class="field"><label for="goal-prompt-inputs">Prompt-provided semantic context · comma-separated types</label><input id="goal-prompt-inputs" value="text" placeholder="text, record:customer[]"></div>
         <div class="panel-head" style="margin:12px 0 4px"><h3>Goal contracts</h3><span class="count" id="goal-count">0 goals</span></div>
         <div id="goal-cards"></div>
+
+        <div class="goal-design-tools"><div><div class="subtle" style="margin-bottom:6px;font-weight:700">Dependency representation</div><div class="goal-view-switch" role="group" aria-label="Goal dependency representation"><button id="goal-view-graph" type="button" class="secondary" aria-pressed="true">Graph</button><button id="goal-view-table" type="button" class="secondary" aria-pressed="false">Table</button></div></div>
+        <div class="goal-example-control"><div><label for="goal-example">Illustrative GoalSpec template</label><select id="goal-example"><option value="">Choose an example…</option><option value="research">Web research → summary</option><option value="data-report">Read data → aggregate → report</option></select></div><button id="goal-example-load" type="button" class="secondary">Replace draft with example</button></div><div class="goal-example-note">Templates replace the draft only after an explicit click. Review and adapt every goal before validation; examples are not semantic recommendations.</div></div>
+        <section id="goal-dependency-graph" class="goal-visual-panel" aria-label="Goal dependency graph"><div class="panel-head"><h3>Dependency graph</h3><span class="subtle">Arrows point from prerequisite to dependent goal.</span></div><div class="goal-graph-scroll"><svg id="goal-graph-svg" viewBox="0 0 900 180" role="img" aria-label="Directed goal dependency graph"></svg></div><ol id="goal-graph-text" class="goal-graph-text" aria-label="Text equivalent of dependency graph"></ol><div id="goal-graph-status" class="subtle" role="status" aria-live="polite"></div></section>
+        <section id="goal-dependency-table-panel" class="goal-visual-panel" hidden aria-label="Goal dependency table"><div class="panel-head"><h3>Dependency table</h3><span class="subtle">Same goal and dependency data as the graph.</span></div><div style="overflow-x:auto"><table class="goal-dependency-table"><thead><tr><th>Goal</th><th>Operation</th><th>Output</th><th>Inputs</th><th>Depends on</th><th>Effects</th></tr></thead><tbody id="goal-dependency-table-body"></tbody></table></div></section>
+
         <div class="goal-actions"><button id="goal-add" type="button" class="secondary">Add goal</button><button id="goal-validate" type="button" class="secondary">Validate GoalSpec</button><span class="subtle">Validation checks structure, types, references and dependency cycles; it does not generate or prove goal semantics.</span></div>
         <label style="display:flex;align-items:flex-start;gap:9px;font-weight:500;margin-top:12px">
           <input id="goal-semantic-review" type="checkbox" style="width:auto;margin-top:2px">
           <span>I reviewed the original objective, GoalSpec operations, scope, types, dependencies, effects and selected tool metadata. This review is not a correctness proof or execution authorization.</span>
         </label>
         <div id="goal-validation" class="goal-validation" role="status" aria-live="polite">GoalSpec has not been validated.</div>
+        <section class="goal-alignment-panel" aria-labelledby="goal-alignment-title">
+          <div class="goal-alignment-head"><h4 id="goal-alignment-title">Toolset-to-Goal alignment inspector</h4><button id="goal-alignment-refresh" type="button" class="secondary">Refresh metadata comparison</button></div>
+          <p id="goal-alignment-summary" class="goal-alignment-summary" role="status" aria-live="polite">Not evaluated. Refresh to compare GoalSpec semantic labels with explicitly declared tool-schema labels.</p>
+          <div style="overflow-x:auto"><table class="goal-alignment-table"><thead><tr><th>Goal</th><th>Declared input labels</th><th>Declared output label</th><th>Metadata comparison</th></tr></thead><tbody id="goal-alignment-body"><tr><td colspan="4">No comparison performed.</td></tr></tbody></table></div>
+          <div class="goal-alignment-note">Only exact labels explicitly supplied through the JSON Schema extension <code>x-taas-semantic-type</code> or <code>x-taas-semantic-types</code> are compared. Ordinary JSON Schema types, field names, descriptions, tool names, MCP annotations and effects are not translated into GoalSpec semantics. A metadata match is not proof of semantic compatibility, tool correctness, reachability, policy eligibility or execution.</div>
+          <div class="goal-evidence-ledger" aria-labelledby="goal-evidence-title">
+            <h4 id="goal-evidence-title">Alignment review &amp; evidence ledger</h4>
+            <p class="subtle">Create a page-session snapshot of the latest metadata comparison. Review acknowledgement is explicit and is invalid when GoalSpec or selected schema metadata changes.</p>
+            <label for="goal-evidence-reviewer">Reviewer label (optional; not authenticated identity)</label>
+            <input id="goal-evidence-reviewer" type="text" maxlength="120" autocomplete="off" placeholder="Reviewer label">
+            <div class="inline-actions">
+              <button id="goal-evidence-snapshot" type="button" class="secondary">Capture evidence snapshot</button>
+              <button id="goal-evidence-ack" type="button" class="secondary" disabled>Acknowledge review</button>
+              <button id="goal-evidence-export" type="button" class="secondary" disabled>Export JSON</button>
+            </div>
+            <p id="goal-evidence-status" class="goal-alignment-summary" role="status" aria-live="polite">No evidence snapshot captured. Refresh the metadata comparison first.</p>
+            <div id="goal-evidence-findings" class="subtle" aria-live="polite">No evidence findings.</div>
+            <p class="goal-alignment-note">Evidence is a local page-session record. Fingerprints are non-cryptographic change detectors, not signatures or authenticity proofs. Acknowledgement records review of metadata comparison only; it grants no authorization and is not proof of semantic correctness, goal fulfilment or execution. No credentials are included.</p>
+          </div>
+        </section>
       </div>
       <details class="advanced-json">
         <summary>Advanced · inspect or edit the complete discovery JSON</summary>
@@ -941,6 +1032,32 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <p class="subtle">Registry lifecycle: draft → structurally validated → published configuration. Semantic correctness, live tool authorization and execution are not established.</p>
     </section>
   </section>
+
+
+    <section id="evidence-diff-impact" class="section-anchor" aria-labelledby="ux6-title">
+      <div class="panel-head"><div><div class="eyebrow">ASSURE · UX-6</div><h2 id="ux6-title" style="margin:4px 0">Evidence Diff &amp; Change Impact</h2><p class="subtle" style="margin:4px 0 0">Compare two exported UX-5 alignment evidence snapshots and inspect metadata changes. Files are processed locally in this browser tab.</p></div><span class="pill">Local comparison · no Core write</span></div>
+      <div class="ux6-toolbar">
+        <div class="ux6-file-card"><label for="ux6-snapshot-a">Baseline snapshot (A) · UX-5 JSON</label><input id="ux6-snapshot-a" type="file" accept=".json,application/json"><div id="ux6-file-a-name" class="subtle">No baseline selected.</div></div>
+        <div class="ux6-file-card"><label for="ux6-snapshot-b">Compared snapshot (B) · UX-5 JSON</label><input id="ux6-snapshot-b" type="file" accept=".json,application/json"><div id="ux6-file-b-name" class="subtle">No comparison selected.</div></div>
+        <button id="ux6-compare" type="button" disabled>Compare snapshots</button>
+      </div>
+      <div id="ux6-status" class="status" role="status" aria-live="polite">Select two UX-5 evidence JSON exports to begin. No network request is made.</div>
+      <div id="ux6-results" hidden>
+        <div class="ux6-summary" aria-label="Change summary">
+          <div class="ux6-metric"><strong id="ux6-added">0</strong><small>Added findings</small></div>
+          <div class="ux6-metric"><strong id="ux6-removed">0</strong><small>Removed findings</small></div>
+          <div class="ux6-metric"><strong id="ux6-modified">0</strong><small>Modified findings</small></div>
+          <div class="ux6-metric"><strong id="ux6-still">0</strong><small>Still matched</small></div>
+          <div class="ux6-metric"><strong id="ux6-affected">0</strong><small>Affected goal IDs</small></div>
+        </div>
+        <div class="ux6-layout">
+          <section class="ux6-panel"><div class="panel-head"><h3 style="margin:0;font-size:13px">View changes</h3><span id="ux6-change-count" class="count">0</span></div><div id="ux6-filters" class="ux6-filter" aria-label="Change filters"></div></section>
+          <section class="ux6-panel"><div class="panel-head"><h3 style="margin:0;font-size:13px">Snapshot differences</h3><span class="pill">A → B</span></div><div id="ux6-change-list" aria-live="polite"></div></section>
+          <section class="ux6-panel"><div class="panel-head"><h3 style="margin:0;font-size:13px">Impact on alignment</h3></div><div id="ux6-impact-list"></div><div class="ux6-boundary">A changed or unchanged metadata finding is not proof of semantic compatibility, goal fulfilment, policy eligibility, authorization, or execution. A fresh human review is an operator decision, not an automatic approval.</div></section>
+        </div>
+        <div class="inline-actions"><button id="ux6-export" class="secondary" type="button">Export diff JSON</button><button id="ux6-reset" class="secondary" type="button">Reset comparison</button></div>
+      </div>
+    </section>
 
     </div>
   </div>
@@ -1479,7 +1596,45 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       optionalWrap.append(optional,document.createTextNode("Optional goal (not a mandatory coverage requirement)"));card.append(optionalWrap);
       root.append(card);
     });
+    renderGoalDependencyViews();
   };
+
+  // UX-2: display-only projections of declared GoalSpec dependencies.
+  const goalViewState={mode:"graph"};
+  const svgElement=(name,attrs={})=>{const el=document.createElementNS("http://www.w3.org/2000/svg",name);Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,String(v)));return el;};
+  const renderGoalDependencyViews=()=>{
+    if(!goalSpecState)return;
+    $("goal-dependency-graph").hidden=goalViewState.mode!=="graph";$("goal-dependency-table-panel").hidden=goalViewState.mode!=="table";
+    $("goal-view-graph").setAttribute("aria-pressed",String(goalViewState.mode==="graph"));$("goal-view-table").setAttribute("aria-pressed",String(goalViewState.mode==="table"));
+    const goals=goalSpecState.goals,byId=new Map(goals.map(g=>[g.id,g])),indegree=new Map(goals.map(g=>[g.id,0])),children=new Map(goals.map(g=>[g.id,[]]));
+    goals.forEach(g=>(g.deps||[]).forEach(d=>{if(byId.has(d)){indegree.set(g.id,indegree.get(g.id)+1);children.get(d).push(g.id);}}));
+    const queue=goals.filter(g=>indegree.get(g.id)===0).map(g=>g.id),level=new Map(queue.map(id=>[id,0])),ordered=[];
+    while(queue.length){const id=queue.shift();ordered.push(byId.get(id));(children.get(id)||[]).forEach(c=>{level.set(c,Math.max(level.get(c)||0,(level.get(id)||0)+1));indegree.set(c,indegree.get(c)-1);if(indegree.get(c)===0)queue.push(c);});}
+    const cyclic=ordered.length!==goals.length;if(cyclic){ordered.splice(0,ordered.length,...goals);level.clear();goals.forEach((g,i)=>level.set(g.id,i));}
+    const layers=new Map();ordered.forEach(g=>{const l=level.get(g.id)||0;if(!layers.has(l))layers.set(l,[]);layers.get(l).push(g);});
+    const nw=220,nh=54,gx=76,gy=22,pad=24,maxL=Math.max(0,...layers.keys()),maxR=Math.max(1,...Array.from(layers.values()).map(a=>a.length)),svg=$("goal-graph-svg");
+    svg.replaceChildren();svg.setAttribute("viewBox","0 0 "+Math.max(560,pad*2+(maxL+1)*(nw+gx)-gx)+" "+Math.max(120,pad*2+maxR*(nh+gy)-gy));
+    const pos=new Map();layers.forEach((items,l)=>items.forEach((g,r)=>pos.set(g.id,{x:pad+l*(nw+gx),y:pad+r*(nh+gy)})));
+    const defs=svgElement("defs"),marker=svgElement("marker",{id:"goal-arrowhead",markerWidth:8,markerHeight:8,refX:6,refY:3,orient:"auto"});marker.append(svgElement("path",{d:"M0,0 L0,6 L7,3 z",fill:"#7892bd"}));defs.append(marker);svg.append(defs);
+    goals.forEach(g=>(g.deps||[]).forEach(d=>{const a=pos.get(d),b=pos.get(g.id);if(!a||!b)return;const x=a.x+nw,y=a.y+nh/2,tx=b.x,ty=b.y+nh/2,m=(x+tx)/2;svg.append(svgElement("path",{d:"M "+x+" "+y+" C "+m+" "+y+", "+m+" "+ty+", "+tx+" "+ty,class:"goal-graph-edge","marker-end":"url(#goal-arrowhead)"}));}));
+    ordered.forEach(g=>{const p=pos.get(g.id),group=svgElement("g");group.append(svgElement("rect",{x:p.x,y:p.y,width:nw,height:nh,rx:8,class:"goal-graph-node"}));const t=svgElement("text",{x:p.x+11,y:p.y+20,class:"goal-graph-node-label"});t.textContent=(g.id||"unnamed")+" · "+(g.class||"unclassified");group.append(t);const m=svgElement("text",{x:p.x+11,y:p.y+39,class:"goal-graph-node-meta"});m.textContent="out: "+(g.out||"not specified");group.append(m);svg.append(group);});
+    const list=$("goal-graph-text");list.replaceChildren();ordered.forEach(g=>{const li=document.createElement("li");li.textContent=(g.id||"unnamed")+" depends on: "+((g.deps||[]).join(", ")||"none");list.append(li);});
+    $("goal-graph-status").textContent=cyclic?"Cycle detected; graph falls back to editor order. Run structural validation.":goals.length+" goal(s) · "+layers.size+" dependency layer(s). Declared dependencies only, not proof of data compatibility.";
+    const body=$("goal-dependency-table-body");body.replaceChildren();goals.forEach(g=>{const tr=document.createElement("tr");[g.id,g.class,g.out,(g.in||[]).join(", ")||"—",(g.deps||[]).join(", ")||"—",(g.eff||[]).join(", ")||"—"].forEach(v=>{const td=document.createElement("td");td.textContent=String(v??"—");tr.append(td);});body.append(tr);});
+  };
+  $("goal-view-graph").addEventListener("click",()=>{goalViewState.mode="graph";renderGoalDependencyViews();});
+  $("goal-view-table").addEventListener("click",()=>{goalViewState.mode="table";renderGoalDependencyViews();});
+  const GOAL_EXAMPLES={
+    research:{prompt:"Find a current technical topic and produce a concise evidence-based summary.",prompt_inputs_text:"text",goals:[
+      {id:"g1",class:"fetch_web",in:["query:web"],out:"document:web",eff:["egress(web)"],sigma:"data",desc:"Retrieve relevant current source material for the topic",deps:[],n:3,exactness:"tolerant",lang:"en",optional:false},
+      {id:"g2",class:"summarise",in:["document:web"],out:"text",eff:[],sigma:"unreliable",desc:"Summarise the retrieved source material",deps:["g1"],n:1,exactness:"tolerant",lang:"en",optional:false}]},
+    "data-report":{prompt:"Read a supplied data file, aggregate its records, and prepare a report.",prompt_inputs_text:"text, path:file",goals:[
+      {id:"g1",class:"retrieve",in:["path:file"],out:"table:data",eff:["read(fs)"],sigma:"data",desc:"Read the supplied data file into a structured table",deps:[],n:1,exactness:"tolerant",lang:"en",optional:false},
+      {id:"g2",class:"aggregate",in:["table:data"],out:"table:summary",eff:[],sigma:"native",desc:"Aggregate the data into a summary table",deps:["g1"],n:1,exactness:"tolerant",lang:"en",optional:false},
+      {id:"g3",class:"create_document",in:["table:summary"],out:"path:file",eff:["write(fs)"],sigma:"effect",desc:"Write the summary as a report file",deps:["g2"],n:1,exactness:"tolerant",lang:"en",optional:false}]}
+  };
+  $("goal-example-load").addEventListener("click",()=>{const ex=GOAL_EXAMPLES[$("goal-example").value];if(!ex){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent="Choose an example template first.";return;}goalSpecState={prompt:ex.prompt,prompt_inputs_text:ex.prompt_inputs_text,goals:ex.goals.map(g=>({...g,in:[...g.in],eff:[...g.eff],deps:[...g.deps]}))};invalidateHumanReview();renderGoalEditor();syncGoalSpec();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Illustrative example loaded. Review prompt, goals, types, effects and dependencies, then validate; no semantic correctness is implied.";});
+
   const validateGoalSpecLocal = () => {
     const errors=[], ids=new Set(), goals=goalSpecState.goals;
     if(!goalSpecState.prompt.trim())errors.push("Natural-language objective is empty.");
@@ -1505,8 +1660,193 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     for(const id of byId.keys())if(!visit(id)){errors.push("Dependency graph contains a cycle.");break;}
     return errors;
   };
+  // UX-4: conservative comparison of explicit TaaS semantic labels only.
+  const collectExplicitToolLabels = (schema,toolName,direction) => {
+    const found=[],seen=new Set();let visited=0;
+    const add=(value,path)=>{
+      const values=Array.isArray(value)?value:[value];
+      values.forEach(label=>{
+        if(typeof label!=="string"||!label.trim())return;
+        const normalized=label.trim();
+        if(!/^[a-z_]+(?::[a-z0-9_-]+)?(\[\])?$/.test(normalized))return;
+        const key=normalized+"|"+path;
+        if(!seen.has(key)){seen.add(key);found.push({type:normalized,path,tool:toolName,direction});}
+      });
+    };
+    const walk=(node,path,depth)=>{
+      if(!node||typeof node!=="object"||Array.isArray(node)||depth>8||visited>=200)return;
+      visited++;
+      if(Object.prototype.hasOwnProperty.call(node,"x-taas-semantic-type"))add(node["x-taas-semantic-type"],path);
+      if(Object.prototype.hasOwnProperty.call(node,"x-taas-semantic-types"))add(node["x-taas-semantic-types"],path);
+      if(node.properties&&typeof node.properties==="object"&&!Array.isArray(node.properties))
+        Object.keys(node.properties).sort().forEach(key=>walk(node.properties[key],path+".properties."+key,depth+1));
+      if(node.items&&typeof node.items==="object")walk(node.items,path+".items",depth+1);
+      if(Array.isArray(node.prefixItems))node.prefixItems.forEach((item,index)=>walk(item,path+".prefixItems["+index+"]",depth+1));
+      if(node.additionalProperties&&typeof node.additionalProperties==="object")walk(node.additionalProperties,path+".additionalProperties",depth+1);
+    };
+    walk(schema,"$",0);return found;
+  };
+  const renderGoalToolAlignment = () => {
+    const summary=$("goal-alignment-summary"),body=$("goal-alignment-body");body.replaceChildren();
+    let request;
+    try{request=readRequest();}catch(error){summary.textContent="Cannot compare: discovery JSON is invalid ("+error.message+").";return;}
+    const basket=(typeof bench!=="undefined"&&bench.selectedTools instanceof Map&&bench.selectedTools.size)
+      ?[...bench.selectedTools.values()]
+      :(Array.isArray(request.tools)?request.tools:[]);
+    const source=(typeof bench!=="undefined"&&bench.selectedTools instanceof Map&&bench.selectedTools.size)
+      ?"current registry selection basket":"tools in canonical discovery request";
+    const inputLabels=[],outputLabels=[];
+    basket.forEach(tool=>{
+      const name=String(tool.server||"unknown-server")+"/"+String(tool.name||"unnamed-tool");
+      inputLabels.push(...collectExplicitToolLabels(tool.input_schema,name,"input"));
+      outputLabels.push(...collectExplicitToolLabels(tool.output_schema,name,"output"));
+    });
+    const inputSet=new Set(inputLabels.map(x=>x.type)),outputSet=new Set(outputLabels.map(x=>x.type));
+    const goals=goalSpecState&&Array.isArray(goalSpecState.goals)?goalSpecState.goals:[];
+    let matched=0,unmatched=0,unknown=0;
+    const addTag=(cell,value,kind)=>{
+      const tag=document.createElement("span");tag.className="goal-alignment-tag "+kind;tag.textContent=value;cell.append(tag);
+    };
+    goals.forEach(goal=>{
+      const tr=document.createElement("tr"),goalCell=document.createElement("td");goalCell.textContent=String(goal.id||"unnamed")+" · "+String(goal.class||"unclassified");tr.append(goalCell);
+      const inputs=document.createElement("td"),required=(goal.in||[]);
+      if(!required.length){inputs.textContent="No declared input types";}
+      else required.forEach(type=>addTag(inputs,String(type),inputSet.has(type)?"match":"unknown"));
+      const output=document.createElement("td"),out=String(goal.out||"not specified");
+      addTag(output,out,outputSet.has(out)?"match":"unknown");
+      const result=document.createElement("td");
+      const inputMissing=required.filter(type=>!inputSet.has(type)),outputMatch=outputSet.has(out);
+      if(!basket.length){result.textContent="No tool metadata supplied";unknown++;}
+      else if(!inputLabels.length&&!outputLabels.length){result.textContent="Not comparable: selected schemas contain no explicit TaaS semantic labels";unknown++;}
+      else{
+        const exactInputs=required.filter(type=>inputSet.has(type)).length;
+        const parts=[exactInputs+"/"+required.length+" exact input-label match(es)",outputMatch?"exact output-label match":"no exact output-label match"];
+        result.textContent=parts.join(" · ");
+        if(inputMissing.length||!outputMatch)unmatched++;else matched++;
+      }
+      tr.append(inputs,output,result);body.append(tr);
+    });
+    if(!goals.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=4;td.textContent="No GoalSpec goals are available.";tr.append(td);body.append(tr);}
+    const inputSummary=[...new Set(inputLabels.map(x=>x.type))].sort(),outputSummary=[...new Set(outputLabels.map(x=>x.type))].sort();
+    summary.textContent="Compared "+goals.length+" goal(s) with "+basket.length+" tool(s) from "+source+". Exact-label rows: "+matched+"; unmatched rows: "+unmatched+"; not comparable: "+unknown+". Tool input labels: "+(inputSummary.join(", ")||"none reported")+". Tool output labels: "+(outputSummary.join(", ")||"none reported")+".";
+    if(alignmentEvidenceSnapshot&&!ensureEvidenceFresh())invalidateAlignmentEvidence("GoalSpec or toolset changed since snapshot");
+  };
+  $("goal-alignment-refresh").addEventListener("click",renderGoalToolAlignment);
+
+  // UX-5: page-session evidence snapshots for the explicit UX-4 metadata comparison.
+  let lastAlignmentModel=null, alignmentEvidenceSnapshot=null;
+  const stableEvidenceJson=value=>{
+    if(Array.isArray(value))return "["+value.map(stableEvidenceJson).join(",")+"]";
+    if(value&&typeof value==="object")return "{"+Object.keys(value).sort().map(key=>JSON.stringify(key)+":"+stableEvidenceJson(value[key])).join(",")+"}";
+    return JSON.stringify(value);
+  };
+  // FNV-1a is deliberately labelled non-cryptographic; this only detects UI-state drift.
+  const evidenceFingerprint=value=>{
+    const text=stableEvidenceJson(value);let hash=0x811c9dc5;
+    for(let i=0;i<text.length;i++){hash^=text.charCodeAt(i);hash=Math.imul(hash,0x01000193)>>>0;}
+    return "fnv1a32:"+hash.toString(16).padStart(8,"0");
+  };
+  const currentAlignmentInputs=()=>{
+    const request=readRequest();
+    const hasBasket=typeof bench!=="undefined"&&bench.selectedTools instanceof Map&&bench.selectedTools.size>0;
+    const tools=hasBasket?[...bench.selectedTools.values()]:(Array.isArray(request.tools)?request.tools:[]);
+    return {request,tools,source:hasBasket?"current registry selection basket":"tools in canonical discovery request",
+      goals:goalSpecState&&Array.isArray(goalSpecState.goals)?goalSpecState.goals:[]};
+  };
+  const alignmentFingerprints=inputs=>({
+    goal_spec:evidenceFingerprint(inputs.goals.map(goal=>({id:goal.id??null,class:goal.class??null,in:Array.isArray(goal.in)?goal.in:[],out:goal.out??null,deps:Array.isArray(goal.deps)?goal.deps:[]}))),
+    toolset:evidenceFingerprint(inputs.tools.map(tool=>({server:tool.server??null,name:tool.name??null,registry_id:tool.registry_id??tool.id??null,input_schema:tool.input_schema??null,output_schema:tool.output_schema??null})))
+  });
+  const invalidateAlignmentEvidence=reason=>{
+    if(!alignmentEvidenceSnapshot)return;
+    alignmentEvidenceSnapshot.stale=true;
+    const status=$("goal-evidence-status");
+    if(status)status.textContent="Review invalidated: "+reason+". Refresh the comparison and capture a new snapshot.";
+    $("goal-evidence-ack").disabled=true;$("goal-evidence-export").disabled=true;
+  };
+  const renderEvidenceFindings=snapshot=>{
+    const host=$("goal-evidence-findings");host.replaceChildren();
+    const summary=document.createElement("div");
+    summary.textContent=snapshot.findings.length+" finding(s) · GoalSpec "+snapshot.fingerprints.goal_spec+" · toolset "+snapshot.fingerprints.toolset;
+    host.append(summary);
+    snapshot.findings.forEach(item=>{
+      const row=document.createElement("div");row.className="bench-basket-item";
+      const copy=document.createElement("span");
+      copy.textContent=item.goal_id+" · "+item.direction+" · "+item.required_label+" · "+item.status+" · "+item.explanation;
+      row.append(copy);host.append(row);
+    });
+  };
+  const captureAlignmentEvidence=()=>{
+    const inputs=currentAlignmentInputs(),fingerprints=alignmentFingerprints(inputs),inputLabels=[],outputLabels=[];
+    inputs.tools.forEach(tool=>{
+      const identity=String(tool.server||"unknown-server")+"/"+String(tool.name||"unnamed-tool");
+      inputLabels.push(...collectExplicitToolLabels(tool.input_schema,identity,"input"));
+      outputLabels.push(...collectExplicitToolLabels(tool.output_schema,identity,"output"));
+    });
+    const findings=[];
+    inputs.goals.forEach(goal=>{
+      const goalId=String(goal.id||"unnamed");
+      const requiredInputs=Array.isArray(goal.in)?goal.in:[];
+      requiredInputs.forEach(label=>{
+        const matches=inputLabels.filter(item=>item.type===label);
+        findings.push({goal_id:goalId,direction:"input",required_label:String(label),status:matches.length?"matched":(!inputs.tools.length||(!inputLabels.length&&!outputLabels.length)?"not_comparable":"unmatched"),
+          explanation:matches.length?"Exact explicit schema-label equality":(!inputs.tools.length?"No tool metadata supplied":(!inputLabels.length&&!outputLabels.length?"No explicit TaaS semantic labels in selected schemas":"No exact input-label match")),
+          evidence:matches.map(item=>({tool:item.tool,schema_direction:item.direction,schema_path:item.path,semantic_label:item.type}))});
+      });
+      const outputLabel=String(goal.out||"not specified"),matches=outputLabels.filter(item=>item.type===outputLabel);
+      findings.push({goal_id:goalId,direction:"output",required_label:outputLabel,status:matches.length?"matched":(!inputs.tools.length||(!inputLabels.length&&!outputLabels.length)?"not_comparable":"unmatched"),
+        explanation:matches.length?"Exact explicit schema-label equality":(!inputs.tools.length?"No tool metadata supplied":(!inputLabels.length&&!outputLabels.length?"No explicit TaaS semantic labels in selected schemas":"No exact output-label match")),
+        evidence:matches.map(item=>({tool:item.tool,schema_direction:item.direction,schema_path:item.path,semantic_label:item.type}))});
+    });
+    return {schema_version:"taas.alignment-evidence.v1",captured_at:new Date().toISOString(),
+      reviewer_label:$("goal-evidence-reviewer").value.trim()||"reviewer not recorded",
+      reviewer_identity:"not authenticated by this workspace",source:inputs.source,
+      fingerprints:{...fingerprints,algorithm:"FNV-1a 32-bit (non-cryptographic)"},
+      goal_count:inputs.goals.length,tool_count:inputs.tools.length,findings,
+      review:{status:"pending",acknowledged_at:null,acknowledged_by:null,
+        scope:"human acknowledgement of metadata comparison only; not authorization or proof"},
+      semantics:{record_type:"local UI observation",execution_performed:false,execution_record:false,
+        authorization_granted:false,semantic_correctness_proven:false,goal_fulfilment_proven:false}};
+  };
+  const ensureEvidenceFresh=()=>{
+    if(!alignmentEvidenceSnapshot||alignmentEvidenceSnapshot.stale)return false;
+    let current;try{current=alignmentFingerprints(currentAlignmentInputs());}catch(_){return false;}
+    const captured=alignmentEvidenceSnapshot.fingerprints;
+    return current.goal_spec===captured.goal_spec&&current.toolset===captured.toolset;
+  };
+  $("goal-evidence-snapshot").addEventListener("click",()=>{
+    try{
+      renderGoalToolAlignment();
+      alignmentEvidenceSnapshot=captureAlignmentEvidence();
+      renderEvidenceFindings(alignmentEvidenceSnapshot);
+      $("goal-evidence-status").textContent="Snapshot captured in this page session · pending human review · not persisted by TaaS Core.";
+      $("goal-evidence-ack").disabled=false;$("goal-evidence-export").disabled=false;
+    }catch(error){$("goal-evidence-status").textContent="Snapshot unavailable: "+error.message;}
+  });
+  $("goal-evidence-ack").addEventListener("click",()=>{
+    if(!alignmentEvidenceSnapshot||!ensureEvidenceFresh()){
+      invalidateAlignmentEvidence("GoalSpec or toolset fingerprint changed");return;
+    }
+    alignmentEvidenceSnapshot.review={status:"acknowledged",acknowledged_at:new Date().toISOString(),
+      acknowledged_by:alignmentEvidenceSnapshot.reviewer_label,
+      scope:"human acknowledgement of metadata comparison only; not authorization or proof"};
+    $("goal-evidence-status").textContent="Review acknowledged by "+alignmentEvidenceSnapshot.reviewer_label+" · metadata comparison only.";
+    $("goal-evidence-export").disabled=false;
+  });
+  $("goal-evidence-export").addEventListener("click",()=>{
+    if(!alignmentEvidenceSnapshot||!ensureEvidenceFresh()){
+      invalidateAlignmentEvidence("GoalSpec or toolset fingerprint changed");return;
+    }
+    const payload={...alignmentEvidenceSnapshot};
+    delete payload.stale;
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+    const url=URL.createObjectURL(blob),link=document.createElement("a");
+    link.href=url;link.download="taas-alignment-evidence.json";document.body.append(link);link.click();link.remove();URL.revokeObjectURL(url);
+    $("goal-evidence-status").textContent="Evidence JSON exported · local snapshot; no Core persistence or execution.";
+  });
   const syncGoalSpec = () => {
-    try{getGoalSpec();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Draft updated. Validate before discovery.";}
+    invalidateAlignmentEvidence("GoalSpec editor changed");
+    try{getGoalSpec();renderGoalDependencyViews();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Draft updated. Validate before discovery.";}
     catch(e){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent="Cannot sync editor: "+e.message;}
   };
   $("goal-prompt").addEventListener("input",()=>{goalSpecState.prompt=$("goal-prompt").value;syncGoalSpec();});
@@ -1538,7 +1878,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   try{
     const initial=readRequest();const gs=initial.goal_spec||{};
     goalSpecState={prompt:gs.prompt||"",prompt_inputs_text:(gs.prompt_inputs||["text"]).join(", "),goals:Array.isArray(gs.goals)?gs.goals.map(g=>({...g,n:g.n??1,in:[...(g.in||[])],eff:[...(g.eff||[])],deps:[...(g.deps||[])]})):[]};
-    renderGoalEditor();
+    renderGoalEditor();renderGoalDependencyViews();
   }catch(e){goalSpecState={prompt:"",prompt_inputs_text:"text",goals:[defaultGoal(1)]};renderGoalEditor();}
 
   $("model-search").addEventListener("click", async () => {
@@ -1776,9 +2116,18 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   // Any subsequent GoalSpec edit invalidates the user's previous review acknowledgement.
   $("goal-editor").addEventListener("input",()=>{if(bench.selectedTask)$("bench-goal-review").checked=false;});
   $("goal-editor").addEventListener("change",()=>{if(bench.selectedTask)$("bench-goal-review").checked=false;});
+  const compareRegistryText = (left,right) => {
+    const a=String(left??""),b=String(right??"");
+    return a<b?-1:a>b?1:0;
+  };
+  const compareRegistryEntries = (a,b) =>
+    compareRegistryText(a[1].server,b[1].server)||
+    compareRegistryText(a[1].name,b[1].name)||
+    compareRegistryText(a[0],b[0]);
   const syncBenchmarkToolsToRequest = () => {
     const body=JSON.parse($("payload").value);
-    body.tools=[...bench.selectedTools.values()].map(t=>({
+    const ordered=[...bench.selectedTools.entries()].sort(compareRegistryEntries);
+    body.tools=ordered.map(([,t])=>({
       server:t.server,name:t.name,description:t.description||"",
       input_schema:t.input_schema||{},output_schema:t.output_schema||null,
       annotations:t.annotations||null,source:t.source||"benchmark-registry",
@@ -1786,6 +2135,33 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     }));
     $("payload").value=JSON.stringify(body,null,2);
     return body.tools.length;
+  };
+  const renderBenchSelectionBasket = () => {
+    const host=$("bench-selection-basket");
+    $("bench-selected-count").textContent=bench.selectedTools.size+" selected";
+    host.replaceChildren();
+    if(!bench.selectedTools.size){const empty=document.createElement("div");empty.className="subtle";empty.textContent="No tools selected. Selection is staged locally until explicitly synchronized.";host.append(empty);return;}
+    [...bench.selectedTools.entries()].sort(compareRegistryEntries).forEach(([id,tool])=>{
+      const item=document.createElement("div");item.className="bench-basket-item";
+      const label=document.createElement("span");label.textContent=String(tool.server||"Unknown server")+"/"+String(tool.name||id);
+      const remove=document.createElement("button");remove.type="button";remove.className="secondary";remove.textContent="Remove";remove.setAttribute("aria-label","Remove "+String(tool.name||id)+" from selection");
+      remove.addEventListener("click",()=>{bench.selectedTools.delete(id);renderBenchSelectionBasket();invalidateHumanReview();if(bench.selectedTask){try{syncBenchmarkToolsToRequest();$("bench-goal-review").checked=false;}catch(e){$("bench-status").textContent="Cannot synchronize selection: "+e.message;}}});
+      item.append(label,remove);host.append(item);
+    });
+  };
+  const inspectBenchTool = tool => {
+    const provenance={};
+    ["id","server","source","source_id","dataset","dataset_id","registry","category"].forEach(key=>{if(tool[key]!==undefined&&tool[key]!==null)provenance[key]=tool[key];});
+    const detail={
+      registry_record_identity:provenance,
+      description:tool.description??"Not reported",
+      input_schema:tool.input_schema??"Not reported",
+      output_schema:tool.output_schema??"Not reported",
+      declared_effects:tool.effects??tool.effect??"Not reported",
+      annotations:tool.annotations??"Not reported"
+    };
+    $("bench-tool-inspector-status").textContent="Inspecting Core-returned registry metadata. Declarations are not runtime verification.";
+    $("bench-tool-inspector-data").textContent=JSON.stringify(detail,null,2);
   };
   const invalidateBenchmarkTaskContext = (message) => {
     bench.selectedTask=null;bench.selectedTaskKey=null;bench.selectedTools.clear();
@@ -2031,15 +2407,14 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     if($("bench-tool-search").value.trim())p.set("q",$("bench-tool-search").value.trim());
     const d=await apiGet("/api/v1/bench/tools?"+p);bench.toolTotal=d.total||0;
     $("bench-tool-count").textContent=bench.toolTotal+" tools";$("bench-tool-page").textContent="Page "+(Math.floor(bench.toolOffset/bench.toolLimit)+1);
-    $("bench-tools").innerHTML="";
+    $("bench-tools").replaceChildren();
     (d.tools||[]).forEach(t=>{
-      const row=document.createElement("label");row.className="tool-row";row.style.margin=0;
-      const cb=document.createElement("input");cb.type="checkbox";cb.checked=bench.selectedTools.has(t.id);
+      const row=document.createElement("div");row.className="bench-tool-row";
+      const cb=document.createElement("input");cb.type="checkbox";cb.checked=bench.selectedTools.has(t.id);cb.setAttribute("aria-label","Select "+String(t.server||"Unknown server")+"/"+String(t.name||t.id));
       cb.addEventListener("change",()=>{
         if(cb.checked)bench.selectedTools.set(t.id,t);else bench.selectedTools.delete(t.id);
-        $("bench-selected-count").textContent=bench.selectedTools.size+" selected";
-        // Once a benchmark task is active, keep the request toolset synchronized
-        // with the selection basket; never leave the demo tool silently attached.
+        renderBenchSelectionBasket();invalidateHumanReview();
+        // Preserve the existing task workflow: active benchmark requests track basket changes.
         if(bench.selectedTask){
           $("bench-goal-review").checked=false;
           try{
@@ -2050,13 +2425,15 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
           }catch(e){$("bench-status").textContent="Cannot synchronize registry selection: "+e.message;}
         }
       });
-      const wrap=document.createElement("span");const strong=document.createElement("strong");strong.textContent=t.server+"/"+t.name;
+      const wrap=document.createElement("span");wrap.className="tool-copy";const strong=document.createElement("strong");strong.textContent=String(t.server||"Unknown server")+"/"+String(t.name||t.id);
       const small=document.createElement("small");small.textContent=(t.description||"No description")+" · "+(t.source||"unknown source");
-      wrap.append(strong,small);row.append(cb,wrap);$("bench-tools").append(row);
+      wrap.append(strong,small);
+      const inspect=document.createElement("button");inspect.type="button";inspect.className="secondary";inspect.textContent="Inspect";inspect.addEventListener("click",()=>inspectBenchTool(t));
+      row.append(cb,wrap,inspect);$("bench-tools").append(row);
     });
-    if(!d.tools?.length)$("bench-tools").innerHTML='<div class="subtle" style="padding:12px">No tools match this search.</div>';
+    if(!d.tools?.length){const empty=document.createElement("div");empty.className="subtle";empty.style.padding="12px";empty.textContent="No tools match this search."; $("bench-tools").append(empty);}
     $("bench-tool-prev").disabled=bench.toolOffset===0;$("bench-tool-next").disabled=bench.toolOffset+bench.toolLimit>=bench.toolTotal;
-    $("bench-selected-count").textContent=bench.selectedTools.size+" selected";
+    renderBenchSelectionBasket();
   };
   $("bench-task-prev").addEventListener("click",()=>{bench.taskOffset=Math.max(0,bench.taskOffset-bench.taskLimit);loadTasks().catch(showBenchError);});
   $("bench-task-next").addEventListener("click",()=>{bench.taskOffset+=bench.taskLimit;loadTasks().catch(showBenchError);});
@@ -2082,11 +2459,18 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   });
   $("bench-add-tools").addEventListener("click",()=>{
     try{
+      if(!bench.selectedTools.size)throw new Error("The selection basket is empty. Select one or more registry tools first.");
       const count=syncBenchmarkToolsToRequest();
-      if(!count)throw new Error("Select at least one registry tool before importing.");
-      invalidateHumanReview();
-      $("bench-status").textContent=count+" selected registry tool(s) synchronized with the discovery request. Demo/sample tools were removed. Review GoalSpec alignment before running.";
-    }catch(e){$("bench-status").textContent="Cannot add tools: "+e.message;}
+      invalidateHumanReview();$("bench-goal-review").checked=false;
+      $("bench-status").textContent=count+" registry tool(s) deterministically replaced the discovery request toolset. The previous request toolset was not appended. Review GoalSpec alignment before running.";
+    }catch(e){$("bench-status").textContent="Cannot replace discovery toolset: "+e.message;}
+  });
+  $("bench-clear-tools").addEventListener("click",()=>{
+    bench.selectedTools.clear();renderBenchSelectionBasket();invalidateHumanReview();$("bench-goal-review").checked=false;
+    $("bench-tools").querySelectorAll('input[type="checkbox"]').forEach(cb=>{cb.checked=false;});
+    $("bench-tool-inspector-status").textContent="Selection basket cleared. The discovery request toolset is unchanged until explicit replacement.";
+    if(bench.selectedTask){try{syncBenchmarkToolsToRequest();$("bench-status").textContent="Basket cleared and the active benchmark request toolset synchronized to empty. Human review is required again.";}catch(e){$("bench-status").textContent="Basket cleared, but request synchronization failed: "+e.message;}return;}
+    $("bench-status").textContent="Selection basket cleared. The discovery request toolset remains unchanged until explicit replacement.";
   });
   function showBenchError(e){$("bench-status").textContent="Workspace request failed: "+e.message;}
   const originalRunHandler = run.onclick;
@@ -2801,6 +3185,74 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   // Restore the last successful Core response after a page refresh. This is
   // ephemeral per-tab UI state, not durable run history; the API token is never stored.
   restoreLastDiscoveryResult();
+
+
+  // UX-6: compare two user-selected UX-5 evidence exports locally; no API or execution.
+  (() => {
+    const $6=id=>document.getElementById(id);
+    const state={a:null,b:null,result:null,filter:"all"};
+    const status=$6("ux6-status"),results=$6("ux6-results"),compare=$6("ux6-compare");
+    const setStatus=(message,isError=false)=>{status.className="status"+(isError?" error":"");status.textContent=message;};
+    const readSnapshot=async file=>{
+      if(!file)throw new Error("Select both snapshot files.");
+      if(file.size>2*1024*1024)throw new Error("Each snapshot must be 2 MB or smaller.");
+      const value=JSON.parse(await file.text());
+      if(!value||value.schema_version!=="taas.alignment-evidence.v1"||!Array.isArray(value.findings)||!value.fingerprints||typeof value.fingerprints.goal_spec!=="string"||typeof value.fingerprints.toolset!=="string")throw new Error("File is not a supported UX-5 alignment evidence snapshot.");
+      if(value.semantics?.execution_performed!==false||value.semantics?.execution_record!==false)throw new Error("Snapshot is missing the required non-execution semantics.");
+      return value;
+    };
+    const keyOf=item=>[item.goal_id,item.direction,item.required_label].map(v=>String(v??"")).join("\u001f");
+    const normalize=item=>({status:String(item.status??"not_comparable"),explanation:String(item.explanation??""),evidence:Array.isArray(item.evidence)?item.evidence:[]});
+    const same=(a,b)=>JSON.stringify(normalize(a))===JSON.stringify(normalize(b));
+    const compareSnapshots=(a,b)=>{
+      const left=new Map(a.findings.map(item=>[keyOf(item),item])),right=new Map(b.findings.map(item=>[keyOf(item),item]));
+      const changes=[];
+      for(const [key,itemA] of left){const itemB=right.get(key);if(!itemB)changes.push({kind:"removed",key,itemA,itemB:null});else if(!same(itemA,itemB))changes.push({kind:"modified",key,itemA,itemB});}
+      for(const [key,itemB] of right)if(!left.has(key))changes.push({kind:"added",key,itemA:null,itemB});
+      changes.sort((x,y)=>x.kind.localeCompare(y.kind)||x.key.localeCompare(y.key));
+      const stillMatched=[...right.values()].filter(item=>item.status==="matched"&&left.has(keyOf(item))&&left.get(keyOf(item)).status==="matched").length;
+      const affected=[...new Set(changes.flatMap(change=>[change.itemA?.goal_id,change.itemB?.goal_id]).filter(Boolean))];
+      const impact={still_matched:stillMatched,now_unmatched:0,now_incompatible:0,needs_review:0};
+      for(const change of changes){if(!change.itemB)continue;const statusNow=change.itemB.status;if(statusNow==="unmatched")impact.now_unmatched++;else if(statusNow==="incompatible")impact.now_incompatible++;else if(statusNow==="not_comparable"||!statusNow)impact.needs_review++;}
+      return {schema_version:"taas.evidence-diff.v1",compared_at:new Date().toISOString(),baseline:{captured_at:a.captured_at??null,goal_fingerprint:a.fingerprints.goal_spec,toolset_fingerprint:a.fingerprints.toolset},compared:{captured_at:b.captured_at??null,goal_fingerprint:b.fingerprints.goal_spec,toolset_fingerprint:b.fingerprints.toolset},fingerprint_changes:{goal_spec:a.fingerprints.goal_spec!==b.fingerprints.goal_spec,toolset:a.fingerprints.toolset!==b.fingerprints.toolset},counts:{added:changes.filter(x=>x.kind==="added").length,removed:changes.filter(x=>x.kind==="removed").length,modified:changes.filter(x=>x.kind==="modified").length,still_matched:stillMatched,affected_goals:affected.length},impact,changes,semantics:{comparison_type:"local metadata evidence diff",execution_performed:false,execution_record:false,authorization_granted:false,semantic_correctness_proven:false,goal_fulfilment_proven:false}};
+    };
+    const safe=(tag,text,className)=>{const node=document.createElement(tag);if(className)node.className=className;node.textContent=String(text??"");return node;};
+    const render=()=>{
+      const data=state.result;if(!data)return;results.hidden=false;
+      $6("ux6-added").textContent=data.counts.added;$6("ux6-removed").textContent=data.counts.removed;$6("ux6-modified").textContent=data.counts.modified;$6("ux6-still").textContent=data.counts.still_matched;$6("ux6-affected").textContent=data.counts.affected_goals;$6("ux6-change-count").textContent=data.changes.length;
+      const filters=[["all","All changes",data.changes.length],["added","Added",data.counts.added],["removed","Removed",data.counts.removed],["modified","Modified",data.counts.modified]];
+      const host=$6("ux6-filters");host.replaceChildren();filters.forEach(([id,label,count])=>{const button=safe("button",label+" · "+count);button.type="button";button.setAttribute("aria-pressed",String(state.filter===id));button.addEventListener("click",()=>{state.filter=id;render();});host.append(button);});
+      const list=$6("ux6-change-list");list.replaceChildren();const changes=data.changes.filter(item=>state.filter==="all"||item.kind===state.filter);
+      if(!changes.length)list.append(safe("div","No changes in this category.","ux6-empty"));
+      changes.forEach(change=>{
+        const card=document.createElement("article");card.className="ux6-change";
+        const heading=document.createElement("div");heading.className="panel-head";
+        heading.append(safe("h4",(change.itemB||change.itemA).goal_id+" · "+(change.itemB||change.itemA).direction+" · "+(change.itemB||change.itemA).required_label));
+        heading.append(safe("span",change.kind,{added:"ux6-status added",removed:"ux6-status removed",modified:"ux6-status modified"}[change.kind]||"ux6-status"));card.append(heading);
+        const grid=document.createElement("div");grid.className="ux6-diff-grid";
+        for(const [label,item,kind] of [["A · baseline",change.itemA,""],["B · compared",change.itemB,change.kind==="added"?"added":change.kind==="removed"?"removed":""]]){
+          const side=document.createElement("div");side.className="ux6-diff-side "+kind;side.append(safe("strong",label));
+          side.append(safe("div",item?("Status: "+item.status+"\n"+(item.explanation||"")+(item.evidence?.length?"\nEvidence: "+item.evidence.map(e=>[e.tool,e.schema_direction,e.schema_path,e.semantic_label].filter(Boolean).join(" · ")).join("; "):""):"— Not present —"));grid.append(side);
+        }card.append(grid);list.append(card);
+      });
+      const impact=$6("ux6-impact-list");impact.replaceChildren();
+      [["Still matched",data.impact.still_matched],["Now unmatched",data.impact.now_unmatched],["Now incompatible",data.impact.now_incompatible],["Needs review",data.impact.needs_review]].forEach(([label,count])=>{const row=document.createElement("div");row.className="ux6-impact-row";row.append(safe("strong",label),safe("span",count));impact.append(row);});
+      const fp=safe("p","GoalSpec fingerprint changed: "+data.fingerprint_changes.goal_spec+" · Toolset fingerprint changed: "+data.fingerprint_changes.toolset,"subtle");impact.append(fp);
+    };
+    const load=(side,file)=>{
+      state[side]=null;state.result=null;results.hidden=true;compare.disabled=!($6("ux6-snapshot-a").files.length&&$6("ux6-snapshot-b").files.length);
+      $6("ux6-file-"+side+"-name").textContent=file?file.name+" · "+file.size+" bytes":"No "+(side==="a"?"baseline":"comparison")+" selected.";
+      setStatus("Select two UX-5 evidence JSON exports. The files remain in this browser tab.");
+    };
+    $6("ux6-snapshot-a").addEventListener("change",event=>load("a",event.target.files[0]));
+    $6("ux6-snapshot-b").addEventListener("change",event=>load("b",event.target.files[0]));
+    compare.addEventListener("click",async()=>{
+      compare.disabled=true;try{const [a,b]=await Promise.all([readSnapshot($6("ux6-snapshot-a").files[0]),readSnapshot($6("ux6-snapshot-b").files[0])]);state.a=a;state.b=b;state.result=compareSnapshots(a,b);state.filter="all";render();setStatus("Comparison complete · "+state.result.changes.length+" metadata change(s) · local only. A new human review may be appropriate.");}
+      catch(error){state.result=null;results.hidden=true;setStatus("Comparison failed: "+error.message,true);}finally{compare.disabled=!(($6("ux6-snapshot-a").files.length>0)&&($6("ux6-snapshot-b").files.length>0));}
+    });
+    $6("ux6-export").addEventListener("click",()=>{if(!state.result)return;const blob=new Blob([JSON.stringify(state.result,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download="taas-evidence-diff.json";document.body.append(link);link.click();link.remove();URL.revokeObjectURL(url);setStatus("Diff JSON exported · local metadata comparison only.");});
+    $6("ux6-reset").addEventListener("click",()=>{$6("ux6-snapshot-a").value="";$6("ux6-snapshot-b").value="";state.a=null;state.b=null;state.result=null;state.filter="all";results.hidden=true;compare.disabled=true;$6("ux6-file-a-name").textContent="No baseline selected.";$6("ux6-file-b-name").textContent="No comparison selected.";setStatus("Comparison reset. No files retained by this workspace.");});
+  })();
 
 })();
 </script>
