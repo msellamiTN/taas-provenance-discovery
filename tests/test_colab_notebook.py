@@ -10,7 +10,7 @@ NOTEBOOK = ROOT / "notebooks" / "colab" / "taas_core_studio_colab.ipynb"
 GUIDE = ROOT / "docs" / "deployment" / "COLAB_T4_QUICKSTART.md"
 RUNTIME_GUIDE = ROOT / "docs" / "deployment" / "MODEL_RUNTIME_BACKENDS.md"
 WORKFLOW = ROOT / ".github" / "workflows" / "benchmark-hypergraph.yml"
-INTEGRATED_STUDIO_COMMIT = "0fb7fa42cc776b6119d2a3fd54a96f302f8ec890"
+INTEGRATED_STUDIO_COMMIT = "30b8aa6675be2bfacc8f29217fc131b6edca0b9c"
 
 
 def notebook_source() -> tuple[dict, str, str]:
@@ -107,6 +107,21 @@ def test_colab_runs_tool_intelligence_acceptance() -> None:
     assert "include_hypergraph" in code
     assert "registry_tool_ids" in code
     assert "Tool Intelligence acceptance OK" in code
+
+
+def test_colab_runs_governance_persistence_acceptance() -> None:
+    _, markdown, code = notebook_source()
+    assert "Governance & persistence acceptance" in markdown
+    assert "tests/test_tool_compare.py" in code
+    assert "tests/test_obs_evidence_wiring.py" in code
+    assert "tests/test_discovery_runs.py" in code
+    assert "tests/test_audit_ledger.py" in code
+    assert "tests/test_agent_release_approvals.py" in code
+    assert "taas.tool-compare/v1" in code
+    assert "/api/v1/discovery/runs" in code
+    assert "/api/v1/audit/verify" in code
+    assert "discovery_run_id" in code
+    assert "Governance & persistence acceptance OK" in code
 
 
 def test_colab_notebook_pins_the_integrated_model_agent_studio_revision() -> None:
