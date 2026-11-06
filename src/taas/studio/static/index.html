@@ -310,7 +310,37 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 @media(max-width:900px){.studio-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:4px}.studio-nav .nav-brand{grid-column:1/-1;width:auto}.studio-nav a{min-width:0;overflow-wrap:anywhere;line-height:1.35}}
 @media(max-width:560px){.studio-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;padding:9px}.studio-nav a{min-height:36px;padding:7px 8px;font-size:11px}}
 
-  .outcome-coverage{margin:12px 0;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface,#fff)}
+  /* F01 — API-backed platform overview */
+.platform-overview{margin:0 0 18px;padding:21px}
+.platform-overview-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.platform-overview-heading h2{font-size:20px;margin:4px 0}
+.platform-overview-heading p{max-width:760px;margin:4px 0}
+.platform-overview-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.platform-overview-actions button{margin:0}
+.platform-overview-status{margin:13px 0 10px;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:#f8fafd;color:var(--muted);font-size:11px}
+.platform-overview-status.ok{border-color:#cde7d8;background:#f0f8f3;color:#176b49}
+.platform-overview-status.partial{border-color:#eadcb9;background:#fffaf0;color:#715522}
+.platform-overview-status.error{border-color:#f0d0ca;background:#fff4f1;color:#9a3c2b}
+.platform-overview-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:12px 0}
+.platform-metric{min-width:0;padding:13px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.platform-metric span{display:block;color:var(--muted);font-size:10px;font-weight:650}
+.platform-metric strong{display:block;margin:5px 0 2px;font-size:24px;line-height:1.2;letter-spacing:-.5px;overflow-wrap:anywhere}
+.platform-metric small{display:block;color:var(--muted);font-size:9px;line-height:1.4}
+.platform-overview-recent{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:13px}
+.platform-recent-panel{min-width:0;padding:14px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.platform-recent-panel .panel-head{margin-bottom:9px}
+.platform-recent-panel .panel-head h3{margin:0;font-size:12px}
+.platform-recent-list{display:grid;gap:7px}
+.platform-recent-item{display:flex;justify-content:space-between;gap:10px;padding:9px 10px;border:1px solid #edf0f5;border-radius:8px;background:#fbfcfe}
+.platform-recent-item strong{display:block;font-size:11px;overflow-wrap:anywhere}
+.platform-recent-item small{display:block;margin-top:3px;color:var(--muted);font-size:9px;overflow-wrap:anywhere}
+.platform-lifecycle{flex:0 0 auto;align-self:center;padding:4px 7px;border:1px solid var(--line);border-radius:99px;color:#52627a;background:#fff;font-size:9px;font-weight:700}
+.platform-overview-footnote{margin:12px 2px 0;color:var(--muted);font-size:10px;line-height:1.5}
+@media(max-width:1050px){.platform-overview-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:700px){.platform-overview-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.platform-overview-recent{grid-template-columns:1fr}.platform-overview-actions{width:100%;justify-content:space-between}}
+@media(max-width:420px){.platform-overview-metrics{grid-template-columns:1fr 1fr}.platform-metric{padding:10px}.platform-metric strong{font-size:20px}}
+
+.outcome-coverage{margin:12px 0;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface,#fff)}
   .outcome-coverage-summary{font-size:13px;font-weight:650;margin-bottom:9px;color:var(--text)}
   .outcome-coverage-table{width:100%;border-collapse:collapse;font-size:12px}
   .outcome-coverage-table th,.outcome-coverage-table td{text-align:left;padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
@@ -385,7 +415,34 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     <div class="runtime-meta"><span class="pill" id="runtime-colab">Colab: unknown</span><span class="pill" id="runtime-model">Model: not loaded</span><span class="muted" id="runtime-updated">No successful snapshot yet.</span></div>
     <details style="margin-top:10px"><summary class="subtle" style="cursor:pointer">Runtime diagnostics detail</summary><pre id="runtime-overview-details" style="min-height:80px">No runtime status snapshot.</pre></details>
   </section>
-  <div id="overview-workspace">\n  <div class="hero" id="overview">
+  <div id="overview-workspace">
+  <section id="platform-overview" class="section-anchor platform-overview" aria-labelledby="platform-overview-title">
+    <div class="platform-overview-heading">
+      <div><div class="eyebrow">PLATFORM CONTROL PLANE</div><h2 id="platform-overview-title">Platform overview</h2>
+      <p class="subtle">Live inventory summaries from authenticated TaaS Core APIs. Counts describe returned registry records, not readiness, authorization or execution.</p></div>
+      <div class="platform-overview-actions"><span id="platform-overview-updated" class="subtle">Not refreshed yet</span><button id="platform-overview-refresh" type="button" class="secondary">Refresh overview</button></div>
+    </div>
+    <div id="platform-overview-status" class="platform-overview-status" role="status" aria-live="polite">Connect to the Studio API to load platform inventory.</div>
+    <div class="platform-overview-metrics" aria-label="Platform inventory metrics">
+      <article class="platform-metric"><span>Agent versions</span><strong id="overview-agents-value">—</strong><small id="overview-agents-meta">Latest 100 records</small></article>
+      <article class="platform-metric"><span>Skill versions</span><strong id="overview-skills-value">—</strong><small id="overview-skills-meta">Latest 100 records</small></article>
+      <article class="platform-metric"><span>Registered tools</span><strong id="overview-tools-value">—</strong><small id="overview-tools-meta">Core-reported total</small></article>
+      <article class="platform-metric"><span>Configured MCP servers</span><strong id="overview-mcp-value">—</strong><small id="overview-mcp-meta">Configuration records</small></article>
+      <article class="platform-metric"><span>Benchmark datasets</span><strong id="overview-datasets-value">—</strong><small id="overview-datasets-meta">Repository-retained datasets</small></article>
+    </div>
+    <div class="platform-overview-recent">
+      <section class="platform-recent-panel" aria-labelledby="overview-recent-agents-title">
+        <div class="panel-head"><h3 id="overview-recent-agents-title">Recent Agent versions</h3><span class="count" id="overview-recent-agents-count">—</span></div>
+        <div id="overview-recent-agents" class="platform-recent-list"><p class="subtle">No inventory loaded.</p></div>
+      </section>
+      <section class="platform-recent-panel" aria-labelledby="overview-recent-skills-title">
+        <div class="panel-head"><h3 id="overview-recent-skills-title">Recent Skill versions</h3><span class="count" id="overview-recent-skills-count">—</span></div>
+        <div id="overview-recent-skills" class="platform-recent-list"><p class="subtle">No inventory loaded.</p></div>
+      </section>
+    </div>
+    <p class="platform-overview-footnote">Model inventory is intentionally not counted here: the current Model API is search-driven, not a platform-owned inventory listing. MCP server counts represent configured entries, not live connectivity. No discovery, model loading, policy decision, authorization or execution is initiated by this overview.</p>
+  </section>
+  <div class="hero" id="overview">
     <div><div class="eyebrow">Toolkit-as-a-Service · Control plane</div><h2>Discovery workspace</h2><p>Move from benchmark intent to a reviewed GoalSpec, select candidate tools from the retained registry, and inspect a provenance-aware discovery decision—all in one guided workspace.</p></div>
     <span class="pill"><span class="pill-dot"></span> Discovery preview · execution disabled</span>
   </div>
@@ -978,6 +1035,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       $("studio-auth-status").textContent="Connected · token verified for this runtime";
       $("studio-auth-disconnect").disabled=false;
       await refreshRuntimeOverview();
+      await refreshPlatformOverview();
     } catch(e) {
       $("studio-auth").classList.remove("connected");
       $("studio-auth-status").textContent=e.message;
@@ -992,6 +1050,8 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     $("studio-auth-status").textContent="Disconnected · token cleared from page memory";
     $("studio-auth-disconnect").disabled=true;
     $("runtime-overview-state").textContent="Not checked · connect to refresh runtime status.";
+    $("platform-overview-status").className="platform-overview-status";
+    $("platform-overview-status").textContent="Disconnected · displayed inventory values are the last successful snapshot.";
   });
 
   const run = $("run");
@@ -1603,6 +1663,81 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     if(!r.ok) throw new Error(formatApiError(d.detail||d,"HTTP "+r.status));
     return d;
   };
+  // F01: Platform Overview reads existing Core inventories independently.
+  // Partial failures remain visible; no synthetic counts or inferred readiness.
+  const overviewStatus = $("platform-overview-status");
+  const overviewRefresh = $("platform-overview-refresh");
+  const setOverviewMetric = (key, value, meta) => {
+    $("overview-"+key+"-value").textContent = value === null || value === undefined ? "Unavailable" : String(value);
+    if (meta) $("overview-"+key+"-meta").textContent = meta;
+  };
+  const renderOverviewRecent = (targetId, countId, items, idField, emptyText) => {
+    const root=$(targetId); root.replaceChildren();
+    $(countId).textContent=String(items.length);
+    if(!items.length){
+      const empty=document.createElement("p");empty.className="subtle";empty.textContent=emptyText;root.append(empty);return;
+    }
+    items.slice(0,5).forEach(item=>{
+      const row=document.createElement("div");row.className="platform-recent-item";
+      const copy=document.createElement("div");
+      const title=document.createElement("strong");
+      title.textContent=String(item[idField]||"Unnamed")+" @ "+String(item.version||"version unknown");
+      const detail=document.createElement("small");
+      detail.textContent="SHA-256 "+String(item.manifest_sha256||"not reported").slice(0,16)
+        +" · "+String(item.updated_at||item.created_at||"timestamp not reported");
+      copy.append(title,detail);
+      const state=document.createElement("span");state.className="platform-lifecycle";
+      state.textContent=String(item.lifecycle_state||"unknown");
+      row.append(copy,state);root.append(row);
+    });
+  };
+  const refreshPlatformOverview = async () => {
+    if(!tokenValue()){
+      overviewStatus.className="platform-overview-status";
+      overviewStatus.textContent="Connect to the Studio API before requesting inventory data.";
+      return;
+    }
+    overviewRefresh.disabled=true;
+    overviewStatus.className="platform-overview-status";
+    overviewStatus.textContent="Loading authenticated Core inventory snapshots…";
+    const requests=[
+      ["agents",()=>apiGet("/api/v1/agents?limit=100")],
+      ["skills",()=>apiGet("/api/v1/skills?limit=100")],
+      ["tools",()=>apiGet("/api/v1/bench/tools?source=all&limit=1&offset=0")],
+      ["mcp",()=>apiGet("/api/v1/mcp/servers")],
+      ["datasets",()=>apiGet("/api/v1/bench/datasets")]
+    ];
+    try {
+      const results=await Promise.allSettled(requests.map(([,load])=>load()));
+      let successes=0;
+      const byKey={};
+      results.forEach((result,index)=>{
+        const key=requests[index][0];
+        if(result.status==="fulfilled"){successes++;byKey[key]=result.value;}
+        else {byKey[key]=null;setOverviewMetric(key,null,"API unavailable · "+(result.reason?.message||"request failed"));}
+      });
+      if(byKey.agents){
+        const items=Array.isArray(byKey.agents.versions)?byKey.agents.versions:[];
+        setOverviewMetric("agents",items.length,"Returned records · maximum 100");
+        renderOverviewRecent("overview-recent-agents","overview-recent-agents-count",items,"agent_id","No Agent versions are registered.");
+      } else renderOverviewRecent("overview-recent-agents","overview-recent-agents-count",[],"Agent inventory unavailable.");
+      if(byKey.skills){
+        const items=Array.isArray(byKey.skills.versions)?byKey.skills.versions:[];
+        setOverviewMetric("skills",items.length,"Returned records · maximum 100");
+        renderOverviewRecent("overview-recent-skills","overview-recent-skills-count",items,"skill_id","No Skill versions are registered.");
+      } else renderOverviewRecent("overview-recent-skills","overview-recent-skills-count",[],"Skill inventory unavailable.");
+      if(byKey.tools)setOverviewMetric("tools",byKey.tools.total??"Not reported","Core-reported registry total");
+      if(byKey.mcp)setOverviewMetric("mcp",byKey.mcp.count??(byKey.mcp.servers||[]).length,"Configured entries · not live connectivity");
+      if(byKey.datasets)setOverviewMetric("datasets",(byKey.datasets.datasets||[]).length,"Repository-retained datasets");
+      overviewStatus.className="platform-overview-status "+(successes===requests.length?"ok":successes?"partial":"error");
+      overviewStatus.textContent=successes===requests.length
+        ?"All "+successes+" inventory sources responded successfully. These are inventory facts, not readiness or authorization decisions."
+        :successes+" of "+requests.length+" inventory sources responded. Failed sources are marked unavailable; successful values are retained.";
+      $("platform-overview-updated").textContent="Last refresh · "+new Date().toLocaleTimeString();
+    } finally { overviewRefresh.disabled=false; }
+  };
+  overviewRefresh.addEventListener("click",refreshPlatformOverview);
+
   const loadDatasets = async () => {
     const d=await apiGet("/api/v1/bench/datasets"); bench.datasets=d.datasets||[];
     $("bench-dataset-count").textContent=bench.datasets.length+" datasets";
