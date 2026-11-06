@@ -118,6 +118,7 @@ def run_pamcp_variant(
             "discovery_time_seconds": result.time_s,
             "composition_stats": result.compose.stats,
             "model_profile": profile.model_id,
+            "model_profile_fingerprint": _canonical_fingerprint(profile),
             "model_profile_strict": profile.strict,
             "refinement_iterations_allowed": refine_k,
             "evaluator_labels_accessed": False,
