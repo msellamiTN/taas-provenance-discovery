@@ -365,3 +365,16 @@ def test_v2_oncology_objective_preserves_all_three_required_operations_and_scope
     ]
     assert coverage["outcomes"][1]["status"] == "missing"
     assert coverage["semantic_correctness_verified"] is False
+
+
+def test_transact_cue_requires_booking_object_not_noun():
+    """Regression: 'borrow his book' (noun) must not mint a transact outcome."""
+    contract = derive_objective_contract(
+        "I need to do a presentation about George Orwell and my friend is going "
+        "to borrow me his book."
+    )
+    assert "transact" not in contract["required_goal_classes"]
+    contract = derive_objective_contract("Book a flight to Rome tomorrow.")
+    assert "transact" in contract["required_goal_classes"]
+    contract = derive_objective_contract("Describe the nature reserve near the coast.")
+    assert "transact" not in contract["required_goal_classes"]
