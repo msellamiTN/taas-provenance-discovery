@@ -2078,7 +2078,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         return;
       }
       if(expected.size!==actual.size||[...expected].some(k=>!actual.has(k))){
-        setDiscoveryStatus("Benchmark discovery blocked: registry selections are not synchronized with the request. Click “Add selected tools to discovery” and retry.");
+        setDiscoveryStatus("Benchmark discovery blocked: registry selections are not synchronized with the request. Click “Replace discovery toolset with basket” and retry.");
         return;
       }
     }
@@ -3209,7 +3209,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       const changes=[];
       for(const [key,itemA] of left){const itemB=right.get(key);if(!itemB)changes.push({kind:"removed",key,itemA,itemB:null});else if(!same(itemA,itemB))changes.push({kind:"modified",key,itemA,itemB});}
       for(const [key,itemB] of right)if(!left.has(key))changes.push({kind:"added",key,itemA:null,itemB});
-      changes.sort((x,y)=>x.kind.localeCompare(y.kind)||x.key.localeCompare(y.key));
+      changes.sort((x,y)=>{const ord=(a,b)=>{const A=String(a??""),B=String(b??"");return A<B?-1:A>B?1:0;};return ord(x.kind,y.kind)||ord(x.key,y.key);});
       const stillMatched=[...right.values()].filter(item=>item.status==="matched"&&left.has(keyOf(item))&&left.get(keyOf(item)).status==="matched").length;
       const affected=[...new Set(changes.flatMap(change=>[change.itemA?.goal_id,change.itemB?.goal_id]).filter(Boolean))];
       const impact={still_matched:stillMatched,now_unmatched:0,now_incompatible:0,needs_review:0};
@@ -3232,7 +3232,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         const grid=document.createElement("div");grid.className="ux6-diff-grid";
         for(const [label,item,kind] of [["A · baseline",change.itemA,""],["B · compared",change.itemB,change.kind==="added"?"added":change.kind==="removed"?"removed":""]]){
           const side=document.createElement("div");side.className="ux6-diff-side "+kind;side.append(safe("strong",label));
-          side.append(safe("div",item?("Status: "+item.status+"\n"+(item.explanation||"")+(item.evidence?.length?"\nEvidence: "+item.evidence.map(e=>[e.tool,e.schema_direction,e.schema_path,e.semantic_label].filter(Boolean).join(" · ")).join("; "):""):"— Not present —"));grid.append(side);
+          side.append(safe("div",item?("Status: "+item.status+"\n"+(item.explanation||"")+(item.evidence?.length?"\nEvidence: "+item.evidence.map(e=>[e.tool,e.schema_direction,e.schema_path,e.semantic_label].filter(Boolean).join(" · ")).join("; "):"")):"— Not present —"));grid.append(side);
         }card.append(grid);list.append(card);
       });
       const impact=$6("ux6-impact-list");impact.replaceChildren();

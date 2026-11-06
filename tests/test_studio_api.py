@@ -967,9 +967,13 @@ def test_benchmark_tool_import_replaces_demo_tools_instead_of_merging():
     )[0]
     assert "syncBenchmarkToolsToRequest()" in handler
     assert "const syncBenchmarkToolsToRequest = () =>" in page
-    assert "body.tools=[...bench.selectedTools.values()]" in page
-    assert "Demo/sample tools were removed" in page
+    # Selected tools replace body.tools outright (descriptor mapping, never a merge).
+    assert 'body.tools=ordered.map' in page
+    assert "bench.selectedTools.entries()" in page
+    assert "Demo/sample tools are excluded" in page
     assert "new Map((body.tools||[])" not in handler
+    assert "body.tools.concat" not in page
+    assert "body.tools.push" not in page
 
 
 def test_benchmark_task_import_synchronizes_registry_selection_and_clears_demo_tools():
@@ -996,7 +1000,7 @@ def test_benchmark_registry_selection_stays_synchronized_and_blocks_stale_demo_d
     assert "registry selections are not synchronized with the request" in page
     assert "benchmark task NOT evaluated" in page
     assert "semantic alignment with the task prompt is not verified" in page
-    assert "Sync selected tools to discovery" in page
+    assert "Replace discovery toolset with basket" in page
     assert "Benchmark discovery blocked: review the GoalSpec against the selected task prompt" in page
 
 def test_benchmark_task_switch_invalidates_previous_goal_and_tool_context():
