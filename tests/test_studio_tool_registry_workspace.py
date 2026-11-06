@@ -8,7 +8,7 @@ def _studio_html() -> str:
 def test_tool_registry_exposes_detail_inspector_and_selection_basket():
     html = _studio_html()
     for marker in (
-        'id="bench-tool-inspector"',
+        'class="bench-tool-inspector"',
         'id="bench-tool-inspector-status"',
         'id="bench-tool-inspector-data"',
         'id="bench-selection-basket"',
