@@ -6,6 +6,8 @@ invoke MCP tools or evaluate benchmark gold labels.
 from __future__ import annotations
 
 import os
+import hashlib
+import json
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -61,6 +63,7 @@ def run_pamcp_variant(
     policy: Policy,
     top_k: int = 5,
     refine_k: int = 3,
+    model_profile: ModelProfile | None = None,
 ) -> dict[str, Any]:
     """Run one PaMCP configuration without access to evaluator labels."""
     if variant_id not in VARIANT_IDS:
@@ -68,7 +71,7 @@ def run_pamcp_variant(
     factors = get_factorial_variant(variant_id)
     if not 1 <= top_k <= 100:
         raise ValueError("top_k must be between 1 and 100")
-    profile = load_preview_profile()
+    profile = model_profile or load_preview_profile()
     spec = parse_goal_spec(goal_spec, prompt=str(goal_spec.get("prompt", "")))
 
     trust = DEFAULT_TRUST
@@ -164,6 +167,85 @@ def run_pamcp_variant(
         "model_profile": profile.model_id,
         "model_profile_strict": profile.strict,
         "refinement_iterations_allowed": refine_k,
+        "evaluator_labels_accessed": False,
+        "mcp_tools_executed": False,
+    }
+
+
+def _canonical_fingerprint(value: Any) -> str:
+    payload = json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":"), default=str)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def run_pamcp_factorial_preview(
+    contracts: Sequence[CapabilityContract],
+    goal_spec: dict[str, Any],
+    policy: Policy,
+    top_k: int = 5,
+    refine_k: int = 3,
+) -> dict[str, Any]:
+    """Run all eight frozen E18 cells under one shared preview input/profile.
+
+    This is a software preview only: it never reads evaluator labels or invokes MCP tools.
+    It must not be promoted to confirmatory E18 evidence without the independent task and
+    composition-oracle package required by the frozen protocol.
+    """
+    from taas.experiments.catalog import load_catalog
+
+    catalog = load_catalog()
+    ordered_names = [cell["name"] for cell in catalog["factorial_design"]["cells"]]
+    if len(ordered_names) != 8 or set(ordered_names) != VARIANT_IDS:
+        raise RuntimeError("Frozen E18 catalog and implementation variant set differ.")
+
+    profile = load_preview_profile()
+    registry_fingerprint = _canonical_fingerprint([
+        {"tool_id": contract.tool, "definition_hash": contract.h}
+        for contract in sorted(contracts, key=lambda item: item.tool)
+    ])
+    goal_fingerprint = _canonical_fingerprint(goal_spec)
+    policy_fingerprint = _canonical_fingerprint(policy)
+
+    results = [
+        run_pamcp_variant(
+            variant_id, contracts, goal_spec, policy,
+            top_k=top_k, refine_k=refine_k, model_profile=profile,
+        )
+        for variant_id in ordered_names
+    ]
+    expected = {
+        cell["name"]: (cell["G"], cell["P"], cell["S"])
+        for cell in catalog["factorial_design"]["cells"]
+    }
+    for result in results:
+        factors = result.get("factors", {})
+        observed = (factors.get("G"), factors.get("P"), factors.get("S"))
+        if observed != expected[result["variant_id"]]:
+            raise RuntimeError(f"E18 factor mismatch for {result['variant_id']}: {observed}")
+        if result.get("evaluator_labels_accessed") is not False:
+            raise RuntimeError("E18 preview unexpectedly accessed evaluator labels.")
+        if result.get("mcp_tools_executed") is not False:
+            raise RuntimeError("E18 preview unexpectedly executed MCP tools.")
+
+    return {
+        "experiment_id": "E18",
+        "status": "preview_only",
+        "completion_gate": (
+            "Confirmatory E18 requires the same frozen independent task/contract oracle "
+            "for all eight cells and matched evaluation conditions."
+        ),
+        "factorial_design": "GxPxS_full_2^3",
+        "variant_order": ordered_names,
+        "variant_count": len(results),
+        "shared_inputs": {
+            "registry_fingerprint": registry_fingerprint,
+            "goal_spec_fingerprint": goal_fingerprint,
+            "policy_fingerprint": policy_fingerprint,
+            "model_profile": profile.model_id,
+            "model_profile_strict": profile.strict,
+            "top_k": top_k,
+            "refine_k": refine_k,
+        },
+        "results": results,
         "evaluator_labels_accessed": False,
         "mcp_tools_executed": False,
     }
