@@ -2190,7 +2190,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     bench.selectedTools.clear();renderBenchSelectionBasket();invalidateHumanReview();$("bench-goal-review").checked=false;
     $("bench-tools").querySelectorAll('input[type="checkbox"]').forEach(cb=>{cb.checked=false;});
     $("bench-tool-inspector-status").textContent="Selection basket cleared. The discovery request toolset is unchanged until explicit replacement.";
-    if(bench.selectedTask){try{syncBenchmarkToolsToRequest();}catch(e){$("bench-status").textContent="Basket cleared, but request synchronization failed: "+e.message;return;}}
+    if(bench.selectedTask){try{syncBenchmarkToolsToRequest();$("bench-status").textContent="Basket cleared and the active benchmark request toolset synchronized to empty. Human review is required again.";}catch(e){$("bench-status").textContent="Basket cleared, but request synchronization failed: "+e.message;}return;}
     $("bench-status").textContent="Selection basket cleared. The discovery request toolset remains unchanged until explicit replacement.";
   });
   function showBenchError(e){$("bench-status").textContent="Workspace request failed: "+e.message;}
