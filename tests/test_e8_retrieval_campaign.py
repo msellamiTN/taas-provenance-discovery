@@ -363,8 +363,9 @@ def test_run_campaign_end_to_end_smoke_is_partial_and_keeps_protocol_baselines_b
     monkeypatch.setattr(e8, "_dense_and_hybrid_rankings", fake_dense)
     monkeypatch.setattr(e8, "_cross_encoder_rankings", fake_cross)
 
+    repo_root = __import__("pathlib").Path(e8.__file__).resolve().parents[1]
     run_dir = e8.run_campaign(
-        root=tmp_path,
+        root=repo_root,
         output_root=tmp_path / "results",
         toolret_dir=toolret,
         raw_root=raw_root,
@@ -399,7 +400,7 @@ def test_run_campaign_end_to_end_smoke_is_partial_and_keeps_protocol_baselines_b
     assert (run_dir.parent / "E8-fixture-smoke.zip").is_file()
     with pytest.raises(FileExistsError, match="immutable"):
         e8.run_campaign(
-            root=tmp_path, output_root=tmp_path / "results",
+            root=repo_root, output_root=tmp_path / "results",
             toolret_dir=toolret, raw_root=raw_root,
             e5_model="fixture/e5", e5_revision="fixture-e5-sha",
             cross_model="fixture/cross-encoder", cross_revision="fixture-cross-sha",
