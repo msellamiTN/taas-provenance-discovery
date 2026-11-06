@@ -1672,6 +1672,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     if(!goals.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=4;td.textContent="No GoalSpec goals are available.";tr.append(td);body.append(tr);}
     const inputSummary=[...new Set(inputLabels.map(x=>x.type))].sort(),outputSummary=[...new Set(outputLabels.map(x=>x.type))].sort();
     summary.textContent="Compared "+goals.length+" goal(s) with "+basket.length+" tool(s) from "+source+". Exact-label rows: "+matched+"; unmatched rows: "+unmatched+"; not comparable: "+unknown+". Tool input labels: "+(inputSummary.join(", ")||"none reported")+". Tool output labels: "+(outputSummary.join(", ")||"none reported")+".";
+    if(alignmentEvidenceSnapshot&&!ensureEvidenceFresh())invalidateAlignmentEvidence("GoalSpec or toolset changed since snapshot");
   };
   $("goal-alignment-refresh").addEventListener("click",renderGoalToolAlignment);
 
