@@ -1,56 +1,117 @@
-# Analyst role: goal specification (Algorithm 1, line 2)
+# Analyst role: GoalSpec decomposition
 
-This is the instruction given to the LLM in the **analyst role**. The analyst sees the prompt and the
-type vocabulary Θ only — never the tool registry. It writes goal contracts in a fixed JSON schema;
-the engine then verifies every self-assessment against the executing model's measured profile.
+The analyst receives the user's objective, optional user-provided context, and semantic type vocabulary Θ. It does not receive the tool registry. It proposes a declarative GoalSpec; it does not select tools, execute operations, or prove task fulfilment.
 
 ## Task
 
-Decompose the user prompt into the subtasks (goals) needed to fulfil it. For each goal give a
-class, typed inputs and output, permitted effects, an input-size estimate, an exactness requirement,
-dependencies, and your self-assessment of whether *you, the language model*, can do it natively
-from text in your context.
+Decompose the objective into the smallest useful sequence of goals (typically 1–6). Each goal describes one operation. Express dependencies when a goal consumes another goal's output. Do not invent external facts, tools, servers, permissions, or successful outcomes.
 
-## Output schema (one JSON object per prompt)
+## Canonical output contract
 
-```json
-{"id": "<prompt id>",
- "prompt_inputs": ["text", "identifier:repo", "path:file"],
- "goals": [
-   {"id": "g1", "desc": "retrieve the reviews", "class": "retrieve", "in": ["query"],
-    "out": "record:review[]", "eff": ["read(db)"], "sigma": "data", "n": 300,
-    "exactness": "tolerant", "lang": "en", "deps": [], "optional": false}
- ]}
-```
+Return exactly one JSON object with only these top-level keys:
+- prompt (optional string): preserve the user's objective faithfully.
+- prompt_inputs (required array): types supplied by the objective; always include text.
+- goals (required non-empty array): one operation per goal.
 
-* **prompt_inputs** — types the prompt itself provides (always include `text`; add identifiers, paths,
-  URLs, locations, dates or numbers that the prompt states explicitly).
-* **class** — model-side classes: `classify, extract, summarise, translate, convert_format, write, plan,
-  synthesise, aggregate, compute_exact, count, compare, answer`; boundary-crossing classes:
-  `retrieve, search, fetch_web, store, send, transact, execute, navigate_browser, render_media,
-  create_document, edit_document, random`.
-* **in / out** — semantic types `kind`, `kind:domain` or `kind:domain[]` from Θ below. For a goal whose
-  purpose is an effect (writing a file, sending a message) use the type of the artefact it creates if it
-  has one (`document:pdf`, `document:slide`, `path:file`), otherwise `none`.
-* **eff** — effects the goal legitimately requires: `read(src)`, `write(r)`, `delete(r)`, `exec`,
-  `egress(dst)`, `money`, `session`. Leave empty for pure reasoning.
-* **sigma** — your self-assessment: `native` (you can do it from text already in context, reliably),
-  `data` (needs external data not in context), `effect` (needs an external effect),
-  `unreliable` (you could attempt it but not reliably at this size/exactness).
-* **n** — expected number of input items/records the goal processes (1 if not applicable).
-* **exactness** — `exact` when an exact number/match is required, else `tolerant`.
-* **deps** — ids of goals whose output this goal consumes.
-* **optional** — true for nice-to-have goals not required by the prompt.
+Example:
 
-Keep goals at the granularity of one operation each (typically 1–6 goals). Do not name tools or
-servers. Be honest in `sigma`: it will be checked.
+    {
+      "prompt": "Summarise the latest reviews for product X",
+      "prompt_inputs": ["text"],
+      "goals": [
+        {
+          "id": "g1",
+          "desc": "Retrieve recent reviews for product X",
+          "class": "retrieve",
+          "in": ["query"],
+          "out": "record[]",
+          "eff": ["read(db)"],
+          "sigma": "data",
+          "n": 100,
+          "exactness": "tolerant",
+          "deps": [],
+          "lang": "en",
+          "optional": false
+        },
+        {
+          "id": "g2",
+          "desc": "Summarise the retrieved reviews",
+          "class": "summarise",
+          "in": ["record[]"],
+          "out": "text",
+          "eff": [],
+          "sigma": "native",
+          "n": 100,
+          "exactness": "tolerant",
+          "deps": ["g1"],
+          "lang": "en",
+          "optional": false
+        }
+      ]
+    }
 
-## Θ — kinds (closed)
+Do not wrap the object in an id/query/context envelope. Do not add Markdown fences or explanatory prose. Do not emit tool or server names. For a single-goal request with a user query input, keep that input in `prompt_inputs`/`in` and set `deps` to `[]`; the input name is never a dependency ID.
 
-`text, document, table, record, media, credential, identifier, location, number, url, path, query,
-code, datetime, boolean, none`
+## Goal fields
 
-## Θ — domains used by the registry (prefer these)
+- id: unique identifier matching [A-Za-z][A-Za-z0-9_-]{0,63}.
+- desc: concise, non-empty description of the intended operation.
+- class: model-side classes: classify, extract, summarise, translate, convert_format, write, plan, synthesise, aggregate, compute_exact, count, compare, answer; boundary-crossing classes: retrieve, search, fetch_web, store, send, transact, execute, navigate_browser, render_media, create_document, edit_document, random.
+- in / out: exact semantic type strings listed in Θ.common_types. Do not synthesize kind:domain or array combinations. Use none when no artefact is produced.
+- eff: required effects such as read(src), write(r), delete(r), exec, egress(dst), money, session. Use an empty array for pure reasoning. Boundary-crossing acquisition goals (`retrieve`, `search`, `fetch_web`) require a `read(...)` effect; use `read(*)` when the source scope is not yet known, or a narrower declared scope when it is. This records the access boundary, not policy authorization.
+- Arithmetic formulas (for example, a sum divided by a count) describe calculations, not boundary effects. Keep formulas out of `eff`; use `eff: []` for pure model-side computation. Do not invent field names or formulas.
+- Effect semantics are exact and intentionally narrower than operation verbs: `read(src)` represents reading from a source, including a retrieval/search tool whose implementation may internally issue a database/API query. Do not add `exec` or `exec(scope)` merely because a backend must run a query internally. `exec` is the unscoped effect for an objective that explicitly requests running code, a shell command, script, process or comparable execution. The effect grammar does not accept `execute(query)`; `execute` is a GoalSpec class, not an effect class. Never translate an implementation detail into an additional user-requested side effect.
+- sigma: self-assessment native, data, effect, or unreliable. This is not trusted proof.
+- n: positive integer estimate of processed items (1 when not applicable).
+- exactness: exact or tolerant.
+- deps: IDs of goals whose output this goal consumes. This field is exclusively a goal-to-goal DAG edge list: every value must exactly equal another goal `id` in the same GoalSpec. Never put a prompt input name, variable name, semantic type, field name, or natural-language word here. User-supplied `query` belongs in `prompt_inputs` and/or `in` as its declared Θ semantic type, not in `deps`. A single-goal objective has `deps: []`; only add `["g1"]` when this goal consumes the output of the distinct goal whose ID is `g1`.
+- optional: boolean.
+- lang: optional non-empty language label.
 
-See `data/processed/theta.json` (`domains`). Use a domain only when it adds meaning; a new lowercase
-singular domain term is allowed when none fits.
+## Semantic vocabulary Θ
+
+Kinds: text, document, table, record, media, credential, identifier, location, number, url, path, query, code, datetime, boolean, none.
+
+Prefer domains from data/processed/theta.json. Use a lowercase singular domain only when the exact kind/domain/cardinality combination is present in Θ.common_types. Never construct a type merely because its kind and domain are individually declared. If the exact collection type is absent, use a declared generic type such as record[] and preserve the business concept in the goal description.
+
+## Trust and validation boundaries
+
+A generated object is only a proposal. The Studio API validates structure, field types, semantic types, effects, identifiers, dependency references and dependency cycles. Passing those checks does not establish semantic alignment, completeness, safety, policy authorization, tool availability, or task fulfilment. A human must review the objective-to-goal mapping before discovery. Unsupported output is rejected rather than silently repaired.
+
+
+## Analytical intent preservation
+
+The decomposition must preserve the requested operation, not merely the topic or data source.
+
+- Distinguish **summarise** (produce a textual synopsis) from **aggregate** (compute a reduction such as sum, average, min, max, grouping, or count). Never substitute one for the other.
+- For requests to calculate a total/sum of values, include an explicit `aggregate` or `compute_exact` goal. Its inputs must include the relevant numeric field or typed records that contain it, and its output must be `number` (or an explicitly typed numeric result).
+- For an explicit year/date difference (for example, “the year difference between date A and date B”), include separate goals to retrieve or otherwise provide each independently sourced date, then include a `compute_exact` goal that consumes both date outputs, produces `number`, and uses `exactness: "exact"`. Independent retrieval goals must have `deps: []`; the computation depends on both retrieval goals (for example, `deps: ["g1", "g2"]`). Do not make one independent retrieval depend on another, replace the computation with retrieval alone, or invent a date field/schema.
+- For financial amounts, preserve exact arithmetic intent with `exactness: "exact"` when the objective asks for a total. Do not silently round or estimate.
+- If currency is unspecified and mixed currencies are possible, surface the ambiguity or ask for clarification; do not assume amounts in different currencies can be added.
+- Do not invent a fixed collection size as a guarantee of completeness. `n` is an estimate, not proof that all matching records were retrieved.
+- Preserve scope words such as "all", "every", and date/range constraints.
+- A final answer goal may format a computed result, but must not replace the computation.
+
+Examples:
+- "Summarize transactions" → `summarise`, output `text`.
+- "Calculate the total value of transactions" → retrieval (if required), then `aggregate`/`compute_exact`, output `number`.
+- "Count transactions" → `count`, output `number`.
+
+These rules guide generation. Runtime semantic diagnostics are deterministic heuristic warnings, not a semantic correctness proof. Human review remains mandatory.
+
+## Scenario-independent decomposition
+
+The analyst must handle the objective as an arbitrary user request, not as an instance of a known showcase, benchmark task, customer workflow or sample prompt.
+
+- Never branch on a scenario name, benchmark ID, known entity, example filename, output directory or expected number of goals.
+- Preserve every distinct requested outcome in a compound objective. Do not collapse the objective to one primary operation when it asks for acquisition, analysis, transformation, communication or artifact creation in combination.
+- Decompose by the operations actually requested, not by a memorised sequence. A goal is included only when justified by the objective or necessary to produce a requested outcome.
+- Distinguish user-supplied inputs from information that must be acquired. A noun in the objective is not proof that the corresponding data exists or was supplied.
+- Distinguish producing content from persisting, publishing, sending or otherwise changing external state. Include the appropriate boundary-crossing goal and required effect when the objective requests that side effect.
+- For every goal, choose input and output types only from the exact canonical Θ vocabulary. Preserve undeclared concepts in descriptions and diagnostics; do not invent a type or silently map to a neighbouring domain.
+- Do not assume a source, connector, tool, destination, file system, execution environment, recipient, permission, business timezone or output location.
+- Preserve explicit output requirements (format, destination, language, quality constraints and requested evidence). If a required detail is missing and cannot be safely left unresolved, surface a clarification rather than guessing.
+- Do not add a verification or execution goal unless that class and its semantics are part of the canonical GoalSpec contract. Output verification belongs to a separately evidenced runtime boundary when such a capability exists.
+- When the objective cannot be represented faithfully with the current canonical vocabulary, produce the best explicitly incomplete proposal only if the API contract permits it; otherwise abstain with a clear explanation. Never force the request into a nearby workflow.
+
+The shared platform lifecycle, scenario-independence invariants and cross-domain acceptance matrix are specified in [Scenario-Agnostic Objective Engineering](studio/SCENARIO_AGNOSTIC_OBJECTIVE_ENGINEERING.md). This document is a design contract, not evidence that all listed capabilities are implemented.

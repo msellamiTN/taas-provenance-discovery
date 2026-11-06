@@ -21,6 +21,207 @@ def test_discovery_requires_token(monkeypatch):
     assert response.status_code == 401
 
 
+def test_discovery_returns_server_owned_hypergraph_projection(monkeypatch):
+    from types import SimpleNamespace
+
+    import taas.studio.api as api
+    from taas.contracts import make_contract
+    from taas.hypergraph import Derivation, Hypergraph, ReachResult
+    from taas.types import parse_type
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    contract = make_contract(
+        "orders::list_orders",
+        {"customer_id": "identifier"},
+        "record[]",
+        ["read(orders)"],
+        description="List orders",
+        source_label="internal",
+    )
+    graph = Hypergraph()
+    graph.add(contract)
+    reach = ReachResult(
+        types={parse_type("identifier"), parse_type("record[]")},
+        derivations={
+            "identifier": Derivation("prompt", "identifier", (), "prompt"),
+            "record[]": Derivation(
+                contract.tool, "record[]", ("identifier",), "tool", 0.95
+            ),
+        },
+        bridges=[],
+        labels={"identifier": "public", "record[]": "internal"},
+        fired={contract.tool},
+        tool_types={"record[]": contract.tool},
+    )
+
+    class FakeEngine:
+        def __init__(self, contracts, profile, trust, cfg):
+            self.H = graph
+            self.composer = SimpleNamespace(model_edges=lambda goals: [])
+
+        def discover(self, spec, policy):
+            return SimpleNamespace(
+                spec=spec,
+                gap=SimpleNamespace(gap=[], rho=0.0),
+                compose=SimpleNamespace(
+                    reachability=reach, candidates=[contract.tool], regime="exact", stats={}
+                ),
+                certificate=None,
+                counterexample=None,
+                toolkit=[contract.tool],
+                time_s=0.01,
+                abstained=False,
+            )
+
+    monkeypatch.setattr(api, "DiscoveryEngine", FakeEngine)
+    response = client.post(
+        "/api/v1/discover",
+        headers={"Authorization": "Bearer test-token"},
+        json={
+            "goal_spec": {
+                "prompt": "List customer orders",
+                "prompt_inputs": ["identifier"],
+                "goals": [{
+                    "id": "g1", "class": "retrieve", "in": ["identifier"],
+                    "out": "record[]", "eff": ["read(orders)"],
+                    "sigma": "data", "deps": [], "desc": "List orders",
+                }],
+            },
+            "human_review_confirmed": True,
+            "tools": [{
+                "server": "orders", "name": "list_orders",
+                "input_schema": {
+                    "type": "object",
+                    "properties": {"customer_id": {"type": "string"}},
+                    "required": ["customer_id"],
+                },
+            }],
+        },
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["status"] == "selected"
+    assert data["selected_tools"] == [contract.tool]
+    assert data["hypergraph_projection_status"] == "available"
+    projection = data["hypergraph_projection"]
+    assert projection["schema"] == "taas.hypergraph-projection/v1"
+    edge = next(item for item in projection["hyperedges"] if item["kind"] == "tool")
+    assert edge["tool_id"] == contract.tool
+    assert edge["fired_in_reachability"] is True
+    assert data["execution_performed"] is False
+    assert data["human_review"]["confirmed"] is True
+
+
+def test_discovery_abstention_does_not_manufacture_hypergraph_projection(monkeypatch):
+    from types import SimpleNamespace
+
+    import taas.studio.api as api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+
+    class FakeEngine:
+        def __init__(self, contracts, profile, trust, cfg):
+            self.H = object()
+            self.composer = SimpleNamespace(model_edges=lambda goals: [])
+
+        def discover(self, spec, policy):
+            return SimpleNamespace(
+                spec=spec,
+                gap=SimpleNamespace(gap=[], rho=0.0),
+                compose=SimpleNamespace(reachability=None, candidates=[], regime="", stats={}),
+                certificate=None,
+                counterexample=None,
+                toolkit=None,
+                time_s=0.01,
+                abstained=True,
+            )
+
+    monkeypatch.setattr(api, "DiscoveryEngine", FakeEngine)
+    response = client.post(
+        "/api/v1/discover",
+        headers={"Authorization": "Bearer test-token"},
+        json={
+            "goal_spec": {
+                "prompt": "List customer orders",
+                "prompt_inputs": ["identifier"],
+                "goals": [{
+                    "id": "g1", "class": "retrieve", "in": ["identifier"],
+                    "out": "record[]", "eff": ["read(orders)"],
+                    "sigma": "data", "deps": [], "desc": "List orders",
+                }],
+            },
+            "human_review_confirmed": True,
+            "tools": [{
+                "server": "orders", "name": "list_orders",
+                "input_schema": {
+                    "type": "object",
+                    "properties": {"customer_id": {"type": "string"}},
+                    "required": ["customer_id"],
+                },
+            }],
+        },
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["status"] == "abstained"
+    assert data["hypergraph_projection_status"] == "unavailable_abstained"
+    assert data["hypergraph_projection"] is None
+    assert data["execution_performed"] is False
+
+
+
+def test_objective_prepare_exposes_v3_contract_and_never_authorizes_discovery(monkeypatch):
+    import taas.studio.api as api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+
+    class FakeRuntime:
+        def decompose(self, prompt, context, max_new_tokens):
+            return {
+                "json_valid": True,
+                "text": "{\"goal_spec\": {\"goals\": []}}",
+                "model_id": "test-model",
+                "latency_seconds": 0.01,
+                "goal_spec": {
+                    "prompt": prompt,
+                    "prompt_inputs": ["text"],
+                    "goals": [{
+                        "id": "g1", "class": "search", "in": ["text"],
+                        "out": "record[]", "eff": ["read(web)"],
+                        "sigma": "data", "deps": [], "desc": "Search the web for research papers.",
+                    }],
+                },
+            }
+
+    monkeypatch.setattr(api, "get_model_runtime", lambda: FakeRuntime())
+    response = client.post(
+        "/api/v1/objectives/prepare",
+        headers={"Authorization": "Bearer test-token"},
+        json={"provider": "huggingface", "prompt": "Search the web for research papers."},
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    contract = data["objective_contract_v3"]
+    view = data["objective_intelligence_v3"]
+    assert contract["schema"] == "taas.objective-contract/v3"
+    assert contract["objective"]["text"] == "Search the web for research papers."
+    assert view["structurally_valid"] is True
+    assert view["semantic_correctness_verified"] is False
+    assert view["discovery_authorized"] is False
+    assert data["workflow"]["tool_execution"] == "disabled"
+
+
+def test_studio_frontend_renders_v3_clarifications_and_blocks_apply():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    assert 'id="agent-objective-contract-v3"' in page
+    assert "renderObjectiveContractV3" in page
+    assert "blocking_clarification_count" in page
+    assert "&&!v3Blockers" in page
+    assert "v3StructurallyValid=result.objective_intelligence_v3?.structurally_valid===true" in page
+    assert "&&!v3Blockers&&v3StructurallyValid" in page
+
 def test_default_profile_is_uncalibrated_and_fail_closed(monkeypatch):
     from taas.studio.api import load_profile
 
@@ -42,8 +243,11 @@ def test_ready_does_not_require_calibration(monkeypatch):
 def test_studio_home_serves_browser_workspace():
     response = client.get("/")
     assert response.status_code == 200
-    assert "TaaS Core Studio" in response.text
-    assert "/api/v1/discover" in response.text
+    assert "<title>TaaS Studio — Tool Intelligence Platform</title>" in response.text
+    assert '<strong>TaaS Studio</strong>' in response.text
+    assert "/api/v1/objectives/discover" in response.text
+    assert response.headers["cache-control"] == "no-store, no-cache, must-revalidate, max-age=0"
+    assert response.headers["pragma"] == "no-cache"
 
 
 def test_studio_frontend_keeps_goal_metrics_disjoint_and_runtime_claims_precise():
@@ -59,6 +263,10 @@ def test_studio_frontend_keeps_goal_metrics_disjoint_and_runtime_claims_precise(
     assert "model not loaded · inference not executed" in page
     assert "model_loaded: false" in page
     assert "inference_executed: false" in page
+    assert 'id="discovery-diagnostics-panel"' in page
+    assert 'id="discovery-diagnostics-tools"' in page
+    assert 'cell.textContent=String(value)' in page
+    assert 'discovery_diagnostics' in page
 
     # Separate mandatory validity gates from non-gating diagnostics.
     assert 'const mandatoryChecks = ["S", "C", "P", "E", "L", "V"]' in page
@@ -593,9 +801,9 @@ def test_goal_spec_validation_endpoint_returns_topological_order(monkeypatch):
             "prompt": "Retrieve orders and summarize them",
             "prompt_inputs": ["text"],
             "goals": [
-                {"id": "g1", "class": "retrieve", "in": [], "out": "record:order[]",
+                {"id": "g1", "class": "retrieve", "in": [], "out": "record[]",
                  "eff": ["read(*)"], "sigma": "data", "deps": [], "desc": "Retrieve orders"},
-                {"id": "g2", "class": "summarise", "in": ["record:order[]"], "out": "text",
+                {"id": "g2", "class": "summarise", "in": ["record[]"], "out": "text",
                  "eff": [], "sigma": "native", "deps": ["g1"], "desc": "Summarise retrieved orders"},
             ],
         },
@@ -839,8 +1047,800 @@ def test_studio_navigation_shell_has_valid_targets_and_accessible_skip_link():
     assert nav is not None
     targets = set(re.findall(r'href="#([^"]+)"', nav.group(0)))
     assert targets <= ids
-    assert 'class="skip-link" href="#overview"' in html
+    assert 'class="skip-link" href="#overview-workspace"' in html
+    assert 'id="overview-workspace"' in html
     assert 'id="overview"' in html
     assert 'aria-label="Studio sections"' in html
     assert ".studio-layout" in html
     assert "@media(max-width:900px)" in html
+
+
+def test_runtime_status_requires_authentication(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.get("/api/v1/runtime/status")
+    assert response.status_code == 401
+
+
+def test_runtime_status_reports_host_and_explicit_model_boundary(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    expected = {
+        "service": {
+            "status": "running",
+            "pid": 123,
+            "python_version": "3.12.0",
+            "python_executable": "/usr/bin/python",
+            "platform": "Linux-test",
+        },
+        "host": {
+            "cpu_count": 2,
+            "memory_total_gib": 12.0,
+            "memory_available_gib": 8.0,
+            "disk_total_gib": 100.0,
+            "disk_free_gib": 80.0,
+        },
+        "hardware": {"gpu_detected": False, "inference_ready": False},
+        "model_runtime": {
+            "model_loaded": False,
+            "inference_executed": False,
+            "lifecycle_supported": False,
+            "note": "Runtime diagnostics only; model loading and inference are not implemented by this service.",
+        },
+        "colab": {"detected": True, "ephemeral_storage": True},
+    }
+    monkeypatch.setattr(api, "probe_runtime", lambda: expected)
+    response = client.get(
+        "/api/v1/runtime/status",
+        headers={"Authorization": "Bearer test-token"},
+    )
+    assert response.status_code == 200
+    assert response.json() == expected
+
+
+
+def test_studio_overview_connects_to_authenticated_live_runtime_status():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    for marker in (
+        'id="runtime-refresh"',
+        'id="runtime-overview-state"',
+        'id="runtime-cpu"',
+        'id="runtime-memory"',
+        'id="runtime-disk"',
+        'id="runtime-gpu"',
+        'id="runtime-colab"',
+        'id="runtime-model"',
+        'id="runtime-overview-details"',
+        'fetch("/api/v1/runtime/status"',
+        'cache: "no-store"',
+        'displayed values are from an earlier successful snapshot',
+        'inference not executed',
+    ):
+        assert marker in page
+    assert 'localStorage.setItem("token"' not in page
+
+
+
+def test_model_runtime_status_requires_authentication(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.get("/api/v1/models/runtime")
+    assert response.status_code == 401
+
+
+def test_model_runtime_status_reports_actual_process_state(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+
+    class Runtime:
+        def status(self):
+            return {"model_loaded": True, "model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+                    "device": "cpu", "dtype": "float32", "inference_executed": False}
+
+    monkeypatch.setattr(api, "get_model_runtime", lambda: Runtime())
+    class Ollama:
+        def status(self):
+            return {"provider": "ollama", "available": False, "models": []}
+    monkeypatch.setattr(api, "get_ollama_runtime", lambda: Ollama())
+    response = client.get("/api/v1/models/runtime",
+                          headers={"Authorization": "Bearer test-token"})
+    assert response.status_code == 200
+    assert response.json()["model_loaded"] is True
+    assert response.json()["inference_executed"] is False
+
+
+def test_model_load_endpoint_uses_selected_model_and_device(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+
+    class Runtime:
+        def load(self, model_id, device):
+            return {"model_loaded": True, "model_id": model_id, "device": device,
+                    "dtype": "float32", "trust_remote_code": False}
+
+    monkeypatch.setattr(api, "get_model_runtime", lambda: Runtime())
+    response = client.post("/api/v1/models/load",
+                           headers={"Authorization": "Bearer test-token"},
+                           json={"model_id": "Qwen/Qwen2.5-0.5B-Instruct", "device": "cpu"})
+    assert response.status_code == 200
+    assert response.json()["model_id"] == "Qwen/Qwen2.5-0.5B-Instruct"
+    assert response.json()["device"] == "cpu"
+    assert response.json()["trust_remote_code"] is False
+
+
+def test_model_load_endpoint_rejects_invalid_device(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.post("/api/v1/models/load",
+                           headers={"Authorization": "Bearer test-token"},
+                           json={"model_id": "Qwen/Qwen2.5-0.5B-Instruct", "device": "tpu"},
+                           )
+    assert response.status_code == 422
+
+
+def test_model_chat_endpoint_returns_real_runtime_result(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+
+    class Runtime:
+        def chat(self, message, system, max_new_tokens, temperature):
+            return {"text": "hello", "model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+                    "device": "cpu", "latency_seconds": 0.1, "output_tokens": 1}
+
+    monkeypatch.setattr(api, "get_model_runtime", lambda: Runtime())
+    response = client.post("/api/v1/models/chat",
+                           headers={"Authorization": "Bearer test-token"},
+                           json={"message": "hello"})
+    assert response.status_code == 200
+    assert response.json()["text"] == "hello"
+    assert response.json()["device"] == "cpu"
+
+
+def test_agent_decomposition_endpoint_separates_structure_from_semantics(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    goal_spec = {
+        "prompt": "Explain precision and recall",
+        "prompt_inputs": ["text"],
+        "goals": [{
+            "id": "g1", "class": "answer", "in": ["text"], "out": "text",
+            "eff": [], "sigma": "native", "desc": "Explain precision and recall",
+            "deps": [], "n": 1, "exactness": "tolerant", "lang": "en", "optional": False,
+        }],
+    }
+
+    class Runtime:
+        def decompose(self, prompt, context, max_new_tokens):
+            return {"text": "{}", "goal_spec": goal_spec, "json_valid": True,
+                    "semantic_correctness_verified": False}
+
+    monkeypatch.setattr(api, "get_model_runtime", lambda: Runtime())
+    response = client.post("/api/v1/agents/decompose",
+                           headers={"Authorization": "Bearer test-token"},
+                           json={"prompt": "Explain precision and recall"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["structural_validation"]["valid"] is True
+    assert data["semantic_correctness_verified"] is False
+
+
+def test_huggingface_model_id_validation_is_strict():
+    from taas.studio.model_runtime import HuggingFaceModelRuntime
+
+    assert HuggingFaceModelRuntime._validate_model_id("Qwen/Qwen2.5-0.5B-Instruct") == "Qwen/Qwen2.5-0.5B-Instruct"
+    with pytest.raises(ValueError):
+        HuggingFaceModelRuntime._validate_model_id("../local-code")
+
+
+
+def test_mcp_server_registry_lists_only_safe_metadata(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    monkeypatch.setattr(api, "list_mcp_servers", lambda: {
+        "count": 1,
+        "servers": [{"id": "local_docs", "name": "Local Docs", "transport": "stdio",
+                     "configured": True, "credentials_configured": True}],
+    })
+    response = client.get("/api/v1/mcp/servers",
+                          headers={"Authorization": "Bearer test-token"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["count"] == 1
+    assert data["servers"][0]["id"] == "local_docs"
+    assert "command" not in data["servers"][0]
+    assert "env" not in data["servers"][0]
+
+
+def test_mcp_inspection_endpoint_never_executes_tool_calls(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    monkeypatch.setattr(api, "inspect_mcp_server", lambda server_id: {
+        "server_id": server_id, "tool_count": 1,
+        "tools": [{"server": server_id, "name": "search", "description": "Search",
+                   "input_schema": {"type": "object", "properties": {}},
+                   "source": "mcp-live-inspection"}],
+        "inspection_only": True, "tool_execution_performed": False,
+    })
+    response = client.post("/api/v1/mcp/servers/local_docs/inspect",
+                           headers={"Authorization": "Bearer test-token"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["tools"][0]["name"] == "search"
+    assert data["inspection_only"] is True
+    assert data["tool_execution_performed"] is False
+
+
+def test_mcp_inspection_unknown_server_returns_404(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+
+    def unknown(_server_id):
+        raise ValueError("Unknown MCP server id")
+
+    monkeypatch.setattr(api, "inspect_mcp_server", unknown)
+    response = client.post("/api/v1/mcp/servers/missing/inspect",
+                           headers={"Authorization": "Bearer test-token"})
+    assert response.status_code == 404
+
+
+def test_mcp_registry_rejects_duplicate_and_invalid_server_ids(monkeypatch):
+    from taas.studio.mcp_registry import MCPRegistryError, _load_config
+
+    monkeypatch.setenv("TAAS_MCP_SERVERS_JSON", '[{"id":"bad id","name":"X","command":"python"}]')
+    with pytest.raises(MCPRegistryError):
+        _load_config()
+    monkeypatch.setenv("TAAS_MCP_SERVERS_JSON", '[{"id":"ok","name":"X","command":"python"},{"id":"ok","name":"Y","command":"python"}]')
+    with pytest.raises(MCPRegistryError):
+        _load_config()
+
+
+def test_mcp_registry_never_accepts_inline_secret_values(monkeypatch):
+    from taas.studio.mcp_registry import MCPRegistryError, _load_config
+
+    monkeypatch.setenv("TAAS_MCP_SERVERS_JSON", '[{"id":"ok","name":"X","command":"python","env":{"API_KEY":"secret"}}]')
+    with pytest.raises(MCPRegistryError):
+        _load_config()
+
+
+def _valid_agent_manifest():
+    return {
+        "apiVersion": "taas.ai/v1alpha1",
+        "kind": "Agent",
+        "metadata": {
+            "id": "support-assistant",
+            "name": "Support Assistant",
+            "version": "1.0.0",
+            "description": "Draft support workflow agent",
+        },
+        "spec": {
+            "model": {"provider": "huggingface", "model_id": "Qwen/Qwen2.5-0.5B-Instruct"},
+            "instructions": "Help the operator summarize support requests.",
+            "tool_allowlist": [],
+            "resources": {"max_new_tokens": 512, "timeout_seconds": 90, "max_tool_calls": 0},
+            "approval": {
+                "require_human_approval": True,
+                "require_assurance": True,
+                "allow_side_effects": False,
+            },
+        },
+    }
+
+
+def test_agent_manifest_validation_is_authenticated_and_non_executing(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    payload = _valid_agent_manifest()
+    unauthorized = client.post("/api/v1/agents/validate", json=payload)
+    assert unauthorized.status_code == 401
+
+    response = client.post(
+        "/api/v1/agents/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json=payload,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["valid"] is True
+    assert data["manifest"]["metadata"]["id"] == "support-assistant"
+    assert data["lifecycle_state"] == "draft"
+    assert data["semantic_correctness_verified"] is False
+    assert data["tools_authorized"] is False
+    assert data["execution_enabled"] is False
+
+
+def test_agent_manifest_rejects_unknown_fields_and_invalid_model_ids(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    payload = _valid_agent_manifest()
+    payload["spec"]["model"]["model_id"] = "../untrusted-code"
+    payload["spec"]["unexpected"] = "must be rejected"
+    response = client.post(
+        "/api/v1/agents/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json=payload,
+    )
+    assert response.status_code == 422
+
+
+def test_agent_manifest_rejects_duplicate_tool_grants(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    payload = _valid_agent_manifest()
+    payload["spec"]["tool_allowlist"] = [
+        {"server_id": "docs", "tool_name": "search"},
+        {"server_id": "docs", "tool_name": "search"},
+    ]
+    payload["spec"]["resources"]["max_tool_calls"] = 2
+    response = client.post(
+        "/api/v1/agents/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json=payload,
+    )
+    assert response.status_code == 422
+
+
+def test_agent_manifest_requires_human_approval_for_side_effects(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    payload = _valid_agent_manifest()
+    payload["spec"]["approval"]["allow_side_effects"] = True
+    payload["spec"]["approval"]["require_human_approval"] = False
+    response = client.post(
+        "/api/v1/agents/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json=payload,
+    )
+    assert response.status_code == 422
+
+
+def test_agent_manifest_rejects_mutable_or_malformed_model_revision(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    payload = _valid_agent_manifest()
+    payload["spec"]["model"]["revision"] = "main"
+    response = client.post(
+        "/api/v1/agents/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json=payload,
+    )
+    assert response.status_code == 422
+
+
+def test_agent_manifest_requires_full_model_commit_sha(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    payload = _valid_agent_manifest()
+    payload["spec"]["model"]["revision"] = "1234567"
+    response = client.post(
+        "/api/v1/agents/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json=payload,
+    )
+    assert response.status_code == 422
+
+
+def _mcp_inspection_fixture():
+    return {
+        "server_id": "docs",
+        "server_name": "Documentation tools",
+        "server_info": {"name": "docs-server", "version": "1.2.0"},
+        "protocol_version": "2025-06-18",
+        "tool_count": 1,
+        "tools": [{
+            "server": "docs",
+            "name": "search",
+            "description": "Search documentation",
+            "input_schema": {
+                "type": "object",
+                "properties": {"query": {"type": "string"}},
+                "required": ["query"],
+            },
+            "output_schema": None,
+            "annotations": {"readOnlyHint": True},
+            "source": "mcp-live-inspection",
+            "category": "mcp",
+        }],
+        "inspection_only": True,
+        "tool_execution_performed": False,
+    }
+
+
+def test_mcp_registry_snapshot_is_read_only_content_addressed_and_retrievable(monkeypatch, tmp_path):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    monkeypatch.setenv("TAAS_AGENT_REGISTRY_PATH", str(tmp_path / "agents.sqlite3"))
+    monkeypatch.setattr(api, "list_mcp_servers", lambda: {
+        "count": 1,
+        "servers": [{"id": "docs", "name": "Documentation tools", "transport": "stdio"}],
+    })
+    monkeypatch.setattr(api, "inspect_mcp_server", lambda server_id: _mcp_inspection_fixture())
+    headers = {"Authorization": "Bearer test-token"}
+
+    first = client.post("/api/v1/mcp/registry/snapshots/inspect", headers=headers)
+    assert first.status_code == 200
+    snapshot = first.json()
+    assert len(snapshot["snapshot_id"]) == 64
+    assert snapshot["server_count"] == 1
+    assert snapshot["tool_count"] == 1
+    assert snapshot["snapshot"]["servers"][0]["inspection_only"] is True
+    assert snapshot["snapshot"]["servers"][0]["tool_execution_performed"] is False
+    tool = snapshot["snapshot"]["servers"][0]["tools"][0]
+    assert len(tool["definition_sha256"]) == 64
+
+    second = client.post("/api/v1/mcp/registry/snapshots/inspect", headers=headers)
+    assert second.status_code == 200
+    assert second.json()["snapshot_id"] == snapshot["snapshot_id"]
+
+    fetched = client.get(
+        f"/api/v1/mcp/registry/snapshots/{snapshot['snapshot_id']}",
+        headers=headers,
+    )
+    assert fetched.status_code == 200
+    assert fetched.json()["snapshot"] == snapshot["snapshot"]
+
+    listing = client.get("/api/v1/mcp/registry/snapshots", headers=headers)
+    assert listing.status_code == 200
+    assert listing.json()["count"] == 1
+
+
+def test_mcp_registry_snapshot_rejects_non_read_only_inspection(monkeypatch, tmp_path):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    monkeypatch.setenv("TAAS_AGENT_REGISTRY_PATH", str(tmp_path / "agents.sqlite3"))
+    monkeypatch.setattr(api, "list_mcp_servers", lambda: {
+        "count": 1,
+        "servers": [{"id": "docs", "name": "Documentation tools", "transport": "stdio"}],
+    })
+    unsafe = _mcp_inspection_fixture()
+    unsafe["tool_execution_performed"] = True
+    monkeypatch.setattr(api, "inspect_mcp_server", lambda server_id: unsafe)
+    headers = {"Authorization": "Bearer test-token"}
+
+    response = client.post("/api/v1/mcp/registry/snapshots/inspect", headers=headers)
+    assert response.status_code == 502
+    listing = client.get("/api/v1/mcp/registry/snapshots", headers=headers)
+    assert listing.json()["count"] == 0
+
+
+def test_agent_publish_requires_exact_mcp_snapshot_for_tool_grants(monkeypatch, tmp_path):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    monkeypatch.setenv("TAAS_AGENT_REGISTRY_PATH", str(tmp_path / "agents.sqlite3"))
+    monkeypatch.setattr(api, "list_mcp_servers", lambda: {
+        "count": 1,
+        "servers": [{"id": "docs", "name": "Documentation tools", "transport": "stdio"}],
+    })
+    monkeypatch.setattr(api, "inspect_mcp_server", lambda server_id: _mcp_inspection_fixture())
+    headers = {"Authorization": "Bearer test-token"}
+    payload = _valid_agent_manifest()
+    payload["spec"]["tool_allowlist"] = [{"server_id": "docs", "tool_name": "search"}]
+    payload["spec"]["resources"]["max_tool_calls"] = 1
+
+    created = client.post("/api/v1/agents", headers=headers, json=payload)
+    assert created.status_code == 201
+    path = "/api/v1/agents/support-assistant/versions/1.0.0"
+    assert client.post(path + "/validate", headers=headers).status_code == 200
+
+    missing_snapshot = client.post(path + "/publish", headers=headers)
+    assert missing_snapshot.status_code == 422
+
+    captured = client.post("/api/v1/mcp/registry/snapshots/inspect", headers=headers)
+    snapshot_id = captured.json()["snapshot_id"]
+    published = client.post(
+        path + "/publish",
+        headers=headers,
+        json={"registry_snapshot_id": snapshot_id},
+    )
+    assert published.status_code == 200
+    data = published.json()
+    assert data["lifecycle_state"] == "published"
+    assert data["registry_snapshot_id"] == snapshot_id
+    assert data["resolved_tool_grants"][0]["server_id"] == "docs"
+    assert data["resolved_tool_grants"][0]["tool_name"] == "search"
+    assert len(data["resolved_tool_grants"][0]["tool_definition_sha256"]) == 64
+    assert data["tools_authorized"] is False
+    assert data["execution_enabled"] is False
+
+
+def test_agent_publish_rejects_tool_grants_absent_from_snapshot(monkeypatch, tmp_path):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    monkeypatch.setenv("TAAS_AGENT_REGISTRY_PATH", str(tmp_path / "agents.sqlite3"))
+    monkeypatch.setattr(api, "list_mcp_servers", lambda: {
+        "count": 1,
+        "servers": [{"id": "docs", "name": "Documentation tools", "transport": "stdio"}],
+    })
+    monkeypatch.setattr(api, "inspect_mcp_server", lambda server_id: _mcp_inspection_fixture())
+    headers = {"Authorization": "Bearer test-token"}
+    payload = _valid_agent_manifest()
+    payload["spec"]["tool_allowlist"] = [{"server_id": "docs", "tool_name": "delete_all"}]
+    payload["spec"]["resources"]["max_tool_calls"] = 1
+
+    created = client.post("/api/v1/agents", headers=headers, json=payload)
+    assert created.status_code == 201
+    path = "/api/v1/agents/support-assistant/versions/1.0.0"
+    assert client.post(path + "/validate", headers=headers).status_code == 200
+    snapshot = client.post("/api/v1/mcp/registry/snapshots/inspect", headers=headers).json()
+
+    rejected = client.post(
+        path + "/publish",
+        headers=headers,
+        json={"registry_snapshot_id": snapshot["snapshot_id"]},
+    )
+    assert rejected.status_code == 409
+    current = client.get(path, headers=headers).json()
+    assert current["lifecycle_state"] == "validated"
+    assert current["registry_snapshot_id"] is None
+
+
+def test_agent_registry_snapshot_binding_is_one_time_and_audited(monkeypatch, tmp_path):
+    from taas.studio import agent_registry
+
+    monkeypatch.setenv("TAAS_AGENT_REGISTRY_PATH", str(tmp_path / "agents.sqlite3"))
+    manifest = _valid_agent_manifest()
+    created = agent_registry.create_draft(manifest)
+    snapshot = agent_registry.store_mcp_snapshot({
+        "schema_version": "taas.mcp.registry/v1",
+        "capture_mode": "test",
+        "servers": [],
+    })
+    validated = agent_registry.transition("support-assistant", "1.0.0", "validated")
+    published = agent_registry.transition(
+        "support-assistant", "1.0.0", "published",
+        registry_snapshot_id=snapshot["snapshot_id"],
+    )
+    assert published["registry_snapshot_id"] == snapshot["snapshot_id"]
+    events = agent_registry.list_events("support-assistant")["events"]
+    assert events[0]["registry_snapshot_id"] == snapshot["snapshot_id"]
+
+
+def test_ollama_provider_load_chat_and_status(monkeypatch):
+    from taas.studio.ollama_runtime import OllamaModelRuntime
+
+    monkeypatch.setenv("TAAS_OLLAMA_BASE_URL", "http://127.0.0.1:11434")
+    runtime = OllamaModelRuntime()
+    calls = []
+
+    def fake_request(path, payload=None, timeout=30):
+        calls.append((path, payload))
+        if path == "/api/show":
+            return {"modelfile": "FROM qwen2.5"}
+        if path == "/api/tags":
+            return {"models": [{"name": "qwen2.5:0.5b", "size": 123}]}
+        if path == "/api/chat":
+            return {"message": {"content": "hello"}, "prompt_eval_count": 4, "eval_count": 2}
+        raise AssertionError(path)
+
+    monkeypatch.setattr(runtime, "_request", fake_request)
+    selected = runtime.load("qwen2.5:0.5b")
+    assert selected["model_selected"] == "qwen2.5:0.5b"
+    assert selected["load_semantics"].startswith("validated")
+    assert selected["available"] is True
+    result = runtime.chat("hi")
+    assert result["text"] == "hello"
+    assert result["provider"] == "ollama"
+    assert result["device"] == "managed-by-ollama"
+    assert calls[0][0] == "/api/show"
+    assert calls[-1][0] == "/api/chat"
+
+
+def test_ollama_provider_rejects_invalid_model_tag():
+    from taas.studio.ollama_runtime import OllamaModelRuntime
+
+    with pytest.raises(ValueError):
+        OllamaModelRuntime().load("../unsafe model")
+
+
+def test_ollama_provider_rejects_embedded_credentials_in_endpoint(monkeypatch):
+    from taas.studio.ollama_runtime import OllamaModelRuntime, ModelRuntimeError
+
+    monkeypatch.setenv("TAAS_OLLAMA_BASE_URL", "http://user:pass@example.test:11434")
+    status = OllamaModelRuntime().status()
+    assert status["available"] is False
+    assert "without embedded credentials" in status["last_error"]
+
+
+def test_model_load_endpoint_routes_to_ollama_provider(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+
+    class Ollama:
+        def load(self, model_id):
+            return {"provider": "ollama", "model_selected": model_id}
+
+    monkeypatch.setattr(api, "get_ollama_runtime", lambda: Ollama())
+    response = client.post("/api/v1/models/load",
+                           headers={"Authorization": "Bearer test-token"},
+                           json={"provider": "ollama", "model_id": "qwen2.5:0.5b"})
+    assert response.status_code == 200
+    assert response.json()["provider"] == "ollama"
+
+
+def test_model_chat_endpoint_routes_to_ollama_provider(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+
+    class Ollama:
+        def chat(self, message, system, max_new_tokens, temperature):
+            return {"provider": "ollama", "text": "response", "device": "managed-by-ollama"}
+
+    monkeypatch.setattr(api, "get_ollama_runtime", lambda: Ollama())
+    response = client.post("/api/v1/models/chat",
+                           headers={"Authorization": "Bearer test-token"},
+                           json={"provider": "ollama", "message": "hello"})
+    assert response.status_code == 200
+    assert response.json()["provider"] == "ollama"
+    assert response.json()["text"] == "response"
+
+def test_ollama_load_rejects_huggingface_device_selection(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.post("/api/v1/models/load",
+                           headers={"Authorization": "Bearer test-token"},
+                           json={"provider": "ollama", "model_id": "qwen2.5:0.5b", "device": "cpu"})
+    assert response.status_code == 422
+    assert "Ollama manages device placement" in response.json()["detail"]
+
+
+def test_canonical_objective_prepare_endpoint_runs_goal_decomposition_and_core_analysis(monkeypatch):
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    goal_spec = {
+        "prompt": "Explain precision and recall",
+        "prompt_inputs": ["text"],
+        "goals": [{
+            "id": "g1", "class": "answer", "in": ["text"], "out": "text",
+            "eff": [], "sigma": "native", "desc": "Explain precision and recall",
+            "deps": [], "n": 1, "exactness": "tolerant", "lang": "en", "optional": False,
+        }],
+    }
+
+    class Runtime:
+        def decompose(self, prompt, context, max_new_tokens):
+            assert "TaaS Core Objective Contract v2" in context
+            return {"text": "{}", "goal_spec": goal_spec, "json_valid": True,
+                    "model_id": "test/model", "semantic_correctness_verified": False}
+
+    monkeypatch.setattr(api, "get_model_runtime", lambda: Runtime())
+    response = client.post("/api/v1/objectives/prepare",
+                           headers={"Authorization": "Bearer test-token"},
+                           json={"prompt": "Explain precision and recall"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["structural_validation"]["valid"] is True
+    assert data["core_analysis"]["status"] != "not_analyzed"
+    assert data["core_analysis"]["goal_order"] == ["g1"]
+    assert data["conformance"]["semantic_correctness_verified"] is False
+    assert data["conformance"]["auto_applied"] is False
+    assert data["objective_contract"]["contract_version"] == "2.0"
+    assert data["objective_coverage"]["summary"] == {"required": 1, "covered": 1, "missing": 0}
+    assert data["semantic_review_required"] is True
+    assert data["workflow"]["objective_interpretation"] == "completed"
+    assert data["workflow"]["tool_discovery"] == "awaiting_human_review_and_selected_tool_metadata"
+    assert data["workflow"]["tool_execution"] == "disabled"
+
+
+def test_canonical_objective_prepare_endpoint_requires_studio_authentication():
+    response = client.post("/api/v1/objectives/prepare",
+                           json={"prompt": "Explain precision and recall"})
+    assert response.status_code == 503 or response.status_code == 401
+
+
+def test_studio_frontend_routes_operational_objectives_through_core_first_workflow():
+    response = client.get("/")
+    assert response.status_code == 200
+    page = response.text
+    assert "Objective Engineering · TaaS Core" in page
+    assert "Free-form inference only" in page
+    assert 'id="agent-route-prompt-core"' in page
+    assert "Prepare this prompt with TaaS Core" in page
+    assert 'id="goal-semantic-review"' in page
+    assert "human_review_confirmed" in page
+    assert '$("goal-add").addEventListener("click",invalidateHumanReview)' in page
+    assert 'runtimePost("/api/v1/objectives/prepare"' in page
+    assert 'id="agent-outcome-coverage"' in page
+    assert "renderObjectiveCoverage(result.objective_coverage)" in page
+    assert "Coverage shows structural mapping only" in page
+    assert "const missingOutcomes=" in page
+    assert "!missingOutcomes" in page
+
+
+def test_canonical_objective_discover_endpoint_runs_existing_core_discovery(monkeypatch):
+    from types import SimpleNamespace
+    from taas.studio import api
+
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+
+    class FakeEngine:
+        def __init__(self, contracts, profile, trust, cfg):
+            self.H = object()
+            self.composer = SimpleNamespace(model_edges=lambda goals: [])
+
+        def discover(self, spec, policy):
+            return SimpleNamespace(
+                spec=spec, gap=SimpleNamespace(gap=[], rho=0.0),
+                compose=SimpleNamespace(reachability=None, candidates=[], regime="exact", stats={}),
+                certificate=None, counterexample=None, toolkit=None, time_s=0.01, abstained=True,
+            )
+
+    monkeypatch.setattr(api, "DiscoveryEngine", FakeEngine)
+    response = client.post("/api/v1/objectives/discover",
+        headers={"Authorization": "Bearer test-token"},
+        json={
+            "goal_spec": {
+                "prompt": "List customer orders", "prompt_inputs": ["text"],
+                "goals": [{"id": "g1", "class": "retrieve", "in": ["query"],
+                           "out": "record[]", "eff": ["read(orders)"], "sigma": "data",
+                           "deps": [], "desc": "List customer orders"}],
+            },
+            "human_review_confirmed": True,
+            "tools": [{"server": "orders", "name": "list_orders",
+                       "input_schema": {"type": "object", "properties": {}}}],
+        })
+    assert response.status_code == 200
+    assert response.json()["status"] == "abstained"
+    assert response.json()["execution_performed"] is False
+
+
+def test_studio_pipeline_ui_orders_core_before_tool_discovery():
+    page = client.get("/").text
+    labels = [
+        "Objective intelligence", "GoalSpec decomposition", "Core validation",
+        "Tool intelligence", "Discovery &amp; hypergraph", "Assurance &amp; decision",
+        "Governed execution",
+    ]
+    pipeline_start = page.index('class="pipeline-steps"')
+    positions = [page.index(label, pipeline_start) for label in labels]
+    assert positions == sorted(positions)
+    assert 'fetch("/api/v1/objectives/discover"' in page
+
+
+def test_core_discovery_requires_explicit_human_review(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    response = client.post(
+        "/api/v1/objectives/discover",
+        headers={"Authorization": "Bearer test-token"},
+        json={"goal_spec": {}, "tools": [{"server": "s", "name": "t"}]},
+    )
+    assert response.status_code == 409
+    assert "Human review is required" in response.json()["detail"]
+
+
+def test_discovery_revalidates_objective_conformance_before_core_engine(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+
+    def must_not_run(*args, **kwargs):
+        raise AssertionError("DiscoveryEngine must not run for a nonconformant GoalSpec")
+
+    from taas.studio import api
+    monkeypatch.setattr(api, "DiscoveryEngine", must_not_run)
+    response = client.post(
+        "/api/v1/objectives/discover",
+        headers={"Authorization": "Bearer test-token"},
+        json={
+            "human_review_confirmed": True,
+            "goal_spec": {
+                "prompt": "Count all invoices issued this year.",
+                "prompt_inputs": ["text"],
+                "goals": [{
+                    "id": "g1", "class": "retrieve", "in": ["query"],
+                    "out": "record[]", "eff": ["read(*)"], "sigma": "data",
+                    "deps": [], "desc": "Retrieve all invoices issued this year",
+                }],
+            },
+            "tools": [{"server": "invoice_source", "name": "list_invoices",
+                       "input_schema": {"type": "object", "properties": {}}}],
+        },
+    )
+    assert response.status_code == 422
+    detail = response.json()["detail"]
+    assert "conformance rejected" in detail["message"]
+    assert any(item["code"] == "objective_operation_missing"
+               for item in detail["diagnostics"])

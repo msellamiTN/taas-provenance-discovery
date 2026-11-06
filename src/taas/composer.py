@@ -56,6 +56,8 @@ class ComposeResult:
     candidates: list[str] = field(default_factory=list)
     regime: str = ""
     stats: dict = field(default_factory=dict)
+    # Authoritative final reachability used for certification; absent on abstention.
+    reachability: ReachResult | None = None
 
 
 def eligible_set(index: BitmapIndex, policy: Policy) -> list[str]:
@@ -234,7 +236,7 @@ class Composer:
                        cost=cost.total(K), util=utility(self.H, K, rr, goals), multimodal=cfg.multimodal,
                        conservative_flow=cfg.conservative_flow, n_bridge=cfg.n_bridge,
                        uncertain=cfg.uncertain_ok)
-        return ComposeResult(sorted(K), cert, None, T, regime, stats)
+        return ComposeResult(sorted(K), cert, None, T, regime, stats, rr)
 
     def _branch_and_bound(self, T, gap, goals, X, policy, medges, cost):
         """Lines 19–38: best-first search on Σ cost; first sufficient minimal state is optimal."""

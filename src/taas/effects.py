@@ -108,7 +108,9 @@ _LEX = [
     ("delete", re.compile(_W + r"(delete|remove|rm|drop|destroy|purge|unlink|erase|clear|kill|uninstall|revoke)", re.I)),
     ("money", re.compile(_W + r"(pay|payment|charge|refund|invoice|purchase|buy|order|checkout|transfer|subscription|payout)", re.I)),
     ("exec", re.compile(_W + r"(exec|execute|run|eval|shell|command|script|terminal|spawn|process|docker|start_process|interact)", re.I)),
-    ("write", re.compile(_W + r"(write|create|add|insert|update|edit|modify|set|save|put|post|upload|append|move|rename|copy|mkdir|make|generate_file|commit|push|merge|install|replace|format_|apply|fill|type|click|navigate|press|drag|select|hover|close|new|convert|export|record)", re.I)),
+    # "record" is a write verb only as a complete token. In particular, the noun
+    # "records" in lookup_records / "return records" must not imply a state change.
+    ("write", re.compile(_W + r"(write|create|add|insert|update|edit|modify|set|save|put|post|upload|append|move|rename|copy|mkdir|make|generate_file|commit|push|merge|install|replace|format_|apply|fill|type|click|navigate|press|drag|select|hover|close|new|convert|export|record(?![a-z]))", re.I)),
     ("egress", re.compile(_W + r"(send|email|mail|post|publish|share|notify|tweet|message|fetch|http|request|download|search|browse|navigate|web|url|api)", re.I)),
 ]
 

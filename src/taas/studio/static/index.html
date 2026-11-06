@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>TaaS Core Studio</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2310213d%22/%3E%3Cpath d=%22M16 48V16h8l8 13 8-13h8v32h-8V29l-8 12-8-12v19z%22 fill=%22white%22/%3E%3C/svg%3E">
+  <title>TaaS Studio — Tool Intelligence Platform</title>
   <style>
     :root { color-scheme: light; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
     body { margin: 0; background: #f4f6fa; color: #172033; }
@@ -142,38 +143,341 @@
     .studio-content { min-width:0; }
     @media(max-width:900px) { .studio-layout { grid-template-columns:1fr; gap:12px; } .studio-nav { position:static; display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; } .nav-brand { width:100%; } .nav-label,.nav-foot { display:none; } .studio-nav a { padding:8px 9px; } }
     @media(max-width:560px) { .studio-nav { gap:2px; } .studio-nav a { font-size:11px; padding:7px; } }
-  </style>
+
+    .studio-content > [hidden] { display:none !important; }
+    .studio-content > section, .studio-content > .grid, .studio-content > .hero { scroll-margin-top:18px; }
+    .studio-nav a { transition:background .12s ease,color .12s ease; }
+    .studio-nav a[aria-current="page"] { color:#214fb4; background:var(--blue-soft); box-shadow:inset 2px 0 #315fce; }
+    @media(prefers-reduced-motion:reduce) { .studio-nav a { transition:none; } }
+    .runtime-overview { margin:0 0 18px; }
+    .runtime-overview-head { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+    .runtime-overview-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-top:12px; }
+    .runtime-overview .metric { min-width:0; }
+    .runtime-overview .metric strong { overflow-wrap:anywhere; font-size:18px; }
+    .runtime-meta { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:10px; }
+    .runtime-state { font-size:11px; font-weight:750; color:#66758b; }
+    .runtime-state.ok { color:#176b49; } .runtime-state.error { color:#a13f2e; }
+    .runtime-overview button { margin:0; }
+    @media(max-width:720px) { .runtime-overview-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+
+/* Professional TaaS Studio visual system */
+:root{--ink:#17243a;--muted:#68778d;--line:#e3e8f0;--surface:#fff;--canvas:#f6f8fb;--navy:#111f36;--blue:#365fce;--blue-strong:#284eae;--blue-soft:#edf2ff;--radius:12px;--shadow:0 1px 2px rgba(20,35,58,.04),0 8px 24px rgba(20,35,58,.045);--focus:0 0 0 3px rgba(54,95,206,.18)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{background:var(--canvas);color:var(--ink);font-size:13px;line-height:1.55}
+header{min-height:66px;padding:12px max(28px,calc((100vw - 1480px)/2));background:var(--navy);border:0}
+header h1{font-size:18px;font-weight:750;letter-spacing:-.45px;margin:0}header p{color:#aebbd0;font-size:11px}
+main{max-width:1480px;padding:0 28px 64px;margin:24px auto}
+.studio-layout{grid-template-columns:224px minmax(0,1fr);gap:24px}
+.studio-nav{top:18px;padding:13px 10px;gap:3px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);min-height:calc(100vh - 112px)}
+.nav-brand{padding:8px 8px 16px;margin-bottom:10px}.nav-mark{width:36px;height:36px;border-radius:11px;background:linear-gradient(145deg,#426bd6,#24458f)}
+.nav-brand strong{font-size:13px}.nav-label{margin:15px 10px 5px;color:#8995a8;font-size:9px;letter-spacing:1.15px}
+.studio-nav a{display:flex;align-items:center;min-height:36px;padding:8px 10px;border-radius:8px;color:#52627a;font-size:12px;font-weight:570;transition:background .14s,color .14s}
+.studio-nav a:hover{color:var(--blue-strong);background:#f4f6fb}.studio-nav a[aria-current="page"]{color:var(--blue-strong);background:var(--blue-soft);box-shadow:inset 2px 0 var(--blue);font-weight:700}
+.nav-foot{margin-top:auto;padding:14px 9px 5px;color:#52627a}.nav-status-dot{background:#c18b32;box-shadow:0 0 0 3px #fbf4e7}
+.studio-content{min-width:0}section{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow);padding:22px}
+.hero{align-items:center;padding:7px 2px 13px;margin-bottom:14px}.hero h2{margin:6px 0 7px;font-size:25px;font-weight:740;letter-spacing:-.8px;line-height:1.2;color:#17243a}
+.hero p{max-width:760px;font-size:13px;color:#65748a;line-height:1.65}.eyebrow{color:#5572b8;font-size:9px;font-weight:800;letter-spacing:1.15px}
+h2{color:#1c2a40;font-size:16px;font-weight:720;letter-spacing:-.25px}.panel-head{margin-bottom:14px}
+.pill{padding:5px 9px;border-color:#e2e7ef;color:#5b6a80;font-size:10px}.count{background:#eef2fb;color:#3f5fa8}
+.notice{margin:0 0 20px;padding:11px 14px;border:1px solid #eadcb9;border-left:3px solid #c18b32;border-radius:9px;background:#fffaf0;color:#715522;font-size:11px;line-height:1.5}
+input,textarea,select{width:100%;min-height:38px;padding:9px 11px;border:1px solid #d7deea;border-radius:8px;background:#fff;color:#1b2a40;font:12px Inter,ui-sans-serif,system-ui,sans-serif;transition:border-color .14s,box-shadow .14s}
+input:hover,textarea:hover,select:hover{border-color:#b9c5d8}input:focus,textarea:focus,select:focus{outline:0;border-color:#6d8ce0;box-shadow:var(--focus)}
+button{min-height:36px;margin-top:0;padding:8px 13px;border:1px solid var(--blue);border-radius:8px;background:var(--blue);color:#fff;font-size:12px;font-weight:680;box-shadow:0 1px 2px rgba(34,67,145,.12);transition:background .14s,border-color .14s}
+button:hover:not(:disabled){filter:none;background:var(--blue-strong);border-color:var(--blue-strong)}button:focus-visible{outline:0;box-shadow:var(--focus)}button:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
+button.secondary{color:#3559ad;background:#f4f6fc;border-color:#dfe6f5;box-shadow:none}button.secondary:hover:not(:disabled){background:#eaf0ff;border-color:#cbd8f5}
+.inline-actions{gap:9px;margin-top:13px}.workspace-grid{gap:16px}.workspace-grid>section{border-radius:10px}
+.listbox{border-color:#e5eaf1;border-radius:10px}.list-item{padding:12px 13px}.list-item strong{font-size:12px;color:#27364c}
+.metric{background:#f7f9fc;border:1px solid #edf0f5;border-radius:9px;padding:12px}.metric strong{font-size:18px;font-weight:720;letter-spacing:-.35px}
+.runtime-overview{padding:19px 21px}.runtime-overview-grid{gap:9px}.runtime-meta{gap:8px}
+pre{border-radius:9px;font:11px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace}
+.goal-editor{background:#f8faff;border-color:#e3e9f4;border-radius:10px}.goal-card,.certificate-panel{border-color:#e5eaf1;border-radius:10px}
+.goal-validation{border:1px solid #e5eaf1}.workspace-foot{background:#f8fafd;border-color:#e6ebf2;border-radius:10px}
+a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;outline-offset:3px;border-radius:4px}
+@media(max-width:900px){main{padding:0 18px 44px;margin:16px auto}.studio-layout{gap:13px}.studio-nav{min-height:0;box-shadow:none}.nav-brand{padding-bottom:11px}}
+@media(max-width:560px){header{padding:13px 16px}main{padding:0 12px 36px}section{padding:16px}.hero h2{font-size:22px}.runtime-overview-grid,.certificate-checks{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+
+
+/* Workspace-level composition */
+.studio-content>section.section-anchor{min-height:calc(100vh - 150px)}
+.studio-content>section.section-anchor>.panel-head{padding-bottom:15px;border-bottom:1px solid var(--line)}
+.studio-content>section.section-anchor>.panel-head h2{font-size:23px;letter-spacing:-.6px}
+#agent-studio>.grid{grid-template-columns:minmax(0,1fr)!important;gap:16px!important}
+#model-runtime-panel,#agent-chat-panel,#agent-goal-panel{padding:22px!important;border:1px solid var(--line)!important;border-radius:12px!important;background:#fff!important;box-shadow:var(--shadow)!important}
+#model-runtime-panel h2,#agent-chat-panel h2,#agent-goal-panel h2{font-size:18px;margin:0 0 14px}
+#runtime-model-details,#agent-chat-result,#agent-decompose-result{max-height:420px;min-height:180px}
+#runtime-model-status,#agent-chat-status,#agent-decompose-status{padding:10px 12px;background:#f5f7fb;border:1px solid var(--line);border-radius:8px}
+#runtime-model-id,#agent-system,#agent-message,#agent-goal-prompt{max-width:900px}
+#agent-chat-panel textarea,#agent-goal-panel textarea{font-family:Inter,ui-sans-serif,system-ui,sans-serif}
+#models,#models+section{padding:22px}
+#models h2{font-size:20px}
+.studio-nav a[aria-current=page]{font-weight:750}
+@media(min-width:1100px){#model-runtime-panel,#agent-chat-panel,#agent-goal-panel{max-width:1100px}}
+
+
+.model-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:11px;margin:14px 0}
+.model-card{display:flex;flex-direction:column;gap:9px;padding:14px;border:1px solid var(--line);border-radius:11px;background:#fff;min-width:0}
+.model-card h3{font-size:13px;line-height:1.4;overflow-wrap:anywhere;margin:0}
+.model-card .model-meta{display:flex;flex-wrap:wrap;gap:5px}
+.model-card .model-meta span{font-size:10px;color:#52627a;background:#f3f6fa;border-radius:5px;padding:4px 6px}
+.model-card p{font-size:11px;color:var(--muted);margin:0}
+.model-card button{align-self:flex-start;margin-top:auto}
+.model-selected-panel{margin-top:16px;border:1px solid #cfdaee;border-radius:12px;background:#fbfcff;padding:18px}
+.model-selected-panel[hidden]{display:none}
+.model-selected-panel h3{font-size:17px;margin:4px 0}
+.model-actions{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
+.model-detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin:12px 0}
+.model-detail-item{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px;min-width:0}
+.model-detail-item small{display:block;color:var(--muted);font-size:10px}
+.model-detail-item strong{display:block;margin-top:4px;font-size:12px;overflow-wrap:anywhere}
+.model-preflight{display:grid;grid-template-columns:minmax(150px,1fr) 130px 130px auto;gap:10px;align-items:end;margin:16px 0;padding:14px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.model-preflight h4{margin:0 0 4px;font-size:13px}.model-preflight p{margin:0}
+.model-preflight label{margin:0;font-size:11px}
+.model-preflight button{margin:0}
+.model-preflight pre{grid-column:1/-1;min-height:70px}
+@media(max-width:720px){.model-preflight{grid-template-columns:1fr 1fr}.model-preflight>div:first-child,.model-preflight pre{grid-column:1/-1}}
+
+
+.taas-pipeline{margin:0 0 18px;padding:17px 18px}
+.pipeline-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:13px}
+.pipeline-heading h2{margin:4px 0 0;font-size:16px}
+.pipeline-steps{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.pipeline-step{display:flex;flex-direction:column;gap:5px;min-width:0;padding:11px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);text-decoration:none;transition:border-color .12s,background .12s}
+.pipeline-step:hover{border-color:#b9c9ed;background:#f8faff}
+.pipeline-step:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.pipeline-index{color:#5572b8;font-size:9px;font-weight:800;letter-spacing:.8px}
+.pipeline-step strong{font-size:11px}
+.pipeline-step small{font-size:10px;color:var(--muted);line-height:1.4}
+.pipeline-disabled{background:#f7f8fa;border-style:dashed;color:#778397}
+.pipeline-disabled .pipeline-index{color:#9aa4b3}
+@media(max-width:1100px){.pipeline-steps{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){.pipeline-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.taas-pipeline{padding:14px}}
+
+ 
+    .studio-header{display:flex;align-items:center;justify-content:space-between;gap:22px}
+    .studio-header-brand{min-width:220px}.studio-header-brand p{margin:3px 0 0}
+    .studio-auth{display:flex;align-items:center;gap:8px;min-width:0;padding:9px 10px;border:1px solid rgba(210,222,242,.2);border-radius:11px;background:rgba(255,255,255,.055)}
+    .studio-auth-copy{display:flex;flex-direction:column;gap:2px;min-width:145px}
+    .studio-auth-copy strong{font-size:11px;color:#f4f7fc}
+    .studio-auth-copy span{font-size:9px;color:#aebbd0;max-width:190px;line-height:1.35}
+    .studio-auth input{width:220px;min-width:120px;min-height:34px;padding:7px 9px;border-color:#40516d;background:#0c172b;color:#f4f7fc;font:11px ui-monospace,monospace}
+    .studio-auth input::placeholder{color:#8998b0}
+    .studio-auth button{min-height:34px;margin:0;padding:7px 10px;font-size:10px;white-space:nowrap}
+    .studio-auth button.secondary{color:#e0e9fb;background:#263955;border-color:#40516d}
+    .studio-auth button:disabled{opacity:.45}
+    .studio-auth.connected{border-color:rgba(78,190,143,.5);background:rgba(22,132,91,.13)}
+    .studio-auth.connected .studio-auth-copy span{color:#9de0c2}
+    .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    @media(max-width:900px){.studio-header{align-items:stretch;flex-direction:column}.studio-auth{flex-wrap:wrap}.studio-auth-copy{flex:1 1 100%}.studio-auth input{flex:1 1 190px;width:auto}}
+    @media(max-width:520px){.studio-auth{align-items:stretch}.studio-auth input{flex:1 1 100%}.studio-auth button{flex:1}}
+
+
+    /* UX-2: make capability boundaries and navigation legible at a glance */
+    .notice[role="note"]{border-color:#d8e1ef;background:#f7f9fc;color:#43536b;line-height:1.55}
+    .notice[role="note"] strong{color:#243754}
+    .studio-nav .nav-label{margin-top:16px;padding-top:10px;border-top:1px solid #edf0f5}
+    .studio-nav .nav-label:first-of-type{margin-top:4px;padding-top:0;border-top:0}
+    .studio-nav a{transition:background .15s ease,color .15s ease}
+    .studio-nav a:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+    .studio-nav .nav-foot{margin-top:20px}
+    @media(min-width:901px){main{max-width:1500px}.studio-layout{grid-template-columns:224px minmax(0,1fr);gap:24px}.studio-nav{max-height:calc(100vh - 32px);overflow-y:auto}}
+    @media(max-width:900px){.studio-nav .nav-label{display:none}}
+  
+    /* Hypergraph Explorer — server projection viewer */
+    .hg-shell{margin-top:14px;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+    .hg-toolbar{display:flex;gap:9px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid var(--line)}
+    .hg-toolbar .field{margin:0;min-width:190px;flex:1}
+    .hg-toolbar input{font:12px Inter,system-ui,sans-serif;padding:8px 10px}
+    .hg-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(250px,.85fr);min-height:390px}
+    .hg-canvas-wrap{min-width:0;padding:12px;background:#f8faff;overflow:auto}
+    .hg-canvas{display:block;width:100%;min-width:620px;height:auto;min-height:260px}
+    .hg-inspector{border-left:1px solid var(--line);padding:15px;min-width:0}
+    .hg-inspector h3{font-size:13px;margin:0 0 10px}
+    .hg-inspector dl{display:grid;grid-template-columns:92px minmax(0,1fr);gap:7px 9px;font-size:11px;margin:0}
+    .hg-inspector dt{color:var(--muted)}.hg-inspector dd{margin:0;overflow-wrap:anywhere;font-weight:600}
+    .hg-legend{display:flex;gap:12px;flex-wrap:wrap;padding:9px 14px;border-top:1px solid var(--line);color:var(--muted);font-size:10px}
+    .hg-key{display:inline-flex;gap:5px;align-items:center}.hg-swatch{width:9px;height:9px;border-radius:3px;background:#315fce}.hg-swatch.type{background:#dbe7ff;border:1px solid #7797db}.hg-swatch.model{background:#e9ddff;border:1px solid #9c7bd0}.hg-swatch.bridge{background:#ffedcc;border:1px solid #c18a32}
+    .hg-entity{cursor:pointer;outline:none}.hg-entity:focus .hg-node,.hg-entity.selected .hg-node{stroke:#163f9b;stroke-width:3}
+    .hg-node{fill:#fff;stroke:#b9c8df;stroke-width:1.4}.hg-edge-tool{fill:#eaf1ff;stroke:#7e9bda}.hg-edge-model{fill:#f3edff;stroke:#a68bcf}.hg-edge-bridge{fill:#fff4df;stroke:#c69a4c}
+    .hg-link{stroke:#a8b8ce;stroke-width:1.5;fill:none}.hg-label{font:11px Inter,system-ui,sans-serif;fill:#243653}.hg-sub{font:9px Inter,system-ui,sans-serif;fill:#66758b}
+    .hg-entity-list{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}.hg-entity-list button{margin:0;padding:6px 9px;font-size:10px}
+    .hg-empty{padding:28px 18px;text-align:center;color:var(--muted);font-size:12px}
+    .hg-meta{font-size:10px;color:var(--muted)}.hg-status{padding:10px 14px;font-size:11px;color:var(--muted);background:#fbfcfe;border-top:1px solid var(--line)}
+    .hg-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.hg-actions button{margin:0;white-space:nowrap}.hg-actions .secondary{background:#fff}
+    @media(max-width:850px){.hg-layout{grid-template-columns:1fr}.hg-inspector{border-left:0;border-top:1px solid var(--line)}}
+
+
+/* Compact, readable navigation on tablet and mobile. */
+@media(max-width:900px){.studio-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:4px}.studio-nav .nav-brand{grid-column:1/-1;width:auto}.studio-nav a{min-width:0;overflow-wrap:anywhere;line-height:1.35}}
+@media(max-width:560px){.studio-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;padding:9px}.studio-nav a{min-height:36px;padding:7px 8px;font-size:11px}}
+
+  /* F01 — API-backed platform overview */
+.platform-overview{margin:0 0 18px;padding:21px}
+.platform-overview-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.platform-overview-heading h2{font-size:20px;margin:4px 0}
+.platform-overview-heading p{max-width:760px;margin:4px 0}
+.platform-overview-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.platform-overview-actions button{margin:0}
+.platform-overview-status{margin:13px 0 10px;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:#f8fafd;color:var(--muted);font-size:11px}
+.platform-overview-status.ok{border-color:#cde7d8;background:#f0f8f3;color:#176b49}
+.platform-overview-status.partial{border-color:#eadcb9;background:#fffaf0;color:#715522}
+.platform-overview-status.error{border-color:#f0d0ca;background:#fff4f1;color:#9a3c2b}
+.platform-overview-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:12px 0}
+.platform-metric{min-width:0;padding:13px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.platform-metric span{display:block;color:var(--muted);font-size:10px;font-weight:650}
+.platform-metric strong{display:block;margin:5px 0 2px;font-size:24px;line-height:1.2;letter-spacing:-.5px;overflow-wrap:anywhere}
+.platform-metric small{display:block;color:var(--muted);font-size:9px;line-height:1.4}
+.platform-overview-recent{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:13px}
+.platform-recent-panel{min-width:0;padding:14px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.platform-recent-panel .panel-head{margin-bottom:9px}
+.platform-recent-panel .panel-head h3{margin:0;font-size:12px}
+.platform-recent-list{display:grid;gap:7px}
+.platform-recent-item{display:flex;justify-content:space-between;gap:10px;padding:9px 10px;border:1px solid #edf0f5;border-radius:8px;background:#fbfcfe}
+.platform-recent-item strong{display:block;font-size:11px;overflow-wrap:anywhere}
+.platform-recent-item small{display:block;margin-top:3px;color:var(--muted);font-size:9px;overflow-wrap:anywhere}
+.platform-lifecycle{flex:0 0 auto;align-self:center;padding:4px 7px;border:1px solid var(--line);border-radius:99px;color:#52627a;background:#fff;font-size:9px;font-weight:700}
+.platform-overview-footnote{margin:12px 2px 0;color:var(--muted);font-size:10px;line-height:1.5}
+@media(max-width:1050px){.platform-overview-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:700px){.platform-overview-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.platform-overview-recent{grid-template-columns:1fr}.platform-overview-actions{width:100%;justify-content:space-between}}
+@media(max-width:420px){.platform-overview-metrics{grid-template-columns:1fr 1fr}.platform-metric{padding:10px}.platform-metric strong{font-size:20px}}
+
+.outcome-coverage{margin:12px 0;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface,#fff)}
+  .outcome-coverage-summary{font-size:13px;font-weight:650;margin-bottom:9px;color:var(--text)}
+  .outcome-coverage-table{width:100%;border-collapse:collapse;font-size:12px}
+  .outcome-coverage-table th,.outcome-coverage-table td{text-align:left;padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  .outcome-coverage-table th{color:var(--muted);font-weight:600}
+  .outcome-status{display:inline-block;padding:3px 7px;border-radius:999px;font-size:11px;font-weight:650;white-space:nowrap}
+  .outcome-status.covered{background:#e8f5ee;color:#17633c}
+  .outcome-status.missing{background:#fff1e8;color:#99420b}
+  .outcome-coverage-note{margin:9px 0 0;color:var(--muted);font-size:11px;line-height:1.45}
+
+/* UX-3 — keyboard-accessible Studio command palette */
+.command-palette-trigger{margin:0 0 0 14px;min-height:34px;padding:7px 11px;background:#263955;border-color:#40516d;color:#e8effb;font-size:10px;white-space:nowrap}
+.command-palette-trigger:hover:not(:disabled){background:#344a6c;border-color:#526b91}
+.command-palette{width:min(620px,calc(100vw - 28px));max-width:none;max-height:min(72vh,680px);padding:0;border:1px solid #dce3ee;border-radius:14px;background:#fff;color:var(--ink);box-shadow:0 24px 80px rgba(12,25,48,.28)}
+.command-palette::backdrop{background:rgba(12,25,48,.48);backdrop-filter:blur(2px)}
+.command-palette-head{padding:15px;border-bottom:1px solid var(--line)}
+.command-palette-head strong{display:block;font-size:13px;margin-bottom:8px}
+.command-palette-head input{font:13px Inter,system-ui,sans-serif}
+.command-palette-results{padding:8px;max-height:calc(72vh - 110px);overflow:auto}
+.command-palette-item{display:flex;width:100%;align-items:center;justify-content:space-between;gap:12px;margin:0;padding:10px 11px;border:0;border-radius:8px;background:#fff;color:var(--ink);text-align:left;box-shadow:none}
+.command-palette-item:hover,.command-palette-item:focus-visible{background:#edf2ff;color:#284eae;outline:0}
+.command-palette-item span{font-size:12px;font-weight:650}
+.command-palette-item small{color:var(--muted);font-size:10px}
+.command-palette-empty{padding:20px 12px;text-align:center;color:var(--muted);font-size:12px}
+.command-palette-hint{padding:9px 14px;border-top:1px solid var(--line);color:var(--muted);font-size:10px}
+@media(max-width:900px){.command-palette-trigger{margin:0;flex:1}}
+
+</style>
 </head>
 <body>
-<header>
-  <h1>TaaS Core Studio</h1>
-  <p>Discover. Compose. Explain. — experimental discovery workspace</p>
+<header class="studio-header">
+  <div class="studio-header-brand"><h1>TaaS Studio</h1><p>Engineer AI systems. Discover tools. Assure decisions. — model, agent &amp; tool intelligence</p></div>
+  <button id="command-palette-open" class="command-palette-trigger" type="button" aria-haspopup="dialog" aria-controls="studio-command-palette">Quick switcher <kbd>Ctrl K</kbd></button>
+  <form id="studio-auth" class="studio-auth" aria-label="Studio authentication" autocomplete="off">
+    <div class="studio-auth-copy"><strong>Studio authentication</strong><span id="studio-auth-status" role="status" aria-live="polite">Not connected · token stays in this page's memory</span></div>
+    <label class="sr-only" for="token">Studio API bearer token</label>
+    <input id="token" name="studio_api_token" type="password" autocomplete="current-password" spellcheck="false" placeholder="Paste Studio API token" aria-describedby="studio-auth-status">
+    <button id="studio-auth-toggle" class="secondary" type="button" aria-label="Show token">Show</button>
+    <button id="studio-auth-connect" type="button">Connect</button>
+    <button id="studio-auth-disconnect" class="secondary" type="button" disabled>Disconnect</button>
+  </form>
 </header>
 <main>
-  <div class="notice"><strong>Discovery-only preview.</strong> This workspace calls <code>/api/v1/discover</code>. It does not invoke MCP tools, run an agent, or evaluate task completion. Use only trusted tool metadata; do not paste secrets or sensitive arguments.</div>
-  <a class="skip-link" href="#overview">Skip to Studio workspace</a>
+  <div class="notice" role="note"><strong>Execution safety boundary.</strong> Model and Agent workspaces can inspect models, run local inference when explicitly loaded, and draft GoalSpecs for review. Discovery and assurance inspect tool capability and evidence; they do not invoke MCP tools. Governed MCP execution, isolated workers, and durable run history are not enabled in this build.</div>
+  <a class="skip-link" href="#overview-workspace">Skip to Studio workspace</a>
   <div class="studio-layout">
     <nav class="studio-nav" aria-label="Studio sections">
-      <div class="nav-brand"><span class="nav-mark">T</span><span><strong>TaaS Studio</strong><small>Discovery control plane</small></span></div>
-      <span class="nav-label">WORKSPACE</span>
-      <a href="#overview" aria-current="page">Overview</a>
-      <a href="#workspace">Benchmark workspace</a>
-      <a href="#goal-editor">Goal design</a>
-      <a href="#bench-tools">Tool registry</a>
-      <span class="nav-label">ANALYSIS</span>
-      <a href="#discovery">Discovery</a>
-      <a href="#certificate-panel">Assurance</a>
-      <span class="nav-label">RESOURCES</span>
+      <div class="nav-brand"><span class="nav-mark">T</span><span><strong>TaaS Studio</strong><small>Tool Intelligence Platform</small></span></div>
+      <a href="#overview-workspace" aria-current="page">Overview</a>
+      <span class="nav-label">BUILD</span>
       <a href="#models">Model catalog</a>
-      <a href="#runtime">Host diagnostics</a>
-      <div class="nav-foot"><span class="nav-status-dot"></span><span>Execution disabled<br><small>Discovery-only preview</small></span></div>
+      <a href="#model-runtime-panel">Model runtime</a>
+      <a href="#agent-goal-panel">Objective Engineering</a>
+      <a href="#agent-chat-panel">Model inference sandbox</a>
+      <span class="nav-label">TOOLS &amp; DISCOVERY</span>
+      <a href="#bench-tools">Tool registry</a>
+      <a href="#mcp-studio">MCP connections</a>
+      <a href="#goal-editor">GoalSpec designer</a>
+      <a href="#discovery">Tool discovery</a>
+      <a href="#hypergraph-explorer">Hypergraph explorer</a>
+      <a href="#certificate-panel">Assurance center</a>
+      <a href="#evidence-explorer">Evidence explorer</a>
+      <span class="nav-label">OPERATE &amp; OBSERVE</span>
+      <a href="#workspace">Benchmark workspace</a>
+      <a href="#runtime">Runtime diagnostics</a>
+      <div class="nav-foot"><span class="nav-status-dot"></span><span>Governed execution<br><small>MCP invocation not enabled</small></span></div>
     </nav>
     <div class="studio-content">
+
+  <section id="evidence-explorer" class="section-anchor" style="margin-bottom:18px">
+    <div class="panel-head"><div><div class="eyebrow">ASSURE · Evidence</div><h2 style="margin:4px 0">Evidence explorer</h2>
+    <p class="subtle" style="margin:4px 0 0">Inspect an immutable record by its content-addressed ID. The server verifies the stored subject binding, signature, digest and freshness.</p></div><span class="pill">Read-only · fail closed</span></div>
+    <div class="field"><label for="assurance-evidence-id">Evidence ID · SHA-256</label><input id="assurance-evidence-id" type="text" autocomplete="off" spellcheck="false" placeholder="Paste a 64-character evidence ID"><p class="subtle">No evidence is created or authorized from this screen.</p></div>
+    <div class="inline-actions"><button id="assurance-evidence-inspect" type="button">Verify and inspect</button><span id="assurance-evidence-status" class="status subtle" role="status" aria-live="polite">No evidence record selected.</span></div>
+    <div id="assurance-evidence-summary" class="result-grid" hidden></div>
+    <pre id="assurance-evidence-result" style="min-height:100px">Evidence details will appear here after server-side verification.</pre>
+    <p class="subtle">A valid HMAC proves service issuance and record integrity, not assessor-claim truth. It is not policy approval and does not authorize or execute a tool. Expired or tampered records are rejected.</p>
+  </section>
+
+  <section id="runtime-overview" class="runtime-overview" aria-labelledby="runtime-overview-title">
+    <div class="runtime-overview-head">
+      <div><div class="eyebrow">Live runtime · Colab / host</div><h2 id="runtime-overview-title" style="margin:4px 0">Environment overview</h2><p class="muted" style="margin:0">Observed process and hardware diagnostics. A visible GPU is not proof that a model is loaded or inference works.</p></div>
+      <button id="runtime-refresh" type="button" class="secondary">Refresh runtime status</button>
+    </div>
+    <div id="runtime-overview-state" class="runtime-state" role="status" aria-live="polite">Not checked · enter the Studio API token, then refresh.</div>
+    <div class="runtime-overview-grid">
+      <div class="metric"><span class="muted">CPU cores</span><strong id="runtime-cpu">—</strong></div>
+      <div class="metric"><span class="muted">RAM · available / total</span><strong id="runtime-memory">—</strong></div>
+      <div class="metric"><span class="muted">Disk · free / total</span><strong id="runtime-disk">—</strong></div>
+      <div class="metric"><span class="muted">GPU</span><strong id="runtime-gpu">—</strong></div>
+    </div>
+    <div class="runtime-meta"><span class="pill" id="runtime-colab">Colab: unknown</span><span class="pill" id="runtime-model">Model: not loaded</span><span class="muted" id="runtime-updated">No successful snapshot yet.</span></div>
+    <details style="margin-top:10px"><summary class="subtle" style="cursor:pointer">Runtime diagnostics detail</summary><pre id="runtime-overview-details" style="min-height:80px">No runtime status snapshot.</pre></details>
+  </section>
+  <div id="overview-workspace">
+  <section id="platform-overview" class="section-anchor platform-overview" aria-labelledby="platform-overview-title">
+    <div class="platform-overview-heading">
+      <div><div class="eyebrow">PLATFORM CONTROL PLANE</div><h2 id="platform-overview-title">Platform overview</h2>
+      <p class="subtle">Live inventory summaries from authenticated TaaS Core APIs. Counts describe returned registry records, not readiness, authorization or execution.</p></div>
+      <div class="platform-overview-actions"><span id="platform-overview-updated" class="subtle">Not refreshed yet</span><button id="platform-overview-refresh" type="button" class="secondary">Refresh overview</button></div>
+    </div>
+    <div id="platform-overview-status" class="platform-overview-status" role="status" aria-live="polite">Connect to the Studio API to load platform inventory.</div>
+    <div class="platform-overview-metrics" aria-label="Platform inventory metrics">
+      <article class="platform-metric"><span>Agent versions</span><strong id="overview-agents-value">—</strong><small id="overview-agents-meta">Latest 100 records</small></article>
+      <article class="platform-metric"><span>Skill versions</span><strong id="overview-skills-value">—</strong><small id="overview-skills-meta">Latest 100 records</small></article>
+      <article class="platform-metric"><span>Registered tools</span><strong id="overview-tools-value">—</strong><small id="overview-tools-meta">Core-reported total</small></article>
+      <article class="platform-metric"><span>Configured MCP servers</span><strong id="overview-mcp-value">—</strong><small id="overview-mcp-meta">Configuration records</small></article>
+      <article class="platform-metric"><span>Benchmark datasets</span><strong id="overview-datasets-value">—</strong><small id="overview-datasets-meta">Repository-retained datasets</small></article>
+    </div>
+    <div class="platform-overview-recent">
+      <section class="platform-recent-panel" aria-labelledby="overview-recent-agents-title">
+        <div class="panel-head"><h3 id="overview-recent-agents-title">Recent Agent versions</h3><span class="count" id="overview-recent-agents-count">—</span></div>
+        <div id="overview-recent-agents" class="platform-recent-list"><p class="subtle">No inventory loaded.</p></div>
+      </section>
+      <section class="platform-recent-panel" aria-labelledby="overview-recent-skills-title">
+        <div class="panel-head"><h3 id="overview-recent-skills-title">Recent Skill versions</h3><span class="count" id="overview-recent-skills-count">—</span></div>
+        <div id="overview-recent-skills" class="platform-recent-list"><p class="subtle">No inventory loaded.</p></div>
+      </section>
+    </div>
+    <p class="platform-overview-footnote">Model inventory is intentionally not counted here: the current Model API is search-driven, not a platform-owned inventory listing. MCP server counts represent configured entries, not live connectivity. No discovery, model loading, policy decision, authorization or execution is initiated by this overview.</p>
+  </section>
   <div class="hero" id="overview">
     <div><div class="eyebrow">Toolkit-as-a-Service · Control plane</div><h2>Discovery workspace</h2><p>Move from benchmark intent to a reviewed GoalSpec, select candidate tools from the retained registry, and inspect a provenance-aware discovery decision—all in one guided workspace.</p></div>
     <span class="pill"><span class="pill-dot"></span> Discovery preview · execution disabled</span>
   </div>
-  <section id="workspace" class="section-anchor" style="margin-bottom:18px">
+  <section class="taas-pipeline" aria-label="TaaS engineering lifecycle">
+    <div class="pipeline-heading"><div><div class="eyebrow">TaaS engineering lifecycle</div><h2>From intent to governed execution</h2></div><span class="pill">Execution invocation not yet enabled</span></div>
+    <div class="pipeline-steps">
+      <a class="pipeline-step" href="#agent-goal-panel"><span class="pipeline-index">01</span><strong>Objective intelligence</strong><small>Interpret intent, scope, constraints and ambiguity</small></a>
+      <a class="pipeline-step" href="#agent-goal-panel"><span class="pipeline-index">02</span><strong>GoalSpec decomposition</strong><small>Model proposal · typed goals · dependencies</small></a>
+      <a class="pipeline-step" href="#agent-goal-panel"><span class="pipeline-index">03</span><strong>Core validation</strong><small>Theta · conformance · gap analysis</small></a>
+      <a class="pipeline-step" href="#mcp-studio"><span class="pipeline-index">04</span><strong>Tool intelligence</strong><small>Inspect MCP contracts and capabilities</small></a>
+      <a class="pipeline-step" href="#discovery"><span class="pipeline-index">05</span><strong>Discovery &amp; hypergraph</strong><small>Match tools, compose candidates and inspect reachability</small></a>
+      <a class="pipeline-step" href="#certificate-panel"><span class="pipeline-index">06</span><strong>Assurance &amp; decision</strong><small>Evidence, provenance, certificates and counterexamples</small></a>
+      <div class="pipeline-step pipeline-disabled" aria-disabled="true"><span class="pipeline-index">07</span><strong>Governed execution</strong><small>Authorization and isolated invocation · not enabled</small></div>
+    </div>
+  </section>
+  </div>\n  <section id="workspace" class="section-anchor" style="margin-bottom:18px">
     <div class="panel-head"><div><div class="eyebrow">01 · Explore</div><h2 style="margin:4px 0">Benchmark &amp; tool workspace</h2></div><span class="pill">Repository-retained data · no upstream fetch</span></div>
     <div class="workspace-grid">
       <section style="box-shadow:none;padding:14px">
@@ -208,11 +512,21 @@
     </label>
   </section>
 
+  
+  <section id="mcp-studio" class="section-anchor" style="margin:0 0 18px">
+    <div class="panel-head"><div><div class="eyebrow">Tools &amp; MCP</div><h2 style="margin:4px 0">MCP server connections</h2></div><span class="pill">Live schema inspection · no tool calls</span></div>
+    <p class="muted">Connect to operator-configured local stdio MCP servers, inspect their declared tools and schemas, then add selected metadata to the TaaS discovery request. Server commands and credentials are configured on the API host, never supplied by this browser.</p>
+    <div class="inline-actions"><button id="mcp-refresh-servers" type="button" class="secondary">Refresh configured servers</button><select id="mcp-server-select" style="min-width:240px;padding:9px;border:1px solid #d4dce8;border-radius:8px"><option value="">Load configured servers…</option></select><button id="mcp-inspect-server" type="button">Inspect server tools</button></div>
+    <div id="mcp-server-status" class="status subtle" role="status" aria-live="polite">MCP registry has not been loaded.</div><div id="mcp-server-info" class="subtle"></div>
+    <div id="mcp-tool-list" class="listbox" style="margin-top:12px;max-height:360px"><div class="subtle" style="padding:12px">No MCP tools inspected yet.</div></div>
+    <div class="inline-actions"><button id="mcp-import-tools" type="button" disabled>Add selected MCP tools to discovery</button><span id="mcp-selected-count" class="subtle">0 selected</span></div>
+    <p class="subtle">MCP annotations and JSON Schemas are server declarations. TaaS discovery evaluates the supplied metadata; this panel does not establish tool correctness, trustworthiness, policy approval or task fulfillment. Tool execution remains disabled.</p>
+  </section>
+
   <div class="grid" id="discovery">
     <section>
       <h2>1 · Request configuration</h2>
-      <label for="token">Studio API bearer token (kept in this page's memory only)</label>
-      <input id="token" type="password" autocomplete="off" placeholder="Enter TAAS_STUDIO_API_TOKEN">
+      <p class="muted">Authentication is managed globally in the Studio header. Connect once per runtime; the bearer token remains in page memory and is never written into the discovery payload.</p>
 
       <div class="goal-editor" id="goal-editor">
         <div class="goal-editor-head"><div><div class="eyebrow">02 · Specify</div><h3>Visual GoalSpec editor</h3><p class="subtle" style="margin:4px 0 0">Define intent, semantic inputs and outputs, effects, and dependencies. The editor writes the canonical GoalSpec into the discovery request.</p></div><span class="pill">Core contract · editable</span></div>
@@ -221,6 +535,10 @@
         <div class="panel-head" style="margin:12px 0 4px"><h3>Goal contracts</h3><span class="count" id="goal-count">0 goals</span></div>
         <div id="goal-cards"></div>
         <div class="goal-actions"><button id="goal-add" type="button" class="secondary">Add goal</button><button id="goal-validate" type="button" class="secondary">Validate GoalSpec</button><span class="subtle">Validation checks structure, types, references and dependency cycles; it does not generate or prove goal semantics.</span></div>
+        <label style="display:flex;align-items:flex-start;gap:9px;font-weight:500;margin-top:12px">
+          <input id="goal-semantic-review" type="checkbox" style="width:auto;margin-top:2px">
+          <span>I reviewed the original objective, GoalSpec operations, scope, types, dependencies, effects and selected tool metadata. This review is not a correctness proof or execution authorization.</span>
+        </label>
         <div id="goal-validation" class="goal-validation" role="status" aria-live="polite">GoalSpec has not been validated.</div>
       </div>
       <details class="advanced-json">
@@ -290,6 +608,52 @@
       <p id="explanation" class="muted" aria-live="polite">Run a request to see why TaaS selected a toolkit or abstained.</p>
       <h2>Selected toolkit</h2>
       <pre id="toolkit">No discovery result yet.</pre>
+      <section class="certificate-panel" id="discovery-diagnostics-panel" hidden aria-labelledby="discovery-diagnostics-title">
+        <div class="certificate-head"><h3 id="discovery-diagnostics-title">Discovery pipeline diagnostics</h3><span id="discovery-diagnostics-stage" class="certificate-state">Not reported</span></div>
+        <p id="discovery-diagnostics-summary" class="subtle">Core registry, policy eligibility and candidate retrieval diagnostics appear after discovery.</p>
+        <div class="certificate-checks" aria-live="polite">
+          <div class="certificate-check"><strong id="discovery-diagnostics-contracts">—</strong><small>Indexed contracts</small></div>
+          <div class="certificate-check"><strong id="discovery-diagnostics-eligible">—</strong><small>Policy-eligible tools</small></div>
+          <div class="certificate-check"><strong id="discovery-diagnostics-candidates">—</strong><small>Retrieved candidates</small></div>
+          <div class="certificate-check"><strong id="discovery-diagnostics-consistency">—</strong><small>Eligibility count consistency</small></div>
+        </div>
+        <h3 style="font-size:12px;margin:12px 0 4px">Per-tool eligibility evidence</h3>
+        <div style="overflow-x:auto"><table class="coverage-table"><thead><tr><th>Tool</th><th>Eligible</th><th>Evidence strengths</th><th>Exclusion reasons</th></tr></thead><tbody id="discovery-diagnostics-tools"></tbody></table></div>
+        <details><summary>Raw diagnostic payload</summary><pre id="discovery-diagnostics-raw"></pre></details>
+      </section>
+      <section id="hypergraph-explorer" class="hg-shell" aria-labelledby="hg-title">
+        <div class="hg-toolbar">
+          <div><div class="eyebrow">DISCOVER · SEMANTIC GRAPH</div><h3 id="hg-title" style="margin:4px 0;font-size:14px">Hypergraph Explorer</h3><div id="hg-summary" class="hg-meta">Run discovery to load the authoritative Core projection.</div></div>
+          <div class="field"><label for="hg-filter">Filter types and capabilities</label><input id="hg-filter" type="search" placeholder="Search semantic types, tools, effects…" disabled></div>
+          <div class="hg-actions"><button id="hg-run-discovery" type="button">Run discovery</button><button id="hg-edit-goal" class="secondary" type="button">Edit GoalSpec</button></div>
+          <span id="hg-projection-state" class="pill">No projection</span>
+        </div>
+        <div id="hg-empty" class="hg-empty">No hypergraph projection is available yet. A graph is shown only when the Discovery API returns a server-generated projection.</div>
+        <div id="hg-workspace" class="hg-layout" hidden>
+          <div class="hg-canvas-wrap"><svg id="hg-canvas" class="hg-canvas" viewBox="0 0 900 320" role="group" aria-label="Interactive semantic hypergraph projection"></svg>
+            <div id="hg-entity-list" class="hg-entity-list" aria-label="Graph entities"></div>
+          </div>
+          <aside class="hg-inspector" aria-live="polite"><h3 id="hg-inspector-title">Select a graph element</h3><div id="hg-inspector-body" class="subtle">Select a semantic type or hyperedge to inspect its server-provided attributes.</div></aside>
+        </div>
+        <div class="hg-legend"><span class="hg-key"><i class="hg-swatch type"></i>Semantic type</span><span class="hg-key"><i class="hg-swatch"></i>Tool hyperedge</span><span class="hg-key"><i class="hg-swatch model"></i>Model edge</span><span class="hg-key"><i class="hg-swatch bridge"></i>Bridge</span><span class="hg-key">Solid outline = reachable state supplied by Core</span></div>
+        <div class="hg-skill-panel" style="padding:14px;border-top:1px solid var(--line);background:#fbfcfe">
+          <div class="panel-head"><div><h3 style="margin:0;font-size:13px">Reusable Skill dependency graph</h3><p class="subtle" style="margin:4px 0 0">Load a published Skill's exact-pin dependency DAG into the same Hypergraph Explorer. These are composition relationships, not capability or authorization edges.</p></div><span class="pill">Read-only · exact pins</span></div>
+          <div style="display:grid;grid-template-columns:minmax(180px,1fr) minmax(120px,.45fr) auto;gap:9px;align-items:end">
+            <div class="field"><label for="hg-skill-id">Skill ID</label><input id="hg-skill-id" autocomplete="off" placeholder="root-skill"></div>
+            <div class="field"><label for="hg-skill-version">Version</label><input id="hg-skill-version" autocomplete="off" value="1.0.0"></div>
+            <button id="hg-skill-load" type="button">Load Skill DAG</button>
+          </div>
+          <div id="hg-skill-status" class="hg-status" role="status" aria-live="polite">No Skill dependency graph loaded.</div>
+          <div id="hg-skill-summary" class="result-grid" hidden></div>
+          <div id="hg-skill-graph" hidden>
+            <div style="overflow-x:auto"><table class="coverage-table"><thead><tr><th>Skill node</th><th>Exact version</th><th>Lifecycle</th><th>Manifest SHA-256</th><th>Role</th></tr></thead><tbody id="hg-skill-nodes"></tbody></table></div>
+            <h4 style="font-size:12px;margin:14px 0 4px">Dependency hyperedges</h4>
+            <div style="overflow-x:auto"><table class="coverage-table"><thead><tr><th>Source Skill</th><th>Relation</th><th>Target Skill</th><th>Authorization</th><th>Execution</th></tr></thead><tbody id="hg-skill-edges"></tbody></table></div>
+            <details><summary>Exact graph provenance and bounds</summary><pre id="hg-skill-provenance"></pre></details>
+          </div>
+        </div>
+        <div id="hg-status" class="hg-status" role="status" aria-live="polite">No discovery projection loaded. This view never calculates reachability or invokes tools.</div>
+      </section>
 
       <section class="certificate-panel" id="certificate-panel" hidden>
         <div class="certificate-head"><h3>Trust &amp; certificate</h3><span id="certificate-state" class="certificate-state">Not evaluated</span></div>
@@ -324,7 +688,22 @@
     <input id="model-query" type="text" maxlength="120" value="small language model" placeholder="e.g. Qwen 2.5 3B">
     <button id="model-search" type="button">Search Hugging Face</button>
     <div id="model-status" class="status" aria-live="polite">No search performed.</div>
-    <pre id="model-results">Model catalog results will appear here.</pre>
+    <div id="model-cards" class="model-cards" aria-live="polite"><p class="muted">Search to browse model repositories. Select a result to inspect its configuration and artifacts.</p></div>
+    <details class="advanced-json"><summary>Raw catalog response</summary><pre id="model-results">Model catalog results will appear here.</pre></details>
+    <section id="model-selected-panel" class="model-selected-panel" hidden>
+      <div class="panel-head"><div><div class="eyebrow">Selected repository</div><h3 id="model-selected-title">No model selected</h3><p id="model-selected-subtitle" class="muted"></p></div><span id="model-selected-state" class="pill">Metadata only</span></div>
+      <div class="model-actions"><button id="model-use-runtime" type="button">Use in Model Runtime</button><button id="model-inspect-artifacts" type="button" class="secondary">Inspect weight artifacts</button></div>
+      <div id="model-selected-details" class="model-detail-grid"></div>
+      <div class="model-preflight">
+        <div><h4>Memory planning</h4><p class="muted">Estimate uses reported parameter count and optional KV-cache dimensions. It is a planning estimate, not a guarantee of successful loading.</p></div>
+        <label for="model-quantization">Weight precision</label><select id="model-quantization"><option value="fp16">FP16</option><option value="int8">INT8</option><option value="int4" selected>INT4</option></select>
+        <label for="model-context-length">Context length</label><input id="model-context-length" type="number" min="1" max="1000000" value="4096">
+        <button id="model-estimate-memory" type="button" class="secondary" disabled>Estimate memory</button>
+        <div id="model-memory-status" class="status" role="status" aria-live="polite">Select a model with reported parameter metadata.</div><pre id="model-memory-results">No estimate performed.</pre>
+      </div>
+      <details><summary>Architecture and repository metadata</summary><pre id="model-selected-raw"></pre></details>
+      <details><summary>Artifact and backend evidence</summary><pre id="model-selected-artifacts">Artifact inspection has not been performed.</pre></details>
+    </section>
   </section>
   <section style="margin-bottom:18px">
     <h2>Model artifacts · compatibility preflight</h2>
@@ -337,13 +716,551 @@
   </section>
 
 
+  <section id="agent-studio" class="section-anchor" style="margin-bottom:18px">
+    <div class="panel-head"><div><div class="eyebrow">Model &amp; Agent workspace</div><h2 style="margin:4px 0">Load a model and build an agent</h2></div><span class="pill">Real local inference · authenticated API</span></div>
+    <p class="muted">Host diagnostics below and model runtime state are separate views. Hugging Face weights run inside the process hosting this Studio API. Ollama runs in a separate daemon selected through the provider control. If Studio runs inside Colab, local CPU/CUDA/Ollama inference runs in that Colab VM; this does not remotely connect Studio to a separate Colab session.</p>
+    <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px">
+      <section id="model-runtime-panel" style="box-shadow:none;padding:14px">
+        <h2>1 · Model runtime</h2>
+        <label for="runtime-provider">Inference provider</label>
+        <select id="runtime-provider" style="width:100%;padding:9px;border:1px solid #d4dce8;border-radius:8px">
+          <option value="huggingface">Hugging Face · Transformers</option>
+          <option value="ollama">Ollama · local or configured API</option>
+        </select>
+        <label for="runtime-model-id" id="runtime-model-label">Hugging Face model ID</label>
+        <input id="runtime-model-id" value="Qwen/Qwen2.5-0.5B-Instruct" maxlength="257" autocomplete="off">
+        <label for="runtime-device" id="runtime-device-label">Execution device</label>
+        <select id="runtime-device" style="width:100%;padding:9px;border:1px solid #d4dce8;border-radius:8px"><option value="auto">Automatic · CUDA when available, otherwise CPU</option><option value="cpu">CPU</option><option value="cuda">CUDA GPU · require CUDA</option></select>
+        <p class="subtle" id="runtime-provider-help">Hugging Face loads weights inside the TaaS process. CPU is supported; CUDA is optional.</p>
+        <div class="inline-actions"><button id="runtime-model-load" type="button">Download &amp; load model</button><button id="runtime-model-refresh" type="button" class="secondary">Refresh model state</button></div>
+        <div id="runtime-model-status" class="status" role="status" aria-live="polite">No model loaded by this process.</div><pre id="runtime-model-details">Model runtime state has not been queried.</pre>
+        <p class="subtle">Hugging Face: remote repository code execution is disabled (<code>trust_remote_code=false</code>); CPU uses FP32 and CUDA uses BF16/FP16. Ollama is a separate configured service; its device placement and quantization are managed by Ollama. The Studio never treats model metadata as proof of a successful load.</p>
+      </section>
+      <section id="agent-chat-panel" style="box-shadow:none;padding:14px">
+        <h2>2 · Model inference sandbox</h2><p class="subtle">Free-form inference only. It does not create a GoalSpec, run TaaS Core gap analysis, discover tools, or authorize execution. Start operational objectives in the Core-first Objective Engineering workflow below.</p><label for="agent-system">Agent instructions</label>
+        <textarea id="agent-system" rows="3" style="min-height:75px">You are a precise assistant. Be explicit about uncertainty and do not claim to have executed tools.</textarea>
+        <label for="agent-message">Message</label><textarea id="agent-message" rows="4" style="min-height:110px" placeholder="Ask the loaded model a question…"></textarea>
+        <label for="agent-max-tokens">Maximum new tokens</label><input id="agent-max-tokens" type="number" min="1" max="2048" value="512">
+        <div class="inline-actions"><button id="agent-route-prompt-core" type="button">Prepare this prompt with TaaS Core</button><button id="agent-chat-send" type="button" class="secondary">Run inference only</button></div><div id="agent-chat-status" class="status" role="status" aria-live="polite">Load a model before sending a message.</div><pre id="agent-chat-result">Inference output will appear here.</pre>
+      </section>
+    </div>
+    <section id="agent-goal-panel" style="box-shadow:none;padding:14px;margin-top:14px">
+      <h2>3 · Objective Engineering · TaaS Core</h2><p class="muted">Canonical entry point for operational prompts. TaaS Core frames the objective, the selected model proposes a GoalSpec, and deterministic validation plus actual Core gap_analysis inspect it. Tool discovery follows only after human review. The proposal is never an execution authorization.</p>
+      <div class="field"><label for="agent-context-select">Saved Agent context · instructions and objective-triggered skills</label><div class="inline-actions"><select id="agent-context-select" aria-label="Saved Agent version"><option value="">No Agent context · use Core analyst defaults</option></select><button id="agent-context-refresh" type="button" class="secondary">Refresh Agents</button></div><p id="agent-context-status" class="subtle" role="status" aria-live="polite">Select a saved Agent version to inject its instructions and matching skills into both initial and refinement prompts. Tool grants are not passed to the LLM.</p></div>
+      <label for="agent-goal-prompt">Agent objective</label><textarea id="agent-goal-prompt" rows="3" maxlength="12000" style="min-height:90px" placeholder="Find current information, summarize it, and save a Markdown report…"></textarea><p class="subtle">The original objective is preserved by the API; verify the complete text here before preparing it.</p>
+      <button id="agent-decompose" type="button">Prepare objective with TaaS Core</button><div id="agent-decompose-status" class="status" role="status" aria-live="polite">No decomposition requested.</div><div id="agent-outcome-coverage" class="outcome-coverage" aria-live="polite"></div>
+      <div id="agent-objective-contract-v3" class="outcome-coverage" aria-live="polite"></div><pre id="agent-decompose-result">The model's GoalSpec proposal will appear here.</pre>
+      <div id="agent-semantic-diagnostics" class="goal-validation" role="status" aria-live="polite">Semantic diagnostics appear after decomposition. Heuristic warnings are not a correctness proof.</div>
+      <div class="inline-actions"><button id="agent-apply-goals" type="button" class="secondary" disabled>Apply proposal to GoalSpec editor</button><span class="subtle">Applying replaces the current visual GoalSpec draft; review and validate it before discovery.</span></div>
+    </section>
+    <section id="agent-manifest-panel" style="box-shadow:none;padding:22px;margin-top:14px;border:1px solid var(--line);border-radius:12px;background:#fff">
+      <div class="panel-head"><div><div class="eyebrow">Agent resource · v1alpha1</div><h2 style="margin:4px 0">Define an Agent manifest</h2></div><span class="pill">Draft · not published</span></div>
+      <p class="muted">Describe the agent's model, instructions, embedded or registry-backed Skills, exact tool grants, resource budget and approval policy. Reusable references must pin a published Skill version and its manifest digest.</p>
+      <div class="inline-actions">
+        <select id="agent-skill-registry-select" aria-label="Published reusable Skill version"><option value="">Select a published Skill version</option></select>
+        <button id="agent-skill-registry-refresh" type="button" class="secondary">Load published Skills</button>
+        <button id="agent-skill-registry-add" type="button" class="secondary" disabled>Add pinned Skill reference</button>
+      </div>
+      <div id="agent-skill-registry-status" class="status" role="status" aria-live="polite">Reusable Skills are resolved by exact ID, version and SHA-256 digest. Only published versions can be referenced.</div>
+      <label for="agent-manifest-json">Declarative manifest · JSON</label>
+      <textarea id="agent-manifest-json" rows="22" spellcheck="false" style="min-height:390px;width:100%;font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace">{
+  "apiVersion": "taas.ai/v1alpha1",
+  "kind": "Agent",
+  "metadata": {
+    "id": "support-assistant",
+    "name": "Support Assistant",
+    "version": "1.0.0",
+    "description": "Draft support workflow agent"
+  },
+  "spec": {
+    "model": {
+      "provider": "huggingface",
+      "model_id": "Qwen/Qwen2.5-0.5B-Instruct"
+    },
+    "instructions": "Help the operator summarize support requests.",
+    "skills": [],
+    "skill_refs": [],
+    "goal_spec_template": null,
+    "tool_allowlist": [],
+    "resources": {
+      "max_new_tokens": 512,
+      "timeout_seconds": 90,
+      "max_tool_calls": 0
+    },
+    "approval": {
+      "require_human_approval": true,
+      "require_assurance": true,
+      "allow_side_effects": false
+    }
+  }
+}</textarea>
+      <div class="inline-actions"><button id="agent-registry-snapshot-refresh" type="button" class="secondary">Load stored MCP snapshots</button><button id="agent-registry-snapshot-inspect" type="button" class="secondary">Inspect configured MCP servers</button><select id="agent-registry-snapshot-select" aria-label="MCP registry snapshot"><option value="">No MCP snapshot selected</option></select></div>
+      <div id="agent-registry-snapshot-status" class="status" role="status" aria-live="polite">Tool-free agents do not require an MCP snapshot. Agents with tool grants must be published against a selected snapshot.</div>
+      <pre id="agent-registry-snapshot-result">MCP schema snapshots are created through read-only tools/list inspection. No tool is invoked.</pre>
+      <div class="inline-actions"><button id="agent-manifest-validate" type="button">Validate manifest</button><button id="agent-manifest-save" type="button" class="secondary">Save immutable draft</button><button id="agent-manifest-validate-saved" type="button" class="secondary" disabled>Validate saved version</button><button id="agent-manifest-publish" type="button" class="secondary" disabled>Publish version</button><button id="agent-manifest-reset" type="button" class="secondary">Reset example</button></div>
+      <div id="agent-manifest-status" class="status" role="status" aria-live="polite">Manifest has not been validated.</div>
+      <pre id="agent-manifest-result">Validation and registry responses will appear here. Publication does not authorize or execute this agent.</pre>
+      <p class="subtle">Registry lifecycle: draft → structurally validated → published configuration. Semantic correctness, live tool authorization and execution are not established.</p>
+    </section>
+  </section>
+
     </div>
   </div>
+
 </main>
+<dialog id="studio-command-palette" class="command-palette" aria-labelledby="command-palette-title">
+  <div class="command-palette-head">
+    <strong id="command-palette-title">Go to a Studio workspace</strong>
+    <label class="sr-only" for="command-palette-search">Search Studio workspaces</label>
+    <input id="command-palette-search" type="search" autocomplete="off" placeholder="Search workspaces, tools and operations…">
+  </div>
+  <div id="command-palette-results" class="command-palette-results" role="listbox" aria-label="Studio destinations"></div>
+  <div class="command-palette-hint">Enter to open · Esc to close · Ctrl K / ⌘ K to toggle</div>
+</dialog>
+
 <script>
 (() => {
   const $ = (id) => document.getElementById(id);
+
+  // Hypergraph Explorer is a renderer for the Core-owned projection.
+  // It may arrange and filter returned records, but never derives reachability,
+  // semantic compatibility, policy decisions or certification in the browser.
+  let hypergraphProjection = null;
+  let hypergraphSelection = null;
+  const hgSvg = (tag, attrs = {}, text = "") => {
+    const node = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
+    if (text) node.textContent = text;
+    return node;
+  };
+  const hgText = (value) => value === null || value === undefined || value === "" ? "Not reported" : String(value);
+  const hgSetInspector = (kind, item) => {
+    hypergraphSelection = {kind, id:item.id};
+    $("hg-inspector-title").textContent = kind === "semantic_type" ? item.semantic_type : (item.name || item.operation || item.goal_id || item.id);
+    const rows = kind === "semantic_type"
+      ? [["Kind","Semantic type"],["Reachable",item.reachable ? "Yes · Core reported" : "No · not in reachable set"],["Information label",item.information_label],["Derivation",item.derivation ? item.derivation.edge_id+" · "+item.derivation.kind : "No derivation reported"],["Derivation inputs",item.derivation?.inputs?.join(", ") || "None reported"]]
+      : [["Kind",kind],["Identifier",item.id],["Inputs",(item.required_inputs || item.tail?.map(x=>x.type) || []).join(", ") || "None"],["Output",item.head],["Effects",(item.effects || []).join(", ") || "Not applicable"],["Fingerprint",item.contract_fingerprint],["Fired in reachability",item.fired_in_reachability === true ? "Yes · Core derivation" : item.fired_in_reachability === false ? "No" : "Not reported"],["Server",item.server],["Tool",item.name],["Model class",item.model_class],["Goal",item.goal_id],["Forbidden with",(item.forbidden_with || []).map(x=>x.tool_id+": "+x.reason).join("; ") || "None reported"],["QoS",item.qos ? JSON.stringify(item.qos) : "Not reported"]];
+    $("hg-inspector-body").replaceChildren();
+    const dl=document.createElement("dl");
+    rows.forEach(([label,value])=>{const dt=document.createElement("dt");dt.textContent=label;const dd=document.createElement("dd");dd.textContent=hgText(value);dl.append(dt,dd);});
+    $("hg-inspector-body").append(dl);
+    $("hg-canvas").querySelectorAll(".hg-entity").forEach(el=>el.classList.toggle("selected",el.getAttribute("data-id")===item.id));
+    $("hg-entity-list").querySelectorAll("button").forEach(el=>el.classList.toggle("active",el.dataset.id===item.id));
+  };
+  const renderHypergraphProjection = (projection) => {
+    hypergraphProjection = projection || null; hypergraphSelection = null;
+    const empty=$("hg-empty"), workspace=$("hg-workspace"), filter=$("hg-filter");
+    const valid=projection && projection.schema==="taas.hypergraph-projection/v1" &&
+      Array.isArray(projection.vertices) && Array.isArray(projection.hyperedges) && Array.isArray(projection.bridges);
+    if(!valid){
+      empty.hidden=false;workspace.hidden=true;filter.disabled=true;filter.value="";
+      $("hg-projection-state").textContent=projection ? "Invalid projection" : "Projection unavailable";
+      $("hg-summary").textContent=projection ? "The response did not match the supported projection schema." : "No server-generated projection returned for this discovery result.";
+      $("hg-status").textContent=projection ? "Projection was not rendered because its schema was not recognized." : "Discovery abstained or the Core did not provide authoritative reachability. No graph was synthesized.";
+      return;
+    }
+    empty.hidden=true;workspace.hidden=false;filter.disabled=false;
+    const summary=projection.summary||{};
+    $("hg-projection-state").textContent="Core projection · "+projection.projection_id;
+    $("hg-summary").textContent=(summary.vertex_count||0)+" types · "+(summary.hyperedge_count||0)+" hyperedges · "+(summary.bridge_count||0)+" bridges · "+(summary.reachable_type_count||0)+" reachable types";
+    const svg=$("hg-canvas");svg.replaceChildren();
+    const allEdges=[...projection.hyperedges,...projection.bridges.map(b=>({...b,kind:"bridge"}))];
+    const rowHeight=86, height=Math.max(300,allEdges.length*rowHeight+40);
+    svg.setAttribute("viewBox","0 0 900 "+height);svg.setAttribute("height",height);
+    const vertexMap=new Map(projection.vertices.map(v=>[v.id,v]));
+    allEdges.forEach((edge,index)=>{
+      const y=45+index*rowHeight, edgeId=edge.id, inputTypes=(edge.required_inputs||edge.tail?.map(x=>typeof x==="string"?x:x.type)||[]).map(String);
+      const output=String(edge.head||"");
+      const leftX=28, midX=350, rightX=700;
+      inputTypes.slice(0,4).forEach((type,j)=>{
+        const iy=y-((Math.min(inputTypes.length,4)-1)*13)/2+j*26;
+        svg.append(hgSvg("path",{d:"M "+(leftX+205)+" "+iy+" L "+(midX-12)+" "+y,class:"hg-link"}));
+        const node=hgSvg("g",{class:"hg-entity",tabindex:"0",role:"button","aria-label":"Inspect input type "+type,"data-id":"type:"+type});
+        node.append(hgSvg("rect",{x:leftX,y:iy-11,width:205,height:22,rx:6,class:"hg-node"}));
+        node.append(hgSvg("text",{x:leftX+9,y:iy+4,class:"hg-label"},type.length>30?type.slice(0,27)+"…":type));
+        const v=vertexMap.get("type:"+type);node.addEventListener("click",()=>v&&hgSetInspector("semantic_type",v));node.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&v){e.preventDefault();hgSetInspector("semantic_type",v);}});svg.append(node);
+      });
+      svg.append(hgSvg("path",{d:"M "+(midX+205)+" "+y+" L "+(rightX-12)+" "+y,class:"hg-link"}));
+      const kind=edge.kind||"tool", edgeGroup=hgSvg("g",{class:"hg-entity",tabindex:"0",role:"button","aria-label":"Inspect "+kind+" "+(edge.name||edge.operation||edge.id),"data-id":edgeId});
+      const edgeClass=kind==="model"?"hg-edge-model":kind==="bridge"?"hg-edge-bridge":"hg-edge-tool";
+      edgeGroup.append(hgSvg("rect",{x:midX,y:y-22,width:205,height:44,rx:8,class:"hg-node "+edgeClass}));
+      edgeGroup.append(hgSvg("text",{x:midX+10,y:y-3,class:"hg-label"},String(edge.name||edge.operation||edge.goal_id||edge.id).slice(0,27)));
+      edgeGroup.append(hgSvg("text",{x:midX+10,y:y+12,class:"hg-sub"},kind.toUpperCase()+" · "+(edge.fired_in_reachability===true?"FIRED":edge.fired_in_reachability===false?"NOT FIRED":"DERIVED")));
+      const select=()=>hgSetInspector(kind,edge);edgeGroup.addEventListener("click",select);edgeGroup.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();select();}});svg.append(edgeGroup);
+      const out=vertexMap.get("type:"+output);
+      const outGroup=hgSvg("g",{class:"hg-entity",tabindex:"0",role:"button","aria-label":"Inspect output type "+output,"data-id":"type:"+output});
+      outGroup.append(hgSvg("rect",{x:rightX,y:y-15,width:185,height:30,rx:7,class:"hg-node"}));
+      outGroup.append(hgSvg("text",{x:rightX+9,y:y+4,class:"hg-label"},output.length>25?output.slice(0,22)+"…":output));
+      outGroup.addEventListener("click",()=>out&&hgSetInspector("semantic_type",out));outGroup.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&out){e.preventDefault();hgSetInspector("semantic_type",out);}});svg.append(outGroup);
+    });
+    if(!allEdges.length){svg.append(hgSvg("text",{x:30,y:40,class:"hg-label"},"Projection contains no hyperedges."));}
+    const list=$("hg-entity-list");list.replaceChildren();
+    projection.vertices.forEach(v=>{const b=document.createElement("button");b.type="button";b.className="secondary";b.dataset.id=v.id;b.textContent=(v.reachable?"● ":"○ ")+v.semantic_type;b.addEventListener("click",()=>hgSetInspector("semantic_type",v));list.append(b);});
+    allEdges.forEach(e=>{const b=document.createElement("button");b.type="button";b.className="secondary";b.dataset.id=e.id;b.textContent=(e.kind||"edge")+": "+(e.name||e.operation||e.goal_id||e.id);b.addEventListener("click",()=>hgSetInspector(e.kind||"tool",e));list.append(b);});
+    $("hg-status").textContent="Rendered directly from the API projection. Reachability, labels, derivations and fired-edge flags are displayed as supplied by TaaS Core; browser layout is presentational only. No MCP calls or execution performed.";
+    $("hg-filter").oninput=()=>{
+      const q=$("hg-filter").value.trim().toLowerCase();
+      $("hg-entity-list").querySelectorAll("button").forEach(b=>{b.hidden=!!q&&!b.textContent.toLowerCase().includes(q);});
+      svg.querySelectorAll(".hg-entity").forEach(el=>{const match=!q||el.textContent.toLowerCase().includes(q)||el.getAttribute("aria-label").toLowerCase().includes(q);el.style.opacity=match?"1":"0.18";});
+    };
+  };
+
+
+  // Persistent single-workspace navigation. Navigation owns only the
+  // visibility flags it sets; application-level hidden states remain intact.
+  // The runtime snapshot is a global utility and stays visible in every workspace.
+  const studioContent = document.querySelector(".studio-content");
+  const studioLinks = [...document.querySelectorAll(".studio-nav a[href^='#']")];
+  const restoreNavigationVisibility = () => {
+    studioContent.querySelectorAll("[data-studio-nav-hidden='true']").forEach(node => {
+      node.hidden = false;
+      delete node.dataset.studioNavHidden;
+    });
+  };
+  const hideForNavigation = node => {
+    if (node.tagName === "SCRIPT" || node.hidden) return;
+    node.hidden = true;
+    node.dataset.studioNavHidden = "true";
+  };
+  let lastRoutedHash = "";
+  const showStudioWorkspace = (link, updateHistory = true) => {
+    const href = link.getAttribute("href");
+    const targetId = decodeURIComponent(href.slice(1));
+    const target = document.getElementById(targetId);
+    if (!target || !studioContent.contains(target)) return false;
+    let root = target;
+    while (root.parentElement && root.parentElement !== studioContent) root = root.parentElement;
+    if (root.parentElement !== studioContent) return false;
+
+    // Undo only navigation-owned hiding before resolving the next destination.
+    // This fixes parent -> child -> parent navigation without exposing panels
+    // that are intentionally hidden by their own application state.
+    restoreNavigationVisibility();
+    [...studioContent.children].forEach(child => {
+      if (child.id === "runtime-overview") child.hidden = false;
+      else if (child !== root) hideForNavigation(child);
+    });
+    // Discovery is a coupled request/result workspace: isolating GoalSpec,
+    // Hypergraph or Assurance would hide the Run action or the result context.
+    // Keep the complete Discovery workspace visible and scroll to the destination.
+    if (root.id !== "discovery") {
+      let branch = target;
+      while (branch && branch !== root) {
+        const parent = branch.parentElement;
+        if (!parent) break;
+        [...parent.children].forEach(sibling => {
+          if (sibling !== branch) hideForNavigation(sibling);
+        });
+        branch = parent;
+      }
+    }
+    target.hidden = false;
+
+    studioLinks.forEach(item => {
+      if (item === link) item.setAttribute("aria-current", "page");
+      else item.removeAttribute("aria-current");
+    });
+    if (updateHistory && window.location.hash !== href) {
+      history.pushState({studioWorkspace: targetId}, "", href);
+    }
+    lastRoutedHash = href;
+    target.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      block: "start"
+    });
+    return true;
+  };
+  const routeFromLocation = () => {
+    const href = window.location.hash;
+    if (!href || href === lastRoutedHash) return;
+    const link = studioLinks.find(item => item.getAttribute("href") === href);
+    if (link) showStudioWorkspace(link, false);
+  };
+  studioLinks.forEach(link => link.addEventListener("click", event => {
+    event.preventDefault();
+    showStudioWorkspace(link);
+  }));
+  document.querySelectorAll(".pipeline-step[href]").forEach(step => step.addEventListener("click", event => {
+    const destination = studioLinks.find(link => link.getAttribute("href") === step.getAttribute("href"));
+    if (destination) {
+      event.preventDefault();
+      showStudioWorkspace(destination);
+    }
+  }));
+  window.addEventListener("popstate", routeFromLocation);
+  window.addEventListener("hashchange", routeFromLocation);
+  const initialWorkspace = studioLinks.find(link => link.getAttribute("href") === window.location.hash)
+    || studioLinks.find(link => link.getAttribute("href") === "#overview")
+    || studioLinks[0];
+  if (initialWorkspace) showStudioWorkspace(initialWorkspace, false);
+
+
+  const runtimeRefresh = $("runtime-refresh");
+  const runtimeState = $("runtime-overview-state");
+  let runtimeLastSuccess = 0;
+  const formatGiB = value => Number.isFinite(value) ? Number(value).toFixed(1) + " GiB" : "Not reported";
+  const refreshRuntimeOverview = async () => {
+    const token = $("token").value.trim();
+    if (!token) {
+      runtimeState.className = "runtime-state";
+      runtimeState.textContent = "Token required · diagnostics have not been requested.";
+      return;
+    }
+    runtimeRefresh.disabled = true;
+    runtimeState.className = "runtime-state";
+    runtimeState.textContent = "Loading authenticated runtime snapshot…";
+    try {
+      const response = await fetch("/api/v1/runtime/status", {
+        headers: { "Authorization": "Bearer " + token, "Cache-Control": "no-cache" },
+        cache: "no-store"
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(formatApiError(data.detail || data, "HTTP " + response.status));
+      const host = data.host || {}, hardware = data.hardware || {}, gpu = hardware.gpu || {};
+      $("runtime-cpu").textContent = host.cpu_count ?? "Not reported";
+      $("runtime-memory").textContent = formatGiB(host.memory_available_gib) + " / " + formatGiB(host.memory_total_gib);
+      $("runtime-disk").textContent = formatGiB(host.disk_free_gib) + " / " + formatGiB(host.disk_total_gib);
+      $("runtime-gpu").textContent = hardware.gpu_detected ? (gpu.name || "GPU detected") : "No GPU verified";
+      $("runtime-colab").textContent = "Colab: " + (data.colab?.detected ? "detected" : "not detected");
+      $("runtime-model").textContent = "Model state: inspect Model Studio";
+      $("runtime-overview-details").textContent = JSON.stringify(data, null, 2);
+      runtimeLastSuccess = Date.now();
+      $("runtime-updated").textContent = "Last successful snapshot: " + new Date(runtimeLastSuccess).toLocaleTimeString();
+      runtimeState.className = "runtime-state ok";
+      runtimeState.textContent = "Live snapshot received · " + (data.service?.status || "service status unknown") +
+        " · CUDA " + (hardware.cuda_available === true ? "available" : "not verified") +
+        " · model state is reported separately in Model Studio";
+    } catch (error) {
+      runtimeState.className = "runtime-state error";
+      runtimeState.textContent = "Refresh failed: " + error.message +
+        (runtimeLastSuccess ? " · displayed values are from an earlier successful snapshot." : " · no successful snapshot is available.");
+    } finally {
+      runtimeRefresh.disabled = false;
+    }
+  };
+  runtimeRefresh.addEventListener("click", refreshRuntimeOverview);
+  $("token").addEventListener("change", () => {
+    $("studio-auth-status").textContent = $("token").value.trim()
+      ? "Token entered · connect to verify it"
+      : "Not connected · token stays in this page's memory";
+    $("studio-auth").classList.remove("connected");
+  });
+  $("studio-auth").addEventListener("submit", event => event.preventDefault());
+  $("studio-auth-toggle").addEventListener("click", () => {
+    const field=$("token"), reveal=field.type==="password";
+    field.type=reveal?"text":"password";
+    $("studio-auth-toggle").textContent=reveal?"Hide":"Show";
+    $("studio-auth-toggle").setAttribute("aria-label",reveal?"Hide token":"Show token");
+  });
+  $("studio-auth-connect").addEventListener("click", async () => {
+    const token=$("token").value.trim(), button=$("studio-auth-connect");
+    if(!token){$("studio-auth-status").textContent="Paste the runtime token to connect."; $("token").focus(); return;}
+    button.disabled=true; $("studio-auth-status").textContent="Verifying token…";
+    try {
+      const response=await fetch("/api/v1/runtime/hardware",{headers:{"Authorization":"Bearer "+token,"Cache-Control":"no-cache"}});
+      if(response.status===401||response.status===403)throw new Error("Token rejected. Check that it belongs to the current Studio runtime.");
+      if(!response.ok)throw new Error("Studio API returned HTTP "+response.status+".");
+      $("studio-auth").classList.add("connected");
+      $("studio-auth-status").textContent="Connected · token verified for this runtime";
+      $("studio-auth-disconnect").disabled=false;
+      await refreshRuntimeOverview();
+      await refreshPlatformOverview();
+    } catch(e) {
+      $("studio-auth").classList.remove("connected");
+      $("studio-auth-status").textContent=e.message;
+      $("studio-auth-disconnect").disabled=true;
+    } finally { button.disabled=false; }
+  });
+  $("studio-auth-disconnect").addEventListener("click", () => {
+    $("token").value=""; $("token").type="password";
+    $("studio-auth-toggle").textContent="Show";
+    $("studio-auth-toggle").setAttribute("aria-label","Show token");
+    $("studio-auth").classList.remove("connected");
+    $("studio-auth-status").textContent="Disconnected · token cleared from page memory";
+    $("studio-auth-disconnect").disabled=true;
+    $("runtime-overview-state").textContent="Not checked · connect to refresh runtime status.";
+    $("platform-overview-status").className="platform-overview-status";
+    $("platform-overview-status").textContent="Disconnected · displayed inventory values are the last successful snapshot.";
+  });
+
   const run = $("run");
+  const hgRun = $("hg-run-discovery");
+  const setDiscoveryStatus = (message) => {
+    $("status").textContent = message;
+    $("hg-status").textContent = message;
+  };
+  const DISCOVERY_RESULT_STORAGE_KEY = "taas.studio.discovery-result.v1";
+  const renderDiscoveryResult = (data, context = {}) => {
+    const benchmarkTaskNotEvaluated = context.benchmarkTaskNotEvaluated === true;
+        setDiscoveryStatus("Discovery status: " + data.status + (benchmarkTaskNotEvaluated ? " · benchmark task NOT evaluated" : "") + " · MCP execution: not performed");
+        $("selected").textContent = (data.selected_tools || []).length;
+        $("gap").textContent = (data.gap || []).length;
+        const bindings = (data.certificate && data.certificate.bindings) || {};
+        const selectedTools = new Set(data.selected_tools || []);
+        const goals = (data.goal_spec && data.goal_spec.goals) || [];
+        const gapGoals = new Set(data.gap || []);
+        // Keep the three categories disjoint: gap = toolkit-required;
+        // native outside the gap = model-delegated; certified selected binding = toolkit-bound.
+        const delegatedGoals = goals.filter(goal =>
+          !goal.optional && goal.sigma === "native" && !gapGoals.has(goal.id)
+        );
+        const toolkitBindings = Object.entries(bindings).filter(([goalId, target]) =>
+          gapGoals.has(goalId) && selectedTools.has(target)
+        );
+        $("covered").textContent = toolkitBindings.length;
+        $("delegated").textContent = delegatedGoals.length;
+        $("latency").textContent = Number(data.discovery_time_seconds || 0).toFixed(3) + " s";
+        $("toolkit").textContent = JSON.stringify(data.selected_tools || [], null, 2);
+        const checkResults = (data.certificate && data.certificate.checks) || {};
+        const mandatoryChecks = ["S", "C", "P", "E", "L", "V"];
+        const diagnosticChecks = ["M", "B"];
+        const checkSummary = Object.keys(checkResults).length
+          ? "Mandatory certificate checks (S,C,P,E,L,V): " +
+            mandatoryChecks.map(key => key + "=" + (checkResults[key] === true ? "pass" : "fail/missing")).join(" · ") +
+            ". Diagnostic checks (not validity gates): " +
+            diagnosticChecks.map(key => key + "=" + (checkResults[key] === true ? "pass" : checkResults[key] === false ? "fail" : "not reported")).join(" · ") + ". "
+          : "No certificate was produced. ";
+        const goalSummary =
+          "Model-delegated goals (native after gap analysis): " + delegatedGoals.length + ". " +
+          (toolkitBindings.length
+            ? "Toolkit bindings: " + toolkitBindings.map(([goal, tool]) => goal + " → " + tool).join(", ") + ". "
+            : "No goal-to-tool binding was certified. ");
+        const chi = data.counterexample || {};
+        const witness = chi.witness || {};
+        const reason = (data.status === "selected"
+          ? "Discovery selected a metadata-compatible toolkit. This is not runtime execution verification. "
+          : "Discovery abstained; no toolkit is certified for the requested goals. ") +
+          (benchmarkTaskNotEvaluated
+            ? "Benchmark task evaluation was NOT performed. GoalSpec is human-authored; semantic alignment with the task prompt is not verified. "
+            : "") +
+          checkSummary + goalSummary +
+          (chi.name
+            ? "Counterexample: " + chi.name + " (goal " + (chi.goal || "unspecified") + ", check " + (chi.check || "n/a") + "). " +
+              (witness.goal_out ? "Required output: " + witness.goal_out + ". " : "") +
+              (witness.eligible !== undefined ? "Eligible tools: " + witness.eligible + ". " : "")
+            : "");
+        $("explanation").textContent = reason;
+  
+        // Render trust evidence as structured UI. Mandatory validity gates are distinct
+        // from diagnostics; no runtime execution claim is inferred from a valid certificate.
+        const cert=data.certificate||null;
+        const certPanel=$("certificate-panel");
+        certPanel.hidden=!cert&&!data.counterexample;
+        if(!cert){$("certificate-state").className="certificate-state";$("certificate-state").textContent="No certificate produced";$("certificate-summary").textContent="Discovery did not produce a pre-execution certificate. Inspect the counterexample below; absence of a certificate is not a pass.";$("certificate-checks").replaceChildren();$("goal-coverage").replaceChildren();$("certificate-witnesses").textContent="No certificate evidence was produced.";}
+        if(cert){
+          const mandatory=["S","C","P","E","L","V"];
+          const diagnostic=["M","B"];
+          const checks=cert.checks||{};
+          const valid=mandatory.every(k=>checks[k]===true);
+          $("certificate-state").className="certificate-state "+(valid?"valid":"invalid");
+          $("certificate-state").textContent=valid?"Pre-execution certificate valid":"Certificate invalid";
+          $("certificate-summary").textContent=
+            "Mandatory gates "+mandatory.filter(k=>checks[k]===true).length+"/"+mandatory.length+" passed. " +
+            "M (minimality) and B (bridge ratio) are diagnostics, not validity gates. " +
+            "This certifies the discovery model's pre-execution conditions, not runtime behavior.";
+          const labels={
+            S:["S","Goal sufficiency"],C:["C","Output consumability"],P:["P","Input producibility"],
+            E:["E","Effect and policy bounds"],L:["L","Information-flow bounds"],V:["V","Evidence threshold"],
+            M:["M","Toolkit minimality · diagnostic"],B:["B","Bridge ratio · diagnostic"]
+          };
+          const checkRoot=$("certificate-checks");checkRoot.replaceChildren();
+          [...mandatory,...diagnostic].forEach(k=>{
+            const item=document.createElement("div");item.className="certificate-check "+(checks[k]===true?"pass":checks[k]===false?"fail":"");
+            const title=document.createElement("strong");title.textContent=labels[k][0]+" · "+labels[k][1];
+            const state=document.createElement("small");state.textContent=checks[k]===true?"PASS":checks[k]===false?"FAIL":"NOT REPORTED";
+            item.append(title,state);checkRoot.append(item);
+          });
+          const body=$("goal-coverage");body.replaceChildren();
+          const witnesses=(cert.witnesses&&cert.witnesses.S)||{};
+          goals.forEach(goal=>{
+            const row=document.createElement("tr");
+            const status=goal.optional?"Optional":gapGoals.has(goal.id)?"Toolkit required":goal.sigma==="native"?"Model-delegated":"Coverage not certified";
+            const values=[goal.id+" · "+(goal.desc||goal.class),status,witnesses[goal.id]||"No witness",bindings[goal.id]||"—"];
+            values.forEach(value=>{const cell=document.createElement("td");cell.textContent=String(value);row.append(cell);});
+            body.append(row);
+          });
+          $("certificate-witnesses").textContent=JSON.stringify(cert.witnesses||{},null,2);
+        }
+        const counter=data.counterexample;
+        $("counterexample-panel").hidden=!counter;
+        if(counter){
+          $("counterexample-summary").textContent=(counter.name||counter.kind)+" · goal "+(counter.goal||"unspecified")+" · check "+(counter.check||"unspecified");
+          $("counterexample-detail").textContent=JSON.stringify(counter.witness||{},null,2);
+        }
+  
+        const diag=data.discovery_diagnostics||null;
+        const diagPanel=$("discovery-diagnostics-panel");
+        diagPanel.hidden=!diag||diag.available!==true;
+        if(!diagPanel.hidden){
+          $("discovery-diagnostics-stage").textContent=String(diag.pipeline_stage||"stage unavailable").replaceAll("_"," ");
+          $("discovery-diagnostics-summary").textContent=
+            "Policy encoding: "+(diag.policy?.encoding||"unknown")+
+            " · evidence threshold: "+(diag.policy?.minimum_evidence_strength??"unknown")+
+            " · composition eligible count: "+(diag.eligibility?.composition_reported_eligible_count??"not reported")+
+            ". This report explains discovery filters; it does not authorize execution.";
+          $("discovery-diagnostics-contracts").textContent=String(diag.index_live_count??0)+" / "+String(diag.registry_contract_count??0);
+          $("discovery-diagnostics-eligible").textContent=String(diag.eligibility?.eligible_count??0);
+          $("discovery-diagnostics-candidates").textContent=String(diag.candidate_retrieval?.candidate_count??0);
+          const consistent=diag.eligibility?.composition_count_matches_preflight;
+          $("discovery-diagnostics-consistency").textContent=consistent===true?"MATCH":consistent===false?"MISMATCH":"N/A";
+          const rows=$("discovery-diagnostics-tools");rows.replaceChildren();
+          (diag.tools||[]).forEach(tool=>{
+            const row=document.createElement("tr");
+            const values=[
+              tool.tool_id||"unknown",
+              tool.eligible===true?"Eligible":"Excluded",
+              JSON.stringify(tool.property_strengths||{}),
+              (tool.exclusions||[]).length?JSON.stringify(tool.exclusions):"No policy/visibility exclusion reported"
+            ];
+            values.forEach(value=>{const cell=document.createElement("td");cell.textContent=String(value);row.append(cell);});
+            rows.append(row);
+          });
+          $("discovery-diagnostics-raw").textContent=JSON.stringify(diag,null,2);
+        }
+        renderHypergraphProjection(data.hypergraph_projection_status === "available" ? data.hypergraph_projection : null);
+        $("response").textContent = JSON.stringify(data, null, 2);
+  };
+  const persistDiscoveryResult = (data, context = {}) => {
+    try {
+      const snapshot = {
+        version: 1,
+        saved_at: new Date().toISOString(),
+        context: {benchmarkTaskNotEvaluated: context.benchmarkTaskNotEvaluated === true},
+        data
+      };
+      const serialized = JSON.stringify(snapshot);
+      // Keep this tab-scoped snapshot bounded; never persist the bearer token.
+      if (serialized.length > 2000000) return false;
+      sessionStorage.setItem(DISCOVERY_RESULT_STORAGE_KEY, serialized);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  };
+  const restoreLastDiscoveryResult = () => {
+    try {
+      const raw = sessionStorage.getItem(DISCOVERY_RESULT_STORAGE_KEY);
+      if (!raw) return;
+      const snapshot = JSON.parse(raw);
+      const data = snapshot && snapshot.version === 1 ? snapshot.data : null;
+      if (!data || typeof data !== "object" || !Array.isArray(data.selected_tools) || !Array.isArray(data.gap)) {
+        sessionStorage.removeItem(DISCOVERY_RESULT_STORAGE_KEY);
+        return;
+      }
+      renderDiscoveryResult(data, snapshot.context || {});
+      const savedAt = snapshot.saved_at ? new Date(snapshot.saved_at) : null;
+      $("status").textContent += " · Restored from this browser tab" +
+        (savedAt && !Number.isNaN(savedAt.getTime()) ? " · " + savedAt.toLocaleString() : "") +
+        " · no discovery request was rerun";
+    } catch (_) {
+      // Storage may be unavailable or contain an incomplete snapshot; never invent a result.
+    }
+  };
+  hgRun.addEventListener("click", () => run.click());
+  $("hg-edit-goal").addEventListener("click", () => {
+    const link = studioLinks.find(item => item.getAttribute("href") === "#goal-editor");
+    if (link) showStudioWorkspace(link);
+  });
 
   // Visual GoalSpec editor. The JSON request remains the canonical transport payload.
   const GOAL_CLASSES = ["classify","extract","summarise","translate","convert_format","write","plan","synthesise","aggregate","compute_exact","count","compare","answer","retrieve","search","fetch_web","store","send","transact","execute","navigate_browser","render_media","create_document","edit_document","random"];
@@ -355,6 +1272,16 @@
   const readRequest = () => JSON.parse($("payload").value);
   const writeRequest = body => { $("payload").value=JSON.stringify(body,null,2); goalJsonManuallyEdited=false; };
   $("payload").addEventListener("input",()=>{goalJsonManuallyEdited=true;$("goal-validation").className="goal-validation";$("goal-validation").textContent="Advanced JSON was edited. Reload the visual editor before validating or running discovery.";});
+  const invalidateHumanReview = () => { const review=$("goal-semantic-review"); if(review) review.checked=false; };
+  $("goal-prompt").addEventListener("input",invalidateHumanReview);
+  $("goal-prompt-inputs").addEventListener("input",invalidateHumanReview);
+  $("goal-cards").addEventListener("input",invalidateHumanReview);
+  $("goal-cards").addEventListener("change",invalidateHumanReview);
+  $("goal-cards").addEventListener("click",invalidateHumanReview);
+  $("goal-add").addEventListener("click",invalidateHumanReview);
+  $("bench-tools").addEventListener("change",invalidateHumanReview);
+  $("mcp-tool-list").addEventListener("change",invalidateHumanReview);
+  $("payload").addEventListener("input",invalidateHumanReview);
   const getGoalSpec = () => {
     const body=readRequest(); body.goal_spec=body.goal_spec||{};
     body.goal_spec.prompt=goalSpecState.prompt||"";
@@ -463,7 +1390,7 @@
     try{
       const gs=readRequest().goal_spec||{};
       goalSpecState={prompt:gs.prompt||"",prompt_inputs_text:(gs.prompt_inputs||["text"]).join(", "),goals:Array.isArray(gs.goals)?gs.goals.map(g=>({...g,n:g.n??1,in:[...(g.in||[])],eff:[...(g.eff||[])],deps:[...(g.deps||[])]})):[]};
-      goalJsonManuallyEdited=false;if(bench.selectedTask)$("bench-goal-review").checked=false;renderGoalEditor();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Visual editor reloaded from the JSON payload.";
+      goalJsonManuallyEdited=false;invalidateHumanReview();if(bench.selectedTask)$("bench-goal-review").checked=false;renderGoalEditor();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Visual editor reloaded from the JSON payload.";
     }catch(e){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent="Cannot reload editor: "+e.message;}
   });
   try{
@@ -487,12 +1414,118 @@
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
-      $("model-status").textContent = data.count + " model metadata record(s). Weights downloaded: no.";
-      $("model-results").textContent = JSON.stringify(data.models || [], null, 2);
+      const models = data.models || [];
+      $("model-status").textContent = data.count + " model metadata record(s). Repository metadata only; weights downloaded: no.";
+      $("model-results").textContent = JSON.stringify(models, null, 2);
+      const cards = $("model-cards"); cards.replaceChildren();
+      if (!models.length) { const empty=document.createElement("p");empty.className="muted";empty.textContent="No matching repositories. Try a broader query.";cards.append(empty); }
+      models.forEach(model => {
+        const card=document.createElement("article");card.className="model-card";
+        const title=document.createElement("h3");title.textContent=model.model_id;
+        const meta=document.createElement("div");meta.className="model-meta";
+        const values=[model.pipeline_tag,model.library_name,model.license,model.safetensors?"Safetensors":"No Safetensors metadata",model.gated===true?"Gated":null,model.parameter_count?((model.parameter_count/1e9).toFixed(2)+"B params"):null].filter(Boolean);
+        values.forEach(value=>{const chip=document.createElement("span");chip.textContent=String(value);meta.append(chip);});
+        const stats=document.createElement("p");stats.textContent=(model.downloads==null?"Downloads n/a":Number(model.downloads).toLocaleString()+" downloads")+" · "+(model.likes==null?"likes n/a":Number(model.likes).toLocaleString()+" likes");
+        const action=document.createElement("button");action.type="button";action.className="secondary";action.textContent="Inspect repository";
+        action.addEventListener("click",()=>selectModel(model.model_id));
+        card.append(title,meta,stats,action);cards.append(card);
+      });
     } catch (e) {
       $("model-status").textContent = "Model search failed: " + e.message;
       $("model-results").textContent = "";
+      $("model-cards").replaceChildren();
     } finally { button.disabled = false; }
+  });
+
+
+  let selectedModelRecord=null;
+  let selectedModelArtifacts=null;
+  const renderModelFact=(label,value)=>{
+    const item=document.createElement("div");item.className="model-detail-item";
+    const key=document.createElement("small");key.textContent=label;
+    const val=document.createElement("strong");val.textContent=value==null||value===""?"Not reported":String(value);
+    item.append(key,val);return item;
+  };
+  const selectModel=async(modelId)=>{
+    const token=$("token").value.trim();
+    if(!token){$("model-status").textContent="Enter the Studio API token before inspecting a model.";return;}
+    $("model-selected-panel").hidden=false;
+    $("model-selected-title").textContent=modelId;
+    $("model-selected-subtitle").textContent="Fetching configuration metadata from Hugging Face…";
+    $("model-selected-state").textContent="Inspecting";
+    $("model-selected-details").replaceChildren();
+    selectedModelRecord=null;selectedModelArtifacts=null;
+    $("model-memory-status").textContent="Waiting for model metadata.";
+    try{
+      const response=await fetch("/api/v1/models/detail?"+new URLSearchParams({model_id:modelId}),{headers:{"Authorization":"Bearer "+token}});
+      const data=await response.json();if(!response.ok)throw new Error(data.detail||("HTTP "+response.status));
+      selectedModelRecord=data;
+      $("model-selected-subtitle").textContent=[data.pipeline_tag,data.library_name,data.license].filter(Boolean).join(" · ")||"Repository metadata";
+      $("model-selected-state").textContent="Metadata inspected · weights not downloaded";
+      const arch=data.architecture||{};
+      const facts=[
+        ["Parameters",data.parameter_count?((data.parameter_count/1e9).toFixed(3)+" billion"):null],
+        ["Architecture",arch.model_type],
+        ["Model class",Array.isArray(arch.architectures)?arch.architectures.join(", "):null],
+        ["Layers",arch.num_hidden_layers],
+        ["Attention heads",arch.num_attention_heads],
+        ["KV heads",arch.num_key_value_heads],
+        ["Hidden size",arch.hidden_size],
+        ["Head dimension",arch.head_dim],
+        ["Reported context",arch.max_position_embeddings||arch.max_sequence_length],
+        ["Safetensors",data.safetensors?"Reported":"Not reported"],
+        ["License",data.license],
+        ["Gated repository",data.gated]
+      ];
+      facts.forEach(([label,value])=>$("model-selected-details").append(renderModelFact(label,value)));
+      $("model-selected-raw").textContent=JSON.stringify(data,null,2);
+      $("model-memory-status").textContent=data.parameter_count?"Parameter count reported. Run a planning estimate; KV cache may be partial if architecture dimensions are missing.":"No parameter count reported; memory estimate unavailable.";
+      $("model-estimate-memory").disabled=!data.parameter_count;
+      $("model-use-runtime").disabled=false;
+      $("model-inspect-artifacts").disabled=false;
+      $("runtime-model-id").value=modelId;
+      $("artifact-model-id").value=modelId;
+    }catch(e){
+      $("model-selected-state").textContent="Inspection failed";
+      $("model-selected-subtitle").textContent=e.message;
+      $("model-memory-status").textContent="Cannot estimate without valid model metadata.";
+    }
+  };
+  $("model-use-runtime").addEventListener("click",()=>{
+    if(!selectedModelRecord)return;
+    $("runtime-model-id").value=selectedModelRecord.model_id;
+    const link=studioLinks.find(item=>item.getAttribute("href")==="#model-runtime-panel");
+    if(link)showStudioWorkspace(link);
+  });
+  $("model-inspect-artifacts").addEventListener("click",async()=>{
+    if(!selectedModelRecord)return;
+    const button=$("model-inspect-artifacts");button.disabled=true;
+    $("model-selected-artifacts").textContent="Inspecting repository files metadata…";
+    try{
+      const response=await fetch("/api/v1/models/artifacts?"+new URLSearchParams({model_id:selectedModelRecord.model_id}),{headers:{"Authorization":"Bearer "+$("token").value.trim()}});
+      const data=await response.json();if(!response.ok)throw new Error(data.detail||("HTTP "+response.status));
+      selectedModelArtifacts=data;
+      $("model-selected-artifacts").textContent=JSON.stringify(data,null,2);
+      $("model-selected-state").textContent="Artifacts inspected · runtime compatibility unverified";
+    }catch(e){$("model-selected-artifacts").textContent="Artifact inspection failed: "+e.message;}
+    finally{button.disabled=false;}
+  });
+  $("model-estimate-memory").addEventListener("click",async()=>{
+    if(!selectedModelRecord?.parameter_count)return;
+    const button=$("model-estimate-memory");button.disabled=true;$("model-memory-status").textContent="Calculating memory estimate…";
+    try{
+      const arch=selectedModelRecord.architecture||{};
+      const body={parameters_billion:selectedModelRecord.parameter_count/1e9,quantization:$("model-quantization").value};
+      const context=Number($("model-context-length").value);
+      const kvKeys=["num_hidden_layers","num_key_value_heads","head_dim"];
+      const kvComplete=kvKeys.every(key=>Number.isInteger(arch[key])&&arch[key]>0);
+      if(kvComplete){for(const key of kvKeys)body[key]=arch[key];if(Number.isInteger(context)&&context>0)body.context_length=context;}
+      const response=await fetch("/api/v1/models/estimate-memory",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+$("token").value.trim()},body:JSON.stringify(body)});
+      const data=await response.json();if(!response.ok)throw new Error(data.detail||("HTTP "+response.status));
+      $("model-memory-results").textContent=JSON.stringify(data,null,2);
+      $("model-memory-status").textContent="Estimate calculated from reported parameter count"+(data.kv_cache_memory_gib!==null?" and complete KV-cache dimensions.":"; KV cache excluded because complete architecture dimensions were unavailable.");
+    }catch(e){$("model-memory-status").textContent="Memory estimate failed: "+e.message;}
+    finally{button.disabled=false;}
   });
 
   $("artifact-inspect").addEventListener("click", async () => {
@@ -542,11 +1575,15 @@
   run.addEventListener("click", async () => {
     let body;
     try { body = JSON.parse($("payload").value); }
-    catch (e) { $("status").textContent = "Invalid JSON: " + e.message; return; }
-    if(goalJsonManuallyEdited){$("status").textContent="Reload the visual editor from the advanced JSON before validation or discovery.";return;}
+    catch (e) { setDiscoveryStatus("Invalid JSON: " + e.message); return; }
+    if(goalJsonManuallyEdited){setDiscoveryStatus("Reload the visual editor from the advanced JSON before validation or discovery.");return;}
+    if(!$("goal-semantic-review").checked){
+      setDiscoveryStatus("Discovery blocked: review the objective-to-GoalSpec mapping and selected tool metadata, then confirm the human-review checkbox.");
+      return;
+    }
     if(bench.selectedTask){
       if(!$("bench-goal-review").checked){
-        $("status").textContent="Benchmark discovery blocked: review the GoalSpec against the selected task prompt and confirm the review checkbox.";
+        setDiscoveryStatus("Benchmark discovery blocked: review the GoalSpec against the selected task prompt and confirm the review checkbox.");
         return;
       }
       const selected=[...bench.selectedTools.values()];
@@ -555,132 +1592,41 @@
       const expected=new Set(selected.map(key));
       const actual=new Set(requestTools.map(key));
       if(!selected.length){
-        $("status").textContent="Benchmark discovery blocked: select at least one registry tool. The demo tool is not valid evidence for this task.";
+        setDiscoveryStatus("Benchmark discovery blocked: select at least one registry tool. The demo tool is not valid evidence for this task.");
         return;
       }
       if(expected.size!==actual.size||[...expected].some(k=>!actual.has(k))){
-        $("status").textContent="Benchmark discovery blocked: registry selections are not synchronized with the request. Click “Add selected tools to discovery” and retry.";
+        setDiscoveryStatus("Benchmark discovery blocked: registry selections are not synchronized with the request. Click “Add selected tools to discovery” and retry.");
         return;
       }
     }
     const token = $("token").value.trim();
-    if (!token) { $("status").textContent = "Enter the Studio API token first."; return; }
+    if (!token) { setDiscoveryStatus("Enter the Studio API token first."); return; }
     const goalErrors=validateGoalSpecLocal();
-    if(goalErrors.length){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent=goalErrors.join(" ");$("status").textContent="Correct the GoalSpec validation errors before discovery.";return;}
+    if(goalErrors.length){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent=goalErrors.join(" ");setDiscoveryStatus("Correct the GoalSpec validation errors before discovery.");return;}
+    body.human_review_confirmed = true;
     run.disabled = true;
-    $("status").textContent = "Running discovery…";
+    hgRun.disabled = true;
+    setDiscoveryStatus("Running reviewed discovery through TaaS Core…");
     $("toolkit").textContent = "Waiting for API response…";
     $("response").textContent = "";
+    // Preserve the last successful Core projection until a fresh response arrives.
     try {
-      const response = await fetch("/api/v1/discover", {
+      const response = await fetch("/api/v1/objectives/discover", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
         body: JSON.stringify(body)
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
-      $("status").textContent = "Discovery status: " + data.status + (bench.selectedTask ? " · benchmark task NOT evaluated" : "") + " · MCP execution: not performed";
-      $("selected").textContent = (data.selected_tools || []).length;
-      $("gap").textContent = (data.gap || []).length;
-      const bindings = (data.certificate && data.certificate.bindings) || {};
-      const selectedTools = new Set(data.selected_tools || []);
-      const goals = (data.goal_spec && data.goal_spec.goals) || [];
-      const gapGoals = new Set(data.gap || []);
-      // Keep the three categories disjoint: gap = toolkit-required;
-      // native outside the gap = model-delegated; certified selected binding = toolkit-bound.
-      const delegatedGoals = goals.filter(goal =>
-        !goal.optional && goal.sigma === "native" && !gapGoals.has(goal.id)
-      );
-      const toolkitBindings = Object.entries(bindings).filter(([goalId, target]) =>
-        gapGoals.has(goalId) && selectedTools.has(target)
-      );
-      $("covered").textContent = toolkitBindings.length;
-      $("delegated").textContent = delegatedGoals.length;
-      $("latency").textContent = Number(data.discovery_time_seconds || 0).toFixed(3) + " s";
-      $("toolkit").textContent = JSON.stringify(data.selected_tools || [], null, 2);
-      const checkResults = (data.certificate && data.certificate.checks) || {};
-      const mandatoryChecks = ["S", "C", "P", "E", "L", "V"];
-      const diagnosticChecks = ["M", "B"];
-      const checkSummary = Object.keys(checkResults).length
-        ? "Mandatory certificate checks (S,C,P,E,L,V): " +
-          mandatoryChecks.map(key => key + "=" + (checkResults[key] === true ? "pass" : "fail/missing")).join(" · ") +
-          ". Diagnostic checks (not validity gates): " +
-          diagnosticChecks.map(key => key + "=" + (checkResults[key] === true ? "pass" : checkResults[key] === false ? "fail" : "not reported")).join(" · ") + ". "
-        : "No certificate was produced. ";
-      const goalSummary =
-        "Model-delegated goals (native after gap analysis): " + delegatedGoals.length + ". " +
-        (toolkitBindings.length
-          ? "Toolkit bindings: " + toolkitBindings.map(([goal, tool]) => goal + " → " + tool).join(", ") + ". "
-          : "No goal-to-tool binding was certified. ");
-      const chi = data.counterexample || {};
-      const witness = chi.witness || {};
-      const reason = (data.status === "selected"
-        ? "Discovery selected a metadata-compatible toolkit. This is not runtime execution verification. "
-        : "Discovery abstained; no toolkit is certified for the requested goals. ") +
-        (bench.selectedTask
-          ? "Benchmark task evaluation was NOT performed. GoalSpec is human-authored; semantic alignment with the task prompt is not verified. "
-          : "") +
-        checkSummary + goalSummary +
-        (chi.name
-          ? "Counterexample: " + chi.name + " (goal " + (chi.goal || "unspecified") + ", check " + (chi.check || "n/a") + "). " +
-            (witness.goal_out ? "Required output: " + witness.goal_out + ". " : "") +
-            (witness.eligible !== undefined ? "Eligible tools: " + witness.eligible + ". " : "")
-          : "");
-      $("explanation").textContent = reason;
-
-      // Render trust evidence as structured UI. Mandatory validity gates are distinct
-      // from diagnostics; no runtime execution claim is inferred from a valid certificate.
-      const cert=data.certificate||null;
-      const certPanel=$("certificate-panel");
-      certPanel.hidden=!cert&&!data.counterexample;
-      if(!cert){$("certificate-state").className="certificate-state";$("certificate-state").textContent="No certificate produced";$("certificate-summary").textContent="Discovery did not produce a pre-execution certificate. Inspect the counterexample below; absence of a certificate is not a pass.";$("certificate-checks").replaceChildren();$("goal-coverage").replaceChildren();$("certificate-witnesses").textContent="No certificate evidence was produced.";}
-      if(cert){
-        const mandatory=["S","C","P","E","L","V"];
-        const diagnostic=["M","B"];
-        const checks=cert.checks||{};
-        const valid=mandatory.every(k=>checks[k]===true);
-        $("certificate-state").className="certificate-state "+(valid?"valid":"invalid");
-        $("certificate-state").textContent=valid?"Pre-execution certificate valid":"Certificate invalid";
-        $("certificate-summary").textContent=
-          "Mandatory gates "+mandatory.filter(k=>checks[k]===true).length+"/"+mandatory.length+" passed. " +
-          "M (minimality) and B (bridge ratio) are diagnostics, not validity gates. " +
-          "This certifies the discovery model's pre-execution conditions, not runtime behavior.";
-        const labels={
-          S:["S","Goal sufficiency"],C:["C","Output consumability"],P:["P","Input producibility"],
-          E:["E","Effect and policy bounds"],L:["L","Information-flow bounds"],V:["V","Evidence threshold"],
-          M:["M","Toolkit minimality · diagnostic"],B:["B","Bridge ratio · diagnostic"]
-        };
-        const checkRoot=$("certificate-checks");checkRoot.replaceChildren();
-        [...mandatory,...diagnostic].forEach(k=>{
-          const item=document.createElement("div");item.className="certificate-check "+(checks[k]===true?"pass":checks[k]===false?"fail":"");
-          const title=document.createElement("strong");title.textContent=labels[k][0]+" · "+labels[k][1];
-          const state=document.createElement("small");state.textContent=checks[k]===true?"PASS":checks[k]===false?"FAIL":"NOT REPORTED";
-          item.append(title,state);checkRoot.append(item);
-        });
-        const body=$("goal-coverage");body.replaceChildren();
-        const witnesses=(cert.witnesses&&cert.witnesses.S)||{};
-        goals.forEach(goal=>{
-          const row=document.createElement("tr");
-          const status=goal.optional?"Optional":gapGoals.has(goal.id)?"Toolkit required":goal.sigma==="native"?"Model-delegated":"Coverage not certified";
-          const values=[goal.id+" · "+(goal.desc||goal.class),status,witnesses[goal.id]||"No witness",bindings[goal.id]||"—"];
-          values.forEach(value=>{const cell=document.createElement("td");cell.textContent=String(value);row.append(cell);});
-          body.append(row);
-        });
-        $("certificate-witnesses").textContent=JSON.stringify(cert.witnesses||{},null,2);
-      }
-      const counter=data.counterexample;
-      $("counterexample-panel").hidden=!counter;
-      if(counter){
-        $("counterexample-summary").textContent=(counter.name||counter.kind)+" · goal "+(counter.goal||"unspecified")+" · check "+(counter.check||"unspecified");
-        $("counterexample-detail").textContent=JSON.stringify(counter.witness||{},null,2);
-      }
-
-      $("response").textContent = JSON.stringify(data, null, 2);
+      const benchmarkTaskNotEvaluated = Boolean(bench.selectedTask);
+      renderDiscoveryResult(data, {benchmarkTaskNotEvaluated});
+      persistDiscoveryResult(data, {benchmarkTaskNotEvaluated});
     } catch (e) {
-      $("status").textContent = "Request failed: " + e.message;
+      setDiscoveryStatus("Request failed: " + e.message + " · The previous projection, if any, is retained and may be stale.");
       $("toolkit").textContent = "No toolkit returned.";
       $("response").textContent = "";
-    } finally { run.disabled = false; }
+    } finally { run.disabled = false; hgRun.disabled = false; }
   });
 
   // Integrated benchmark workspace: task prompts and tool metadata are browsed locally.
@@ -718,11 +1664,109 @@
     return true;
   };
   const tokenValue = () => $("token").value.trim();
-  const apiGet = async (path) => {
-    const token=tokenValue(); if(!token) throw new Error("Enter the Studio API token in Discovery request configuration first.");
-    const r=await fetch(path,{headers:{"Authorization":"Bearer "+token}});
-    const d=await r.json(); if(!r.ok) throw new Error(d.detail||("HTTP "+r.status)); return d;
+  const markStudioAuthRejected = () => {
+    $("studio-auth").classList.remove("connected");
+    $("studio-auth-status").textContent = "Token rejected by the Studio API · reconnect to verify the current runtime token";
+    $("studio-auth-disconnect").disabled = false;
   };
+  const formatApiError = (detail, fallback) => {
+    if (typeof detail === "string" && detail.trim()) return detail;
+    if (Array.isArray(detail)) return detail.map(item => {
+      if (typeof item === "string") return item;
+      const loc = Array.isArray(item?.loc) ? item.loc.join(".") : "";
+      const msg = item?.msg || item?.message || JSON.stringify(item);
+      return loc ? loc + ": " + msg : msg;
+    }).join("\n");
+    if (detail && typeof detail === "object") {
+      if (typeof detail.message === "string") return detail.message;
+      if (typeof detail.detail === "string") return detail.detail;
+      return JSON.stringify(detail, null, 2);
+    }
+    return fallback || "Request failed.";
+  };
+  const apiGet = async (path) => {
+    const token=tokenValue(); if(!token) throw new Error("Connect to TaaS Studio in the application header first.");
+    const r=await fetch(path,{headers:{"Authorization":"Bearer "+token}});
+    const d=await r.json();
+    if(r.status===401){markStudioAuthRejected();throw new Error("Studio API rejected the bearer token. Reconnect in the header, then retry.");}
+    if(!r.ok) throw new Error(formatApiError(d.detail||d,"HTTP "+r.status));
+    return d;
+  };
+  // F01: Platform Overview reads existing Core inventories independently.
+  // Partial failures remain visible; no synthetic counts or inferred readiness.
+  const overviewStatus = $("platform-overview-status");
+  const overviewRefresh = $("platform-overview-refresh");
+  const setOverviewMetric = (key, value, meta) => {
+    $("overview-"+key+"-value").textContent = value === null || value === undefined ? "Unavailable" : String(value);
+    if (meta) $("overview-"+key+"-meta").textContent = meta;
+  };
+  const renderOverviewRecent = (targetId, countId, items, idField, emptyText) => {
+    const root=$(targetId); root.replaceChildren();
+    $(countId).textContent=String(items.length);
+    if(!items.length){
+      const empty=document.createElement("p");empty.className="subtle";empty.textContent=emptyText;root.append(empty);return;
+    }
+    items.slice(0,5).forEach(item=>{
+      const row=document.createElement("div");row.className="platform-recent-item";
+      const copy=document.createElement("div");
+      const title=document.createElement("strong");
+      title.textContent=String(item[idField]||"Unnamed")+" @ "+String(item.version||"version unknown");
+      const detail=document.createElement("small");
+      detail.textContent="SHA-256 "+String(item.manifest_sha256||"not reported").slice(0,16)
+        +" · "+String(item.updated_at||item.created_at||"timestamp not reported");
+      copy.append(title,detail);
+      const state=document.createElement("span");state.className="platform-lifecycle";
+      state.textContent=String(item.lifecycle_state||"unknown");
+      row.append(copy,state);root.append(row);
+    });
+  };
+  const refreshPlatformOverview = async () => {
+    if(!tokenValue()){
+      overviewStatus.className="platform-overview-status";
+      overviewStatus.textContent="Connect to the Studio API before requesting inventory data.";
+      return;
+    }
+    overviewRefresh.disabled=true;
+    overviewStatus.className="platform-overview-status";
+    overviewStatus.textContent="Loading authenticated Core inventory snapshots…";
+    const requests=[
+      ["agents",()=>apiGet("/api/v1/agents?limit=100")],
+      ["skills",()=>apiGet("/api/v1/skills?limit=100")],
+      ["tools",()=>apiGet("/api/v1/bench/tools?source=all&limit=1&offset=0")],
+      ["mcp",()=>apiGet("/api/v1/mcp/servers")],
+      ["datasets",()=>apiGet("/api/v1/bench/datasets")]
+    ];
+    try {
+      const results=await Promise.allSettled(requests.map(([,load])=>load()));
+      let successes=0;
+      const byKey={};
+      results.forEach((result,index)=>{
+        const key=requests[index][0];
+        if(result.status==="fulfilled"){successes++;byKey[key]=result.value;}
+        else {byKey[key]=null;setOverviewMetric(key,null,"API unavailable · "+(result.reason?.message||"request failed"));}
+      });
+      if(byKey.agents){
+        const items=Array.isArray(byKey.agents.versions)?byKey.agents.versions:[];
+        setOverviewMetric("agents",items.length,"Returned records · maximum 100");
+        renderOverviewRecent("overview-recent-agents","overview-recent-agents-count",items,"agent_id","No Agent versions are registered.");
+      } else renderOverviewRecent("overview-recent-agents","overview-recent-agents-count",[],"Agent inventory unavailable.");
+      if(byKey.skills){
+        const items=Array.isArray(byKey.skills.versions)?byKey.skills.versions:[];
+        setOverviewMetric("skills",items.length,"Returned records · maximum 100");
+        renderOverviewRecent("overview-recent-skills","overview-recent-skills-count",items,"skill_id","No Skill versions are registered.");
+      } else renderOverviewRecent("overview-recent-skills","overview-recent-skills-count",[],"Skill inventory unavailable.");
+      if(byKey.tools)setOverviewMetric("tools",byKey.tools.total??"Not reported","Core-reported registry total");
+      if(byKey.mcp)setOverviewMetric("mcp",byKey.mcp.count??(byKey.mcp.servers||[]).length,"Configured entries · not live connectivity");
+      if(byKey.datasets)setOverviewMetric("datasets",(byKey.datasets.datasets||[]).length,"Repository-retained datasets");
+      overviewStatus.className="platform-overview-status "+(successes===requests.length?"ok":successes?"partial":"error");
+      overviewStatus.textContent=successes===requests.length
+        ?"All "+successes+" inventory sources responded successfully. These are inventory facts, not readiness or authorization decisions."
+        :successes+" of "+requests.length+" inventory sources responded. Failed sources are marked unavailable; successful values are retained.";
+      $("platform-overview-updated").textContent="Last refresh · "+new Date().toLocaleTimeString();
+    } finally { overviewRefresh.disabled=false; }
+  };
+  overviewRefresh.addEventListener("click",refreshPlatformOverview);
+
   const loadDatasets = async () => {
     const d=await apiGet("/api/v1/bench/datasets"); bench.datasets=d.datasets||[];
     $("bench-dataset-count").textContent=bench.datasets.length+" datasets";
@@ -801,18 +1845,20 @@
     try{
       const prompt=bench.selectedTask.query||"";
       if(goalSpecState.prompt!==prompt){goalSpecState.goals=[];$("bench-goal-review").checked=false;}
-      goalSpecState.prompt=prompt;renderGoalEditor();getGoalSpec();
+      invalidateHumanReview();goalSpecState.prompt=prompt;renderGoalEditor();getGoalSpec();
       const importedToolCount=syncBenchmarkToolsToRequest();
       $("bench-status").textContent="Task prompt copied to GoalSpec. "+
         (importedToolCount?importedToolCount+" selected registry tool(s) synchronized; review their relevance. ":"No registry tools selected; choose tools relevant to this task. ")+
         "Author and review task-specific semantic goal contracts. Structural validation does not verify semantic alignment.";
-      document.querySelector("#discovery").scrollIntoView({behavior:"smooth",block:"start"});
+      const goalEditorLink = studioLinks.find(link => link.getAttribute("href") === "#goal-editor");
+      if (goalEditorLink) showStudioWorkspace(goalEditorLink);
     }catch(e){$("bench-status").textContent="Cannot update GoalSpec: discovery request JSON is invalid.";}
   });
   $("bench-add-tools").addEventListener("click",()=>{
     try{
       const count=syncBenchmarkToolsToRequest();
       if(!count)throw new Error("Select at least one registry tool before importing.");
+      invalidateHumanReview();
       $("bench-status").textContent=count+" selected registry tool(s) synchronized with the discovery request. Demo/sample tools were removed. Review GoalSpec alignment before running.";
     }catch(e){$("bench-status").textContent="Cannot add tools: "+e.message;}
   });
@@ -823,6 +1869,600 @@
   loadBtn.addEventListener("click",async()=>{loadBtn.disabled=true;$("bench-status").textContent="Loading retained benchmark datasets…";try{await loadDatasets();await loadTools();$("bench-status").textContent="Benchmark workspace loaded from the repository-retained snapshot. Gold labels remain hidden.";}catch(e){showBenchError(e);}finally{loadBtn.disabled=false;}});
   $("bench-status").append(document.createTextNode(" "));
   $("bench-status").append(loadBtn);
+
+  // Real Hugging Face model runtime and agent operations. No mock inference path.
+  const runtimePost = async (path, body) => {
+    const token=tokenValue(); if(!token) throw new Error("Connect to TaaS Studio in the application header first.");
+    const response=await fetch(path,{method:"POST",headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const data=await response.json();
+    if(response.status===401){markStudioAuthRejected();throw new Error("Studio API rejected the bearer token. Reconnect in the header, then retry.");}
+    if(!response.ok) throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
+    return data;
+  };
+
+  let publishedSkillOptions = [];
+  const refreshReusableSkillOptions = async () => {
+    const select=$("agent-skill-registry-select");
+    const data=await apiGet("/api/v1/skills?limit=200");
+    publishedSkillOptions=(data.versions||[]).filter(item=>item.lifecycle_state==="published");
+    select.replaceChildren(new Option("Select a published Skill version",""));
+    publishedSkillOptions.forEach(item=>{
+      const value=item.skill_id+"@"+item.version;
+      select.add(new Option(item.skill_id+" @ "+item.version+" · "+item.manifest_sha256.slice(0,12),value));
+    });
+    $("agent-skill-registry-add").disabled=publishedSkillOptions.length===0;
+    $("agent-skill-registry-status").textContent=publishedSkillOptions.length
+      +" published immutable Skill version(s) available. Select one to pin its exact version and manifest digest into the Agent manifest.";
+    return publishedSkillOptions;
+  };
+  $("agent-skill-registry-refresh").addEventListener("click",async()=>{
+    const button=$("agent-skill-registry-refresh");button.disabled=true;
+    $("agent-skill-registry-status").textContent="Loading published Skill versions…";
+    try{await refreshReusableSkillOptions();}
+    catch(error){$("agent-skill-registry-status").textContent="Unable to load reusable Skills: "+error.message;}
+    finally{button.disabled=false;}
+  });
+  $("agent-skill-registry-select").addEventListener("change",()=>{
+    $("agent-skill-registry-add").disabled=!$("agent-skill-registry-select").value;
+  });
+  $("agent-skill-registry-add").addEventListener("click",()=>{
+    try{
+      const selected=$("agent-skill-registry-select").value;
+      const skill=publishedSkillOptions.find(item=>item.skill_id+"@"+item.version===selected);
+      if(!skill)throw new Error("Select a published Skill version first.");
+      const manifest=JSON.parse($("agent-manifest-json").value);
+      manifest.spec=manifest.spec||{};
+      manifest.spec.skill_refs=manifest.spec.skill_refs||[];
+      if(manifest.spec.skill_refs.some(ref=>ref.id===skill.skill_id))
+        throw new Error("This Skill ID is already referenced. Update its pinned version explicitly in the manifest.");
+      if((manifest.spec.skills||[]).some(ref=>ref.id===skill.skill_id))
+        throw new Error("This Skill ID is already embedded. Remove the embedded definition before adding a registry reference.");
+      manifest.spec.skill_refs.push({
+        id:skill.skill_id,version:skill.version,manifest_sha256:skill.manifest_sha256
+      });
+      $("agent-manifest-json").value=JSON.stringify(manifest,null,2);
+      $("agent-skill-registry-status").textContent="Pinned "+skill.skill_id+" @ "+skill.version+". Validate the Agent manifest to recheck publication state and digest integrity.";
+    }catch(error){$("agent-skill-registry-status").textContent="Skill reference not added: "+error.message;}
+  });
+
+  const refreshAgentContextOptions = async (preferredValue = "") => {
+    const select=$("agent-context-select");
+    const previous=preferredValue||select.value;
+    const data=await apiGet("/api/v1/agents?limit=100");
+    select.replaceChildren(new Option("No Agent context · use Core analyst defaults",""));
+    (data.versions||[]).forEach(item=>{
+      const value=item.agent_id+"@"+item.version;
+      const label=item.agent_id+" @ "+item.version+" · "+item.lifecycle_state;
+      select.add(new Option(label,value));
+    });
+    if([...select.options].some(option=>option.value===previous))select.value=previous;
+    $("agent-context-status").textContent=(data.count||0)+" saved Agent version(s) available. The selected version's instructions and matching skills are injected into decomposition; its tool allowlist remains outside the LLM context.";
+    return data;
+  };
+  $("agent-context-refresh").addEventListener("click",async()=>{
+    const button=$("agent-context-refresh");button.disabled=true;
+    $("agent-context-status").textContent="Loading immutable Agent versions…";
+    try{await refreshAgentContextOptions();}
+    catch(error){$("agent-context-status").textContent="Unable to load saved Agent versions: "+error.message;}
+    finally{button.disabled=false;}
+  });
+  $("agent-context-select").addEventListener("change",()=>{
+    const value=$("agent-context-select").value;
+    $("agent-context-status").textContent=value
+      ?"Agent context selected: "+value+". Instructions and objective-triggered skills will be included in the analyst prompt. Tool grants are not sent to the LLM."
+      :"No Agent context selected. The Core analyst contract and Objective Contract remain active.";
+  });
+  const refreshLoadedModel = async () => {
+    const state=await apiGet("/api/v1/models/runtime");$("runtime-model-details").textContent=JSON.stringify(state,null,2);
+    if($("runtime-provider").value==="ollama"){
+      const ollama=state.providers?.ollama||{};
+      $("runtime-model-status").textContent=!ollama.available
+        ?"Ollama unavailable · "+(ollama.last_error||"Check the daemon and endpoint.")
+        :ollama.model_selected
+          ?"Ollama model selected · "+ollama.model_selected+" · weights load on first inference"
+          :"Ollama reachable · select an installed model tag.";
+    }else{
+      $("runtime-model-status").textContent=state.model_loaded ? "Loaded · "+state.model_id+" · "+state.device+" · "+state.dtype : "No Hugging Face model loaded by this process.";
+    }
+    return state;
+  };
+  $("runtime-provider").addEventListener("change",()=>{
+    const ollama=$("runtime-provider").value==="ollama";
+    $("runtime-model-label").textContent=ollama?"Ollama model tag":"Hugging Face model ID";
+    $("runtime-model-id").value=ollama?"qwen2.5:0.5b":"Qwen/Qwen2.5-0.5B-Instruct";
+    $("runtime-model-id").placeholder=ollama?"e.g. qwen2.5:0.5b":"owner/model";
+    $("runtime-device").hidden=ollama;$("runtime-device-label").hidden=ollama;
+    $("runtime-model-load").textContent=ollama?"Select installed Ollama model":"Download & load model";
+    $("runtime-provider-help").textContent=ollama
+      ?"Ollama runs as a separate daemon. Start it and install a model first; configure TAAS_OLLAMA_BASE_URL when it is not at 127.0.0.1:11434. Model selection validates installation; Ollama loads weights on first inference."
+      :"Hugging Face loads weights inside the TaaS process. CPU is supported; CUDA is optional. Tokenizers use fast mode with a slow-mode fallback.";
+  });
+  $("runtime-model-refresh").addEventListener("click",async()=>{ $("runtime-model-status").textContent="Reading model runtime state…";try{await refreshLoadedModel();}catch(e){$("runtime-model-status").textContent="Status request failed: "+e.message;} });
+  $("runtime-model-load").addEventListener("click",async()=>{
+    const button=$("runtime-model-load");button.disabled=true;const selectedProvider=$("runtime-provider").value;$("runtime-model-status").textContent=selectedProvider==="ollama"?"Validating that the model tag is installed in Ollama…":"Loading model weights. The first load may take time and download model files…";
+    try{const provider=$("runtime-provider").value;const state=await runtimePost("/api/v1/models/load",{provider,model_id:$("runtime-model-id").value.trim(),device:provider==="ollama"?"auto":$("runtime-device").value});$("runtime-model-details").textContent=JSON.stringify(state,null,2);$("runtime-model-status").textContent=provider==="ollama"?"Ollama model selected · "+state.model_selected+" · weights load on first inference":"Model loaded · "+state.model_id+" · "+state.device+" · "+state.dtype;}
+    catch(e){$("runtime-model-status").textContent="Model load failed: "+e.message;}finally{button.disabled=false;}
+  });
+  $("agent-chat-send").addEventListener("click",async()=>{
+    const button=$("agent-chat-send");button.disabled=true;$("agent-chat-status").textContent="Generating with the loaded model…";
+    try{const result=await runtimePost("/api/v1/models/chat",{provider:$("runtime-provider").value,message:$("agent-message").value,system:$("agent-system").value,max_new_tokens:Number($("agent-max-tokens").value||512),temperature:0.2});
+      $("agent-chat-result").textContent=result.text+"\n\n"+JSON.stringify({provider:result.provider,model_id:result.model_id,device:result.device,dtype:result.dtype,latency_seconds:result.latency_seconds,input_tokens:result.input_tokens,output_tokens:result.output_tokens},null,2);
+      $("agent-chat-status").textContent="Inference completed · "+result.latency_seconds+"s · "+result.output_tokens+" generated tokens.";
+    }catch(e){$("agent-chat-status").textContent="Inference failed: "+e.message;}finally{button.disabled=false;}
+  });
+  function renderObjectiveCoverage(coverage){
+    const root=$("agent-outcome-coverage");root.replaceChildren();
+    if(!coverage||!Array.isArray(coverage.outcomes)){root.textContent="Outcome coverage is not available for this response.";return;}
+    const summary=document.createElement("div");summary.className="outcome-coverage-summary";
+    const counts=coverage.summary||{};
+    summary.textContent="Objective outcomes · "+(counts.covered??0)+"/"+(counts.required??coverage.outcomes.length)+" mapped · "+(counts.missing??0)+" missing";
+    root.appendChild(summary);
+    if(!coverage.outcomes.length){const empty=document.createElement("p");empty.className="subtle";empty.textContent="No explicit operation outcome was detected. Review the original objective and clarify its expected result.";root.appendChild(empty);return;}
+    const table=document.createElement("table");table.className="outcome-coverage-table";
+    const head=document.createElement("thead"),headRow=document.createElement("tr");
+    ["Required outcome","Coverage","Goal / input evidence"].forEach(label=>{const th=document.createElement("th");th.textContent=label;headRow.appendChild(th);});
+    head.appendChild(headRow);table.appendChild(head);
+    const body=document.createElement("tbody");
+    const labels={covered_by_goal:"Mapped to GoalSpec",covered_by_supplied_input:"Supplied input",missing:"Missing"};
+    coverage.outcomes.forEach(outcome=>{
+      const tr=document.createElement("tr");
+      const outcomeCell=document.createElement("td");outcomeCell.textContent=outcome.goal_class||"Unspecified";
+      const statusCell=document.createElement("td");const status=document.createElement("span");status.className="outcome-status "+(outcome.status==="missing"?"missing":"covered");status.textContent=labels[outcome.status]||outcome.status||"Unknown";statusCell.appendChild(status);
+      const evidenceCell=document.createElement("td");const evidence=[...(outcome.goal_ids||[]),...(outcome.input_types||[]).map(value=>"input: "+value)];evidenceCell.textContent=evidence.length?evidence.join(", "):"No matching goal or supplied input";
+      tr.append(outcomeCell,statusCell,evidenceCell);body.appendChild(tr);
+    });
+    table.appendChild(body);root.appendChild(table);
+    const note=document.createElement("p");note.className="outcome-coverage-note";note.textContent="Coverage shows structural mapping only. It is not proof of semantic correctness, data availability, tool capability or execution success. Human review remains mandatory.";
+    root.appendChild(note);
+  }
+  function renderObjectiveContractV3(view,contract){
+    const root=$("agent-objective-contract-v3");root.replaceChildren();
+    if(!view||!contract){root.textContent="Objective Contract v3 is not available.";return;}
+    const heading=document.createElement("div");heading.className="outcome-coverage-summary";
+    const blockers=contract.clarifications||[];
+    heading.textContent="Objective Intelligence v3 · "+(view.status||"unknown")+" · "+(view.blocking_clarification_count||0)+" blocking clarification(s)";
+    root.appendChild(heading);
+    const note=document.createElement("p");note.className="outcome-coverage-note";
+    note.textContent="This is a conservative, evidence-linked interpretation of the original text. It is not a semantic proof and never authorizes discovery.";
+    root.appendChild(note);
+    const outcomes=contract.outcomes||[];
+    if(outcomes.length){
+      const list=document.createElement("div");list.className="objective-v3-outcomes";
+      outcomes.forEach(outcome=>{
+        const item=document.createElement("div");item.className="tool-row";
+        const body=document.createElement("div");
+        const title=document.createElement("strong");title.textContent=(outcome.goal_class||"outcome")+" · "+(outcome.requirement||"unclassified");
+        const evidence=document.createElement("small");
+        evidence.textContent=(outcome.source_evidence||[]).map(span=>'"'+span.text+'" ['+span.start+":"+span.end+"]").join("; ")||"No source evidence";
+        body.append(title,evidence);item.appendChild(body);list.appendChild(item);
+      });
+      root.appendChild(list);
+    }
+    if(blockers.length){
+      const title=document.createElement("p");title.className="subtle";title.textContent="Clarifications required before this objective can proceed:";
+      root.appendChild(title);
+      blockers.forEach(item=>{
+        const row=document.createElement("div");row.className="goal-validation invalid";
+        const question=document.createElement("strong");question.textContent=item.question||"Clarification required";
+        const reason=document.createElement("div");reason.textContent=String(item.reason||"unresolved")+" - affects: "+(Array.isArray(item.affected_goal_classes)?item.affected_goal_classes.join(", "):"");
+        row.append(question,reason);root.appendChild(row);
+      });
+    }
+  }
+  let pendingAgentGoalSpec=null;
+  $("agent-decompose").addEventListener("click",async()=>{
+    const button=$("agent-decompose");button.disabled=true;$("agent-decompose-status").textContent="Preparing objective through TaaS Core…";$("agent-apply-goals").disabled=true;pendingAgentGoalSpec=null;
+    try{
+      const body={provider:$("runtime-provider").value,prompt:$("agent-goal-prompt").value,max_new_tokens:1200};
+      const selectedAgent=$("agent-context-select").value;
+      if(selectedAgent){
+        const split=selectedAgent.lastIndexOf("@");
+        body.agent_id=selectedAgent.slice(0,split);
+        body.agent_version=selectedAgent.slice(split+1);
+      }
+      const result=await runtimePost("/api/v1/objectives/prepare",body);$("agent-decompose-result").textContent=JSON.stringify(result,null,2);
+      renderObjectiveCoverage(result.objective_coverage);
+      renderObjectiveContractV3(result.objective_intelligence_v3,result.objective_contract_v3);
+      const diagnostics=result.semantic_diagnostics||[];
+      const hasErrors=diagnostics.some(x=>x.severity==="error");
+      const coreNeedsClarification=result.core_analysis?.status==="clarification_required";
+      const accepted=result.conformance?.accepted_for_human_review===true;
+      const missingOutcomes=(result.objective_coverage?.summary?.missing||0)>0;
+      const v3Blockers=(result.objective_intelligence_v3?.blocking_clarification_count||0)>0;
+      const v3StructurallyValid=result.objective_intelligence_v3?.structurally_valid===true;
+      if(result.json_valid&&result.structural_validation?.valid&&accepted&&!hasErrors&&!coreNeedsClarification&&!missingOutcomes&&!v3Blockers&&v3StructurallyValid){
+        pendingAgentGoalSpec=result.goal_spec;$("agent-apply-goals").disabled=false;
+        $("agent-semantic-diagnostics").className="goal-validation"+(diagnostics.length?"":" valid");
+        const core=result.core_analysis||{};
+        const toolRequired=core.tool_required_goal_ids||[];
+        const modelGaps=core.model_capability_gap_goal_ids||[];
+        const gapText=toolRequired.length&&modelGaps.length
+          ? "Tool-required goals: "+toolRequired.join(", ")+". Uncovered model-native capability goals: "+modelGaps.join(", ")+". "
+          : toolRequired.length
+            ? "Tool-required goals: "+toolRequired.join(", ")+". These goals require tool discovery; rho=0 is expected for external operations and is not a claim that the model should perform them natively. "
+            : modelGaps.length
+              ? "Uncovered model-native capability goals: "+modelGaps.join(", ")+". "
+              : "No uncovered model-native capability identified by the current profile. ";
+        const profile=core.model_profile||{};
+        const calibration=profile.calibrated_profile_matched
+          ? "Matched calibrated profile: "+profile.model_id+". "
+          : "No matching calibrated profile; unmeasured model-native skills remain uncovered in strict mode. This does not change the classification of external tool-required goals. ";
+        $("agent-semantic-diagnostics").textContent=(diagnostics.length
+          ? "Human review required · "+diagnostics.map(x=>x.code+": "+x.message+" Suggested action: "+x.suggestion).join(" | ")
+          : "No configured objective-alignment error detected. ")
+          +gapText+calibration+"Review the objective-to-goal mapping; this is not a correctness proof.";
+        $("agent-decompose-status").textContent="Core-analyzed GoalSpec proposal. "+(result.attempt_history||[]).length+" attempt(s). Human review is required before applying.";
+      }
+      else{
+        pendingAgentGoalSpec=null;$("agent-apply-goals").disabled=true;
+        $("agent-semantic-diagnostics").className="goal-validation invalid";
+        $("agent-semantic-diagnostics").textContent=v3Blockers
+          ? "Objective Contract v3 requires clarification: rewrite or clarify the flagged clause, then prepare the objective again."
+          : coreNeedsClarification
+          ? "Core requires clarification: "+(result.core_analysis?.clarification||"unresolved GoalSpec input.")
+          : hasErrors
+            ? "Core rejected objective conformance: "+diagnostics.filter(x=>x.severity==="error").map(x=>x.code+": "+x.message).join(" | ")
+            : missingOutcomes
+              ? "Objective coverage is incomplete: "+(result.objective_coverage?.summary?.missing||0)+" required outcome(s) have no matching goal or supplied input. Refine the proposal before applying."
+              : "No acceptable GoalSpec: structural validation or Core conformance failed. Inspect attempt history and diagnostics.";
+        $("agent-decompose-status").textContent="GoalSpec was not accepted for human review. Apply is disabled; refine the objective or resolve the reported Core constraints.";
+      }
+    }catch(e){$("agent-decompose-status").textContent="Agent decomposition failed: "+e.message;}finally{button.disabled=false;}
+  });
+  $("agent-route-prompt-core").addEventListener("click",()=>{
+    const prompt=$("agent-message").value.trim();
+    if(!prompt){$("agent-chat-status").textContent="Enter a prompt first, then route it through TaaS Core.";return;}
+    $("agent-goal-prompt").value=prompt;
+    $("agent-goal-panel").scrollIntoView({behavior:"smooth",block:"start"});
+    $("agent-decompose").click();
+  });
+  $("agent-apply-goals").addEventListener("click",()=>{
+    if(!pendingAgentGoalSpec)return;invalidateHumanReview();const spec=pendingAgentGoalSpec;goalSpecState.prompt=spec.prompt||$("agent-goal-prompt").value.trim();
+    goalSpecState.prompt_inputs_text=(spec.prompt_inputs||["text"]).join(", ");
+    goalSpecState.goals=(spec.goals||[]).map(g=>({id:g.id,class:g.class,in:g.in||[],out:g.out,eff:g.eff||[],sigma:g.sigma||"native",desc:g.desc||"",deps:g.deps||[],n:g.n||1,exactness:g.exactness||"tolerant",lang:g.lang||"en",optional:Boolean(g.optional)}));
+    renderGoalEditor();getGoalSpec();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Agent proposal applied as an editable draft. Review objective coverage, semantic diagnostics, types and dependencies; then validate before discovery. Applying does not prove correctness or authorize execution.";
+    document.querySelector("#goal-editor").scrollIntoView({behavior:"smooth",block:"start"});
+  });
+
+  let savedAgentVersion=null;
+  const agentSaveButton=$("agent-manifest-save");
+  const agentValidateSavedButton=$("agent-manifest-validate-saved");
+  const agentPublishButton=$("agent-manifest-publish");
+  const resetAgentRegistrySelection=()=>{
+    savedAgentVersion=null;
+    agentValidateSavedButton.disabled=true;
+    agentPublishButton.disabled=true;
+  };
+  $("agent-manifest-json").addEventListener("input",resetAgentRegistrySelection);
+  agentSaveButton.addEventListener("click",async()=>{
+    agentSaveButton.disabled=true;
+    $("agent-manifest-status").textContent="Validating and persisting a new immutable Agent draft…";
+    try{
+      let manifest;
+      try{manifest=JSON.parse($("agent-manifest-json").value);}
+      catch(error){throw new Error("Invalid JSON: "+error.message);}
+      const result=await runtimePost("/api/v1/agents",manifest);
+      savedAgentVersion={id:result.agent_id,version:result.version};
+      agentValidateSavedButton.disabled=false;
+      $("agent-manifest-result").textContent=JSON.stringify(result,null,2);
+      $("agent-manifest-status").textContent="Saved immutable draft "+result.agent_id+"@"+result.version+" · SHA-256 "+result.manifest_sha256;
+      try{await refreshAgentContextOptions(result.agent_id+"@"+result.version);}catch(error){$("agent-context-status").textContent="Agent saved, but context list refresh failed: "+error.message;}
+    }catch(error){
+      resetAgentRegistrySelection();
+      $("agent-manifest-result").textContent=error.message;
+      $("agent-manifest-status").textContent="Draft was not saved. Resolve the error and retry.";
+    }finally{agentSaveButton.disabled=false;}
+  });
+  agentValidateSavedButton.addEventListener("click",async()=>{
+    if(!savedAgentVersion)return;
+    agentValidateSavedButton.disabled=true;
+    $("agent-manifest-status").textContent="Revalidating the exact stored Agent version…";
+    try{
+      const path="/api/v1/agents/"+encodeURIComponent(savedAgentVersion.id)+"/versions/"+encodeURIComponent(savedAgentVersion.version)+"/validate";
+      const snapshotId=$("agent-registry-snapshot-select").value;
+      const result=await runtimePost(path,snapshotId?{registry_snapshot_id:snapshotId}:{});
+      agentPublishButton.disabled=false;
+      $("agent-manifest-result").textContent=JSON.stringify(result,null,2);
+      $("agent-manifest-status").textContent="Stored version structurally validated · semantic correctness and execution remain unverified.";
+    }catch(error){
+      $("agent-manifest-result").textContent=error.message;
+      $("agent-manifest-status").textContent="Stored version validation failed.";
+      agentValidateSavedButton.disabled=false;
+    }
+  });
+  $("agent-registry-snapshot-refresh").addEventListener("click",async()=>{
+    const button=$("agent-registry-snapshot-refresh");button.disabled=true;
+    $("agent-registry-snapshot-status").textContent="Loading stored MCP registry snapshots…";
+    try{
+      const data=await apiGet("/api/v1/mcp/registry/snapshots");
+      const select=$("agent-registry-snapshot-select");select.innerHTML="";
+      select.add(new Option("No MCP snapshot selected",""));
+      (data.snapshots||[]).forEach(item=>{
+        select.add(new Option(item.snapshot_id.slice(0,12)+"… · "+item.server_count+" servers · "+item.tool_count+" tools",item.snapshot_id));
+      });
+      $("agent-registry-snapshot-status").textContent=data.count+" immutable MCP snapshot(s) available. Select one to bind tool grants at publication.";
+    }catch(error){$("agent-registry-snapshot-status").textContent="Unable to load MCP snapshots: "+error.message;}
+    finally{button.disabled=false;}
+  });
+  $("agent-registry-snapshot-select").addEventListener("change",()=>{
+    const selected=$("agent-registry-snapshot-select").value;
+    $("agent-registry-snapshot-status").textContent=selected
+      ? "Selected immutable MCP snapshot "+selected+". Agent tool grants will be resolved against this exact schema set at publication."
+      : "No MCP snapshot selected. Tool-free agents do not require a snapshot; agents with tool grants do.";
+  });
+  $("agent-registry-snapshot-inspect").addEventListener("click",async()=>{
+    const button=$("agent-registry-snapshot-inspect");button.disabled=true;
+    $("agent-registry-snapshot-status").textContent="Inspecting configured MCP servers with tools/list only…";
+    try{
+      const result=await runtimePost("/api/v1/mcp/registry/snapshots/inspect",{});
+      const select=$("agent-registry-snapshot-select");
+      let option=[...select.options].find(item=>item.value===result.snapshot_id);
+      if(!option){option=new Option(result.snapshot_id.slice(0,12)+"… · "+result.server_count+" servers · "+result.tool_count+" tools",result.snapshot_id);select.add(option);}
+      select.value=result.snapshot_id;
+      $("agent-registry-snapshot-result").textContent=JSON.stringify({
+        snapshot_id:result.snapshot_id,
+        created_at:result.created_at,
+        server_count:result.server_count,
+        tool_count:result.tool_count,
+        servers:result.snapshot.servers.map(server=>({
+          server_id:server.server_id,
+          server_name:server.server_name,
+          tools:server.tools.map(tool=>({
+            name:tool.name,
+            description:tool.description,
+            definition_sha256:tool.definition_sha256,
+            input_schema:tool.input_schema,
+            output_schema:tool.output_schema
+          })),
+          inspection_only:server.inspection_only,
+          tool_execution_performed:server.tool_execution_performed
+        }))
+      },null,2);
+      $("agent-registry-snapshot-status").textContent="Read-only MCP snapshot captured and selected. Review its ID and schemas before publishing.";
+    }catch(error){
+      $("agent-registry-snapshot-status").textContent="Snapshot inspection failed; no partial snapshot was stored: "+error.message;
+    }finally{button.disabled=false;}
+  });
+
+  agentPublishButton.addEventListener("click",async()=>{
+    if(!savedAgentVersion)return;
+    agentPublishButton.disabled=true;
+    $("agent-manifest-status").textContent="Publishing immutable configuration version…";
+    try{
+      const path="/api/v1/agents/"+encodeURIComponent(savedAgentVersion.id)+"/versions/"+encodeURIComponent(savedAgentVersion.version)+"/publish";
+      const snapshotId=$("agent-registry-snapshot-select").value;
+      const result=await runtimePost(path,snapshotId?{registry_snapshot_id:snapshotId}:{});
+      $("agent-manifest-result").textContent=JSON.stringify(result,null,2);
+      $("agent-manifest-status").textContent="Published configuration "+result.agent_id+"@"+result.version+" · execution remains disabled.";
+    }catch(error){
+      $("agent-manifest-result").textContent=error.message;
+      $("agent-manifest-status").textContent="Publication failed. The registry lifecycle state was not advanced.";
+      agentPublishButton.disabled=false;
+    }
+  });
+
+  const agentManifestExample=$("agent-manifest-json").value;
+  $("agent-manifest-reset").addEventListener("click",()=>{
+    $("agent-manifest-json").value=agentManifestExample;
+    resetAgentRegistrySelection();
+    $("agent-manifest-status").textContent="Example manifest restored · not yet validated.";
+    $("agent-manifest-result").textContent="Validation result will appear here.";
+  });
+  $("agent-manifest-validate").addEventListener("click",async()=>{
+    const button=$("agent-manifest-validate");button.disabled=true;
+    $("agent-manifest-status").textContent="Validating Agent manifest against the v1alpha1 contract…";
+    try{
+      let manifest;
+      try{manifest=JSON.parse($("agent-manifest-json").value);}
+      catch(error){throw new Error("Invalid JSON: "+error.message);}
+      const result=await runtimePost("/api/v1/agents/validate",manifest);
+      $("agent-manifest-result").textContent=JSON.stringify(result,null,2);
+      $("agent-manifest-status").textContent="Manifest structurally valid · draft only · not saved, authorized or executable.";
+    }catch(error){
+      $("agent-manifest-result").textContent=error.message;
+      $("agent-manifest-status").textContent="Manifest validation failed. Correct the schema errors and retry.";
+    }finally{button.disabled=false;}
+  });
+
+  let inspectedMcpTools=[];let selectedMcpToolKeys=new Set();
+  const refreshMcpServers=async()=>{
+    const status=$("mcp-server-status");status.textContent="Loading operator-configured MCP servers…";
+    try{const data=await apiGet("/api/v1/mcp/servers");const select=$("mcp-server-select");select.innerHTML="";
+      if(!data.servers?.length){select.add(new Option("No configured servers",""));status.textContent="No MCP servers configured on the API host. See MCP setup documentation.";return;}
+      data.servers.forEach(server=>select.add(new Option(server.name+" · "+server.transport+(server.credentials_configured?"":" · missing env"),server.id)));
+      status.textContent=data.count+" configured MCP server(s). Credentials are not returned to the browser.";
+    }catch(e){status.textContent="MCP registry request failed: "+e.message;}
+  };
+  $("mcp-refresh-servers").addEventListener("click",refreshMcpServers);
+  $("mcp-inspect-server").addEventListener("click",async()=>{
+    const id=$("mcp-server-select").value;if(!id){$("mcp-server-status").textContent="Select a configured MCP server first.";return;}
+    const button=$("mcp-inspect-server");button.disabled=true;$("mcp-server-status").textContent="Starting configured stdio process and requesting tools/list…";
+    $("mcp-tool-list").innerHTML="";inspectedMcpTools=[];selectedMcpToolKeys.clear();$("mcp-import-tools").disabled=true;
+    try{const data=await runtimePost("/api/v1/mcp/servers/"+encodeURIComponent(id)+"/inspect",{});
+      inspectedMcpTools=data.tools||[];$("mcp-server-info").textContent="Server: "+(data.server_info?.name||data.server_name)+" · Protocol: "+(data.protocol_version||"not reported")+" · "+data.tool_count+" tool(s).";
+      inspectedMcpTools.forEach(tool=>{
+        const row=document.createElement("label");row.className="tool-row";row.style.margin=0;const cb=document.createElement("input");cb.type="checkbox";cb.checked=true;selectedMcpToolKeys.add(tool.server+"::"+tool.name);
+        cb.addEventListener("change",()=>{const key=tool.server+"::"+tool.name;if(cb.checked)selectedMcpToolKeys.add(key);else selectedMcpToolKeys.delete(key);$("mcp-selected-count").textContent=selectedMcpToolKeys.size+" selected";$("mcp-import-tools").disabled=selectedMcpToolKeys.size===0;});
+        const wrap=document.createElement("span");const title=document.createElement("strong");title.textContent=tool.name;const desc=document.createElement("small");desc.textContent=(tool.description||"No description")+" · "+Object.keys(tool.input_schema?.properties||{}).length+" input field(s)";
+        const schema=document.createElement("details");schema.style.marginTop="5px";const summary=document.createElement("summary");summary.textContent="Inspect input schema";const pre=document.createElement("pre");pre.textContent=JSON.stringify(tool.input_schema,null,2);pre.style.minHeight="0";pre.style.margin="6px 0";schema.append(summary,pre);wrap.append(title,desc,schema);row.append(cb,wrap);$("mcp-tool-list").append(row);
+      });
+      if(!inspectedMcpTools.length)$("mcp-tool-list").innerHTML='<div class="subtle" style="padding:12px">Server returned no tools.</div>';
+      $("mcp-selected-count").textContent=selectedMcpToolKeys.size+" selected";$("mcp-import-tools").disabled=selectedMcpToolKeys.size===0;$("mcp-server-status").textContent="Inspection completed. No tools/call request was made.";
+    }catch(e){$("mcp-server-status").textContent="MCP inspection failed: "+e.message;$("mcp-server-info").textContent="";}finally{button.disabled=false;}
+  });
+  $("mcp-import-tools").addEventListener("click",()=>{
+    try{const body=JSON.parse($("payload").value);const byKey=new Map((Array.isArray(body.tools)?body.tools:[]).map(t=>[(t.server||"")+"::"+(t.name||""),t]));let added=0;
+      inspectedMcpTools.filter(t=>selectedMcpToolKeys.has(t.server+"::"+t.name)).forEach(t=>{byKey.set(t.server+"::"+t.name,{server:t.server,name:t.name,description:t.description||"",input_schema:t.input_schema||{},output_schema:t.output_schema||null,annotations:t.annotations||null,source:"mcp-live-inspection",category:"mcp"});added++;});
+      body.tools=[...byKey.values()];$("payload").value=JSON.stringify(body,null,2);invalidateHumanReview();$("mcp-server-status").textContent=added+" MCP tool contract(s) added to discovery request. Review GoalSpec and policy before discovery.";
+      if(bench.selectedTask){$("bench-goal-review").checked=false;$("bench-status").textContent="MCP tools added. Review selected tools against the active task and reconfirm before discovery.";}
+    }catch(e){$("mcp-server-status").textContent="Could not update discovery request: "+e.message;}
+  });
+
+
+  $("assurance-evidence-inspect").addEventListener("click", async () => {
+    const id = $("assurance-evidence-id").value.trim();
+    const button = $("assurance-evidence-inspect");
+    const status = $("assurance-evidence-status");
+    const output = $("assurance-evidence-result");
+    const summary = $("assurance-evidence-summary");
+    summary.hidden = true;
+    summary.replaceChildren();
+    if (!/^[0-9a-f]{64}$/.test(id)) {
+      status.textContent = "Enter a lowercase 64-character SHA-256 evidence ID.";
+      output.textContent = "No request was sent.";
+      return;
+    }
+    button.disabled = true;
+    status.textContent = "Checking signature, binding, digest and freshness…";
+    output.textContent = "Verifying evidence record…";
+    try {
+      const data = await apiGet("/api/v1/assurance/evidence/" + encodeURIComponent(id));
+      const ev = data.evidence;
+      status.textContent = "Record integrity verified · freshness: " + data.freshness;
+      [["Evidence type", ev.evidence_type], ["Issuer", ev.issuer], ["Assessor", ev.assessor], ["Expires", ev.expires_at]].forEach(([label, value]) => {
+        const card = document.createElement("div"); card.className = "metric";
+        const caption = document.createElement("span"); caption.className = "subtle"; caption.textContent = label;
+        const strong = document.createElement("strong"); strong.style.fontSize = "13px"; strong.textContent = String(value);
+        card.append(caption, strong); summary.append(card);
+      });
+      summary.hidden = false;
+      output.textContent = JSON.stringify({evidence: ev, verification: {
+        integrity_verified: data.integrity_verified, freshness: data.freshness,
+        assessor_claim_truth_verified: data.assessor_claim_truth_verified,
+        authorization_granted: data.authorization_granted,
+        execution_performed: data.execution_performed
+      }}, null, 2);
+    } catch (error) {
+      status.textContent = "Evidence could not be verified: " + error.message;
+      output.textContent = "No evidence content was accepted. Check the ID, API diagnostics and record freshness.";
+    } finally { button.disabled = false; }
+  });
+
+
+  // Skill DAG projection is loaded from the authenticated Core endpoint.
+  // The browser only renders the exact server-returned pins and relations.
+  $("hg-skill-load").addEventListener("click", async () => {
+    const skillId = $("hg-skill-id").value.trim();
+    const version = $("hg-skill-version").value.trim();
+    const button = $("hg-skill-load");
+    const status = $("hg-skill-status");
+    const summary = $("hg-skill-summary");
+    const graphView = $("hg-skill-graph");
+    summary.hidden = true; summary.replaceChildren(); graphView.hidden = true;
+    if (!/^[a-z][a-z0-9-]{2,62}$/.test(skillId) || !/^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$/.test(version)) {
+      status.textContent = "Enter a valid Skill ID and semantic version.";
+      return;
+    }
+    button.disabled = true; status.textContent = "Resolving exact published Skill pins through TaaS Core…";
+    try {
+      const data = await apiGet("/api/v1/hypergraph/skills/" + encodeURIComponent(skillId) + "/versions/" + encodeURIComponent(version));
+      const projection = data.hypergraph_projection;
+      if (!projection || projection.schema !== "taas.hypergraph-projection/v1" || projection.projection_domain !== "skill_dependency_dag") {
+        throw new Error("Core returned an unsupported Skill graph projection.");
+      }
+      const nodes = projection.vertices || [], edges = projection.hyperedges || [];
+      [["Skills", nodes.length], ["Dependencies", edges.length], ["Graph digest", (projection.graph_metadata?.graph_sha256 || "").slice(0, 16) + "…"]].forEach(([label, value]) => {
+        const card = document.createElement("div"); card.className = "metric";
+        const caption = document.createElement("span"); caption.className = "subtle"; caption.textContent = label;
+        const strong = document.createElement("strong"); strong.style.fontSize = "13px"; strong.textContent = String(value);
+        card.append(caption, strong); summary.append(card);
+      });
+      $("hg-skill-nodes").replaceChildren();
+      nodes.forEach(node => {
+        const tr = document.createElement("tr");
+        [node.skill_id, node.version, node.lifecycle_state, node.manifest_sha256, node.root ? "Root" : "Dependency"].forEach(value => {
+          const td = document.createElement("td"); td.textContent = String(value ?? "Not reported"); tr.append(td);
+        });
+        $("hg-skill-nodes").append(tr);
+      });
+      $("hg-skill-edges").replaceChildren();
+      edges.forEach(edge => {
+        const tr = document.createElement("tr");
+        [edge.from.id + "@" + edge.from.version, edge.relation, edge.to.id + "@" + edge.to.version, edge.authorization_effect, edge.execution_effect].forEach(value => {
+          const td = document.createElement("td"); td.textContent = String(value); tr.append(td);
+        });
+        $("hg-skill-edges").append(tr);
+      });
+      $("hg-skill-provenance").textContent = JSON.stringify({
+        projection_id: projection.projection_id,
+        root: projection.graph_metadata?.root,
+        graph_sha256: projection.graph_metadata?.graph_sha256,
+        topological_order: projection.graph_metadata?.topological_order,
+        limits: data.skill_dependency_graph?.limits,
+        semantic_correctness_verified: data.semantic_correctness_verified,
+        tools_authorized: data.tools_authorized,
+        execution_enabled: data.execution_enabled
+      }, null, 2);
+      summary.hidden = false; graphView.hidden = false;
+      status.textContent = "Loaded " + nodes.length + " exact-pinned Skill nodes and " + edges.length + " dependency hyperedges from TaaS Core. No authorization or execution was performed.";
+    } catch (error) {
+      status.textContent = "Skill dependency graph unavailable: " + error.message;
+    } finally { button.disabled = false; }
+  });
+
+
+  // UX-3: keyboard-accessible command palette for the existing Studio navigation.
+  // Destinations are derived from the rendered navigation; no parallel route registry.
+  const commandDialog = $("studio-command-palette");
+  const commandSearch = $("command-palette-search");
+  const commandResults = $("command-palette-results");
+  const commandOpen = $("command-palette-open");
+  let commandDestinations = [];
+  let commandActiveIndex = 0;
+  const collectCommandDestinations = () => [...document.querySelectorAll(".studio-nav a[href^='#']")]
+    .filter(link => link.textContent.trim() && link.getAttribute("href").length > 1)
+    .map(link => ({ label: link.textContent.trim(), href: link.getAttribute("href"), group:
+      link.previousElementSibling?.classList.contains("nav-label") ? link.previousElementSibling.textContent.trim() : "STUDIO" }));
+  const renderCommandResults = () => {
+    const query = commandSearch.value.trim().toLocaleLowerCase();
+    const filtered = commandDestinations.filter(item => (item.label+" "+item.group+" "+item.href).toLocaleLowerCase().includes(query));
+    commandResults.replaceChildren();
+    if (!filtered.length) {
+      const empty = document.createElement("div"); empty.className = "command-palette-empty";
+      empty.textContent = "No matching Studio destination."; commandResults.append(empty); return;
+    }
+    commandActiveIndex = Math.min(commandActiveIndex, filtered.length - 1);
+    filtered.forEach((item, index) => {
+      const button = document.createElement("button"); button.type = "button";
+      button.className = "command-palette-item"; button.setAttribute("role", "option");
+      button.setAttribute("aria-selected", index === commandActiveIndex ? "true" : "false");
+      const label = document.createElement("span"); label.textContent = item.label;
+      const group = document.createElement("small"); group.textContent = item.group;
+      button.append(label, group);
+      button.addEventListener("click", () => {
+        commandDialog.close(); window.location.hash = item.href;
+        const target = document.querySelector(item.href);
+        if (target) target.scrollIntoView({behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start"});
+      });
+      commandResults.append(button);
+    });
+  };
+  const openCommandPalette = () => {
+    commandDestinations = collectCommandDestinations(); commandSearch.value = ""; commandActiveIndex = 0;
+    renderCommandResults();
+    if (!commandDialog.open) commandDialog.showModal();
+    commandSearch.focus();
+  };
+  commandOpen.addEventListener("click", openCommandPalette);
+  commandSearch.addEventListener("input", () => { commandActiveIndex = 0; renderCommandResults(); });
+  commandDialog.addEventListener("keydown", event => {
+    const options = [...commandResults.querySelectorAll("button[role='option']")];
+    if (!options.length) return;
+    if (event.key === "ArrowDown") { event.preventDefault(); commandActiveIndex = (commandActiveIndex + 1) % options.length; renderCommandResults(); commandResults.querySelectorAll("button")[commandActiveIndex]?.focus(); }
+    if (event.key === "ArrowUp") { event.preventDefault(); commandActiveIndex = (commandActiveIndex + options.length - 1) % options.length; renderCommandResults(); commandResults.querySelectorAll("button")[commandActiveIndex]?.focus(); }
+    if (event.key === "Enter" && event.target === commandSearch) { event.preventDefault(); options[commandActiveIndex]?.click(); }
+  });
+  commandDialog.addEventListener("click", event => { if (event.target === commandDialog) commandDialog.close(); });
+  commandDialog.addEventListener("close", () => commandOpen.focus());
+  document.addEventListener("keydown", event => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k" && !event.altKey) {
+      event.preventDefault(); if (commandDialog.open) commandDialog.close(); else openCommandPalette();
+    }
+  });
+
+  // Restore the last successful Core response after a page refresh. This is
+  // ephemeral per-tab UI state, not durable run history; the API token is never stored.
+  restoreLastDiscoveryResult();
 
 })();
 </script>

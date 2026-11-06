@@ -172,3 +172,54 @@ def estimate_model_memory(
         "estimate_scope": "weights + configurable overhead + optional decoder KV cache + runtime reserve; excludes activations and backend workspaces",
         "load_guaranteed": False,
     }
+
+
+def probe_runtime() -> dict[str, Any]:
+    """Return observed host/runtime diagnostics; never claims model inference readiness."""
+    import os
+    import platform
+    import shutil
+    import sys
+
+    hardware = probe_hardware()
+    memory_total_gib = None
+    memory_available_gib = None
+    # Colab and supported Linux hosts expose physical memory via sysconf.
+    try:
+        page_size = os.sysconf("SC_PAGE_SIZE")
+        total_pages = os.sysconf("SC_PHYS_PAGES")
+        available_pages = os.sysconf("SC_AVPHYS_PAGES")
+        memory_total_gib = round(page_size * total_pages / (1024 ** 3), 3)
+        memory_available_gib = round(page_size * available_pages / (1024 ** 3), 3)
+    except (AttributeError, OSError, ValueError):
+        pass
+
+    disk = shutil.disk_usage(os.environ.get("TAAS_RUNTIME_DATA_DIR", "/content")
+                             if os.path.exists("/content") else os.getcwd())
+    return {
+        "service": {
+            "status": "running",
+            "pid": os.getpid(),
+            "python_version": platform.python_version(),
+            "python_executable": sys.executable,
+            "platform": platform.platform(),
+        },
+        "host": {
+            "cpu_count": os.cpu_count(),
+            "memory_total_gib": memory_total_gib,
+            "memory_available_gib": memory_available_gib,
+            "disk_total_gib": round(disk.total / (1024 ** 3), 3),
+            "disk_free_gib": round(disk.free / (1024 ** 3), 3),
+        },
+        "hardware": hardware,
+        "model_runtime": {
+            "model_loaded": False,
+            "inference_executed": False,
+            "lifecycle_supported": False,
+            "note": "Runtime diagnostics only; model loading and inference are not implemented by this service.",
+        },
+        "colab": {
+            "detected": bool(os.environ.get("COLAB_RELEASE_TAG") or os.path.exists("/content")),
+            "ephemeral_storage": True,
+        },
+    }

@@ -14,6 +14,8 @@ test = ["pytest>=7", "hypothesis>=6"]
 llm = ["anthropic>=0.40"]
 probe = ["mcp>=1.0"]
 studio = ["fastapi>=0.110", "uvicorn[standard]>=0.27", "httpx>=0.27", "pydantic>=2.6"]
+hf = ["torch>=2.2", "transformers>=4.45", "accelerate>=0.34", "safetensors>=0.4", "sentencepiece>=0.2.0", "tiktoken>=0.7"]
+mcp = ["mcp>=1.9"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -1,0 +1,53 @@
+# Hypergraph Explorer — Studio integration
+
+## Purpose
+
+The Hypergraph Explorer renders the read-only projection returned by the authenticated Discovery API. It is a view over the server-owned TaaS Core graph and its final reachability result, not a second graph engine in the browser.
+
+## Data contract
+
+The UI accepts only `taas.hypergraph-projection/v1` and reads:
+- `vertices`: semantic types, Core-reported reachability, information labels and derivation metadata;
+- `hyperedges`: tool and model capability edges, input/output types, effects, contract fingerprints, QoS and fired-in-reachability flags;
+- `bridges`: bridge derivations recorded by the Core;
+- `summary` and `projection_id`: projection metadata.
+
+If the API reports `hypergraph_projection_status != available`, or the projection is absent or has an unsupported schema, the UI displays an explicit unavailable/invalid state. It never constructs a fallback graph from selected tools, GoalSpec, certificate bindings or browser state.
+
+## Interaction
+
+- Select a semantic type or hyperedge to inspect its returned attributes.
+- Filter the entity list and visually de-emphasize non-matching graph rows.
+- Use the accessible entity list as a keyboard-friendly alternative to SVG interaction.
+- Inspect reachability and fired-edge state as returned by the Core.
+- Select **Run discovery** to invoke the existing Studio discovery handler and authenticated `POST /api/v1/discover` workflow; the Explorer does not construct a request or call a second endpoint.
+- Select **Edit GoalSpec** to open the existing GoalSpec designer.
+- Read discovery status and API/validation errors in the Explorer; the main Discovery workspace and Explorer share the same status message.
+
+The current layout is a deterministic presentation of hyperedge incidence, not a semantic graph layout algorithm. It does not calculate reachability, type compatibility, effects, information-flow propagation, composition, certification, authorization or execution.
+
+## Trust and safety boundaries
+
+- The authenticated API remains the source of the projection.
+- Browser state is never accepted as authoritative graph or reachability input.
+- An edge marked fired reflects the Core's recorded derivation; it is not evidence that an MCP tool was invoked.
+- No tool invocation, authorization grant or execution state is implied by this explorer.
+- Abstention or missing authoritative reachability yields an unavailable state, not a synthetic visualization.
+
+## Validation
+
+GitHub Actions regression tests verify navigation, schema gating, field consumption, keyboard interaction, action wiring and the absence of browser-side semantic claims. The operator acceptance gate is performed in the existing integrated Studio Colab runtime; no browser automation dependency or separate test notebook is required.
+
+
+## End-to-end API integration test
+
+`tests/test_studio_hypergraph_explorer.py::test_live_studio_api_projects_real_core_discovery` exercises the real FastAPI application and real `DiscoveryEngine` using a local synthetic tool contract. It verifies the served Studio Explorer mount points, bearer-token rejection, authenticated Discovery response, Core-generated projection, reachable output type and `execution_performed=false`.
+
+The fixture is contract metadata only. No MCP server is contacted and no tool is invoked. The maintained Colab notebook pins the integrated Studio revision and is used to validate the actual workspace through the existing Colab proxy. This is production-like integration acceptance, not a claim of production deployment.
+
+
+## Refresh and navigation state
+
+After a successful Discovery response, the Studio keeps a bounded, versioned snapshot in browser `sessionStorage` for the current tab. On page refresh, it restores the last response and re-renders the result panels and Hypergraph Explorer from that exact response. It does **not** rerun Discovery and does not synthesize a graph.
+
+The snapshot is ephemeral tab UI state, not durable run history. It is scoped to the browser origin and tab and is discarded when the tab's session ends. The Studio bearer token is never included in the snapshot. If browser session storage is unavailable or the snapshot is invalid/too large, the Studio falls back to its normal empty state; it never fabricates a result. A missing or invalid Core projection still produces no graph.

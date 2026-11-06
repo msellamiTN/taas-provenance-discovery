@@ -1,0 +1,50 @@
+# Objective Contract v3 — Studio integration
+
+## Purpose
+
+Expose the conservative Objective Contract v3 projection in the existing Objective Intelligence workflow. This increment does not replace GoalSpec, change the TaaS Core discovery algorithm, or establish semantic correctness.
+
+## Workflow
+
+1. The user enters the original objective in Goal-oriented Agent Design.
+2. The API derives the existing v2 objective frame and the v3 typed projection from the same original text.
+3. Model inference proposes a GoalSpec independently of the MCP registry.
+4. Existing structural validation, objective alignment diagnostics and Core gap analysis remain authoritative for their respective checks.
+5. Studio displays the v3 outcomes with exact source spans and any blocking clarification signals.
+6. When v3 reports blocking clarifications, Studio disables Apply. The user must clarify or rewrite the objective and prepare it again.
+7. Discovery remains a separate, explicitly confirmed operation. Tool execution remains disabled.
+
+## V3 response fields
+
+- `objective_contract_v3`: original objective text, locale, outcomes, source evidence, constraints and clarification records.
+- `objective_intelligence_v3.status`: `clarification_required` or `ready_for_human_review`.
+- `structurally_valid`: result of the v3 invariant validator.
+- `blocking_clarification_count`: number of blocking clarification records.
+- `semantic_correctness_verified`: always false in this increment.
+- `discovery_authorized`: always false in this increment.
+
+## Evidence and limitations
+
+Source offsets are Unicode code-point offsets into the unchanged original string. Evidence is checked against the exact source slice. Modality detection is deliberately conservative and punctuation-delimited; it is not a complete natural-language scope parser. The v3 projection is a clarification aid, not a semantic theorem prover.
+
+A zero-clarification result means only that this parser found no supported blocking marker. It does not prove that the interpretation is complete or correct. Human review remains mandatory.
+
+## Safety boundary
+
+This feature does not invoke MCP tools, grant authorization, execute an Agent, or bypass the existing discovery confirmation. A v3 contract never authorizes discovery or execution.
+
+## Validation
+
+The canonical Colab notebook includes the Objective Contract v3 test module and Studio API regression suite. CI additionally validates notebook JSON/Python cells and runs the repository test workflow. A live Colab execution must be recorded separately; notebook inclusion alone is not runtime evidence.
+
+
+## Clause provenance graph increment
+
+The v3 projection now includes a `clauses` collection. Clauses are conservative punctuation/newline-delimited source segments with exact Unicode code-point spans into the unchanged objective. Each emitted outcome carries a `clause_ref`; each clause lists its linked `outcome_refs` and `clarification_refs`. This is a provenance association only: it does not infer causal or execution dependencies between clauses. The validator checks clause span integrity, unique clause IDs, outcome-to-clause references, and reverse-reference consistency. Clauses without supported operation evidence remain visible without being promoted to outcomes.
+
+
+## Explicit semantic dependency relations
+
+The next increment emits a `precedes` dependency only when a clause begins with an explicit `then`, `after`, or `once` cue and the immediately preceding clause and current clause each resolve to exactly one source-grounded outcome. The relation records both outcome IDs, both clause IDs, and the exact marker span. The target outcome mirrors the relation through `depends_on`.
+
+If either endpoint is ambiguous, the engine emits a blocking clarification instead of a relation. Mere clause order does not create a dependency. Condition and alternative relation arrays remain empty until their scope and endpoints can be resolved with equally conservative rules. All emitted relations remain proposals: semantic correctness is unverified, human review is required, discovery remains blocked, and no execution is introduced.
