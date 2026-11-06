@@ -512,7 +512,9 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 @media(max-width:850px){.ux7-overview{grid-template-columns:repeat(2,minmax(0,1fr))}.ux7-grid{grid-template-columns:1fr}}
 @media(max-width:520px){.ux7-overview{grid-template-columns:1fr 1fr}.ux7-kv{grid-template-columns:100px minmax(0,1fr)}}
 
-  </style>
+  /* UX-8 evidence-backed quality workspace */
+.ux8-shell{display:grid;gap:14px}.ux8-tabs{display:flex;gap:7px;flex-wrap:wrap;border-bottom:1px solid var(--line,#dce3ed);padding-bottom:10px}.ux8-tabs button{border:1px solid var(--line,#dce3ed);border-radius:8px;background:var(--surface,#fff);padding:8px 11px;font-size:12px}.ux8-tabs button[aria-selected="true"]{border-color:var(--accent,#5268d8);background:var(--accent-soft,#eef1ff);font-weight:700}.ux8-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.ux8-card{border:1px solid var(--line,#dce3ed);border-radius:10px;padding:13px;background:var(--surface,#fff);min-width:0}.ux8-card h3{font-size:13px;margin:0 0 8px}.ux8-card p{font-size:11px;line-height:1.55;color:var(--muted,#64748b);margin:5px 0}.ux8-state{display:inline-flex;border:1px solid #cbd5e1;border-radius:999px;padding:3px 8px;font-size:10px;font-weight:700;background:#f8fafc;color:#475569}.ux8-state.notrun{background:#fff7ed;color:#9a3412}.ux8-kv{display:grid;grid-template-columns:minmax(130px,.8fr) 1fr;gap:0;font-size:11px}.ux8-kv dt,.ux8-kv dd{margin:0;padding:8px 5px;border-bottom:1px solid var(--line,#e5eaf1);overflow-wrap:anywhere}.ux8-kv dt{font-weight:700;color:var(--muted,#64748b)}.ux8-panel[hidden]{display:none}.ux8-note{border-left:3px solid #64748b;background:var(--surface-muted,#f8fafc);padding:11px 13px;border-radius:6px;font-size:11px;line-height:1.6}.ux8-table{width:100%;border-collapse:collapse;font-size:11px}.ux8-table th,.ux8-table td{text-align:left;padding:8px;border-bottom:1px solid var(--line,#e5eaf1);vertical-align:top}.ux8-table th{color:var(--muted,#64748b)}@media(max-width:850px){.ux8-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.ux8-grid{grid-template-columns:1fr}.ux8-kv{grid-template-columns:1fr}.ux8-kv dt{padding-bottom:2px}.ux8-kv dd{padding-top:2px}}
+</style>
 </head>
 <body>
 <header class="studio-header">
@@ -551,6 +553,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <a href="#evidence-explorer">Evidence explorer</a>
       <a href="#evidence-diff-impact">Evidence Diff &amp; Impact (UX-6)</a>
       <a href="#runtime-observability">Runtime &amp; Observability (UX-7)</a>
+      <a href="#platform-governance-quality">Platform Governance &amp; Quality (UX-8)</a>
       <span class="nav-label">OPERATE &amp; OBSERVE</span>
       <a href="#workspace">Benchmark workspace</a>
       <a class="overview-shortcut" href="#runtime">Runtime diagnostics</a>
@@ -1120,6 +1123,33 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         <div class="inline-actions"><button id="ux6-export" class="secondary" type="button">Export diff JSON</button><button id="ux6-reset" class="secondary" type="button">Reset comparison</button></div>
       </div>
     </section>
+
+<section id="platform-governance-quality" class="section-anchor" aria-labelledby="ux8-title" style="margin-bottom:18px">
+<div class="panel-head"><div><div class="eyebrow">PLATFORM TRUST &amp; QUALITY · UX-8</div><h2 id="ux8-title">Governance, Security, Performance &amp; Validation</h2><p class="subtle">Evidence-backed quality workspace. WCAG 2.2 AA is a target, not a certification.</p></div><span class="ux8-state">EVIDENCE INCOMPLETE</span></div>
+<div class="ux8-shell"><div class="ux8-grid" aria-label="Quality status overview">
+<article class="ux8-card"><h3>Accessibility</h3><span class="ux8-state notrun">NOT_RUN</span><p>WCAG 2.2 AA target; no conformance result recorded.</p></article>
+<article class="ux8-card"><h3>Security &amp; policy</h3><span class="ux8-state">UNKNOWN</span><p>Controls require verifiable configuration and test evidence.</p></article>
+<article class="ux8-card"><h3>Performance</h3><span class="ux8-state notrun">NOT_RUN</span><p>No LCP, INP, CLS, load or resource measurements supplied.</p></article></div>
+<div class="ux8-tabs" role="tablist" aria-label="Platform governance and quality views">
+<button type="button" role="tab" id="ux8-tab-overview" aria-controls="ux8-panel-overview" aria-selected="true" tabindex="0">Overview</button>
+<button type="button" role="tab" id="ux8-tab-accessibility" aria-controls="ux8-panel-accessibility" aria-selected="false" tabindex="-1">Accessibility</button>
+<button type="button" role="tab" id="ux8-tab-security" aria-controls="ux8-panel-security" aria-selected="false" tabindex="-1">Security &amp; Policies</button>
+<button type="button" role="tab" id="ux8-tab-performance" aria-controls="ux8-panel-performance" aria-selected="false" tabindex="-1">Performance</button>
+<button type="button" role="tab" id="ux8-tab-validation" aria-controls="ux8-panel-validation" aria-selected="false" tabindex="-1">Validation &amp; Quality</button>
+<button type="button" role="tab" id="ux8-tab-reports" aria-controls="ux8-panel-reports" aria-selected="false" tabindex="-1">Reports</button></div>
+<section class="ux8-panel" id="ux8-panel-overview" role="tabpanel" aria-labelledby="ux8-tab-overview"><div class="ux8-grid">
+<article class="ux8-card"><h3>Evidence posture</h3><dl class="ux8-kv"><dt>Accessibility</dt><dd>WCAG 2.2 AA · target only</dd><dt>Security assessment</dt><dd>UNKNOWN</dd><dt>Performance profile</dt><dd>NOT_RUN</dd><dt>Build / test evidence</dt><dd>NOT_RUN</dd></dl></article>
+<article class="ux8-card"><h3>Acceptance boundary</h3><p>PASS or FAIL requires results linked to commit, environment, timestamp and actual test output. Missing evidence stays UNKNOWN or NEEDS_REVIEW.</p></article>
+<article class="ux8-card"><h3>Execution governance</h3><p>Governed MCP execution and isolated workers remain disabled. This workspace grants no permissions and executes no tools.</p></article></div></section>
+<section class="ux8-panel" id="ux8-panel-accessibility" role="tabpanel" aria-labelledby="ux8-tab-accessibility" hidden><div class="ux8-card"><h3>Accessibility validation</h3><p>WCAG 2.2 AA is the target, not a declaration of conformance.</p><table class="ux8-table"><thead><tr><th>Check area</th><th>State</th><th>Evidence required</th></tr></thead><tbody>
+<tr><td>Keyboard navigation</td><td>NOT_RUN</td><td>Keyboard-only browser session and focus-order record</td></tr><tr><td>Screen reader semantics</td><td>NOT_RUN</td><td>Assistive-technology test and browser/version</td></tr><tr><td>Contrast and non-text content</td><td>NOT_RUN</td><td>Measured contrast and alternative-text audit</td></tr><tr><td>Zoom, reflow and responsive layout</td><td>NOT_RUN</td><td>Documented viewport and zoom test matrix</td></tr></tbody></table></div></section>
+<section class="ux8-panel" id="ux8-panel-security" role="tabpanel" aria-labelledby="ux8-tab-security" hidden><div class="ux8-card"><h3>Security &amp; policy controls</h3><p>Evidence requests, not assertions that controls are implemented or effective.</p><table class="ux8-table"><thead><tr><th>Control</th><th>State</th><th>Required evidence</th></tr></thead><tbody>
+<tr><td>Secret handling and redaction</td><td>UNKNOWN</td><td>Secret-scan output and redaction tests</td></tr><tr><td>Authentication and RBAC</td><td>UNKNOWN</td><td>Role matrix and positive/negative authorization tests</td></tr><tr><td>Input validation</td><td>UNKNOWN</td><td>Boundary, malformed-input and abuse-case tests</td></tr><tr><td>Worker isolation and network policy</td><td>UNKNOWN</td><td>Architecture and independently verified enforcement tests</td></tr></tbody></table><p class="ux8-note">Discovery metadata and assurance observations do not prove enforcement, authorization or runtime isolation.</p></div></section>
+<section class="ux8-panel" id="ux8-panel-performance" role="tabpanel" aria-labelledby="ux8-tab-performance" hidden><div class="ux8-card"><h3>Measured performance</h3><dl class="ux8-kv"><dt>LCP</dt><dd>NOT_RUN</dd><dt>INP</dt><dd>NOT_RUN</dd><dt>CLS</dt><dd>NOT_RUN</dd><dt>Load and bundle profile</dt><dd>NOT_RUN</dd><dt>Memory / CPU profile</dt><dd>NOT_RUN</dd></dl><p>Measurements require device, browser, network profile, test procedure and raw output. No illustrative metrics are displayed as measurements.</p></div></section>
+<section class="ux8-panel" id="ux8-panel-validation" role="tabpanel" aria-labelledby="ux8-tab-validation" hidden><div class="ux8-card"><h3>Validation matrix</h3><table class="ux8-table"><thead><tr><th>Validation</th><th>State</th><th>Acceptance evidence</th></tr></thead><tbody>
+<tr><td>Build / packaging</td><td>NOT_RUN</td><td>Exact-head build log</td></tr><tr><td>Unit / regression tests</td><td>NOT_RUN</td><td>Test report and exit code</td></tr><tr><td>Browser smoke / interaction</td><td>NOT_RUN</td><td>Browser, commit and reproducible steps</td></tr><tr><td>Security checks</td><td>NOT_RUN</td><td>Scanner output and reviewed findings</td></tr><tr><td>Colab deployment / run</td><td>NOT_RUN</td><td>Runtime URL, exact commit and smoke-test output</td></tr></tbody></table><p class="ux8-note">Source inspection is not a substitute for build, test, CI, browser, Colab or assistive-technology acceptance.</p></div></section>
+<section class="ux8-panel" id="ux8-panel-reports" role="tabpanel" aria-labelledby="ux8-tab-reports" hidden><div class="ux8-card"><h3>Evidence report</h3><p>No validation report is available. Reports must preserve exact commit SHA, environment, tool versions, timestamp, command, exit status and artifact references.</p><span class="ux8-state notrun">NO REPORT RECORDED</span></div></section>
+<p class="subtle">UX-8 is a validation-planning and evidence presentation surface only. It adds no execution endpoint, authorization grant, worker, policy enforcement, secret access, telemetry collector or deployment automation.</p></div></section>
 
     </div>
   </div>
@@ -3249,6 +3279,9 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   restoreLastDiscoveryResult();
 
 
+
+  // UX-8: local accessible tabs only; no validation is executed or claimed.
+  (() => {const root=document.getElementById('platform-governance-quality');if(!root)return;const tabs=[...root.querySelectorAll('[role="tab"]')],panels=[...root.querySelectorAll('[role="tabpanel"]')];const activate=(tab,focus=false)=>{tabs.forEach(item=>{const active=item===tab;item.setAttribute('aria-selected',String(active));item.tabIndex=active?0:-1;});panels.forEach(panel=>{panel.hidden=panel.id!==tab.getAttribute('aria-controls');});if(focus)tab.focus();};tabs.forEach((tab,index)=>{tab.addEventListener('click',()=>activate(tab));tab.addEventListener('keydown',event=>{let next=index;if(event.key==='ArrowRight')next=(index+1)%tabs.length;else if(event.key==='ArrowLeft')next=(index+tabs.length-1)%tabs.length;else if(event.key==='Home')next=0;else if(event.key==='End')next=tabs.length-1;else return;event.preventDefault();activate(tabs[next],true);});});})();
 
   // UX-7: accessible local tabs over explicit empty states; no runtime or execution calls.
   (() => {
