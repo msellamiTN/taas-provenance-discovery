@@ -8,6 +8,7 @@ from __future__ import annotations
 import os
 import hashlib
 import json
+from dataclasses import asdict, is_dataclass
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -172,8 +173,24 @@ def run_pamcp_variant(
     }
 
 
+def _fingerprint_value(value: Any) -> Any:
+    if is_dataclass(value):
+        return _fingerprint_value(asdict(value))
+    if isinstance(value, dict):
+        return {str(key): _fingerprint_value(item) for key, item in value.items()}
+    if isinstance(value, (set, frozenset)):
+        normalized = [_fingerprint_value(item) for item in value]
+        return sorted(normalized, key=lambda item: json.dumps(item, sort_keys=True, default=str))
+    if isinstance(value, (tuple, list)):
+        return [_fingerprint_value(item) for item in value]
+    return value
+
+
 def _canonical_fingerprint(value: Any) -> str:
-    payload = json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":"), default=str)
+    payload = json.dumps(
+        _fingerprint_value(value), sort_keys=True, ensure_ascii=False,
+        separators=(",", ":"), default=str,
+    )
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
