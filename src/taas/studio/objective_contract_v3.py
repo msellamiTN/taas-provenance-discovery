@@ -12,6 +12,17 @@ from typing import Any
 from taas.studio.objective_contract import derive_objective_contract
 
 _SCHEMA = "taas.objective-contract/v3"
+# "book"/"reserve" classify as transact only as transaction verbs with a booking
+# object. Bare nouns ("borrow his book", "nature reserve") must not mint a
+# required financial outcome — a missed cue is a soft miss; a false required
+# outcome hard-blocks the objective.
+_BOOKING_TRANSACTION_CUE = (
+    r"\b(?:book(?:ed|ing|s)?|reserve(?:d|s|ing)?|réserver|reserver)\s+"
+    r"(?:(?:an?|the|un|une|deux|trois|\d+|\w+|my|your|his|her|our|their)\s+){0,2}"
+    r"\w*(?:ticket|flight|seat|room|hotel|table|restaurant|appointment|reservation|venue|"
+    r"cab|ride|show|cruise|meeting|billet|vol|chambre)s?\w*\b"
+)
+
 _EVIDENCE_PATTERNS: dict[str, tuple[str, ...]] = {
     "search": (
         r"\bidentify\s+(?:the\s+)?(?:last|latest|most\s+recent)\s+(?:related\s+)?(?:study|article|paper)\b",
@@ -36,7 +47,7 @@ _EVIDENCE_PATTERNS: dict[str, tuple[str, ...]] = {
     "answer": (r"\banswer\b", r"\bexplain\b", r"\brespond\b", r"\bdescribe\b", r"\bdefine\b", r"\bexpliquer\b", r"\bdécrire\b", r"\bdecrire\b"),
     "store": (r"\bsave\b", r"\bstor(?:e|age)\b", r"\bpersist\b", r"\benregistrer\b", r"\bsauvegarder\b"),
     "send": (r"\bsend\b", r"\bnotify\b", r"\bmessage\b", r"\benvoyer\b", r"\bnotifier\b"),
-    "transact": (r"\bbook\b", r"\breserve\b", r"\bpurchase\b", r"\bpay\b", r"\bréserver\b", r"\breserver\b", r"\bacheter\b", r"\bpayer\b"),
+    "transact": (_BOOKING_TRANSACTION_CUE, r"\bpurchase\b", r"\bpay\b", r"\bacheter\b", r"\bpayer\b"),
     "execute": (r"\bexecute\b", r"\brun\b", r"\bdeploy\b", r"\bexécuter\b", r"\bexecuter\b", r"\bdéployer\b", r"\bdeployer\b"),
     "navigate_browser": (r"\bbrowse\b", r"\bnavigate\b", r"\bclick\b", r"\bnaviguer\b", r"\bparcourir\b", r"\bcliquer\b"),
     "render_media": (r"\b(?:generate|create|draw|render|générer|generer|créer|creer)\s+(?:an?\s+|un(?:e)?\s+)?(?:image|picture|video|audio|diagram|chart|illustration|schéma|schema)\b",),
