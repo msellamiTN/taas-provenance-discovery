@@ -1597,7 +1597,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       values.forEach(label=>{
         if(typeof label!=="string"||!label.trim())return;
         const normalized=label.trim();
-        if(!/^[a-z_]+(?::[a-z0-9_-]+)?(\\[\\])?$/.test(normalized))return;
+        if(!/^[a-z_]+(?::[a-z0-9_-]+)?(\[\])?$/.test(normalized))return;
         const key=normalized+"|"+path;
         if(!seen.has(key)){seen.add(key);found.push({type:normalized,path,tool:toolName,direction});}
       });
