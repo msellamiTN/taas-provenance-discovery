@@ -38,7 +38,10 @@ def test_alignment_does_not_infer_semantics_from_json_schema_or_tool_text():
     feature = html[start:end]
     assert 'description' not in feature
     assert 'annotations' not in feature
-    assert 'tool.name' not in feature
+    assert 'inputSet.has(tool.name)' not in feature
+    assert 'outputSet.has(tool.name)' not in feature
+    assert 'inputLabels.map(x=>x.type)' in feature
+    assert 'outputLabels.map(x=>x.type)' in feature
     assert 'node.type' not in feature
     assert 'node.format' not in feature
 
