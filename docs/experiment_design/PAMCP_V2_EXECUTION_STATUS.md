@@ -63,13 +63,13 @@ The E8 runner deliberately writes a `partial` manifest for its selected retrieva
 
 ## E18 factorial preview orchestration
 
-The new `run_pamcp_factorial_preview` executes the eight frozen G×P×S cells in catalog order with one shared model profile and shared registry, GoalSpec and policy fingerprints. It checks the exact factor tuple per cell and asserts that evaluator labels and MCP tools are not accessed. The CI test executes all eight variants on a tiny synthetic contract fixture and verifies that every `S=0` cell remains uncertified and disables backward closure and joint checks. This is a software preview, not confirmatory E18 evidence or a PaMCP performance score. The Studio preview API now routes a request containing all eight variants through this shared-input runner and returns the `pamcp_factorial_preview` metadata; subset previews retain their existing single-variant path.
+The new `run_pamcp_factorial_preview` executes the eight frozen G×P×S cells in catalog order with one shared model profile and shared registry, GoalSpec and policy fingerprints. It fingerprints the complete capability-contract contents, GoalSpec, effective policy and full model-profile contents; it checks the exact factor tuple per cell and asserts that evaluator labels and MCP tools are not accessed. The CI test executes all eight variants on a tiny synthetic contract fixture and verifies that every `S=0` cell remains uncertified and disables backward closure and joint checks. This is a software preview, not confirmatory E18 evidence or a PaMCP performance score. The Studio preview API now routes a request containing all eight variants through this shared-input runner and returns the `pamcp_factorial_preview` metadata; subset previews retain their existing single-variant path.
 
 ## Current CI evidence
 
-- Latest E18 Studio integration test commit: `d57bc771691245b40fec22aad64afd9831299f32`.
-- Push run: [#42305179009](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/42305179009) — success.
-- Pull-request run: [#42305188431](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/42305188431) — success.
+- Latest E18 fingerprint-hardening test commit: `e370ae433b50921978794effdc5b7d27f298f65d`.
+- Push run: [#42305707617](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/42305707617) — success.
+- Pull-request run: [#42305714682](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/42305714682) — success.
 - PaMCP tests: **107 passed, 6 warnings**.
 - Studio API tests: **61 passed, 1 warning**.
 - Four notebooks syntax-validated; 22 experiment IDs and 31 baseline IDs validated.
