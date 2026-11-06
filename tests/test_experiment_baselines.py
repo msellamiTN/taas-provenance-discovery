@@ -543,6 +543,9 @@ def test_e18_preview_accepts_primary_pamcp_factorial_variants(monkeypatch):
     data = response.json()
     assert data["baseline_count"] == 0
     assert data["pamcp_variant_count"] == 8
+    assert data["pamcp_factorial_preview"]["status"] == "preview_only"
+    assert data["pamcp_factorial_preview"]["variant_count"] == 8
+    assert len(data["pamcp_factorial_preview"]["shared_inputs"]["registry_fingerprint"]) == 64
     assert {x["variant"] for x in data["pamcp_variant_results"]} == set(variants)
     for item in data["pamcp_variant_results"]:
         assert item["result"]["evaluator_labels_accessed"] is False
