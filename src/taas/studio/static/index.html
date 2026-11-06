@@ -1841,13 +1841,17 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   // Any subsequent GoalSpec edit invalidates the user's previous review acknowledgement.
   $("goal-editor").addEventListener("input",()=>{if(bench.selectedTask)$("bench-goal-review").checked=false;});
   $("goal-editor").addEventListener("change",()=>{if(bench.selectedTask)$("bench-goal-review").checked=false;});
+  const compareRegistryText = (left,right) => {
+    const a=String(left??""),b=String(right??"");
+    return a<b?-1:a>b?1:0;
+  };
+  const compareRegistryEntries = (a,b) =>
+    compareRegistryText(a[1].server,b[1].server)||
+    compareRegistryText(a[1].name,b[1].name)||
+    compareRegistryText(a[0],b[0]);
   const syncBenchmarkToolsToRequest = () => {
     const body=JSON.parse($("payload").value);
-    const ordered=[...bench.selectedTools.entries()].sort((a,b)=>{
-      const left=[a[1].server||"",a[1].name||"",a[0]].map(String).join("\\u0000");
-      const right=[b[1].server||"",b[1].name||"",b[0]].map(String).join("\\u0000");
-      return left.localeCompare(right);
-    });
+    const ordered=[...bench.selectedTools.entries()].sort(compareRegistryEntries);
     body.tools=ordered.map(([,t])=>({
       server:t.server,name:t.name,description:t.description||"",
       input_schema:t.input_schema||{},output_schema:t.output_schema||null,
@@ -1862,7 +1866,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     $("bench-selected-count").textContent=bench.selectedTools.size+" selected";
     host.replaceChildren();
     if(!bench.selectedTools.size){const empty=document.createElement("div");empty.className="subtle";empty.textContent="No tools selected. Selection is staged locally until explicitly synchronized.";host.append(empty);return;}
-    [...bench.selectedTools.entries()].sort((a,b)=>String(a[1].server||"").localeCompare(String(b[1].server||""))||String(a[1].name||"").localeCompare(String(b[1].name||""))||String(a[0]).localeCompare(String(b[0]))).forEach(([id,tool])=>{
+    [...bench.selectedTools.entries()].sort(compareRegistryEntries).forEach(([id,tool])=>{
       const item=document.createElement("div");item.className="bench-basket-item";
       const label=document.createElement("span");label.textContent=String(tool.server||"Unknown server")+"/"+String(tool.name||id);
       const remove=document.createElement("button");remove.type="button";remove.className="secondary";remove.textContent="Remove";remove.setAttribute("aria-label","Remove "+String(tool.name||id)+" from selection");
