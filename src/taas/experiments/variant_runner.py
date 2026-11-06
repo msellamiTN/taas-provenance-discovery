@@ -258,6 +258,7 @@ def run_pamcp_factorial_preview(
             "goal_spec_fingerprint": goal_fingerprint,
             "policy_fingerprint": policy_fingerprint,
             "model_profile": profile.model_id,
+            "model_profile_fingerprint": _canonical_fingerprint(profile),
             "model_profile_strict": profile.strict,
             "top_k": top_k,
             "refine_k": refine_k,
