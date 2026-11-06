@@ -1,32 +1,24 @@
-# Local validation — E8-CPU-StaticEmbedding-v2
+# Local validation — E8-CPU-StaticEmbedding-v2 (pretrained FastText)
 
 Date: 2026-11-06
 
-## Environment
-- Python 3.13.5, Linux x86_64.
-- NumPy and pytest available.
-- `fasttext-wheel==0.9.2`: not installed.
-- Installation attempt blocked because this execution environment has no DNS/network access.
-- Pinned benchmark snapshots are not mounted in this execution environment.
+## Change
+The former Skip-gram training path is removed. E8-v2 loads the official pretrained cc.en.300.bin Common Crawl model. No training or fine-tuning is performed.
 
-## Executed checks
-- Tokenization and IDF.
-- Weighted pooling and normalized vectors.
-- OOV/subword lookup interface.
-- Explicit zero-query abstention.
-- Exact cosine ranking and deterministic tie-breaking.
-- Checkpoint resume and fingerprint mismatch rejection.
-- Fail-closed behavior when FastText dependency is missing.
-- **Unit tests: PASS (9/9).**
-- **Python compilation: PASS.**
-- **Experiment JSON parsing: PASS.**
+## Storage behavior
+- Default ephemeral download: stream-decompress official HTTPS gzip into a temporary file, hash it, atomically finalize, load once, then delete the on-disk binary.
+- Configurable free-space preflight; default safety threshold 8 GiB.
+- Optional local model path or persistent external cache.
+- Model binary is never committed to Git.
+- Ephemeral mode saves persistent storage only. Temporary disk and sufficient RAM are still required; the full model is multi-GB.
 
-The unit tests use a deterministic fake FastText vector provider. They validate mechanics, not the quality of a trained FastText representation.
+## Required checks
+1. Unit tests for gzip download, atomic replacement, insufficient-disk failure, cleanup, 300d dimension validation and absence of training calls.
+2. Actual model-load smoke test; record source, SHA-256, bytes, load time and peak RSS.
+3. Verify subword/OOV lookup using an unseen token.
+4. Run 100-query smoke test separately on ToolRet and MCPToolBench++ strict.
+5. Verify unchanged metric keys and denominators: Hit@1, Hit@5, MRR@10, Macro Hit@1.
+6. Full tracks only after smoke tests and resource review pass.
 
-## Not run / blocked
-- Actual FastText Skip-gram training: BLOCKED (dependency unavailable).
-- ToolRet and MCPToolBench++ dataset-level smoke tests: NOT RUN (snapshots unavailable).
-- Target Colab CPU/GPU attestation: NOT RUN.
-- Full benchmark metrics and statistical comparisons: NOT RUN.
-
-No retrieval-quality result or superiority claim is made.
+## Execution status
+Not yet executed in this environment: actual model download/load, real model OOV test, dataset smoke tests and benchmark metrics. Prior fake-vector tests do not validate the pretrained model. No quality or superiority claim is made.
