@@ -1,0 +1,370 @@
+#!/usr/bin/env python3
+"""Prepare evaluator-separated E9 LiveMCPBench data from the pinned snapshot.
+
+The source paper describes task proposers completing tasks with the toolset and
+validators scrutinizing the associated toolchain invocations. For a strict,
+resolvable subset, each such toolchain is one benchmark-native successful
+reference set. It is not an exhaustive enumeration of all valid alternatives.
+"""
+from __future__ import annotations
+
+import argparse
+import csv
+import hashlib
+import json
+import re
+from pathlib import Path
+from typing import Any
+
+ROOT = Path(__file__).resolve().parents[1]
+EXPECTED_REVISION = "36a51a1065dda49c1e503b87edf33a1e0b331a74"
+EXPECTED_TOOL_COUNT = 525
+EXPECTED_SERVER_COUNT = 69
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def write_json(path: Path, value: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in rows),
+        encoding="utf-8",
+    )
+
+
+def write_csv(path: Path, rows: list[dict[str, Any]], fields: list[str]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=fields, extrasaction="ignore")
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def source_revision(path: Path) -> str:
+    pins: dict[str, str] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        fields = line.split()
+        if len(fields) >= 2:
+            pins[fields[0].casefold()] = fields[1]
+    revision = pins.get("livemcpbench")
+    if revision != EXPECTED_REVISION:
+        raise ValueError(
+            f"LiveMCPBench source revision mismatch: expected {EXPECTED_REVISION}, "
+            f"got {revision!r}"
+        )
+    return revision
+
+
+def parse_tool_names(value: str) -> list[str]:
+    names: list[str] = []
+    for line in (value or "").splitlines():
+        name = re.sub(r"^\s*\d+\s*[\.\)]\s*", "", line.strip())
+        name = name.strip().strip('"').strip("'").strip()
+        if name:
+            names.append(name)
+    return names
+
+
+def resolve_name(name: str, by_name: dict[str, list[str]]) -> list[str]:
+    candidates = sorted(by_name.get(name, []))
+    browser_ids = [
+        tool_id for tool_id in candidates
+        if tool_id.startswith(("puppeteer::", "playwright::"))
+    ]
+    non_browser = [tool_id for tool_id in candidates if tool_id not in browser_ids]
+    return non_browser or candidates
+
+
+def prepare(
+    registry_path: Path,
+    annotations_path: Path,
+    sources_path: Path,
+    output_dir: Path,
+) -> dict[str, Any]:
+    registry_path = registry_path.resolve()
+    annotations_path = annotations_path.resolve()
+    sources_path = sources_path.resolve()
+    output_dir = output_dir.resolve()
+
+    if output_dir.exists():
+        raise FileExistsError(f"Refusing to overwrite existing E9 preparation directory: {output_dir}")
+    for path in (registry_path, annotations_path, sources_path):
+        if not path.is_file():
+            raise FileNotFoundError(path)
+
+    revision = source_revision(sources_path)
+    registry_doc = json.loads(registry_path.read_text(encoding="utf-8"))
+    registry_all = registry_doc.get("registry")
+    if not isinstance(registry_all, list):
+        raise ValueError("registry_merged.json must contain a registry array")
+
+    # E9 LiveMCPBench uses its own LiveMCPTool registry, not the 569-tool E1
+    # union that additionally contains MCPToolBench++ definitions.
+    registry = [row for row in registry_all if row.get("source") == "LiveMCPTool"]
+    ids = [str(row.get("id") or "") for row in registry]
+    servers = {str(row.get("server") or "") for row in registry}
+
+    if not registry or any(not item for item in ids) or len(ids) != len(set(ids)):
+        raise ValueError("LiveMCPTool registry contains missing or duplicate stable tool IDs")
+    if "" in servers:
+        raise ValueError("LiveMCPTool registry contains a tool without server identity")
+    if len(registry) != EXPECTED_TOOL_COUNT or len(servers) != EXPECTED_SERVER_COUNT:
+        raise ValueError(
+            f"Pinned registry drift: expected {EXPECTED_TOOL_COUNT} tools/"
+            f"{EXPECTED_SERVER_COUNT} servers, got {len(registry)}/{len(servers)}"
+        )
+
+    by_name: dict[str, list[str]] = {}
+    for row in registry:
+        by_name.setdefault(str(row.get("name") or ""), []).append(str(row["id"]))
+
+    annotations = json.loads(annotations_path.read_text(encoding="utf-8"))
+    if not isinstance(annotations, list) or len(annotations) != 95:
+        count = len(annotations) if isinstance(annotations, list) else "non-list"
+        raise ValueError(f"Expected 95 pinned LiveMCPBench tasks; found {count}")
+
+    discovery_tools: list[dict[str, Any]] = []
+    for row in registry:
+        discovery_tools.append({
+            "dataset_id": "livemcpbench",
+            "tool_id": row["id"],
+            "server_id": row["server"],
+            "name": row.get("name") or "",
+            "description": row.get("description") or "",
+            "input_schema": row.get("input_schema") or {},
+            "output_schema": row.get("output_schema") or {},
+            "annotations": row.get("annotations") or {},
+            "definition_hash": row.get("hash") or "",
+        })
+
+    visible_ids = sorted(ids)
+    discovery_tasks: list[dict[str, Any]] = []
+    visibility_rows: list[dict[str, Any]] = []
+    evaluator_refs: list[dict[str, Any]] = []
+    audit_rows: list[dict[str, Any]] = []
+    counts = {
+        "tasks_total": len(annotations),
+        "tasks_primary_eligible": 0,
+        "tasks_excluded_count_mismatch": 0,
+        "tasks_excluded_ambiguous_or_unresolved": 0,
+        "tool_mentions_total": 0,
+        "tool_mentions_resolved": 0,
+        "tool_mentions_ambiguous": 0,
+        "tool_mentions_unresolved": 0,
+    }
+    seen: set[str] = set()
+    annotations_hash = sha256_file(annotations_path)
+
+    for row in annotations:
+        task_id = str(row.get("task_id") or "").strip()
+        prompt = str(row.get("Question") or "").strip()
+        category = str(row.get("category") or "unspecified")
+        metadata = row.get("Annotator Metadata") or {}
+        names = parse_tool_names(str(metadata.get("Tools") or ""))
+        try:
+            declared_count = int(metadata.get("Number of tools") or len(names))
+        except (TypeError, ValueError):
+            declared_count = -1
+
+        if not task_id or not prompt or task_id in seen:
+            raise ValueError(f"Empty, invalid or duplicate task ID: {task_id!r}")
+        seen.add(task_id)
+        counts["tool_mentions_total"] += len(names)
+
+        resolved_sequence: list[str] = []
+        ambiguous: list[dict[str, Any]] = []
+        unresolved: list[str] = []
+        for name in names:
+            candidates = resolve_name(name, by_name)
+            if len(candidates) == 1:
+                resolved_sequence.append(candidates[0])
+                counts["tool_mentions_resolved"] += 1
+            elif candidates:
+                ambiguous.append({
+                    "tool_name": name,
+                    "candidate_tool_ids": candidates,
+                })
+                counts["tool_mentions_ambiguous"] += 1
+            else:
+                unresolved.append(name)
+                counts["tool_mentions_unresolved"] += 1
+
+        count_matches = declared_count == len(names)
+        fully_resolved = bool(names) and not ambiguous and not unresolved
+        eligible = fully_resolved and count_matches
+
+        if eligible:
+            acceptable_set = sorted(set(resolved_sequence))
+            if not acceptable_set:
+                raise ValueError(f"{task_id}: resolved acceptable reference set is empty")
+            discovery_tasks.append({
+                "dataset_id": "livemcpbench",
+                "task_id": task_id,
+                "prompt": prompt,
+                "task_group": category,
+                "split": "benchmark_evaluation",
+            })
+            visibility_rows.append({
+                "dataset_id": "livemcpbench",
+                "task_id": task_id,
+                "visible_tool_ids": visible_ids,
+            })
+            evaluator_refs.append({
+                "dataset_id": "livemcpbench",
+                "benchmark": "live_mcpbench",
+                "task_id": task_id,
+                "reference_semantics": "benchmark_native_acceptable_sets",
+                "acceptable_tool_sets": [acceptable_set],
+                "reference_tool_sequence": resolved_sequence,
+                "reference_tool_names": names,
+                "reference_source": (
+                    "LiveMCPBench proposer-completed task/toolchain, "
+                    "validator-scrutinized"
+                ),
+                "reference_source_revision": revision,
+                "reference_source_sha256": annotations_hash,
+                "reference_scope": (
+                    "One benchmark-validated successful toolchain; not an exhaustive "
+                    "enumeration of all alternative valid toolchains."
+                ),
+                "independent_unit_id": task_id,
+            })
+            counts["tasks_primary_eligible"] += 1
+            status = "primary_eligible"
+        elif fully_resolved and not count_matches:
+            counts["tasks_excluded_count_mismatch"] += 1
+            status = "excluded_declared_tool_count_mismatch"
+        else:
+            counts["tasks_excluded_ambiguous_or_unresolved"] += 1
+            status = "excluded_ambiguous_or_unresolved_tool_identity"
+
+        audit_rows.append({
+            "task_id": task_id,
+            "category": category,
+            "declared_tool_count": declared_count,
+            "parsed_tool_mentions": len(names),
+            "resolved_tool_mentions": len(resolved_sequence),
+            "ambiguous_tool_mentions": json.dumps(ambiguous, ensure_ascii=False),
+            "unresolved_tool_names": json.dumps(unresolved, ensure_ascii=False),
+            "count_matches": str(count_matches).lower(),
+            "status": status,
+        })
+
+    expected = {
+        "tasks_total": 95,
+        "tasks_primary_eligible": 64,
+        "tasks_excluded_count_mismatch": 3,
+        "tasks_excluded_ambiguous_or_unresolved": 28,
+    }
+    for key, value in expected.items():
+        if counts[key] != value:
+            raise ValueError(f"LiveMCPBench resolution drift for {key}: expected {value}, got {counts[key]}")
+
+    output_dir.mkdir(parents=True)
+    write_json(output_dir / "discovery" / "tools.json", discovery_tools)
+    write_jsonl(output_dir / "discovery" / "tasks.jsonl", discovery_tasks)
+    write_jsonl(output_dir / "discovery" / "task_visibility.jsonl", visibility_rows)
+    write_jsonl(output_dir / "evaluator" / "task_references.jsonl", evaluator_refs)
+    write_csv(
+        output_dir / "evaluator" / "reference_resolution_audit.csv",
+        audit_rows,
+        [
+            "task_id", "category", "declared_tool_count", "parsed_tool_mentions",
+            "resolved_tool_mentions", "ambiguous_tool_mentions", "unresolved_tool_names",
+            "count_matches", "status",
+        ],
+    )
+
+    manifest = {
+        "schema_version": "1.0.0",
+        "experiment_id": "E9",
+        "artifact_kind": "dataset_preparation_not_experiment_run",
+        "status": "prepared_not_run",
+        "benchmark": "LiveMCPBench",
+        "source_revision": revision,
+        "source_files": {
+            "annotations": {
+                "path": str(annotations_path),
+                "sha256": annotations_hash,
+            },
+            "registry": {
+                "path": str(registry_path),
+                "sha256": sha256_file(registry_path),
+            },
+            "source_pins": {
+                "path": str(sources_path),
+                "sha256": sha256_file(sources_path),
+            },
+        },
+        "candidate_registry_view": (
+            "LiveMCPTool only; MCPToolBench++ is not merged into E9 candidates"
+        ),
+        "candidate_tool_count": len(discovery_tools),
+        "candidate_server_count": len(servers),
+        "primary_reference_semantics": (
+            "one benchmark-validated successful toolchain per eligible task"
+        ),
+        "not_claimed": [
+            "All possible valid toolchains are enumerated.",
+            "A positive reference chain is the only acceptable solution.",
+            "LiveMCPEval task success is equivalent to retrieval set precision.",
+        ],
+        "resolution": counts,
+        "exclusion_policy": {
+            "ambiguous_tool_names": (
+                "exclude from primary set metrics; do not choose a server by name alone"
+            ),
+            "unresolved_tool_names": "exclude from primary set metrics",
+            "declared_tool_count_mismatch": "exclude pending source/annotation audit",
+        },
+        "separation": {
+            "discovery_tools": "discovery/tools.json",
+            "discovery_tasks": "discovery/tasks.jsonl",
+            "discovery_visibility": "discovery/task_visibility.jsonl",
+            "evaluator_acceptable_sets": "evaluator/task_references.jsonl",
+            "resolution_audit": "evaluator/reference_resolution_audit.csv",
+            "gold_labels_exposed_to_discovery": False,
+        },
+        "limitations": [
+            "This prepares tasks/references only; it contains no method rankings or E9 scores.",
+            "Each eligible task has one successful benchmark-validated reference toolchain; alternatives may exist.",
+            "The strict 64-task subset requires unique server::tool identity resolution and agreement with Number of tools.",
+            "The 3 fully resolvable count-mismatch tasks and 28 ambiguous/unresolved tasks are excluded from primary metrics and retained in the audit.",
+            "Native LiveMCPBench task-success evaluation requires its runtime and LiveMCPEval judge.",
+        ],
+    }
+    write_json(output_dir / "PREPARATION_MANIFEST.json", manifest)
+    hashes = {
+        path.relative_to(output_dir).as_posix(): sha256_file(path)
+        for path in sorted(output_dir.rglob("*"))
+        if path.is_file()
+    }
+    write_json(output_dir / "SHA256SUMS.json", hashes)
+    return manifest
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--registry", type=Path, default=ROOT / "data/processed/registry_merged.json")
+    parser.add_argument("--annotations", type=Path, default=ROOT / "data/raw/livemcpbench/all_annotations.json")
+    parser.add_argument("--sources", type=Path, default=ROOT / "data/raw/SOURCES.txt")
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    result = prepare(args.registry, args.annotations, args.sources, args.output)
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
