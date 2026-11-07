@@ -1180,6 +1180,24 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 <tr><td>Keyboard navigation</td><td>NOT_RUN</td><td>Keyboard-only browser session and focus-order record</td></tr><tr><td>Screen reader semantics</td><td>NOT_RUN</td><td>Assistive-technology test and browser/version</td></tr><tr><td>Contrast and non-text content</td><td>NOT_RUN</td><td>Measured contrast and alternative-text audit</td></tr><tr><td>Zoom, reflow and responsive layout</td><td>NOT_RUN</td><td>Documented viewport and zoom test matrix</td></tr></tbody></table></div></section>
 <section class="ux8-panel" id="ux8-panel-security" role="tabpanel" aria-labelledby="ux8-tab-security" hidden><div class="ux8-card"><h3>Security &amp; policy controls</h3><p>Evidence requests, not assertions that controls are implemented or effective.</p><table class="ux8-table"><thead><tr><th>Control</th><th>State</th><th>Required evidence</th></tr></thead><tbody>
 <tr><td>Secret handling and redaction</td><td>UNKNOWN</td><td>Secret-scan output and redaction tests</td></tr><tr><td>Authentication and RBAC</td><td>UNKNOWN</td><td>Role matrix and positive/negative authorization tests</td></tr><tr><td>Input validation</td><td>UNKNOWN</td><td>Boundary, malformed-input and abuse-case tests</td></tr><tr><td>Worker isolation and network policy</td><td>UNKNOWN</td><td>Architecture and independently verified enforcement tests</td></tr></tbody></table><p class="ux8-note">Discovery metadata and assurance observations do not prove enforcement, authorization or runtime isolation.</p></div></section>
+<section class="ux8-panel" id="ux8-live-governance" aria-labelledby="ux8-live-governance-title">
+  <div class="ux8-card">
+    <h3 id="ux8-live-governance-title">Live governance checks · exact Agent version</h3>
+    <p>Read-only requests to Core. These diagnostics do not approve, authorize, or execute an Agent.</p>
+    <div class="field-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+      <label>Agent ID<input id="ux8-agent-id" type="text" autocomplete="off" placeholder="agent-id"></label>
+      <label>Version<input id="ux8-agent-version" type="text" autocomplete="off" placeholder="1.0.0"></label>
+    </div>
+    <div class="inline-actions" style="margin:12px 0">
+      <button id="ux8-check-policy" type="button">Evaluate policy verdict</button>
+      <button id="ux8-check-readiness" type="button" class="secondary">Check release readiness</button>
+      <button id="ux8-check-approvals" type="button" class="secondary">Inspect approvals</button>
+    </div>
+    <p id="ux8-live-status" class="subtle" role="status" aria-live="polite">No governance request made.</p>
+    <pre id="ux8-live-result" style="max-height:360px;overflow:auto;white-space:pre-wrap">Enter an exact Agent ID and version, then choose a read-only check.</pre>
+    <p class="ux8-note">A policy verdict or release-readiness result is diagnostic. Approval evidence is not an authorization grant. Authorization preflight is not execution. No approval is created from this panel.</p>
+  </div>
+</section>
 <section class="ux8-panel" id="ux8-panel-performance" role="tabpanel" aria-labelledby="ux8-tab-performance" hidden><div class="ux8-card"><h3>Measured performance</h3><dl class="ux8-kv"><dt>LCP</dt><dd>NOT_RUN</dd><dt>INP</dt><dd>NOT_RUN</dd><dt>CLS</dt><dd>NOT_RUN</dd><dt>Load and bundle profile</dt><dd>NOT_RUN</dd><dt>Memory / CPU profile</dt><dd>NOT_RUN</dd></dl><p>Measurements require device, browser, network profile, test procedure and raw output. No illustrative metrics are displayed as measurements.</p></div></section>
 <section class="ux8-panel" id="ux8-panel-validation" role="tabpanel" aria-labelledby="ux8-tab-validation" hidden><div class="ux8-card"><h3>Validation matrix</h3><table class="ux8-table"><thead><tr><th>Validation</th><th>State</th><th>Acceptance evidence</th></tr></thead><tbody>
 <tr><td>Build / packaging</td><td>NOT_RUN</td><td>Exact-head build log</td></tr><tr><td>Unit / regression tests</td><td>NOT_RUN</td><td>Test report and exit code</td></tr><tr><td>Browser smoke / interaction</td><td>NOT_RUN</td><td>Browser, commit and reproducible steps</td></tr><tr><td>Security checks</td><td>NOT_RUN</td><td>Scanner output and reviewed findings</td></tr><tr><td>Colab deployment / run</td><td>NOT_RUN</td><td>Runtime URL, exact commit and smoke-test output</td></tr></tbody></table><p class="ux8-note">Source inspection is not a substitute for build, test, CI, browser, Colab or assistive-technology acceptance.</p></div></section>
@@ -3269,7 +3287,30 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   });
   $("agent-engineering-clear").addEventListener("click",()=>{$("agent-engineering-objective").value="";$("agent-engineering-context").value="";agentEngineeringSummary.hidden=true;agentEngineeringTrace.textContent="Prepare an Objective to inspect its Core-generated provenance.";agentEngineeringGoals.replaceChildren();agentEngineeringRaw.textContent="No Core response received.";agentEngineeringStatus.className="agent-trace-state";agentEngineeringStatus.textContent="Workspace cleared. No API request was made.";});
 
-  // The overview is explicitly refreshed by the user after Studio authentication.\n\n  // UX-F02: read-only discovery history and audit integrity workspace.
+  // The overview is explicitly refreshed by the user after Studio authentication.\n\n
+  // UX-8: live, read-only governance diagnostics bound to an exact immutable Agent version.
+  const ux8SubjectPath = () => {
+    const id=$("ux8-agent-id").value.trim(), version=$("ux8-agent-version").value.trim();
+    if(!id || !version) throw new Error("Enter both Agent ID and exact version.");
+    return "/api/v1/agents/"+encodeURIComponent(id)+"/versions/"+encodeURIComponent(version);
+  };
+  const ux8RunReadOnly = async (suffix, label) => {
+    const status=$("ux8-live-status"), output=$("ux8-live-result");
+    status.textContent=label+"…"; output.textContent="Waiting for Core response…";
+    try {
+      const data=await apiGet(ux8SubjectPath()+suffix);
+      output.textContent=JSON.stringify(data,null,2);
+      status.textContent=label+" · Core response received. Interpret only the returned diagnostic/evidence fields.";
+    } catch(error) {
+      output.textContent="No successful response. "+error.message;
+      status.textContent=label+" failed: "+error.message;
+    }
+  };
+  $("ux8-check-policy").addEventListener("click",()=>ux8RunReadOnly("/policy-verdict","Policy verdict"));
+  $("ux8-check-readiness").addEventListener("click",()=>ux8RunReadOnly("/release-readiness","Release readiness"));
+  $("ux8-check-approvals").addEventListener("click",()=>ux8RunReadOnly("/approvals","Approval evidence inspection"));
+
+  // UX-F02: read-only discovery history and audit integrity workspace.
   const obsRenderRecordList = (host, records, emptyText, onSelect) => {
     host.replaceChildren();
     if (!Array.isArray(records) || records.length === 0) {
