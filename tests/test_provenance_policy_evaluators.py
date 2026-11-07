@@ -21,6 +21,7 @@ def test_probe_coverage_does_not_count_hash_mismatch():
     result = probe_coverage(
         ["a", "b"], {"a": ["read"], "b": ["write"]},
         {"a": "h1", "b": "h2"}, {"a": "h1", "b": "stale"},
+        probeable_tool_ids=["a", "b"],
     )
     assert result["probe_coverage"]["numerator"] == 1
     assert result["probe_coverage"]["denominator"] == 2
@@ -80,3 +81,15 @@ def test_verifier_threshold_sweep_uses_supplied_risk_scores():
     )
     assert rows[0]["false_acceptance_rate"]["value"] == 0.0
     assert rows[1]["false_acceptance_rate"]["value"] == 1.0
+
+
+def test_probeable_share_and_probe_coverage_have_distinct_denominators():
+    result = probe_coverage(
+        ["a", "b", "c"],
+        {"a": ["read"], "b": None, "c": None},
+        {"a": "h1", "b": "h2", "c": "h3"},
+        {"a": "h1"},
+        probeable_tool_ids=["a", "b"],
+    )
+    assert result["probeable_share"]["value"] == 2 / 3
+    assert result["probe_coverage"]["value"] == .5
