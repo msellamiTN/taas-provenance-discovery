@@ -215,7 +215,8 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "normalize": true
+            "normalize": true,
+            "value_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -290,7 +291,8 @@
           },
           "render_options": {
             "normalize": "true",
-            "value_field": "count"
+            "value_field": "count",
+            "value_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -485,7 +487,8 @@
           },
           "render_options": {
             "normalize": "true",
-            "value_field": "count"
+            "value_field": "count",
+            "value_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -691,7 +694,9 @@
             "x_prefer": "high",
             "y_prefer": "low",
             "size_field": "eligible_share",
-            "facet_field": "benchmark"
+            "facet_field": "benchmark",
+            "x_format": "percent",
+            "y_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -822,7 +827,8 @@
             "facet_field": [
               "benchmark",
               "metric"
-            ]
+            ],
+            "value_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -972,7 +978,8 @@
           },
           "render_options": {
             "zero_reference": true,
-            "facet_field": "benchmark"
+            "facet_field": "benchmark",
+            "x_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -1040,7 +1047,9 @@
           "render_options": {
             "facet_field": "benchmark",
             "x_prefer": "high",
-            "y_prefer": "low"
+            "y_prefer": "low",
+            "x_format": "percent",
+            "y_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -1341,7 +1350,9 @@
             "x_prefer": "high",
             "y_prefer": "low",
             "size_field": "eligible_share",
-            "facet_field": "benchmark"
+            "facet_field": "benchmark",
+            "x_format": "percent",
+            "y_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -1470,7 +1481,8 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "facet_field": "benchmark"
+            "facet_field": "benchmark",
+            "value_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -1624,7 +1636,9 @@
             ],
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
-          "render_options": {},
+          "render_options": {
+            "y_format": "percent"
+          },
           "outputs": [
             "pdf",
             "svg",
@@ -1690,7 +1704,8 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "facet_field": "benchmark"
+            "facet_field": "benchmark",
+            "y_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -1843,7 +1858,8 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "facet_field": "benchmark"
+            "facet_field": "benchmark",
+            "value_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -1913,7 +1929,9 @@
             "size_field": "complete_set_share",
             "x_prefer": "high",
             "y_prefer": "high",
-            "facet_field": "benchmark"
+            "facet_field": "benchmark",
+            "x_format": "percent",
+            "y_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -2202,7 +2220,8 @@
           },
           "render_options": {
             "normalize": true,
-            "facet_field": "benchmark"
+            "facet_field": "benchmark",
+            "value_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -2466,7 +2485,8 @@
           },
           "render_options": {
             "x_prefer": "high",
-            "y_prefer": "high"
+            "y_prefer": "high",
+            "y_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -2609,7 +2629,9 @@
             "x_min": 0,
             "x_max": 1,
             "y_min": 0,
-            "y_max": 1
+            "y_max": 1,
+            "x_format": "percent",
+            "y_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -2673,7 +2695,8 @@
           },
           "render_options": {
             "x_min": 0,
-            "x_max": 1
+            "x_max": 1,
+            "x_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -2897,7 +2920,8 @@
           "render_options": {
             "x_prefer": "low",
             "y_prefer": "high",
-            "facet_field": "benchmark"
+            "facet_field": "benchmark",
+            "y_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -3105,7 +3129,8 @@
           },
           "render_options": {
             "zero_reference": true,
-            "facet_field": "benchmark"
+            "facet_field": "benchmark",
+            "x_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -3195,7 +3220,8 @@
             "facet_field": [
               "benchmark",
               "attack_type"
-            ]
+            ],
+            "y_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -3336,7 +3362,8 @@
             "facet_field": [
               "benchmark",
               "attack_type"
-            ]
+            ],
+            "x_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -4861,7 +4888,8 @@
           },
           "render_options": {
             "x_prefer": "low",
-            "y_prefer": "high"
+            "y_prefer": "high",
+            "y_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -4937,7 +4965,8 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "facet_field": "benchmark"
+            "facet_field": "benchmark",
+            "value_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -4998,7 +5027,8 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "facet_field": "benchmark"
+            "facet_field": "benchmark",
+            "value_format": "percent"
           },
           "outputs": [
             "pdf",
@@ -5124,7 +5154,9 @@
           "render_options": {
             "x_min": 0,
             "x_max": 1,
-            "facet_field": "benchmark"
+            "facet_field": "benchmark",
+            "vmin": 0,
+            "vmax": 1
           },
           "outputs": [
             "pdf",
