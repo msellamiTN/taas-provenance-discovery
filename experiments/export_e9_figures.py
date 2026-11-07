@@ -171,6 +171,24 @@ def export_e9_figures(
     executed = set(manifest.get("baseline_ids_executed", []))
     if not executed.issubset(registered):
         raise ValueError(f"E9 run declares unregistered baselines as executed: {sorted(executed - registered)}")
+    plot_plan_path = ROOT / "docs" / "experiment_design" / "pamcp_plot_plan_v1.json"
+    plot_plan = json.loads(plot_plan_path.read_text(encoding="utf-8"))
+    e9_plot_spec = next(item for item in plot_plan["experiments"] if item["id"] == "E9")
+    primary_id = next(
+        (figure["comparison"].get("primary_configuration")
+         for figure in e9_plot_spec["figures"] if figure["comparison"].get("primary_configuration")),
+        None,
+    )
+    primary_executed = bool(manifest.get("primary_configuration_executed", False))
+    manifest_primary_id = manifest.get("primary_configuration_id")
+    if primary_executed and (not primary_id or manifest_primary_id != primary_id):
+        raise ValueError(
+            f"E9 primary configuration mismatch: plot plan={primary_id!r}, "
+            f"run manifest={manifest_primary_id!r}"
+        )
+    if not primary_executed and manifest_primary_id not in {None, primary_id}:
+        raise ValueError(f"E9 manifest declares an unexpected primary configuration {manifest_primary_id!r}")
+    executable_methods = executed | ({primary_id} if primary_executed and primary_id else set())
     cutoffs = sorted({int(k) for k in manifest.get("ranking_cutoffs", [3, 5, 10])})
     if not cutoffs or cutoffs[0] < 1 or cutoffs[-1] > 10:
         raise ValueError("E9 ranking_cutoffs must be between 1 and 10")
@@ -240,8 +258,8 @@ def export_e9_figures(
         key = (benchmark, task_id)
         if not task_id or not benchmark or not baseline:
             raise ValueError("E9 discovery rows require task_id, benchmark and baseline")
-        if baseline not in executed:
-            raise ValueError(f"{benchmark}/{task_id}: baseline {baseline!r} absent from executed manifest")
+        if baseline not in executable_methods:
+            raise ValueError(f"{benchmark}/{task_id}: method {baseline!r} absent from executed baseline/primary-configuration manifest")
         pair = (benchmark, task_id, baseline)
         if pair in seen:
             raise ValueError(f"Duplicate E9 discovery ranking: {pair}")
@@ -410,7 +428,12 @@ def export_e9_figures(
         "primary_reference_semantics": sorted(PRIMARY_REFERENCE_SEMANTICS),
         "trace_only_reference_semantics_excluded_from_primary": sorted(TRACE_REFERENCE_SEMANTICS),
         "baseline_ids_registered": sorted(registered),
-        "baseline_ids_executed_with_primary_reference_rows": sorted(baseline_rows),
+        "baseline_ids_executed_with_primary_reference_rows": sorted(
+            method for method in baseline_rows if method in registered
+        ),
+        "primary_configuration_id": primary_id,
+        "primary_configuration_executed": primary_executed,
+        "primary_configuration_rows": baseline_rows.get(primary_id, 0) if primary_id else 0,
         "primary_task_metric_rows": len(per_task),
         "primary_tasks_without_acceptable_set_reference": skipped_no_reference,
         "trace_diagnostic_rows": len(diagnostic_rows),
