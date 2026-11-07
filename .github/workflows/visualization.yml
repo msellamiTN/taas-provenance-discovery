@@ -20,6 +20,7 @@ on:
       - "tests/test_e8_data_preparation.py"
       - "tests/test_e8_figure_export.py"
       - "experiments/export_e9_figures.py"
+      - "experiments/prepare_e9_livemcpbench.py"
       - "tests/test_e9_figure_export.py"
       - "pyproject.toml"
       - ".github/workflows/visualization.yml"
@@ -40,6 +41,7 @@ on:
       - "tests/test_e8_data_preparation.py"
       - "tests/test_e8_figure_export.py"
       - "experiments/export_e9_figures.py"
+      - "experiments/prepare_e9_livemcpbench.py"
       - "tests/test_e9_figure_export.py"
       - "pyproject.toml"
       - ".github/workflows/visualization.yml"
@@ -67,5 +69,21 @@ jobs:
         run: bash -n experiments/run_e8_and_plot.sh
       - name: Validate E8 Colab notebook JSON
         run: python -m json.tool experiments/colab/E8_Retrieval_Campaign.ipynb > /dev/null
+      - name: Prepare E9 LiveMCPBench evaluator-separated reference subset
+        run: |
+          python experiments/prepare_e9_livemcpbench.py --output /tmp/e9-livemcpbench-prepared
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path("/tmp/e9-livemcpbench-prepared/PREPARATION_MANIFEST.json").read_text())
+          counts = manifest["resolution"]
+          assert counts["tasks_total"] == 95
+          assert counts["tasks_primary_eligible"] == 64
+          assert counts["tasks_excluded_count_mismatch"] == 3
+          assert counts["tasks_excluded_ambiguous_or_unresolved"] == 28
+          assert manifest["status"] == "prepared_not_run"
+          assert manifest["separation"]["gold_labels_exposed_to_discovery"] is False
+          print(json.dumps({"E9_LiveMCPBench_preparation": counts}, indent=2))
+          PY
       - name: Run plotting and E8/E9 regression tests
         run: python -m pytest -q tests/test_plotting.py tests/test_e8_figure_export.py tests/test_e8_retrieval_campaign.py tests/test_e8_data_preparation.py tests/test_e9_figure_export.py
