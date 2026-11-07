@@ -413,6 +413,28 @@ def _draw(ax: Any, figure: dict[str, Any], frame: Any) -> None:
             if "label" in subset.columns:
                 for _, row in subset.iterrows():
                     ax.annotate(str(row["label"]), (float(row[x_field]), float(row[y_field])), xytext=(4, 3), textcoords="offset points", fontsize=7)
+        if chart == "pareto_scatter":
+            # Trace the non-dominated frontier using the explicit direction declared
+            # by the figure contract. This computes only a visual envelope over supplied
+            # observations; it does not create or transform evaluation measurements.
+            x_values = frame[x_field].astype(float).to_numpy()
+            y_values = frame[y_field].astype(float).to_numpy()
+            x_sign = 1.0 if options.get("x_prefer", "high") == "low" else -1.0
+            y_sign = 1.0 if options.get("y_prefer", "high") == "low" else -1.0
+            x_cost, y_cost = x_sign * x_values, y_sign * y_values
+            keep = []
+            for i in range(len(frame)):
+                dominated = any(
+                    (x_cost[j] <= x_cost[i] and y_cost[j] <= y_cost[i])
+                    and (x_cost[j] < x_cost[i] or y_cost[j] < y_cost[i])
+                    for j in range(len(frame)) if j != i
+                )
+                if not dominated:
+                    keep.append(i)
+            if keep:
+                order = sorted(keep, key=lambda i: x_cost[i])
+                ax.plot(x_values[order], y_values[order], linestyle="--", color="0.25",
+                        linewidth=1.2, marker=None, label="Non-dominated frontier", zorder=1)
     elif chart == "dumbbell":
         cat = figure["y_axis"]["field"]
         categories = list(dict.fromkeys(frame[cat].astype(str)))
