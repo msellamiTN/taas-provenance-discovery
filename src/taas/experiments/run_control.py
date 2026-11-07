@@ -9,6 +9,8 @@ from taas.experiments.catalog import load_catalog
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_LEDGER = ROOT / "results" / "pamcp_runs.jsonl"
 DEFAULT_DEPENDENCIES = ROOT / "docs" / "experiment_design" / "pamcp_execution_dependencies_v1.json"
+EXPERIMENT_IDS = {f"E{i}" for i in range(1, 23)}
+LEDGER_STATUSES = {"running", "completed", "failed"}
 
 class RunBlocked(RuntimeError):
     """Execution cannot be proven protocol-compliant."""
@@ -27,36 +29,54 @@ def _assert_acyclic(dependencies: Mapping[str, list[str]]) -> None:
         visiting.remove(node); visited.add(node)
     for node in dependencies: visit(node)
 
+def validate_dependency_manifest(data: Mapping[str, Any]) -> dict[str, Any]:
+    """Validate both file-loaded and injected manifests identically."""
+    deps = data.get("depends_on")
+    if data.get("schema_version") != "1.0.0" or data.get("programme") != "PaMCP":
+        raise RunBlocked("Unsupported dependency manifest")
+    if not isinstance(deps, dict) or set(deps) != EXPERIMENT_IDS:
+        raise RunBlocked("Dependency manifest must define E1-E22 exactly once")
+    for exp, parents in deps.items():
+        if not isinstance(parents, list) or any(not isinstance(p, str) for p in parents):
+            raise RunBlocked(f"Invalid prerequisite list for {exp}")
+        if len(parents) != len(set(parents)):
+            raise RunBlocked(f"Duplicate prerequisite for {exp}")
+        if any(p not in EXPERIMENT_IDS or p == exp for p in parents):
+            raise RunBlocked(f"Invalid prerequisite reference for {exp}")
+    _assert_acyclic(deps)
+    return dict(data)
+
 def load_dependency_manifest(path: Path = DEFAULT_DEPENDENCIES) -> dict[str, Any]:
     if not path.is_file():
         raise RunBlocked("Missing approved execution dependency manifest; do not infer DAG edges.")
-    data = json.loads(path.read_text(encoding="utf-8"))
-    deps = data.get("depends_on")
-    expected = {f"E{i}" for i in range(1, 23)}
-    if data.get("schema_version") != "1.0.0" or data.get("programme") != "PaMCP":
-        raise RunBlocked("Unsupported dependency manifest")
-    if not isinstance(deps, dict) or set(deps) != expected:
-        raise RunBlocked("Dependency manifest must define E1-E22 exactly once")
-    for exp, parents in deps.items():
-        if not isinstance(parents, list) or len(parents) != len(set(parents)):
-            raise RunBlocked(f"Invalid prerequisite list for {exp}")
-        if any(p not in expected or p == exp for p in parents):
-            raise RunBlocked(f"Invalid prerequisite reference for {exp}")
-    _assert_acyclic(deps)
-    return data
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        raise RunBlocked("Dependency manifest is not valid UTF-8 JSON") from exc
+    if not isinstance(data, dict):
+        raise RunBlocked("Dependency manifest root must be an object")
+    return validate_dependency_manifest(data)
 
 def read_ledger(path: Path = DEFAULT_LEDGER) -> list[dict[str, Any]]:
     if not path.exists(): return []
     records = []
     for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
         if not line.strip(): continue
-        try: records.append(json.loads(line))
+        try: item = json.loads(line)
         except json.JSONDecodeError as exc: raise RunBlocked(f"Corrupt ledger at line {n}") from exc
+        if (not isinstance(item, dict) or item.get("experiment_id") not in EXPERIMENT_IDS
+                or item.get("status") not in LEDGER_STATUSES):
+            raise RunBlocked(f"Invalid ledger record at line {n}")
+        records.append(item)
     return records
 
 def latest_successes(records: list[dict[str, Any]]) -> set[str]:
     latest = {}
-    for item in records: latest[item["experiment_id"]] = item["status"]
+    for item in records:
+        if (not isinstance(item, dict) or item.get("experiment_id") not in EXPERIMENT_IDS
+                or item.get("status") not in LEDGER_STATUSES):
+            raise RunBlocked("Malformed run-ledger record")
+        latest[item["experiment_id"]] = item["status"]
     return {key for key, status in latest.items() if status == "completed"}
 
 def append_record(record: dict[str, Any], path: Path = DEFAULT_LEDGER) -> None:
@@ -68,11 +88,13 @@ def execute_experiment(experiment_id: str, *, handler: Callable[[dict[str, Any]]
                        input_manifest: Mapping[str, Any], dependency_manifest: Mapping[str, Any] | None = None,
                        ledger_path: Path = DEFAULT_LEDGER, catalog_path: Path | None = None) -> dict[str, Any]:
     if handler is None: raise RunBlocked(f"No validated implementation registered for {experiment_id}")
+    if experiment_id not in EXPERIMENT_IDS: raise RunBlocked(f"Unknown experiment: {experiment_id}")
     catalog = load_catalog() if catalog_path is None else load_catalog(catalog_path)
     experiment = next((e for e in catalog["experiments"] if e["id"] == experiment_id), None)
     if experiment is None: raise RunBlocked(f"Unknown experiment: {experiment_id}")
     if experiment["status"] != "planned_not_run": raise RunBlocked("Frozen catalogue status changed")
     if dependency_manifest is None: dependency_manifest = load_dependency_manifest()
+    else: dependency_manifest = validate_dependency_manifest(dependency_manifest)
     deps = dependency_manifest["depends_on"][experiment_id]
     missing = sorted(set(deps) - latest_successes(read_ledger(ledger_path)))
     if missing: raise RunBlocked(f"{experiment_id} blocked by incomplete prerequisites: {missing}")
