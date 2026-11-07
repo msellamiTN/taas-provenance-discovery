@@ -782,7 +782,8 @@
               "category",
               "series",
               "value",
-              "metric"
+              "metric",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -818,7 +819,10 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "facet_field": "metric"
+            "facet_field": [
+              "benchmark",
+              "metric"
+            ]
           },
           "outputs": [
             "pdf",
@@ -862,7 +866,8 @@
               "value",
               "series",
               "ci_low",
-              "ci_high"
+              "ci_high",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -899,7 +904,8 @@
           },
           "render_options": {
             "x_format": "percent",
-            "y_format": "percent"
+            "y_format": "percent",
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -928,7 +934,8 @@
               "category",
               "value",
               "ci_low",
-              "ci_high"
+              "ci_high",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -964,7 +971,8 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "zero_reference": true
+            "zero_reference": true,
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -993,7 +1001,8 @@
               "util_at_5",
               "exp_at_5",
               "series",
-              "alpha"
+              "alpha",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -1029,7 +1038,7 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "facet_field": "alpha",
+            "facet_field": "benchmark",
             "x_prefer": "high",
             "y_prefer": "low"
           },
@@ -1076,7 +1085,8 @@
               "value",
               "series",
               "ci_low",
-              "ci_high"
+              "ci_high",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -1112,7 +1122,8 @@
           },
           "render_options": {
             "x_format": "percent",
-            "y_format": "percent"
+            "y_format": "percent",
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -1141,7 +1152,8 @@
               "category",
               "value",
               "ci_low",
-              "ci_high"
+              "ci_high",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -1176,7 +1188,8 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "x_format": "percent"
+            "x_format": "percent",
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -1206,7 +1219,8 @@
               "value",
               "series",
               "ci_low",
-              "ci_high"
+              "ci_high",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -1242,7 +1256,8 @@
           },
           "render_options": {
             "x_format": "percent",
-            "y_format": "percent"
+            "y_format": "percent",
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -1287,7 +1302,8 @@
               "util_at_5",
               "exp_at_5",
               "series",
-              "eligible_share"
+              "eligible_share",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -1324,7 +1340,8 @@
           "render_options": {
             "x_prefer": "high",
             "y_prefer": "low",
-            "size_field": "eligible_share"
+            "size_field": "eligible_share",
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -1352,7 +1369,8 @@
             "required_columns": [
               "threshold",
               "effect_class",
-              "value"
+              "value",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -1387,7 +1405,8 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "value_format": "percent"
+            "value_format": "percent",
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -1415,7 +1434,8 @@
             "required_columns": [
               "policy",
               "metric",
-              "value"
+              "value",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -1449,7 +1469,9 @@
             ],
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
-          "render_options": {},
+          "render_options": {
+            "facet_field": "benchmark"
+          },
           "outputs": [
             "pdf",
             "svg",
@@ -1496,7 +1518,8 @@
               "value",
               "ci_low",
               "ci_high",
-              "series"
+              "series",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -1533,7 +1556,9 @@
             ],
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
-          "render_options": {},
+          "render_options": {
+            "facet_field": "benchmark"
+          },
           "outputs": [
             "pdf",
             "svg",
@@ -1626,7 +1651,8 @@
             "required_columns": [
               "distractor_count",
               "value",
-              "series"
+              "series",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -1663,7 +1689,9 @@
             ],
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
-          "render_options": {},
+          "render_options": {
+            "facet_field": "benchmark"
+          },
           "outputs": [
             "pdf",
             "svg",
@@ -1777,7 +1805,8 @@
               "series",
               "value",
               "ci_low",
-              "ci_high"
+              "ci_high",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -1813,7 +1842,9 @@
             ],
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
-          "render_options": {},
+          "render_options": {
+            "facet_field": "benchmark"
+          },
           "outputs": [
             "pdf",
             "svg",
@@ -1841,7 +1872,8 @@
               "set_precision",
               "group_recall",
               "series",
-              "complete_set_share"
+              "complete_set_share",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -1880,7 +1912,8 @@
           "render_options": {
             "size_field": "complete_set_share",
             "x_prefer": "high",
-            "y_prefer": "high"
+            "y_prefer": "high",
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -1908,7 +1941,8 @@
             "required_columns": [
               "task_group",
               "method",
-              "value"
+              "value",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -1945,7 +1979,8 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "value_format": "percent"
+            "value_format": "percent",
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -1991,7 +2026,8 @@
               "category",
               "value",
               "ci_low",
-              "ci_high"
+              "ci_high",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -2029,7 +2065,8 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "x_format": "percent"
+            "x_format": "percent",
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -2057,7 +2094,8 @@
             "required_columns": [
               "check",
               "method",
-              "value"
+              "value",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -2095,7 +2133,8 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "value_format": "percent"
+            "value_format": "percent",
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -2123,7 +2162,8 @@
             "required_columns": [
               "category",
               "segment",
-              "value"
+              "value",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -2161,7 +2201,8 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "normalize": true
+            "normalize": true,
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -2743,7 +2784,8 @@
               "category",
               "value",
               "ci_low",
-              "ci_high"
+              "ci_high",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -2783,7 +2825,8 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "x_format": "percent"
+            "x_format": "percent",
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -2811,7 +2854,8 @@
             "required_columns": [
               "tokens",
               "task_success",
-              "series"
+              "series",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -2852,7 +2896,8 @@
           },
           "render_options": {
             "x_prefer": "low",
-            "y_prefer": "high"
+            "y_prefer": "high",
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -2879,140 +2924,8 @@
           "data_contract": {
             "required_columns": [
               "group",
-              "value"
-            ],
-            "optional_columns": [
-              "series",
-              "label",
-              "n",
-              "ci_low",
-              "ci_high",
-              "facet",
-              "benchmark",
-              "method",
-              "metric"
-            ]
-          },
-          "comparison": {
-            "primary_configuration": "Full_PaMCP",
-            "baseline_ids": [
-              "all_tools",
-              "rag_mcp",
-              "mcp_zero",
-              "per_subtask",
-              "colt_adapted",
-              "toolscope_adapted",
-              "cmtf_adapted",
-              "progent_runtime",
-              "fides_ifc",
-              "camel_ifc"
-            ],
-            "factorial_cells": [],
-            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
-          },
-          "uncertainty": {
-            "confidence_level": 0.95,
-            "interval_columns": [
-              "ci_low",
-              "ci_high"
-            ],
-            "resampling": "Follow the experiment statistical contract and declared resampling unit."
-          },
-          "render_options": {},
-          "outputs": [
-            "pdf",
-            "svg",
-            "png"
-          ]
-        },
-        {
-          "id": "E13-F4",
-          "title": "Wrong-tool call composition",
-          "purpose": "Separate irrelevant, invalid-state and policy-violating calls.",
-          "role": "supporting",
-          "chart_type": "stacked_horizontal",
-          "data_file": "results/visualization/data/E13-F4.csv",
-          "x_axis": {
-            "field": "value",
-            "label": "Wrong-tool calls"
-          },
-          "y_axis": {
-            "field": "category",
-            "label": "Method"
-          },
-          "value_field": "value",
-          "data_contract": {
-            "required_columns": [
-              "category",
-              "segment",
-              "value"
-            ],
-            "optional_columns": [
-              "series",
-              "label",
-              "n",
-              "ci_low",
-              "ci_high",
-              "facet",
-              "benchmark",
-              "method",
-              "metric"
-            ]
-          },
-          "comparison": {
-            "primary_configuration": "Full_PaMCP",
-            "baseline_ids": [
-              "all_tools",
-              "rag_mcp",
-              "mcp_zero",
-              "per_subtask",
-              "colt_adapted",
-              "toolscope_adapted",
-              "cmtf_adapted",
-              "progent_runtime",
-              "fides_ifc",
-              "camel_ifc"
-            ],
-            "factorial_cells": [],
-            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
-          },
-          "uncertainty": {
-            "confidence_level": 0.95,
-            "interval_columns": [
-              "ci_low",
-              "ci_high"
-            ],
-            "resampling": "Follow the experiment statistical contract and declared resampling unit."
-          },
-          "render_options": {},
-          "outputs": [
-            "pdf",
-            "svg",
-            "png"
-          ]
-        },
-        {
-          "id": "E13-F5",
-          "title": "Paired task-success differences",
-          "purpose": "Show paired task effects; positive values indicate PaMCP improvement.",
-          "role": "supporting",
-          "chart_type": "horizontal_forest",
-          "data_file": "results/visualization/data/E13-F5.csv",
-          "x_axis": {
-            "field": "value",
-            "label": "PaMCP minus baseline task success"
-          },
-          "y_axis": {
-            "field": "category",
-            "label": "Baseline comparator"
-          },
-          "value_field": "value",
-          "data_contract": {
-            "required_columns": [
-              "category",
               "value",
-              "ci_low",
-              "ci_high"
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -3052,7 +2965,147 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "zero_reference": true
+            "facet_field": "benchmark"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E13-F4",
+          "title": "Wrong-tool call composition",
+          "purpose": "Separate irrelevant, invalid-state and policy-violating calls.",
+          "role": "supporting",
+          "chart_type": "stacked_horizontal",
+          "data_file": "results/visualization/data/E13-F4.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Wrong-tool calls"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Method"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "segment",
+              "value",
+              "benchmark"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "all_tools",
+              "rag_mcp",
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "progent_runtime",
+              "fides_ifc",
+              "camel_ifc"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "facet_field": "benchmark"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E13-F5",
+          "title": "Paired task-success differences",
+          "purpose": "Show paired task effects; positive values indicate PaMCP improvement.",
+          "role": "supporting",
+          "chart_type": "horizontal_forest",
+          "data_file": "results/visualization/data/E13-F5.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "PaMCP minus baseline task success"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Baseline comparator"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "value",
+              "ci_low",
+              "ci_high",
+              "benchmark"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "all_tools",
+              "rag_mcp",
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "progent_runtime",
+              "fides_ifc",
+              "camel_ifc"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "zero_reference": true,
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -3097,7 +3150,9 @@
             "required_columns": [
               "out_of_policy_actions",
               "task_success",
-              "series"
+              "series",
+              "benchmark",
+              "attack_type"
             ],
             "optional_columns": [
               "series",
@@ -3136,7 +3191,11 @@
           },
           "render_options": {
             "x_prefer": "low",
-            "y_prefer": "high"
+            "y_prefer": "high",
+            "facet_field": [
+              "benchmark",
+              "attack_type"
+            ]
           },
           "outputs": [
             "pdf",
@@ -3164,7 +3223,8 @@
             "required_columns": [
               "system",
               "attack_type",
-              "value"
+              "value",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -3202,7 +3262,8 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "value_format": "percent"
+            "value_format": "percent",
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -3231,7 +3292,9 @@
               "category",
               "value",
               "ci_low",
-              "ci_high"
+              "ci_high",
+              "benchmark",
+              "attack_type"
             ],
             "optional_columns": [
               "series",
@@ -3269,7 +3332,11 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "zero_reference": true
+            "zero_reference": true,
+            "facet_field": [
+              "benchmark",
+              "attack_type"
+            ]
           },
           "outputs": [
             "pdf",
@@ -3299,7 +3366,9 @@
               "series",
               "value",
               "ci_low",
-              "ci_high"
+              "ci_high",
+              "benchmark",
+              "attack_type"
             ],
             "optional_columns": [
               "series",
@@ -3337,7 +3406,11 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "value_format": "percent"
+            "value_format": "percent",
+            "facet_field": [
+              "benchmark",
+              "attack_type"
+            ]
           },
           "outputs": [
             "pdf",
@@ -3381,7 +3454,8 @@
             "required_columns": [
               "registry_size",
               "latency_ms",
-              "series"
+              "series",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -3420,7 +3494,8 @@
           },
           "render_options": {
             "log_x": true,
-            "log_y": true
+            "log_y": true,
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -3451,7 +3526,8 @@
               "value",
               "ci_low",
               "ci_high",
-              "registry_size"
+              "registry_size",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -3489,7 +3565,7 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "facet_field": "registry_size"
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -3517,7 +3593,8 @@
             "required_columns": [
               "memory_mb",
               "p95_latency_ms",
-              "series"
+              "series",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -3556,7 +3633,8 @@
           },
           "render_options": {
             "x_prefer": "low",
-            "y_prefer": "low"
+            "y_prefer": "low",
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -3584,7 +3662,8 @@
             "required_columns": [
               "problem_size",
               "value",
-              "series"
+              "series",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -3622,7 +3701,8 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "y_format": "percent"
+            "y_format": "percent",
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -3667,121 +3747,8 @@
             "required_columns": [
               "category",
               "reference",
-              "candidate"
-            ],
-            "optional_columns": [
-              "series",
-              "label",
-              "n",
-              "ci_low",
-              "ci_high",
-              "facet",
-              "benchmark",
-              "method",
-              "metric"
-            ]
-          },
-          "comparison": {
-            "primary_configuration": "Full_PaMCP",
-            "baseline_ids": [
-              "full_rebuild"
-            ],
-            "factorial_cells": [],
-            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
-          },
-          "uncertainty": {
-            "confidence_level": 0.95,
-            "interval_columns": [
-              "ci_low",
-              "ci_high"
-            ],
-            "resampling": "Follow the experiment statistical contract and declared resampling unit."
-          },
-          "render_options": {},
-          "outputs": [
-            "pdf",
-            "svg",
-            "png"
-          ]
-        },
-        {
-          "id": "E16-F2",
-          "title": "Update latency over event sequence",
-          "purpose": "Compare incremental maintenance and recomputation over identical event sequences.",
-          "role": "supporting",
-          "chart_type": "scatter",
-          "data_file": "results/visualization/data/E16-F2.csv",
-          "x_axis": {
-            "field": "event_index",
-            "label": "Registry event index"
-          },
-          "y_axis": {
-            "field": "value",
-            "label": "Update latency (ms)"
-          },
-          "value_field": "value",
-          "data_contract": {
-            "required_columns": [
-              "event_index",
-              "value",
-              "series"
-            ],
-            "optional_columns": [
-              "series",
-              "label",
-              "n",
-              "ci_low",
-              "ci_high",
-              "facet",
-              "benchmark",
-              "method",
-              "metric"
-            ]
-          },
-          "comparison": {
-            "primary_configuration": "Full_PaMCP",
-            "baseline_ids": [
-              "full_rebuild"
-            ],
-            "factorial_cells": [],
-            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
-          },
-          "uncertainty": {
-            "confidence_level": 0.95,
-            "interval_columns": [
-              "ci_low",
-              "ci_high"
-            ],
-            "resampling": "Follow the experiment statistical contract and declared resampling unit."
-          },
-          "render_options": {},
-          "outputs": [
-            "pdf",
-            "svg",
-            "png"
-          ]
-        },
-        {
-          "id": "E16-F3",
-          "title": "Correctness against recomputation",
-          "purpose": "Compare incremental state with recomputation for invalidation, eligibility and evidence correctness.",
-          "role": "supporting",
-          "chart_type": "heatmap",
-          "data_file": "results/visualization/data/E16-F3.csv",
-          "x_axis": {
-            "field": "mutation_type",
-            "label": "Mutation type"
-          },
-          "y_axis": {
-            "field": "property",
-            "label": "Correctness property"
-          },
-          "value_field": "value",
-          "data_contract": {
-            "required_columns": [
-              "mutation_type",
-              "property",
-              "value"
+              "candidate",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -3812,7 +3779,7 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "value_format": "percent"
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -3821,26 +3788,27 @@
           ]
         },
         {
-          "id": "E16-F4",
-          "title": "Evidence lifecycle through registry changes",
-          "purpose": "Show changed, retained, invalidated and stale evidence transitions from observed records.",
+          "id": "E16-F2",
+          "title": "Update latency over event sequence",
+          "purpose": "Compare incremental maintenance and recomputation over identical event sequences.",
           "role": "supporting",
-          "chart_type": "alluvial",
-          "data_file": "results/visualization/data/E16-F4.csv",
+          "chart_type": "scatter",
+          "data_file": "results/visualization/data/E16-F2.csv",
           "x_axis": {
-            "field": "source",
-            "label": "Evidence state before mutation"
+            "field": "event_index",
+            "label": "Registry event index"
           },
           "y_axis": {
-            "field": "target",
-            "label": "Evidence state after mutation"
+            "field": "value",
+            "label": "Update latency (ms)"
           },
           "value_field": "value",
           "data_contract": {
             "required_columns": [
-              "source",
-              "target",
-              "value"
+              "event_index",
+              "value",
+              "series",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -3870,7 +3838,130 @@
             ],
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
-          "render_options": {},
+          "render_options": {
+            "facet_field": "benchmark"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E16-F3",
+          "title": "Correctness against recomputation",
+          "purpose": "Compare incremental state with recomputation for invalidation, eligibility and evidence correctness.",
+          "role": "supporting",
+          "chart_type": "heatmap",
+          "data_file": "results/visualization/data/E16-F3.csv",
+          "x_axis": {
+            "field": "mutation_type",
+            "label": "Mutation type"
+          },
+          "y_axis": {
+            "field": "property",
+            "label": "Correctness property"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "mutation_type",
+              "property",
+              "value",
+              "benchmark"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "full_rebuild"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "value_format": "percent",
+            "facet_field": "benchmark"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E16-F4",
+          "title": "Evidence lifecycle through registry changes",
+          "purpose": "Show changed, retained, invalidated and stale evidence transitions from observed records.",
+          "role": "supporting",
+          "chart_type": "alluvial",
+          "data_file": "results/visualization/data/E16-F4.csv",
+          "x_axis": {
+            "field": "source",
+            "label": "Evidence state before mutation"
+          },
+          "y_axis": {
+            "field": "target",
+            "label": "Evidence state after mutation"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "source",
+              "target",
+              "value",
+              "benchmark"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "full_rebuild"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "facet_field": "benchmark"
+          },
           "outputs": [
             "pdf",
             "svg",
@@ -4166,7 +4257,8 @@
             "required_columns": [
               "metric",
               "configuration",
-              "value"
+              "value",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -4219,7 +4311,10 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "facet_field": "metric",
+            "facet_field": [
+              "benchmark",
+              "metric"
+            ],
             "annotate": true
           },
           "outputs": [
@@ -4249,7 +4344,9 @@
               "category",
               "value",
               "ci_low",
-              "ci_high"
+              "ci_high",
+              "benchmark",
+              "metric"
             ],
             "optional_columns": [
               "series",
@@ -4302,7 +4399,11 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "zero_reference": true
+            "zero_reference": true,
+            "facet_field": [
+              "benchmark",
+              "metric"
+            ]
           },
           "outputs": [
             "pdf",
@@ -4330,87 +4431,9 @@
             "required_columns": [
               "factor_level",
               "value",
-              "series"
-            ],
-            "optional_columns": [
               "series",
-              "label",
-              "n",
-              "ci_low",
-              "ci_high",
-              "facet",
               "benchmark",
-              "method",
               "metric"
-            ]
-          },
-          "comparison": {
-            "primary_configuration": "Full_PaMCP",
-            "baseline_ids": [
-              "bm25",
-              "dense_lsa",
-              "rag_mcp",
-              "mcp_zero",
-              "per_subtask",
-              "colt_adapted",
-              "toolscope_adapted",
-              "cmtf_adapted",
-              "mcp_default_annotations",
-              "closed_world_annotations",
-              "lexical_positive",
-              "lexical_closed_world",
-              "verified_evidence",
-              "no_refinement"
-            ],
-            "factorial_cells": [
-              "Full_PaMCP",
-              "PaMCP_NoCert",
-              "PaMCP_Declared",
-              "G1_P0_S0",
-              "PaMCP_NoGap",
-              "G0_P1_S0",
-              "G0_P0_S1",
-              "G0_P0_S0"
-            ],
-            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
-          },
-          "uncertainty": {
-            "confidence_level": 0.95,
-            "interval_columns": [
-              "ci_low",
-              "ci_high"
-            ],
-            "resampling": "Follow the experiment statistical contract and declared resampling unit."
-          },
-          "render_options": {},
-          "outputs": [
-            "pdf",
-            "svg",
-            "png"
-          ]
-        },
-        {
-          "id": "E18-F4",
-          "title": "Leave-one-out paired contrasts",
-          "purpose": "Compare Full PaMCP with NoGap, Declared and NoCert on matched tasks.",
-          "role": "supporting",
-          "chart_type": "horizontal_forest",
-          "data_file": "results/visualization/data/E18-F4.csv",
-          "x_axis": {
-            "field": "value",
-            "label": "Full PaMCP minus ablation"
-          },
-          "y_axis": {
-            "field": "category",
-            "label": "Ablation"
-          },
-          "value_field": "value",
-          "data_contract": {
-            "required_columns": [
-              "category",
-              "value",
-              "ci_low",
-              "ci_high"
             ],
             "optional_columns": [
               "series",
@@ -4463,7 +4486,98 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "zero_reference": true
+            "facet_field": [
+              "benchmark",
+              "metric"
+            ]
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E18-F4",
+          "title": "Leave-one-out paired contrasts",
+          "purpose": "Compare Full PaMCP with NoGap, Declared and NoCert on matched tasks.",
+          "role": "supporting",
+          "chart_type": "horizontal_forest",
+          "data_file": "results/visualization/data/E18-F4.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Full PaMCP minus ablation"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Ablation"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "value",
+              "ci_low",
+              "ci_high",
+              "benchmark",
+              "metric"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "bm25",
+              "dense_lsa",
+              "rag_mcp",
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "mcp_default_annotations",
+              "closed_world_annotations",
+              "lexical_positive",
+              "lexical_closed_world",
+              "verified_evidence",
+              "no_refinement"
+            ],
+            "factorial_cells": [
+              "Full_PaMCP",
+              "PaMCP_NoCert",
+              "PaMCP_Declared",
+              "G1_P0_S0",
+              "PaMCP_NoGap",
+              "G0_P1_S0",
+              "G0_P0_S1",
+              "G0_P0_S0"
+            ],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "zero_reference": true,
+            "facet_field": [
+              "benchmark",
+              "metric"
+            ]
           },
           "outputs": [
             "pdf",
@@ -4491,7 +4605,8 @@
             "required_columns": [
               "exp_at_5",
               "task_success",
-              "series"
+              "series",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -4545,7 +4660,8 @@
           },
           "render_options": {
             "x_prefer": "low",
-            "y_prefer": "high"
+            "y_prefer": "high",
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -4789,65 +4905,8 @@
             "required_columns": [
               "cost_weight",
               "utility_weight",
-              "value"
-            ],
-            "optional_columns": [
-              "series",
-              "label",
-              "n",
-              "ci_low",
-              "ci_high",
-              "facet",
-              "benchmark",
-              "method",
-              "metric"
-            ]
-          },
-          "comparison": {
-            "primary_configuration": "Full_PaMCP",
-            "baseline_ids": [
-              "calibrated_profile"
-            ],
-            "factorial_cells": [],
-            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
-          },
-          "uncertainty": {
-            "confidence_level": 0.95,
-            "interval_columns": [
-              "ci_low",
-              "ci_high"
-            ],
-            "resampling": "Follow the experiment statistical contract and declared resampling unit."
-          },
-          "render_options": {},
-          "outputs": [
-            "pdf",
-            "svg",
-            "png"
-          ]
-        },
-        {
-          "id": "E20-F2",
-          "title": "Toolkit stability and security sensitivity",
-          "purpose": "Use separate panels for toolkit Jaccard and Exp@5; do not aggregate them.",
-          "role": "supporting",
-          "chart_type": "heatmap",
-          "data_file": "results/visualization/data/E20-F2.csv",
-          "x_axis": {
-            "field": "cost_weight",
-            "label": "Cost weight"
-          },
-          "y_axis": {
-            "field": "utility_weight",
-            "label": "Utility weight"
-          },
-          "value_field": "value",
-          "data_contract": {
-            "required_columns": [
-              "cost_weight",
-              "utility_weight",
               "value",
-              "series"
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -4878,7 +4937,68 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "facet_field": "series"
+            "facet_field": "benchmark"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E20-F2",
+          "title": "Toolkit stability and security sensitivity",
+          "purpose": "Use separate panels for toolkit Jaccard and Exp@5; do not aggregate them.",
+          "role": "supporting",
+          "chart_type": "heatmap",
+          "data_file": "results/visualization/data/E20-F2.csv",
+          "x_axis": {
+            "field": "cost_weight",
+            "label": "Cost weight"
+          },
+          "y_axis": {
+            "field": "utility_weight",
+            "label": "Utility weight"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "cost_weight",
+              "utility_weight",
+              "value",
+              "series",
+              "benchmark"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "calibrated_profile"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -4907,7 +5027,8 @@
               "price",
               "latency",
               "series",
-              "task_success"
+              "task_success",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -4940,7 +5061,8 @@
           "render_options": {
             "x_prefer": "low",
             "y_prefer": "low",
-            "size_field": "task_success"
+            "size_field": "task_success",
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -4968,7 +5090,8 @@
             "required_columns": [
               "configuration_a",
               "configuration_b",
-              "value"
+              "value",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -5000,7 +5123,8 @@
           },
           "render_options": {
             "x_min": 0,
-            "x_max": 1
+            "x_max": 1,
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -5043,7 +5167,8 @@
             "required_columns": [
               "repository_size",
               "value",
-              "series"
+              "series",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -5075,7 +5200,8 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "y_format": "percent"
+            "y_format": "percent",
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -5103,65 +5229,8 @@
             "required_columns": [
               "repository_size",
               "value",
-              "series"
-            ],
-            "optional_columns": [
               "series",
-              "label",
-              "n",
-              "ci_low",
-              "ci_high",
-              "facet",
-              "benchmark",
-              "method",
-              "metric"
-            ]
-          },
-          "comparison": {
-            "primary_configuration": "Full_PaMCP",
-            "baseline_ids": [
-              "autotool_adapted",
-              "no_experience"
-            ],
-            "factorial_cells": [],
-            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
-          },
-          "uncertainty": {
-            "confidence_level": 0.95,
-            "interval_columns": [
-              "ci_low",
-              "ci_high"
-            ],
-            "resampling": "Follow the experiment statistical contract and declared resampling unit."
-          },
-          "render_options": {},
-          "outputs": [
-            "pdf",
-            "svg",
-            "png"
-          ]
-        },
-        {
-          "id": "E21-F3",
-          "title": "Stale-trajectory detection matrix",
-          "purpose": "Evaluate stale and valid trajectory detection against independently confirmed status.",
-          "role": "supporting",
-          "chart_type": "confusion_matrix",
-          "data_file": "results/visualization/data/E21-F3.csv",
-          "x_axis": {
-            "field": "predicted",
-            "label": "Predicted trajectory status"
-          },
-          "y_axis": {
-            "field": "actual",
-            "label": "Reference trajectory status"
-          },
-          "value_field": "count",
-          "data_contract": {
-            "required_columns": [
-              "actual",
-              "predicted",
-              "count"
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -5193,7 +5262,69 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "value_field": "count"
+            "facet_field": "benchmark"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E21-F3",
+          "title": "Stale-trajectory detection matrix",
+          "purpose": "Evaluate stale and valid trajectory detection against independently confirmed status.",
+          "role": "supporting",
+          "chart_type": "confusion_matrix",
+          "data_file": "results/visualization/data/E21-F3.csv",
+          "x_axis": {
+            "field": "predicted",
+            "label": "Predicted trajectory status"
+          },
+          "y_axis": {
+            "field": "actual",
+            "label": "Reference trajectory status"
+          },
+          "value_field": "count",
+          "data_contract": {
+            "required_columns": [
+              "actual",
+              "predicted",
+              "count",
+              "benchmark"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "autotool_adapted",
+              "no_experience"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "value_field": "count",
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -5222,7 +5353,8 @@
               "repository_size",
               "latency_saved",
               "series",
-              "reuse_rate"
+              "reuse_rate",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -5256,7 +5388,8 @@
           "render_options": {
             "size_field": "reuse_rate",
             "x_prefer": "low",
-            "y_prefer": "high"
+            "y_prefer": "high",
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -5301,7 +5434,8 @@
               "category",
               "value",
               "ci_low",
-              "ci_high"
+              "ci_high",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -5339,7 +5473,8 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "zero_reference": true
+            "zero_reference": true,
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -5367,71 +5502,8 @@
             "required_columns": [
               "category",
               "series",
-              "value"
-            ],
-            "optional_columns": [
-              "series",
-              "label",
-              "n",
-              "ci_low",
-              "ci_high",
-              "facet",
-              "benchmark",
-              "method",
-              "metric"
-            ]
-          },
-          "comparison": {
-            "primary_configuration": "Full_PaMCP",
-            "baseline_ids": [
-              "bm25",
-              "dense_lsa",
-              "rag_mcp",
-              "mcp_zero",
-              "colt_adapted",
-              "toolscope_adapted",
-              "cmtf_adapted",
-              "per_subtask"
-            ],
-            "factorial_cells": [],
-            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
-          },
-          "uncertainty": {
-            "confidence_level": 0.95,
-            "interval_columns": [
-              "ci_low",
-              "ci_high"
-            ],
-            "resampling": "Follow the experiment statistical contract and declared resampling unit."
-          },
-          "render_options": {},
-          "outputs": [
-            "pdf",
-            "svg",
-            "png"
-          ]
-        },
-        {
-          "id": "E22-F3",
-          "title": "Method rank probability",
-          "purpose": "Compare rank distributions over valid tool-disjoint resamples.",
-          "role": "supporting",
-          "chart_type": "rankogram",
-          "data_file": "results/visualization/data/E22-F3.csv",
-          "x_axis": {
-            "field": "rank",
-            "label": "Rank"
-          },
-          "y_axis": {
-            "field": "probability",
-            "label": "Probability of rank"
-          },
-          "value_field": "value",
-          "data_contract": {
-            "required_columns": [
-              "rank",
-              "probability",
-              "series"
+              "value",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -5469,7 +5541,75 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "y_format": "percent"
+            "facet_field": "benchmark"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E22-F3",
+          "title": "Method rank probability",
+          "purpose": "Compare rank distributions over valid tool-disjoint resamples.",
+          "role": "supporting",
+          "chart_type": "rankogram",
+          "data_file": "results/visualization/data/E22-F3.csv",
+          "x_axis": {
+            "field": "rank",
+            "label": "Rank"
+          },
+          "y_axis": {
+            "field": "probability",
+            "label": "Probability of rank"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "rank",
+              "probability",
+              "series",
+              "benchmark"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "bm25",
+              "dense_lsa",
+              "rag_mcp",
+              "mcp_zero",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "per_subtask"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "y_format": "percent",
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
@@ -5497,7 +5637,8 @@
             "required_columns": [
               "effect",
               "adjusted_p",
-              "series"
+              "series",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -5539,7 +5680,8 @@
             "reference_y": [
               0.05,
               0.01
-            ]
+            ],
+            "facet_field": "benchmark"
           },
           "outputs": [
             "pdf",
