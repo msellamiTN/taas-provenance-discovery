@@ -131,6 +131,10 @@ def validate_plot_plan(
 
 
 def iter_figures(plan: dict[str, Any], experiment_id: str | None = None) -> Iterable[dict[str, Any]]:
+    if experiment_id is not None:
+        known = {item["id"] for item in plan["experiments"]}
+        if experiment_id.upper() not in known:
+            raise ValueError(f"Unknown experiment id: {experiment_id}")
     for experiment in plan["experiments"]:
         if experiment_id is None or experiment["id"] == experiment_id.upper():
             for figure in experiment["figures"]:
