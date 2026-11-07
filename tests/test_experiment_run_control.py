@@ -8,6 +8,9 @@ from taas.experiments.run_control import (
 
 def valid_manifest():
     return {"schema_version": "1.0.0", "programme": "PaMCP",
+            "source_specification": "PaMCP Definitive Experimental Specification v1.0",
+            "source_specification_version": "1.0.0",
+            "source_specification_sha256": "c" * 64,
             "depends_on": {f"E{i}": [] for i in range(1, 23)},
             "external_prerequisites": {f"E{i}": [] for i in range(1, 23)}}
 
@@ -143,3 +146,10 @@ def test_execution_rejects_unhashed_external_gate_evidence(tmp_path):
             ledger_path=tmp_path / "runs.jsonl",
         )
     assert not (tmp_path / "runs.jsonl").exists()
+
+
+def test_dependency_manifest_requires_protocol_source_hash():
+    bad = valid_manifest()
+    bad["source_specification_sha256"] = "not-a-hash"
+    with pytest.raises(RunBlocked, match="protocol source"):
+        validate_dependency_manifest(bad)
