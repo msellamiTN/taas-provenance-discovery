@@ -32,23 +32,22 @@ CROSS_REVISION="${E8_CROSS_ENCODER_REVISION:-$(resolve_model_sha "$CROSS_MODEL")
 
 echo "[E8] Model commits: E5=$E5_REVISION CrossEncoder=$CROSS_REVISION"
 echo "[E8] Starting immutable run: $E8_RUN_ID (device=$E8_DEVICE, top_k=$E8_TOP_K)"
-CAMPAIGN_OUTPUT="$(
-  python experiments/e8_retrieval_campaign.py \
-    --root "$ROOT" \
-    --output-root "$E8_OUTPUT_ROOT" \
-    --toolret-dir "$ROOT/data/processed/toolret" \
-    --raw-root "$ROOT/data/raw" \
-    --e5-model "$E5_MODEL" \
-    --e5-revision "$E5_REVISION" \
-    --cross-encoder-model "$CROSS_MODEL" \
-    --cross-encoder-revision "$CROSS_REVISION" \
-    --device "$E8_DEVICE" \
-    --top-k "$E8_TOP_K" \
-    --seed "$E8_SEED" \
-    --run-id "$E8_RUN_ID"
-)"
-printf '%s\n' "$CAMPAIGN_OUTPUT"
-RUN_DIR="$(printf '%s' "$CAMPAIGN_OUTPUT" | python -c 'import json,sys; print(json.load(sys.stdin)["run_dir"])')"
+python experiments/e8_retrieval_campaign.py \
+  --root "$ROOT" \
+  --output-root "$E8_OUTPUT_ROOT" \
+  --toolret-dir "$ROOT/data/processed/toolret" \
+  --raw-root "$ROOT/data/raw" \
+  --e5-model "$E5_MODEL" \
+  --e5-revision "$E5_REVISION" \
+  --cross-encoder-model "$CROSS_MODEL" \
+  --cross-encoder-revision "$CROSS_REVISION" \
+  --device "$E8_DEVICE" \
+  --top-k "$E8_TOP_K" \
+  --seed "$E8_SEED" \
+  --run-id "$E8_RUN_ID"
+
+RUN_DIR="$E8_OUTPUT_ROOT/$E8_RUN_ID"
+[[ -s "$RUN_DIR/MANIFEST.json" ]] || { echo "E8 run manifest not found: $RUN_DIR/MANIFEST.json" >&2; exit 2; }
 
 echo "[E8] Exporting only registered baselines with real task-level results"
 python experiments/export_e8_figures.py \
