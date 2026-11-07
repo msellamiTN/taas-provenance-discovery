@@ -102,7 +102,8 @@ def test_e9_export_uses_only_acceptable_set_references_and_renders(tmp_path):
     assert result["trace_diagnostic_rows"] == 9
     assert result["primary_configuration_executed"] is True
     assert result["primary_configuration_rows"] == 3
-    assert result["primary_tasks_without_acceptable_set_reference"] == 2
+    assert result["primary_tasks_without_acceptable_set_reference"] == 1
+    assert result["primary_ranking_rows_without_acceptable_set_reference"] == 3
 
     f1 = pd.read_csv(output / "E9-F1.csv")
     f2 = pd.read_csv(output / "E9-F2.csv")
