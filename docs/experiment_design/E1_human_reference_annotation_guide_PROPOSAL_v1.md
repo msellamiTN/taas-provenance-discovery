@@ -1,9 +1,9 @@
-# E1 Human Reference Annotation Guide — Proposal v1.0
+# E1 Human Reference Annotation Guide — Approved v1.0
 
-**Status:** PROPOSED — NOT APPROVED FOR ANNOTATION  
+**Status:** APPROVED FOR ANNOTATION — 2026-11-07 (study-owner approval recorded in PR #51)  
 **Protocol:** PaMCP Definitive Experimental Specification v1.0  
 **Scope:** E1 only. This proposal operationalizes the existing human reference-effect fields; it does not amend the frozen protocol.  
-**Approval gate:** Do not use until the study owner approves this guide and records the approved version.
+**Approval:** Study owner approved this exact v1.0 guide on 2026-11-07. No construct or protocol amendment is implied.
 
 ## 1. Purpose and boundary
 
@@ -125,4 +125,4 @@ Adding an `UNRESOLVED` state would require coordinated changes to the annotation
 
 ---
 
-**Current disposition:** Proposed supplement only. E1 reference-effect annotation remains blocked pending approval and completion of independent annotation. This document is not evidence of an experimental result.
+**Current disposition:** Approved annotation supplement. E1 reference-effect annotation may proceed using the two independently shuffled packets. Annotation completion, agreement, adjudication, and E1 analysis remain pending. This document is not evidence of an experimental result.
