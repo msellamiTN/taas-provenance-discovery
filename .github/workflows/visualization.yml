@@ -7,6 +7,12 @@ on:
     paths:
       - "src/taas/experiments/plotting.py"
       - "experiments/plot_results.py"
+      - "experiments/e8_retrieval_campaign.py"
+      - "experiments/prepare_e8_data.py"
+      - "experiments/export_e8_figures.py"
+      - "tests/test_e8_retrieval_campaign.py"
+      - "tests/test_e8_data_preparation.py"
+      - "tests/test_e8_figure_export.py"
       - "docs/experiment_design/pamcp_plot_plan_v1.json"
       - "docs/experiment_design/pamcp_experiments_v1.json"
       - "docs/experiment_design/pamcp_baselines_v1.json"
@@ -44,4 +50,4 @@ jobs:
       - name: Validate E1-E22 figure registry
         run: python experiments/plot_results.py validate
       - name: Run plotting tests
-        run: python -m pytest -q tests/test_plotting.py
+        run: python -m pytest -q tests/test_plotting.py tests/test_e8_retrieval_campaign.py tests/test_e8_data_preparation.py tests/test_e8_figure_export.py
