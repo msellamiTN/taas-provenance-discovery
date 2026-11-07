@@ -1271,6 +1271,7 @@ def run_campaign(
     manifest = {
         "schema_version": "1.0.0",
         "experiment_id": "E8",
+        "amendment_id": "E8-TOOLRET-LIGHTWEIGHT-RRF-v1",
         "title": "Single-tool retrieval quality",
         "run_id": run_id,
         "status": "partial",
@@ -1290,6 +1291,7 @@ def run_campaign(
                 "toolret_heterogeneous": list(TOOLRET_BASELINES),
                 "mcptoolbenchpp_single_target": list(REQUIRED_BASELINES),
             },
+            "baseline_suite_executed": sorted(set(TOOLRET_BASELINES) | set(REQUIRED_BASELINES)),
             "baseline_suite_executed_union": sorted(set(TOOLRET_BASELINES) | set(REQUIRED_BASELINES)),
             "primary_metrics": ["Hit@1", "Hit@5", "MRR@10", "macro Hit@1"],
             "secondary_metrics": ["Precision@k", "Recall@k", "nDCG@k", "paired task/server sign-flip tests"],
@@ -1311,6 +1313,7 @@ def run_campaign(
         "blocked_or_not_comparable": blocked,
         "protocol_baseline_status": {
             "preregistered_catalog_ids": ["bm25", "dense_lsa", "rag_mcp", "mcp_zero", "per_subtask", "colt_adapted", "toolscope_adapted", "cmtf_adapted"],
+            "executed_retrieval_controls": sorted(set(TOOLRET_BASELINES) | set(REQUIRED_BASELINES)),
             "executed_retrieval_controls_by_track": {
                 "toolret_heterogeneous": list(TOOLRET_BASELINES),
                 "mcptoolbenchpp_single_target": list(REQUIRED_BASELINES),
