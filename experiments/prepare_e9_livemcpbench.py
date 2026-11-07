@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import itertools
 import json
 import re
 from pathlib import Path
@@ -84,6 +85,34 @@ def resolve_name(name: str, by_name: dict[str, list[str]]) -> list[str]:
     ]
     non_browser = [tool_id for tool_id in candidates if tool_id not in browser_ids]
     return non_browser or candidates
+
+
+def build_acceptable_sets(
+    reference_choices: list[dict[str, Any]],
+    max_alternatives: int = 256,
+) -> list[list[str]]:
+    """Expand ambiguous names so every candidate identity is accepted."""
+    candidate_lists = [
+        sorted(set(str(tool_id) for tool_id in choice["candidate_tool_ids"]))
+        for choice in reference_choices
+        if choice.get("candidate_tool_ids")
+    ]
+    if not candidate_lists:
+        return []
+    product_size = 1
+    for candidates in candidate_lists:
+        product_size *= len(candidates)
+        if product_size > max_alternatives:
+            raise ValueError(
+                f"Reference identity expansion exceeds {max_alternatives}; "
+                "manual source review is required."
+            )
+    alternatives = {
+        tuple(sorted(set(combination)))
+        for combination in itertools.product(*candidate_lists)
+        if combination
+    }
+    return [list(group) for group in sorted(alternatives)]
 
 
 def prepare(
