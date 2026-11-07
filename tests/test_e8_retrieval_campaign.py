@@ -72,6 +72,7 @@ def test_mcp_toolbench_track_uses_only_single_resolved_target(monkeypatch, tmp_p
         Task("multi", "search and write", "MCPToolBench++", "web", ["s1::search", "s2::write"], [], 2),
         Task("unknown", "search unknown", "MCPToolBench++", "web", ["unknown::missing"], [], 1),
         Task("ambig", "search ambiguous", "MCPToolBench++", "web", ["s1::search|s2::search"], [], 1),
+        Task("multi_call", "search then write", "MCPToolBench++", "web", ["s1::search"], [], 1),
     ]
     monkeypatch.setattr(e8, "load_mcptoolbenchpp", lambda _: (tools, tasks))
     (tmp_path / "SOURCES.txt").write_text("MCPToolBenchPP test revision\\n")
@@ -83,6 +84,10 @@ def test_mcp_toolbench_track_uses_only_single_resolved_target(monkeypatch, tmp_p
             "name": "search", "mcp_server": "s1",
             "similar_tools": [{"name": "find", "mcp_server": "s2"}],
         }],
+    }, {
+        "uuid": "multi_call", "call_type": "multi",
+        "mcp_tools_dict": {"s1": ["search"], "s2": ["find"]},
+        "function_call_label": [{"name": "search", "mcp_server": "s1", "similar_tools": []}],
     }]))
     track = e8.load_mcptoolbenchpp_track(tmp_path)
     assert [x.task_id for x in track.tasks] == ["web::one"]
@@ -91,6 +96,7 @@ def test_mcp_toolbench_track_uses_only_single_resolved_target(monkeypatch, tmp_p
     assert track.exclusions["similar_tools_total"] == 1
     assert track.exclusions["similar_tools_resolved"] == 1
     assert track.exclusions["not_single_gold_tool"] == 1
+    assert track.exclusions["not_single_call_type"] == 1
     assert track.exclusions["unresolved_or_ambiguous_gold"] == 2
 
 
@@ -433,3 +439,23 @@ def test_run_campaign_end_to_end_smoke_is_partial_and_keeps_protocol_baselines_b
             cross_model="fixture/cross-encoder", cross_revision="fixture-cross-sha",
             device="cpu", top_k=10, seed=7, run_id="E8-fixture-smoke",
         )
+
+
+def test_per_task_csv_preserves_target_server_cluster_for_bootstrap(tmp_path):
+    task = e8.DiscoveryTask("web::q", "search a record", "web")
+    track = e8.DatasetTrack(
+        "mcptoolbenchpp_single_target",
+        [task],
+        [e8.ToolDocument("s1::search", "search", "web", "s1")],
+        {"web::q": {"s1::search": 1.0}},
+        {"web::q": "s1"},
+        {},
+        {},
+    )
+    rankings = {"bm25": {"web::q": ["s1::search"]}}
+    e8._write_per_task_csv(track, rankings, tmp_path)
+    import csv
+    with (tmp_path / "mcptoolbenchpp_single_target_per_task_metrics.csv").open(encoding="utf-8") as stream:
+        rows = list(csv.DictReader(stream))
+    assert rows
+    assert all(row["cluster_id"] == "s1" for row in rows)
