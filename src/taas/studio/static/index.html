@@ -982,7 +982,13 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
           <div id="ux7-view-logs" class="ux7-tab-panel" role="tabpanel" aria-labelledby="ux7-tab-logs" hidden><div class="ux7-empty"><strong>No runtime logs</strong><p>Structured logs will be displayed only when genuine runtime records are connected.</p></div></div>
           <div id="ux7-view-traces" class="ux7-tab-panel" role="tabpanel" aria-labelledby="ux7-tab-traces" hidden><div class="ux7-empty"><strong>No distributed traces</strong><p>No trace provider is configured. Trace identifiers and spans are not fabricated.</p></div></div>
           <div id="ux7-view-metrics" class="ux7-tab-panel" role="tabpanel" aria-labelledby="ux7-tab-metrics" hidden><div class="ux7-empty"><strong>No runtime metrics</strong><p>CPU, memory, disk, latency and throughput remain unavailable until measured data is supplied.</p></div></div>
-          <div id="ux7-view-diagnostics" class="ux7-tab-panel" role="tabpanel" aria-labelledby="ux7-tab-diagnostics" hidden><div class="ux7-empty"><strong>Runtime diagnostics unavailable</strong><p>Configure and validate a runtime adapter before diagnostics can report operational state.</p></div></div>
+          <div id="ux7-view-diagnostics" class="ux7-tab-panel" role="tabpanel" aria-labelledby="ux7-tab-diagnostics" hidden>
+            <div class="ux7-empty" id="ux7-diag-empty"><strong>Runtime diagnostics not loaded</strong><p>Host diagnostics and model-runtime state are queried from the authenticated Studio API. These are observations, not execution evidence.</p></div>
+            <div class="inline-actions" style="margin-top:8px"><button type="button" id="ux7-diag-refresh">Refresh diagnostics</button></div>
+            <div id="ux7-diag-status" class="status" role="status" aria-live="polite" style="margin-top:8px">Diagnostics have not been queried.</div>
+            <dl class="ux7-kv" id="ux7-diag-data" hidden></dl>
+            <details style="margin-top:8px"><summary>Raw diagnostics response</summary><pre id="ux7-diag-raw" style="max-height:320px;overflow:auto"></pre></details>
+          </div>
         </section>
         <section class="ux7-panel" aria-labelledby="ux7-isolation-title">
           <div class="panel-head"><h3 id="ux7-isolation-title" style="margin:0;font-size:13px">Runtime &amp; isolation boundary</h3><span class="pill">Unconfigured</span></div>
@@ -1162,7 +1168,8 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 <button type="button" role="tab" id="ux8-tab-security" aria-controls="ux8-panel-security" aria-selected="false" tabindex="-1">Security &amp; Policies</button>
 <button type="button" role="tab" id="ux8-tab-performance" aria-controls="ux8-panel-performance" aria-selected="false" tabindex="-1">Performance</button>
 <button type="button" role="tab" id="ux8-tab-validation" aria-controls="ux8-panel-validation" aria-selected="false" tabindex="-1">Validation &amp; Quality</button>
-<button type="button" role="tab" id="ux8-tab-reports" aria-controls="ux8-panel-reports" aria-selected="false" tabindex="-1">Reports</button></div>
+<button type="button" role="tab" id="ux8-tab-reports" aria-controls="ux8-panel-reports" aria-selected="false" tabindex="-1">Reports</button>
+<button type="button" role="tab" id="ux8-tab-governance" aria-controls="ux8-panel-governance" aria-selected="false" tabindex="-1">Governance APIs</button></div>
 <section class="ux8-panel" id="ux8-panel-overview" role="tabpanel" aria-labelledby="ux8-tab-overview"><div class="ux8-grid">
 <article class="ux8-card"><h3>Evidence posture</h3><dl class="ux8-kv"><dt>Accessibility</dt><dd>WCAG 2.2 AA · target only</dd><dt>Security assessment</dt><dd>UNKNOWN</dd><dt>Performance profile</dt><dd>NOT_RUN</dd><dt>Build / test evidence</dt><dd>NOT_RUN</dd></dl></article>
 <article class="ux8-card"><h3>Acceptance boundary</h3><p>PASS or FAIL requires results linked to commit, environment, timestamp and actual test output. Missing evidence stays UNKNOWN or NEEDS_REVIEW.</p></article>
@@ -1175,6 +1182,24 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 <section class="ux8-panel" id="ux8-panel-validation" role="tabpanel" aria-labelledby="ux8-tab-validation" hidden><div class="ux8-card"><h3>Validation matrix</h3><table class="ux8-table"><thead><tr><th>Validation</th><th>State</th><th>Acceptance evidence</th></tr></thead><tbody>
 <tr><td>Build / packaging</td><td>NOT_RUN</td><td>Exact-head build log</td></tr><tr><td>Unit / regression tests</td><td>NOT_RUN</td><td>Test report and exit code</td></tr><tr><td>Browser smoke / interaction</td><td>NOT_RUN</td><td>Browser, commit and reproducible steps</td></tr><tr><td>Security checks</td><td>NOT_RUN</td><td>Scanner output and reviewed findings</td></tr><tr><td>Colab deployment / run</td><td>NOT_RUN</td><td>Runtime URL, exact commit and smoke-test output</td></tr></tbody></table><p class="ux8-note">Source inspection is not a substitute for build, test, CI, browser, Colab or assistive-technology acceptance.</p></div></section>
 <section class="ux8-panel" id="ux8-panel-reports" role="tabpanel" aria-labelledby="ux8-tab-reports" hidden><div class="ux8-card"><h3>Evidence report</h3><p>No validation report is available. Reports must preserve exact commit SHA, environment, tool versions, timestamp, command, exit status and artifact references.</p><span class="ux8-state notrun">NO REPORT RECORDED</span></div></section>
+<section class="ux8-panel" id="ux8-panel-governance" role="tabpanel" aria-labelledby="ux8-tab-governance" hidden>
+  <div class="ux8-card"><h3>Live governance endpoints</h3>
+    <p>Read-only queries against the authenticated Core governance APIs. Release readiness, recorded approvals, authorization preflight and policy verdicts are distinct states — none of them grant or prove execution.</p>
+    <div class="ux8-kv" style="grid-template-columns:160px 1fr;align-items:end;gap:6px 8px">
+      <label for="ux8-agent-id" style="font-weight:700;padding:8px 5px">Agent ID</label><input id="ux8-agent-id" type="text" maxlength="64" placeholder="e.g. my-agent" style="padding:7px 9px">
+      <label for="ux8-agent-version" style="font-weight:700;padding:8px 5px">Version</label><input id="ux8-agent-version" type="text" maxlength="24" placeholder="e.g. 0.1.0" style="padding:7px 9px">
+    </div>
+    <div class="inline-actions" style="margin-top:10px">
+      <button type="button" id="ux8-release-readiness">Release readiness</button>
+      <button type="button" id="ux8-approvals" class="secondary">Recorded approvals</button>
+      <button type="button" id="ux8-preflight" class="secondary">Authorization preflight</button>
+      <button type="button" id="ux8-policy" class="secondary">Policy verdict</button>
+    </div>
+    <div id="ux8-gov-status" class="status" role="status" aria-live="polite" style="margin-top:10px">No governance query performed. Responses appear verbatim as Core observations.</div>
+    <pre id="ux8-gov-result" style="max-height:360px;overflow:auto;margin-top:8px" aria-live="polite"></pre>
+    <p class="ux8-note">Authorization preflight evaluates trusted preconditions only — it never authorizes or invokes a tool. Recorded approvals satisfy release-readiness preconditions; they do not grant execution rights.</p>
+  </div>
+</section>
 <p class="subtle">UX-8 is a validation-planning and evidence presentation surface only. It adds no execution endpoint, authorization grant, worker, policy enforcement, secret access, telemetry collector or deployment automation.</p></div></section>
 
 
@@ -1199,6 +1224,9 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <div class="ux9-workspace">
         <aside class="ux9-pane"><h3>Explorer · source traceability</h3>
           <p class="subtle">Provide a traceability object produced by the supported objective pipeline. The Studio requests a Core projection; it does not invent graph links.</p>
+          <label for="ux9-objective-input">Objective (Core prepare)</label>
+          <input id="ux9-objective-input" type="text" maxlength="2000" placeholder="Natural-language objective — Core prepare supplies the traceability record">
+          <div class="inline-actions" style="margin:6px 0 10px"><button type="button" id="ux9-load-from-objective" class="secondary">Prepare &amp; load traceability</button></div>
           <label for="ux9-trace-input">Objective traceability JSON</label>
           <textarea id="ux9-trace-input" spellcheck="false" placeholder="Paste a taas.objective-skill-traceability/v1 object"></textarea>
           <div class="inline-actions"><button type="button" id="ux9-project">Build projection</button><button type="button" class="secondary" id="ux9-clear">Clear</button></div>
@@ -2391,6 +2419,14 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     if(!r.ok) throw new Error(formatApiError(d.detail||d,"HTTP "+r.status));
     return d;
   };
+  const apiPost = async (path, body) => {
+    const token=tokenValue(); if(!token) throw new Error("Connect to TaaS Studio in the application header first.");
+    const r=await fetch(path,{method:"POST",headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const d=await readJsonResponse(r);
+    if(r.status===401){markStudioAuthRejected();throw new Error("Studio API rejected the bearer token. Reconnect in the header, then retry.");}
+    if(!r.ok) throw new Error(formatApiError(d.detail||d,"HTTP "+r.status));
+    return d;
+  };
 
   const renderOverviewResourceList = (elementId, records, kind, emptyMessage) => {
     const list=$(elementId); list.replaceChildren();
@@ -3356,9 +3392,50 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 
 
   // UX-8: local accessible tabs only; no validation is executed or claimed.
-  (() => {const root=document.getElementById('platform-governance-quality');if(!root)return;const tabs=[...root.querySelectorAll('[role="tab"]')],panels=[...root.querySelectorAll('[role="tabpanel"]')];const activate=(tab,focus=false)=>{tabs.forEach(item=>{const active=item===tab;item.setAttribute('aria-selected',String(active));item.tabIndex=active?0:-1;});panels.forEach(panel=>{panel.hidden=panel.id!==tab.getAttribute('aria-controls');});if(focus)tab.focus();};tabs.forEach((tab,index)=>{tab.addEventListener('click',()=>activate(tab));tab.addEventListener('keydown',event=>{let next=index;if(event.key==='ArrowRight')next=(index+1)%tabs.length;else if(event.key==='ArrowLeft')next=(index+tabs.length-1)%tabs.length;else if(event.key==='Home')next=0;else if(event.key==='End')next=tabs.length-1;else return;event.preventDefault();activate(tabs[next],true);});});})();
+  (() => {const root=document.getElementById('platform-governance-quality');if(!root)return;const tabs=[...root.querySelectorAll('[role="tab"]')],panels=[...root.querySelectorAll('[role="tabpanel"]')];const activate=(tab,focus=false)=>{tabs.forEach(item=>{const active=item===tab;item.setAttribute('aria-selected',String(active));item.tabIndex=active?0:-1;});panels.forEach(panel=>{panel.hidden=panel.id!==tab.getAttribute('aria-controls');});if(focus)tab.focus();};tabs.forEach((tab,index)=>{tab.addEventListener('click',()=>activate(tab));tab.addEventListener('keydown',event=>{let next=index;if(event.key==='ArrowRight')next=(index+1)%tabs.length;else if(event.key==='ArrowLeft')next=(index+tabs.length-1)%tabs.length;else if(event.key==='Home')next=0;else if(event.key==='End')next=tabs.length-1;else return;event.preventDefault();activate(tabs[next],true);});});
 
-  // UX-7: accessible local tabs over explicit empty states; no runtime or execution calls.
+    // UX-8 governance APIs: read-only queries into Core governance endpoints.
+    // Readiness, approvals, preflight and policy verdicts are observations —
+    // none grant authorization or execution.
+    const govStatus=document.getElementById('ux8-gov-status'),govResult=document.getElementById('ux8-gov-result');
+    const govShow=(label,data)=>{if(govResult)govResult.textContent=JSON.stringify(data,null,2);if(govStatus)govStatus.textContent=label;};
+    const govErr=(e)=>{if(govStatus)govStatus.textContent='Request failed: '+e.message;};
+    const agentRef=()=>{
+      const id=document.getElementById('ux8-agent-id').value.trim(),v=document.getElementById('ux8-agent-version').value.trim();
+      if(!id||!v)throw new Error('Agent ID and version are required for agent-scoped governance queries.');
+      return {id,v,base:'/api/v1/agents/'+encodeURIComponent(id)+'/versions/'+encodeURIComponent(v)};
+    };
+    document.getElementById('ux8-release-readiness')?.addEventListener('click',async()=>{
+      try{const a=agentRef();if(govStatus)govStatus.textContent='Querying release readiness…';
+        const d=await apiGet(a.base+'/release-readiness');
+        govShow('Release readiness returned. Decision '+(d.decision||d.status||'not reported')+' — a readiness verdict, not an authorization or execution.',d);
+      }catch(e){govErr(e);}
+    });
+    document.getElementById('ux8-approvals')?.addEventListener('click',async()=>{
+      try{const a=agentRef();if(govStatus)govStatus.textContent='Querying recorded approvals…';
+        const d=await apiGet(a.base+'/approvals');
+        const n=Array.isArray(d)?d.length:(d.approvals||d.records||[]).length;
+        govShow(n+' recorded approval(s) returned. Approvals satisfy readiness preconditions; they grant no execution rights.',d);
+      }catch(e){govErr(e);}
+    });
+    document.getElementById('ux8-preflight')?.addEventListener('click',async()=>{
+      try{const a=agentRef();if(govStatus)govStatus.textContent='Evaluating authorization preflight…';
+        const body={server_id:'preflight-check',tool_name:'preflight_probe',arguments:{},goal_spec:{prompt:'preflight evaluation',goals:[{id:'g1',class:'retrieve','in':[],out:'text',eff:['read(*)'],sigma:'data',desc:'Authorization preflight evaluation only'}]}};
+        const r=await apiPost(a.base+'/authorization/preflight',body);
+        govShow('Preflight evaluated. Trusted preconditions only — no tool was authorized or invoked.',r);
+      }catch(e){govErr(e);}
+    });
+    document.getElementById('ux8-policy')?.addEventListener('click',async()=>{
+      try{const a=agentRef();if(govStatus)govStatus.textContent='Requesting policy verdict…';
+        const d=await apiPost('/api/v1/policy/evaluate',{subject:{kind:'agent_version',agent_id:a.id,version:a.v},facts:{queried_from:'studio-ux8'}});
+        govShow('Policy verdict returned for caller-asserted facts (facts_source: caller_asserted). A verdict is not an authorization grant.',d);
+      }catch(e){govErr(e);}
+    });
+  })();
+
+  // UX-7: accessible local tabs; diagnostics panel queries read-only host and
+  // model-runtime endpoints. Sessions/logs/traces/metrics stay honest-empty —
+  // no runtime integration exists, and nothing here executes.
   (() => {
     const tabs=[...document.querySelectorAll('#runtime-observability [role="tab"]')];
     const panels=[...document.querySelectorAll('#runtime-observability [role="tabpanel"]')];
@@ -3380,6 +3457,43 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       });
     });
     if(tabs.length)activate(tabs[0]);
+
+    // UX-7 diagnostics: read-only host and model-runtime observations from the
+    // authenticated Studio API. These are diagnostics, never execution evidence.
+    const diagStatus=document.getElementById('ux7-diag-status');
+    const diagData=document.getElementById('ux7-diag-data');
+    const diagEmpty=document.getElementById('ux7-diag-empty');
+    const diagRaw=document.getElementById('ux7-diag-raw');
+    const kv=(label,value)=>{const dt=document.createElement('dt');dt.textContent=label;const dd=document.createElement('dd');dd.textContent=value===null||value===undefined||value===''?'Not reported':String(value);diagData.append(dt,dd);};
+    const loadDiagnostics=async()=>{
+      if(diagStatus)diagStatus.textContent='Querying runtime diagnostics…';
+      if(diagData){diagData.replaceChildren();diagData.hidden=true;}
+      try{
+        const [statusRes,hardwareRes,modelRes]=await Promise.allSettled([
+          apiGet('/api/v1/runtime/status'),
+          apiGet('/api/v1/runtime/hardware'),
+          apiGet('/api/v1/models/runtime')
+        ]);
+        const unwrap=r=>r.status==='fulfilled'?r.value:{error:r.reason?.message||'request failed'};
+        const status=unwrap(statusRes),hardware=unwrap(hardwareRes),model=unwrap(modelRes);
+        if(diagEmpty)diagEmpty.hidden=true;
+        if(diagData){diagData.hidden=false;
+          kv('Host state (runtime/status)',status.status||status.state||(status.error?'Error: '+status.error:'Reported'));
+          kv('Process uptime',status.uptime_seconds!==undefined?status.uptime_seconds+' s':status.uptime||'Not reported');
+          kv('CPU cores',status.cpu?.count??status.cpu_count??status.cpus);
+          kv('Memory',status.memory?JSON.stringify(status.memory):'Not reported');
+          kv('GPU (hardware probe)',hardware.error?'Error: '+hardware.error:(hardware.gpu_name||hardware.gpu||(hardware.cuda_available===true?'CUDA available':hardware.cuda_available===false?'No GPU verified':'Not reported')));
+          kv('CUDA verified',hardware.cuda_verified!==undefined?String(hardware.cuda_verified):(hardware.cuda_available!==undefined?String(hardware.cuda_available):'Not reported'));
+          kv('Model runtime state',model.error?'Error: '+model.error:(model.state||model.status||'Not reported'));
+          kv('Loaded model',model.model_id||model.loaded_model||'None loaded');
+          kv('Provider',model.provider||'Not reported');
+        }
+        if(diagRaw)diagRaw.textContent=JSON.stringify({runtime_status:status,runtime_hardware:hardware,model_runtime:model},null,2);
+        const failures=[statusRes,hardwareRes,modelRes].filter(r=>r.status==='rejected').length;
+        if(diagStatus)diagStatus.textContent=(failures===0?'Diagnostics loaded from the Studio API. ':'Diagnostics partially unavailable ('+failures+' request(s) failed). ')+'Host diagnostics and model-runtime state are observations, not execution evidence.';
+      }catch(e){if(diagStatus)diagStatus.textContent='Diagnostics request failed: '+e.message;}
+    };
+    document.getElementById('ux7-diag-refresh')?.addEventListener('click',()=>{loadDiagnostics().catch(()=>{});});
   })();
 
 
@@ -3545,6 +3659,19 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       try{const response=await fetch("/api/v1/hypergraph/objective-traceability",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({traceability})});const data=await readJsonResponse(response);if(!response.ok)throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));if(!data.hypergraph_projection||data.hypergraph_projection.schema!=="taas.hypergraph-projection/v1")throw new Error("Core response did not contain the supported hypergraph projection schema.");state.projection=data.hypergraph_projection;state.selected=null;render();setStatus("Core projection loaded · "+vertices().length+" vertices · "+edges().length+" hyperedges. No tools executed; no authorization granted.");}
       catch(e){state.projection=null;$9("ux9-projection-state").textContent="PROJECTION UNAVAILABLE";setStatus("Projection request failed: "+e.message,true);}
       finally{$9("ux9-project").disabled=false;}
+    });
+    $9("ux9-load-from-objective")?.addEventListener("click",async()=>{
+      const objective=$9("ux9-objective-input").value.trim();
+      if(!objective){setStatus("Enter a natural-language objective for the Core prepare call.",true);return;}
+      const btn=$9("ux9-load-from-objective");btn.disabled=true;setStatus("Requesting a Core prepare response — the traceability record is produced server-side…");
+      try{
+        const data=await apiPost("/api/v1/objectives/prepare",{provider:"huggingface",prompt:objective,context:"",max_new_tokens:1200});
+        const trace=data.objective_skill_traceability;
+        if(!trace||typeof trace!=="object")throw new Error("Core prepare did not return an objective_skill_traceability record.");
+        $9("ux9-trace-input").value=JSON.stringify(trace,null,2);
+        setStatus("Core prepare returned an objective_skill_traceability record ("+(trace.schema||"schema not reported")+"). Review it, then build the projection.");
+      }catch(e){setStatus("Prepare request failed: "+e.message+". A configured model runtime is required for Core prepare; pasting a traceability record still works.",true);}
+      finally{btn.disabled=false;}
     });
     $9("ux9-clear").addEventListener("click",()=>{$9("ux9-trace-input").value="";state.projection=null;state.selected=null;$9("ux9-canvas").replaceChildren(safeNode("div","No projection loaded. No graph has been synthesized."));["objectives","subgoals","tools","evidence","experiments","other"].forEach(group=>$9("ux9-group-"+group).replaceChildren(safeNode("div","No "+group+" records reported.")));$9("ux9-entity-list").replaceChildren();$9("ux9-projection-state").textContent="NO PROJECTION LOADED";$9("ux9-counts").textContent="0 entities · 0 relations";$9("ux9-export").disabled=true;$9("ux9-export-preview").textContent="No projection available.";$9("ux9-inspector-title").textContent="Nothing selected";$9("ux9-inspector-body").textContent="Select a projected node or relationship.";setStatus("Workspace cleared. No files or projection retained.");});
     $9("ux9-export").addEventListener("click",()=>{if(!state.projection)return;const blob=new Blob([JSON.stringify(state.projection,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="taas-objective-traceability-projection.json";document.body.append(a);a.click();a.remove();URL.revokeObjectURL(url);});
