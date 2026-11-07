@@ -18,8 +18,8 @@ def test_dispatcher_rejects_missing_protocol_payload_fields():
 
 def test_dispatcher_e10_aggregates_independent_audit_records():
     result = evaluate_payload("E10", {"independent_audits": [
-        {"recomputed": {key: True for key in ("S","C","P","E","L","V")}},
-        {"recomputed": {key: False for key in ("S","C","P","E","L","V")}},
+        {"valid": True, "recomputed": {key: True for key in ("S","C","P","E","L","V")}},
+        {"valid": False, "recomputed": {key: False for key in ("S","C","P","E","L","V")}},
     ]})
     assert result["overall_conjunction"]["value"] == .5
 
