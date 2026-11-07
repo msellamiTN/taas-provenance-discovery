@@ -11,9 +11,27 @@ def capability_gap_metrics(records: Sequence[Mapping]) -> dict:
     n = len(records)
     if not n:
         return {"n_requests": 0, "toolkit_size_mean": None, "bridge_ratio_mean": None,
-                "native_goal_share": None, "task_success_rate": None}
+                "native_goal_share": None, "task_success_rate": None, "by_n": {}, "by_tau": {}}
     goals = sum(int(r.get("n_goals", 0)) for r in records)
     native = sum(int(r.get("native_goals", 0)) for r in records)
+    def grouped(field):
+        buckets = {}
+        for row in records:
+            if row.get(field) is not None:
+                buckets.setdefault(str(row[field]), []).append(row)
+        return {
+            key: {
+                "n_requests": len(rows),
+                "toolkit_size_mean": mean(len(set(r.get("toolkit", ()))) for r in rows),
+                "bridge_ratio_mean": mean(float(r["bridge_ratio"]) for r in rows
+                                          if r.get("bridge_ratio") is not None)
+                    if any(r.get("bridge_ratio") is not None for r in rows) else None,
+                "task_success_rate": mean(float(bool(r["task_success"])) for r in rows
+                                          if r.get("task_success") is not None)
+                    if any(r.get("task_success") is not None for r in rows) else None,
+            }
+            for key, rows in sorted(buckets.items())
+        }
     return {
         "n_requests": n,
         "toolkit_size_mean": mean(len(set(r.get("toolkit", ()))) for r in records),
@@ -23,8 +41,9 @@ def capability_gap_metrics(records: Sequence[Mapping]) -> dict:
         "task_success_rate": mean(float(bool(r["task_success"])) for r in records if r.get("task_success") is not None)
             if any(r.get("task_success") is not None for r in records) else None,
         "goal_denominator": goals,
+        "by_n": grouped("n"),
+        "by_tau": grouped("tau"),
     }
-
 
 def end_to_end_metrics(records: Sequence[Mapping]) -> dict:
     """E13 task success, wrong-tool-call categories, steps and tokens from frozen trajectories."""
