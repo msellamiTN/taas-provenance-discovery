@@ -1,0 +1,5548 @@
+{
+  "schema_version": "1.0.0",
+  "title": "PaMCP Publication Visualization Plan",
+  "protocol_reference": "docs/experiment_design/pamcp_experiments_v1.json",
+  "baseline_reference": "docs/experiment_design/pamcp_baselines_v1.json",
+  "policy": "Visualization contracts only; no experiment, hypothesis, dataset, metric, baseline assignment or result status is changed. No placeholder values are experimental observations.",
+  "defaults": {
+    "formats": [
+      "pdf",
+      "svg",
+      "png"
+    ],
+    "dpi": 300,
+    "figure_width": 8.4,
+    "figure_height": 5.4,
+    "confidence_level": 0.95,
+    "primary_configuration": "Full_PaMCP",
+    "show_sample_size": true,
+    "show_confidence_intervals": true,
+    "missing_data_policy": "fail_validation",
+    "benchmark_stratification": "never_pool_incomparable_tracks"
+  },
+  "data_conventions": {
+    "file_pattern": "results/visualization/data/{figure_id}.csv",
+    "output_pattern": "results/visualization/figures/{figure_id}.{format}",
+    "common_optional_columns": [
+      "series",
+      "label",
+      "n",
+      "ci_low",
+      "ci_high",
+      "facet",
+      "benchmark",
+      "method",
+      "metric"
+    ],
+    "categorical_values": "Use exact baseline IDs or exact PaMCP variant names.",
+    "no_synthetic_rows": true,
+    "ci_columns": "ci_low and ci_high are percentile-bootstrap limits for the plotted estimand.",
+    "paired_effects": "Use a consistent PaMCP-minus-baseline sign and state whether positive is beneficial.",
+    "benchmark_tracks": "Stratify heterogeneous datasets; do not pool incomparable benchmarks."
+  },
+  "experiments": [
+    {
+      "id": "E1",
+      "title": "Registry characterization",
+      "protocol_metrics": [
+        "metadata distribution"
+      ],
+      "datasets": [
+        "registry"
+      ],
+      "figures": [
+        {
+          "id": "E1-F1",
+          "title": "Registry composition by source",
+          "purpose": "Compare source and merged registries; descriptive characterization, not a superiority test.",
+          "role": "primary",
+          "chart_type": "grouped_bar",
+          "data_file": "results/visualization/data/E1-F1.csv",
+          "x_axis": {
+            "field": "category",
+            "label": "Tool category"
+          },
+          "y_axis": {
+            "field": "value",
+            "label": "Number of tools"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "registry",
+              "category",
+              "value"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": null,
+            "baseline_ids": [],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "orientation": "horizontal",
+            "series_field": "registry"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E1-F2",
+          "title": "Metadata availability by server",
+          "purpose": "Compare metadata coverage across servers using consistent denominators.",
+          "role": "supporting",
+          "chart_type": "heatmap",
+          "data_file": "results/visualization/data/E1-F2.csv",
+          "x_axis": {
+            "field": "metadata_field",
+            "label": "Metadata field"
+          },
+          "y_axis": {
+            "field": "server",
+            "label": "Server"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "metadata_field",
+              "server",
+              "value"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": null,
+            "baseline_ids": [],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "value_format": "percent"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E1-F3",
+          "title": "Annotation and effect composition",
+          "purpose": "Compare annotation/effect categories across source registries.",
+          "role": "supporting",
+          "chart_type": "stacked_bar",
+          "data_file": "results/visualization/data/E1-F3.csv",
+          "x_axis": {
+            "field": "registry",
+            "label": "Registry"
+          },
+          "y_axis": {
+            "field": "value",
+            "label": "Tools (%)"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "registry",
+              "series",
+              "value"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": null,
+            "baseline_ids": [],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "normalize": true
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "title": "Semantic typing quality",
+      "protocol_metrics": [
+        "type precision/recall/F1",
+        "Cohen kappa",
+        "uncertainty"
+      ],
+      "datasets": [
+        "human-annotated subset"
+      ],
+      "figures": [
+        {
+          "id": "E2-F1",
+          "title": "Semantic typing confusion matrix",
+          "purpose": "Compare structural, schema+lexical and LLM-assisted predictions in separate method facets.",
+          "role": "primary",
+          "chart_type": "confusion_matrix",
+          "data_file": "results/visualization/data/E2-F1.csv",
+          "x_axis": {
+            "field": "predicted",
+            "label": "Predicted semantic type"
+          },
+          "y_axis": {
+            "field": "actual",
+            "label": "Reference semantic type"
+          },
+          "value_field": "count",
+          "data_contract": {
+            "required_columns": [
+              "actual",
+              "predicted",
+              "count"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "typing_structural",
+              "typing_schema_lexical"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "normalize": "true",
+            "value_field": "count"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E2-F2",
+          "title": "Typing performance with uncertainty",
+          "purpose": "Compare typing methods; series identifies precision, recall and macro-F1.",
+          "role": "supporting",
+          "chart_type": "horizontal_forest",
+          "data_file": "results/visualization/data/E2-F2.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Score"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Typing method"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "value",
+              "ci_low",
+              "ci_high",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "typing_structural",
+              "typing_schema_lexical"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {},
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E2-F3",
+          "title": "Typing threshold trade-off",
+          "purpose": "Compare methods over confidence thresholds; coverage belongs in a separate panel.",
+          "role": "supporting",
+          "chart_type": "dose_response",
+          "data_file": "results/visualization/data/E2-F3.csv",
+          "x_axis": {
+            "field": "threshold",
+            "label": "Confidence threshold"
+          },
+          "y_axis": {
+            "field": "value",
+            "label": "Macro-F1"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "threshold",
+              "value",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "typing_structural",
+              "typing_schema_lexical"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {},
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "title": "Declared versus observed effects",
+      "protocol_metrics": [
+        "discrepancy rate",
+        "probe coverage",
+        "probeable share"
+      ],
+      "datasets": [
+        "credential-free runnable servers"
+      ],
+      "figures": [
+        {
+          "id": "E3-F1",
+          "title": "Effect inference confusion matrix",
+          "purpose": "Compare declared, lexical and probe-derived predictions in separate method facets.",
+          "role": "primary",
+          "chart_type": "confusion_matrix",
+          "data_file": "results/visualization/data/E3-F1.csv",
+          "x_axis": {
+            "field": "predicted",
+            "label": "Predicted effect"
+          },
+          "y_axis": {
+            "field": "actual",
+            "label": "Observed/reference effect"
+          },
+          "value_field": "count",
+          "data_contract": {
+            "required_columns": [
+              "actual",
+              "predicted",
+              "count",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "effects_declared",
+              "effects_lexical",
+              "effects_probe"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "normalize": "true",
+            "value_field": "count"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E3-F2",
+          "title": "Effect discrepancy by inference method",
+          "purpose": "Compare declared, lexical and observed/probe sources; series identifies effect class.",
+          "role": "supporting",
+          "chart_type": "grouped_dot",
+          "data_file": "results/visualization/data/E3-F2.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Discrepancy rate"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Effect inference method"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "series",
+              "value"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "effects_declared",
+              "effects_lexical",
+              "effects_probe"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "value_format": "percent"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E3-F3",
+          "title": "Probe budget versus coverage",
+          "purpose": "Compare effect-probing coverage at predeclared budgets.",
+          "role": "supporting",
+          "chart_type": "dose_response",
+          "data_file": "results/visualization/data/E3-F3.csv",
+          "x_axis": {
+            "field": "probe_budget",
+            "label": "Probe budget (calls)"
+          },
+          "y_axis": {
+            "field": "value",
+            "label": "Probe coverage (%)"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "probe_budget",
+              "value",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "effects_declared",
+              "effects_lexical",
+              "effects_probe"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "value_format": "percent"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E4",
+      "title": "Exposure under policy encodings",
+      "protocol_metrics": [
+        "Exp@k",
+        "Util@5",
+        "eligible share"
+      ],
+      "datasets": [
+        "merged registry",
+        "MCPToolBench++"
+      ],
+      "figures": [
+        {
+          "id": "E4-F1",
+          "title": "Security–utility Pareto frontier",
+          "purpose": "Compare Full PaMCP provenance-aware eligibility with all policy controls assigned to E4.",
+          "role": "primary",
+          "chart_type": "pareto_scatter",
+          "data_file": "results/visualization/data/E4-F1.csv",
+          "x_axis": {
+            "field": "util_at_5",
+            "label": "Util@5"
+          },
+          "y_axis": {
+            "field": "exp_at_5",
+            "label": "Exp@5"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "util_at_5",
+              "exp_at_5",
+              "series",
+              "eligible_share"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "all_tools",
+              "mcp_default_annotations",
+              "closed_world_annotations",
+              "lexical_positive",
+              "lexical_closed_world",
+              "verified_evidence"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "x_prefer": "high",
+            "y_prefer": "low",
+            "size_field": "eligible_share",
+            "facet_field": "benchmark"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E4-F2",
+          "title": "Exposure before and after policy filtering",
+          "purpose": "Compare each assigned policy against the unfiltered exposure reference.",
+          "role": "supporting",
+          "chart_type": "dumbbell",
+          "data_file": "results/visualization/data/E4-F2.csv",
+          "x_axis": {
+            "field": "reference",
+            "label": "Exposure before filtering"
+          },
+          "y_axis": {
+            "field": "candidate",
+            "label": "Exposure after filtering"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "reference",
+              "candidate"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "all_tools",
+              "mcp_default_annotations",
+              "closed_world_annotations",
+              "lexical_positive",
+              "lexical_closed_world",
+              "verified_evidence"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {},
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E4-F3",
+          "title": "Eligibility and utility profile",
+          "purpose": "Compare eligible share, Exp@5 and Util@5 in separate metric facets.",
+          "role": "supporting",
+          "chart_type": "grouped_dot",
+          "data_file": "results/visualization/data/E4-F3.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Rate"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Policy method"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "series",
+              "value"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "all_tools",
+              "mcp_default_annotations",
+              "closed_world_annotations",
+              "lexical_positive",
+              "lexical_closed_world",
+              "verified_evidence"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "facet_field": "metric"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E5",
+      "title": "Forged and laundered metadata",
+      "protocol_metrics": [
+        "Exp@5",
+        "Util@5"
+      ],
+      "datasets": [
+        "merged registry",
+        "MCPToolBench++"
+      ],
+      "figures": [
+        {
+          "id": "E5-F1",
+          "title": "Exposure under malicious-provider fraction",
+          "purpose": "Compare assigned policy controls over identical attack fractions.",
+          "role": "primary",
+          "chart_type": "dose_response",
+          "data_file": "results/visualization/data/E5-F1.csv",
+          "x_axis": {
+            "field": "alpha",
+            "label": "Malicious-provider fraction (α)"
+          },
+          "y_axis": {
+            "field": "value",
+            "label": "Exp@5"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "alpha",
+              "value",
+              "series",
+              "ci_low",
+              "ci_high"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "all_tools",
+              "mcp_default_annotations",
+              "closed_world_annotations",
+              "lexical_positive",
+              "lexical_closed_world",
+              "verified_evidence"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "x_format": "percent",
+            "y_format": "percent"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E5-F2",
+          "title": "Exposure increase relative to clean metadata",
+          "purpose": "Compare change from clean to forged metadata; positive values indicate increased exposure.",
+          "role": "supporting",
+          "chart_type": "horizontal_forest",
+          "data_file": "results/visualization/data/E5-F2.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Change in Exp@5"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Policy method"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "value",
+              "ci_low",
+              "ci_high"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "all_tools",
+              "mcp_default_annotations",
+              "closed_world_annotations",
+              "lexical_positive",
+              "lexical_closed_world",
+              "verified_evidence"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "zero_reference": true
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E5-F3",
+          "title": "Utility retention under forgery",
+          "purpose": "Compare methods; facet by malicious-provider fraction.",
+          "role": "supporting",
+          "chart_type": "pareto_scatter",
+          "data_file": "results/visualization/data/E5-F3.csv",
+          "x_axis": {
+            "field": "util_at_5",
+            "label": "Util@5"
+          },
+          "y_axis": {
+            "field": "exp_at_5",
+            "label": "Exp@5"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "util_at_5",
+              "exp_at_5",
+              "series",
+              "alpha"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "all_tools",
+              "mcp_default_annotations",
+              "closed_world_annotations",
+              "lexical_positive",
+              "lexical_closed_world",
+              "verified_evidence"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "facet_field": "alpha",
+            "x_prefer": "high",
+            "y_prefer": "low"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E6",
+      "title": "Imperfect verifier",
+      "protocol_metrics": [
+        "Exp@5",
+        "Util@5",
+        "break-even FAR"
+      ],
+      "datasets": [
+        "merged registry",
+        "MCPToolBench++"
+      ],
+      "figures": [
+        {
+          "id": "E6-F1",
+          "title": "Exposure as verifier FAR increases",
+          "purpose": "Compare evidence eligibility with assigned policy controls over the frozen FAR grid.",
+          "role": "primary",
+          "chart_type": "dose_response",
+          "data_file": "results/visualization/data/E6-F1.csv",
+          "x_axis": {
+            "field": "far",
+            "label": "Verifier false-accept rate (FAR)"
+          },
+          "y_axis": {
+            "field": "value",
+            "label": "Exp@5"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "far",
+              "value",
+              "series",
+              "ci_low",
+              "ci_high"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "mcp_default_annotations",
+              "closed_world_annotations",
+              "lexical_positive",
+              "lexical_closed_world",
+              "verified_evidence"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "x_format": "percent",
+            "y_format": "percent"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E6-F2",
+          "title": "Break-even false-accept rate",
+          "purpose": "Compare preregistered break-even FAR against assigned policy comparators.",
+          "role": "supporting",
+          "chart_type": "horizontal_forest",
+          "data_file": "results/visualization/data/E6-F2.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Break-even FAR"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Policy comparator"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "value",
+              "ci_low",
+              "ci_high"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "mcp_default_annotations",
+              "closed_world_annotations",
+              "lexical_positive",
+              "lexical_closed_world",
+              "verified_evidence"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "x_format": "percent"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E6-F3",
+          "title": "Utility retention versus verifier errors",
+          "purpose": "Compare utility retention using the same FAR grid as E6-F1.",
+          "role": "supporting",
+          "chart_type": "dose_response",
+          "data_file": "results/visualization/data/E6-F3.csv",
+          "x_axis": {
+            "field": "far",
+            "label": "Verifier false-accept rate (FAR)"
+          },
+          "y_axis": {
+            "field": "value",
+            "label": "Util@5"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "far",
+              "value",
+              "series",
+              "ci_low",
+              "ci_high"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "mcp_default_annotations",
+              "closed_world_annotations",
+              "lexical_positive",
+              "lexical_closed_world",
+              "verified_evidence"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "x_format": "percent",
+            "y_format": "percent"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E7",
+      "title": "Trust policy and evidence strength",
+      "protocol_metrics": [
+        "eligible share",
+        "Exp@5",
+        "Util@5",
+        "Pareto"
+      ],
+      "datasets": [
+        "merged registry",
+        "MCPToolBench++"
+      ],
+      "figures": [
+        {
+          "id": "E7-F1",
+          "title": "Evidence threshold security–utility frontier",
+          "purpose": "Compare evidence thresholds and assigned policy controls.",
+          "role": "primary",
+          "chart_type": "pareto_scatter",
+          "data_file": "results/visualization/data/E7-F1.csv",
+          "x_axis": {
+            "field": "util_at_5",
+            "label": "Util@5"
+          },
+          "y_axis": {
+            "field": "exp_at_5",
+            "label": "Exp@5"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "util_at_5",
+              "exp_at_5",
+              "series",
+              "eligible_share"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "mcp_default_annotations",
+              "closed_world_annotations",
+              "lexical_positive",
+              "lexical_closed_world",
+              "verified_evidence"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "x_prefer": "high",
+            "y_prefer": "low",
+            "size_field": "eligible_share"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E7-F2",
+          "title": "Eligible share across trust thresholds",
+          "purpose": "Show eligible share for each property-specific evidence threshold.",
+          "role": "supporting",
+          "chart_type": "heatmap",
+          "data_file": "results/visualization/data/E7-F2.csv",
+          "x_axis": {
+            "field": "threshold",
+            "label": "Minimum evidence threshold"
+          },
+          "y_axis": {
+            "field": "effect_class",
+            "label": "Effect/property class"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "threshold",
+              "effect_class",
+              "value"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "mcp_default_annotations",
+              "closed_world_annotations",
+              "lexical_positive",
+              "lexical_closed_world",
+              "verified_evidence"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "value_format": "percent"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E7-F3",
+          "title": "Policy encoding outcome matrix",
+          "purpose": "Compare eligible share, Exp@5 and Util@5 separately.",
+          "role": "supporting",
+          "chart_type": "heatmap",
+          "data_file": "results/visualization/data/E7-F3.csv",
+          "x_axis": {
+            "field": "policy",
+            "label": "Policy encoding"
+          },
+          "y_axis": {
+            "field": "metric",
+            "label": "Outcome metric"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "policy",
+              "metric",
+              "value"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "mcp_default_annotations",
+              "closed_world_annotations",
+              "lexical_positive",
+              "lexical_closed_world",
+              "verified_evidence"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {},
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E8",
+      "title": "Single-tool retrieval quality",
+      "protocol_metrics": [
+        "Hit@1",
+        "Hit@5",
+        "MRR@10",
+        "macro Hit@1"
+      ],
+      "datasets": [
+        "MCPToolBench++",
+        "B1/B1m",
+        "ToolRet (heterogeneous retrieval track)",
+        "MCP-Atlas public (single-task candidate retrieval diagnostics)"
+      ],
+      "figures": [
+        {
+          "id": "E8-F1",
+          "title": "Single-tool retrieval performance",
+          "purpose": "Compare Full PaMCP with E8-assigned retrieval baselines; series identifies Hit@1, Hit@5 and MRR@10.",
+          "role": "primary",
+          "chart_type": "horizontal_forest",
+          "data_file": "results/visualization/data/E8-F1.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Retrieval score"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Method"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "value",
+              "ci_low",
+              "ci_high",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "bm25",
+              "dense_lsa",
+              "rag_mcp",
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {},
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E8-F2",
+          "title": "B1 versus B1m retrieval comparison",
+          "purpose": "Compare B1 and B1m under identical MCPToolBench++ task definitions.",
+          "role": "supporting",
+          "chart_type": "grouped_bar",
+          "data_file": "results/visualization/data/E8-F2.csv",
+          "x_axis": {
+            "field": "category",
+            "label": "Retrieval method"
+          },
+          "y_axis": {
+            "field": "value",
+            "label": "Macro Hit@1"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "series",
+              "value",
+              "ci_low",
+              "ci_high"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "bm25",
+              "dense_lsa",
+              "rag_mcp",
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {},
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E8-F3",
+          "title": "Retrieval robustness to distractors",
+          "purpose": "Compare PaMCP and retrieval baselines at matched candidate budgets.",
+          "role": "supporting",
+          "chart_type": "scatter",
+          "data_file": "results/visualization/data/E8-F3.csv",
+          "x_axis": {
+            "field": "distractor_count",
+            "label": "Number of distractor tools"
+          },
+          "y_axis": {
+            "field": "value",
+            "label": "Hit@1"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "distractor_count",
+              "value",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "bm25",
+              "dense_lsa",
+              "rag_mcp",
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {},
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E8-F4",
+          "title": "Cross-benchmark retrieval diagnostics",
+          "purpose": "Compare methods separately by benchmark; do not pool heterogeneous ToolRet with MCP-native results.",
+          "role": "supporting",
+          "chart_type": "horizontal_forest",
+          "data_file": "results/visualization/data/E8-F4.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Retrieval score"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Method"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "value",
+              "ci_low",
+              "ci_high",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "bm25",
+              "dense_lsa",
+              "rag_mcp",
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "facet_field": "benchmark"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E9",
+      "title": "Multi-tool set retrieval",
+      "protocol_metrics": [
+        "group recall@k",
+        "set precision",
+        "complete-set share"
+      ],
+      "datasets": [
+        "LiveMCPBench (resolvable tasks)",
+        "MCP-Atlas public (trajectory diagnostics only)",
+        "MCPVerse time-invariant v1.1 (where tool references resolve)"
+      ],
+      "figures": [
+        {
+          "id": "E9-F1",
+          "title": "Goal-group retrieval recall",
+          "purpose": "Compare Full PaMCP with E9-assigned retrieval/planning baselines; series identifies benchmark or k.",
+          "role": "primary",
+          "chart_type": "grouped_dot",
+          "data_file": "results/visualization/data/E9-F1.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Group recall@k"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Method"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "series",
+              "value",
+              "ci_low",
+              "ci_high"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "rag_mcp",
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "all_tools"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {},
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E9-F2",
+          "title": "Set precision versus group recall",
+          "purpose": "Compare complete-set quality and recall; bubble size is complete-set share.",
+          "role": "supporting",
+          "chart_type": "pareto_scatter",
+          "data_file": "results/visualization/data/E9-F2.csv",
+          "x_axis": {
+            "field": "set_precision",
+            "label": "Set precision"
+          },
+          "y_axis": {
+            "field": "group_recall",
+            "label": "Group recall@k"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "set_precision",
+              "group_recall",
+              "series",
+              "complete_set_share"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "rag_mcp",
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "all_tools"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "size_field": "complete_set_share",
+            "x_prefer": "high",
+            "y_prefer": "high"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E9-F3",
+          "title": "Complete-set coverage by task group",
+          "purpose": "Compare methods by task group; separate MCP-Atlas trajectory diagnostics.",
+          "role": "supporting",
+          "chart_type": "heatmap",
+          "data_file": "results/visualization/data/E9-F3.csv",
+          "x_axis": {
+            "field": "task_group",
+            "label": "Task group"
+          },
+          "y_axis": {
+            "field": "method",
+            "label": "Method"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "task_group",
+              "method",
+              "value"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "rag_mcp",
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "all_tools"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "value_format": "percent"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E10",
+      "title": "Set validity and compatibility",
+      "protocol_metrics": [
+        "joint feasibility",
+        "interface mismatch",
+        "forbidden pair/flow",
+        "certificate pass by check"
+      ],
+      "datasets": [
+        "LiveMCPBench",
+        "Toolathlon-Verified",
+        "τ³-bench (domain-specific state/policy constraints)"
+      ],
+      "figures": [
+        {
+          "id": "E10-F1",
+          "title": "Joint feasibility across methods",
+          "purpose": "Compare Full PaMCP with assigned discovery methods and separately identified IFC comparators.",
+          "role": "primary",
+          "chart_type": "horizontal_forest",
+          "data_file": "results/visualization/data/E10-F1.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Joint-feasibility rate"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Method"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "value",
+              "ci_low",
+              "ci_high"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "fides_ifc",
+              "camel_ifc",
+              "all_tools"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "x_format": "percent"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E10-F2",
+          "title": "Certificate checks by method",
+          "purpose": "Show S, C, P, E, L and V; baseline sets are independently evaluated counterfactuals.",
+          "role": "supporting",
+          "chart_type": "heatmap",
+          "data_file": "results/visualization/data/E10-F2.csv",
+          "x_axis": {
+            "field": "check",
+            "label": "Certificate check"
+          },
+          "y_axis": {
+            "field": "method",
+            "label": "Method"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "check",
+              "method",
+              "value"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "fides_ifc",
+              "camel_ifc",
+              "all_tools"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "value_format": "percent"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E10-F3",
+          "title": "Invalid-set failure composition",
+          "purpose": "Compare interface, forbidden-pair, effect, flow and other failure causes.",
+          "role": "supporting",
+          "chart_type": "stacked_horizontal",
+          "data_file": "results/visualization/data/E10-F3.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Invalid sets (%)"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Method"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "segment",
+              "value"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "fides_ifc",
+              "camel_ifc",
+              "all_tools"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "normalize": true
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E11",
+      "title": "Capability gap and bridge ratio",
+      "protocol_metrics": [
+        "toolkit size",
+        "bridge ratio",
+        "native-goal share",
+        "task success"
+      ],
+      "datasets": [
+        "review-type tasks"
+      ],
+      "figures": [
+        {
+          "id": "E11-F1",
+          "title": "Toolkit size as task input grows",
+          "purpose": "Compare Full PaMCP, MCP-Zero, per-subtask and CMTF under matched task settings.",
+          "role": "primary",
+          "chart_type": "line",
+          "data_file": "results/visualization/data/E11-F1.csv",
+          "x_axis": {
+            "field": "input_size",
+            "label": "Task input size (n)"
+          },
+          "y_axis": {
+            "field": "value",
+            "label": "Toolkit size"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "input_size",
+              "value",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "mcp_zero",
+              "per_subtask",
+              "cmtf_adapted",
+              "uncalibrated_profile",
+              "calibrated_profile"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {},
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E11-F2",
+          "title": "Bridge ratio under model profiles",
+          "purpose": "Compare calibrated and uncalibrated profiles using the paper's formal bridge-ratio definition.",
+          "role": "supporting",
+          "chart_type": "line",
+          "data_file": "results/visualization/data/E11-F2.csv",
+          "x_axis": {
+            "field": "input_size",
+            "label": "Task input size (n)"
+          },
+          "y_axis": {
+            "field": "value",
+            "label": "Bridge ratio"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "input_size",
+              "value",
+              "series",
+              "ci_low",
+              "ci_high"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "mcp_zero",
+              "per_subtask",
+              "cmtf_adapted",
+              "uncalibrated_profile",
+              "calibrated_profile"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {},
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E11-F3",
+          "title": "Toolkit size versus model reliability",
+          "purpose": "Compare conditional toolkit sizes across model-profile conditions.",
+          "role": "supporting",
+          "chart_type": "interaction_plot",
+          "data_file": "results/visualization/data/E11-F3.csv",
+          "x_axis": {
+            "field": "tau",
+            "label": "Model reliability threshold (τ)"
+          },
+          "y_axis": {
+            "field": "value",
+            "label": "Toolkit size"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "tau",
+              "value",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "mcp_zero",
+              "per_subtask",
+              "cmtf_adapted",
+              "uncalibrated_profile",
+              "calibrated_profile"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {},
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E11-F4",
+          "title": "Native capability versus task success",
+          "purpose": "Compare calibrated and uncalibrated profiles; task success must be externally evaluated.",
+          "role": "supporting",
+          "chart_type": "pareto_scatter",
+          "data_file": "results/visualization/data/E11-F4.csv",
+          "x_axis": {
+            "field": "native_goal_share",
+            "label": "Native-goal share"
+          },
+          "y_axis": {
+            "field": "task_success",
+            "label": "Task success"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "native_goal_share",
+              "task_success",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "mcp_zero",
+              "per_subtask",
+              "cmtf_adapted",
+              "uncalibrated_profile",
+              "calibrated_profile"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "x_prefer": "high",
+            "y_prefer": "high"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E12",
+      "title": "Model profile calibration",
+      "protocol_metrics": [
+        "measured reliability CI",
+        "self-assessment calibration",
+        "refutation rate"
+      ],
+      "datasets": [
+        "purpose-built calibration sets"
+      ],
+      "figures": [
+        {
+          "id": "E12-F1",
+          "title": "Measured reliability by class and input size",
+          "purpose": "Display measured reliability with separate model facets.",
+          "role": "primary",
+          "chart_type": "heatmap",
+          "data_file": "results/visualization/data/E12-F1.csv",
+          "x_axis": {
+            "field": "input_size",
+            "label": "Input size (n)"
+          },
+          "y_axis": {
+            "field": "model_class",
+            "label": "Model capability class"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "input_size",
+              "model_class",
+              "value"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "self_assessed_profile",
+              "uncalibrated_profile",
+              "calibrated_profile"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "facet_field": "model",
+            "value_format": "percent"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E12-F2",
+          "title": "Claimed versus measured reliability",
+          "purpose": "Compare self-assessment with empirical reliability and include the identity line.",
+          "role": "supporting",
+          "chart_type": "calibration_scatter",
+          "data_file": "results/visualization/data/E12-F2.csv",
+          "x_axis": {
+            "field": "claimed",
+            "label": "Claimed reliability"
+          },
+          "y_axis": {
+            "field": "measured",
+            "label": "Measured reliability"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "claimed",
+              "measured",
+              "series",
+              "ci_low",
+              "ci_high"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "self_assessed_profile",
+              "uncalibrated_profile",
+              "calibrated_profile"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "x_min": 0,
+            "x_max": 1,
+            "y_min": 0,
+            "y_max": 1
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E12-F3",
+          "title": "Calibrated reliability estimates",
+          "purpose": "Compare self-assessed, uncalibrated and calibrated profiles.",
+          "role": "supporting",
+          "chart_type": "horizontal_forest",
+          "data_file": "results/visualization/data/E12-F3.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Measured reliability ρ"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Model / capability class"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "value",
+              "ci_low",
+              "ci_high",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "self_assessed_profile",
+              "uncalibrated_profile",
+              "calibrated_profile"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "x_min": 0,
+            "x_max": 1
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E12-F4",
+          "title": "Capability refutation rate",
+          "purpose": "Compare refutation rates by capability class and profile.",
+          "role": "supporting",
+          "chart_type": "grouped_dot",
+          "data_file": "results/visualization/data/E12-F4.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Refutation rate"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Model profile"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "series",
+              "value",
+              "ci_low",
+              "ci_high"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "self_assessed_profile",
+              "uncalibrated_profile",
+              "calibrated_profile"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "value_format": "percent"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E13",
+      "title": "End-to-end agent execution",
+      "protocol_metrics": [
+        "task success",
+        "wrong-tool calls",
+        "steps",
+        "tokens"
+      ],
+      "datasets": [
+        "MCP-Atlas public",
+        "Toolathlon-Verified",
+        "MCP-Universe",
+        "MCPVerse time-invariant v1.1",
+        "MCP_Bench subset"
+      ],
+      "figures": [
+        {
+          "id": "E13-F1",
+          "title": "End-to-end task success",
+          "purpose": "Compare Full PaMCP with E13-assigned discovery and runtime-security methods.",
+          "role": "primary",
+          "chart_type": "horizontal_forest",
+          "data_file": "results/visualization/data/E13-F1.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Task-success rate"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Method"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "value",
+              "ci_low",
+              "ci_high"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "all_tools",
+              "rag_mcp",
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "progent_runtime",
+              "fides_ifc",
+              "camel_ifc"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "x_format": "percent"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E13-F2",
+          "title": "Task success versus token cost",
+          "purpose": "Compare task utility and interaction cost using a frozen tokenizer.",
+          "role": "supporting",
+          "chart_type": "pareto_scatter",
+          "data_file": "results/visualization/data/E13-F2.csv",
+          "x_axis": {
+            "field": "tokens",
+            "label": "Tokens per task"
+          },
+          "y_axis": {
+            "field": "task_success",
+            "label": "Task success"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "tokens",
+              "task_success",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "all_tools",
+              "rag_mcp",
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "progent_runtime",
+              "fides_ifc",
+              "camel_ifc"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "x_prefer": "low",
+            "y_prefer": "high"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E13-F3",
+          "title": "Execution-step distribution",
+          "purpose": "Compare task-level execution-step distributions; retain individual task observations.",
+          "role": "supporting",
+          "chart_type": "violin",
+          "data_file": "results/visualization/data/E13-F3.csv",
+          "x_axis": {
+            "field": "group",
+            "label": "Method"
+          },
+          "y_axis": {
+            "field": "value",
+            "label": "Execution steps per task"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "group",
+              "value"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "all_tools",
+              "rag_mcp",
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "progent_runtime",
+              "fides_ifc",
+              "camel_ifc"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {},
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E13-F4",
+          "title": "Wrong-tool call composition",
+          "purpose": "Separate irrelevant, invalid-state and policy-violating calls.",
+          "role": "supporting",
+          "chart_type": "stacked_horizontal",
+          "data_file": "results/visualization/data/E13-F4.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Wrong-tool calls"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Method"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "segment",
+              "value"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "all_tools",
+              "rag_mcp",
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "progent_runtime",
+              "fides_ifc",
+              "camel_ifc"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {},
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E13-F5",
+          "title": "Paired task-success differences",
+          "purpose": "Show paired task effects; positive values indicate PaMCP improvement.",
+          "role": "supporting",
+          "chart_type": "horizontal_forest",
+          "data_file": "results/visualization/data/E13-F5.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "PaMCP minus baseline task success"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Baseline comparator"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "value",
+              "ci_low",
+              "ci_high"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "all_tools",
+              "rag_mcp",
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "progent_runtime",
+              "fides_ifc",
+              "camel_ifc"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "zero_reference": true
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E14",
+      "title": "Robustness under prompt injection",
+      "protocol_metrics": [
+        "executed out-of-policy actions",
+        "task success",
+        "Exp@5"
+      ],
+      "datasets": [
+        "MCPTox",
+        "InjecAgent",
+        "R-Judge (risk-awareness secondary track)",
+        "controlled MCP prompt-injection sandbox"
+      ],
+      "figures": [
+        {
+          "id": "E14-F1",
+          "title": "Security–utility frontier under injection",
+          "purpose": "Compare PaMCP with assigned discovery/runtime-security baselines under identical attacks.",
+          "role": "primary",
+          "chart_type": "pareto_scatter",
+          "data_file": "results/visualization/data/E14-F1.csv",
+          "x_axis": {
+            "field": "out_of_policy_actions",
+            "label": "Executed out-of-policy actions per task"
+          },
+          "y_axis": {
+            "field": "task_success",
+            "label": "Task success"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "out_of_policy_actions",
+              "task_success",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "all_tools",
+              "rag_mcp",
+              "mcp_zero",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "progent_runtime",
+              "fides_ifc",
+              "camel_ifc"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "x_prefer": "low",
+            "y_prefer": "high"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E14-F2",
+          "title": "Executed violations by attack family",
+          "purpose": "Keep MCPTox, InjecAgent and controlled MCP injection as separate attack tracks.",
+          "role": "supporting",
+          "chart_type": "heatmap",
+          "data_file": "results/visualization/data/E14-F2.csv",
+          "x_axis": {
+            "field": "system",
+            "label": "System"
+          },
+          "y_axis": {
+            "field": "attack_type",
+            "label": "Attack family"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "system",
+              "attack_type",
+              "value"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "all_tools",
+              "rag_mcp",
+              "mcp_zero",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "progent_runtime",
+              "fides_ifc",
+              "camel_ifc"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "value_format": "percent"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E14-F3",
+          "title": "Attack-induced task-success change",
+          "purpose": "Compare attack degradation against matched clean conditions.",
+          "role": "supporting",
+          "chart_type": "horizontal_forest",
+          "data_file": "results/visualization/data/E14-F3.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Change in task-success rate"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Method"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "value",
+              "ci_low",
+              "ci_high"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "all_tools",
+              "rag_mcp",
+              "mcp_zero",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "progent_runtime",
+              "fides_ifc",
+              "camel_ifc"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "zero_reference": true
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E14-F4",
+          "title": "Unsafe retrieval exposure by attack",
+          "purpose": "Compare exposure by attack family; R-Judge remains a separate risk-awareness diagnostic.",
+          "role": "supporting",
+          "chart_type": "grouped_dot",
+          "data_file": "results/visualization/data/E14-F4.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Exp@5"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "System"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "series",
+              "value",
+              "ci_low",
+              "ci_high"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "all_tools",
+              "rag_mcp",
+              "mcp_zero",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "progent_runtime",
+              "fides_ifc",
+              "camel_ifc"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "value_format": "percent"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E15",
+      "title": "Cost per request and scalability",
+      "protocol_metrics": [
+        "per-stage p50/p95 latency",
+        "memory",
+        "exact/greedy gap"
+      ],
+      "datasets": [
+        "ToolRet corpus",
+        "MCPVerse registry/tool pool",
+        "synthetic registry clones"
+      ],
+      "figures": [
+        {
+          "id": "E15-F1",
+          "title": "Latency scaling by registry size",
+          "purpose": "Compare PaMCP and assigned retrieval/planning systems; p50 and p95 are separate series.",
+          "role": "primary",
+          "chart_type": "loglog_scaling",
+          "data_file": "results/visualization/data/E15-F1.csv",
+          "x_axis": {
+            "field": "registry_size",
+            "label": "Registry size (tools)"
+          },
+          "y_axis": {
+            "field": "latency_ms",
+            "label": "Latency (ms)"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "registry_size",
+              "latency_ms",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "bm25",
+              "dense_lsa",
+              "rag_mcp",
+              "mcp_zero",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "linear_scan"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "log_x": true,
+            "log_y": true
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E15-F2",
+          "title": "Latency percentiles by method",
+          "purpose": "Compare p50 and p95 at matched registry sizes; facet by registry size.",
+          "role": "supporting",
+          "chart_type": "grouped_dot",
+          "data_file": "results/visualization/data/E15-F2.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Latency (ms)"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Method"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "series",
+              "value",
+              "ci_low",
+              "ci_high"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "bm25",
+              "dense_lsa",
+              "rag_mcp",
+              "mcp_zero",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "linear_scan"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "facet_field": "registry_size"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E15-F3",
+          "title": "Memory versus p95 latency",
+          "purpose": "Compare systems under identical registry snapshots and workloads.",
+          "role": "supporting",
+          "chart_type": "pareto_scatter",
+          "data_file": "results/visualization/data/E15-F3.csv",
+          "x_axis": {
+            "field": "memory_mb",
+            "label": "Peak memory (MB)"
+          },
+          "y_axis": {
+            "field": "p95_latency_ms",
+            "label": "p95 latency (ms)"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "memory_mb",
+              "p95_latency_ms",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "bm25",
+              "dense_lsa",
+              "rag_mcp",
+              "mcp_zero",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "linear_scan"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "x_prefer": "low",
+            "y_prefer": "low"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E15-F4",
+          "title": "Exact versus greedy composition gap",
+          "purpose": "Compare exact and greedy PaMCP composition; report runtime separately.",
+          "role": "supporting",
+          "chart_type": "line",
+          "data_file": "results/visualization/data/E15-F4.csv",
+          "x_axis": {
+            "field": "problem_size",
+            "label": "Problem size"
+          },
+          "y_axis": {
+            "field": "value",
+            "label": "Optimality gap (%)"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "problem_size",
+              "value",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "bm25",
+              "dense_lsa",
+              "rag_mcp",
+              "mcp_zero",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "linear_scan"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "y_format": "percent"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E16",
+      "title": "Registry and model evolution",
+      "protocol_metrics": [
+        "update time",
+        "invalidation",
+        "correctness vs recomputation",
+        "stale evidence"
+      ],
+      "datasets": [
+        "MCPVerse time-invariant v1.1",
+        "pinned live registry snapshots",
+        "controlled registry mutation traces"
+      ],
+      "figures": [
+        {
+          "id": "E16-F1",
+          "title": "Incremental update versus full rebuild",
+          "purpose": "Compare incremental maintenance and full rebuild per mutation/event class.",
+          "role": "primary",
+          "chart_type": "dumbbell",
+          "data_file": "results/visualization/data/E16-F1.csv",
+          "x_axis": {
+            "field": "reference",
+            "label": "Incremental update time (ms)"
+          },
+          "y_axis": {
+            "field": "candidate",
+            "label": "Full rebuild time (ms)"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "reference",
+              "candidate"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "full_rebuild"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {},
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E16-F2",
+          "title": "Update latency over event sequence",
+          "purpose": "Compare incremental maintenance and recomputation over identical event sequences.",
+          "role": "supporting",
+          "chart_type": "scatter",
+          "data_file": "results/visualization/data/E16-F2.csv",
+          "x_axis": {
+            "field": "event_index",
+            "label": "Registry event index"
+          },
+          "y_axis": {
+            "field": "value",
+            "label": "Update latency (ms)"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "event_index",
+              "value",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "full_rebuild"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {},
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E16-F3",
+          "title": "Correctness against recomputation",
+          "purpose": "Compare incremental state with recomputation for invalidation, eligibility and evidence correctness.",
+          "role": "supporting",
+          "chart_type": "heatmap",
+          "data_file": "results/visualization/data/E16-F3.csv",
+          "x_axis": {
+            "field": "mutation_type",
+            "label": "Mutation type"
+          },
+          "y_axis": {
+            "field": "property",
+            "label": "Correctness property"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "mutation_type",
+              "property",
+              "value"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "full_rebuild"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "value_format": "percent"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E16-F4",
+          "title": "Evidence lifecycle through registry changes",
+          "purpose": "Show changed, retained, invalidated and stale evidence transitions from observed records.",
+          "role": "supporting",
+          "chart_type": "alluvial",
+          "data_file": "results/visualization/data/E16-F4.csv",
+          "x_axis": {
+            "field": "source",
+            "label": "Evidence state before mutation"
+          },
+          "y_axis": {
+            "field": "target",
+            "label": "Evidence state after mutation"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "source",
+              "target",
+              "value"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "full_rebuild"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {},
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E17",
+      "title": "Counterexample-guided refinement",
+      "protocol_metrics": [
+        "repair success by chi",
+        "iterations",
+        "abstention",
+        "tokens"
+      ],
+      "datasets": [
+        "LiveMCPBench"
+      ],
+      "figures": [
+        {
+          "id": "E17-F1",
+          "title": "Counterexample-to-outcome flow",
+          "purpose": "Compare outcomes by χ category, including repaired, abstained and unresolved cases.",
+          "role": "primary",
+          "chart_type": "alluvial",
+          "data_file": "results/visualization/data/E17-F1.csv",
+          "x_axis": {
+            "field": "source",
+            "label": "Counterexample category"
+          },
+          "y_axis": {
+            "field": "target",
+            "label": "Repair outcome"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "source",
+              "target",
+              "value"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "no_refinement"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {},
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E17-F2",
+          "title": "Repair success by counterexample type",
+          "purpose": "Compare Full PaMCP refinement against the no-refinement control.",
+          "role": "supporting",
+          "chart_type": "grouped_dot",
+          "data_file": "results/visualization/data/E17-F2.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Repair-success rate"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Counterexample type (χ)"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "series",
+              "value",
+              "ci_low",
+              "ci_high"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "no_refinement"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "value_format": "percent"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E17-F3",
+          "title": "Cumulative repair success by iteration",
+          "purpose": "Compare Full PaMCP and no-refinement; keep failed/abstained tasks in denominator.",
+          "role": "supporting",
+          "chart_type": "line",
+          "data_file": "results/visualization/data/E17-F3.csv",
+          "x_axis": {
+            "field": "iteration",
+            "label": "Refinement iteration"
+          },
+          "y_axis": {
+            "field": "value",
+            "label": "Cumulative repair success"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "iteration",
+              "value",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "no_refinement"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "y_format": "percent"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E17-F4",
+          "title": "Repair success versus token cost",
+          "purpose": "Compare refinement configurations and no-refinement control.",
+          "role": "supporting",
+          "chart_type": "pareto_scatter",
+          "data_file": "results/visualization/data/E17-F4.csv",
+          "x_axis": {
+            "field": "tokens",
+            "label": "Tokens consumed"
+          },
+          "y_axis": {
+            "field": "repair_success",
+            "label": "Repair success"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "tokens",
+              "repair_success",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "no_refinement"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "x_prefer": "low",
+            "y_prefer": "high"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E18",
+      "title": "Component and primary mechanism ablation",
+      "protocol_metrics": [
+        "group recall",
+        "joint feasibility",
+        "Exp@5",
+        "task success",
+        "tokens"
+      ],
+      "datasets": [
+        "LiveMCPBench common task set",
+        "MCP-Atlas public common task subset (claims/trajectory diagnostics separated)"
+      ],
+      "figures": [
+        {
+          "id": "E18-F1",
+          "title": "Complete eight-cell factorial outcome matrix",
+          "purpose": "Show all eight frozen G×P×S cells; use a separate panel per outcome metric.",
+          "role": "primary",
+          "chart_type": "factorial_heatmap",
+          "data_file": "results/visualization/data/E18-F1.csv",
+          "x_axis": {
+            "field": "metric",
+            "label": "Outcome metric"
+          },
+          "y_axis": {
+            "field": "configuration",
+            "label": "G-P-S configuration"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "metric",
+              "configuration",
+              "value"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "bm25",
+              "dense_lsa",
+              "rag_mcp",
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "mcp_default_annotations",
+              "closed_world_annotations",
+              "lexical_positive",
+              "lexical_closed_world",
+              "verified_evidence",
+              "no_refinement"
+            ],
+            "factorial_cells": [
+              "Full_PaMCP",
+              "PaMCP_NoCert",
+              "PaMCP_Declared",
+              "G1_P0_S0",
+              "PaMCP_NoGap",
+              "G0_P1_S0",
+              "G0_P0_S1",
+              "G0_P0_S0"
+            ],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "facet_field": "metric",
+            "annotate": true
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E18-F2",
+          "title": "Factor main effects and interactions",
+          "purpose": "Estimate G, P, S, G×P, G×S, P×S and G×P×S from all eight cells.",
+          "role": "primary",
+          "chart_type": "horizontal_forest",
+          "data_file": "results/visualization/data/E18-F2.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Estimated factorial effect"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Factor / interaction"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "value",
+              "ci_low",
+              "ci_high"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "bm25",
+              "dense_lsa",
+              "rag_mcp",
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "mcp_default_annotations",
+              "closed_world_annotations",
+              "lexical_positive",
+              "lexical_closed_world",
+              "verified_evidence",
+              "no_refinement"
+            ],
+            "factorial_cells": [
+              "Full_PaMCP",
+              "PaMCP_NoCert",
+              "PaMCP_Declared",
+              "G1_P0_S0",
+              "PaMCP_NoGap",
+              "G0_P1_S0",
+              "G0_P0_S1",
+              "G0_P0_S0"
+            ],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "zero_reference": true
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E18-F3",
+          "title": "Mechanism interaction plot",
+          "purpose": "Plot conditional means across levels of a second factor; generate per interaction and outcome.",
+          "role": "supporting",
+          "chart_type": "interaction_plot",
+          "data_file": "results/visualization/data/E18-F3.csv",
+          "x_axis": {
+            "field": "factor_level",
+            "label": "Factor level"
+          },
+          "y_axis": {
+            "field": "value",
+            "label": "Outcome"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "factor_level",
+              "value",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "bm25",
+              "dense_lsa",
+              "rag_mcp",
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "mcp_default_annotations",
+              "closed_world_annotations",
+              "lexical_positive",
+              "lexical_closed_world",
+              "verified_evidence",
+              "no_refinement"
+            ],
+            "factorial_cells": [
+              "Full_PaMCP",
+              "PaMCP_NoCert",
+              "PaMCP_Declared",
+              "G1_P0_S0",
+              "PaMCP_NoGap",
+              "G0_P1_S0",
+              "G0_P0_S1",
+              "G0_P0_S0"
+            ],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {},
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E18-F4",
+          "title": "Leave-one-out paired contrasts",
+          "purpose": "Compare Full PaMCP with NoGap, Declared and NoCert on matched tasks.",
+          "role": "supporting",
+          "chart_type": "horizontal_forest",
+          "data_file": "results/visualization/data/E18-F4.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Full PaMCP minus ablation"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Ablation"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "value",
+              "ci_low",
+              "ci_high"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "bm25",
+              "dense_lsa",
+              "rag_mcp",
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "mcp_default_annotations",
+              "closed_world_annotations",
+              "lexical_positive",
+              "lexical_closed_world",
+              "verified_evidence",
+              "no_refinement"
+            ],
+            "factorial_cells": [
+              "Full_PaMCP",
+              "PaMCP_NoCert",
+              "PaMCP_Declared",
+              "G1_P0_S0",
+              "PaMCP_NoGap",
+              "G0_P1_S0",
+              "G0_P0_S1",
+              "G0_P0_S0"
+            ],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "zero_reference": true
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E18-F5",
+          "title": "Factorial security–utility trade-off",
+          "purpose": "Compare all eight factorial configurations and assigned external controls.",
+          "role": "supporting",
+          "chart_type": "pareto_scatter",
+          "data_file": "results/visualization/data/E18-F5.csv",
+          "x_axis": {
+            "field": "exp_at_5",
+            "label": "Exp@5"
+          },
+          "y_axis": {
+            "field": "task_success",
+            "label": "Task success"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "exp_at_5",
+              "task_success",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "bm25",
+              "dense_lsa",
+              "rag_mcp",
+              "mcp_zero",
+              "per_subtask",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "mcp_default_annotations",
+              "closed_world_annotations",
+              "lexical_positive",
+              "lexical_closed_world",
+              "verified_evidence",
+              "no_refinement"
+            ],
+            "factorial_cells": [
+              "Full_PaMCP",
+              "PaMCP_NoCert",
+              "PaMCP_Declared",
+              "G1_P0_S0",
+              "PaMCP_NoGap",
+              "G0_P1_S0",
+              "G0_P0_S1",
+              "G0_P0_S0"
+            ],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "x_prefer": "low",
+            "y_prefer": "high"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E19",
+      "title": "LLM role configurations",
+      "protocol_metrics": [
+        "GoalSpec validity",
+        "repair",
+        "task success",
+        "tokens",
+        "latency"
+      ],
+      "datasets": [
+        "LiveMCPBench"
+      ],
+      "figures": [
+        {
+          "id": "E19-F1",
+          "title": "LLM role configuration outcome matrix",
+          "purpose": "Compare GoalSpec validity, repair, task success, tokens and latency in separate metric facets.",
+          "role": "primary",
+          "chart_type": "heatmap",
+          "data_file": "results/visualization/data/E19-F1.csv",
+          "x_axis": {
+            "field": "metric",
+            "label": "Outcome metric"
+          },
+          "y_axis": {
+            "field": "configuration",
+            "label": "LLM/profile configuration"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "metric",
+              "configuration",
+              "value"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "self_assessed_profile",
+              "uncalibrated_profile",
+              "calibrated_profile"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "facet_field": "metric"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E19-F2",
+          "title": "GoalSpec and execution quality by role",
+          "purpose": "Compare profile/analyst role configurations; series identifies validity, repair and task-success metrics.",
+          "role": "supporting",
+          "chart_type": "grouped_dot",
+          "data_file": "results/visualization/data/E19-F2.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "Performance"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "LLM role configuration"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "series",
+              "value",
+              "ci_low",
+              "ci_high"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "self_assessed_profile",
+              "uncalibrated_profile",
+              "calibrated_profile"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {},
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E19-F3",
+          "title": "Quality versus token cost",
+          "purpose": "Compare role configurations; latency is reported separately.",
+          "role": "supporting",
+          "chart_type": "pareto_scatter",
+          "data_file": "results/visualization/data/E19-F3.csv",
+          "x_axis": {
+            "field": "tokens",
+            "label": "Tokens per task"
+          },
+          "y_axis": {
+            "field": "task_success",
+            "label": "Task success"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "tokens",
+              "task_success",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "self_assessed_profile",
+              "uncalibrated_profile",
+              "calibrated_profile"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "x_prefer": "low",
+            "y_prefer": "high"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E20",
+      "title": "Sensitivity to cost and utility weights",
+      "protocol_metrics": [
+        "toolkit Jaccard",
+        "Exp@5",
+        "task success",
+        "price/latency"
+      ],
+      "datasets": [
+        "LiveMCPBench",
+        "MCPToolBench++"
+      ],
+      "figures": [
+        {
+          "id": "E20-F1",
+          "title": "Task-success weight-space heatmap",
+          "purpose": "Show task success for every evaluated parameter pair.",
+          "role": "primary",
+          "chart_type": "heatmap",
+          "data_file": "results/visualization/data/E20-F1.csv",
+          "x_axis": {
+            "field": "cost_weight",
+            "label": "Cost weight"
+          },
+          "y_axis": {
+            "field": "utility_weight",
+            "label": "Utility weight"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "cost_weight",
+              "utility_weight",
+              "value"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "calibrated_profile"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {},
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E20-F2",
+          "title": "Toolkit stability and security sensitivity",
+          "purpose": "Use separate panels for toolkit Jaccard and Exp@5; do not aggregate them.",
+          "role": "supporting",
+          "chart_type": "heatmap",
+          "data_file": "results/visualization/data/E20-F2.csv",
+          "x_axis": {
+            "field": "cost_weight",
+            "label": "Cost weight"
+          },
+          "y_axis": {
+            "field": "utility_weight",
+            "label": "Utility weight"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "cost_weight",
+              "utility_weight",
+              "value",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "calibrated_profile"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "facet_field": "series"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E20-F3",
+          "title": "Price–latency Pareto surface",
+          "purpose": "Compare frozen weight settings; task success is an annotation, not a composite score.",
+          "role": "supporting",
+          "chart_type": "pareto_scatter",
+          "data_file": "results/visualization/data/E20-F3.csv",
+          "x_axis": {
+            "field": "price",
+            "label": "Price per task"
+          },
+          "y_axis": {
+            "field": "latency",
+            "label": "Latency per task"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "price",
+              "latency",
+              "series",
+              "task_success"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "calibrated_profile"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "x_prefer": "low",
+            "y_prefer": "low",
+            "size_field": "task_success"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E20-F4",
+          "title": "Selected-toolkit similarity matrix",
+          "purpose": "Compare pairwise toolkit Jaccard similarity across evaluated weight configurations.",
+          "role": "supporting",
+          "chart_type": "heatmap",
+          "data_file": "results/visualization/data/E20-F4.csv",
+          "x_axis": {
+            "field": "configuration_a",
+            "label": "Weight configuration A"
+          },
+          "y_axis": {
+            "field": "configuration_b",
+            "label": "Weight configuration B"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "configuration_a",
+              "configuration_b",
+              "value"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "calibrated_profile"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "x_min": 0,
+            "x_max": 1
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E21",
+      "title": "Experience reuse",
+      "protocol_metrics": [
+        "reuse rate",
+        "latency saved",
+        "stale errors caught/uncaught"
+      ],
+      "datasets": [
+        "Toolathlon-Verified trajectories (training-only where licensed)",
+        "confirmed PaMCP execution traces"
+      ],
+      "figures": [
+        {
+          "id": "E21-F1",
+          "title": "Trajectory reuse versus repository size",
+          "purpose": "Compare AutoTool trajectory reuse against no-experience control.",
+          "role": "primary",
+          "chart_type": "line",
+          "data_file": "results/visualization/data/E21-F1.csv",
+          "x_axis": {
+            "field": "repository_size",
+            "label": "Confirmed trajectories in repository"
+          },
+          "y_axis": {
+            "field": "value",
+            "label": "Reuse rate"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "repository_size",
+              "value",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "autotool_adapted",
+              "no_experience"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "y_format": "percent"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E21-F2",
+          "title": "Latency savings versus repository size",
+          "purpose": "Compare experience reuse with no-experience retrieval.",
+          "role": "supporting",
+          "chart_type": "line",
+          "data_file": "results/visualization/data/E21-F2.csv",
+          "x_axis": {
+            "field": "repository_size",
+            "label": "Confirmed trajectories in repository"
+          },
+          "y_axis": {
+            "field": "value",
+            "label": "Latency saved (ms)"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "repository_size",
+              "value",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "autotool_adapted",
+              "no_experience"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {},
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E21-F3",
+          "title": "Stale-trajectory detection matrix",
+          "purpose": "Evaluate stale and valid trajectory detection against independently confirmed status.",
+          "role": "supporting",
+          "chart_type": "confusion_matrix",
+          "data_file": "results/visualization/data/E21-F3.csv",
+          "x_axis": {
+            "field": "predicted",
+            "label": "Predicted trajectory status"
+          },
+          "y_axis": {
+            "field": "actual",
+            "label": "Reference trajectory status"
+          },
+          "value_field": "count",
+          "data_contract": {
+            "required_columns": [
+              "actual",
+              "predicted",
+              "count"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "autotool_adapted",
+              "no_experience"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "value_field": "count"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E21-F4",
+          "title": "Reuse savings and repository cost",
+          "purpose": "Compare repository configurations; bubble size represents reuse rate.",
+          "role": "supporting",
+          "chart_type": "pareto_scatter",
+          "data_file": "results/visualization/data/E21-F4.csv",
+          "x_axis": {
+            "field": "repository_size",
+            "label": "Repository size"
+          },
+          "y_axis": {
+            "field": "latency_saved",
+            "label": "Latency saved (ms)"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "repository_size",
+              "latency_saved",
+              "series",
+              "reuse_rate"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "autotool_adapted",
+              "no_experience"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "size_field": "reuse_rate",
+            "x_prefer": "low",
+            "y_prefer": "high"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E22",
+      "title": "Statistical validity and reproducibility",
+      "protocol_metrics": [
+        "CI width",
+        "Holm p-values",
+        "BH secondary",
+        "rank stability"
+      ],
+      "datasets": [
+        "MCPToolBench++ tool-disjoint sample",
+        "E8-E10"
+      ],
+      "figures": [
+        {
+          "id": "E22-F1",
+          "title": "Paired PaMCP-versus-baseline effect sizes",
+          "purpose": "Show paired effects for E22-assigned methods; define beneficial direction per metric.",
+          "role": "primary",
+          "chart_type": "horizontal_forest",
+          "data_file": "results/visualization/data/E22-F1.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "PaMCP minus baseline effect"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Baseline comparator"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "value",
+              "ci_low",
+              "ci_high"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "bm25",
+              "dense_lsa",
+              "rag_mcp",
+              "mcp_zero",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "per_subtask"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "zero_reference": true
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E22-F2",
+          "title": "Confidence-interval width by method and metric",
+          "purpose": "Compare interval widths by metric and method; report the resampling unit.",
+          "role": "supporting",
+          "chart_type": "grouped_dot",
+          "data_file": "results/visualization/data/E22-F2.csv",
+          "x_axis": {
+            "field": "value",
+            "label": "95% CI width"
+          },
+          "y_axis": {
+            "field": "category",
+            "label": "Method"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "category",
+              "series",
+              "value"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "bm25",
+              "dense_lsa",
+              "rag_mcp",
+              "mcp_zero",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "per_subtask"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {},
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E22-F3",
+          "title": "Method rank probability",
+          "purpose": "Compare rank distributions over valid tool-disjoint resamples.",
+          "role": "supporting",
+          "chart_type": "rankogram",
+          "data_file": "results/visualization/data/E22-F3.csv",
+          "x_axis": {
+            "field": "rank",
+            "label": "Rank"
+          },
+          "y_axis": {
+            "field": "probability",
+            "label": "Probability of rank"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "rank",
+              "probability",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "bm25",
+              "dense_lsa",
+              "rag_mcp",
+              "mcp_zero",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "per_subtask"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "y_format": "percent"
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E22-F4",
+          "title": "Effect size versus adjusted significance",
+          "purpose": "Separate confirmatory Holm and designated exploratory BH families.",
+          "role": "supporting",
+          "chart_type": "significance_scatter",
+          "data_file": "results/visualization/data/E22-F4.csv",
+          "x_axis": {
+            "field": "effect",
+            "label": "Paired effect size"
+          },
+          "y_axis": {
+            "field": "adjusted_p",
+            "label": "Holm/BH adjusted p-value"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "effect",
+              "adjusted_p",
+              "series"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "bm25",
+              "dense_lsa",
+              "rag_mcp",
+              "mcp_zero",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "per_subtask"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [
+              "ci_low",
+              "ci_high"
+            ],
+            "resampling": "Follow the experiment statistical contract and declared resampling unit."
+          },
+          "render_options": {
+            "log_y": true,
+            "reference_y": [
+              0.05,
+              0.01
+            ]
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        }
+      ]
+    }
+  ]
+}
