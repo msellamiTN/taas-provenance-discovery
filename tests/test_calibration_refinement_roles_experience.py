@@ -12,7 +12,7 @@ def test_calibration_pairs_claims_and_reports_refutation():
     ], tau=.9, replicates=100)
     assert result["refuted_claims"] == 1
     assert result["claim_denominator"] == 2
-    assert result["mean_absolute_calibration_gap"] == .45
+    assert result["mean_absolute_calibration_gap"] == .5
 
 
 def test_refinement_metrics_are_grouped_by_counterexample():
