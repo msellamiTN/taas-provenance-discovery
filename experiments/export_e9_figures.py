@@ -389,53 +389,81 @@ def export_e9_figures(
 
     # Preserve per-task evidence so later paired analyses can be reconstructed.
     per_task_columns = [
-        "task_id", "benchmark", "baseline", "task_group", "k",
+        "task_id", "benchmark", "baseline", "decomposition", "task_group", "k",
         "group_recall", "set_precision", "complete_set", "coverage",
         "reference_size", "predicted_size", "reference_semantics", "independent_unit_id",
     ]
     _write_csv(output_dir / "E9_per_task_metrics.csv", per_task_columns, per_task)
 
-    grouped: dict[tuple[str, str, int], list[dict[str, Any]]] = defaultdict(list)
-    group_by_task: dict[tuple[str, str, str, int], list[dict[str, Any]]] = defaultdict(list)
+    grouped: dict[tuple[str, str, str, int], list[dict[str, Any]]] = defaultdict(list)
+    group_by_task: dict[tuple[str, str, str, str, int], list[dict[str, Any]]] = defaultdict(list)
     for row in per_task:
-        grouped[(row["benchmark"], row["baseline"], row["k"])].append(row)
-        group_by_task[(row["benchmark"], row["baseline"], row["task_group"], row["k"])].append(row)
+        grouped[(row["benchmark"], row["decomposition"], row["baseline"], row["k"])].append(row)
+        group_by_task[
+            (row["benchmark"], row["decomposition"], row["baseline"], row["task_group"], row["k"])
+        ].append(row)
 
     f1_rows, f2_rows, f3_rows, ci_exclusions = [], [], [], []
-    for index, ((benchmark, baseline, k), observations) in enumerate(sorted(grouped.items())):
-        unit_obs = [(float(row["group_recall"]), str(row["independent_unit_id"])) for row in observations]
+    for (benchmark, decomposition, baseline, k), observations in sorted(grouped.items()):
+        unit_obs = [
+            (float(row["group_recall"]), str(row["independent_unit_id"]))
+            for row in observations
+        ]
         try:
             mean, low, high, n_units = _bootstrap_ci(
-                unit_obs, _stable_seed(seed, f"{benchmark}/{baseline}/{k}/group_recall"), bootstrap_resamples
+                unit_obs,
+                _stable_seed(seed, f"{benchmark}/{decomposition}/{baseline}/{k}/group_recall"),
+                bootstrap_resamples,
             )
         except ValueError as exc:
             ci_exclusions.append({
-                "figure_id": "E9-F1", "benchmark": benchmark, "baseline": baseline,
-                "k": k, "reason": str(exc), "n_tasks": len(observations),
+                "figure_id": "E9-F1",
+                "benchmark": benchmark,
+                "decomposition": decomposition,
+                "baseline": baseline,
+                "k": k,
+                "reason": str(exc),
+                "n_tasks": len(observations),
             })
             continue
+
         f1_rows.append({
-            "category": baseline, "series": f"Group recall@{k}", "value": mean,
-            "ci_low": low, "ci_high": high, "benchmark": benchmark,
-            "n": len(observations), "n_independent_units": n_units,
+            "category": baseline,
+            "series": f"Group recall@{k}",
+            "value": mean,
+            "ci_low": low,
+            "ci_high": high,
+            "benchmark": benchmark,
+            "decomposition": decomposition,
+            "n": len(observations),
+            "n_independent_units": n_units,
         })
         p_mean = sum(float(row["set_precision"]) for row in observations) / len(observations)
         r_mean = sum(float(row["group_recall"]) for row in observations) / len(observations)
         c_mean = sum(float(row["complete_set"]) for row in observations) / len(observations)
         f2_rows.append({
-            "set_precision": p_mean, "group_recall": r_mean,
-            "series": f"@{k}", "label": baseline,
-            "complete_set_share": c_mean, "benchmark": benchmark,
-            "n": len(observations), "n_independent_units": n_units,
+            "set_precision": p_mean,
+            "group_recall": r_mean,
+            "series": f"@{k}",
+            "label": baseline,
+            "complete_set_share": c_mean,
+            "benchmark": benchmark,
+            "decomposition": decomposition,
+            "n": len(observations),
+            "n_independent_units": n_units,
         })
 
-    for (benchmark, baseline, task_group, k), observations in sorted(group_by_task.items()):
-        if k != max(cutoffs):
-            continue
-        complete_share = sum(int(row["complete_set"]) for row in observations) / len(observations)
+    for (benchmark, decomposition, baseline, task_group, k), observations in sorted(group_by_task.items()):
+        complete_share = (
+            sum(int(row["complete_set"]) for row in observations) / len(observations)
+        )
         f3_rows.append({
-            "task_group": task_group, "method": baseline,
-            "value": complete_share, "benchmark": benchmark,
+            "task_group": task_group,
+            "method": baseline,
+            "value": complete_share,
+            "benchmark": benchmark,
+            "decomposition": decomposition,
+            "k": k,
             "n": len(observations),
         })
 
