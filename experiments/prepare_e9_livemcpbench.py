@@ -356,8 +356,8 @@ def prepare(
         audit_rows,
         [
             "task_id", "category", "declared_tool_count", "parsed_tool_mentions",
-            "resolved_tool_mentions", "ambiguous_tool_mentions", "unresolved_tool_names",
-            "count_matches", "status",
+            "resolved_tool_mentions", "unique_identity_mentions", "ambiguous_tool_mentions",
+            "unresolved_tool_names", "count_matches", "acceptable_set_alternative_count", "status",
         ],
     )
 
@@ -388,7 +388,11 @@ def prepare(
         "candidate_tool_count": len(discovery_tools),
         "candidate_server_count": len(servers),
         "primary_reference_semantics": (
-            "one benchmark-validated successful toolchain per eligible task"
+            "one benchmark-validated successful toolchain per eligible task; ambiguous "
+            "annotated names expand to all candidate server::tool identities"
+        ),
+        "protocol_denominator": (
+            "94 tasks with at least one resolvable gold tool mention, from the 95-task public set"
         ),
         "not_claimed": [
             "All possible valid toolchains are enumerated.",
@@ -398,10 +402,15 @@ def prepare(
         "resolution": counts,
         "exclusion_policy": {
             "ambiguous_tool_names": (
-                "exclude from primary set metrics; do not choose a server by name alone"
+                "include all candidate server::tool identities as acceptable alternatives; any candidate counts"
             ),
-            "unresolved_tool_names": "exclude from primary set metrics",
-            "declared_tool_count_mismatch": "exclude pending source/annotation audit",
+            "unresolved_tool_names": (
+                "retain names in the evaluator audit; omit unresolved mentions from the resolvable reference set"
+            ),
+            "declared_tool_count_mismatch": (
+                "record as an audit flag; do not exclude a task when at least one gold tool resolves"
+            ),
+            "no_resolvable_gold": "exclude only tasks with no resolvable gold tool mention",
         },
         "separation": {
             "discovery_tools": "discovery/tools.json",
@@ -414,8 +423,9 @@ def prepare(
         "limitations": [
             "This prepares tasks/references only; it contains no method rankings or E9 scores.",
             "Each eligible task has one successful benchmark-validated reference toolchain; alternatives may exist.",
-            "The strict 64-task subset requires unique server::tool identity resolution and agreement with Number of tools.",
-            "The 3 fully resolvable count-mismatch tasks and 28 ambiguous/unresolved tasks are excluded from primary metrics and retained in the audit.",
+            "Ambiguous tool names are represented by Cartesian acceptable-set alternatives over all candidate identities; this does not claim alternative task solutions beyond those identity ambiguities.",
+            "Five source tool mentions do not resolve to a candidate tool; they remain in the audit and are omitted from the resolvable reference sets.",
+            "Declared Number of tools mismatches remain visible in the audit and do not independently exclude otherwise resolvable tasks.",
             "Native LiveMCPBench task-success evaluation requires its runtime and LiveMCPEval judge.",
         ],
     }
