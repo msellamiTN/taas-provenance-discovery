@@ -27,6 +27,27 @@ live MCP probe/runtime and full E1–E22 execution pipeline are still being buil
 | `docs/GITHUB_RESEARCH.md` | related open-source code read for this work and what was reused |
 | `docs/RESULTS.md` | all results, generated from `results/*.json` |
 
+## Publication visualization framework
+
+The publication plot registry contains 80 figure contracts for E1-E22, with explicit axes, input columns, comparison assignments and uncertainty conventions. The plotting layer does not execute experiments or fabricate result rows.
+
+Install and validate the plotting framework:
+
+```bash
+pip install -e ".[visualization,test]"
+python experiments/plot_results.py validate
+python experiments/plot_results.py init-templates
+```
+
+Populate the generated CSVs only from validated experiment outputs, then validate and render:
+
+```bash
+python experiments/plot_results.py validate-data --experiment E8 --strict
+python experiments/plot_results.py render --experiment E8 --strict
+```
+
+Full workflow and per-figure axes are documented in [docs/VISUALIZATION_FRAMEWORK.md](docs/VISUALIZATION_FRAMEWORK.md) and [docs/experiment_design/pamcp_plot_plan_v1.json](docs/experiment_design/pamcp_plot_plan_v1.json).
+
 ## Definitive PaMCP experimental workbench
 
 The definitive E1–E22 design is versioned in `docs/experiment_design/pamcp_experiments_v1.json`. Its 31 method cards and experiment-specific baseline assignments are in `docs/experiment_design/pamcp_baselines_v1.json`.
