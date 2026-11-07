@@ -78,16 +78,18 @@ def policy_encoding_metrics(
     """E4/E5/E6 policy result bundle for one named encoding/method."""
     if set(rankings) != set(unsafe_reference) or set(rankings) != set(relevant_read_only):
         raise ValueError("Request IDs must match across rankings and references")
-    eligible = {request: set(eligible_tools.get(request, ())) for request in rankings}
-    filtered = {request: [tool for tool in ranking if tool in eligible[request]]
-                for request, ranking in rankings.items()}
+    visible = {request: set(rankings[request]) for request in rankings}
+    eligible = {request: set(eligible_tools.get(request, ())) & visible[request]
+                for request in rankings}
+    filtered = {request: [tool for tool in rankings[request] if tool in eligible[request]]
+                for request in rankings}
     exposure = exposure_at_k(filtered, unsafe_reference, k)
     utility = retrieval_metrics(filtered, relevant_read_only, ks=(5,))["hit@5"]
     return {
         "eligible_share": _ratio(
             "eligible_share",
             sum(len(eligible[r]) for r in eligible),
-            sum(len(set(rankings[r])) for r in rankings),
+            sum(len(visible[r]) for r in visible),
         ).to_dict(),
         "Exp@5": exposure.to_dict(),
         "Util@5": utility,
