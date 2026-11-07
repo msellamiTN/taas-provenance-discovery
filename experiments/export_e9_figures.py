@@ -191,9 +191,9 @@ def export_e9_figures(
     if not primary_executed and manifest_primary_id not in {None, primary_id}:
         raise ValueError(f"E9 manifest declares an unexpected primary configuration {manifest_primary_id!r}")
     executable_methods = executed | ({primary_id} if primary_executed and primary_id else set())
-    cutoffs = sorted({int(k) for k in manifest.get("ranking_cutoffs", [3, 5, 10])})
-    if not cutoffs or cutoffs[0] < 1 or cutoffs[-1] > 10:
-        raise ValueError("E9 ranking_cutoffs must be between 1 and 10")
+    cutoffs = sorted({int(k) for k in manifest.get("ranking_cutoffs", [5, 10, 20])})
+    if cutoffs != [5, 10, 20]:
+        raise ValueError("E9 ranking_cutoffs must match the protocol values [5, 10, 20]")
 
     ranking_rows = _read_jsonl(ranking_path)
     reference_rows = _read_jsonl(reference_path)
@@ -238,7 +238,7 @@ def export_e9_figures(
                 "declare an accepted reference class explicitly"
             )
 
-    seen: set[tuple[str, str, str]] = set()
+    seen: set[tuple[str, str, str, str]] = set()
     per_task: list[dict[str, Any]] = []
     task_meta: dict[tuple[str, str], dict[str, Any]] = {}
     diagnostic_rows: list[dict[str, Any]] = []
@@ -258,12 +258,15 @@ def export_e9_figures(
         benchmark = str(row.get("benchmark", "")).strip()
         baseline = str(row.get("baseline", "")).strip()
         task_group = str(row.get("task_group") or "unspecified")
+        decomposition = str(row.get("decomposition") or "").strip()
         key = (benchmark, task_id)
-        if not task_id or not benchmark or not baseline:
-            raise ValueError("E9 discovery rows require task_id, benchmark and baseline")
+        if not task_id or not benchmark or not baseline or not decomposition:
+            raise ValueError("E9 discovery rows require task_id, benchmark, baseline and decomposition")
+        if decomposition not in {"none", "clause_splitter", "llm_analyst"}:
+            raise ValueError(f"{benchmark}/{task_id}: unknown decomposition condition {decomposition!r}")
         if baseline not in executable_methods:
             raise ValueError(f"{benchmark}/{task_id}: method {baseline!r} absent from executed baseline/primary-configuration manifest")
-        pair = (benchmark, task_id, baseline)
+        pair = (benchmark, task_id, baseline, decomposition)
         if pair in seen:
             raise ValueError(f"Duplicate E9 discovery ranking: {pair}")
         seen.add(pair)
@@ -290,7 +293,7 @@ def export_e9_figures(
                     intersection = len(predicted & ref_tools)
                     diagnostic_rows.append({
                         "task_id": task_id, "benchmark": benchmark, "baseline": baseline,
-                        "task_group": task_group, "k": k,
+                        "task_group": task_group, "decomposition": decomposition, "k": k,
                         "trace_coverage": intersection / len(ref_tools) if ref_tools else "",
                         "reference_trace_size": len(ref_tools),
                         "reference_semantics": trace["reference_semantics"],
@@ -318,6 +321,7 @@ def export_e9_figures(
                 "benchmark": benchmark,
                 "baseline": baseline,
                 "task_group": task_group,
+                "decomposition": decomposition,
                 "k": k,
                 "group_recall": recall,
                 "set_precision": precision,
