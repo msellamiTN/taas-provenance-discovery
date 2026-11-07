@@ -223,6 +223,11 @@ def load_mcptoolbenchpp_track(raw_root: str | Path) -> DatasetTrack:
     exclusions = defaultdict(int)
     for task in tasks_raw:
         exclusions["tasks_total"] += 1
+        raw_row = raw_task_rows.get((task.category, task.id), {})
+        call_type = str(raw_row.get("call_type") or "single").strip().casefold()
+        if call_type not in {"single", "single_step", "single-step", "single_call", "single call"}:
+            exclusions["not_single_call_type"] += 1
+            continue
         if not task.query.strip():
             exclusions["empty_query"] += 1
             continue
@@ -240,7 +245,6 @@ def load_mcptoolbenchpp_track(raw_root: str | Path) -> DatasetTrack:
         qrels[task_id] = {target: 1.0}
         clusters[task_id] = tools_by_id[target].server
 
-        raw_row = raw_task_rows.get((task.category, task.id), {})
         labels = raw_row.get("function_call_label") or []
         primary_label = labels[0] if labels else {}
         similar = primary_label.get("similar_tools") or []
@@ -940,7 +944,7 @@ def _write_per_task_csv(
     track: DatasetTrack, rankings: Mapping[str, Mapping[str, Sequence[str]]], output_dir: Path
 ) -> None:
     path = output_dir / f"{track.dataset_id}_per_task_metrics.csv"
-    fields = ["baseline", "task_id", "category", "metric", "k", "value"]
+    fields = ["baseline", "task_id", "category", "cluster_id", "metric", "k", "value"]
     with path.open("w", encoding="utf-8", newline="") as stream:
         writer = csv.DictWriter(stream, fieldnames=fields)
         writer.writeheader()
@@ -953,6 +957,7 @@ def _write_per_task_csv(
                     writer.writerow({
                         "baseline": baseline, "task_id": task_id,
                         "category": category_by_id.get(task_id, "unknown"),
+                        "cluster_id": track.cluster_by_task.get(task_id, ""),
                         "metric": metric, "k": k, "value": value,
                     })
 
