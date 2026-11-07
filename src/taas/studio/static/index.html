@@ -1203,7 +1203,12 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
           <textarea id="ux9-trace-input" spellcheck="false" placeholder="Paste a taas.objective-skill-traceability/v1 object"></textarea>
           <div class="inline-actions"><button type="button" id="ux9-project">Build projection</button><button type="button" class="secondary" id="ux9-clear">Clear</button></div>
           <p class="subtle" id="ux9-status" role="status" aria-live="polite">No traceability input loaded. No graph has been synthesized.</p>
-          <h3 style="margin-top:14px">Projected entities</h3><div id="ux9-entity-list" class="ux9-list"><div class="ux9-empty">No projected entities.</div></div>
+          <h3 style="margin-top:14px">GoalSpecs &amp; objectives</h3><div id="ux9-group-objectives" class="ux9-list"><div class="ux9-empty">No objective records reported.</div></div>
+          <h3 style="margin-top:12px">Sub-goals</h3><div id="ux9-group-subgoals" class="ux9-list"><div class="ux9-empty">No sub-goal records reported.</div></div>
+          <h3 style="margin-top:12px">Toolsets &amp; skills</h3><div id="ux9-group-tools" class="ux9-list"><div class="ux9-empty">No toolset or skill records reported.</div></div>
+          <h3 style="margin-top:12px">Evidence</h3><div id="ux9-group-evidence" class="ux9-list"><div class="ux9-empty">No evidence records reported.</div></div>
+          <h3 style="margin-top:12px">Experiments</h3><div id="ux9-group-experiments" class="ux9-list"><div class="ux9-empty">No experiment records reported.</div></div>
+          <div id="ux9-entity-list" hidden></div>
         </aside>
         <div class="ux9-pane"><div class="panel-head"><h3>Relationship graph</h3><span class="ux9-state" id="ux9-counts">0 entities · 0 relations</span></div>
           <div id="ux9-canvas" class="ux9-canvas"><div class="ux9-empty">Submit a supported traceability object to display its Core-owned projection.</div></div>
@@ -3498,9 +3503,21 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       const vs=visibleVertices(),es=selectedEdgeList();
       $9("ux9-projection-state").textContent="PROJECTION AVAILABLE";
       $9("ux9-counts").textContent=vs.length+" entities · "+es.length+" relations";
+      const groups={objectives:[],subgoals:[],tools:[],evidence:[],experiments:[]};
+      vs.forEach(v=>{
+        const id=String(v.id||"").toLowerCase(),kind=String(v.kind||v.type||"").toLowerCase();
+        if(kind.includes("experiment")||id.startsWith("experiment:"))groups.experiments.push(v);
+        else if(kind.includes("evidence")||id.startsWith("evidence:"))groups.evidence.push(v);
+        else if(kind.includes("skill")||kind.includes("tool")||id.startsWith("skill:")||id.startsWith("tool:"))groups.tools.push(v);
+        else if(v.parent_goal_id||v.parent_id||id.includes("subgoal")||id.startsWith("sub-goal:"))groups.subgoals.push(v);
+        else groups.objectives.push(v);
+      });
+      Object.entries(groups).forEach(([group,items])=>{
+        const host=$9("ux9-group-"+group);host.replaceChildren();
+        if(!items.length){host.append(safeNode("div","No "+group+" records reported."));return;}
+        items.forEach(v=>{const b=safeNode("button",(v.kind||"entity")+" · "+(v.label||v.name||v.id));b.type="button";b.className="ux9-item";b.dataset.id=v.id;b.setAttribute("aria-pressed",String(state.selected?.id===v.id));b.addEventListener("click",()=>inspect("entity",v));host.append(b);});
+      });
       const list=$9("ux9-entity-list");list.replaceChildren();
-      vs.forEach(v=>{const b=safeNode("button",(v.kind||"entity")+" · "+(v.label||v.name||v.id));b.type="button";b.className="ux9-item";b.dataset.id=v.id;b.setAttribute("aria-pressed",String(state.selected?.id===v.id));b.addEventListener("click",()=>inspect("entity",v));list.append(b);});
-      if(!vs.length)list.append(safeNode("div","No entities match the active filters."));
       const canvas=$9("ux9-canvas");canvas.replaceChildren();
       if(!vs.length){canvas.append(safeNode("div","No projected graph records available for these filters."));return;}
       const width=760,height=Math.max(300,Math.ceil(vs.length/3)*100),svg=document.createElementNS("http://www.w3.org/2000/svg","svg");svg.setAttribute("viewBox","0 0 "+width+" "+height);svg.setAttribute("role","img");svg.setAttribute("aria-label","Core-projected objective traceability graph");
