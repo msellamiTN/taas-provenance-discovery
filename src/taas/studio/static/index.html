@@ -584,6 +584,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <a href="#operations-command-center">Operations Command Center (UX-11)</a>
       <a href="#provenance-inspector">Evidence &amp; Provenance Inspector (UX-12)</a>
       <a href="#agent-lifecycle-center">Agent Lifecycle &amp; Version Control (UX-13)</a>
+      <a href="#skill-lifecycle-center">Skill Lifecycle &amp; Version Control (UX-14)</a>
       <span class="nav-label">OPERATE &amp; OBSERVE</span>
       <a href="#workspace">Benchmark workspace</a>
       <a class="overview-shortcut" href="#runtime">Runtime diagnostics</a>
@@ -1269,6 +1270,57 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   <p class="ux8-note">This workspace performs GET requests only. It does not publish an Agent, create or revoke approvals, grant authorization, invoke MCP tools, start a worker, or execute an Agent. Approval is evidence, not authorization; readiness is diagnostic, not execution permission.</p>
 </section>
 
+
+
+<section id="skill-lifecycle-center" class="section-anchor" aria-labelledby="ux14-title" style="margin-bottom:18px">
+  <div class="panel-head"><div><div class="eyebrow">BUILD &amp; GOVERN · UX-14</div><h2 id="ux14-title" style="margin:4px 0">Skills Lifecycle &amp; Version Control Center</h2><p class="subtle">Inspect immutable Skill versions, dependency pins, lifecycle events, signature evidence and revocation records.</p></div><span class="pill">Core-backed · read-only inspector</span></div>
+  <div class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px">
+    <div class="ux8-card"><div class="eyebrow">SKILL VERSIONS</div><strong id="ux14-count-versions">—</strong><p class="subtle">Registry records returned</p></div>
+    <div class="ux8-card"><div class="eyebrow">DISTINCT SKILLS</div><strong id="ux14-count-skills">—</strong><p class="subtle">Derived from returned IDs</p></div>
+    <div class="ux8-card"><div class="eyebrow">PUBLISHED</div><strong id="ux14-count-published">—</strong><p class="subtle">Lifecycle state reported</p></div>
+    <div class="ux8-card"><div class="eyebrow">REVOKED</div><strong id="ux14-count-revoked">—</strong><p class="subtle">Revocation records flagged</p></div>
+  </div>
+  <div class="ux8-card" style="margin-bottom:12px">
+    <div class="inline-actions" style="margin-top:0;justify-content:space-between"><div><strong>Skill registry</strong><p class="subtle" style="margin:3px 0">Search and select an exact immutable version.</p></div><button id="ux14-refresh" type="button">Refresh registry</button></div>
+    <div class="field-grid" style="display:grid;grid-template-columns:minmax(180px,1fr) auto;gap:10px;align-items:end;margin-top:10px">
+      <label>Filter by Skill ID<input id="ux14-filter" type="search" autocomplete="off" placeholder="Search Skill ID"></label>
+      <span id="ux14-status" class="subtle" role="status" aria-live="polite">Registry not loaded.</span>
+    </div>
+    <div style="overflow:auto;margin-top:10px"><table class="coverage-table" aria-label="Skill version inventory"><thead><tr><th>Skill ID</th><th>Version</th><th>Lifecycle</th><th>Revoked</th><th>Manifest SHA-256</th><th>Updated</th><th>Inspect</th></tr></thead><tbody id="ux14-inventory"><tr><td colspan="7">No registry response loaded.</td></tr></tbody></table></div>
+  </div>
+  <div class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px">
+    <div class="ux8-card">
+      <div class="panel-head"><h3>Exact Skill version</h3><span class="pill" id="ux14-version-state">NOT SELECTED</span></div>
+      <p class="subtle" id="ux14-version-summary">Select a registry row to inspect its exact manifest and fingerprint.</p>
+      <pre id="ux14-version-detail" style="min-height:220px">No Skill version inspected.</pre>
+    </div>
+    <div class="ux8-card">
+      <div class="panel-head"><h3>Dependency graph</h3><span class="pill">Exact-pinned resolution</span></div>
+      <p class="subtle">Core-resolved dependency graph. A graph response is not a semantic correctness proof or authorization.</p>
+      <pre id="ux14-dependency-detail" style="min-height:220px">No dependency graph inspected.</pre>
+    </div>
+    <div class="ux8-card">
+      <div class="panel-head"><h3>Signature evidence</h3><span class="pill">Registry-attested scope</span></div>
+      <pre id="ux14-signature-detail" style="min-height:160px">No signature status inspected.</pre>
+      <div class="panel-head" style="margin-top:12px"><h3>Revocation status</h3><span class="pill">Immutable record</span></div>
+      <pre id="ux14-revocation-detail" style="min-height:120px">No revocation status inspected.</pre>
+    </div>
+    <div class="ux8-card">
+      <div class="panel-head"><h3>Lifecycle events</h3><span class="pill">Registry event history</span></div>
+      <pre id="ux14-events-detail" style="min-height:220px">No lifecycle events inspected.</pre>
+    </div>
+  </div>
+  <div class="ux8-card" style="margin-top:12px">
+    <div class="panel-head"><h3>Security and interpretation boundaries</h3><span class="pill">Fail-closed presentation</span></div>
+    <div class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px">
+      <div><strong>Version integrity</strong><p class="subtle">The manifest digest binds the stored version bytes; it does not prove their meaning or safety.</p></div>
+      <div><strong>Signatures</strong><p class="subtle">Signature status is registry-attested evidence, not portable identity or proof that assessor claims are true.</p></div>
+      <div><strong>Dependencies</strong><p class="subtle">The graph reports exact dependency resolution and may include revoked dependencies when Core explicitly allows inspection.</p></div>
+      <div><strong>Revocation</strong><p class="subtle">Revocation is an immutable provenance event, not deletion and not a direct authorization change.</p></div>
+    </div>
+  </div>
+  <p class="ux8-note">This workspace issues GET requests only to the Skill registry, exact-version, dependency-graph, lifecycle-events, signature and revocation-status endpoints. It does not create, validate, publish, sign or revoke Skills. Registry metadata reports <code>tenant_isolation=false</code>. Structural validation is not semantic correctness; signatures and approvals do not grant tool authorization or execution.</p>
+</section>
 
 <section id="agent-lifecycle-center" class="section-anchor" aria-labelledby="ux13-title" style="margin-bottom:18px">
   <div class="panel-head"><div><div class="eyebrow">BUILD &amp; GOVERN · UX-13</div><h2 id="ux13-title" style="margin:4px 0">Agent Lifecycle &amp; Version Control</h2><p class="subtle">Inspect registered Agent versions, immutable manifest fingerprints, lifecycle events and exact-version metadata from TaaS Core.</p></div><span class="pill">Read-only · registry-backed</span></div>
@@ -2523,6 +2575,74 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       return {detail:"HTTP "+response.status+": "+msg};
     }
   };
+
+
+  // UX-14: read-only Skill lifecycle, version, dependency and assurance inspector.
+  let ux14Versions=[];
+  const ux14Text=value=>value===null||value===undefined||value===""?"Not reported":String(value);
+  const ux14Render=()=>{
+    const body=$("ux14-inventory");if(!body)return;
+    const query=($("ux14-filter")?.value||"").trim().toLowerCase();
+    const rows=ux14Versions.filter(x=>!query||String(x.skill_id||"").toLowerCase().includes(query));
+    body.replaceChildren();
+    if(!rows.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=7;td.textContent=ux14Versions.length?"No Skill IDs match this filter.":"No Skill versions returned.";tr.append(td);body.append(tr);return;}
+    rows.forEach(item=>{
+      const tr=document.createElement("tr");
+      [item.skill_id,item.version,item.lifecycle_state,item.revoked===true?"Yes":item.revoked===false?"No":"Not reported",item.manifest_sha256,item.updated_at].forEach(value=>{const td=document.createElement("td");td.textContent=ux14Text(value);tr.append(td);});
+      const td=document.createElement("td"),button=document.createElement("button");button.type="button";button.className="secondary";button.textContent="Inspect";button.style.margin="0";button.addEventListener("click",()=>ux14Inspect(item.skill_id,item.version));td.append(button);tr.append(td);body.append(tr);
+    });
+  };
+  const ux14Refresh=async()=>{
+    const status=$("ux14-status"),button=$("ux14-refresh");status.textContent="Loading Skill registry…";button.disabled=true;
+    try{
+      const data=await apiGet("/api/v1/skills?limit=500");
+      if(!data||!Array.isArray(data.versions))throw new Error("Core response did not contain the expected versions array.");
+      ux14Versions=data.versions;
+      $("ux14-count-versions").textContent=String(ux14Versions.length);
+      $("ux14-count-skills").textContent=String(new Set(ux14Versions.map(x=>x.skill_id).filter(Boolean)).size);
+      $("ux14-count-published").textContent=String(ux14Versions.filter(x=>x.lifecycle_state==="published").length);
+      $("ux14-count-revoked").textContent=String(ux14Versions.filter(x=>x.revoked===true).length);
+      ux14Render();
+      status.textContent="Core returned "+ux14Versions.length+" version(s) · persistence: "+ux14Text(data.persistence)+" · tenant isolation: "+ux14Text(data.tenant_isolation);
+    }catch(error){
+      ux14Versions=[];ux14Render();
+      ["ux14-count-versions","ux14-count-skills","ux14-count-published","ux14-count-revoked"].forEach(id=>$(id).textContent="—");
+      status.textContent="Registry unavailable: "+error.message;
+    }finally{button.disabled=false;}
+  };
+  const ux14Inspect=async(skillId,version)=>{
+    const id=encodeURIComponent(skillId),ver=encodeURIComponent(version);
+    $("ux14-version-state").textContent="LOADING";
+    $("ux14-version-summary").textContent=skillId+" · "+version;
+    ["ux14-version-detail","ux14-dependency-detail","ux14-signature-detail","ux14-revocation-detail","ux14-events-detail"].forEach(key=>$(key).textContent="Loading Core evidence…");
+    const requests=await Promise.allSettled([
+      apiGet("/api/v1/skills/"+id+"/versions/"+ver),
+      apiGet("/api/v1/skills/"+id+"/versions/"+ver+"/dependency-graph"),
+      apiGet("/api/v1/skills/"+id+"/versions/"+ver+"/signature"),
+      apiGet("/api/v1/skills/"+id+"/versions/"+ver+"/revocation"),
+      apiGet("/api/v1/skills/events?skill_id="+id+"&limit=100")
+    ]);
+    const names=["version-detail","dependency-detail","signature-detail","revocation-detail","events-detail"];
+    requests.forEach((result,index)=>{
+      const host=$( "ux14-"+names[index] );
+      if(result.status==="fulfilled"){
+        const value=result.value;
+        if(index===0){
+          $("ux14-version-state").textContent=ux14Text(value.lifecycle_state).toUpperCase()+(value.revoked===true?" · REVOKED":"");
+          $("ux14-version-summary").textContent=value.skill_id+" · "+value.version+" · SHA-256 "+ux14Text(value.manifest_sha256)+" · semantic correctness verified: "+ux14Text(value.semantic_correctness_verified);
+        }
+        if(index===4){
+          const events=Array.isArray(value.events)?value.events.filter(item=>item.version===version):[];
+          host.textContent=JSON.stringify({count:events.length,events},null,2);
+        }else host.textContent=JSON.stringify(value,null,2);
+      }else{
+        host.textContent="Unavailable: "+result.reason.message;
+        if(index===0){$("ux14-version-state").textContent="UNAVAILABLE";$("ux14-version-summary").textContent="Exact-version record could not be verified.";}
+      }
+    });
+  };
+  $("ux14-refresh")?.addEventListener("click",ux14Refresh);
+  $("ux14-filter")?.addEventListener("input",ux14Render);
 
   // UX-13: read-only Agent registry lifecycle and immutable version inspector.
   let ux13Versions = [];
