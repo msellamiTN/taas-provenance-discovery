@@ -52,21 +52,25 @@ def probe_coverage(
     observed: Mapping[str, Iterable[str] | None],
     definition_hashes: Mapping[str, str],
     observed_hashes: Mapping[str, str],
+    probeable_tool_ids: Iterable[str] | None = None,
 ) -> dict:
+    """Separate credential-free probeability from actual hash-matched probe coverage."""
     ids = set(tool_ids)
+    probeable = set(probeable_tool_ids or ()) & ids
     matched = {
-        tool for tool in ids
+        tool for tool in probeable
         if observed.get(tool) is not None
         and definition_hashes.get(tool)
         and definition_hashes.get(tool) == observed_hashes.get(tool)
     }
     return {
-        "probe_coverage": _ratio("probe_coverage", len(matched), len(ids)).to_dict(),
-        "probeable_share": _ratio("probeable_share", len(matched), len(ids)).to_dict(),
+        "probeable_share": _ratio("probeable_share", len(probeable), len(ids)).to_dict(),
+        "probe_coverage": _ratio("probe_coverage", len(matched), len(probeable)).to_dict(),
         "n_registry_tools": len(ids),
+        "n_probeable_tools": len(probeable),
         "n_hash_matched_observations": len(matched),
+        "probeable_inventory_supplied": probeable_tool_ids is not None,
     }
-
 
 def policy_encoding_metrics(
     rankings: Mapping[str, Sequence[str]],
