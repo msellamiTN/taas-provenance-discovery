@@ -25,14 +25,20 @@ def main() -> int:
     document = json.loads(raw)
     if not isinstance(document, dict) or not isinstance(document.get("payload"), dict):
         raise ValueError("Input JSON must be an object containing a payload object")
-    result = evaluate_payload(args.experiment, document["payload"])
+    required_metadata = ("protocol_version", "dataset_snapshot_hash", "definition_hash_manifest")
+    missing_metadata = [key for key in required_metadata if not document.get(key)]
+    if missing_metadata:
+        raise ValueError(f"Frozen input metadata missing: {missing_metadata}")
+    payload = dict(document["payload"])
+    payload.setdefault("seed", args.seed)
+    result = evaluate_payload(args.experiment, payload)
     output = {
         "schema_version": "1.0.0",
         "experiment_id": args.experiment,
         "run_id": args.run_id,
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
         "seed": args.seed,
-        "protocol_version": document.get("protocol_version", "1.0.0"),
+        "protocol_version": document["protocol_version"],
         "dataset_snapshot_hash": document.get("dataset_snapshot_hash"),
         "definition_hash_manifest": document.get("definition_hash_manifest"),
         "input_sha256": input_sha256,
