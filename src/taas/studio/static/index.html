@@ -583,6 +583,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <a href="#release-center">Release Center (UX-10)</a>
       <a href="#operations-command-center">Operations Command Center (UX-11)</a>
       <a href="#provenance-inspector">Evidence &amp; Provenance Inspector (UX-12)</a>
+      <a href="#agent-lifecycle-center">Agent Lifecycle &amp; Version Control (UX-13)</a>
       <span class="nav-label">OPERATE &amp; OBSERVE</span>
       <a href="#workspace">Benchmark workspace</a>
       <a class="overview-shortcut" href="#runtime">Runtime diagnostics</a>
@@ -1266,6 +1267,55 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     <details><summary>Human approval records</summary><pre id="ux10-approvals-result">No approval records inspected.</pre></details>
   </div>
   <p class="ux8-note">This workspace performs GET requests only. It does not publish an Agent, create or revoke approvals, grant authorization, invoke MCP tools, start a worker, or execute an Agent. Approval is evidence, not authorization; readiness is diagnostic, not execution permission.</p>
+</section>
+
+
+<section id="agent-lifecycle-center" class="section-anchor" aria-labelledby="ux13-title" style="margin-bottom:18px">
+  <div class="panel-head"><div><div class="eyebrow">BUILD &amp; GOVERN · UX-13</div><h2 id="ux13-title" style="margin:4px 0">Agent Lifecycle &amp; Version Control</h2><p class="subtle">Inspect registered Agent versions, immutable manifest fingerprints, lifecycle events and exact-version metadata from TaaS Core.</p></div><span class="pill">Read-only · registry-backed</span></div>
+  <div class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px">
+    <div class="ux8-card"><div class="eyebrow">REGISTERED VERSIONS</div><strong id="ux13-count-versions">—</strong><p class="subtle">Returned by registry</p></div>
+    <div class="ux8-card"><div class="eyebrow">DISTINCT AGENTS</div><strong id="ux13-count-agents">—</strong><p class="subtle">Derived from returned IDs</p></div>
+    <div class="ux8-card"><div class="eyebrow">VALIDATED</div><strong id="ux13-count-validated">—</strong><p class="subtle">Lifecycle state reported</p></div>
+    <div class="ux8-card"><div class="eyebrow">PUBLISHED</div><strong id="ux13-count-published">—</strong><p class="subtle">Lifecycle state reported</p></div>
+  </div>
+  <div class="ux8-card" style="margin-bottom:12px">
+    <div class="inline-actions" style="margin-top:0;justify-content:space-between">
+      <div><strong>Agent registry inventory</strong><p class="subtle" style="margin:3px 0">Select a version to inspect its exact immutable record.</p></div>
+      <button id="ux13-refresh" type="button">Refresh inventory</button>
+    </div>
+    <div class="field-grid" style="display:grid;grid-template-columns:minmax(180px,1fr) auto;gap:10px;align-items:end;margin-top:10px">
+      <label>Filter by Agent ID<input id="ux13-filter" type="search" autocomplete="off" placeholder="Optional exact or partial ID"></label>
+      <span id="ux13-inventory-status" class="subtle" role="status" aria-live="polite">Inventory has not been loaded.</span>
+    </div>
+    <div style="overflow:auto;margin-top:10px">
+      <table class="coverage-table" aria-label="Registered Agent versions">
+        <thead><tr><th>Agent ID</th><th>Version</th><th>Lifecycle</th><th>Manifest SHA-256</th><th>Created</th><th>Inspect</th></tr></thead>
+        <tbody id="ux13-inventory-body"><tr><td colspan="6">No registry response loaded.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px">
+    <div class="ux8-card">
+      <div class="panel-head"><h3>Selected Agent version</h3><span class="pill" id="ux13-selected-state">NOT SELECTED</span></div>
+      <p class="subtle" id="ux13-selected-summary">Select a row in the inventory to load the exact version record.</p>
+      <pre id="ux13-version-result" style="min-height:180px">No Agent version inspected.</pre>
+    </div>
+    <div class="ux8-card">
+      <div class="panel-head"><h3>Lifecycle event history</h3><span class="pill">Append-only API view</span></div>
+      <p class="subtle">Events are displayed as returned by Core. Missing events are not inferred.</p>
+      <pre id="ux13-events-result" style="min-height:180px">No lifecycle events inspected.</pre>
+    </div>
+  </div>
+  <div class="ux8-card" style="margin-top:12px">
+    <div class="panel-head"><h3>Manifest and registry boundaries</h3><span class="pill">Interpretation constraints</span></div>
+    <div class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px">
+      <div><strong>Immutable version</strong><p class="subtle">Manifest content and digest are registry-reported; this view does not mutate them.</p></div>
+      <div><strong>Lifecycle state</strong><p class="subtle">Draft, validated and published are configuration lifecycle states, not runtime states.</p></div>
+      <div><strong>Validation</strong><p class="subtle">Structural validation does not establish semantic correctness or safe behavior.</p></div>
+      <div><strong>Authorization</strong><p class="subtle">Publication, policy diagnostics and approval evidence do not grant tool authorization or execution.</p></div>
+    </div>
+  </div>
+  <p class="ux8-note">This workspace performs GET requests only: <code>/api/v1/agents</code>, exact-version retrieval and <code>/api/v1/agents/events</code>. It does not create, validate, publish, approve, revoke, authorize, invoke MCP tools, or execute Agents. Registry persistence reports <code>tenant_isolation=false</code>; do not treat this single-service registry as multi-tenant isolation.</p>
 </section>
 
 <section id="objective-traceability-explorer" class="section-anchor" aria-labelledby="ux9-title" style="margin-bottom:18px">
@@ -2473,6 +2523,71 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       return {detail:"HTTP "+response.status+": "+msg};
     }
   };
+
+  // UX-13: read-only Agent registry lifecycle and immutable version inspector.
+  let ux13Versions = [];
+  let ux13Selected = null;
+  const ux13Text = (value) => value === null || value === undefined || value === "" ? "Not reported" : String(value);
+  const ux13RenderInventory = () => {
+    const body=$("ux13-inventory-body"); if(!body) return;
+    const query=($("ux13-filter")?.value||"").trim().toLowerCase();
+    const rows=ux13Versions.filter(item=>!query || String(item.agent_id||"").toLowerCase().includes(query));
+    body.replaceChildren();
+    if(!rows.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=6;td.textContent=ux13Versions.length?"No Agent IDs match this filter.":"No Agent versions were returned.";tr.append(td);body.append(tr);return;}
+    rows.forEach(item=>{
+      const tr=document.createElement("tr");
+      [item.agent_id,item.version,item.lifecycle_state,item.manifest_sha256,item.created_at].forEach(value=>{const td=document.createElement("td");td.textContent=ux13Text(value);tr.append(td);});
+      const action=document.createElement("td"),button=document.createElement("button");button.type="button";button.className="secondary";button.textContent="Inspect";button.style.margin="0";
+      button.addEventListener("click",()=>ux13Inspect(item.agent_id,item.version));action.append(button);tr.append(action);body.append(tr);
+    });
+  };
+  const ux13Refresh = async () => {
+    const status=$("ux13-inventory-status"); if(status) status.textContent="Loading registry inventory…";
+    const button=$("ux13-refresh"); if(button) button.disabled=true;
+    try{
+      const data=await apiGet("/api/v1/agents?limit=500");
+      if(!data || !Array.isArray(data.versions)) throw new Error("Core response did not contain the expected versions array.");
+      ux13Versions=data.versions;
+      const ids=new Set(ux13Versions.map(x=>x.agent_id).filter(Boolean));
+      $("ux13-count-versions").textContent=String(ux13Versions.length);
+      $("ux13-count-agents").textContent=String(ids.size);
+      $("ux13-count-validated").textContent=String(ux13Versions.filter(x=>x.lifecycle_state==="validated").length);
+      $("ux13-count-published").textContent=String(ux13Versions.filter(x=>x.lifecycle_state==="published").length);
+      ux13RenderInventory();
+      status.textContent="Core returned "+ux13Versions.length+" version record(s) · persistence: "+ux13Text(data.persistence)+" · tenant isolation: "+ux13Text(data.tenant_isolation);
+    }catch(error){
+      ux13Versions=[];ux13RenderInventory();
+      ["ux13-count-versions","ux13-count-agents","ux13-count-validated","ux13-count-published"].forEach(id=>$(id).textContent="—");
+      status.textContent="Inventory unavailable: "+error.message;
+    }finally{if(button)button.disabled=false;}
+  };
+  const ux13Inspect = async (agentId,version) => {
+    ux13Selected={agentId,version};
+    $("ux13-selected-state").textContent="LOADING";
+    $("ux13-selected-summary").textContent=agentId+" · "+version;
+    $("ux13-version-result").textContent="Loading exact version record…";
+    $("ux13-events-result").textContent="Loading lifecycle events…";
+    const encoded=encodeURIComponent(agentId);
+    try{
+      const [record,events]=await Promise.all([
+        apiGet("/api/v1/agents/"+encoded+"/versions/"+encodeURIComponent(version)),
+        apiGet("/api/v1/agents/events?agent_id="+encoded+"&limit=200")
+      ]);
+      $("ux13-selected-state").textContent=ux13Text(record.lifecycle_state).toUpperCase();
+      $("ux13-selected-summary").textContent=record.agent_id+" · "+record.version+" · SHA-256 "+ux13Text(record.manifest_sha256);
+      $("ux13-version-result").textContent=JSON.stringify(record,null,2);
+      const eventRows=Array.isArray(events.events)?events.events.filter(item=>item.version===version):[];
+      $("ux13-events-result").textContent=JSON.stringify({count:eventRows.length,events:eventRows},null,2);
+    }catch(error){
+      $("ux13-selected-state").textContent="UNAVAILABLE";
+      $("ux13-selected-summary").textContent="Exact-version inspection failed; no lifecycle state is inferred.";
+      $("ux13-version-result").textContent=error.message;
+      $("ux13-events-result").textContent="Lifecycle events unavailable for this inspection.";
+    }
+  };
+  $("ux13-refresh")?.addEventListener("click",ux13Refresh);
+  $("ux13-filter")?.addEventListener("input",ux13RenderInventory);
+
   const apiGet = async (path) => {
     const token=tokenValue(); if(!token) throw new Error("Connect to TaaS Studio in the application header first.");
     const r=await fetch(path,{headers:{"Authorization":"Bearer "+token}});
