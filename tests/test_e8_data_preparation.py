@@ -22,7 +22,7 @@ def test_mcp_toolbench_download_is_pinned_verified_and_idempotent(tmp_path, monk
 
     def downloader(url: str) -> bytes:
         calls.append(url)
-        assert "/a" * 1 in url
+        assert "/" + "a" * 40 + "/data/browser/fixture.json" in url
         return payload
 
     raw_root = tmp_path / "data" / "raw"
