@@ -74,7 +74,7 @@ def probe_coverage(
 
 def policy_encoding_metrics(
     rankings: Mapping[str, Sequence[str]],
-    unsafe_reference: Mapping[str, Iterable[str]],
+    unsafe_reference: Mapping[str, Iterable[str] | None],
     relevant_read_only: Mapping[str, Iterable[str]],
     eligible_tools: Mapping[str, Iterable[str]],
     k: int = 5,
