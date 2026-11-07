@@ -12,7 +12,7 @@ or test has been committed.
 |---|---|---|
 | E1 Registry characterization | `registry_typing_evaluators.registry_characterization` | Frozen registry snapshot |
 | E2 Semantic typing quality | `semantic_typing_metrics`, `typing_threshold_curve` | Independent human reference labels; missing labels block empirical scores |
-| E3 Declared vs observed effects | `provenance_policy_evaluators.effect_discrepancy`, `probe_coverage` | Hash-bound independent observed-effect records |
+| E3 Declared vs observed effects | `provenance_policy_evaluators.effect_discrepancy`, `probe_coverage` | Hash-bound independent observed-effect records plus an independent credential-free probeable-server inventory |
 | E4 Policy exposure | `policy_encoding_metrics` | Rankings, independent unsafe labels, read-only qrels, per-encoding eligibility |
 | E5 Forged/laundered metadata | `malicious_provider_exposure_curve` | Explicit malicious-provider assignments and provider mapping |
 | E6 Imperfect verifier | `verifier_error_rates`, `verifier_threshold_sweep` | Independent labels and actual frozen verifier scores; FAR = unsafe accepted as safe |
