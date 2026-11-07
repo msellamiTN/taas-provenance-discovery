@@ -184,6 +184,8 @@ def test_renderer_smoke_covers_all_chart_families(tmp_path):
         "E12-F2": pd.DataFrame({
             "claimed": [0.3, 0.7, 0.9],
             "measured": [0.25, 0.65, 0.82],
+            "ci_low": [0.20, 0.60, 0.78],
+            "ci_high": [0.30, 0.70, 0.86],
             "series": ["model-a"] * 3,
         }),
         "E13-F3": pd.DataFrame({
