@@ -47,10 +47,14 @@ def model_profile_calibration(records: Sequence[Mapping], *, tau: float = .9,
 
 
 def refinement_metrics(records: Sequence[Mapping]) -> dict:
-    """E17 repair success, iteration count, abstention and token use by chi type."""
+    """E17 repair success, iteration count, abstention and token use by χ and iteration."""
     by_chi = defaultdict(list)
+    by_iteration = defaultdict(list)
     for row in records:
-        by_chi[str(row.get("chi", "unknown"))].append(row)
+        chi = str(row.get("chi", "unknown"))
+        by_chi[chi].append(row)
+        if row.get("iterations") is not None:
+            by_iteration[int(row["iterations"])].append(row)
     groups = {}
     for chi, rows in sorted(by_chi.items()):
         n = len(rows)
@@ -61,7 +65,16 @@ def refinement_metrics(records: Sequence[Mapping]) -> dict:
             "iterations": _summary([r.get("iterations") for r in rows]),
             "tokens": _summary([r.get("tokens") for r in rows]),
         }
-    return {"by_chi": groups, "n_records": len(records)}
+    success_by_iteration = {
+        str(iteration): {
+            "n": len(rows),
+            "repair_success_rate": sum(bool(r.get("repair_success")) for r in rows) / len(rows),
+            "abstention_rate": sum(bool(r.get("abstained")) for r in rows) / len(rows),
+        }
+        for iteration, rows in sorted(by_iteration.items())
+    }
+    return {"by_chi": groups, "success_by_iteration": success_by_iteration,
+            "n_records": len(records)}
 
 
 def _summary(values):
