@@ -66,8 +66,8 @@ def test_observed_qos_requires_definition_binding():
 
 def test_certificate_check_rates_keep_all_submitted_certificates_in_denominator():
     result = certificate_check_metrics([
-        {"recomputed": {"S": True, "C": True, "P": True, "E": True, "L": True, "V": True}},
-        {"recomputed": {"S": True, "C": True, "P": False, "E": True, "L": True, "V": True}},
+        {"valid": True, "recomputed": {"S": True, "C": True, "P": True, "E": True, "L": True, "V": True}},
+        {"valid": False, "recomputed": {"S": True, "C": True, "P": False, "E": True, "L": True, "V": True}},
         {"recomputed": {"S": True, "C": True}},
     ])
     assert result["n_certificates"] == 3
