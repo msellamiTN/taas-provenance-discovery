@@ -102,7 +102,7 @@ def verifier_error_rates(
     reference_unsafe: Mapping[str, bool | None],
     verifier_unsafe: Mapping[str, bool | None],
 ) -> dict:
-    """Verifier FAR/FRR with unknown reference and abstentions separated."""
+    """FAR = unsafe accepted as safe (FN/unsafe); FRR = safe rejected (FP/safe)."""
     if set(reference_unsafe) != set(verifier_unsafe):
         raise ValueError("Verifier and reference IDs must match exactly")
     fp = fn = tp = tn = abstain = unknown = 0
@@ -122,8 +122,8 @@ def verifier_error_rates(
             tn += 1
     negatives, positives = tn + fp, tp + fn
     return {
-        "false_acceptance_rate": _ratio("FAR", fp, negatives).to_dict(),
-        "false_rejection_rate": _ratio("FRR", fn, positives).to_dict(),
+        "false_acceptance_rate": _ratio("FAR", fn, positives).to_dict(),
+        "false_rejection_rate": _ratio("FRR", fp, negatives).to_dict(),
         "tp": tp, "fp": fp, "tn": tn, "fn": fn,
         "abstentions": abstain, "unknown_reference": unknown,
     }
