@@ -580,6 +580,11 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <a href="#runtime-observability">Runtime &amp; Observability (UX-7)</a>
       <a href="#platform-governance-quality">Platform Governance &amp; Quality (UX-8)</a>
       <a href="#objective-traceability-explorer">Objective Traceability Explorer (UX-9)</a>
+      <a href="#release-center">Release Center (UX-10)</a>
+      <a href="#operations-command-center">Operations Command Center (UX-11)</a>
+      <a href="#provenance-inspector">Evidence &amp; Provenance Inspector (UX-12)</a>
+      <a href="#agent-lifecycle-center">Agent Lifecycle &amp; Version Control (UX-13)</a>
+      <a href="#skill-lifecycle-center">Skill Lifecycle &amp; Version Control (UX-14)</a>
       <span class="nav-label">OPERATE &amp; OBSERVE</span>
       <a href="#workspace">Benchmark workspace</a>
       <a class="overview-shortcut" href="#runtime">Runtime diagnostics</a>
@@ -630,6 +635,35 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     <p class="subtle">A valid HMAC proves service issuance and record integrity, not assessor-claim truth. It is not policy approval and does not authorize or execute a tool. Expired or tampered records are rejected.</p>
   </section>
 
+  <section id="provenance-inspector" class="section-anchor" aria-labelledby="ux12-title" style="margin-bottom:18px">
+    <div class="panel-head"><div><div class="eyebrow">ASSURE · UX-12</div><h2 id="ux12-title" style="margin:4px 0">Evidence &amp; Provenance Inspector</h2><p class="subtle">Inspect one immutable evidence record by its content-addressed SHA-256 identifier. Core verifies the record; this workspace presents only returned fields.</p></div><span class="pill">Read-only · Fail closed</span></div>
+    <div class="ux8-card" style="margin-bottom:12px">
+      <label for="ux12-evidence-id">Evidence ID · lowercase SHA-256</label>
+      <input id="ux12-evidence-id" type="text" autocomplete="off" spellcheck="false" placeholder="64-character evidence ID">
+      <div class="inline-actions"><button id="ux12-inspect" type="button">Verify &amp; inspect evidence</button><span id="ux12-status" class="subtle" role="status" aria-live="polite">No evidence record selected.</span></div>
+    </div>
+    <div id="ux12-summary" class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:12px" hidden></div>
+    <div class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:12px">
+      <article class="ux8-card"><div class="eyebrow">RECORD INTEGRITY</div><strong id="ux12-integrity">NOT VERIFIED</strong><p class="subtle">Core response only</p></article>
+      <article class="ux8-card"><div class="eyebrow">FRESHNESS</div><strong id="ux12-freshness">NOT CHECKED</strong><p class="subtle">Core freshness result</p></article>
+      <article class="ux8-card"><div class="eyebrow">CLAIM TRUTH</div><strong id="ux12-claim-truth">NOT ESTABLISHED</strong><p class="subtle">Integrity does not prove claim truth</p></article>
+      <article class="ux8-card"><div class="eyebrow">AUTHORIZATION / EXECUTION</div><strong id="ux12-boundary">NOT GRANTED / NOT PERFORMED</strong><p class="subtle">Evidence inspection grants neither</p></article>
+    </div>
+    <div class="ux8-card"><div class="panel-head"><h3 style="margin:0">Evidence payload &amp; provenance fields</h3><span class="subtle">Exact Core response fields</span></div><div id="ux12-fields" class="subtle">No verified evidence payload available.</div><details style="margin-top:12px"><summary class="subtle" style="cursor:pointer">Raw verification response</summary><pre id="ux12-raw" style="min-height:90px">No response received.</pre></details></div>
+    <p class="subtle" style="margin:12px 0 0">A valid HMAC or digest establishes service issuance and record integrity within its stated scope—not assessor-claim truth, semantic correctness, policy approval, authorization, or execution. Missing, expired, or unverifiable records remain unverified.</p>
+  </section>
+  <section id="operations-command-center" class="section-anchor" aria-labelledby="ux11-title" style="margin-bottom:18px">
+    <div class="panel-head"><div><div class="eyebrow">OPERATE · UX-11</div><h2 id="ux11-title" style="margin:4px 0">Operations Command Center</h2><p class="subtle">One read-only operational view across runtime diagnostics, discovery history and audit integrity. Every result is sourced from TaaS Core; retrieval time is recorded locally.</p></div><span class="pill">Read-only · Evidence-led</span></div>
+    <div class="inline-actions" style="margin:0 0 12px"><button id="ux11-refresh" type="button">Refresh operational evidence</button><span id="ux11-refresh-state" class="subtle" role="status" aria-live="polite">Not refreshed yet · connect to Studio API first.</span></div>
+    <div class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-bottom:12px">
+      <article class="ux8-card"><div class="eyebrow">HOST RUNTIME</div><strong id="ux11-host-state">NOT QUERIED</strong><p id="ux11-host-meta" class="subtle">GET /api/v1/runtime/status</p><a href="#runtime-overview">Open runtime diagnostics →</a></article>
+      <article class="ux8-card"><div class="eyebrow">MODEL RUNTIME</div><strong id="ux11-model-state">NOT QUERIED</strong><p id="ux11-model-meta" class="subtle">GET /api/v1/models/runtime</p><a href="#model-runtime-panel">Open model runtime →</a></article>
+      <article class="ux8-card"><div class="eyebrow">DISCOVERY HISTORY</div><strong id="ux11-discovery-state">NOT QUERIED</strong><p id="ux11-discovery-meta" class="subtle">GET /api/v1/discovery/runs?limit=50</p><a href="#discovery-observability">Open discovery history →</a></article>
+      <article class="ux8-card"><div class="eyebrow">AUDIT INTEGRITY</div><strong id="ux11-audit-state">NOT QUERIED</strong><p id="ux11-audit-meta" class="subtle">GET /api/v1/audit/verify</p><a href="#discovery-observability">Open audit workspace →</a></article>
+    </div>
+    <div class="ux8-card"><div class="panel-head"><h3 style="margin:0">Source retrieval log</h3><span class="subtle">Browser-observed retrieval times · not source event timestamps</span></div><div id="ux11-source-log" class="subtle" aria-live="polite">No operational requests have been made from this workspace.</div></div>
+    <p class="subtle" style="margin:12px 0 0">This workspace does not infer global service health from missing responses. “Reported” means the endpoint returned a response; “Request failed” means evidence could not be retrieved. Audit-chain integrity does not establish claim truth. No Agent, MCP tool, worker or workflow is executed here.</p>
+  </section>
   <section id="runtime-overview" class="runtime-overview" aria-labelledby="runtime-overview-title">
     <div class="runtime-overview-head">
       <div><div class="eyebrow">Live runtime · Colab / host</div><h2 id="runtime-overview-title" style="margin:4px 0">Environment overview</h2><p class="muted" style="margin:0">Observed process and hardware diagnostics. A visible GPU is not proof that a model is loaded or inference works.</p></div>
@@ -1204,6 +1238,137 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 </section>
 <p class="subtle">UX-8 is a validation-planning and evidence presentation surface only. It adds no execution endpoint, authorization grant, worker, policy enforcement, secret access, telemetry collector or deployment automation.</p></div></section>
 
+
+<section id="release-center" class="section-anchor" aria-labelledby="ux10-title" style="margin-bottom:18px">
+  <div class="panel-head"><div><div class="eyebrow">OPERATE · UX-10</div><h2 id="ux10-title" style="margin:4px 0">Release Center</h2><p class="subtle">A consolidated, exact-version view of policy diagnostics, release readiness and human-approval evidence.</p></div><span class="pill">Read-only · Core authoritative</span></div>
+  <div class="ux8-card" style="margin-bottom:12px">
+    <div class="field-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px">
+      <label>Agent ID<input id="ux10-agent-id" type="text" autocomplete="off" placeholder="Exact Agent ID"></label>
+      <label>Version<input id="ux10-agent-version" type="text" autocomplete="off" placeholder="Exact semantic version"></label>
+    </div>
+    <div class="inline-actions" style="margin:12px 0">
+      <button id="ux10-refresh-all" type="button">Refresh release assessment</button>
+      <button id="ux10-policy" type="button" class="secondary">Evaluate policy</button>
+      <button id="ux10-readiness" type="button" class="secondary">Check readiness</button>
+      <button id="ux10-approvals" type="button" class="secondary">Inspect approvals</button>
+    </div>
+    <p id="ux10-status" class="subtle" role="status" aria-live="polite">No release assessment requested. Enter an exact Agent ID and version.</p>
+  </div>
+  <div class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:12px">
+    <div class="ux8-card"><div class="eyebrow">POLICY VERDICT</div><strong id="ux10-policy-state">NOT EVALUATED</strong><p class="subtle">Core diagnostic only</p></div>
+    <div class="ux8-card"><div class="eyebrow">RELEASE READINESS</div><strong id="ux10-readiness-state">NOT EVALUATED</strong><p class="subtle">Does not grant release rights</p></div>
+    <div class="ux8-card"><div class="eyebrow">HUMAN APPROVALS</div><strong id="ux10-approvals-state">NOT INSPECTED</strong><p class="subtle">Evidence bound to exact version</p></div>
+    <div class="ux8-card"><div class="eyebrow">AUTHORIZATION</div><strong>NOT GRANTED</strong><p class="subtle">Never inferred from readiness</p></div>
+  </div>
+  <div class="ux8-card">
+    <h3>Release assessment evidence</h3>
+    <p class="subtle">Each panel contains the unmodified response from its corresponding authenticated Core read endpoint. Failed or missing responses remain explicitly unavailable.</p>
+    <details open><summary>Policy verdict response</summary><pre id="ux10-policy-result">No policy response.</pre></details>
+    <details><summary>Release readiness response</summary><pre id="ux10-readiness-result">No readiness response.</pre></details>
+    <details><summary>Human approval records</summary><pre id="ux10-approvals-result">No approval records inspected.</pre></details>
+  </div>
+  <p class="ux8-note">This workspace performs GET requests only. It does not publish an Agent, create or revoke approvals, grant authorization, invoke MCP tools, start a worker, or execute an Agent. Approval is evidence, not authorization; readiness is diagnostic, not execution permission.</p>
+</section>
+
+
+
+<section id="skill-lifecycle-center" class="section-anchor" aria-labelledby="ux14-title" style="margin-bottom:18px">
+  <div class="panel-head"><div><div class="eyebrow">BUILD &amp; GOVERN · UX-14</div><h2 id="ux14-title" style="margin:4px 0">Skills Lifecycle &amp; Version Control Center</h2><p class="subtle">Inspect immutable Skill versions, dependency pins, lifecycle events, signature evidence and revocation records.</p></div><span class="pill">Core-backed · read-only inspector</span></div>
+  <div class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px">
+    <div class="ux8-card"><div class="eyebrow">SKILL VERSIONS</div><strong id="ux14-count-versions">—</strong><p class="subtle">Registry records returned</p></div>
+    <div class="ux8-card"><div class="eyebrow">DISTINCT SKILLS</div><strong id="ux14-count-skills">—</strong><p class="subtle">Derived from returned IDs</p></div>
+    <div class="ux8-card"><div class="eyebrow">PUBLISHED</div><strong id="ux14-count-published">—</strong><p class="subtle">Lifecycle state reported</p></div>
+    <div class="ux8-card"><div class="eyebrow">REVOKED</div><strong id="ux14-count-revoked">—</strong><p class="subtle">Revocation records flagged</p></div>
+  </div>
+  <div class="ux8-card" style="margin-bottom:12px">
+    <div class="inline-actions" style="margin-top:0;justify-content:space-between"><div><strong>Skill registry</strong><p class="subtle" style="margin:3px 0">Search and select an exact immutable version.</p></div><button id="ux14-refresh" type="button">Refresh registry</button></div>
+    <div class="field-grid" style="display:grid;grid-template-columns:minmax(180px,1fr) auto;gap:10px;align-items:end;margin-top:10px">
+      <label>Filter by Skill ID<input id="ux14-filter" type="search" autocomplete="off" placeholder="Search Skill ID"></label>
+      <span id="ux14-status" class="subtle" role="status" aria-live="polite">Registry not loaded.</span>
+    </div>
+    <div style="overflow:auto;margin-top:10px"><table class="coverage-table" aria-label="Skill version inventory"><thead><tr><th>Skill ID</th><th>Version</th><th>Lifecycle</th><th>Revoked</th><th>Manifest SHA-256</th><th>Updated</th><th>Inspect</th></tr></thead><tbody id="ux14-inventory"><tr><td colspan="7">No registry response loaded.</td></tr></tbody></table></div>
+  </div>
+  <div class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px">
+    <div class="ux8-card">
+      <div class="panel-head"><h3>Exact Skill version</h3><span class="pill" id="ux14-version-state">NOT SELECTED</span></div>
+      <p class="subtle" id="ux14-version-summary">Select a registry row to inspect its exact manifest and fingerprint.</p>
+      <pre id="ux14-version-detail" style="min-height:220px">No Skill version inspected.</pre>
+    </div>
+    <div class="ux8-card">
+      <div class="panel-head"><h3>Dependency graph</h3><span class="pill">Exact-pinned resolution</span></div>
+      <p class="subtle">Core-resolved dependency graph. A graph response is not a semantic correctness proof or authorization.</p>
+      <pre id="ux14-dependency-detail" style="min-height:220px">No dependency graph inspected.</pre>
+    </div>
+    <div class="ux8-card">
+      <div class="panel-head"><h3>Signature evidence</h3><span class="pill">Registry-attested scope</span></div>
+      <pre id="ux14-signature-detail" style="min-height:160px">No signature status inspected.</pre>
+      <div class="panel-head" style="margin-top:12px"><h3>Revocation status</h3><span class="pill">Immutable record</span></div>
+      <pre id="ux14-revocation-detail" style="min-height:120px">No revocation status inspected.</pre>
+    </div>
+    <div class="ux8-card">
+      <div class="panel-head"><h3>Lifecycle events</h3><span class="pill">Registry event history</span></div>
+      <pre id="ux14-events-detail" style="min-height:220px">No lifecycle events inspected.</pre>
+    </div>
+  </div>
+  <div class="ux8-card" style="margin-top:12px">
+    <div class="panel-head"><h3>Security and interpretation boundaries</h3><span class="pill">Fail-closed presentation</span></div>
+    <div class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px">
+      <div><strong>Version integrity</strong><p class="subtle">The manifest digest binds the stored version bytes; it does not prove their meaning or safety.</p></div>
+      <div><strong>Signatures</strong><p class="subtle">Signature status is registry-attested evidence, not portable identity or proof that assessor claims are true.</p></div>
+      <div><strong>Dependencies</strong><p class="subtle">The graph reports exact dependency resolution and may include revoked dependencies when Core explicitly allows inspection.</p></div>
+      <div><strong>Revocation</strong><p class="subtle">Revocation is an immutable provenance event, not deletion and not a direct authorization change.</p></div>
+    </div>
+  </div>
+  <p class="ux8-note">This workspace issues GET requests only to the Skill registry, exact-version, dependency-graph, lifecycle-events, signature and revocation-status endpoints. It does not create, validate, publish, sign or revoke Skills. Registry metadata reports <code>tenant_isolation=false</code>. Structural validation is not semantic correctness; signatures and approvals do not grant tool authorization or execution.</p>
+</section>
+
+<section id="agent-lifecycle-center" class="section-anchor" aria-labelledby="ux13-title" style="margin-bottom:18px">
+  <div class="panel-head"><div><div class="eyebrow">BUILD &amp; GOVERN · UX-13</div><h2 id="ux13-title" style="margin:4px 0">Agent Lifecycle &amp; Version Control</h2><p class="subtle">Inspect registered Agent versions, immutable manifest fingerprints, lifecycle events and exact-version metadata from TaaS Core.</p></div><span class="pill">Read-only · registry-backed</span></div>
+  <div class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px">
+    <div class="ux8-card"><div class="eyebrow">REGISTERED VERSIONS</div><strong id="ux13-count-versions">—</strong><p class="subtle">Returned by registry</p></div>
+    <div class="ux8-card"><div class="eyebrow">DISTINCT AGENTS</div><strong id="ux13-count-agents">—</strong><p class="subtle">Derived from returned IDs</p></div>
+    <div class="ux8-card"><div class="eyebrow">VALIDATED</div><strong id="ux13-count-validated">—</strong><p class="subtle">Lifecycle state reported</p></div>
+    <div class="ux8-card"><div class="eyebrow">PUBLISHED</div><strong id="ux13-count-published">—</strong><p class="subtle">Lifecycle state reported</p></div>
+  </div>
+  <div class="ux8-card" style="margin-bottom:12px">
+    <div class="inline-actions" style="margin-top:0;justify-content:space-between">
+      <div><strong>Agent registry inventory</strong><p class="subtle" style="margin:3px 0">Select a version to inspect its exact immutable record.</p></div>
+      <button id="ux13-refresh" type="button">Refresh inventory</button>
+    </div>
+    <div class="field-grid" style="display:grid;grid-template-columns:minmax(180px,1fr) auto;gap:10px;align-items:end;margin-top:10px">
+      <label>Filter by Agent ID<input id="ux13-filter" type="search" autocomplete="off" placeholder="Optional exact or partial ID"></label>
+      <span id="ux13-inventory-status" class="subtle" role="status" aria-live="polite">Inventory has not been loaded.</span>
+    </div>
+    <div style="overflow:auto;margin-top:10px">
+      <table class="coverage-table" aria-label="Registered Agent versions">
+        <thead><tr><th>Agent ID</th><th>Version</th><th>Lifecycle</th><th>Manifest SHA-256</th><th>Created</th><th>Inspect</th></tr></thead>
+        <tbody id="ux13-inventory-body"><tr><td colspan="6">No registry response loaded.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px">
+    <div class="ux8-card">
+      <div class="panel-head"><h3>Selected Agent version</h3><span class="pill" id="ux13-selected-state">NOT SELECTED</span></div>
+      <p class="subtle" id="ux13-selected-summary">Select a row in the inventory to load the exact version record.</p>
+      <pre id="ux13-version-result" style="min-height:180px">No Agent version inspected.</pre>
+    </div>
+    <div class="ux8-card">
+      <div class="panel-head"><h3>Lifecycle event history</h3><span class="pill">Append-only API view</span></div>
+      <p class="subtle">Events are displayed as returned by Core. Missing events are not inferred.</p>
+      <pre id="ux13-events-result" style="min-height:180px">No lifecycle events inspected.</pre>
+    </div>
+  </div>
+  <div class="ux8-card" style="margin-top:12px">
+    <div class="panel-head"><h3>Manifest and registry boundaries</h3><span class="pill">Interpretation constraints</span></div>
+    <div class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px">
+      <div><strong>Immutable version</strong><p class="subtle">Manifest content and digest are registry-reported; this view does not mutate them.</p></div>
+      <div><strong>Lifecycle state</strong><p class="subtle">Draft, validated and published are configuration lifecycle states, not runtime states.</p></div>
+      <div><strong>Validation</strong><p class="subtle">Structural validation does not establish semantic correctness or safe behavior.</p></div>
+      <div><strong>Authorization</strong><p class="subtle">Publication, policy diagnostics and approval evidence do not grant tool authorization or execution.</p></div>
+    </div>
+  </div>
+  <p class="ux8-note">This workspace performs GET requests only: <code>/api/v1/agents</code>, exact-version retrieval and <code>/api/v1/agents/events</code>. It does not create, validate, publish, approve, revoke, authorize, invoke MCP tools, or execute Agents. Registry persistence reports <code>tenant_isolation=false</code>; do not treat this single-service registry as multi-tenant isolation.</p>
+</section>
 
 <section id="objective-traceability-explorer" class="section-anchor" aria-labelledby="ux9-title" style="margin-bottom:18px">
   <div class="panel-head"><div><div class="eyebrow">OBJECTIVE INTELLIGENCE · UX-9</div><h2 id="ux9-title">Objective Traceability Explorer</h2><p class="subtle">Explore Core-projected objective, clause, outcome, goal, skill and evidence relationships with explicit provenance.</p></div><span class="ux9-state">READ-ONLY PROJECTION</span></div>
@@ -2413,6 +2578,139 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       return {detail:"HTTP "+response.status+": "+msg};
     }
   };
+
+
+  // UX-14: read-only Skill lifecycle, version, dependency and assurance inspector.
+  let ux14Versions=[];
+  const ux14Text=value=>value===null||value===undefined||value===""?"Not reported":String(value);
+  const ux14Render=()=>{
+    const body=$("ux14-inventory");if(!body)return;
+    const query=($("ux14-filter")?.value||"").trim().toLowerCase();
+    const rows=ux14Versions.filter(x=>!query||String(x.skill_id||"").toLowerCase().includes(query));
+    body.replaceChildren();
+    if(!rows.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=7;td.textContent=ux14Versions.length?"No Skill IDs match this filter.":"No Skill versions returned.";tr.append(td);body.append(tr);return;}
+    rows.forEach(item=>{
+      const tr=document.createElement("tr");
+      [item.skill_id,item.version,item.lifecycle_state,item.revoked===true?"Yes":item.revoked===false?"No":"Not reported",item.manifest_sha256,item.updated_at].forEach(value=>{const td=document.createElement("td");td.textContent=ux14Text(value);tr.append(td);});
+      const td=document.createElement("td"),button=document.createElement("button");button.type="button";button.className="secondary";button.textContent="Inspect";button.style.margin="0";button.addEventListener("click",()=>ux14Inspect(item.skill_id,item.version));td.append(button);tr.append(td);body.append(tr);
+    });
+  };
+  const ux14Refresh=async()=>{
+    const status=$("ux14-status"),button=$("ux14-refresh");status.textContent="Loading Skill registry…";button.disabled=true;
+    try{
+      const data=await apiGet("/api/v1/skills?limit=500");
+      if(!data||!Array.isArray(data.versions))throw new Error("Core response did not contain the expected versions array.");
+      ux14Versions=data.versions;
+      $("ux14-count-versions").textContent=String(ux14Versions.length);
+      $("ux14-count-skills").textContent=String(new Set(ux14Versions.map(x=>x.skill_id).filter(Boolean)).size);
+      $("ux14-count-published").textContent=String(ux14Versions.filter(x=>x.lifecycle_state==="published").length);
+      $("ux14-count-revoked").textContent=String(ux14Versions.filter(x=>x.revoked===true).length);
+      ux14Render();
+      status.textContent="Core returned "+ux14Versions.length+" version(s) · persistence: "+ux14Text(data.persistence)+" · tenant isolation: "+ux14Text(data.tenant_isolation);
+    }catch(error){
+      ux14Versions=[];ux14Render();
+      ["ux14-count-versions","ux14-count-skills","ux14-count-published","ux14-count-revoked"].forEach(id=>$(id).textContent="—");
+      status.textContent="Registry unavailable: "+error.message;
+    }finally{button.disabled=false;}
+  };
+  const ux14Inspect=async(skillId,version)=>{
+    const id=encodeURIComponent(skillId),ver=encodeURIComponent(version);
+    $("ux14-version-state").textContent="LOADING";
+    $("ux14-version-summary").textContent=skillId+" · "+version;
+    ["ux14-version-detail","ux14-dependency-detail","ux14-signature-detail","ux14-revocation-detail","ux14-events-detail"].forEach(key=>$(key).textContent="Loading Core evidence…");
+    const requests=await Promise.allSettled([
+      apiGet("/api/v1/skills/"+id+"/versions/"+ver),
+      apiGet("/api/v1/skills/"+id+"/versions/"+ver+"/dependency-graph"),
+      apiGet("/api/v1/skills/"+id+"/versions/"+ver+"/signature"),
+      apiGet("/api/v1/skills/"+id+"/versions/"+ver+"/revocation"),
+      apiGet("/api/v1/skills/events?skill_id="+id+"&limit=100")
+    ]);
+    const names=["version-detail","dependency-detail","signature-detail","revocation-detail","events-detail"];
+    requests.forEach((result,index)=>{
+      const host=$( "ux14-"+names[index] );
+      if(result.status==="fulfilled"){
+        const value=result.value;
+        if(index===0){
+          $("ux14-version-state").textContent=ux14Text(value.lifecycle_state).toUpperCase()+(value.revoked===true?" · REVOKED":"");
+          $("ux14-version-summary").textContent=value.skill_id+" · "+value.version+" · SHA-256 "+ux14Text(value.manifest_sha256)+" · semantic correctness verified: "+ux14Text(value.semantic_correctness_verified);
+        }
+        if(index===4){
+          const events=Array.isArray(value.events)?value.events.filter(item=>item.version===version):[];
+          host.textContent=JSON.stringify({count:events.length,events},null,2);
+        }else host.textContent=JSON.stringify(value,null,2);
+      }else{
+        host.textContent="Unavailable: "+result.reason.message;
+        if(index===0){$("ux14-version-state").textContent="UNAVAILABLE";$("ux14-version-summary").textContent="Exact-version record could not be verified.";}
+      }
+    });
+  };
+  $("ux14-refresh")?.addEventListener("click",ux14Refresh);
+  $("ux14-filter")?.addEventListener("input",ux14Render);
+
+  // UX-13: read-only Agent registry lifecycle and immutable version inspector.
+  let ux13Versions = [];
+  let ux13Selected = null;
+  const ux13Text = (value) => value === null || value === undefined || value === "" ? "Not reported" : String(value);
+  const ux13RenderInventory = () => {
+    const body=$("ux13-inventory-body"); if(!body) return;
+    const query=($("ux13-filter")?.value||"").trim().toLowerCase();
+    const rows=ux13Versions.filter(item=>!query || String(item.agent_id||"").toLowerCase().includes(query));
+    body.replaceChildren();
+    if(!rows.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=6;td.textContent=ux13Versions.length?"No Agent IDs match this filter.":"No Agent versions were returned.";tr.append(td);body.append(tr);return;}
+    rows.forEach(item=>{
+      const tr=document.createElement("tr");
+      [item.agent_id,item.version,item.lifecycle_state,item.manifest_sha256,item.created_at].forEach(value=>{const td=document.createElement("td");td.textContent=ux13Text(value);tr.append(td);});
+      const action=document.createElement("td"),button=document.createElement("button");button.type="button";button.className="secondary";button.textContent="Inspect";button.style.margin="0";
+      button.addEventListener("click",()=>ux13Inspect(item.agent_id,item.version));action.append(button);tr.append(action);body.append(tr);
+    });
+  };
+  const ux13Refresh = async () => {
+    const status=$("ux13-inventory-status"); if(status) status.textContent="Loading registry inventory…";
+    const button=$("ux13-refresh"); if(button) button.disabled=true;
+    try{
+      const data=await apiGet("/api/v1/agents?limit=500");
+      if(!data || !Array.isArray(data.versions)) throw new Error("Core response did not contain the expected versions array.");
+      ux13Versions=data.versions;
+      const ids=new Set(ux13Versions.map(x=>x.agent_id).filter(Boolean));
+      $("ux13-count-versions").textContent=String(ux13Versions.length);
+      $("ux13-count-agents").textContent=String(ids.size);
+      $("ux13-count-validated").textContent=String(ux13Versions.filter(x=>x.lifecycle_state==="validated").length);
+      $("ux13-count-published").textContent=String(ux13Versions.filter(x=>x.lifecycle_state==="published").length);
+      ux13RenderInventory();
+      status.textContent="Core returned "+ux13Versions.length+" version record(s) · persistence: "+ux13Text(data.persistence)+" · tenant isolation: "+ux13Text(data.tenant_isolation);
+    }catch(error){
+      ux13Versions=[];ux13RenderInventory();
+      ["ux13-count-versions","ux13-count-agents","ux13-count-validated","ux13-count-published"].forEach(id=>$(id).textContent="—");
+      status.textContent="Inventory unavailable: "+error.message;
+    }finally{if(button)button.disabled=false;}
+  };
+  const ux13Inspect = async (agentId,version) => {
+    ux13Selected={agentId,version};
+    $("ux13-selected-state").textContent="LOADING";
+    $("ux13-selected-summary").textContent=agentId+" · "+version;
+    $("ux13-version-result").textContent="Loading exact version record…";
+    $("ux13-events-result").textContent="Loading lifecycle events…";
+    const encoded=encodeURIComponent(agentId);
+    try{
+      const [record,events]=await Promise.all([
+        apiGet("/api/v1/agents/"+encoded+"/versions/"+encodeURIComponent(version)),
+        apiGet("/api/v1/agents/events?agent_id="+encoded+"&limit=200")
+      ]);
+      $("ux13-selected-state").textContent=ux13Text(record.lifecycle_state).toUpperCase();
+      $("ux13-selected-summary").textContent=record.agent_id+" · "+record.version+" · SHA-256 "+ux13Text(record.manifest_sha256);
+      $("ux13-version-result").textContent=JSON.stringify(record,null,2);
+      const eventRows=Array.isArray(events.events)?events.events.filter(item=>item.version===version):[];
+      $("ux13-events-result").textContent=JSON.stringify({count:eventRows.length,events:eventRows},null,2);
+    }catch(error){
+      $("ux13-selected-state").textContent="UNAVAILABLE";
+      $("ux13-selected-summary").textContent="Exact-version inspection failed; no lifecycle state is inferred.";
+      $("ux13-version-result").textContent=error.message;
+      $("ux13-events-result").textContent="Lifecycle events unavailable for this inspection.";
+    }
+  };
+  $("ux13-refresh")?.addEventListener("click",ux13Refresh);
+  $("ux13-filter")?.addEventListener("input",ux13RenderInventory);
+
   const apiGet = async (path) => {
     const token=tokenValue(); if(!token) throw new Error("Connect to TaaS Studio in the application header first.");
     const r=await fetch(path,{headers:{"Authorization":"Bearer "+token}});
@@ -2695,6 +2993,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     return data;
   };
 
+  // UX-7: report actual model-runtime API state; never infer tool execution or telemetry.
   let publishedSkillOptions = [];
   const refreshReusableSkillOptions = async () => {
     const select=$("agent-skill-registry-select");
@@ -3270,7 +3569,53 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   });
   $("agent-engineering-clear").addEventListener("click",()=>{$("agent-engineering-objective").value="";$("agent-engineering-context").value="";agentEngineeringSummary.hidden=true;agentEngineeringTrace.textContent="Prepare an Objective to inspect its Core-generated provenance.";agentEngineeringGoals.replaceChildren();agentEngineeringRaw.textContent="No Core response received.";agentEngineeringStatus.className="agent-trace-state";agentEngineeringStatus.textContent="Workspace cleared. No API request was made.";});
 
-  // The overview is explicitly refreshed by the user after Studio authentication.\n\n  // UX-F02: read-only discovery history and audit integrity workspace.
+  // The overview is explicitly refreshed by the user after Studio authentication.\n\n
+  // UX-10: consolidated read-only release assessment for an exact Agent version.
+  const ux10SubjectPath = () => {
+    const id=$("ux10-agent-id").value.trim(), version=$("ux10-agent-version").value.trim();
+    if(!id || !version) throw new Error("Enter both an exact Agent ID and version.");
+    return "/api/v1/agents/"+encodeURIComponent(id)+"/versions/"+encodeURIComponent(version);
+  };
+  const ux10Read = async (kind, suffix, label) => {
+    const status=$("ux10-status"), output=$("ux10-"+kind+"-result");
+    const state=$("ux10-"+kind+"-state");
+    status.textContent=label+" · requesting Core response…";
+    state.textContent="CHECKING…"; output.textContent="Waiting for authenticated Core response…";
+    try {
+      const data=await apiGet(ux10SubjectPath()+suffix);
+      output.textContent=JSON.stringify(data,null,2);
+      if(kind==="policy") state.textContent=String(data.verdict || data.decision || data.status || "RESPONSE RECEIVED · inspect details").toUpperCase();
+      else if(kind==="readiness") state.textContent=String(data.status || data.readiness || data.ready || "RESPONSE RECEIVED · inspect details").toUpperCase();
+      else {
+        const records=Array.isArray(data.approvals)?data.approvals:(Array.isArray(data.records)?data.records:null);
+        state.textContent=records?records.length+" RECORD(S)":"RESPONSE RECEIVED · inspect details";
+      }
+      status.textContent=label+" · Core response received. No authorization or execution is implied.";
+      return true;
+    } catch(error) {
+      state.textContent="UNAVAILABLE";
+      output.textContent="No successful response. "+error.message;
+      status.textContent=label+" unavailable: "+error.message;
+      return false;
+    }
+  };
+  $("ux10-policy").addEventListener("click",()=>{try{ux10SubjectPath();ux10Read("policy","/policy-verdict","Policy verdict");}catch(e){$("ux10-status").textContent=e.message;}});
+  $("ux10-readiness").addEventListener("click",()=>{try{ux10SubjectPath();ux10Read("readiness","/release-readiness","Release readiness");}catch(e){$("ux10-status").textContent=e.message;}});
+  $("ux10-approvals").addEventListener("click",()=>{try{ux10SubjectPath();ux10Read("approvals","/approvals","Approval inspection");}catch(e){$("ux10-status").textContent=e.message;}});
+  $("ux10-refresh-all").addEventListener("click",async()=>{
+    try{ux10SubjectPath();}catch(e){$("ux10-status").textContent=e.message;return;}
+    $("ux10-refresh-all").disabled=true;
+    $("ux10-status").textContent="Refreshing all three read-only release diagnostics…";
+    const results=await Promise.all([
+      ux10Read("policy","/policy-verdict","Policy verdict"),
+      ux10Read("readiness","/release-readiness","Release readiness"),
+      ux10Read("approvals","/approvals","Approval inspection")
+    ]);
+    $("ux10-status").textContent="Assessment complete · "+results.filter(Boolean).length+"/3 Core responses received. Missing results are not treated as passing.";
+    $("ux10-refresh-all").disabled=false;
+  });
+
+  // UX-F02: read-only discovery history and audit integrity workspace.
   const obsRenderRecordList = (host, records, emptyText, onSelect) => {
     host.replaceChildren();
     if (!Array.isArray(records) || records.length === 0) {
@@ -3327,6 +3672,93 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   $("obs-load-run").addEventListener("click",obsLoadRun);
   $("obs-refresh-audit").addEventListener("click",obsRefreshAudit);
   $("obs-verify-audit").addEventListener("click",obsVerifyAudit);
+
+  // UX-12 Evidence & Provenance Inspector: exact-ID verification through Core only.
+  (() => {
+    const $12=id=>$(id),button=$12("ux12-inspect"),status=$12("ux12-status");
+    const text=value=>String(value===null||value===undefined||value===""?"Not reported":typeof value==="object"?JSON.stringify(value):value);
+    const renderFields=payload=>{
+      const host=$12("ux12-fields");host.replaceChildren();
+      if(!payload||typeof payload!=="object"||Array.isArray(payload)){host.textContent="Core did not return an evidence object.";return;}
+      const table=document.createElement("table");table.className="coverage-table";
+      const head=document.createElement("thead"),hr=document.createElement("tr");
+      ["Field","Core-reported value"].forEach(v=>{const th=document.createElement("th");th.textContent=v;hr.append(th);});head.append(hr);table.append(head);
+      const body=document.createElement("tbody");
+      Object.entries(payload).forEach(([key,value])=>{const tr=document.createElement("tr"),a=document.createElement("td"),b=document.createElement("td");a.textContent=key;b.textContent=text(value);tr.append(a,b);body.append(tr);});
+      table.append(body);host.append(table);
+    };
+    button.addEventListener("click",async()=>{
+      const id=$12("ux12-evidence-id").value.trim();
+      $12("ux12-summary").hidden=true;$12("ux12-summary").replaceChildren();
+      $12("ux12-integrity").textContent="NOT VERIFIED";$12("ux12-freshness").textContent="NOT CHECKED";
+      $12("ux12-claim-truth").textContent="NOT ESTABLISHED";$12("ux12-boundary").textContent="NOT GRANTED / NOT PERFORMED";
+      $12("ux12-fields").textContent="No verified evidence payload available.";$12("ux12-raw").textContent="No response received.";
+      if(!/^[0-9a-f]{64}$/.test(id)){status.textContent="Enter a lowercase 64-character SHA-256 evidence ID. No request was sent.";return;}
+      button.disabled=true;status.textContent="Verifying evidence signature, binding, digest and freshness through Core…";
+      try{
+        const data=await apiGet("/api/v1/assurance/evidence/"+encodeURIComponent(id));
+        if(!data||!data.evidence||typeof data.evidence!=="object")throw new Error("Core response does not contain an evidence object.");
+        const ev=data.evidence,integrity=data.integrity_verified===true;
+        $12("ux12-integrity").textContent=integrity?"VERIFIED BY CORE":"NOT VERIFIED";
+        $12("ux12-freshness").textContent=text(data.freshness);
+        $12("ux12-claim-truth").textContent=data.assessor_claim_truth_verified===true?"CORE REPORTS VERIFIED":"NOT VERIFIED";
+        $12("ux12-boundary").textContent="Authorization: "+(data.authorization_granted===true?"GRANTED":"NOT GRANTED")+" · Execution: "+(data.execution_performed===true?"PERFORMED":"NOT PERFORMED");
+        [["Evidence type",ev.evidence_type],["Issuer",ev.issuer],["Assessor",ev.assessor],["Observed at",ev.observed_at],["Expires at",ev.expires_at],["Subject binding",ev.subject_binding]].forEach(([label,value])=>{
+          const card=document.createElement("article");card.className="ux8-card";const k=document.createElement("div");k.className="eyebrow";k.textContent=label;const v=document.createElement("strong");v.style.cssText="display:block;overflow-wrap:anywhere;font-size:12px;margin-top:6px";v.textContent=text(value);card.append(k,v);$12("ux12-summary").append(card);
+        });
+        $12("ux12-summary").hidden=false;renderFields(ev);$12("ux12-raw").textContent=JSON.stringify(data,null,2);
+        status.textContent=integrity?"Core returned an integrity-verified evidence record · freshness: "+text(data.freshness)+".":"Core returned a record, but integrity is not verified.";
+      }catch(error){status.textContent="Evidence inspection failed closed: "+error.message;$12("ux12-fields").textContent="No evidence content was accepted.";$12("ux12-raw").textContent=error.message;}
+      finally{button.disabled=false;}
+    });
+  })();
+
+  // UX-11 Operations Command Center: read-only source aggregation; no execution paths.
+  (() => {
+    const ids={host:"ux11-host",model:"ux11-model",discovery:"ux11-discovery",audit:"ux11-audit"};
+    const log=$("ux11-source-log"),refresh=$("ux11-refresh"),state=$("ux11-refresh-state");
+    const safeText=value=>String(value===null||value===undefined||value===""?"Not reported":value);
+    const setCard=(key,label,meta)=>{$(ids[key]+"-state").textContent=label;$(ids[key]+"-meta").textContent=meta;};
+    const retrieve=async(key,path,summary)=>{
+      const started=Date.now();
+      try{
+        const data=await apiGet(path),retrievedAt=new Date().toISOString();
+        setCard(key,"RESPONSE REPORTED",summary(data));
+        return {source:key,path,status:"reported",retrieved_at:retrievedAt,elapsed_ms:Date.now()-started,data};
+      }catch(error){
+        const retrievedAt=new Date().toISOString();
+        setCard(key,"REQUEST FAILED",error.message);
+        return {source:key,path,status:"request_failed",retrieved_at:retrievedAt,elapsed_ms:Date.now()-started,error:error.message};
+      }
+    };
+    const renderLog=items=>{
+      log.replaceChildren();
+      items.forEach(item=>{
+        const row=document.createElement("div");row.style.cssText="display:grid;grid-template-columns:minmax(100px,.7fr) minmax(150px,1fr) minmax(130px,1fr);gap:8px;padding:8px 0;border-bottom:1px solid #e8edf4";
+        const name=document.createElement("strong");name.textContent=item.source.toUpperCase();
+        const status=document.createElement("span");status.textContent=item.status==="reported"?"Response reported":"Request failed";
+        const time=document.createElement("span");time.textContent="Retrieved "+item.retrieved_at+" · "+item.elapsed_ms+" ms";
+        row.append(name,status,time);log.append(row);
+      });
+      const details=document.createElement("details");details.style.marginTop="10px";
+      const summary=document.createElement("summary");summary.textContent="Inspect retrieval metadata";summary.style.cursor="pointer";
+      const pre=document.createElement("pre");pre.style.cssText="min-height:60px;max-height:260px";pre.textContent=JSON.stringify(items.map(({data,...meta})=>meta),null,2);
+      details.append(summary,pre);log.append(details);
+    };
+    refresh.addEventListener("click",async()=>{
+      refresh.disabled=true;state.textContent="Retrieving four read-only Core sources…";
+      const requests=[
+        retrieve("host","/api/v1/runtime/status",d=>"Host diagnostics returned · "+safeText(d.status||d.runtime_status||"status field not reported")),
+        retrieve("model","/api/v1/models/runtime",d=>"Model runtime returned · "+safeText(d.loaded===true?"loaded":d.loaded===false?"not loaded":d.status||"load state not reported")),
+        retrieve("discovery","/api/v1/discovery/runs?limit=50",d=>{const rows=Array.isArray(d.runs)?d.runs:Array.isArray(d.records)?d.records:[];return rows.length+" persisted record(s) returned";}),
+        retrieve("audit","/api/v1/audit/verify",d=>"chain_valid="+safeText(d.chain_valid)+" · first divergence="+safeText(d.first_divergence))
+      ];
+      const results=await Promise.all(requests);
+      renderLog(results);const failed=results.filter(x=>x.status!=="reported").length;
+      state.textContent="Retrieval complete · "+(results.length-failed)+" responses reported · "+failed+" request failure(s). No execution performed.";
+      refresh.disabled=false;
+    });
+  })();
 
   // UX-3: keyboard-accessible command palette for the existing Studio navigation.
   // Destinations are derived from the rendered navigation; no parallel route registry.

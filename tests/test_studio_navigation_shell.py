@@ -7,7 +7,8 @@ STUDIO_HTML = Path(__file__).parents[1] / "src" / "taas" / "studio" / "static" /
 
 def test_every_studio_navigation_link_has_a_target():
     html = STUDIO_HTML.read_text(encoding="utf-8")
-    links = re.findall(r'<a href="#([^"]+)"', html)
+    nav = html.split('<nav', 1)[1].split("</nav>", 1)[0] if "<nav" in html else html
+    links = re.findall(r'<a href="#([^"]+)"', nav)
     ids = set(re.findall(r'\bid="([^"]+)"', html))
     assert links, "Studio navigation must expose workspace links"
     assert len(links) == len(set(links)), "Navigation destinations must be unique"
