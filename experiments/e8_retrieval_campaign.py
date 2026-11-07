@@ -1177,15 +1177,15 @@ def run_campaign(
             cross_meta = run_dir / f"{track.dataset_id}_cross_encoder_cache.json"
             cross_checkpoint_dir = run_dir / f"{track.dataset_id}_cross_encoder_batches"
             cross_checkpoint_key = _json_fingerprint({
-            "ranking_cache_key": cache_key("cross_encoder"),
-            "candidate_pool_fingerprint": _json_fingerprint([
-                (task.task_id, list(candidate_sets["bm25"][task.task_id]))
-                for task in tasks
-            ]),
-            "task_chunk_size": 16,
-            "candidate_k": CROSS_ENCODER_CANDIDATE_K,
-            "predict_batch_size": 64,
-        })
+                "ranking_cache_key": cache_key("cross_encoder"),
+                "candidate_pool_fingerprint": _json_fingerprint([
+                    (task.task_id, list(candidate_sets["bm25"][task.task_id]))
+                    for task in tasks
+                ]),
+                "task_chunk_size": 16,
+                "candidate_k": CROSS_ENCODER_CANDIDATE_K,
+                "predict_batch_size": 64,
+            })
             cached = _load_ranking_cache(cross_path, cross_meta, cache_key("cross_encoder"),
                                          task_ids, tool_ids, top_k)
             if cached is None:
