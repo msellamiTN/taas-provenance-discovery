@@ -17,7 +17,7 @@ See the run's \`MANIFEST.json\` before interpreting any figure.
 ## 1. Install the required extras
 
 \`\`\`bash
-pip install -e ".[benchmark-hf,visualization,test]"
+pip install -e ".[benchmark-hf,visualization,retrieval,test]"
 \`\`\`
 
 ## 2. Prepare pinned source data
@@ -98,6 +98,16 @@ per-task metrics with \`cluster_id\`:
   intervals use task-level resampling.
 - MCPToolBench++ records the primary target's server for every task. Its confidence
   intervals use target-server cluster resampling.
+
+## One-command execution
+
+After installing the extras, the complete preparation → retrieval campaign → figure export → partial rendering flow is available as:
+
+```bash
+E8_DEVICE=cuda bash experiments/run_e8_and_plot.sh
+```
+
+Use `E8_DEVICE=cpu` only for a small-scale smoke run or when a GPU is unavailable. The script pins both model commits at the start of each new run, uses a unique immutable run ID, prepares the pinned sources, and does not overwrite an existing ToolRet snapshot. Set `E8_RUN_ID`, `E8_TOP_K`, `E8_SEED`, or `E8_DEVICE` to explicitly control the run. The generated manifest records the model revisions and the true partial/complete status.
 
 ## 5. Export publication figure inputs
 
