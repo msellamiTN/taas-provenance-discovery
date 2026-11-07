@@ -8,7 +8,7 @@ import pandas as pd
 import pytest
 
 from experiments.export_e8_figures import _mean_ci, export_e8_figures
-from taas.experiments.plotting import iter_figures, load_plot_plan, validate_figure_data
+from taas.experiments.plotting import iter_figures, load_plot_plan, render_figure, validate_figure_data
 
 ROOT = Path(__file__).resolve().parents[1]
 REGISTERED = [
@@ -158,3 +158,36 @@ def test_exporter_rejects_missing_mcp_target_server_cluster_ids(tmp_path):
 def test_bootstrap_rejects_mixed_cluster_and_task_level_rows():
     with pytest.raises(ValueError, match="mixes clustered and unclustered"):
         _mean_ci([0.2, 0.8], ["server-a", ""], seed=5, resamples=150)
+
+
+def test_e8_export_to_publication_plotter_integration(tmp_path):
+    run_dir = _build_e8_run(tmp_path / "run")
+    data_dir = tmp_path / "visualization" / "data"
+    output_dir = tmp_path / "visualization" / "figures"
+
+    export_manifest = export_e8_figures(
+        run_dir, data_dir, bootstrap_resamples=250, seed=20261105
+    )
+    plan = load_plot_plan(ROOT / "docs/experiment_design/pamcp_plot_plan_v1.json")
+    figures = {figure["id"]: figure for figure in iter_figures(plan, "E8")}
+
+    assert export_manifest["source_run_status"] == "partial"
+    assert export_manifest["primary_pa_mcp_executed"] is False
+    assert set(export_manifest["figures_exported"]) == {"E8-F1", "E8-F4"}
+
+    for figure_id in export_manifest["figures_exported"]:
+        frame = pd.read_csv(data_dir / f"{figure_id}.csv")
+        validation = validate_figure_data(figures[figure_id], frame)
+        assert validation["rows"] > 0
+        assert set(frame["benchmark"]) == {
+            "toolret_heterogeneous", "mcptoolbenchpp_single_target"
+        }
+        outputs = render_figure(
+            figures[figure_id], frame, output_dir, formats=("png",), dpi=100
+        )
+        assert len(outputs) == 1
+        assert outputs[0].is_file()
+        assert outputs[0].stat().st_size > 1000
+
+    # Exporter and renderer must not alter experiment status or claim PaMCP ran.
+    assert json.loads((run_dir / "MANIFEST.json").read_text())["status"] == "partial"
