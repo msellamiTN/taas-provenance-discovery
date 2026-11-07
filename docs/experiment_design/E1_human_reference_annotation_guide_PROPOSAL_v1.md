@@ -37,7 +37,7 @@ If evidence is insufficient, record an unresolved label rather than guessing.
 
 ## 4. Proposed decision rule
 
-The target construct is **whether invoking the described operation can cause a state change or an externally observable side effect**, according to the tool's documented semantics.
+The repository currently defines the E1 state-modifying effect classes in `src/taas/effects.py`: `write`, `delete`, `exec`, and `money` (`STATE_MODIFYING`). The proposed human reference decision must be consistent with that operational construct: **whether the documented operation can modify persistent, shared, or external state through one or more of those four classes**. Do not silently broaden this to every externally observable effect.
 
 ### NON_READ_ONLY = YES
 
@@ -113,7 +113,7 @@ Report separately:
 - each annotator's raw agreement and Cohen's κ, with the exact denominator and method;
 - adjudication procedure and count of disagreements.
 
-The non-read-only share must state its denominator. The recommended primary denominator is all tools with a resolved adjudicated reference label; additionally report the resolved-label coverage over the full frozen registry. Do not present the resolved-only proportion as if it covered all registry tools.
+The non-read-only share must state its denominator. Under the current binary schema, the intended denominator is all tools with a final adjudicated human reference label. Report coverage over the full frozen registry and disclose any excluded/escalated units; do not present the labelled subset as if it covered all registry tools.
 
 Declared `readOnlyHint` prevalence must remain a separate descriptive statistic. Any comparison between declarations and human reference labels must use only units with both fields available and must report that paired denominator.
 
@@ -137,7 +137,7 @@ Before this guide is used, the study owner must explicitly approve:
 4. the agreement and adjudication procedure;
 5. the denominator/reporting rules.
 
-Any substantive change after annotation starts requires a version bump, impact assessment, and a decision on whether affected rows must be re-annotated. The protocol itself remains frozen unless a separately approved protocol amendment is issued.
+Any substantive change after annotation starts requires a version bump, impact assessment, and a decision on whether affected rows must be re-annotated. In particular, adding `UNRESOLVED` requires coordinated changes to the CSV schema, reconciliation script, statistical denominator rules, and (if the target construct changes) a protocol amendment. The protocol itself remains frozen unless a separately approved protocol amendment is issued.
 
 ---
 
