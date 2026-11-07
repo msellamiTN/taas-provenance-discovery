@@ -49,6 +49,8 @@ def test_ux8_governance_tab_wires_real_core_endpoints():
     assert "'/approvals'" in html
     assert "'/authorization/preflight'" in html
     assert "'/api/v1/policy/evaluate'" in html
+    assert 'id="ux8-agents-list"' in html
+    assert "apiGet('/api/v1/agents?limit=50')" in html
 
 
 def test_ux8_governance_distinguishes_approval_readiness_authorization_execution():
