@@ -97,6 +97,8 @@ def test_exporter_creates_only_observed_registered_e8_figures(tmp_path):
 
     assert result["figures_exported"] == ["E8-F1", "E8-F4"]
     assert result["primary_pa_mcp_executed"] is False
+    assert "mcp_zero" in result["blocked_registered_baselines"]
+    assert "B1" in result["other_blocked_or_not_comparable_conditions"]
     assert result["registered_baselines_with_observations"] == {
         "mcptoolbenchpp_single_target": ["bm25", "dense_lsa"],
         "toolret_heterogeneous": ["bm25", "dense_lsa"],
