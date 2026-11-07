@@ -255,8 +255,12 @@ def _groups(frame: Any, field: str | None) -> list[tuple[str, Any]]:
 def _apply_axis_options(ax: Any, figure: dict[str, Any]) -> None:
     from matplotlib.ticker import PercentFormatter
     options = figure.get("render_options", {})
-    for axis_name, attr in (("x_axis", "set_xlabel"), ("y_axis", "set_ylabel")):
-        getattr(ax, attr)(figure[axis_name]["label"])
+    if figure["chart_type"] == "grouped_bar" and options.get("orientation") == "horizontal":
+        ax.set_xlabel(figure["y_axis"]["label"])
+        ax.set_ylabel(figure["x_axis"]["label"])
+    else:
+        for axis_name, attr in (("x_axis", "set_xlabel"), ("y_axis", "set_ylabel")):
+            getattr(ax, attr)(figure[axis_name]["label"])
     if options.get("log_x"):
         ax.set_xscale("log")
     if options.get("log_y"):
@@ -284,8 +288,10 @@ def _apply_axis_options(ax: Any, figure: dict[str, Any]) -> None:
                 ax.yaxis.set_major_formatter(PercentFormatter(1.0))
         elif chart == "stacked_horizontal":
             ax.xaxis.set_major_formatter(PercentFormatter(1.0))
-        elif chart == "stacked_bar":
+        elif chart == "stacked_bar" or (chart == "grouped_bar" and options.get("orientation") != "horizontal"):
             ax.yaxis.set_major_formatter(PercentFormatter(1.0))
+        elif chart == "grouped_bar" and options.get("orientation") == "horizontal":
+            ax.xaxis.set_major_formatter(PercentFormatter(1.0))
 
 
 
@@ -436,18 +442,20 @@ def _draw(ax: Any, figure: dict[str, Any], frame: Any) -> None:
             raise ValueError(f'{figure["id"]}: alluvial total flow must be positive')
         left_totals = {key: sum(v for s, _, v in edges if s == key) for key in sources}
         right_totals = {key: sum(v for _, t, v in edges if t == key) for key in targets}
-        scale = 0.82 / max(max(left_totals.values()), max(right_totals.values()))
+        node_count = max(len(sources), len(targets))
+        gap = min(0.025, 0.10 / max(1, node_count - 1))
+        scale = (0.84 - gap * max(0, node_count - 1)) / total
         left_y, right_y = {}, {}
         cursor = 0.08
         for key in sources:
             height = left_totals[key] * scale
             left_y[key] = [cursor, cursor + height]
-            cursor += height + 0.035
+            cursor += height + gap
         cursor = 0.08
         for key in targets:
             height = right_totals[key] * scale
             right_y[key] = [cursor, cursor + height]
-            cursor += height + 0.035
+            cursor += height + gap
         left_offset, right_offset = {k: 0.0 for k in sources}, {k: 0.0 for k in targets}
         for source, target, value in edges:
             h = value * scale
