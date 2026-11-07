@@ -71,7 +71,7 @@ Each entry specifies the chart family, X/Y axes, comparison set and interpretati
 | E8-F1: Single-tool retrieval performance | `horizontal_forest` | Retrieval score | Method | benchmark | Compare only registered E8 retrieval baselines actually executed in each track; include Full PaMCP only if a validated single-tool adapter is present. Series identifies Hit@1, Hit@5 and MRR@10. |
 | E8-F2: B1 versus B1m retrieval comparison | `grouped_bar` | Retrieval method | Macro Hit@1 | — | Requires a verified B1/B1m source-condition mapping and matching per-task result exports; primary labels and similar_tools sensitivity labels must not be renamed B1/B1m. |
 | E8-F3: Retrieval robustness to distractors | `scatter` | Number of distractor tools | Hit@1 | benchmark | Requires a predeclared distractor-count sweep and actual rankings for every candidate-pool condition; a full-corpus ranking is not a distractor sweep. |
-| E8-F4: Macro Hit@1 by task category | `horizontal_forest` | Retrieval score | Method | benchmark | Compare registered retrieval methods by query category within each benchmark; do not pool heterogeneous ToolRet with MCP-native results. Series denotes task category. |
+| E8-F4: Hit@1 by task category | `horizontal_forest` | Retrieval score | Method | benchmark | Compare registered retrieval methods by query category within each benchmark; do not pool heterogeneous ToolRet with MCP-native results. Series denotes task category. |
 
 ## E9 — Multi-tool set retrieval
 
