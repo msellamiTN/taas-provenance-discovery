@@ -18,6 +18,8 @@ For an interactive Colab run with Drive-backed persistence, use the
 [PaMCP E8 Colab notebook](https://colab.research.google.com/github/msellamiTN/taas-provenance-discovery/blob/feature/pamcp-publication-visualization-v1/experiments/colab/E8_Retrieval_Campaign.ipynb).
 It calls the same launcher documented below.
 
+Before starting a new campaign, check [E8 execution readiness](E8_EXECUTION_READINESS.md). It records which pinned source snapshots and result outputs are present in the repository and distinguishes software-test fixtures from experimental observations.
+
 ## 1. Install the required extras
 
 \`\`\`bash
