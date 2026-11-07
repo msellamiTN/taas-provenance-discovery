@@ -164,8 +164,8 @@ def _numeric_columns(figure: dict[str, Any]) -> set[str]:
     categorical_axes = {
         "grouped_bar": {"x_axis"},
         "stacked_bar": {"x_axis"},
-        "heatmap": set(),
-        "factorial_heatmap": set(),
+        "heatmap": {"x_axis", "y_axis"},
+        "factorial_heatmap": {"x_axis", "y_axis"},
         "confusion_matrix": {"x_axis", "y_axis"},
         "horizontal_forest": {"y_axis"},
         "grouped_dot": {"y_axis"},
@@ -207,6 +207,9 @@ def validate_figure_data(figure: dict[str, Any], frame: Any) -> dict[str, Any]:
         raise ValueError(f'{figure["id"]}: missing CSV columns {missing}')
     if frame.empty:
         raise ValueError(f'{figure["id"]}: CSV contains a header but no observations')
+    facet_field = figure.get("render_options", {}).get("facet_field")
+    if facet_field and facet_field not in frame.columns:
+        raise ValueError(f'{figure["id"]}: requested facet column {facet_field!r} is missing')
     for column in required:
         if frame[column].isna().any() or (frame[column].astype(str).str.strip() == "").any():
             raise ValueError(f'{figure["id"]}: missing values in required column {column!r}')
