@@ -59,3 +59,13 @@ def test_independent_audit_fails_closed_on_unknown_tool():
     )
     assert result.valid is False
     assert result.unknown_tools == ("missing::tool",)
+
+
+def test_independent_audit_rejects_unbound_goal_witness():
+    certificate, graph, goal, policy = fixture()
+    certificate.bindings["g1"] = "another::tool"
+    result = audit_certificate(
+        certificate, graph, [goal], [parse_type("text")], policy,
+    )
+    assert result.valid is False
+    assert result.recomputed["S"] is False
