@@ -11,7 +11,7 @@ Provide an evidence-conscious workspace for inspecting objective traceability us
 - Relationships: relationship ledger with provenance.
 - Evidence: source spans and explicit trigger observations when supplied.
 - Export: download the exact returned projection JSON.
-- Explorer input: paste a supported `taas.objective-skill-traceability/v1` record and request its projection.
+- Explorer input: paste a supported `taas.objective-skill-traceability/v1` record and request its projection. Alternatively, **Prepare & load traceability** calls `POST /api/v1/objectives/prepare` with a natural-language objective and loads the Core-produced `objective_skill_traceability` record into the input — the browser still sends only the returned record to the projection endpoint and never synthesizes traceability data itself. If prepare fails (for example, no model runtime is loaded), the paste flow remains available and no record is fabricated.
 - Inspector: inspect selected node or relationship fields.
 - Filters: missing evidence, unresolved links, review required, and declared relationships only.
 - Responsive layout and accessible tabs with ArrowLeft/ArrowRight/Home/End navigation.
