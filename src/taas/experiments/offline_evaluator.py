@@ -125,7 +125,7 @@ def evaluate_payload(experiment_id: str, payload: Mapping) -> dict:
         return role_configuration_metrics(payload["records"])
     if eid == "E20":
         _need(payload, "toolkits_by_weight")
-        return weight_sensitivity(payload["toolkits_by_weight"])
+        return weight_sensitivity(payload["toolkits_by_weight"], payload.get("outcomes_by_weight"))
     if eid == "E21":
         _need(payload, "records")
         return experience_reuse_metrics(payload["records"])
