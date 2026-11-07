@@ -135,3 +135,15 @@ def test_ux13_ux14_lifecycle_centers_list_registry_versions():
     assert 'id="ux14-refresh"' in html
     assert "/api/v1/agents?limit=500" in html
     assert "/api/v1/skills?limit=500" in html
+
+
+def test_vocabulary_drawer_and_policy_presets_are_reference_only():
+    html = _studio_html()
+    assert 'id="vocab-load"' in html
+    assert 'id="vocab-filter"' in html
+    assert '"/api/v1/reference/vocabulary"' in html
+    assert "not verified evidence" in html
+    for preset in ("read-only", "egress-limited", "strict-evidence"):
+        assert f'data-policy-preset="{preset}"' in html
+    assert "grants no authorization" in html
+    assert "invalidateHumanReview" in html

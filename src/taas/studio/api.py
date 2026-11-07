@@ -11,11 +11,12 @@ import hmac
 import json
 import os
 import re
+import uuid
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from fastapi import Depends, FastAPI, HTTPException, Query, status
+from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
@@ -38,6 +39,7 @@ from taas.studio import tool_registry
 from taas.studio import tool_service
 from taas.studio import discovery_runs
 from taas.studio import audit_ledger
+from taas.studio import workspaces
 from taas.studio.agent_skill_bindings import (
     AgentSkillBindingConflict,
     AgentSkillBindingError,
@@ -76,6 +78,17 @@ app = FastAPI(
     version="0.1.0",
     description="Experimental API wrapper around the existing TaaS discovery engine.",
 )
+
+
+@app.middleware("http")
+async def request_id_middleware(request: Request, call_next):
+    """Echo or assign an X-Request-ID for traceability across all routes."""
+    request_id = request.headers.get("x-request-id") or uuid.uuid4().hex
+    response = await call_next(request)
+    response.headers["X-Request-ID"] = request_id
+    return response
+
+
 bearer = HTTPBearer(auto_error=False)
 
 
@@ -796,6 +809,7 @@ def validate_goal_spec_endpoint(payload: dict[str, Any]) -> dict[str, Any]:
     parsed = parse_studio_goal_spec(payload)
     order = parsed.order() or []
     return {
+        "schema": "taas.goal-spec-validation/v1",
         "valid": True,
         "goal_count": len(parsed.goals),
         "goal_order": [goal.id for goal in order],
@@ -1115,6 +1129,87 @@ def audit_event_list(limit: int = 100, event_type: str | None = None) -> dict[st
 def audit_chain_verify() -> dict[str, Any]:
     """Recompute the event hash chain and report the first divergence, if any."""
     return audit_ledger.verify_chain()
+
+
+@app.get("/api/v1/reference/vocabulary", dependencies=[Depends(require_api_token)])
+def reference_vocabulary() -> dict[str, Any]:
+    """Declared contract vocabulary: goal classes, sigmas, and the Θ semantic types.
+
+    This is the same declared vocabulary the validator enforces — a reference
+    surface for authoring, not verified evidence about any tool or model.
+    """
+    try:
+        _guide, theta = load_analyst_contract()
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    return {
+        "schema": "taas.vocabulary/v1",
+        "goal_classes": {
+            "model_delegable": sorted(MODEL_CLASSES),
+            "external": sorted(EXTERNAL_CLASSES),
+        },
+        "sigma_values": list(SIGMAS),
+        "theta": {
+            "kinds": theta.get("kinds", []),
+            "domains": theta.get("domains", []),
+            "common_types": theta.get("common_types", []),
+        },
+        "vocabulary_semantics": "declared_authoring_reference_not_verified_evidence",
+    }
+
+
+class WorkspaceDraftRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    name: str = Field(min_length=1, max_length=200)
+    draft: dict[str, Any]
+
+
+class WorkspaceUpdateRequest(WorkspaceDraftRequest):
+    name: str | None = Field(default=None, max_length=200)
+    revision: int = Field(ge=1)
+
+
+@app.get("/api/v1/workspaces", dependencies=[Depends(require_api_token)])
+def workspace_list(limit: int = 100) -> dict[str, Any]:
+    """List saved workspace drafts (metadata only). Drafts are authored intent state."""
+    return workspaces.list_workspaces(limit=limit)
+
+
+@app.post("/api/v1/workspaces", dependencies=[Depends(require_api_token)], status_code=201)
+def workspace_create(payload: WorkspaceDraftRequest) -> dict[str, Any]:
+    """Explicitly save a workspace draft; nothing is persisted implicitly."""
+    return workspaces.create_workspace(name=payload.name, draft=payload.draft)
+
+
+@app.get("/api/v1/workspaces/{workspace_id}", dependencies=[Depends(require_api_token)])
+def workspace_get(workspace_id: str) -> dict[str, Any]:
+    """Restore one saved workspace draft by id."""
+    record = workspaces.get_workspace(workspace_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail=f"Unknown workspace: {workspace_id}")
+    return record
+
+
+@app.put("/api/v1/workspaces/{workspace_id}", dependencies=[Depends(require_api_token)])
+def workspace_update(workspace_id: str, payload: WorkspaceUpdateRequest) -> dict[str, Any]:
+    """Update a draft with optimistic-concurrency check; stale revisions are rejected."""
+    try:
+        record = workspaces.update_workspace(
+            workspace_id, name=payload.name, draft=payload.draft, revision=payload.revision
+        )
+    except workspaces.RevisionConflictError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    if record is None:
+        raise HTTPException(status_code=404, detail=f"Unknown workspace: {workspace_id}")
+    return record
+
+
+@app.delete("/api/v1/workspaces/{workspace_id}", dependencies=[Depends(require_api_token)])
+def workspace_delete(workspace_id: str) -> dict[str, Any]:
+    """Explicit delete of one workspace draft."""
+    if not workspaces.delete_workspace(workspace_id):
+        raise HTTPException(status_code=404, detail=f"Unknown workspace: {workspace_id}")
+    return {"deleted": True, "workspace_id": workspace_id}
 
 
 @app.get("/api/v1/bench/tools", dependencies=[Depends(require_api_token)])
