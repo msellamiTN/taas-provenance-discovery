@@ -19,7 +19,8 @@ Provide a professional runtime and observability workspace for inspecting config
 - Runtime adapter: not configured.
 - Worker pool: not configured.
 - Session records: none available.
-- Timeline, logs, traces, metrics and diagnostics: unavailable; empty states explain why.
+- Timeline, logs, traces and metrics: unavailable; empty states explain why.
+- Diagnostics: wired read-only to the authenticated Studio API. The Diagnostics tab issues `GET /api/v1/runtime/status`, `GET /api/v1/runtime/hardware` and `GET /api/v1/models/runtime` and renders the returned host and model-runtime values verbatim. These are observations of host state and model-runtime state — never execution evidence, worker telemetry or session records.
 - Sandbox/network/secrets posture: not verified or reported.
 - Authorization: not granted.
 - Execution: disabled. Run and export controls are disabled.
@@ -35,7 +36,7 @@ No runtime values, session IDs, timestamps, event records, trace IDs, resource u
 
 ## Governance and non-goals
 
-This UI-only increment adds no runtime adapter, isolated worker, worker pool, scheduler, execution API, MCP invocation, model call, approval mutation, authorization grant, secrets handling, network policy enforcement, durable persistence or deployment integration.
+This UI increment adds no runtime adapter, isolated worker, worker pool, scheduler, execution API, MCP invocation, approval mutation, authorization grant, secrets handling, network policy enforcement, durable persistence or deployment integration. The Diagnostics tab performs read-only observation calls to existing authenticated Core endpoints (`runtime/status`, `runtime/hardware`, `models/runtime`); it issues no POST, mutation, model invocation or execution request.
 
 Observability is not authorization. Logs, traces and metrics—if a future runtime integration supplies them—are observations, not proof of semantic correctness or goal fulfilment. Discovery metadata and assurance evidence are not execution records. Execution remains disabled until a separately reviewed and explicitly authorized capability exists.
 
@@ -52,7 +53,7 @@ The fixed experimental protocol and UX-2 through UX-6 behavior are unchanged.
 3. Load the Studio in authenticated Colab and verify the section renders.
 4. Verify responsive behavior at desktop, tablet and narrow mobile widths.
 5. Test tab operation using keyboard only and a screen reader.
-6. Confirm no runtime/API/network request is issued by UX-7.
+6. Confirm UX-7 issues only the three read-only diagnostics GETs and no mutation, model-inference or execution request.
 7. Confirm execution remains unavailable and no runtime records appear unless genuine evidence is supplied by a separately authorized integration.
 
 Source assertions are not a substitute for pytest, CI, Colab, or browser/assistive-technology acceptance. Do not mark UX-7 fully accepted until these evidence classes are recorded.
