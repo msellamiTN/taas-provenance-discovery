@@ -211,9 +211,11 @@ def validate_figure_data(figure: dict[str, Any], frame: Any) -> dict[str, Any]:
         raise ValueError(f'{figure["id"]}: missing CSV columns {missing}')
     if frame.empty:
         raise ValueError(f'{figure["id"]}: CSV contains a header but no observations')
-    facet_field = figure.get("render_options", {}).get("facet_field")
-    if facet_field and facet_field not in frame.columns:
-        raise ValueError(f'{figure["id"]}: requested facet column {facet_field!r} is missing')
+    facet_spec = figure.get("render_options", {}).get("facet_field")
+    facet_fields = [facet_spec] if isinstance(facet_spec, str) else list(facet_spec or [])
+    missing_facets = [field for field in facet_fields if field not in frame.columns]
+    if missing_facets:
+        raise ValueError(f'{figure["id"]}: requested facet column(s) missing: {missing_facets}')
     for column in required:
         if frame[column].isna().any() or (frame[column].astype(str).str.strip() == "").any():
             raise ValueError(f'{figure["id"]}: missing values in required column {column!r}')
@@ -525,18 +527,24 @@ def render_figure(
 
     validate_figure_data(figure, frame)
     options = figure.get("render_options", {})
-    facet_field = options.get("facet_field")
-    if figure["chart_type"] == "confusion_matrix" and not facet_field and "series" in frame.columns:
-        facet_field = "series"
-    if facet_field and facet_field in frame.columns:
-        facet_values = list(dict.fromkeys(frame[facet_field].astype(str)))
+    facet_spec = options.get("facet_field")
+    facet_fields = [facet_spec] if isinstance(facet_spec, str) else list(facet_spec or [])
+    if figure["chart_type"] == "confusion_matrix" and not facet_fields and "series" in frame.columns:
+        facet_fields = ["series"]
+    if facet_fields:
+        grouping_key: Any = facet_fields[0] if len(facet_fields) == 1 else facet_fields
+        grouped = list(frame.groupby(grouping_key, sort=False, dropna=False))
+        facet_values = []
+        for key, subset in grouped:
+            values = (key,) if len(facet_fields) == 1 else tuple(key)
+            label = " | ".join(f"{field}: {value}" for field, value in zip(facet_fields, values))
+            facet_values.append((label, subset))
         ncols = min(3, max(1, len(facet_values)))
         nrows = math.ceil(len(facet_values) / ncols)
         fig, axes = plt.subplots(nrows, ncols, figsize=(4.9 * ncols, 4.4 * nrows), squeeze=False)
-        for ax, value in zip(axes.flat, facet_values):
-            subset = frame[frame[facet_field].astype(str) == value]
+        for ax, (label, subset) in zip(axes.flat, facet_values):
             _draw(ax, figure, subset)
-            ax.set_title(f"{facet_field}: {value}", fontsize=10)
+            ax.set_title(label, fontsize=10)
         for ax in list(axes.flat)[len(facet_values):]:
             ax.set_visible(False)
     else:
