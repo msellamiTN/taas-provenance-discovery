@@ -4,9 +4,9 @@
 
 Each entry specifies the chart family, X/Y axes, comparison set, interpretation and required facets. The machine-readable registry is `docs/experiment_design/pamcp_plot_plan_v1.json`.
 
-**Comparison convention:** Compare only methods assigned to each experiment in the frozen baseline catalogue. E8 is a retrieval-baseline study; it does not imply that Full PaMCP executed as an E8 method. E18 includes all eight G×P×S cells.
+**Comparison convention:** use only the experiment-specific baseline IDs in the frozen experiment catalogue. E18 includes all eight G×P×S cells.
 
-**Stratification:** benchmark and metric facets are mandatory wherever specified. Heterogeneous benchmarks and threat tracks are not pooled.
+**Stratification:** benchmark, decomposition, metric and k facets are mandatory wherever specified. Heterogeneous datasets and task semantics are not pooled.
 
 ## E1 — Registry characterization
 
@@ -77,9 +77,9 @@ Each entry specifies the chart family, X/Y axes, comparison set, interpretation 
 
 | Figure | Chart | X-axis | Y-axis | Facets | Comparison / interpretation |
 |---|---|---|---|---|---|
-| E9-F1: Goal-group retrieval recall | `grouped_dot` | Group recall@k | Method | benchmark | rag_mcp, mcp_zero, per_subtask, colt_adapted, toolscope_adapted, cmtf_adapted, all_tools. Compare Full PaMCP with E9-assigned retrieval/planning baselines; series identifies benchmark or k. |
-| E9-F2: Set precision versus group recall | `pareto_scatter` | Set precision | Group recall@k | benchmark | rag_mcp, mcp_zero, per_subtask, colt_adapted, toolscope_adapted, cmtf_adapted, all_tools. Compare complete-set quality and recall; bubble size is complete-set share. |
-| E9-F3: Complete-set coverage by task group | `heatmap` | Task group | Method | benchmark | rag_mcp, mcp_zero, per_subtask, colt_adapted, toolscope_adapted, cmtf_adapted, all_tools. Compare methods by task group; separate MCP-Atlas trajectory diagnostics. |
+| E9-F1: Goal-group retrieval recall | `grouped_dot` | Group recall@k | Method | benchmark × decomposition | rag_mcp, mcp_zero, per_subtask, colt_adapted, toolscope_adapted, cmtf_adapted, all_tools. Protocol primary: group recall@k by baseline, benchmark, and decomposition condition; series identifies k. |
+| E9-F2: Set precision versus group recall | `pareto_scatter` | Set precision | Group recall@k | benchmark × decomposition | rag_mcp, mcp_zero, per_subtask, colt_adapted, toolscope_adapted, cmtf_adapted, all_tools. Supporting set precision versus group recall for each k, baseline, benchmark, and decomposition condition; bubble size is complete-set share. |
+| E9-F3: Complete-set coverage by task group | `heatmap` | Task group | Method | benchmark × decomposition × k | rag_mcp, mcp_zero, per_subtask, colt_adapted, toolscope_adapted, cmtf_adapted, all_tools. Supporting complete-set share by task group, baseline, k, benchmark, and decomposition condition. |
 
 ## E10 — Set validity and compatibility
 
@@ -198,6 +198,13 @@ Each entry specifies the chart family, X/Y axes, comparison set, interpretation 
 | E22-F3: Method rank probability | `rankogram` | Rank | Probability of rank | benchmark | bm25, dense_lsa, rag_mcp, mcp_zero, colt_adapted, toolscope_adapted, cmtf_adapted, per_subtask. Compare rank distributions over valid tool-disjoint resamples. |
 | E22-F4: Effect size versus adjusted significance | `significance_scatter` | Paired effect size | Holm/BH adjusted p-value | benchmark | bm25, dense_lsa, rag_mcp, mcp_zero, colt_adapted, toolscope_adapted, cmtf_adapted, per_subtask. Separate confirmatory Holm and designated exploratory BH families. |
 
+## E9 protocol factors
+
+- Dataset: 94 resolvable LiveMCPBench tasks from the pinned 95-task public snapshot, with any candidate identity accepted for ambiguous tool names.
+- Decomposition: `none`, `clause_splitter`, `llm_analyst`.
+- Cutoffs: k = 5, 10, 20.
+- Positive toolchain references are benchmark-native successful sets, not exhaustive alternatives; unresolved names remain audited.
+
 ## Output conventions
 
-One normalized CSV is expected per figure under `results/visualization/data/`. Rendered outputs are PDF, SVG and PNG under `results/visualization/figures/`. Forest plots require bootstrap confidence intervals. Matched-task effects preserve pairing. Include sample sizes and exact denominators; benchmark tracks stay separate.
+One normalized CSV is expected per figure under `results/visualization/data/`. Rendered outputs are PDF, SVG and PNG under `results/visualization/figures/`. Forest plots require confidence intervals; matched-task effects preserve pairing. Include exact sample sizes and denominators.
