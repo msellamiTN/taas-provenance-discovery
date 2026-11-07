@@ -514,6 +514,31 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 
   /* UX-8 evidence-backed quality workspace */
 .ux8-shell{display:grid;gap:14px}.ux8-tabs{display:flex;gap:7px;flex-wrap:wrap;border-bottom:1px solid var(--line,#dce3ed);padding-bottom:10px}.ux8-tabs button{border:1px solid var(--line,#dce3ed);border-radius:8px;background:var(--surface,#fff);padding:8px 11px;font-size:12px}.ux8-tabs button[aria-selected="true"]{border-color:var(--accent,#5268d8);background:var(--accent-soft,#eef1ff);font-weight:700}.ux8-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.ux8-card{border:1px solid var(--line,#dce3ed);border-radius:10px;padding:13px;background:var(--surface,#fff);min-width:0}.ux8-card h3{font-size:13px;margin:0 0 8px}.ux8-card p{font-size:11px;line-height:1.55;color:var(--muted,#64748b);margin:5px 0}.ux8-state{display:inline-flex;border:1px solid #cbd5e1;border-radius:999px;padding:3px 8px;font-size:10px;font-weight:700;background:#f8fafc;color:#475569}.ux8-state.notrun{background:#fff7ed;color:#9a3412}.ux8-kv{display:grid;grid-template-columns:minmax(130px,.8fr) 1fr;gap:0;font-size:11px}.ux8-kv dt,.ux8-kv dd{margin:0;padding:8px 5px;border-bottom:1px solid var(--line,#e5eaf1);overflow-wrap:anywhere}.ux8-kv dt{font-weight:700;color:var(--muted,#64748b)}.ux8-panel[hidden]{display:none}.ux8-note{border-left:3px solid #64748b;background:var(--surface-muted,#f8fafc);padding:11px 13px;border-radius:6px;font-size:11px;line-height:1.6}.ux8-table{width:100%;border-collapse:collapse;font-size:11px}.ux8-table th,.ux8-table td{text-align:left;padding:8px;border-bottom:1px solid var(--line,#e5eaf1);vertical-align:top}.ux8-table th{color:var(--muted,#64748b)}@media(max-width:850px){.ux8-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.ux8-grid{grid-template-columns:1fr}.ux8-kv{grid-template-columns:1fr}.ux8-kv dt{padding-bottom:2px}.ux8-kv dd{padding-top:2px}}
+
+/* UX-9 Objective Traceability Explorer */
+.ux9-shell{display:grid;gap:13px}.ux9-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ux9-tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:9px}
+.ux9-tabs button{margin:0;border:1px solid var(--line);background:#fff;color:#52627a;padding:8px 11px}
+.ux9-tabs button[aria-selected="true"]{background:var(--blue-soft);border-color:#b9c9f3;color:#244b9e;font-weight:750}
+.ux9-workspace{display:grid;grid-template-columns:minmax(205px,.78fr) minmax(330px,1.45fr) minmax(230px,.9fr);gap:12px;align-items:start}
+.ux9-pane{min-width:0;border:1px solid var(--line);border-radius:10px;background:#fff;padding:12px}
+.ux9-pane h3{font-size:12px;margin:0 0 9px}.ux9-pane textarea{min-height:155px;font:11px ui-monospace,monospace}
+.ux9-list{display:grid;gap:5px;max-height:290px;overflow:auto}.ux9-item{display:block;width:100%;margin:0;text-align:left;background:#fff;color:var(--ink);border:1px solid #e8edf4;padding:8px 9px;font-size:11px}
+.ux9-item[aria-pressed="true"]{background:var(--blue-soft);border-color:#b9c9f3}
+.ux9-canvas{min-height:320px;overflow:auto;border:1px solid #e7ecf3;border-radius:9px;background:linear-gradient(#fff,#fbfcff)}
+.ux9-canvas svg{display:block;width:100%;min-width:500px;min-height:300px}
+.ux9-node{cursor:pointer}.ux9-node rect{fill:#f1f5ff;stroke:#8ea7df;stroke-width:1.4}.ux9-node text{font-size:11px;fill:#1f3150;pointer-events:none}.ux9-node:focus rect,.ux9-node.selected rect{stroke:#244fb3;stroke-width:3}
+.ux9-edge{stroke:#8192ad;stroke-width:1.5;fill:none}.ux9-edge-label{font-size:9px;fill:#596b86}
+.ux9-panel[hidden]{display:none!important}.ux9-inspector dl{display:grid;grid-template-columns:minmax(90px,.7fr) minmax(0,1fr);gap:0;font-size:10px}.ux9-inspector dt,.ux9-inspector dd{margin:0;padding:7px 4px;border-bottom:1px solid #edf0f5;overflow-wrap:anywhere}.ux9-inspector dt{font-weight:750;color:#66758b}
+.ux9-filter{display:flex;gap:7px;align-items:center;font-size:10px;color:#52627a}.ux9-filter input{width:auto;margin:0}
+.ux9-state{display:inline-flex;border:1px solid #d8e0eb;border-radius:99px;padding:3px 7px;font-size:9px;font-weight:750;color:#52627a;background:#f8fafc}
+.ux9-note{border-left:3px solid #8b9bb3;background:#f6f8fb;padding:10px 12px;border-radius:7px;color:#53627a;font-size:10px;line-height:1.55}
+.ux9-empty{padding:24px 14px;text-align:center;color:#718096;font-size:11px}
+.ux9-table{width:100%;border-collapse:collapse;font-size:10px}.ux9-table th,.ux9-table td{text-align:left;padding:8px;border-bottom:1px solid #e8edf3;vertical-align:top;overflow-wrap:anywhere}
+.ux9-table th{color:#66758b}.ux9-json{max-height:420px;min-height:120px}
+@media(max-width:1050px){.ux9-workspace{grid-template-columns:minmax(180px,.8fr) minmax(0,1.4fr)}.ux9-workspace>.ux9-inspector{grid-column:1/-1}}
+@media(max-width:680px){.ux9-workspace{grid-template-columns:1fr}.ux9-workspace>.ux9-inspector{grid-column:auto}.ux9-canvas{min-height:260px}}
+
 </style>
 </head>
 <body>
@@ -554,6 +579,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <a href="#evidence-diff-impact">Evidence Diff &amp; Impact (UX-6)</a>
       <a href="#runtime-observability">Runtime &amp; Observability (UX-7)</a>
       <a href="#platform-governance-quality">Platform Governance &amp; Quality (UX-8)</a>
+      <a href="#objective-traceability-explorer">Objective Traceability Explorer (UX-9)</a>
       <span class="nav-label">OPERATE &amp; OBSERVE</span>
       <a href="#workspace">Benchmark workspace</a>
       <a class="overview-shortcut" href="#runtime">Runtime diagnostics</a>
@@ -1150,6 +1176,49 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 <tr><td>Build / packaging</td><td>NOT_RUN</td><td>Exact-head build log</td></tr><tr><td>Unit / regression tests</td><td>NOT_RUN</td><td>Test report and exit code</td></tr><tr><td>Browser smoke / interaction</td><td>NOT_RUN</td><td>Browser, commit and reproducible steps</td></tr><tr><td>Security checks</td><td>NOT_RUN</td><td>Scanner output and reviewed findings</td></tr><tr><td>Colab deployment / run</td><td>NOT_RUN</td><td>Runtime URL, exact commit and smoke-test output</td></tr></tbody></table><p class="ux8-note">Source inspection is not a substitute for build, test, CI, browser, Colab or assistive-technology acceptance.</p></div></section>
 <section class="ux8-panel" id="ux8-panel-reports" role="tabpanel" aria-labelledby="ux8-tab-reports" hidden><div class="ux8-card"><h3>Evidence report</h3><p>No validation report is available. Reports must preserve exact commit SHA, environment, tool versions, timestamp, command, exit status and artifact references.</p><span class="ux8-state notrun">NO REPORT RECORDED</span></div></section>
 <p class="subtle">UX-8 is a validation-planning and evidence presentation surface only. It adds no execution endpoint, authorization grant, worker, policy enforcement, secret access, telemetry collector or deployment automation.</p></div></section>
+
+
+<section id="objective-traceability-explorer" class="section-anchor" aria-labelledby="ux9-title" style="margin-bottom:18px">
+  <div class="panel-head"><div><div class="eyebrow">OBJECTIVE INTELLIGENCE · UX-9</div><h2 id="ux9-title">Objective Traceability Explorer</h2><p class="subtle">Explore Core-projected objective, clause, outcome, goal, skill and evidence relationships with explicit provenance.</p></div><span class="ux9-state">READ-ONLY PROJECTION</span></div>
+  <div class="ux9-shell">
+    <div class="ux9-toolbar">
+      <label class="ux9-filter"><input type="checkbox" id="ux9-filter-missing"> Missing evidence</label>
+      <label class="ux9-filter"><input type="checkbox" id="ux9-filter-unresolved"> Unresolved links</label>
+      <label class="ux9-filter"><input type="checkbox" id="ux9-filter-review"> Review required</label>
+      <label class="ux9-filter"><input type="checkbox" id="ux9-filter-declared" checked> Declared relationships only</label>
+      <span class="ux9-state" id="ux9-projection-state">NO PROJECTION LOADED</span>
+    </div>
+    <div class="ux9-tabs" role="tablist" aria-label="Objective traceability views">
+      <button type="button" role="tab" id="ux9-tab-graph" aria-controls="ux9-panel-graph" aria-selected="true" tabindex="0">Graph</button>
+      <button type="button" role="tab" id="ux9-tab-lineage" aria-controls="ux9-panel-lineage" aria-selected="false" tabindex="-1">Lineage</button>
+      <button type="button" role="tab" id="ux9-tab-relationships" aria-controls="ux9-panel-relationships" aria-selected="false" tabindex="-1">Relationships</button>
+      <button type="button" role="tab" id="ux9-tab-evidence" aria-controls="ux9-panel-evidence" aria-selected="false" tabindex="-1">Evidence</button>
+      <button type="button" role="tab" id="ux9-tab-export" aria-controls="ux9-panel-export" aria-selected="false" tabindex="-1">Export</button>
+    </div>
+    <section class="ux9-panel" id="ux9-panel-graph" role="tabpanel" aria-labelledby="ux9-tab-graph">
+      <div class="ux9-workspace">
+        <aside class="ux9-pane"><h3>Explorer · source traceability</h3>
+          <p class="subtle">Provide a traceability object produced by the supported objective pipeline. The Studio requests a Core projection; it does not invent graph links.</p>
+          <label for="ux9-trace-input">Objective traceability JSON</label>
+          <textarea id="ux9-trace-input" spellcheck="false" placeholder="Paste a taas.objective-skill-traceability/v1 object"></textarea>
+          <div class="inline-actions"><button type="button" id="ux9-project">Build projection</button><button type="button" class="secondary" id="ux9-clear">Clear</button></div>
+          <p class="subtle" id="ux9-status" role="status" aria-live="polite">No traceability input loaded. No graph has been synthesized.</p>
+          <h3 style="margin-top:14px">Projected entities</h3><div id="ux9-entity-list" class="ux9-list"><div class="ux9-empty">No projected entities.</div></div>
+        </aside>
+        <div class="ux9-pane"><div class="panel-head"><h3>Relationship graph</h3><span class="ux9-state" id="ux9-counts">0 entities · 0 relations</span></div>
+          <div id="ux9-canvas" class="ux9-canvas"><div class="ux9-empty">Submit a supported traceability object to display its Core-owned projection.</div></div>
+          <p class="subtle">Edges are displayed only from returned projection records. Layout is visual only; it does not calculate reachability or semantic compatibility.</p>
+        </div>
+        <aside class="ux9-pane ux9-inspector"><h3>Node / relationship inspector</h3><strong id="ux9-inspector-title">Nothing selected</strong><div id="ux9-inspector-body" class="subtle">Select a projected node or relationship to inspect its declared source, provenance and evidence fields.</div></aside>
+      </div>
+    </section>
+    <section class="ux9-panel" id="ux9-panel-lineage" role="tabpanel" aria-labelledby="ux9-tab-lineage" hidden><div class="ux9-pane"><h3>Objective lineage</h3><p class="subtle">Lineage is a readable ordering of explicit source and target references returned by Core. It is not proof that an objective was fulfilled.</p><div id="ux9-lineage"></div></div></section>
+    <section class="ux9-panel" id="ux9-panel-relationships" role="tabpanel" aria-labelledby="ux9-tab-relationships" hidden><div class="ux9-pane"><h3>Relationship ledger</h3><div id="ux9-relationships"></div></div></section>
+    <section class="ux9-panel" id="ux9-panel-evidence" role="tabpanel" aria-labelledby="ux9-tab-evidence" hidden><div class="ux9-pane"><h3>Evidence ledger</h3><div id="ux9-evidence"></div><p class="ux9-note">Evidence references and lexical trigger matches are provenance observations, not semantic proof, authorization, execution records or proof of goal fulfilment.</p></div></section>
+    <section class="ux9-panel" id="ux9-panel-export" role="tabpanel" aria-labelledby="ux9-tab-export" hidden><div class="ux9-pane"><h3>Projection export</h3><p class="subtle">Export the exact Core response currently displayed. No new evidence or links are generated.</p><button type="button" id="ux9-export" disabled>Export projection JSON</button><pre id="ux9-export-preview" class="ux9-json">No projection available.</pre></div></section>
+    <div class="ux9-note">Governance boundary: this workspace is read-only. Relationships require explicit projection references; missing links remain unresolved. No semantic inference, authorization, tool execution, execution proof or goal-fulfilment claim is made.</div>
+  </div>
+</section>
 
     </div>
   </div>
@@ -3374,6 +3443,94 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     $6("ux6-export").addEventListener("click",()=>{if(!state.result)return;const blob=new Blob([JSON.stringify(state.result,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download="taas-evidence-diff.json";document.body.append(link);link.click();link.remove();URL.revokeObjectURL(url);setStatus("Diff JSON exported · local metadata comparison only.");});
     $6("ux6-reset").addEventListener("click",()=>{$6("ux6-snapshot-a").value="";$6("ux6-snapshot-b").value="";state.a=null;state.b=null;state.result=null;state.filter="all";results.hidden=true;compare.disabled=true;$6("ux6-file-a-name").textContent="No baseline selected.";$6("ux6-file-b-name").textContent="No comparison selected.";setStatus("Comparison reset. No files retained by this workspace.");});
   })();
+
+
+  // UX-9 Objective Traceability Explorer: render only the authenticated Core projection.
+  (() => {
+    const $9=id=>document.getElementById(id);
+    const state={projection:null,selected:null,filter:{missing:false,unresolved:false,review:false,declared:true}};
+    const escText=value=>String(value===null||value===undefined||value===""?"Not reported":value);
+    const safeNode=(tag,value)=>{const n=document.createElement(tag);n.textContent=escText(value);return n;};
+    const vertices=()=>Array.isArray(state.projection?.vertices)?state.projection.vertices:[];
+    const edges=()=>Array.isArray(state.projection?.hyperedges)?state.projection.hyperedges:[];
+    const setStatus=(message,error=false)=>{const n=$9("ux9-status");n.textContent=message;n.className=error?"status error":"subtle";};
+    const selectedEdgeList=()=>edges().filter(e=>{
+      const unresolved=!vertices().some(v=>v.id===e.source_vertex)||!vertices().some(v=>v.id===e.target_vertex);
+      if(state.filter.unresolved&&!unresolved)return false;
+      if(state.filter.review&&e.review_required!==true&&e.status!=="NEEDS_REVIEW")return false;
+      if(state.filter.missing&&Array.isArray(e.source_evidence)&&e.source_evidence.length)return false;
+      if(state.filter.declared&&(!e.source_vertex||!e.target_vertex))return false;
+      return true;
+    });
+    const visibleVertices=()=>vertices().filter(v=>{
+      if(state.filter.review&&v.review_required!==true&&v.status!=="NEEDS_REVIEW")return false;
+      if(state.filter.missing&&(Array.isArray(v.source_evidence)&&v.source_evidence.length||Array.isArray(v.evidence_refs)&&v.evidence_refs.length))return false;
+      return true;
+    });
+    const inspect=(kind,item)=>{
+      state.selected={kind,id:item.id||item.edge_id||item.relation};
+      $9("ux9-inspector-title").textContent=kind==="relationship"?(item.relation||item.kind||"Relationship"):(item.label||item.name||item.id);
+      const rows=kind==="relationship"?[
+        ["Type",item.kind],["Relation",item.relation],["Source vertex",item.source_vertex],["Target vertex",item.target_vertex],
+        ["Source",item.source||item.source_ref||item.clause_ref],["Provenance",item.provenance||item.provenance_scope||item.match_kind],
+        ["Trigger phrase",item.trigger_phrase],["Occurrence span",item.occurrence_span?JSON.stringify(item.occurrence_span):null],
+        ["Authorization effect",item.authorization_effect],["Execution effect",item.execution_effect],["Review",item.review_required===true?"NEEDS_REVIEW":"Not reported"]
+      ]:[
+        ["Kind",item.kind],["Identifier",item.id],["Label",item.label||item.name],["Clause reference",item.clause_ref],
+        ["Outcome reference",item.linked_outcome_id||item.outcome_id],["Goal reference",item.goal_id],
+        ["Skill",item.skill_id],["Version",item.version],["Evidence",Array.isArray(item.source_evidence)?JSON.stringify(item.source_evidence):null],
+        ["Evidence status",item.evidence_status||"UNKNOWN"],["Provenance scope",item.provenance_scope],
+        ["Execution",state.projection?.graph_metadata?.execution_enabled===false?"DISABLED":"Not established"],
+        ["Authorization",state.projection?.graph_metadata?.tools_authorized===false?"NOT AUTHORIZED":"Not established"]
+      ];
+      const dl=document.createElement("dl");rows.forEach(([k,v])=>{dl.append(safeNode("dt",k),safeNode("dd",v));});
+      const host=$9("ux9-inspector-body");host.replaceChildren(dl);
+      $9("ux9-entity-list").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.id===state.selected.id)));
+    };
+    const renderTable=(host,headers,rows,empty)=>{
+      host.replaceChildren();if(!rows.length){host.append(safeNode("div",empty));return;}
+      const table=document.createElement("table");table.className="ux9-table";const thead=document.createElement("thead"),tr=document.createElement("tr");
+      headers.forEach(h=>tr.append(safeNode("th",h)));thead.append(tr);table.append(thead);
+      const tbody=document.createElement("tbody");rows.forEach(row=>{const r=document.createElement("tr");row.forEach(v=>r.append(safeNode("td",v)));tbody.append(r);});table.append(tbody);host.append(table);
+    };
+    const render=()=>{
+      const p=state.projection;if(!p)return;
+      const vs=visibleVertices(),es=selectedEdgeList();
+      $9("ux9-projection-state").textContent="PROJECTION AVAILABLE";
+      $9("ux9-counts").textContent=vs.length+" entities · "+es.length+" relations";
+      const list=$9("ux9-entity-list");list.replaceChildren();
+      vs.forEach(v=>{const b=safeNode("button",(v.kind||"entity")+" · "+(v.label||v.name||v.id));b.type="button";b.className="ux9-item";b.dataset.id=v.id;b.setAttribute("aria-pressed",String(state.selected?.id===v.id));b.addEventListener("click",()=>inspect("entity",v));list.append(b);});
+      if(!vs.length)list.append(safeNode("div","No entities match the active filters."));
+      const canvas=$9("ux9-canvas");canvas.replaceChildren();
+      if(!vs.length){canvas.append(safeNode("div","No projected graph records available for these filters."));return;}
+      const width=760,height=Math.max(300,Math.ceil(vs.length/3)*100),svg=document.createElementNS("http://www.w3.org/2000/svg","svg");svg.setAttribute("viewBox","0 0 "+width+" "+height);svg.setAttribute("role","img");svg.setAttribute("aria-label","Core-projected objective traceability graph");
+      const pos=new Map();vs.forEach((v,i)=>pos.set(v.id,{x:25+(i%3)*245,y:25+Math.floor(i/3)*95}));
+      es.forEach(e=>{const a=pos.get(e.source_vertex),b=pos.get(e.target_vertex);if(!a||!b)return;const line=document.createElementNS(svg.namespaceURI,"line");line.setAttribute("x1",a.x+185);line.setAttribute("y1",a.y+25);line.setAttribute("x2",b.x);line.setAttribute("y2",b.y+25);line.setAttribute("class","ux9-edge");svg.append(line);});
+      vs.forEach(v=>{const pt=pos.get(v.id),g=document.createElementNS(svg.namespaceURI,"g");g.setAttribute("class","ux9-node");g.setAttribute("tabindex","0");g.setAttribute("role","button");g.setAttribute("aria-label","Inspect "+escText(v.label||v.name||v.id));g.setAttribute("transform","translate("+pt.x+" "+pt.y+")");const rect=document.createElementNS(svg.namespaceURI,"rect");rect.setAttribute("width","185");rect.setAttribute("height","50");rect.setAttribute("rx","8");const text=document.createElementNS(svg.namespaceURI,"text");text.setAttribute("x","10");text.setAttribute("y","29");text.textContent=escText(v.label||v.name||v.id).slice(0,28);g.append(rect,text);g.addEventListener("click",()=>inspect("entity",v));g.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();inspect("entity",v);}});svg.append(g);});
+      canvas.append(svg);
+      renderTable($9("ux9-relationships"),["Relation","Source","Target","Provenance"],es.map(e=>[e.relation||e.kind,e.source_vertex,e.target_vertex,e.provenance||e.match_kind||e.provenance_scope]),"No relationships match the active filters.");
+      const lineage=es.map(e=>[e.source_vertex,e.relation||e.kind,e.target_vertex,e.provenance||e.match_kind]);renderTable($9("ux9-lineage"),["From","Relationship","To","Provenance"],lineage,"No explicit lineage links are available.");
+      const evidenceRows=[];vs.forEach(v=>(Array.isArray(v.source_evidence)?v.source_evidence:[]).forEach(ev=>evidenceRows.push([v.id,ev.text,ev.start,ev.end,"Source span"])));
+      es.forEach(e=>{if(e.trigger_phrase)evidenceRows.push([e.edge_id||e.id,e.trigger_phrase,e.occurrence_span?.start,e.occurrence_span?.end,e.match_kind||"Trigger observation"]);});
+      renderTable($9("ux9-evidence"),["Entity / edge","Evidence text","Start","End","Evidence type"],evidenceRows,"No source evidence spans were supplied in this projection. Evidence status remains UNKNOWN.");
+      $9("ux9-export").disabled=false;$9("ux9-export-preview").textContent=JSON.stringify(p,null,2);
+    };
+    const tabs=[...document.querySelectorAll("#objective-traceability-explorer [role=tab]")],panels=[...document.querySelectorAll("#objective-traceability-explorer [role=tabpanel]")];
+    const activate=(tab,focus=false)=>{tabs.forEach(t=>{const active=t===tab;t.setAttribute("aria-selected",String(active));t.tabIndex=active?0:-1;});panels.forEach(p=>p.hidden=p.id!==tab.getAttribute("aria-controls"));if(focus)tab.focus();};
+    tabs.forEach((tab,i)=>{tab.addEventListener("click",()=>activate(tab));tab.addEventListener("keydown",ev=>{let n=i;if(ev.key==="ArrowRight")n=(i+1)%tabs.length;else if(ev.key==="ArrowLeft")n=(i+tabs.length-1)%tabs.length;else if(ev.key==="Home")n=0;else if(ev.key==="End")n=tabs.length-1;else return;ev.preventDefault();activate(tabs[n],true);});});
+    [["missing","ux9-filter-missing"],["unresolved","ux9-filter-unresolved"],["review","ux9-filter-review"],["declared","ux9-filter-declared"]].forEach(([key,id])=>$9(id).addEventListener("change",ev=>{state.filter[key]=ev.target.checked;if(state.projection)render();}));
+    $9("ux9-project").addEventListener("click",async()=>{
+      const token=tokenValue();if(!token){setStatus("Connect to TaaS Studio before requesting a projection.",true);return;}
+      let traceability;try{traceability=JSON.parse($9("ux9-trace-input").value);}catch(e){setStatus("Invalid JSON: "+e.message,true);return;}
+      $9("ux9-project").disabled=true;setStatus("Requesting a Core-owned objective traceability projection…");
+      try{const response=await fetch("/api/v1/hypergraph/objective-traceability",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({traceability})});const data=await readJsonResponse(response);if(!response.ok)throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));if(!data.hypergraph_projection||data.hypergraph_projection.schema!=="taas.hypergraph-projection/v1")throw new Error("Core response did not contain the supported hypergraph projection schema.");state.projection=data.hypergraph_projection;state.selected=null;render();setStatus("Core projection loaded · "+vertices().length+" vertices · "+edges().length+" hyperedges. No tools executed; no authorization granted.");}
+      catch(e){state.projection=null;$9("ux9-projection-state").textContent="PROJECTION UNAVAILABLE";setStatus("Projection request failed: "+e.message,true);}
+      finally{$9("ux9-project").disabled=false;}
+    });
+    $9("ux9-clear").addEventListener("click",()=>{$9("ux9-trace-input").value="";state.projection=null;state.selected=null;$9("ux9-canvas").replaceChildren(safeNode("div","No projection loaded. No graph has been synthesized."));$9("ux9-entity-list").replaceChildren(safeNode("div","No projected entities."));$9("ux9-projection-state").textContent="NO PROJECTION LOADED";$9("ux9-counts").textContent="0 entities · 0 relations";$9("ux9-export").disabled=true;$9("ux9-export-preview").textContent="No projection available.";$9("ux9-inspector-title").textContent="Nothing selected";$9("ux9-inspector-body").textContent="Select a projected node or relationship.";setStatus("Workspace cleared. No files or projection retained.");});
+    $9("ux9-export").addEventListener("click",()=>{if(!state.projection)return;const blob=new Blob([JSON.stringify(state.projection,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="taas-objective-traceability-projection.json";document.body.append(a);a.click();a.remove();URL.revokeObjectURL(url);});
+  })();
+
 
 })();
 </script>
