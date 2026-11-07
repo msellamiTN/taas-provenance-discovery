@@ -10,6 +10,7 @@ on:
       - "experiments/e8_retrieval_campaign.py"
       - "experiments/prepare_e8_data.py"
       - "experiments/export_e8_figures.py"
+      - "experiments/run_e8_and_plot.sh"
       - "tests/test_e8_retrieval_campaign.py"
       - "tests/test_e8_data_preparation.py"
       - "tests/test_e8_figure_export.py"
@@ -49,5 +50,7 @@ jobs:
         run: python -m pip install -e ".[visualization,test]"
       - name: Validate E1-E22 figure registry
         run: python experiments/plot_results.py validate
-      - name: Run plotting tests
+      - name: Validate E8 launcher syntax
+        run: bash -n experiments/run_e8_and_plot.sh
+      - name: Run plotting and E8 tests
         run: python -m pytest -q tests/test_plotting.py tests/test_e8_retrieval_campaign.py tests/test_e8_data_preparation.py tests/test_e8_figure_export.py
