@@ -1,0 +1,28 @@
+name: PaMCP protocol validation
+on:
+  push:
+    branches: [research/pamcp-experimental-v1]
+  pull_request:
+    branches: [research/pamcp-experimental-v1]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  protocol-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package and test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[test,experiment]"
+      - name: Validate frozen E1-E22 catalogue
+        run: python experiments/catalog_cli.py validate
+      - name: Check fail-closed run-control status
+        run: python experiments/run_protocol.py status
+      - name: Run regression tests
+        run: python -m pytest -q
