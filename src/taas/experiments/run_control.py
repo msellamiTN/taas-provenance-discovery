@@ -34,6 +34,11 @@ def validate_dependency_manifest(data: Mapping[str, Any]) -> dict[str, Any]:
     deps = data.get("depends_on")
     if data.get("schema_version") != "1.0.0" or data.get("programme") != "PaMCP":
         raise RunBlocked("Unsupported dependency manifest")
+    source_hash = data.get("source_specification_sha256", "")
+    if (not isinstance(source_hash, str) or len(source_hash) != 64
+            or any(ch not in "0123456789abcdef" for ch in source_hash.lower())
+            or not data.get("source_specification") or data.get("source_specification_version") != "1.0.0"):
+        raise RunBlocked("Dependency manifest must pin the protocol source name, version and SHA-256")
     if not isinstance(deps, dict) or set(deps) != EXPERIMENT_IDS:
         raise RunBlocked("Dependency manifest must define E1-E22 exactly once")
     external = data.get("external_prerequisites")
