@@ -40,6 +40,7 @@ from taas.experiments.evaluation_metrics import ranking_metrics
 
 
 REQUIRED_BASELINES = ("random", "bm25", "tfidf", "dense_lsa", "e5_dense", "bm25_e5_rrf", "cross_encoder")
+TOOLRET_BASELINES = ("random", "bm25", "tfidf", "dense_lsa", "e5_dense", "bm25_e5_rrf", "bm25_tfidf_rrf")
 K_VALUES = (1, 5, 10)
 RRF_K0 = 60
 CROSS_ENCODER_CANDIDATE_K = 100
@@ -347,6 +348,33 @@ def _tfidf_rankings(
         scores = (query @ matrix.T).toarray().ravel()
         result[task.task_id] = _rank_scores(scores, ids, top_k)
     return result
+
+
+def _rrf_fuse_rankings(
+    first: Mapping[str, Sequence[str]],
+    second: Mapping[str, Sequence[str]],
+    top_k: int,
+    rrf_k0: int = RRF_K0,
+) -> dict[str, list[str]]:
+    """Deterministic reciprocal-rank fusion over two independently ranked lists."""
+    if rrf_k0 < 0:
+        raise ValueError("rrf_k0 must be non-negative")
+    if set(first) != set(second):
+        raise ValueError("RRF inputs must cover exactly the same task IDs")
+    fused_rankings: dict[str, list[str]] = {}
+    for task_id in sorted(first):
+        scores: dict[str, float] = defaultdict(float)
+        for ranking in (first[task_id], second[task_id]):
+            seen: set[str] = set()
+            for rank, tool_id in enumerate(ranking, start=1):
+                if tool_id in seen:
+                    continue
+                seen.add(tool_id)
+                scores[tool_id] += 1.0 / (rrf_k0 + rank)
+        fused_rankings[task_id] = sorted(
+            scores, key=lambda tool_id: (-scores[tool_id], tool_id)
+        )[:top_k]
+    return fused_rankings
 
 
 def _lsa_rankings(
@@ -1105,12 +1133,50 @@ def run_campaign(
         rankings["e5_dense"] = dense_cached
         rankings["bm25_e5_rrf"] = hybrid_cached
 
-        # Cross-encoder is evaluated on the fixed BM25 top-100 candidate pool.
-        # Each complete task batch is checkpointed independently to Drive.
-        cross_path = run_dir / f"{track.dataset_id}_cross_encoder_rankings.json"
-        cross_meta = run_dir / f"{track.dataset_id}_cross_encoder_cache.json"
-        cross_checkpoint_dir = run_dir / f"{track.dataset_id}_cross_encoder_batches"
-        cross_checkpoint_key = _json_fingerprint({
+        if track.dataset_id == "toolret_heterogeneous":
+            # Lightweight lexical alternative: fuse BM25 and TF-IDF top-100 lists.
+            tfidf_candidate_path = run_dir / f"{track.dataset_id}_tfidf_candidates.json"
+            tfidf_candidate_meta = run_dir / f"{track.dataset_id}_tfidf_candidates_cache.json"
+            tfidf_candidates = _load_ranking_cache(
+                tfidf_candidate_path, tfidf_candidate_meta,
+                _ranking_cache_key(track, "tfidf_candidates", models, top_k, seed),
+                task_ids, tool_ids, CROSS_ENCODER_CANDIDATE_K,
+            )
+            if tfidf_candidates is None:
+                tfidf_candidates = _tfidf_rankings(docs, tasks, CROSS_ENCODER_CANDIDATE_K)
+                _save_ranking_cache(
+                    tfidf_candidate_path, tfidf_candidate_meta, tfidf_candidates,
+                    _ranking_cache_key(track, "tfidf_candidates", models, top_k, seed),
+                    "tfidf_candidates",
+                )
+            else:
+                cache_hits.append("tfidf_candidates")
+            lexical_hybrid_path = run_dir / f"{track.dataset_id}_bm25_tfidf_rrf_rankings.json"
+            lexical_hybrid_meta = run_dir / f"{track.dataset_id}_bm25_tfidf_rrf_cache.json"
+            lexical_hybrid_key = cache_key("bm25_tfidf_rrf")
+            lexical_hybrid = _load_ranking_cache(
+                lexical_hybrid_path, lexical_hybrid_meta, lexical_hybrid_key,
+                task_ids, tool_ids, top_k,
+            )
+            if lexical_hybrid is None:
+                lexical_hybrid = _rrf_fuse_rankings(
+                    candidate_sets["bm25"], tfidf_candidates, top_k
+                )
+                _save_ranking_cache(
+                    lexical_hybrid_path, lexical_hybrid_meta, lexical_hybrid,
+                    lexical_hybrid_key, "bm25_tfidf_rrf",
+                )
+            else:
+                cache_hits.append("bm25_tfidf_rrf")
+            rankings["bm25_tfidf_rrf"] = lexical_hybrid
+
+        # Cross-Encoder reranking is retained only for MCPToolBench++; never for ToolRet.
+        cross_checkpoint_stats: dict[str, Any] = {}
+        if track.dataset_id == "mcptoolbenchpp_single_target":
+            cross_path = run_dir / f"{track.dataset_id}_cross_encoder_rankings.json"
+            cross_meta = run_dir / f"{track.dataset_id}_cross_encoder_cache.json"
+            cross_checkpoint_dir = run_dir / f"{track.dataset_id}_cross_encoder_batches"
+            cross_checkpoint_key = _json_fingerprint({
             "ranking_cache_key": cache_key("cross_encoder"),
             "candidate_pool_fingerprint": _json_fingerprint([
                 (task.task_id, list(candidate_sets["bm25"][task.task_id]))
@@ -1120,31 +1186,35 @@ def run_campaign(
             "candidate_k": CROSS_ENCODER_CANDIDATE_K,
             "predict_batch_size": 64,
         })
-        cross_checkpoint_stats: dict[str, Any] = {}
-        cached = _load_ranking_cache(cross_path, cross_meta, cache_key("cross_encoder"),
-                                     task_ids, tool_ids, top_k)
-        if cached is None:
-            cached = _cross_encoder_rankings(
-                docs, tasks, candidate_sets["bm25"], reranker, top_k,
-                checkpoint_dir=cross_checkpoint_dir,
-                checkpoint_key=cross_checkpoint_key,
-                task_chunk_size=16,
-                checkpoint_stats=cross_checkpoint_stats,
-            )
-            _save_ranking_cache(
-                cross_path, cross_meta, cached, cache_key("cross_encoder"), "cross_encoder"
-            )
+            cached = _load_ranking_cache(cross_path, cross_meta, cache_key("cross_encoder"),
+                                         task_ids, tool_ids, top_k)
+            if cached is None:
+                cached = _cross_encoder_rankings(
+                    docs, tasks, candidate_sets["bm25"], reranker, top_k,
+                    checkpoint_dir=cross_checkpoint_dir,
+                    checkpoint_key=cross_checkpoint_key,
+                    task_chunk_size=16,
+                    checkpoint_stats=cross_checkpoint_stats,
+                )
+                _save_ranking_cache(
+                    cross_path, cross_meta, cached, cache_key("cross_encoder"), "cross_encoder"
+                )
+            else:
+                cache_hits.append("cross_encoder")
+                cross_checkpoint_stats = {
+                    "mode": "whole_baseline_cache_hit",
+                    "task_chunk_size": 16,
+                    "total_batches": (len(tasks) + 15) // 16,
+                    "reused_batches": (len(tasks) + 15) // 16,
+                    "computed_batches": 0,
+                    "checkpoint_dir": str(cross_checkpoint_dir),
+                }
+            rankings["cross_encoder"] = cached
         else:
-            cache_hits.append("cross_encoder")
             cross_checkpoint_stats = {
-                "mode": "whole_baseline_cache_hit",
-                "task_chunk_size": 16,
-                "total_batches": (len(tasks) + 15) // 16,
-                "reused_batches": (len(tasks) + 15) // 16,
-                "computed_batches": 0,
-                "checkpoint_dir": str(cross_checkpoint_dir),
+                "status": "NOT_RUN_BY_DESIGN",
+                "reason": "ToolRet lightweight lexical amendment excludes Cross-Encoder inference.",
             }
-        rankings["cross_encoder"] = cached
 
         # Rankings are fully materialized before evaluator qrels are accessed.
         _write_rankings(track.dataset_id, rankings, run_dir)
@@ -1165,7 +1235,12 @@ def run_campaign(
                 "dense_lsa": "surrogate: TF-IDF plus truncated SVD",
                 "e5_dense": "pinned neural dense encoder",
                 "bm25_e5_rrf": "adaptation: reciprocal-rank fusion over BM25/E5 top-100 candidates",
-                "cross_encoder": "reranker adaptation over BM25 top-100 candidates",
+                **({
+                    "cross_encoder": "reranker adaptation over BM25 top-100 candidates (MCPToolBench++ only)"
+                } if "cross_encoder" in rankings else {}),
+                **({
+                    "bm25_tfidf_rrf": "lightweight lexical adaptation: RRF over BM25 and TF-IDF top-100 rankings (ToolRet only)"
+                } if "bm25_tfidf_rrf" in rankings else {}),
             },
             "cache_hits": cache_hits,
             "cache_misses": [baseline for baseline in rankings if baseline not in cache_hits],
@@ -1211,12 +1286,23 @@ def run_campaign(
         "protocol": {
             "candidate_pool": "complete source-specific corpus for each separate dataset track",
             "ranking_cutoffs": list(K_VALUES),
-            "baseline_suite_executed": list(REQUIRED_BASELINES),
+            "baseline_suite_by_track": {
+                "toolret_heterogeneous": list(TOOLRET_BASELINES),
+                "mcptoolbenchpp_single_target": list(REQUIRED_BASELINES),
+            },
+            "baseline_suite_executed_union": sorted(set(TOOLRET_BASELINES) | set(REQUIRED_BASELINES)),
             "primary_metrics": ["Hit@1", "Hit@5", "MRR@10", "macro Hit@1"],
             "secondary_metrics": ["Precision@k", "Recall@k", "nDCG@k", "paired task/server sign-flip tests"],
             "multiple_testing": "Holm adjustment over the declared pairwise baseline-metric family within each track",
             "random_seed": seed,
-            "cross_encoder_candidate_generation": f"BM25 top-{CROSS_ENCODER_CANDIDATE_K}, rerank then return top-{top_k}",
+            "cross_encoder_candidate_generation": (
+                f"MCPToolBench++ only: BM25 top-{CROSS_ENCODER_CANDIDATE_K}, rerank then return top-{top_k}; "
+                "not executed on ToolRet"
+            ),
+            "toolret_lightweight_hybrid": (
+                f"BM25 + TF-IDF reciprocal-rank fusion over top-{CROSS_ENCODER_CANDIDATE_K} lists; "
+                f"RRF k0={RRF_K0}, return top-{top_k}"
+            ),
             "data_separation": "discovery queries/tools supplied to rankers; evaluator qrels consumed only after ranking JSON files are materialized",
             "tracks_are_not_pooled": True,
         },
@@ -1225,7 +1311,10 @@ def run_campaign(
         "blocked_or_not_comparable": blocked,
         "protocol_baseline_status": {
             "preregistered_catalog_ids": ["bm25", "dense_lsa", "rag_mcp", "mcp_zero", "per_subtask", "colt_adapted", "toolscope_adapted", "cmtf_adapted"],
-            "executed_retrieval_controls": list(REQUIRED_BASELINES),
+            "executed_retrieval_controls_by_track": {
+                "toolret_heterogeneous": list(TOOLRET_BASELINES),
+                "mcptoolbenchpp_single_target": list(REQUIRED_BASELINES),
+            },
             "blocked_or_not_comparable": sorted(blocked),
         },
         "scientific_limitations": [
@@ -1233,12 +1322,13 @@ def run_campaign(
             "MCPToolBench++ includes only tasks with exactly one resolved gold tool; multi-tool, ambiguous and unresolved examples are counted as exclusions.",
             "B1/B1m were not found in the tracked data tree and are not substituted.",
             "E5 is a dense retrieval model; the BM25+E5 method uses reciprocal-rank fusion, not a tuned learned fusion.",
-            "Cross-encoder results are conditional on BM25 top-100 candidate recall; the candidate ceiling is reported separately.",
+            "Cross-Encoder results are conditional on BM25 top-100 candidate recall and are reported only for MCPToolBench++; ToolRet excludes Cross-Encoder inference.",
+            "ToolRet BM25+TF-IDF RRF is a lightweight lexical hybrid, not a semantic substitute for neural reranking; RRF uses k0=60 over top-100 lists.",
             "COLT-style adaptation requires a true train split and training scenes; this run does not construct scenes from evaluation labels.",
             "MCP-Zero, per-subtask, ToolScope and CMTF are not falsely reported as executed in this retrieval-only run.",
             "No tool execution, observed effects, security oracle or task-success claims are evaluated by E8.",
             "The historical ToolRet BM25/TF-IDF/Random aggregate is a previous execution and is not silently pooled with this new run.",
-            "This execution covers the lexical, dense E5, RRF hybrid and cross-encoder retrieval controls; registered planning/composition adaptations remain blocked as recorded above.",
+            "This amended execution covers ToolRet lexical, dense E5 and BM25+TF-IDF RRF controls; MCPToolBench++ retains E5, BM25+E5 RRF and Cross-Encoder controls. Registered planning/composition adaptations remain blocked as recorded above.",
         ],
     }
     (run_dir / "MANIFEST.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
