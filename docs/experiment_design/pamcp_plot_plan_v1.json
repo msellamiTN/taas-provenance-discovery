@@ -651,7 +651,8 @@
               "util_at_5",
               "exp_at_5",
               "series",
-              "eligible_share"
+              "eligible_share",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -707,11 +708,11 @@
           "data_file": "results/visualization/data/E4-F2.csv",
           "x_axis": {
             "field": "reference",
-            "label": "Exposure before filtering"
+            "label": "Exposure before / after policy"
           },
           "y_axis": {
-            "field": "candidate",
-            "label": "Exposure after filtering"
+            "field": "category",
+            "label": "Policy method"
           },
           "value_field": "value",
           "data_contract": {
@@ -780,7 +781,8 @@
             "required_columns": [
               "category",
               "series",
-              "value"
+              "value",
+              "metric"
             ],
             "optional_columns": [
               "series",
@@ -1690,7 +1692,8 @@
               "value",
               "ci_low",
               "ci_high",
-              "series"
+              "series",
+              "benchmark"
             ],
             "optional_columns": [
               "series",
@@ -2464,7 +2467,8 @@
             "required_columns": [
               "input_size",
               "model_class",
-              "value"
+              "value",
+              "model"
             ],
             "optional_columns": [
               "series",
@@ -3651,11 +3655,11 @@
           "data_file": "results/visualization/data/E16-F1.csv",
           "x_axis": {
             "field": "reference",
-            "label": "Incremental update time (ms)"
+            "label": "Update time (ms)"
           },
           "y_axis": {
-            "field": "candidate",
-            "label": "Full rebuild time (ms)"
+            "field": "category",
+            "label": "Mutation / event class"
           },
           "value_field": "value",
           "data_contract": {
