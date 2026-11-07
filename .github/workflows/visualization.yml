@@ -87,3 +87,10 @@ jobs:
           PY
       - name: Run plotting and E8/E9 regression tests
         run: python -m pytest -q tests/test_plotting.py tests/test_e8_figure_export.py tests/test_e8_retrieval_campaign.py tests/test_e8_data_preparation.py tests/test_e9_figure_export.py
+      - name: Upload prepared E9 LiveMCPBench dataset package
+        uses: actions/upload-artifact@v4
+        with:
+          name: PaMCP-E9-LiveMCPBench-Prepared
+          path: /tmp/e9-livemcpbench-prepared/
+          if-no-files-found: error
+          retention-days: 30
