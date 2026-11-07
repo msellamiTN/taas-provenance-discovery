@@ -1,6 +1,7 @@
 from taas.experiments.provenance_policy_evaluators import (
     effect_discrepancy, probe_coverage, verifier_error_rates,
-    trust_threshold_sweep, pareto_frontier, policy_threshold_pareto,\n    malicious_provider_exposure_curve, verifier_threshold_sweep,
+    trust_threshold_sweep, pareto_frontier, policy_threshold_pareto,
+    malicious_provider_exposure_curve, verifier_threshold_sweep,
 )
 
 
