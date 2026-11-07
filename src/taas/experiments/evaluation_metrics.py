@@ -68,7 +68,7 @@ def binary_classification_metrics(
 
 def retrieval_metrics(
     rankings: Mapping[str, Sequence[str]],
-    relevant: Mapping[str, Iterable[str]],
+    relevant: Mapping[str, Iterable[str] | None],
     ks: Sequence[int] = (1, 5),
 ) -> dict:
     """Hit@k, MRR@max(k), and macro Hit@1 over requests with non-empty qrels."""
@@ -77,15 +77,21 @@ def retrieval_metrics(
     if any(k < 1 for k in ks):
         raise ValueError("k must be positive")
     rows = []
+    unknown_qrels = empty_qrels = 0
     for request_id, ranking in rankings.items():
+        if relevant[request_id] is None:
+            unknown_qrels += 1
+            continue
         gold = set(relevant[request_id])
         if not gold:
+            empty_qrels += 1
             continue
         ordered = list(ranking)
         first = next((i + 1 for i, tool in enumerate(ordered) if tool in gold), None)
         rows.append((request_id, first))
     n = len(rows)
-    out = {"requests_scored": n, "requests_total": len(rankings)}
+    out = {"requests_scored": n, "requests_total": len(rankings),
+           "unknown_qrels": unknown_qrels, "empty_qrels": empty_qrels}
     for k in ks:
         hits = sum(rank is not None and rank <= k for _, rank in rows)
         out[f"hit@{k}"] = _ratio(f"hit@{k}", hits, n).to_dict()
