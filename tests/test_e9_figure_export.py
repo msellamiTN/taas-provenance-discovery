@@ -123,6 +123,8 @@ def test_e9_export_uses_only_acceptable_set_references_and_renders(tmp_path):
     assert set(f3["task_group"]) == {"Office", "Travel"}
     assert set(f3["decomposition"]) == {"none", "clause_splitter", "llm_analyst"}
     assert set(f3["k"]) == {5, 10, 20}
+    assert set(f3["decomposition"]) == {"none", "clause_splitter", "llm_analyst"}
+    assert set(f3["k"]) == {5, 10, 20}
     assert not f3.empty
 
     for figure_id, frame in [("E9-F1", f1), ("E9-F2", f2), ("E9-F3", f3)]:
