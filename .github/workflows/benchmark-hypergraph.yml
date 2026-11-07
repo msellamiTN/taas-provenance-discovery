@@ -3,8 +3,11 @@ name: Benchmark hypergraph validation
 on:
   push:
     branches:
-      - feature/benchmark-capability-hypergraph
-      - feature/colab-t4-core-studio
+      - main
+      - feature/**
+      - devin/**
+      - ux/**
+      - research/**
   # Studio work is developed as stacked PRs; validate every PR base.
   pull_request:
   workflow_dispatch:
