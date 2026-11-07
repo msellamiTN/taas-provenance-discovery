@@ -45,7 +45,7 @@ Populate the generated CSVs only from validated experiment outputs. E8 has a sep
 E8_DEVICE=cuda bash experiments/run_e8_and_plot.sh
 ```
 
-For an interactive Colab run with Google Drive persistence, open the [PaMCP E8 Colab notebook](https://colab.research.google.com/github/msellamiTN/taas-provenance-discovery/blob/feature/pamcp-publication-visualization-v1/experiments/colab/E8_Retrieval_Campaign.ipynb).
+For an interactive Colab run with Google Drive persistence, open the [PaMCP E8 Colab notebook](https://colab.research.google.com/github/msellamiTN/taas-provenance-discovery/blob/feature/pamcp-publication-visualization-v1/experiments/colab/E8_Retrieval_Campaign.ipynb). The current source/result readiness boundary is recorded in [docs/E8_EXECUTION_READINESS.md](docs/E8_EXECUTION_READINESS.md).
 
 Full workflow and per-figure axes are documented in [docs/VISUALIZATION_FRAMEWORK.md](docs/VISUALIZATION_FRAMEWORK.md), the [E8 execution runbook](docs/E8_EXECUTION_AND_EXPORT.md), the [80-figure catalogue](docs/FIGURE_CATALOG.md), and [docs/experiment_design/pamcp_plot_plan_v1.json](docs/experiment_design/pamcp_plot_plan_v1.json).
 
