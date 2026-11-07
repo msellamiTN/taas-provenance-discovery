@@ -23,15 +23,15 @@ def model_profile_calibration(records: Sequence[Mapping], *, tau: float = .9,
         estimate = mean(outcomes)
         ci = percentile_bootstrap(outcomes, replicates=replicates,
                                   seed=seed + len(cells))
-        claim_values = [float(row["claimed_rho"]) for row in rows if row.get("claimed_rho") is not None]
+        paired = [(float(row["claimed_rho"]), float(bool(row["correct"])))
+                  for row in rows if row.get("claimed_rho") is not None]
+        claim_values = [pair[0] for pair in paired]
         claim = mean(claim_values) if claim_values else None
-        if claim is not None:
-            claims.append(claim)
-            measured.append(estimate)
-            claim_n += len(claim_values)
-            refuted += sum(value >= tau and outcome < tau
-                           for value, outcome in zip(claim_values, outcomes)
-                           if len(claim_values) == len(outcomes))
+        if paired:
+            claims.extend(value for value, _ in paired)
+            measured.extend(outcome for _, outcome in paired)
+            claim_n += len(paired)
+            refuted += sum(value >= tau and outcome < tau for value, outcome in paired)
         cells.append({"class": key[0], "n": key[1], "lang": key[2], "exactness": key[3],
                       "count": len(rows), "measured_reliability": estimate,
                       "reliability_ci": ci["ci"], "claimed_rho": claim})
