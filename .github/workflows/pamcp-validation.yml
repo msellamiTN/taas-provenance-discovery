@@ -3,7 +3,7 @@ on:
   push:
     branches: [research/pamcp-experimental-v1]
   pull_request:
-    branches: [research/pamcp-experimental-v1]
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
