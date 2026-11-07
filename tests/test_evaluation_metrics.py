@@ -1,6 +1,6 @@
 from taas.experiments.evaluation_metrics import (
     binary_classification_metrics, retrieval_metrics, exposure_at_k,
-    multi_tool_set_metrics, qos_evidence_record,
+    multi_tool_set_metrics, qos_evidence_record, certificate_check_metrics,
 )
 
 
@@ -62,3 +62,23 @@ def test_observed_qos_requires_definition_binding():
     except ValueError:
         return
     raise AssertionError("observed QoS without definition hash must fail")
+
+
+def test_certificate_check_rates_keep_all_submitted_certificates_in_denominator():
+    result = certificate_check_metrics([
+        {"recomputed": {"S": True, "C": True, "P": True, "E": True, "L": True, "V": True}},
+        {"recomputed": {"S": True, "C": True, "P": False, "E": True, "L": True, "V": True}},
+        {"recomputed": {"S": True, "C": True}},
+    ])
+    assert result["n_certificates"] == 3
+    assert result["by_check"]["S"]["value"] == 1.0
+    assert result["by_check"]["P"]["value"] == 1 / 3
+    assert result["by_check"]["V"]["value"] == 1 / 3
+    assert result["overall_conjunction"]["value"] == 1 / 3
+    assert result["by_check"]["P"]["denominator"] == 3
+
+
+def test_certificate_check_metrics_empty_input_is_undefined_not_zero():
+    result = certificate_check_metrics([])
+    assert result["by_check"]["S"]["value"] is None
+    assert result["by_check"]["S"]["denominator"] == 0
