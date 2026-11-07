@@ -191,7 +191,12 @@ def load_toolret_track(processed_dir: str | Path) -> DatasetTrack:
 
 
 def load_mcptoolbenchpp_track(raw_root: str | Path) -> DatasetTrack:
-    """Load only single-primary-target tasks; retain similar_tools as sensitivity qrels."""
+    """Load call_type=single tasks with one resolved primary target.
+
+    Multi-call examples (including files that mix single and multi-call rows) are
+    excluded before scoring. The primary qrel is the single function_call_label;
+    similar_tools are retained only as a separately named sensitivity analysis.
+    """
     raw_root = Path(raw_root)
     tools_raw, tasks_raw = load_mcptoolbenchpp(raw_root)
     tools_by_id = {tool.id: tool for tool in tools_raw}
@@ -282,7 +287,7 @@ def load_mcptoolbenchpp_track(raw_root: str | Path) -> DatasetTrack:
             "source_revisions_file": str((raw_root / "SOURCES.txt").resolve()),
             "source_revisions_sha256": _sha256_file(raw_root / "SOURCES.txt"),
             "source_revisions": (raw_root / "SOURCES.txt").read_text(encoding="utf-8"),
-            "selection_rule": "exactly one resolved primary function_call_label; ambiguous/multiple labels excluded",
+            "selection_rule": "call_type=single (or legacy field absent) and exactly one resolved primary function_call_label; multi-call, ambiguous and unresolved tasks excluded",
             "primary_metric_semantics": "primary function_call_label only",
             "sensitivity_metric_semantics": "primary target plus source-annotated similar_tools that resolve into the candidate corpus",
         },
