@@ -19,3 +19,5 @@ audit-test.sqlite3
 uvicorn-acc.log
 docs/studio/taas-studio-e2e.png
 NUL
+cdp_eval.py
+*.playwright-mcp/
