@@ -1208,6 +1208,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
           <h3 style="margin-top:12px">Toolsets &amp; skills</h3><div id="ux9-group-tools" class="ux9-list"><div class="ux9-empty">No toolset or skill records reported.</div></div>
           <h3 style="margin-top:12px">Evidence</h3><div id="ux9-group-evidence" class="ux9-list"><div class="ux9-empty">No evidence records reported.</div></div>
           <h3 style="margin-top:12px">Experiments</h3><div id="ux9-group-experiments" class="ux9-list"><div class="ux9-empty">No experiment records reported.</div></div>
+          <h3 style="margin-top:12px">Other declared entities</h3><div id="ux9-group-other" class="ux9-list"><div class="ux9-empty">No other entities reported.</div></div>
           <div id="ux9-entity-list" hidden></div>
         </aside>
         <div class="ux9-pane"><div class="panel-head"><h3>Relationship graph</h3><span class="ux9-state" id="ux9-counts">0 entities · 0 relations</span></div>
@@ -3503,14 +3504,15 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       const vs=visibleVertices(),es=selectedEdgeList();
       $9("ux9-projection-state").textContent="PROJECTION AVAILABLE";
       $9("ux9-counts").textContent=vs.length+" entities · "+es.length+" relations";
-      const groups={objectives:[],subgoals:[],tools:[],evidence:[],experiments:[]};
+      const groups={objectives:[],subgoals:[],tools:[],evidence:[],experiments:[],other:[]};
       vs.forEach(v=>{
         const id=String(v.id||"").toLowerCase(),kind=String(v.kind||v.type||"").toLowerCase();
         if(kind.includes("experiment")||id.startsWith("experiment:"))groups.experiments.push(v);
         else if(kind.includes("evidence")||id.startsWith("evidence:"))groups.evidence.push(v);
         else if(kind.includes("skill")||kind.includes("tool")||id.startsWith("skill:")||id.startsWith("tool:"))groups.tools.push(v);
         else if(v.parent_goal_id||v.parent_id||id.includes("subgoal")||id.startsWith("sub-goal:"))groups.subgoals.push(v);
-        else groups.objectives.push(v);
+        else if(kind.includes("goal")||kind.includes("objective")||id.startsWith("goal:")||id.startsWith("objective:"))groups.objectives.push(v);
+        else groups.other.push(v);
       });
       Object.entries(groups).forEach(([group,items])=>{
         const host=$9("ux9-group-"+group);host.replaceChildren();
@@ -3544,7 +3546,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       catch(e){state.projection=null;$9("ux9-projection-state").textContent="PROJECTION UNAVAILABLE";setStatus("Projection request failed: "+e.message,true);}
       finally{$9("ux9-project").disabled=false;}
     });
-    $9("ux9-clear").addEventListener("click",()=>{$9("ux9-trace-input").value="";state.projection=null;state.selected=null;$9("ux9-canvas").replaceChildren(safeNode("div","No projection loaded. No graph has been synthesized."));["objectives","subgoals","tools","evidence","experiments"].forEach(group=>$9("ux9-group-"+group).replaceChildren(safeNode("div","No "+group+" records reported.")));$9("ux9-entity-list").replaceChildren();$9("ux9-projection-state").textContent="NO PROJECTION LOADED";$9("ux9-counts").textContent="0 entities · 0 relations";$9("ux9-export").disabled=true;$9("ux9-export-preview").textContent="No projection available.";$9("ux9-inspector-title").textContent="Nothing selected";$9("ux9-inspector-body").textContent="Select a projected node or relationship.";setStatus("Workspace cleared. No files or projection retained.");});
+    $9("ux9-clear").addEventListener("click",()=>{$9("ux9-trace-input").value="";state.projection=null;state.selected=null;$9("ux9-canvas").replaceChildren(safeNode("div","No projection loaded. No graph has been synthesized."));["objectives","subgoals","tools","evidence","experiments","other"].forEach(group=>$9("ux9-group-"+group).replaceChildren(safeNode("div","No "+group+" records reported.")));$9("ux9-entity-list").replaceChildren();$9("ux9-projection-state").textContent="NO PROJECTION LOADED";$9("ux9-counts").textContent="0 entities · 0 relations";$9("ux9-export").disabled=true;$9("ux9-export-preview").textContent="No projection available.";$9("ux9-inspector-title").textContent="Nothing selected";$9("ux9-inspector-body").textContent="Select a projected node or relationship.";setStatus("Workspace cleared. No files or projection retained.");});
     $9("ux9-export").addEventListener("click",()=>{if(!state.projection)return;const blob=new Blob([JSON.stringify(state.projection,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="taas-objective-traceability-projection.json";document.body.append(a);a.click();a.remove();URL.revokeObjectURL(url);});
   })();
 
