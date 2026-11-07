@@ -469,19 +469,19 @@ def export_e9_figures(
 
     if f1_rows:
         _write_csv(output_dir / "E9-F1.csv",
-                   ["category", "series", "value", "ci_low", "ci_high", "benchmark", "n", "n_independent_units"],
+                   ["category", "series", "value", "ci_low", "ci_high", "benchmark", "decomposition", "n", "n_independent_units"],
                    f1_rows)
     if f2_rows:
         _write_csv(output_dir / "E9-F2.csv",
-                   ["set_precision", "group_recall", "series", "label", "complete_set_share", "benchmark", "n", "n_independent_units"],
+                   ["set_precision", "group_recall", "series", "label", "complete_set_share", "benchmark", "decomposition", "n", "n_independent_units"],
                    f2_rows)
     if f3_rows:
         _write_csv(output_dir / "E9-F3.csv",
-                   ["task_group", "method", "value", "benchmark", "n"],
+                   ["task_group", "method", "value", "benchmark", "decomposition", "k", "n"],
                    f3_rows)
     if diagnostic_rows:
         _write_csv(output_dir / "E9_TRACE_DIAGNOSTICS.csv",
-                   ["task_id", "benchmark", "baseline", "task_group", "k", "trace_coverage",
+                   ["task_id", "benchmark", "baseline", "task_group", "decomposition", "k", "trace_coverage",
                     "reference_trace_size", "reference_semantics"], diagnostic_rows)
 
     exported = [figure_id for figure_id, rows in [
@@ -496,6 +496,8 @@ def export_e9_figures(
         "source_rankings_sha256": sha256_file(ranking_path),
         "source_evaluator_references_sha256": sha256_file(reference_path),
         "ranking_cutoffs": cutoffs,
+        "decomposition_conditions_expected": ["none", "clause_splitter", "llm_analyst"],
+        "decomposition_conditions_observed": sorted({row["decomposition"] for row in ranking_rows}),
         "bootstrap": {
             "method": "percentile bootstrap over independent task/cluster units",
             "confidence_level": 0.95,
