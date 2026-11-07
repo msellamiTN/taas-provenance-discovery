@@ -90,4 +90,4 @@ def test_kappa_is_undefined_for_degenerate_marginals():
 
 
 def test_kappa_known_example():
-    assert cohens_kappa(["true", "false"], ["true", "true"]) == pytest.approx(1 / 3)
+    assert cohens_kappa(["true", "false"], ["true", "true"]) == pytest.approx(0.0)
