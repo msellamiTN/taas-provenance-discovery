@@ -26,6 +26,9 @@ from taas.policy import Policy
 from taas.provenance import DEFAULT_TRUST
 from taas.studio.models import ModelCatalogError, get_model_details, inspect_model_artifacts, search_models
 from taas.studio.runtime import estimate_model_memory, probe_hardware
+
+from taas.studio.experiments_router import router as experiments_router
+from taas.studio.baselines_router import router as baselines_router
 from taas.types import KINDS
 
 app = FastAPI(
@@ -34,6 +37,9 @@ app = FastAPI(
     description="Experimental API wrapper around the existing TaaS discovery engine.",
 )
 bearer = HTTPBearer(auto_error=False)
+
+# PaMCP E1-E22 catalog and configuration validation routes.
+# Execution remains disabled until durable run storage, evaluator isolation and an MCP sandbox exist.
 
 
 class ToolInput(BaseModel):
@@ -104,6 +110,10 @@ def load_profile() -> ModelProfile:
         return ModelProfile.load(path)
     except Exception as exc:
         raise HTTPException(status_code=503, detail=f"Unable to load model profile: {type(exc).__name__}") from exc
+
+
+app.include_router(experiments_router)
+app.include_router(baselines_router)
 
 
 @app.get("/health")
