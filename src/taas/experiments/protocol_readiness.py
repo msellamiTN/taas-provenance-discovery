@@ -23,7 +23,7 @@ DEPENDENCIES = {
 REQUIRED_ARTIFACTS = {
     "E1": ("frozen_registry_snapshot", "independent_non_read_only_reference_labels"),
     "E2": ("independent_semantic_typing_labels",),
-    "E3": ("hash_bound_observed_effect_records",),
+    "E3": ("hash_bound_observed_effect_records", "credential_free_probeable_server_inventory"),
     "E4": ("rankings", "unsafe_reference", "read_only_target_qrels"),
     "E5": ("rankings", "malicious_provider_assignments", "provider_mapping"),
     "E6": ("independent_unsafe_reference", "verifier_risk_scores"),
