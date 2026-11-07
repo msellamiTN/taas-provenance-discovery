@@ -332,10 +332,50 @@ def export_e9_figures(
             f"examples={invalid_reference_visibility[:3]}"
         )
     if not per_task:
+        if diagnostic_rows:
+            output_dir.mkdir(parents=True, exist_ok=True)
+            _write_csv(
+                output_dir / "E9_TRACE_DIAGNOSTICS.csv",
+                ["task_id", "benchmark", "baseline", "task_group", "k", "trace_coverage",
+                 "reference_trace_size", "reference_semantics"],
+                diagnostic_rows,
+            )
+            trace_manifest = {
+                "schema_version": "1.0.0",
+                "experiment_id": "E9",
+                "source_run_id": manifest.get("run_id"),
+                "source_run_status": manifest.get("status"),
+                "source_manifest_sha256": sha256_file(manifest_path),
+                "source_rankings_sha256": sha256_file(ranking_path),
+                "source_evaluator_references_sha256": sha256_file(reference_path),
+                "baseline_ids_registered": sorted(registered),
+                "baseline_ids_executed": sorted(executable_methods),
+                "primary_configuration_id": primary_id,
+                "primary_configuration_executed": primary_executed,
+                "primary_task_metric_rows": 0,
+                "primary_tasks_without_acceptable_set_reference": skipped_no_reference,
+                "trace_diagnostic_rows": len(diagnostic_rows),
+                "figures_exported": [],
+                "figures_not_exported": {
+                    "E9-F1": "No independently adjudicated or benchmark-native acceptable-set references.",
+                    "E9-F2": "No independently adjudicated or benchmark-native acceptable-set references.",
+                    "E9-F3": "No independently adjudicated or benchmark-native acceptable-set references.",
+                },
+                "interpretation": (
+                    "Only positive-trace diagnostics were available. No primary multi-tool "
+                    "set-quality figure was produced; traces are not treated as exhaustive "
+                    "acceptable tool sets."
+                ),
+            }
+            (output_dir / "E9_EXPORT_MANIFEST.json").write_text(
+                json.dumps(trace_manifest, indent=2, ensure_ascii=False) + "\\n",
+                encoding="utf-8",
+            )
+            return trace_manifest
         raise ValueError(
             "No primary E9 metrics can be computed: no discovery rankings match "
-            "independently adjudicated/benchmark-native acceptable-set references. "
-            "Trace-only references are not substituted."
+            "independently adjudicated/benchmark-native acceptable-set references, "
+            "and no trace-only diagnostic rows are available."
         )
 
     # Preserve per-task evidence so later paired analyses can be reconstructed.
