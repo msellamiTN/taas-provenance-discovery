@@ -344,8 +344,8 @@ def export_e9_figures(
             output_dir.mkdir(parents=True, exist_ok=True)
             _write_csv(
                 output_dir / "E9_TRACE_DIAGNOSTICS.csv",
-                ["task_id", "benchmark", "baseline", "task_group", "k", "trace_coverage",
-                 "reference_trace_size", "reference_semantics"],
+                ["task_id", "benchmark", "baseline", "task_group", "decomposition", "k",
+                 "trace_coverage", "reference_trace_size", "reference_semantics"],
                 diagnostic_rows,
             )
             trace_manifest = {
