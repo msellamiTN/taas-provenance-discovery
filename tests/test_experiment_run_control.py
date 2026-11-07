@@ -1,5 +1,6 @@
 import json
 import pytest
+import taas.experiments.run_control as run_control
 from taas.experiments.run_control import (
     RunBlocked, _assert_acyclic, execute_experiment, latest_successes,
     load_dependency_manifest, validate_dependency_manifest,
@@ -49,7 +50,8 @@ def test_execution_fails_closed_without_handler(tmp_path):
                            dependency_manifest=valid_manifest())
     assert not (tmp_path/"runs.jsonl").exists()
 
-def test_execution_requires_explicit_approved_dependency_manifest(tmp_path):
+def test_execution_requires_explicit_approved_dependency_manifest(tmp_path, monkeypatch):
+    monkeypatch.setattr(run_control, "DEFAULT_DEPENDENCIES", tmp_path / "absent.json")
     with pytest.raises(RunBlocked, match="Missing approved"):
         execute_experiment("E1", handler=lambda _: {"status":"completed","artifacts":["x"]},
           input_manifest={"protocol_version":"1.0.0","dataset_snapshot_hash":"abc","code_revision":"deadbeef","seed":0},
