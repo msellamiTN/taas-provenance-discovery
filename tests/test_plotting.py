@@ -109,3 +109,9 @@ def test_alluvial_requires_nonnegative_flows():
     frame = pd.DataFrame({"source": ["observed"], "target": ["invalidated"], "value": [-1]})
     with pytest.raises(ValueError, match="non-negative"):
         validate_figure_data(figure, frame)
+
+
+def test_unknown_experiment_filter_is_rejected():
+    plan = load_plot_plan(ROOT / "docs/experiment_design/pamcp_plot_plan_v1.json")
+    with pytest.raises(ValueError, match="Unknown experiment"):
+        list(iter_figures(plan, "E99"))
