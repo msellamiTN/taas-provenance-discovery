@@ -14,7 +14,7 @@ The audit recomputes:
 
 | Check | Recomputed condition |
 |---|---|
-| S — sufficiency | Every non-optional goal has a witness under the frozen reachability semantics |
+| S — sufficiency | Every non-optional goal has a witness under the frozen reachability semantics and each witness has a consistent provenance-backed binding |
 | C — consumability | Each selected output is consumable under the configured multimodal/artefact rule |
 | P — producibility | Every selected tool's required input is satisfiable and credential prerequisites are held |
 | E — effect bound | All scoped effects are allowed and no selected pair is forbidden |
