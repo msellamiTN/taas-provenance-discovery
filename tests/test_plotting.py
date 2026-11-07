@@ -73,7 +73,7 @@ def test_requested_facet_must_be_present():
     figure = _figure("E4-F3")
     figure["data_contract"]["required_columns"] = ["category", "series", "value"]
     frame = pd.DataFrame({"category": ["policy"], "series": ["Exp@5"], "value": [0.1]})
-    with pytest.raises(ValueError, match="facet column"):
+    with pytest.raises(ValueError, match="missing CSV columns"):
         validate_figure_data(figure, frame)
 
 
@@ -165,6 +165,7 @@ def test_renderer_smoke_covers_all_chart_families(tmp_path):
             "series": ["Full", "control"],
             "value": [0.08, 0.3],
             "metric": ["Exp@5", "Exp@5"],
+            "benchmark": ["native", "native"],
         }),
         "E10-F3": pd.DataFrame({
             "category": ["PaMCP", "baseline", "baseline"],
@@ -175,6 +176,7 @@ def test_renderer_smoke_covers_all_chart_families(tmp_path):
             "input_size": [10, 20, 40],
             "value": [2, 3, 5],
             "series": ["Full_PaMCP"] * 3,
+            "benchmark": ["review-tasks"] * 3,
         }),
         "E11-F3": pd.DataFrame({
             "tau": [0.2, 0.5, 0.8],
@@ -196,26 +198,31 @@ def test_renderer_smoke_covers_all_chart_families(tmp_path):
             "registry_size": [100, 1000, 10000],
             "latency_ms": [1, 4, 18],
             "series": ["PaMCP"] * 3,
+            "benchmark": ["synthetic-registry"] * 3,
         }),
         "E16-F4": pd.DataFrame({
             "source": ["observed", "observed", "attested"],
             "target": ["retained", "invalidated", "retained"],
             "value": [6, 2, 3],
+            "benchmark": ["mutation-replay"] * 3,
         }),
         "E18-F1": pd.DataFrame({
             "metric": ["success", "success"],
             "configuration": ["Full_PaMCP", "PaMCP_NoGap"],
             "value": [0.8, 0.7],
+            "benchmark": ["LiveMCPBench", "LiveMCPBench"],
         }),
         "E22-F3": pd.DataFrame({
             "rank": [1, 2, 3, 1, 2, 3],
             "probability": [0.7, 0.2, 0.1, 0.3, 0.4, 0.3],
             "series": ["PaMCP"] * 3 + ["baseline"] * 3,
+            "benchmark": ["tool-disjoint"] * 6,
         }),
         "E22-F4": pd.DataFrame({
             "effect": [0.15, -0.04],
             "adjusted_p": [0.02, 0.4],
             "series": ["baseline-a", "baseline-b"],
+            "benchmark": ["tool-disjoint", "tool-disjoint"],
         }),
     }
     for figure_id, frame in fixtures.items():
@@ -223,3 +230,18 @@ def test_renderer_smoke_covers_all_chart_families(tmp_path):
         rendered = render_figure(figure, frame, tmp_path, formats=("png",), dpi=80)
         assert len(rendered) == 1
         assert rendered[0].is_file(), figure_id
+
+
+def test_multi_field_facets_render_independent_panels(tmp_path):
+    figure = _figure("E4-F3")
+    frame = pd.DataFrame({
+        "category": ["PaMCP", "baseline", "PaMCP", "baseline"],
+        "series": ["Full", "control", "Full", "control"],
+        "value": [0.08, 0.3, 0.09, 0.28],
+        "metric": ["Exp@5", "Exp@5", "Util@5", "Util@5"],
+        "benchmark": ["MCPToolBench++"] * 4,
+    })
+    outputs = render_figure(figure, frame, tmp_path, formats=("png",), dpi=80)
+    assert len(outputs) == 1
+    assert outputs[0].is_file()
+    assert outputs[0].stat().st_size > 1000
