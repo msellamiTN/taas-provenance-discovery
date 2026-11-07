@@ -1,5 +1,7 @@
 # E8 execution readiness snapshot
 
+> **Protocol gate:** E8 is not released for confirmatory execution until the upstream E1, E2, E3 and E12 prerequisite artifacts are accepted. See [dataset-led E1–E22 execution sequence](experiment_design/DATASET_LED_EXECUTION_SEQUENCE.md). E8 adapters and export tests may be validated before that gate; they are not benchmark results.
+
 **Snapshot date:** 2026-11-07  
 **Branch:** `feature/pamcp-publication-visualization-v1`  
 **Snapshot commit:** `6dc5aed19d980f10b1b8328a0f141822731d73a2`
