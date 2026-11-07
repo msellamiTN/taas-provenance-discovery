@@ -1801,7 +1801,7 @@
         {
           "id": "E9-F1",
           "title": "Goal-group retrieval recall",
-          "purpose": "Compare Full PaMCP with E9-assigned retrieval/planning baselines; series identifies benchmark or k.",
+          "purpose": "Protocol primary: group recall@k by baseline, benchmark, and decomposition condition; series identifies k.",
           "role": "primary",
           "chart_type": "grouped_dot",
           "data_file": "results/visualization/data/E9-F1.csv",
@@ -1821,7 +1821,8 @@
               "value",
               "ci_low",
               "ci_high",
-              "benchmark"
+              "benchmark",
+              "decomposition"
             ],
             "optional_columns": [
               "series",
@@ -1858,7 +1859,10 @@
             "resampling": "Follow the experiment statistical contract and declared resampling unit."
           },
           "render_options": {
-            "facet_field": "benchmark",
+            "facet_field": [
+              "benchmark",
+              "decomposition"
+            ],
             "value_format": "percent"
           },
           "outputs": [
@@ -1870,7 +1874,7 @@
         {
           "id": "E9-F2",
           "title": "Set precision versus group recall",
-          "purpose": "Compare complete-set quality and recall; bubble size is complete-set share.",
+          "purpose": "Supporting set precision versus group recall for each k, baseline, benchmark, and decomposition condition; bubble size is complete-set share.",
           "role": "supporting",
           "chart_type": "pareto_scatter",
           "data_file": "results/visualization/data/E9-F2.csv",
@@ -1889,7 +1893,8 @@
               "group_recall",
               "series",
               "complete_set_share",
-              "benchmark"
+              "benchmark",
+              "decomposition"
             ],
             "optional_columns": [
               "series",
@@ -1929,7 +1934,10 @@
             "size_field": "complete_set_share",
             "x_prefer": "high",
             "y_prefer": "high",
-            "facet_field": "benchmark",
+            "facet_field": [
+              "benchmark",
+              "decomposition"
+            ],
             "x_format": "percent",
             "y_format": "percent"
           },
@@ -1942,7 +1950,7 @@
         {
           "id": "E9-F3",
           "title": "Complete-set coverage by task group",
-          "purpose": "Compare methods by task group; separate MCP-Atlas trajectory diagnostics.",
+          "purpose": "Supporting complete-set share by task group, baseline, k, benchmark, and decomposition condition.",
           "role": "supporting",
           "chart_type": "heatmap",
           "data_file": "results/visualization/data/E9-F3.csv",
@@ -1960,7 +1968,9 @@
               "task_group",
               "method",
               "value",
-              "benchmark"
+              "benchmark",
+              "decomposition",
+              "k"
             ],
             "optional_columns": [
               "series",
@@ -1998,7 +2008,11 @@
           },
           "render_options": {
             "value_format": "percent",
-            "facet_field": "benchmark"
+            "facet_field": [
+              "benchmark",
+              "decomposition",
+              "k"
+            ]
           },
           "outputs": [
             "pdf",
@@ -2006,7 +2020,19 @@
             "png"
           ]
         }
-      ]
+      ],
+      "protocol_factors": {
+        "decomposition": [
+          "none",
+          "clause_splitter",
+          "llm_analyst"
+        ],
+        "k": [
+          5,
+          10,
+          20
+        ]
+      }
     },
     {
       "id": "E10",
