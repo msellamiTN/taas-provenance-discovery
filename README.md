@@ -1,24 +1,23 @@
 # TaaS — Provenance-Aware Tool Discovery for LLM Agents in MCP Ecosystems
 
-Reference implementation and full experimental study of
+Research prototype and reference implementation for the TaaS / PaMCP study:
 
 > M. Sellami and H. Mezni, *Tool-as-a-Service: Provenance-Aware Tool Discovery for LLM Agents in Model
 > Context Protocol Ecosystems*, IEEE Transactions on Services Computing (manuscript).
 
-The paper reframes MCP tool discovery as **closing the capability gap** of the deployed model: find the
-lowest-cost *evidenced* toolkit that makes a dynamically generated goal achievable under the principal's
-policy, and deliver it with a **pre-execution certificate** that holds for any call order. This
-repository implements every definition, proposition and algorithm of the paper, reproduces its three
-scenarios exactly, and tests the four hypotheses of its evaluation plan on the public registries of
-Table 1 (LiveMCPTool + MCPToolBench++, 76 servers, 569 tools).
+The discovery core models MCP tool capabilities, provenance-aware eligibility, model-conditioned goal
+gaps, toolkit composition and pre-execution certificates. TaaS Studio exposes the discovery workflow and
+the new E1–E22 experimental workbench. This repository is a research prototype: the experiment catalogue
+and selected baseline adapters are implemented, but the durable sequential runner, independent evaluator,
+live MCP probe/runtime and full E1–E22 execution pipeline are still being built.
 
 ## What is here
 
 | Path | Content |
 |---|---|
-| `src/taas/` | the library: contracts, provenance & trust policy, bitmap eligibility, capability hypergraph, model profile ρ_LLM, Algorithms 1–3, certificate, refinement, maintenance, sanitised manifest, LLM roles |
+| `src/taas/` | discovery core, provenance/trust, bitmap eligibility, capability hypergraph, model profiles, certificates, refinement, maintenance, Studio APIs and experiment/baseline adapters |
 | `src/taas/scenarios.py` | the paper's Figs. 1–3 / Tables 5–6 as executable registries |
-| `experiments/` | E0–E7 (H1–H4, RQ3, ablations, scalability), `run_all.py`, `plot.py`, `report.py` |
+| `experiments/` | Legacy E0–E7 scripts plus the new E1–E22 catalogue validator; the legacy runner is not the definitive study runner |
 | `tests/` | 40 tests: Props. 1–3, Lemma 1, Obs. 1, Property 1, algorithms, scenarios |
 | `data/processed/` | merged 569-tool registry, tasks, type vocabulary Θ, measured model profiles |
 | `data/llm_records/` | every LLM output used (recorded once, replayed by the experiments) |
@@ -28,15 +27,36 @@ Table 1 (LiveMCPTool + MCPToolBench++, 76 servers, 569 tools).
 | `docs/GITHUB_RESEARCH.md` | related open-source code read for this work and what was reused |
 | `docs/RESULTS.md` | all results, generated from `results/*.json` |
 
+## Definitive PaMCP experimental workbench
+
+The definitive E1–E22 design is versioned in `docs/experiment_design/pamcp_experiments_v1.json`. Its 31 method cards and experiment-specific baseline assignments are in `docs/experiment_design/pamcp_baselines_v1.json`.
+
+The primary TaaS Studio app (`taas.studio.api:app`) mounts:
+- `/api/v1/experiments` for E1–E22, the four named PaMCP variants, the complete eight-cell factorial and run-draft validation.
+- `/api/v1/baselines` for baseline method cards and controlled adapter previews.
+- The browser workspace contains an **Experiments & baselines** section. E18 presents all eight G×P×S cells; other experiments show only their assigned baseline methods.
+
+The baseline preview executes local retrieval, policy-control and PaMCP variant adapters over a supplied GoalSpec/tool snapshot. It is **not** a persisted experiment run and does not read evaluator labels, invoke MCP tools or measure task success. Methods requiring live probes, runtime security hooks, confirmed trajectories, or external profile calibration return blocked/not-implemented states until those dependencies exist.
+
+Install and launch the primary Studio:
+
+```bash
+pip install -e ".[studio,experiment,test]"
+export TAAS_STUDIO_API_TOKEN='replace-with-a-strong-random-token'
+uvicorn taas.studio.api:app --host 127.0.0.1 --port 8000
+```
+
+All E1–E22 definitions begin as `planned_not_run`. Historical E0–E7 outputs and Claude-session replay artifacts are retained for provenance only; they are **superseded exploratory material and are not evidence for the definitive E1–E22 study**.
+
 ## Quick start
 
 ```bash
-pip install -r requirements.txt
-python -m pytest -q                      # 40 tests
-python experiments/run_all.py            # all experiments + figures (~30 min on 2 CPUs)
-python experiments/report.py             # regenerate docs/RESULTS.md
-./reproduce.sh                           # all of the above
+python -m pytest -q
+python experiments/catalog_cli.py validate
+python experiments/catalog_cli.py baselines
 ```
+
+The legacy `python experiments/run_all.py` pipeline still runs the superseded E0–E7 programme. Do not use it to generate results for the definitive E1–E22 manuscript.
 
 Minimal use on the paper's motivating scenario:
 
@@ -62,10 +82,9 @@ sub-agents of the build session**, and every output was recorded to `data/llm_re
 Experiments replay these records, so results are deterministic. `taas.llm.backends.AnthropicAnalyst`
 regenerates them live when `ANTHROPIC_API_KEY` is set.
 
-## Headline results
+## Legacy exploratory results — superseded, not used by E1–E22
 
-See `docs/RESULTS.md` for every number with confidence intervals and `docs/PAPER_ANALYSIS.md` §6 for
-what they imply for the manuscript.
+These values belong to the superseded E0–E7 exploratory pipeline. They are retained for historical traceability only and must not be cited as results of the definitive E1–E22 protocol.
 
 * **Table 1 replicates exactly** (76 / 569 / 44; one annotated tool is not read-only; 7.7% kept by
   required hints).

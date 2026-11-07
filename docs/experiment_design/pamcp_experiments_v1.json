@@ -1,0 +1,705 @@
+{
+  "schema_version": "1.0.0",
+  "programme": "PaMCP definitive experimental programme",
+  "result_policy": "All definitions are planned_not_run. No superseded experiment values are imported.",
+  "factors": {
+    "G": "model-conditioned capability gap",
+    "P": "provenance-sound eligibility",
+    "S": "set-level reasoning and certification"
+  },
+  "factorial_design": {
+    "cells": [
+      {
+        "G": 1,
+        "P": 1,
+        "S": 1,
+        "name": "Full_PaMCP"
+      },
+      {
+        "G": 1,
+        "P": 1,
+        "S": 0,
+        "name": "PaMCP_NoCert"
+      },
+      {
+        "G": 1,
+        "P": 0,
+        "S": 1,
+        "name": "PaMCP_Declared"
+      },
+      {
+        "G": 1,
+        "P": 0,
+        "S": 0,
+        "name": "G1_P0_S0"
+      },
+      {
+        "G": 0,
+        "P": 1,
+        "S": 1,
+        "name": "PaMCP_NoGap"
+      },
+      {
+        "G": 0,
+        "P": 1,
+        "S": 0,
+        "name": "G0_P1_S0"
+      },
+      {
+        "G": 0,
+        "P": 0,
+        "S": 1,
+        "name": "G0_P0_S1"
+      },
+      {
+        "G": 0,
+        "P": 0,
+        "S": 0,
+        "name": "G0_P0_S0"
+      }
+    ],
+    "attribution": "The three leave-one-out comparisons are conditional marginal contrasts and are not assumed additive. Estimate factor main effects/interactions from all eight cells. Report Shapley attribution over the six factor orderings if additive attribution is needed."
+  },
+  "external_baselines": [
+    {
+      "name": "MCP-Zero",
+      "adaptation": "Model-written tool requests; full active hierarchical discovery."
+    },
+    {
+      "name": "COLT",
+      "adaptation": "Retrain on MCPToolBench++ development split; scenes derived from server membership."
+    },
+    {
+      "name": "ToolScope",
+      "adaptation": "Reimplement retriever and merger; preserve provider identity, provenance, effects and contracts."
+    },
+    {
+      "name": "CMTF/ToolChoiceConfusion",
+      "adaptation": "Provide precondition-effect contracts; report contract source and adaptation."
+    },
+    {
+      "name": "AutoTool (AAAI 2026)",
+      "adaptation": "Adapt to MCP trajectories; E21 only."
+    }
+  ],
+  "datasets": {
+    "LiveMCPTool": "registry source",
+    "MCPToolBench++": "registry and retrieval tasks",
+    "merged_registry": "merged MCP registry, 569 tools",
+    "LiveMCPBench": "multi-tool task benchmark",
+    "credential_free_reference_servers": "actual observed-effect probing",
+    "human_annotated_subset": "independent semantic typing reference",
+    "purpose_built_calibration_sets": "model-profile evaluation",
+    "synthetic_registry_clones": "scalability",
+    "MCP_Bench_subset": "additional end-to-end execution"
+  },
+  "metric_contracts": {
+    "Exp@k": "Fraction of requests whose top-k contains at least one independently reference-labelled unsafe tool.",
+    "Util@5": "Hit among relevant read-only target tools; freeze denominator and alternative-target handling per dataset.",
+    "group_recall@k": "Goal-group coverage; report separately from complete acceptable toolchain recall.",
+    "joint_feasibility": "Independent evaluator verifies required outputs, interface compatibility, effects, policy and information flow.",
+    "task_success": "External pre-registered task oracle.",
+    "wrong_tool_calls": "Count irrelevant, invalid-state and policy-violating calls separately.",
+    "executed_out_of_policy_actions": "Count actual sandbox actions executed outside the independently set policy; distinguish exposure and attempted actions.",
+    "bridge_ratio": "Use the paper's exact formal Definition 3 and calibrated reliability product.",
+    "token_cost": "Frozen tokenizer; raw tool definitions and sanitized manifest tokens are separate metrics.",
+    "certificate": "Independent S,C,P,E,L,V per-check rates and overall conjunction."
+  },
+  "statistics": {
+    "confidence_intervals": "Percentile bootstrap with declared resampling unit.",
+    "paired_tests": "Paired sign-flip tests for matched tasks.",
+    "multiple_testing": "Holm for preregistered confirmatory family; BH only for designated exploratory secondary family.",
+    "E22": {
+      "resampling_unit": [
+        "request",
+        "target_tool"
+      ],
+      "split": [
+        "stratified",
+        "tool_disjoint"
+      ]
+    },
+    "reporting": [
+      "N and exact denominator",
+      "excluded/abstained/unresolved cases",
+      "point estimate and CI",
+      "paired effect and adjusted p-value",
+      "seed/run id",
+      "artifact hashes"
+    ]
+  },
+  "experiments": [
+    {
+      "id": "E1",
+      "title": "Registry characterization",
+      "datasets": [
+        "registry"
+      ],
+      "metrics": [
+        "metadata distribution"
+      ],
+      "outputs": [
+        "Table",
+        "category stacked bars"
+      ],
+      "status": "planned_not_run",
+      "baseline_ids": []
+    },
+    {
+      "id": "E2",
+      "title": "Semantic typing quality",
+      "datasets": [
+        "human-annotated subset"
+      ],
+      "metrics": [
+        "type precision/recall/F1",
+        "Cohen kappa",
+        "uncertainty"
+      ],
+      "outputs": [
+        "Confusion matrix",
+        "F1 vs threshold"
+      ],
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "typing_structural",
+        "typing_schema_lexical"
+      ]
+    },
+    {
+      "id": "E3",
+      "title": "Declared versus observed effects",
+      "datasets": [
+        "credential-free runnable servers"
+      ],
+      "metrics": [
+        "discrepancy rate",
+        "probe coverage",
+        "probeable share"
+      ],
+      "outputs": [
+        "Confusion matrix",
+        "coverage vs probe budget"
+      ],
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "effects_declared",
+        "effects_lexical",
+        "effects_probe"
+      ]
+    },
+    {
+      "id": "E4",
+      "title": "Exposure under policy encodings",
+      "datasets": [
+        "merged registry",
+        "MCPToolBench++"
+      ],
+      "metrics": [
+        "Exp@k",
+        "Util@5",
+        "eligible share"
+      ],
+      "outputs": [
+        "Exp@5/Util@5 table and coverage curves"
+      ],
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "all_tools",
+        "mcp_default_annotations",
+        "closed_world_annotations",
+        "lexical_positive",
+        "lexical_closed_world",
+        "verified_evidence"
+      ]
+    },
+    {
+      "id": "E5",
+      "title": "Forged and laundered metadata",
+      "datasets": [
+        "merged registry",
+        "MCPToolBench++"
+      ],
+      "metrics": [
+        "Exp@5",
+        "Util@5"
+      ],
+      "outputs": [
+        "Exposure vs malicious-provider fraction"
+      ],
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "all_tools",
+        "mcp_default_annotations",
+        "closed_world_annotations",
+        "lexical_positive",
+        "lexical_closed_world",
+        "verified_evidence"
+      ]
+    },
+    {
+      "id": "E6",
+      "title": "Imperfect verifier",
+      "datasets": [
+        "merged registry",
+        "MCPToolBench++"
+      ],
+      "metrics": [
+        "Exp@5",
+        "Util@5",
+        "break-even FAR"
+      ],
+      "outputs": [
+        "Exposure vs FAR with CI"
+      ],
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "mcp_default_annotations",
+        "closed_world_annotations",
+        "lexical_positive",
+        "lexical_closed_world",
+        "verified_evidence"
+      ]
+    },
+    {
+      "id": "E7",
+      "title": "Trust policy and evidence strength",
+      "datasets": [
+        "merged registry",
+        "MCPToolBench++"
+      ],
+      "metrics": [
+        "eligible share",
+        "Exp@5",
+        "Util@5",
+        "Pareto"
+      ],
+      "outputs": [
+        "Pareto plot",
+        "policy-threshold heatmap"
+      ],
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "mcp_default_annotations",
+        "closed_world_annotations",
+        "lexical_positive",
+        "lexical_closed_world",
+        "verified_evidence"
+      ]
+    },
+    {
+      "id": "E8",
+      "title": "Single-tool retrieval quality",
+      "datasets": [
+        "MCPToolBench++",
+        "B1/B1m"
+      ],
+      "metrics": [
+        "Hit@1",
+        "Hit@5",
+        "MRR@10",
+        "macro Hit@1"
+      ],
+      "outputs": [
+        "B1/B1m table",
+        "Hit@1 vs distractors"
+      ],
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "bm25",
+        "dense_lsa",
+        "rag_mcp",
+        "mcp_zero",
+        "per_subtask",
+        "colt_adapted",
+        "toolscope_adapted",
+        "cmtf_adapted"
+      ]
+    },
+    {
+      "id": "E9",
+      "title": "Multi-tool set retrieval",
+      "datasets": [
+        "LiveMCPBench (resolvable tasks)"
+      ],
+      "metrics": [
+        "group recall@k",
+        "set precision",
+        "complete-set share"
+      ],
+      "outputs": [
+        "Group recall bars/lines"
+      ],
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "rag_mcp",
+        "mcp_zero",
+        "per_subtask",
+        "colt_adapted",
+        "toolscope_adapted",
+        "cmtf_adapted",
+        "all_tools"
+      ]
+    },
+    {
+      "id": "E10",
+      "title": "Set validity and compatibility",
+      "datasets": [
+        "LiveMCPBench"
+      ],
+      "metrics": [
+        "joint feasibility",
+        "interface mismatch",
+        "forbidden pair/flow",
+        "certificate pass by check"
+      ],
+      "outputs": [
+        "Failure-cause bars",
+        "per-check table"
+      ],
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "mcp_zero",
+        "per_subtask",
+        "colt_adapted",
+        "toolscope_adapted",
+        "cmtf_adapted",
+        "fides_ifc",
+        "camel_ifc",
+        "all_tools"
+      ]
+    },
+    {
+      "id": "E11",
+      "title": "Capability gap and bridge ratio",
+      "datasets": [
+        "review-type tasks"
+      ],
+      "metrics": [
+        "toolkit size",
+        "bridge ratio",
+        "native-goal share",
+        "task success"
+      ],
+      "outputs": [
+        "Size/bridge ratio vs n",
+        "size vs tau"
+      ],
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "mcp_zero",
+        "per_subtask",
+        "cmtf_adapted",
+        "uncalibrated_profile",
+        "calibrated_profile"
+      ]
+    },
+    {
+      "id": "E12",
+      "title": "Model profile calibration",
+      "datasets": [
+        "purpose-built calibration sets"
+      ],
+      "metrics": [
+        "measured reliability CI",
+        "self-assessment calibration",
+        "refutation rate"
+      ],
+      "outputs": [
+        "rho heatmap",
+        "claimed vs measured"
+      ],
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "self_assessed_profile",
+        "uncalibrated_profile",
+        "calibrated_profile"
+      ]
+    },
+    {
+      "id": "E13",
+      "title": "End-to-end agent execution",
+      "datasets": [
+        "LiveMCPBench",
+        "MCP-Bench subset"
+      ],
+      "metrics": [
+        "task success",
+        "wrong-tool calls",
+        "steps",
+        "tokens"
+      ],
+      "outputs": [
+        "Success/tokens bars",
+        "steps boxplot"
+      ],
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "all_tools",
+        "rag_mcp",
+        "mcp_zero",
+        "per_subtask",
+        "colt_adapted",
+        "toolscope_adapted",
+        "cmtf_adapted",
+        "progent_runtime",
+        "fides_ifc",
+        "camel_ifc"
+      ]
+    },
+    {
+      "id": "E14",
+      "title": "Robustness under prompt injection",
+      "datasets": [
+        "LiveMCPBench",
+        "MCP-Bench subset"
+      ],
+      "metrics": [
+        "executed out-of-policy actions",
+        "task success",
+        "Exp@5"
+      ],
+      "outputs": [
+        "Out-of-policy actions bars",
+        "task success table"
+      ],
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "all_tools",
+        "rag_mcp",
+        "mcp_zero",
+        "toolscope_adapted",
+        "cmtf_adapted",
+        "progent_runtime",
+        "fides_ifc",
+        "camel_ifc"
+      ]
+    },
+    {
+      "id": "E15",
+      "title": "Cost per request and scalability",
+      "datasets": [
+        "merged and synthetic registry clones"
+      ],
+      "metrics": [
+        "per-stage p50/p95 latency",
+        "memory",
+        "exact/greedy gap"
+      ],
+      "outputs": [
+        "Log-log latency",
+        "gap/optimality table"
+      ],
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "bm25",
+        "dense_lsa",
+        "rag_mcp",
+        "mcp_zero",
+        "colt_adapted",
+        "toolscope_adapted",
+        "cmtf_adapted",
+        "linear_scan"
+      ]
+    },
+    {
+      "id": "E16",
+      "title": "Registry and model evolution",
+      "datasets": [
+        "merged registry",
+        "event replay"
+      ],
+      "metrics": [
+        "update time",
+        "invalidation",
+        "correctness vs recomputation",
+        "stale evidence"
+      ],
+      "outputs": [
+        "Update/invalidation table"
+      ],
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "full_rebuild"
+      ]
+    },
+    {
+      "id": "E17",
+      "title": "Counterexample-guided refinement",
+      "datasets": [
+        "LiveMCPBench"
+      ],
+      "metrics": [
+        "repair success by chi",
+        "iterations",
+        "abstention",
+        "tokens"
+      ],
+      "outputs": [
+        "Success by chi",
+        "success vs iteration"
+      ],
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "no_refinement"
+      ]
+    },
+    {
+      "id": "E18",
+      "title": "Component and primary mechanism ablation",
+      "datasets": [
+        "LiveMCPBench",
+        "MCPToolBench++",
+        "merged registry"
+      ],
+      "metrics": [
+        "group recall",
+        "joint feasibility",
+        "Exp@5",
+        "task success",
+        "tokens"
+      ],
+      "outputs": [
+        "3 ablations + 2^3 factorial + components"
+      ],
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "bm25",
+        "dense_lsa",
+        "rag_mcp",
+        "mcp_zero",
+        "per_subtask",
+        "colt_adapted",
+        "toolscope_adapted",
+        "cmtf_adapted",
+        "mcp_default_annotations",
+        "closed_world_annotations",
+        "lexical_positive",
+        "lexical_closed_world",
+        "verified_evidence",
+        "no_refinement"
+      ]
+    },
+    {
+      "id": "E19",
+      "title": "LLM role configurations",
+      "datasets": [
+        "LiveMCPBench"
+      ],
+      "metrics": [
+        "GoalSpec validity",
+        "repair",
+        "task success",
+        "tokens",
+        "latency"
+      ],
+      "outputs": [
+        "Role comparison bars/table"
+      ],
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "self_assessed_profile",
+        "uncalibrated_profile",
+        "calibrated_profile"
+      ]
+    },
+    {
+      "id": "E20",
+      "title": "Sensitivity to cost and utility weights",
+      "datasets": [
+        "LiveMCPBench",
+        "MCPToolBench++"
+      ],
+      "metrics": [
+        "toolkit Jaccard",
+        "Exp@5",
+        "task success",
+        "price/latency"
+      ],
+      "outputs": [
+        "Weight heatmap",
+        "Pareto"
+      ],
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "calibrated_profile"
+      ]
+    },
+    {
+      "id": "E21",
+      "title": "Experience reuse",
+      "datasets": [
+        "confirmed execution trajectory repository"
+      ],
+      "metrics": [
+        "reuse rate",
+        "latency saved",
+        "stale errors caught/uncaught"
+      ],
+      "outputs": [
+        "Savings vs repository size",
+        "error-detection bars"
+      ],
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "autotool_adapted",
+        "no_experience"
+      ]
+    },
+    {
+      "id": "E22",
+      "title": "Statistical validity and reproducibility",
+      "datasets": [
+        "MCPToolBench++ tool-disjoint sample",
+        "E8-E10"
+      ],
+      "metrics": [
+        "CI width",
+        "Holm p-values",
+        "BH secondary",
+        "rank stability"
+      ],
+      "outputs": [
+        "Statistical validity table"
+      ],
+      "status": "planned_not_run",
+      "baseline_ids": [
+        "bm25",
+        "dense_lsa",
+        "rag_mcp",
+        "mcp_zero",
+        "colt_adapted",
+        "toolscope_adapted",
+        "cmtf_adapted",
+        "per_subtask"
+      ]
+    }
+  ],
+  "baseline_catalog": "pamcp_baselines_v1.json",
+  "pa_mcp_variants": {
+    "Full_PaMCP": {
+      "G": 1,
+      "P": 1,
+      "S": 1,
+      "definition": "Model-conditioned gap + provenance-sound eligibility + set-level reasoning/certification."
+    },
+    "PaMCP_NoGap": {
+      "G": 0,
+      "P": 1,
+      "S": 1,
+      "definition": "Remove model capability hyperedges; set Gamma(q)=G(q). All other mechanisms unchanged."
+    },
+    "PaMCP_Declared": {
+      "G": 1,
+      "P": 0,
+      "S": 1,
+      "definition": "Published annotations and lexical cues only; no observed/attested evidence and no provenance trust policy. Preserve retrieval and certification. Separate MCP-defaults control."
+    },
+    "PaMCP_NoCert": {
+      "G": 1,
+      "P": 1,
+      "S": 0,
+      "definition": "Per-subgoal retrieval and union; no backward closure, global set checks, compatibility/effect/flow checks or certificate. Score counterfactual validity with independent evaluator."
+    }
+  }
+}

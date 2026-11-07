@@ -142,6 +142,19 @@
     .studio-content { min-width:0; }
     @media(max-width:900px) { .studio-layout { grid-template-columns:1fr; gap:12px; } .studio-nav { position:static; display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; } .nav-brand { width:100%; } .nav-label,.nav-foot { display:none; } .studio-nav a { padding:8px 9px; } }
     @media(max-width:560px) { .studio-nav { gap:2px; } .studio-nav a { font-size:11px; padding:7px; } }
+
+    .baseline-toolbar { display:flex; flex-wrap:wrap; align-items:end; gap:10px; margin:12px 0; }
+    .baseline-toolbar .field { min-width:190px; flex:1; margin:0; }
+    .baseline-toolbar input,.baseline-toolbar select { width:100%; box-sizing:border-box; padding:9px 10px; font:12px Inter,system-ui,sans-serif; }
+    .baseline-cards { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; margin:12px 0; }
+    .baseline-method-card { display:flex; gap:10px; align-items:flex-start; padding:12px; border:1px solid var(--line); border-radius:10px; background:#fff; min-width:0; }
+    .baseline-method-card input { width:auto; margin:3px 0 0; }
+    .baseline-method-card strong { display:block; font-size:12px; }
+    .baseline-method-card small { display:block; color:var(--muted); font-size:10px; line-height:1.45; margin-top:4px; }
+    .baseline-maturity { display:inline-block; margin-top:6px; border-radius:6px; padding:3px 6px; background:#f1f4f8; color:#58677c; font-size:9px; font-weight:750; }
+    .baseline-warning { padding:10px 12px; border:1px solid #e4d6b7; border-radius:9px; background:#fffaf0; color:#7b5a23; font-size:11px; line-height:1.5; }
+    #baseline-extra { min-height:90px; }
+    @media(max-width:760px) { .baseline-cards { grid-template-columns:1fr; } .baseline-toolbar { align-items:stretch; } }
   </style>
 </head>
 <body>
@@ -163,6 +176,7 @@
       <span class="nav-label">ANALYSIS</span>
       <a href="#discovery">Discovery</a>
       <a href="#certificate-panel">Assurance</a>
+      <a href="#experiments">Experiments &amp; baselines</a>
       <span class="nav-label">RESOURCES</span>
       <a href="#models">Model catalog</a>
       <a href="#runtime">Host diagnostics</a>
@@ -310,6 +324,45 @@
     </section>
   </div>
 
+
+  <section id="experiments" class="section-anchor" style="margin-bottom:18px">
+    <div class="panel-head">
+      <div><div class="eyebrow">04 · Evaluate methods</div><h2 style="margin:4px 0">Experiments &amp; baseline workbench</h2></div>
+      <span class="pill">E1–E22 · baseline catalogue</span>
+    </div>
+    <p class="muted">Select an experimental question, inspect its registered comparators, and preview supported baseline adapters using the current GoalSpec and tool snapshot. Baseline outputs are not benchmark scores.</p>
+    <div class="baseline-warning">Research boundary: baseline preview does not read gold labels, execute MCP tools, persist an E-series run, or claim task success. Methods marked as adaptations or blocked are identified as such. E1–E22 remain planned until a sequential run store and independent evaluator are enabled.</div>
+    <div class="baseline-toolbar">
+      <div class="field"><label for="experiment-id">Experiment</label><select id="experiment-id" disabled><option value="">Load the experiment catalogue</option></select></div>
+      <div class="field"><label for="baseline-top-k">Top-k budget</label><input id="baseline-top-k" type="number" min="1" max="100" value="5"></div>
+      <button id="experiment-catalog-load" type="button">Load E1–E22 catalogue</button>
+      <button id="experiment-baselines-load" type="button" class="secondary" disabled>Load applicable baselines</button>
+    </div>
+    <div id="experiment-catalog-status" class="status" role="status" aria-live="polite">The experiment catalogue has not been loaded.</div>
+    <div id="experiment-summary" class="subtle">Choose an experiment to inspect its goal, data requirements and baseline plan.</div>
+    <div class="panel-head" style="margin-top:16px"><h3>Registered baselines for this experiment</h3><span class="count" id="experiment-baseline-count">0 baselines</span></div>
+    <div id="experiment-baseline-cards" class="baseline-cards"><div class="subtle">Load the experiment catalogue first.</div></div>
+    <div id="pamcp-variant-panel" hidden>
+      <div class="panel-head" style="margin-top:18px"><h3>PaMCP primary configurations · E18 factorial</h3><span class="count">G × P × S · 2³</span></div>
+      <p class="subtle">All eight cells are available here. The four named configurations are the full method and its three leave-one-out contrasts; the remaining cells estimate interactions in the complete 2³ factorial.</p>
+      <div id="pamcp-variant-cards" class="baseline-cards"></div>
+    </div>
+    <details class="advanced-json">
+      <summary>Advanced · training scenes, trajectories and baseline parameters</summary>
+      <p class="subtle">Only use training-split scenes for COLT-style adaptation. AutoTool-style reuse requires confirmed trajectories with matching registry, policy and tool-definition hashes.</p>
+      <label for="baseline-extra">Baseline adapter inputs (JSON)</label>
+      <textarea id="baseline-extra" rows="5" spellcheck="false">{
+  "training_scenes": [],
+  "trajectories": [],
+  "parameters": {}
+}</textarea>
+    </details>
+    <div class="inline-actions">
+      <button id="baseline-preview-run" type="button" disabled>Preview selected baseline adapters</button>
+      <span id="baseline-preview-status" class="subtle">No baseline preview executed.</span>
+    </div>
+    <pre id="baseline-preview-results">Baseline rankings and adapter diagnostics will appear here. No gold labels or MCP execution are involved.</pre>
+  </section>
   <section id="runtime" class="section-anchor" style="margin-bottom:18px">
     <h2>Runtime · GPU diagnostics</h2>
     <p class="muted">Host GPU visibility and CUDA inference readiness are separate checks. A detected GPU does not mean a model runtime is installed or loaded.</p>
@@ -818,6 +871,157 @@
   });
   function showBenchError(e){$("bench-status").textContent="Workspace request failed: "+e.message;}
   const originalRunHandler = run.onclick;
+
+  // PaMCP experiments and baseline workbench. Catalog calls are explicit and authenticated.
+  const experimentUi = {
+    items:[], baselines:[], selected:new Set(), variants:{}, selectedVariants:new Set(), current:null
+  };
+  const maturityLabel = value => ({
+    ready:"Implemented", ready_surrogate:"Implemented surrogate", ready_adaptation:"Clean-room adaptation",
+    partial_adapter:"Partial adapter", core_method:"PaMCP core method", ready_control:"Implemented control",
+    ready_policy_control:"Policy control", adapter_to_build:"Adapter to build",
+    pipeline_to_build:"Pipeline to build", planned:"Planned"
+  }[value] || value || "Unspecified");
+  const updatePreviewButton = () => {
+    $("baseline-preview-run").disabled = experimentUi.selected.size===0 && experimentUi.selectedVariants.size===0;
+  };
+  const renderBaselineCards = () => {
+    const root=$("experiment-baseline-cards");root.replaceChildren();
+    $("experiment-baseline-count").textContent=experimentUi.baselines.length+" baselines";
+    if(!experimentUi.baselines.length){
+      const empty=document.createElement("div");empty.className="subtle";
+      empty.textContent="No external or control baseline is assigned to this experiment.";
+      root.append(empty);
+    }
+    experimentUi.baselines.forEach(item=>{
+      const card=document.createElement("label");card.className="baseline-method-card";
+      const check=document.createElement("input");check.type="checkbox";check.value=item.id;
+      check.checked=experimentUi.selected.has(item.id);
+      check.addEventListener("change",()=>{
+        if(check.checked)experimentUi.selected.add(item.id);else experimentUi.selected.delete(item.id);
+        updatePreviewButton();
+      });
+      const body=document.createElement("span");
+      const title=document.createElement("strong");title.textContent=item.name+" · "+item.id;
+      const desc=document.createElement("small");desc.textContent=item.method;
+      const maturity=document.createElement("span");maturity.className="baseline-maturity";maturity.textContent=maturityLabel(item.implementation);
+      body.append(title,desc,maturity);card.append(check,body);root.append(card);
+    });
+    updatePreviewButton();
+  };
+  const renderVariantCards = () => {
+    const root=$("pamcp-variant-cards");root.replaceChildren();
+    experimentUi.variants.forEach(item=>{
+      const id=item.name;
+      const card=document.createElement("label");card.className="baseline-method-card";
+      const check=document.createElement("input");check.type="checkbox";check.value=id;
+      check.checked=experimentUi.selectedVariants.has(id);
+      check.addEventListener("change",()=>{
+        if(check.checked)experimentUi.selectedVariants.add(id);else experimentUi.selectedVariants.delete(id);
+        updatePreviewButton();
+      });
+      const body=document.createElement("span");
+      const title=document.createElement("strong");title.textContent=id;
+      const factors=document.createElement("small");factors.textContent="G="+item.G+" · P="+item.P+" · S="+item.S;
+      const desc=document.createElement("small");desc.textContent=item.description;
+      body.append(title,factors,desc);card.append(check,body);root.append(card);
+    });
+    updatePreviewButton();
+  };
+  const loadExperimentBaselines = async () => {
+    const id=$("experiment-id").value;
+    if(!id)return;
+    $("experiment-baselines-load").disabled=true;
+    $("experiment-catalog-status").textContent="Loading baseline methods for "+id+"…";
+    try{
+      const d=await apiGet("/api/v1/experiments/catalog/"+encodeURIComponent(id)+"/baselines");
+      experimentUi.baselines=d.baselines||[];experimentUi.selected.clear();experimentUi.selectedVariants.clear();
+      renderBaselineCards();
+      const variantPanel=$("pamcp-variant-panel");
+      variantPanel.hidden=id!=="E18";
+      experimentUi.variants=[];
+      if(id==="E18"){
+        const v=await apiGet("/api/v1/experiments/variants");
+        experimentUi.variants=v.factorial_variants||[];
+      }
+      renderVariantCards();
+      $("experiment-catalog-status").textContent=d.total+" experiment-scoped baseline(s) loaded"+
+        (id==="E18" ? " · Eight PaMCP factorial cells available for E18." : ".");
+    }catch(e){$("experiment-catalog-status").textContent="Baseline catalogue error: "+e.message;}
+    finally{$("experiment-baselines-load").disabled=false;}
+  };
+  $("experiment-catalog-load").addEventListener("click",async()=>{
+    $("experiment-catalog-load").disabled=true;
+    $("experiment-catalog-status").textContent="Loading E1–E22 and baseline assignments…";
+    try{
+      const d=await apiGet("/api/v1/experiments/catalog");
+      experimentUi.items=d.experiments||[];
+      const select=$("experiment-id");select.replaceChildren();
+      experimentUi.items.forEach(item=>{
+        const option=document.createElement("option");option.value=item.id;
+        option.textContent=item.id+" · "+item.title+" · "+maturityLabel(item.status);
+        select.append(option);
+      });
+      select.disabled=false;$("experiment-baselines-load").disabled=false;
+      $("experiment-catalog-status").textContent=experimentUi.items.length+" experiment definitions loaded; no experiment results are attached.";
+      const selected=experimentUi.items[0];experimentUi.current=selected;
+      $("experiment-summary").textContent=selected
+        ? selected.title+" · "+(selected.datasets||[]).join(", ")+" · "+(selected.metrics||[]).join("; ")
+        : "No experiment definitions are available.";
+      await loadExperimentBaselines();
+    }catch(e){$("experiment-catalog-status").textContent="Experiment catalogue error: "+e.message;}
+    finally{$("experiment-catalog-load").disabled=false;}
+  });
+  $("experiment-id").addEventListener("change",async()=>{
+    const id=$("experiment-id").value;
+    experimentUi.current=experimentUi.items.find(x=>x.id===id)||null;
+    const x=experimentUi.current;
+    $("experiment-summary").textContent=x
+      ? x.title+" · Data: "+(x.datasets||[]).join(", ")+" · Metrics: "+(x.metrics||[]).join("; ")
+      : "Select an experiment.";
+    await loadExperimentBaselines();
+  });
+  $("experiment-baselines-load").addEventListener("click",loadExperimentBaselines);
+  $("baseline-preview-run").addEventListener("click",async()=>{
+    if(experimentUi.selected.size===0 && experimentUi.selectedVariants.size===0)return;
+    const button=$("baseline-preview-run");button.disabled=true;
+    $("baseline-preview-status").textContent="Running selected baseline and/or PaMCP variant previews…";
+    try{
+      const body=readRequest();
+      const extras=JSON.parse($("baseline-extra").value||"{}");
+      if(!body.goal_spec?.goals?.length)throw new Error("Author at least one GoalSpec goal before previewing.");
+      if(!Array.isArray(body.tools)||!body.tools.length)throw new Error("Add tools to the current discovery request or select tools from the benchmark registry.");
+      const response=await fetch("/api/v1/baselines/preview",{
+        method:"POST",
+        headers:{"Authorization":"Bearer "+tokenValue(),"Content-Type":"application/json"},
+        body:JSON.stringify({
+          experiment_id:$("experiment-id").value,
+          baseline_ids:[...experimentUi.selected],
+          pamcp_variants:[...experimentUi.selectedVariants],
+          goal_spec:body.goal_spec,
+          tools:body.tools,
+          policy:body.policy||{},
+          top_k:Math.max(1,Math.min(100,Number($("baseline-top-k").value)||5)),
+          parameters:extras.parameters||{},
+          training_scenes:extras.training_scenes||[],
+          trajectories:extras.trajectories||[]
+        })
+      });
+      const data=await response.json();if(!response.ok)throw new Error(data.detail||("HTTP "+response.status));
+      $("baseline-preview-results").textContent=JSON.stringify(data,null,2);
+      const items=[...(data.results||[]),...(data.pamcp_variant_results||[])];
+      const blocked=items.filter(x=>{
+        const status=x.result?.status||"";
+        return status.startsWith("blocked")||status.startsWith("invalid_")||status==="adapter_not_implemented";
+      });
+      $("baseline-preview-status").textContent=
+        (data.baseline_count||0)+" baseline adapter(s) · "+(data.pamcp_variant_count||0)+" PaMCP variant(s). "+
+        blocked.length+" blocked/invalid. Evaluator labels: not accessed · MCP calls: 0.";
+    }catch(e){
+      $("baseline-preview-status").textContent="Preview failed: "+e.message;
+      $("baseline-preview-results").textContent="";
+    }finally{updatePreviewButton();}
+  });
   // Load benchmark catalogs on explicit user action to avoid background requests before authentication.
   const loadBtn=document.createElement("button");loadBtn.type="button";loadBtn.textContent="Load benchmark workspace";loadBtn.style.marginTop="12px";
   loadBtn.addEventListener("click",async()=>{loadBtn.disabled=true;$("bench-status").textContent="Loading retained benchmark datasets…";try{await loadDatasets();await loadTools();$("bench-status").textContent="Benchmark workspace loaded from the repository-retained snapshot. Gold labels remain hidden.";}catch(e){showBenchError(e);}finally{loadBtn.disabled=false;}});
