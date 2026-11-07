@@ -93,3 +93,14 @@ The output records the input SHA-256, run ID, protocol/dataset/hash metadata, se
 an explicit `evaluated_payload_not_experiment_completion` status. The CLI is an evaluator,
 not a runner for model agents or MCP tools. The output's timestamp records when the local
 evaluation command was invoked.
+
+
+## Plotting specification
+
+`docs/experiment_design/pamcp_plot_specs_v1.json` defines two publication-oriented plots
+for each E1–E22 experiment, with explicit chart type, x/y fields and labels, grouping/series,
+and comparison set. It includes confusion-matrix heatmaps, Pareto and operating-characteristic
+plots, reliability diagrams, bubble/scatter plots, forest/dot-whisker plots, factorial-effect
+plots, sensitivity/rank-stability heatmaps, waterfall and stacked-bar views. The specification
+is validated by `taas.experiments.plot_specs.load_plot_spec`. These are chart contracts, not
+plots populated with unmeasured or fabricated data.
