@@ -12,7 +12,8 @@ def test_binary_metrics_keep_unknown_and_abstention_separate():
     assert (result["tp"], result["fp"], result["fn"]) == (1, 1, 0)
     assert result["unknown_reference"] == 1
     assert result["abstentions"] == 1
-    assert result["prediction_coverage"]["denominator"] == 2
+    assert result["prediction_coverage"]["numerator"] == 2
+    assert result["prediction_coverage"]["denominator"] == 3
 
 
 def test_retrieval_metrics_use_exact_request_set():
