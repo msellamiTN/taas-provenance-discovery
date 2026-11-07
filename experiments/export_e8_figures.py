@@ -120,7 +120,7 @@ def _group_metrics(
             continue
         metric_key = (row["metric"].strip().lower(), int(row["k"]))
         metric_name = METRICS.get(metric_key)
-        if metric_name is None:
+        if metric_name is None or (by_task_category and metric_name != "Hit@1"):
             continue
         category = row["category"] if by_task_category else ""
         value = float(row["value"])
