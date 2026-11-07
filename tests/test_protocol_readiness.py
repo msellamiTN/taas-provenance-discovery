@@ -16,7 +16,7 @@ def test_readiness_requires_artifacts_dependencies_and_external_gate():
 
 def test_readiness_does_not_mutate_canonical_protocol_status():
     result = assess_experiment_readiness(
-        "E1", available_artifacts=["frozen_registry_snapshot"],
+        "E1", available_artifacts=["frozen_registry_snapshot", "independent_non_read_only_reference_labels"],
     )
     assert result["status"] == "ready_for_offline_evaluation"
     assert result["protocol_status_mutated"] is False
