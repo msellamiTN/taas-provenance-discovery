@@ -982,7 +982,16 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
           <div id="ux7-view-logs" class="ux7-tab-panel" role="tabpanel" aria-labelledby="ux7-tab-logs" hidden><div class="ux7-empty"><strong>No runtime logs</strong><p>Structured logs will be displayed only when genuine runtime records are connected.</p></div></div>
           <div id="ux7-view-traces" class="ux7-tab-panel" role="tabpanel" aria-labelledby="ux7-tab-traces" hidden><div class="ux7-empty"><strong>No distributed traces</strong><p>No trace provider is configured. Trace identifiers and spans are not fabricated.</p></div></div>
           <div id="ux7-view-metrics" class="ux7-tab-panel" role="tabpanel" aria-labelledby="ux7-tab-metrics" hidden><div class="ux7-empty"><strong>No runtime metrics</strong><p>CPU, memory, disk, latency and throughput remain unavailable until measured data is supplied.</p></div></div>
-          <div id="ux7-view-diagnostics" class="ux7-tab-panel" role="tabpanel" aria-labelledby="ux7-tab-diagnostics" hidden><div class="ux7-empty"><strong>Runtime diagnostics unavailable</strong><p>Configure and validate a runtime adapter before diagnostics can report operational state.</p></div></div>
+          <div id="ux7-view-diagnostics" class="ux7-tab-panel" role="tabpanel" aria-labelledby="ux7-tab-diagnostics" hidden>
+            <div class="ux7-empty"><strong>Runtime adapter diagnostics unavailable</strong><p>No isolated execution adapter is configured. Host diagnostics are available separately in Runtime · GPU diagnostics; they do not establish worker isolation or execution capability.</p></div>
+          </div>
+          <div class="ux7-panel" style="margin-top:12px" aria-labelledby="ux7-model-runtime-title">
+            <div class="panel-head"><h3 id="ux7-model-runtime-title" style="margin:0;font-size:13px">Model runtime · live API state</h3><div class="inline-actions"><button id="ux7-model-refresh" type="button" class="secondary">Refresh model status</button><a href="#models">Open model catalog</a></div></div>
+            <p id="ux7-model-status" class="subtle" role="status" aria-live="polite">Not queried · connect to Studio, then refresh.</p>
+            <dl class="ux7-kv"><dt>Selected provider</dt><dd id="ux7-model-provider">Not reported</dd><dt>Model loaded</dt><dd id="ux7-model-loaded">Not reported</dd><dt>Model identifier</dt><dd id="ux7-model-id">Not reported</dd><dt>Device</dt><dd id="ux7-model-device">Not reported</dd><dt>Inference readiness</dt><dd id="ux7-model-ready">Not reported</dd></dl>
+            <pre id="ux7-model-raw" style="max-height:220px;overflow:auto;white-space:pre-wrap">No model-runtime response received.</pre>
+            <p class="subtle">This is model-service state only. It does not represent MCP tool execution, an isolated worker, a session, or runtime telemetry.</p>
+          </div>
         </section>
         <section class="ux7-panel" aria-labelledby="ux7-isolation-title">
           <div class="panel-head"><h3 id="ux7-isolation-title" style="margin:0;font-size:13px">Runtime &amp; isolation boundary</h3><span class="pill">Unconfigured</span></div>
@@ -2656,6 +2665,34 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     if(!response.ok) throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
     return data;
   };
+
+  // UX-7: report actual model-runtime API state; never infer tool execution or telemetry.
+  const ux7RefreshModelRuntime = async () => {
+    const status=$("ux7-model-status"), button=$("ux7-model-refresh");
+    button.disabled=true; status.textContent="Requesting authenticated model-runtime status…";
+    try {
+      const data=await apiGet("/api/v1/models/runtime");
+      const providers=data.providers||{};
+      const hf=providers.huggingface||{};
+      const ollama=providers.ollama||{};
+      const activeProvider=data.provider||data.active_provider||"Not reported";
+      const loaded=data.model_loaded===true || hf.model_loaded===true || ollama.model_loaded===true;
+      const modelId=data.model_id||hf.model_id||ollama.model_id||null;
+      const device=data.device||hf.device||null;
+      $("ux7-model-provider").textContent=String(activeProvider);
+      $("ux7-model-loaded").textContent=loaded?"Loaded · API-reported":"Not loaded / not confirmed";
+      $("ux7-model-id").textContent=modelId?String(modelId):"Not reported";
+      $("ux7-model-device").textContent=device?String(device):"Not reported";
+      $("ux7-model-ready").textContent=data.inference_ready===true?"Ready · API-reported":(data.inference_ready===false?"Not ready · API-reported":"Not reported");
+      $("ux7-model-raw").textContent=JSON.stringify(data,null,2);
+      status.textContent="Live model-runtime response received. Provider state is separate from host diagnostics and MCP execution.";
+    } catch(error) {
+      status.textContent="Model-runtime request failed: "+error.message;
+      $("ux7-model-raw").textContent="No successful model-runtime response. "+error.message;
+      ["ux7-model-provider","ux7-model-loaded","ux7-model-id","ux7-model-device","ux7-model-ready"].forEach(id=>$(id).textContent="Unavailable");
+    } finally {button.disabled=false;}
+  };
+  $("ux7-model-refresh").addEventListener("click",ux7RefreshModelRuntime);
 
   let publishedSkillOptions = [];
   const refreshReusableSkillOptions = async () => {
