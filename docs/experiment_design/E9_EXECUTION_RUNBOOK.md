@@ -111,6 +111,12 @@ The same selected reference is used for precision and recall. This avoids select
 
 Bootstrap intervals use the evaluator's \`independent_unit_id\` (task or a declared cluster). A group with fewer than two independent units receives no CI and is listed in the export manifest.
 
+## Baseline assignment reconciliation
+
+The frozen E9 experiment object lists exactly: `rag_mcp`, `mcp_zero`, `per_subtask`, `colt_adapted`, `toolscope_adapted`, `cmtf_adapted` and `all_tools`.
+
+The broader baseline catalogue marks `bm25` and `dense_lsa` as usable in E9, and the Core Protocol v2 baseline table mentions BM25/dense retrieval for E8/E9. They are **not** present in E9's frozen `baseline_ids` array. For this confirmatory E9 exporter, the experiment-specific assignment is authoritative: BM25 and Dense LSA are rejected as unregistered E9 primary methods until an explicit, versioned protocol amendment updates E9's baseline assignment and plotting plan. Do not add them to a run manifest as if they were preregistered.
+
 ## Registered methods and prerequisites
 
 E9's frozen baselines are \`rag_mcp\`, \`mcp_zero\`, \`per_subtask\`, \`colt_adapted\`, \`toolscope_adapted\`, \`cmtf_adapted\` and \`all_tools\`.
