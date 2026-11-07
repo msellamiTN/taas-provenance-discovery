@@ -171,3 +171,36 @@ def qos_evidence_record(
         "observed_at": observed_at, "definition_hash": definition_hash,
         "measured": evidence_kind == "observed",
     }
+
+
+def certificate_check_metrics(audits: Sequence[Mapping]) -> dict:
+    """E10 certificate pass rates by mandatory check and overall conjunction.
+
+    Each input is an independent-audit dictionary with a recomputed mapping.
+    Missing checks fail closed and remain in the denominator; no certificate is
+    silently dropped. Empty input yields undefined rates with denominator zero.
+    """
+    checks = ("S", "C", "P", "E", "L", "V")
+    n = len(audits)
+    counts = {
+        key: sum(
+            1 for audit in audits
+            if isinstance(audit.get("recomputed"), Mapping)
+            and audit["recomputed"].get(key) is True
+        )
+        for key in checks
+    }
+    complete = sum(
+        1 for audit in audits
+        if isinstance(audit.get("recomputed"), Mapping)
+        and all(audit["recomputed"].get(key) is True for key in checks)
+    )
+    return {
+        "n_certificates": n,
+        "by_check": {
+            key: _ratio(f"certificate_pass_{key}", counts[key], n).to_dict()
+            for key in checks
+        },
+        "overall_conjunction": _ratio("certificate_all_mandatory_checks", complete, n).to_dict(),
+        "denominator_policy": "all submitted audit records; missing or non-true checks count as failures",
+    }
