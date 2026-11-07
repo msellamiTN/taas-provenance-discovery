@@ -82,3 +82,14 @@ def test_certificate_check_metrics_empty_input_is_undefined_not_zero():
     result = certificate_check_metrics([])
     assert result["by_check"]["S"]["value"] is None
     assert result["by_check"]["S"]["denominator"] == 0
+
+
+def test_exposure_excludes_unknown_unsafe_reference_from_denominator():
+    metric = exposure_at_k(
+        {"q1": ["unsafe"], "q2": ["safe"]},
+        {"q1": {"unsafe"}, "q2": None},
+        k=1,
+    )
+    assert metric.value == 1.0
+    assert metric.denominator == 1
+    assert metric.details["unknown_reference_requests"] == 1
