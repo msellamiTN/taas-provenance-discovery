@@ -29,7 +29,8 @@ def test_ux7_uses_honest_unconfigured_and_empty_states():
         "No runtime logs",
         "No distributed traces",
         "No runtime metrics",
-        "Runtime diagnostics unavailable",
+        "Runtime diagnostics not loaded",
+        "not execution evidence",
     ):
         assert marker in html
 
@@ -74,9 +75,14 @@ def test_ux7_tabs_are_accessible_and_keyboard_operable():
         assert marker in html
 
 
-def test_ux7_script_is_local_only_and_has_no_execution_or_runtime_calls():
+def test_ux7_script_queries_only_readonly_diagnostics_and_never_executes():
     script = _ux7_script(_studio_html())
-    for forbidden in ("fetch(", "apiGet(", "apiPost(", "runtimePost(", "tools/call", "execute(", "WebSocket("):
+    # Read-only diagnostics observations are wired to the authenticated API…
+    assert "apiGet('/api/v1/runtime/status')" in script
+    assert "apiGet('/api/v1/runtime/hardware')" in script
+    assert "apiGet('/api/v1/models/runtime')" in script
+    # …but the workspace still has no execution, mutation, or tool-invocation path.
+    for forbidden in ("fetch(", "apiPost(", "runtimePost(", "tools/call", "execute(", "WebSocket("):
         assert forbidden not in script
     assert "addEventListener('click'" in script
     assert "aria-selected" in script

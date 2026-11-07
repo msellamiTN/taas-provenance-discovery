@@ -48,11 +48,19 @@ def test_ux8_tabs_are_accessible_and_keyboard_operable():
         assert marker in html
 
 
-def test_ux8_script_is_local_only_and_does_not_execute_checks():
+def test_ux8_script_queries_only_readonly_governance_and_never_executes():
     script = _ux8_script(_studio_html())
-    for forbidden in ("fetch(", "apiGet(", "apiPost(", "runtimePost(",
+    # Governance observations are wired to the authenticated Core APIs…
+    assert "'/release-readiness'" in script
+    assert "'/approvals'" in script
+    assert "'/authorization/preflight'" in script
+    assert "'/api/v1/policy/evaluate'" in script
+    # …but the workspace runs no checks locally, mutates nothing, and never
+    # executes or invokes tools. The approvals surface stays read-only.
+    for forbidden in ("fetch(", "runtimePost(",
                       "tools/call", "execute(", "WebSocket(", "performance.getEntries"):
         assert forbidden not in script
+    assert "'/approvals'," not in script  # no POST to the approvals ceremony
     assert "addEventListener('click'" in script
 
 
