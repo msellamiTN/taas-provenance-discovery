@@ -56,7 +56,7 @@ def test_ux9_inline_script_parses_when_node_is_available():
         pytest.skip("Node.js is not installed")
     html = HTML.read_text(encoding="utf-8")
     start = html.index("// UX-9 Objective Traceability Explorer")
-    end = html.index("\\n\\n})();\\n</script>", start)
+    end = html.index("\n\n})();\n</script>", start)
     source_text = html[start:end]
     with tempfile.NamedTemporaryFile("w", suffix=".js", encoding="utf-8") as source:
         source.write(source_text)
