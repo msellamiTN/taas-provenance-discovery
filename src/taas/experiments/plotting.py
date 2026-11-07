@@ -220,14 +220,16 @@ def validate_figure_data(figure: dict[str, Any], frame: Any) -> dict[str, Any]:
         if converted.isna().any() or not converted.map(math.isfinite).all():
             raise ValueError(f'{figure["id"]}: column {column!r} must contain finite numeric values')
 
-    if {"ci_low", "ci_high", "value"}.issubset(frame.columns):
+    if {"ci_low", "ci_high"}.issubset(frame.columns):
         low = frame["ci_low"].astype(float)
         high = frame["ci_high"].astype(float)
-        value = frame["value"].astype(float)
         if (low > high).any():
             raise ValueError(f'{figure["id"]}: ci_low exceeds ci_high')
-        if ((value < low) | (value > high)).any():
-            raise ValueError(f'{figure["id"]}: point estimate lies outside its confidence interval')
+        estimate_field = figure["y_axis"]["field"] if figure["chart_type"] == "calibration_scatter" else "value"
+        if estimate_field in frame.columns:
+            estimate = frame[estimate_field].astype(float)
+            if ((estimate < low) | (estimate > high)).any():
+                raise ValueError(f'{figure["id"]}: point estimate lies outside its confidence interval')
     if figure["chart_type"] == "alluvial" and (frame["value"].astype(float) < 0).any():
         raise ValueError(f'{figure["id"]}: alluvial flow values must be non-negative')
     if figure["chart_type"] == "significance_scatter":
@@ -251,6 +253,7 @@ def _groups(frame: Any, field: str | None) -> list[tuple[str, Any]]:
 
 
 def _apply_axis_options(ax: Any, figure: dict[str, Any]) -> None:
+    from matplotlib.ticker import PercentFormatter
     options = figure.get("render_options", {})
     for axis_name, attr in (("x_axis", "set_xlabel"), ("y_axis", "set_ylabel")):
         getattr(ax, attr)(figure[axis_name]["label"])
@@ -263,7 +266,6 @@ def _apply_axis_options(ax: Any, figure: dict[str, Any]) -> None:
     if "y_min" in options or "y_max" in options:
         ax.set_ylim(options.get("y_min"), options.get("y_max"))
     if options.get("x_format") == "percent" or options.get("y_format") == "percent":
-        from matplotlib.ticker import PercentFormatter
         if options.get("x_format") == "percent":
             ax.xaxis.set_major_formatter(PercentFormatter(1.0))
         if options.get("y_format") == "percent":
