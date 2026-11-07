@@ -163,7 +163,7 @@ def adjust_pvalues(p_values: Mapping[str, float], method: str = "holm") -> dict:
     """Holm family-wise or Benjamini-Hochberg adjusted p-values."""
     if method not in {"holm", "bh"}:
         raise ValueError("method must be holm or bh")
-    items = sorted((key, float(value)) for key, value in p_values.items())
+    items = sorted(((key, float(value)) for key, value in p_values.items()), key=lambda item: item[1])
     if any(not 0 <= value <= 1 for _, value in items):
         raise ValueError("p-values must lie in [0,1]")
     m = len(items)
