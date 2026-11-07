@@ -42,6 +42,7 @@ def test_bootstrap_is_seed_reproducible_and_reports_n():
     b = percentile_bootstrap([1, 2, 3], replicates=200, seed=42)
     assert a == b
     assert a["n"] == 3
+    assert a["ci_width"] >= 0
 
 
 def test_paired_sign_flip_exact_small_sample():
