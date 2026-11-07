@@ -17,7 +17,7 @@ def model_profile_calibration(records: Sequence[Mapping], *, tau: float = .9,
                str(row.get("exactness", "tolerant")))
         groups[key].append(row)
     cells = []
-    claims, measured, refuted, claim_n = [], [], 0, 0
+    cell_gaps, refuted_cells, claim_cells = [], 0, 0
     for key, rows in sorted(groups.items()):
         outcomes = [float(bool(row["correct"])) for row in rows]
         estimate = mean(outcomes)
@@ -28,20 +28,19 @@ def model_profile_calibration(records: Sequence[Mapping], *, tau: float = .9,
         claim_values = [pair[0] for pair in paired]
         claim = mean(claim_values) if claim_values else None
         if paired:
-            claims.extend(value for value, _ in paired)
-            measured.extend(outcome for _, outcome in paired)
-            claim_n += len(paired)
-            refuted += sum(value >= tau and outcome < tau for value, outcome in paired)
+            claim_cell = mean(value for value, _ in paired)
+            measured_cell = mean(outcome for _, outcome in paired)
+            cell_gaps.append(abs(claim_cell - measured_cell))
+            claim_cells += 1
+            refuted_cells += int(claim_cell >= tau and measured_cell < tau)
         cells.append({"class": key[0], "n": key[1], "lang": key[2], "exactness": key[3],
                       "count": len(rows), "measured_reliability": estimate,
                       "reliability_ci": ci["ci"], "claimed_rho": claim})
     return {
         "cells": cells, "n_records": len(records),
-        "mean_claimed_rho": mean(claims) if claims else None,
-        "mean_measured_reliability": mean(measured) if measured else None,
-        "mean_absolute_calibration_gap": mean(abs(a-b) for a,b in zip(claims, measured)) if claims else None,
-        "refuted_claims": refuted, "claim_denominator": claim_n,
-        "refutation_rate": refuted / claim_n if claim_n else None,
+        "mean_absolute_calibration_gap": mean(cell_gaps) if cell_gaps else None,
+        "refuted_claim_cells": refuted_cells, "claim_cell_denominator": claim_cells,
+        "refutation_rate": refuted_cells / claim_cells if claim_cells else None,
         "tau": tau,
         "note": "claims are compared only where claimed_rho is supplied; no prior is treated as measured",
     }
