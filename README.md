@@ -46,7 +46,7 @@ python experiments/plot_results.py validate-data --experiment E8 --strict
 python experiments/plot_results.py render --experiment E8 --strict
 ```
 
-Full workflow and per-figure axes are documented in [docs/VISUALIZATION_FRAMEWORK.md](docs/VISUALIZATION_FRAMEWORK.md) and [docs/experiment_design/pamcp_plot_plan_v1.json](docs/experiment_design/pamcp_plot_plan_v1.json).
+Full workflow and per-figure axes are documented in [docs/VISUALIZATION_FRAMEWORK.md](docs/VISUALIZATION_FRAMEWORK.md), the [80-figure catalogue](docs/FIGURE_CATALOG.md), and [docs/experiment_design/pamcp_plot_plan_v1.json](docs/experiment_design/pamcp_plot_plan_v1.json).
 
 ## Definitive PaMCP experimental workbench
 
