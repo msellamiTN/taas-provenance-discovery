@@ -1511,7 +1511,7 @@
         {
           "id": "E8-F1",
           "title": "Single-tool retrieval performance",
-          "purpose": "Compare Full PaMCP with E8-assigned retrieval baselines; series identifies Hit@1, Hit@5 and MRR@10.",
+          "purpose": "Compare the registered retrieval baselines actually executed for each benchmark; Full PaMCP is shown only when a validated single-tool adapter is present in the run.",
           "role": "primary",
           "chart_type": "horizontal_forest",
           "data_file": "results/visualization/data/E8-F1.csv",
@@ -1715,8 +1715,8 @@
         },
         {
           "id": "E8-F4",
-          "title": "Cross-benchmark retrieval diagnostics",
-          "purpose": "Compare methods separately by benchmark; do not pool heterogeneous ToolRet with MCP-native results.",
+          "title": "Macro Hit@1 by task category",
+          "purpose": "Compare registered retrieval methods across task categories within each separate benchmark; do not pool heterogeneous benchmarks.",
           "role": "supporting",
           "chart_type": "horizontal_forest",
           "data_file": "results/visualization/data/E8-F4.csv",
