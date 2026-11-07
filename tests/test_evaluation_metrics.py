@@ -93,3 +93,13 @@ def test_exposure_excludes_unknown_unsafe_reference_from_denominator():
     assert metric.value == 1.0
     assert metric.denominator == 1
     assert metric.details["unknown_reference_requests"] == 1
+
+
+def test_retrieval_metrics_distinguish_unknown_and_empty_qrels():
+    result = retrieval_metrics(
+        {"q1": ["a"], "q2": ["b"], "q3": ["c"]},
+        {"q1": {"a"}, "q2": set(), "q3": None},
+    )
+    assert result["requests_scored"] == 1
+    assert result["empty_qrels"] == 1
+    assert result["unknown_qrels"] == 1
