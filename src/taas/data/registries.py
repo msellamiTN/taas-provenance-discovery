@@ -76,7 +76,20 @@ def load_livemcptool(raw: Path = RAW) -> list[RawTool]:
 
 
 def _pp_files(raw: Path) -> list[Path]:
-    return sorted(Path(p) for p in glob.glob(str(raw / "mcptoolbenchpp" / "*.json")))
+    """Return MCPToolBench++ category JSON files; fail clearly when absent."""
+    directory = Path(raw) / "mcptoolbenchpp"
+    files = sorted(directory.glob("*.json")) if directory.is_dir() else []
+    expected = {"browser", "file_system", "finance", "map", "pay", "search"}
+    found = {path.stem for path in files}
+    if found != expected:
+        missing, unexpected = sorted(expected - found), sorted(found - expected)
+        raise FileNotFoundError(
+            "MCPToolBench++ raw category set is incomplete or unexpected. "
+            f"Directory: {directory}; missing={missing}; unexpected={unexpected}. "
+            "Restore the pinned six-category snapshot with: "
+            "python scripts/fetch_mcptoolbenchpp.py"
+        )
+    return files
 
 
 def load_mcptoolbenchpp(raw: Path = RAW) -> tuple[list[RawTool], list[Task]]:
@@ -84,7 +97,17 @@ def load_mcptoolbenchpp(raw: Path = RAW) -> tuple[list[RawTool], list[Task]]:
     tasks: list[Task] = []
     for f in _pp_files(raw):
         cat = f.stem
-        for r in json.load(open(f)):
+        with f.open(encoding="utf-8") as stream:
+            rows = json.load(stream)
+        if not isinstance(rows, list) or not rows:
+            raise ValueError(f"MCPToolBench++ category file is empty or not a JSON list: {f}")
+        for row_index, r in enumerate(rows):
+            required = {"uuid", "query", "tools", "function_call_label"}
+            missing = sorted(required - set(r))
+            if missing:
+                raise ValueError(
+                    f"Malformed MCPToolBench++ row {row_index} in {f.name}; missing fields: {missing}"
+                )
             srv = {n: s for s, names in r.get("mcp_tools_dict", {}).items() for n in names}
             for t in r["tools"]:
                 rt = RawTool(srv.get(t["name"], "unknown"), t["name"], (t.get("description") or "").strip(),
@@ -95,6 +118,11 @@ def load_mcptoolbenchpp(raw: Path = RAW) -> tuple[list[RawTool], list[Task]]:
                     for c in r["function_call_label"]]
             tasks.append(Task(r["uuid"], r["query"], "MCPToolBench++", cat, gold, [],
                               len(r["function_call_label"])))
+    if not tools or not tasks:
+        raise ValueError(
+            f"MCPToolBench++ files were found under {Path(raw) / 'mcptoolbenchpp'} "
+            f"but produced tools={len(tools)} and tasks={len(tasks)}."
+        )
     return list(tools.values()), tasks
 
 

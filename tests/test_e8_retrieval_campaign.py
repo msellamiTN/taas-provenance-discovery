@@ -298,3 +298,32 @@ def test_cross_encoder_checkpoint_rejects_fingerprint_mismatch(tmp_path):
             checkpoint_key="fixture-v2",
             task_chunk_size=2,
         )
+
+
+def test_mcp_toolbench_loader_reports_missing_category_files(tmp_path):
+    from taas.data.registries import load_mcptoolbenchpp
+
+    (tmp_path / "mcptoolbenchpp").mkdir()
+    with pytest.raises(FileNotFoundError, match="scripts/fetch_mcptoolbenchpp.py"):
+        load_mcptoolbenchpp(tmp_path)
+
+
+def test_mcp_toolbench_loader_rejects_incomplete_category_set(tmp_path):
+    from taas.data.registries import load_mcptoolbenchpp
+
+    category = tmp_path / "mcptoolbenchpp"
+    category.mkdir()
+    (category / "browser.json").write_text("[]", encoding="utf-8")
+    with pytest.raises(FileNotFoundError, match="missing=.*file_system"):
+        load_mcptoolbenchpp(tmp_path)
+
+
+def test_mcp_toolbench_loader_rejects_empty_category_json(tmp_path):
+    from taas.data.registries import load_mcptoolbenchpp
+
+    category = tmp_path / "mcptoolbenchpp"
+    category.mkdir()
+    for name in ("browser", "file_system", "finance", "map", "pay", "search"):
+        (category / f"{name}.json").write_text("[]", encoding="utf-8")
+    with pytest.raises(ValueError, match="empty or not a JSON list"):
+        load_mcptoolbenchpp(tmp_path)

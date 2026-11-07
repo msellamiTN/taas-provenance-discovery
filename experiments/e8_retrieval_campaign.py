@@ -268,7 +268,12 @@ def load_mcptoolbenchpp_track(raw_root: str | Path) -> DatasetTrack:
     exclusions["tasks_excluded"] = exclusions["tasks_total"] - len(task_rows)
     exclusions["candidate_tools"] = len(docs)
     if not task_rows:
-        raise ValueError("MCPToolBench++ yielded no unambiguous single-target tasks for E8")
+        reason_counts = {key: int(value) for key, value in sorted(exclusions.items())}
+        raise ValueError(
+            "MCPToolBench++ contains raw data but no task survives the strict E8 "
+            "single-primary-target filter. Exclusion counts: "
+            + json.dumps(reason_counts, sort_keys=True)
+        )
     return DatasetTrack(
         "mcptoolbenchpp_single_target", task_rows, docs, qrels, clusters,
         dict(exclusions),
