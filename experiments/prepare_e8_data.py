@@ -65,8 +65,11 @@ def prepare_mcptoolbenchpp(
     root.mkdir(parents=True, exist_ok=True)
     downloaded, reused = [], []
     for relative_path, expected_sha in MCPTOOLBENCH_FILES.items():
-        destination = root / relative_path
-        destination.parent.mkdir(parents=True, exist_ok=True)
+        category = relative_path.split("/", 1)[0]
+        # The shared registry loader consumes one flat <category>.json file
+        # per MCPToolBench++ category; preserve the upstream path only in the
+        # source URL and manifest key.
+        destination = root / f"{category}.json"
         if destination.is_file():
             actual = git_blob_sha1(destination.read_bytes())
             if actual != expected_sha:
@@ -125,8 +128,8 @@ def prepare_mcptoolbenchpp(
         "files": {
             relative: {
                 "git_blob_sha1": MCPTOOLBENCH_FILES[relative],
-                "sha256": sha256_file(root / relative),
-                "bytes": (root / relative).stat().st_size,
+                "sha256": sha256_file(root / f"{relative.split('/', 1)[0]}.json"),
+                "bytes": (root / f"{relative.split('/', 1)[0]}.json").stat().st_size,
             }
             for relative in MCPTOOLBENCH_FILES
         },
