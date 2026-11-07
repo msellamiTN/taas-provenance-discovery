@@ -58,3 +58,6 @@ retain exact denominators, exclusions, unknowns and abstentions.
 The test module covers hash-matched comparisons, stale-hash exclusion, FAR/FRR denominator
 behavior, threshold monotonicity and explicit Pareto directions. Tests are committed; this
 document does not claim they have run or passed in CI.
+
+
+E3 distinguishes **probeable share** (credential-free runnable tools / registry tools) from **probe coverage** (hash-matched observations / probeable tools). The probeable-server inventory is a required independent input; the two ratios must not be conflated.
