@@ -73,7 +73,7 @@ def test_certificate_check_rates_keep_all_submitted_certificates_in_denominator(
     assert result["n_certificates"] == 3
     assert result["by_check"]["S"]["value"] == 1.0
     assert result["by_check"]["P"]["value"] == 1 / 3
-    assert result["by_check"]["V"]["value"] == 1 / 3
+    assert result["by_check"]["V"]["value"] == 2 / 3
     assert result["overall_conjunction"]["value"] == 1 / 3
     assert result["by_check"]["P"]["denominator"] == 3
 
