@@ -10,9 +10,9 @@ def test_calibration_pairs_claims_and_reports_refutation():
         {"class": "summarise", "n": 5, "correct": False, "claimed_rho": .95},
         {"class": "summarise", "n": 5, "correct": False},
     ], tau=.9, replicates=100)
-    assert result["refuted_claims"] == 1
-    assert result["claim_denominator"] == 2
-    assert result["mean_absolute_calibration_gap"] == .5
+    assert result["refuted_claim_cells"] == 1
+    assert result["claim_cell_denominator"] == 1
+    assert abs(result["mean_absolute_calibration_gap"] - (0.95 - 1/3)) < 1e-12
 
 
 def test_refinement_metrics_are_grouped_by_counterexample():
