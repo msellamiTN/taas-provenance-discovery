@@ -156,5 +156,13 @@ def test_e9_does_not_promote_trace_only_data_to_primary_metrics(tmp_path):
         row["reference_trace_tool_ids"] = ["provider::a", "provider::b"]
         row.pop("acceptable_tool_sets", None)
     path.write_text("".join(json.dumps(row) + "\n" for row in refs))
-    with pytest.raises(ValueError, match="no primary E9 metrics"):
-        export_e9_figures(run_dir, tmp_path / "out", bootstrap_resamples=150)
+    output = tmp_path / "out"
+    result = export_e9_figures(run_dir, output, bootstrap_resamples=150)
+    assert result["figures_exported"] == []
+    assert result["primary_task_metric_rows"] == 0
+    assert result["trace_diagnostic_rows"] == 36
+    assert (output / "E9_TRACE_DIAGNOSTICS.csv").is_file()
+    assert not (output / "E9-F1.csv").exists()
+    assert not (output / "E9-F2.csv").exists()
+    assert not (output / "E9-F3.csv").exists()
+    # Trace-only tasks remain diagnostics, not primary set-quality observations.
