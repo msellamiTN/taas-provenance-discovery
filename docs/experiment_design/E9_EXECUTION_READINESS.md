@@ -13,8 +13,8 @@ The E9 figure contracts, evaluator-separated metric exporter and test fixtures a
 
 | Input / artifact | Current repository state | Consequence |
 |---|---|---|
-| LiveMCPBench tools and annotations | Present under \`data/raw/livemcpbench/\`; source revision recorded in \`data/raw/SOURCES.txt\` | Available for source-specific identity and task-sequence diagnostics |
-| LiveMCPBench independently adjudicated acceptable tool sets | Not present as a separate evaluator artifact | Annotated tool sequences remain positive-trace diagnostics, not exhaustive set gold |
+| LiveMCPBench tools and annotations | Pinned revision `36a51a1065dda49c1e503b87edf33a1e0b331a74`; 525 tools / 69 servers | Strict E9 preprocessor resolves task tool names against the LiveMCPTool-only candidate registry |
+| LiveMCPBench benchmark-native successful reference chains | 64/95 tasks pass unique tool-ID and declared-count checks; 3 count mismatches and 28 ambiguous/unresolved tasks excluded | One validator-scrutinized successful chain per eligible task; not an exhaustive enumeration of alternatives |
 | MCP-Atlas public parquet | Adapter exists; raw parquet snapshot is not present | Pin and acquire the 500-task public release before diagnostics |
 | MCPVerse v1.1 CSV | Adapter exists; pinned CSV is not present | Can support a separate single-target diagnostic, not multi-tool complete-set gold |
 | E9 GoalSpecs | No frozen E9 task-level GoalSpec package is present | Do not derive subgoals from evaluator labels or annotator traces |
@@ -28,7 +28,7 @@ E9-F1/F2/F3 are generated only from evaluator records whose \`reference_semantic
 - \`independently_adjudicated_acceptable_sets\`
 - \`benchmark_native_acceptable_sets\`
 
-The pinned LiveMCPBench paper describes proposer-completed tasks and validator-scrutinized toolchains. The strict subset of 64 tasks with uniquely resolved tool IDs and matching declared tool counts is admissible as one benchmark-native successful reference set per task. It does not establish that the reference is the only valid chain. The 3 count-mismatch and 28 ambiguous/unresolved tasks are excluded and retained in the preparation audit. MCP-Atlas trajectories remain diagnostics because the public schema supplies a successful trace, not exhaustive acceptable-set gold. MCPVerse's annotated tool field is single-target, not multi-tool complete-set ground truth.
+The strict preparation is implemented at `experiments/prepare_e9_livemcpbench.py` and is executed in CI against the pinned repository data. It produces discovery tasks/tools/visibility separately from evaluator acceptable sets and a 95-row resolution audit. The 64 eligible tasks have one benchmark-native successful toolchain; that set is not claimed to be the only valid solution. MCP-Atlas trajectories remain diagnostic-only; MCPVerse's annotated tool field is single-target, not multi-tool complete-set ground truth.
 
 The exporter refuses:
 - evaluator labels in discovery rankings;
@@ -39,6 +39,7 @@ The exporter refuses:
 
 ## Available implementation
 
+- [LiveMCPBench E9 dataset preparer](../../experiments/prepare_e9_livemcpbench.py) (creates task/reference package, not method rankings)
 - [E9 execution runbook](experiment_design/E9_EXECUTION_RUNBOOK.md)
 - [E9 figure exporter](../experiments/export_e9_figures.py)
 - [E9 exporter/rendering tests](../tests/test_e9_figure_export.py)
