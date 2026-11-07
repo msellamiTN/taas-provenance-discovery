@@ -1188,7 +1188,9 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     <div style="display:grid;grid-template-columns:minmax(90px,160px) minmax(0,1fr);align-items:center;gap:6px 10px;font-size:12px">
       <label for="ux8-agent-id" style="font-weight:700;color:#52627a">Agent ID</label><input id="ux8-agent-id" type="text" maxlength="64" placeholder="e.g. my-agent" style="padding:7px 9px;width:100%;box-sizing:border-box;border:1px solid var(--line,#dce3ed);border-radius:7px">
       <label for="ux8-agent-version" style="font-weight:700;color:#52627a">Version</label><input id="ux8-agent-version" type="text" maxlength="24" placeholder="e.g. 0.1.0" style="padding:7px 9px;width:100%;box-sizing:border-box;border:1px solid var(--line,#dce3ed);border-radius:7px">
+      <span></span><div class="inline-actions" style="margin-top:0"><button type="button" id="ux8-agents-list" class="secondary" style="margin:0">List registered agent versions</button><span class="subtle" style="font-size:11px">Select a registered version — governance queries require an existing agent registry record.</span></div>
     </div>
+    <div id="ux8-agents-result" class="ux8-note" style="display:none;margin-top:8px;font-size:11px"></div>
     <div class="inline-actions" style="margin-top:10px">
       <button type="button" id="ux8-release-readiness">Release readiness</button>
       <button type="button" id="ux8-approvals" class="secondary">Recorded approvals</button>
@@ -3399,7 +3401,24 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     // none grant authorization or execution.
     const govStatus=document.getElementById('ux8-gov-status'),govResult=document.getElementById('ux8-gov-result');
     const govShow=(label,data)=>{if(govResult)govResult.textContent=JSON.stringify(data,null,2);if(govStatus)govStatus.textContent=label;};
-    const govErr=(e)=>{if(govStatus)govStatus.textContent='Request failed: '+e.message;};
+    const govErr=(e)=>{if(govStatus)govStatus.textContent='Request failed: '+e.message+(/not found|404/i.test(e.message)?' — agent version is not registered; list registered versions or publish one first.':'');};
+    document.getElementById('ux8-agents-list')?.addEventListener('click',async()=>{
+      const box=document.getElementById('ux8-agents-result');
+      try{if(govStatus)govStatus.textContent='Querying registered agent versions…';
+        const d=await apiGet('/api/v1/agents?limit=50');
+        const versions=Array.isArray(d.versions)?d.versions:[];
+        if(box){box.style.display='block';box.replaceChildren();
+          if(!versions.length){box.textContent='No agent versions are registered. Governance queries will return not found until an agent version is published.';}
+          versions.forEach(v=>{
+            const b=document.createElement('button');b.type='button';b.className='secondary';b.style.margin='0 6px 6px 0';
+            b.textContent=(v.agent_id||'?')+' @ '+(v.version||'?')+(v.lifecycle_state?' ('+v.lifecycle_state+')':'');
+            b.addEventListener('click',()=>{document.getElementById('ux8-agent-id').value=v.agent_id||'';document.getElementById('ux8-agent-version').value=v.version||'';});
+            box.append(b);
+          });
+        }
+        if(govStatus)govStatus.textContent=versions.length+' registered agent version(s) returned by the Core registry. Select one to populate the agent reference.';
+      }catch(e){govErr(e);}
+    });
     const agentRef=()=>{
       const id=document.getElementById('ux8-agent-id').value.trim(),v=document.getElementById('ux8-agent-version').value.trim();
       if(!id||!v)throw new Error('Agent ID and version are required for agent-scoped governance queries.');
