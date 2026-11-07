@@ -106,7 +106,7 @@ def test_heatmap_renders_categorical_axes(tmp_path):
 
 def test_alluvial_requires_nonnegative_flows():
     figure = _figure("E16-F4")
-    frame = pd.DataFrame({"source": ["observed"], "target": ["invalidated"], "value": [-1]})
+    frame = pd.DataFrame({"source": ["observed"], "target": ["invalidated"], "value": [-1], "benchmark": ["event-replay"]})
     with pytest.raises(ValueError, match="non-negative"):
         validate_figure_data(figure, frame)
 
@@ -193,6 +193,7 @@ def test_renderer_smoke_covers_all_chart_families(tmp_path):
         "E13-F3": pd.DataFrame({
             "group": ["PaMCP"] * 3 + ["baseline"] * 3,
             "value": [2, 3, 4, 4, 5, 6],
+            "benchmark": ["Toolathlon-Verified"] * 6,
         }),
         "E15-F1": pd.DataFrame({
             "registry_size": [100, 1000, 10000],
