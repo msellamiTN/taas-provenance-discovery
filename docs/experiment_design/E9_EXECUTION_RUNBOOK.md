@@ -18,9 +18,11 @@ E9's separate primary configuration is \`Full_PaMCP\`. The exporter permits it o
 
 The repository contains \`data/raw/livemcpbench/tools.json\` and \`all_annotations.json\`. Annotator metadata includes a task step sequence and a list of tools associated with that sequence.
 
-That annotation is a positive reference trace/sequence. It does not prove that the list is exhaustive, that every named tool identity is unambiguous, or that no alternative valid tool set exists. The existing registry helper can collapse ambiguous names to a composite string; that mapping must not be used as a stable tool ID in a definitive E9 run without explicit identity resolution.
+The LiveMCPBench paper describes a two-stage task curation process: proposers completed tasks by interacting with the toolset and annotated the toolchain; validators scrutinized the task and corresponding toolchain invocations. Therefore, a uniquely resolved, count-consistent annotation can be used as **one benchmark-native successful reference set** for E9. It is not evidence that the chain is the only valid solution or an exhaustive list of all acceptable alternatives.
 
-Use LiveMCPBench traces for **trace-coverage diagnostics** unless independent adjudication establishes one or more acceptable tool sets for the task.
+The strict preparation script, `experiments/prepare_e9_livemcpbench.py`, uses the pinned `LiveMCPTool` candidate registry only (525 tools / 69 servers), resolves names to unique `server::tool` IDs, and requires the resolved mention count to equal the annotator's declared tool count. On the current pinned snapshot, 64 of 95 tasks pass; 3 fully resolvable count-mismatch tasks and 28 tasks with ambiguous/unresolved IDs remain excluded and visible in the owner-side audit. The 64 accepted references are tagged `benchmark_native_acceptable_sets`, one successful chain per task. The evaluator must describe complete-set recall as coverage of the documented successful reference chain, not proof that no alternative valid chain exists.
+
+Do not use the older registry helper's ambiguous-name composite IDs as stable tool IDs. Name-only or ambiguous identities remain excluded from primary E9 scoring.
 
 ### MCP-Atlas public
 
@@ -160,4 +162,4 @@ A partial E9 run can render partial figures. A rendered figure does not change t
 
 ## Current readiness boundary
 
-The repository contains the LiveMCPBench tool/annotation snapshot and an MCP-Atlas adapter. It does not yet contain an E9 definitive run manifest, frozen independently adjudicated multi-tool acceptable sets, or per-task rankings generated with frozen GoalSpecs/contracts. Therefore the exporter and figure path are implemented and testable, but no E9 scientific result is claimed by this implementation.
+The repository contains the pinned LiveMCPBench snapshot and the strict E9 preparation script. That script can produce 64 benchmark-native successful reference sets in a separated evaluator directory. The repository still has no E9 definitive run manifest or per-task rankings generated with frozen GoalSpecs/contracts and the full registered baseline matrix. Therefore the dataset/reference preparation is available, but no E9 method comparison or scientific performance result is claimed.
