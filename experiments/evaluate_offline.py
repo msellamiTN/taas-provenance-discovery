@@ -17,6 +17,7 @@ def main() -> int:
     parser.add_argument("--input", required=True, type=Path, help="Frozen JSON payload")
     parser.add_argument("--output", required=True, type=Path, help="Result JSON destination")
     parser.add_argument("--run-id", required=True, help="Preassigned immutable run identifier")
+    parser.add_argument("--code-commit", required=True, help="Full code commit SHA used for evaluation")
     parser.add_argument("--seed", type=int, default=0)
     args = parser.parse_args()
 
@@ -36,11 +37,13 @@ def main() -> int:
         "schema_version": "1.0.0",
         "experiment_id": args.experiment,
         "run_id": args.run_id,
+        "code_commit": args.code_commit,
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
         "seed": args.seed,
         "protocol_version": document["protocol_version"],
         "dataset_snapshot_hash": document.get("dataset_snapshot_hash"),
         "definition_hash_manifest": document.get("definition_hash_manifest"),
+        "parameters": document.get("parameters", {}),
         "input_sha256": input_sha256,
         "evaluator": "taas.experiments.offline_evaluator.evaluate_payload",
         "execution_scope": "offline evaluation only; no MCP servers or tools invoked",
