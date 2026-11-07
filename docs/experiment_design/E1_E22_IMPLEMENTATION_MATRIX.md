@@ -57,3 +57,18 @@ or test has been committed.
 `protocol_readiness.assess_programme_readiness` checks the approved dependency graph,
 external gates and named artifact prerequisites for all 22 experiments. It reports readiness
 only; it does not execute or mutate experiment status.
+
+
+## Unified dispatch
+
+`src/taas/experiments/offline_evaluator.py::evaluate_payload(experiment_id, payload)`
+provides one dispatch entry point for record-based E1–E22 analyses. It validates required
+top-level payload fields and calls the experiment-specific evaluators. E10's per-certificate
+recomputation remains a separate typed-object operation; the dispatcher aggregates its
+independent audit records. The dispatcher does not mark experiments complete or create
+missing observations.
+
+E8 retrieval reports `MRR@max(k)`; the E8 dispatch requests k = 1, 5 and 10, therefore
+the protocol output is `MRR@10`. E12 calibration gaps and refutations are computed at the
+calibration-cell level (class, n, language and exactness), comparing mean claimed reliability
+with measured cell accuracy.
