@@ -80,12 +80,18 @@ jobs:
           manifest = json.loads(Path("/tmp/e9-livemcpbench-prepared/PREPARATION_MANIFEST.json").read_text())
           counts = manifest["resolution"]
           assert counts["tasks_total"] == 95
-          assert counts["tasks_primary_eligible"] == 64
-          assert counts["tasks_excluded_count_mismatch"] == 3
-          assert counts["tasks_excluded_ambiguous_or_unresolved"] == 28
+          assert counts["tasks_primary_eligible"] == 94
+          assert counts["tasks_excluded_no_resolvable_gold"] == 1
+          assert counts["tool_mentions_total"] == 256
+          assert counts["tool_mentions_unique_identity"] == 222
+          assert counts["tool_mentions_ambiguous_identity"] == 29
+          assert counts["tool_mentions_unresolved"] == 5
           assert manifest["status"] == "prepared_not_run"
           assert manifest["separation"]["gold_labels_exposed_to_discovery"] is False
-          print(json.dumps({"E9_LiveMCPBench_preparation": counts}, indent=2))
+          print(json.dumps({
+              "E9_LiveMCPBench_preparation": counts,
+              "assertion": "94/95 tasks included; ambiguous tool names expand to all candidate identities"
+          }, indent=2))
           PY
       - name: Prepare proposed E2 human-annotation sample (not frozen)
         run: |
