@@ -581,6 +581,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <a href="#platform-governance-quality">Platform Governance &amp; Quality (UX-8)</a>
       <a href="#objective-traceability-explorer">Objective Traceability Explorer (UX-9)</a>
       <a href="#release-center">Release Center (UX-10)</a>
+      <a href="#operations-command-center">Operations Command Center (UX-11)</a>
       <span class="nav-label">OPERATE &amp; OBSERVE</span>
       <a href="#workspace">Benchmark workspace</a>
       <a class="overview-shortcut" href="#runtime">Runtime diagnostics</a>
@@ -631,6 +632,18 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     <p class="subtle">A valid HMAC proves service issuance and record integrity, not assessor-claim truth. It is not policy approval and does not authorize or execute a tool. Expired or tampered records are rejected.</p>
   </section>
 
+  <section id="operations-command-center" class="section-anchor" aria-labelledby="ux11-title" style="margin-bottom:18px">
+    <div class="panel-head"><div><div class="eyebrow">OPERATE · UX-11</div><h2 id="ux11-title" style="margin:4px 0">Operations Command Center</h2><p class="subtle">One read-only operational view across runtime diagnostics, discovery history and audit integrity. Every result is sourced from TaaS Core; retrieval time is recorded locally.</p></div><span class="pill">Read-only · Evidence-led</span></div>
+    <div class="inline-actions" style="margin:0 0 12px"><button id="ux11-refresh" type="button">Refresh operational evidence</button><span id="ux11-refresh-state" class="subtle" role="status" aria-live="polite">Not refreshed yet · connect to Studio API first.</span></div>
+    <div class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-bottom:12px">
+      <article class="ux8-card"><div class="eyebrow">HOST RUNTIME</div><strong id="ux11-host-state">NOT QUERIED</strong><p id="ux11-host-meta" class="subtle">GET /api/v1/runtime/status</p><a href="#runtime-overview">Open runtime diagnostics →</a></article>
+      <article class="ux8-card"><div class="eyebrow">MODEL RUNTIME</div><strong id="ux11-model-state">NOT QUERIED</strong><p id="ux11-model-meta" class="subtle">GET /api/v1/models/runtime</p><a href="#model-runtime-panel">Open model runtime →</a></article>
+      <article class="ux8-card"><div class="eyebrow">DISCOVERY HISTORY</div><strong id="ux11-discovery-state">NOT QUERIED</strong><p id="ux11-discovery-meta" class="subtle">GET /api/v1/discovery/runs?limit=50</p><a href="#discovery-observability">Open discovery history →</a></article>
+      <article class="ux8-card"><div class="eyebrow">AUDIT INTEGRITY</div><strong id="ux11-audit-state">NOT QUERIED</strong><p id="ux11-audit-meta" class="subtle">GET /api/v1/audit/verify</p><a href="#discovery-observability">Open audit workspace →</a></article>
+    </div>
+    <div class="ux8-card"><div class="panel-head"><h3 style="margin:0">Source retrieval log</h3><span class="subtle">Browser-observed retrieval times · not source event timestamps</span></div><div id="ux11-source-log" class="subtle" aria-live="polite">No operational requests have been made from this workspace.</div></div>
+    <p class="subtle" style="margin:12px 0 0">This workspace does not infer global service health from missing responses. “Reported” means the endpoint returned a response; “Request failed” means evidence could not be retrieved. Audit-chain integrity does not establish claim truth. No Agent, MCP tool, worker or workflow is executed here.</p>
+  </section>
   <section id="runtime-overview" class="runtime-overview" aria-labelledby="runtime-overview-title">
     <div class="runtime-overview-head">
       <div><div class="eyebrow">Live runtime · Colab / host</div><h2 id="runtime-overview-title" style="margin:4px 0">Environment overview</h2><p class="muted" style="margin:0">Observed process and hardware diagnostics. A visible GPU is not proof that a model is loaded or inference works.</p></div>
@@ -3444,6 +3457,53 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   $("obs-load-run").addEventListener("click",obsLoadRun);
   $("obs-refresh-audit").addEventListener("click",obsRefreshAudit);
   $("obs-verify-audit").addEventListener("click",obsVerifyAudit);
+
+  // UX-11 Operations Command Center: read-only source aggregation; no execution paths.
+  (() => {
+    const ids={host:"ux11-host",model:"ux11-model",discovery:"ux11-discovery",audit:"ux11-audit"};
+    const log=$("ux11-source-log"),refresh=$("ux11-refresh"),state=$("ux11-refresh-state");
+    const safeText=value=>String(value===null||value===undefined||value===""?"Not reported":value);
+    const setCard=(key,label,meta)=>{$(ids[key]+"-state").textContent=label;$(ids[key]+"-meta").textContent=meta;};
+    const retrieve=async(key,path,summary)=>{
+      const started=Date.now();
+      try{
+        const data=await apiGet(path),retrievedAt=new Date().toISOString();
+        setCard(key,"RESPONSE REPORTED",summary(data));
+        return {source:key,path,status:"reported",retrieved_at:retrievedAt,elapsed_ms:Date.now()-started,data};
+      }catch(error){
+        const retrievedAt=new Date().toISOString();
+        setCard(key,"REQUEST FAILED",error.message);
+        return {source:key,path,status:"request_failed",retrieved_at:retrievedAt,elapsed_ms:Date.now()-started,error:error.message};
+      }
+    };
+    const renderLog=items=>{
+      log.replaceChildren();
+      items.forEach(item=>{
+        const row=document.createElement("div");row.style.cssText="display:grid;grid-template-columns:minmax(100px,.7fr) minmax(150px,1fr) minmax(130px,1fr);gap:8px;padding:8px 0;border-bottom:1px solid #e8edf4";
+        const name=document.createElement("strong");name.textContent=item.source.toUpperCase();
+        const status=document.createElement("span");status.textContent=item.status==="reported"?"Response reported":"Request failed";
+        const time=document.createElement("span");time.textContent="Retrieved "+item.retrieved_at+" · "+item.elapsed_ms+" ms";
+        row.append(name,status,time);log.append(row);
+      });
+      const details=document.createElement("details");details.style.marginTop="10px";
+      const summary=document.createElement("summary");summary.textContent="Inspect retrieval metadata";summary.style.cursor="pointer";
+      const pre=document.createElement("pre");pre.style.cssText="min-height:60px;max-height:260px";pre.textContent=JSON.stringify(items.map(({data,...meta})=>meta),null,2);
+      details.append(summary,pre);log.append(details);
+    };
+    refresh.addEventListener("click",async()=>{
+      refresh.disabled=true;state.textContent="Retrieving four read-only Core sources…";
+      const requests=[
+        retrieve("host","/api/v1/runtime/status",d=>"Host diagnostics returned · "+safeText(d.status||d.runtime_status||"status field not reported")),
+        retrieve("model","/api/v1/models/runtime",d=>"Model runtime returned · "+safeText(d.loaded===true?"loaded":d.loaded===false?"not loaded":d.status||"load state not reported")),
+        retrieve("discovery","/api/v1/discovery/runs?limit=50",d=>{const rows=Array.isArray(d.runs)?d.runs:Array.isArray(d.records)?d.records:[];return rows.length+" persisted record(s) returned";}),
+        retrieve("audit","/api/v1/audit/verify",d=>"chain_valid="+safeText(d.chain_valid)+" · first divergence="+safeText(d.first_divergence))
+      ];
+      const results=await Promise.all(requests);
+      renderLog(results);const failed=results.filter(x=>x.status!=="reported").length;
+      state.textContent="Retrieval complete · "+(results.length-failed)+" responses reported · "+failed+" request failure(s). No execution performed.";
+      refresh.disabled=false;
+    });
+  })();
 
   // UX-3: keyboard-accessible command palette for the existing Studio navigation.
   // Destinations are derived from the rendered navigation; no parallel route registry.
