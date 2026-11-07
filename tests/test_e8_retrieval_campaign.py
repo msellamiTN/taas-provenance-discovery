@@ -103,6 +103,19 @@ def test_rank_scores_are_deterministic_under_ties():
     assert e8._rank_scores(scores, ids, top_k=2) == ["tool-a", "tool-b"]
     assert e8._rank_scores(scores, ids, top_k=0) == []
 
+def test_rrf_fuses_bm25_and_tfidf_deterministically():
+    bm25 = {"q1": ["a", "b", "c"], "q2": ["x", "y"]}
+    tfidf = {"q1": ["b", "d", "a"], "q2": ["y", "z", "x"]}
+    fused = e8._rrf_fuse_rankings(bm25, tfidf, top_k=3, rrf_k0=60)
+    assert fused["q1"] == ["a", "b", "c"] or fused["q1"] == ["b", "a", "c"]
+    assert fused["q2"][:2] == ["x", "y"]
+    assert fused == e8._rrf_fuse_rankings(bm25, tfidf, top_k=3, rrf_k0=60)
+
+
+def test_rrf_rejects_mismatched_task_coverage():
+    with pytest.raises(ValueError, match="exactly the same task IDs"):
+        e8._rrf_fuse_rankings({"q1": ["a"]}, {"q2": ["a"]}, top_k=1)
+
 
 def test_random_baseline_is_task_stable_and_top_k_bounded():
     docs = [e8.ToolDocument(f"tool::{i}", f"tool {i}", "c", "s") for i in range(100)]
@@ -356,7 +369,10 @@ def test_run_campaign_end_to_end_smoke_is_partial_and_keeps_protocol_baselines_b
         hybrid = {task.task_id: list(bm25_candidates[task.task_id][:top_k]) for task in tasks}
         return dense, hybrid, candidates
 
+    cross_calls = []
+
     def fake_cross(docs, tasks, candidates, reranker, top_k, **kwargs):
+        cross_calls.append({task.task_id for task in tasks})
         return {task.task_id: list(candidates[task.task_id][:top_k]) for task in tasks}
 
     def fake_bm25(docs, tasks, top_k):
@@ -390,10 +406,11 @@ def test_run_campaign_end_to_end_smoke_is_partial_and_keeps_protocol_baselines_b
     assert manifest["status"] == "partial"
     assert manifest["execution_scope_status"] == "EXECUTED_SELECTED_RETRIEVAL_BASELINES"
     assert set(manifest["tracks"]) == {"toolret_heterogeneous", "mcptoolbenchpp_single_target"}
-    assert all(
-        set(track["baseline_ids_executed"]) == set(e8.REQUIRED_BASELINES)
-        for track in manifest["tracks"].values()
-    )
+    assert set(manifest["tracks"]["toolret_heterogeneous"]["baseline_ids_executed"]) == set(e8.TOOLRET_BASELINES)
+    assert set(manifest["tracks"]["mcptoolbenchpp_single_target"]["baseline_ids_executed"]) == set(e8.REQUIRED_BASELINES)
+    assert "cross_encoder" not in manifest["tracks"]["toolret_heterogeneous"]["baseline_ids_executed"]
+    assert "bm25_tfidf_rrf" in manifest["tracks"]["toolret_heterogeneous"]["baseline_ids_executed"]
+    assert cross_calls == [{"mcp-q1", "mcp-q2"}]
     assert manifest["protocol_baseline_status"]["preregistered_catalog_ids"] == [
         "bm25", "dense_lsa", "rag_mcp", "mcp_zero",
         "per_subtask", "colt_adapted", "toolscope_adapted", "cmtf_adapted",
