@@ -56,9 +56,10 @@ def evaluate_payload(experiment_id: str, payload: Mapping) -> dict:
         _need(payload, "declared", "observed", "definition_hashes", "observed_hashes", "probeable_tool_ids")
         return {
             "discrepancy": effect_discrepancy(payload["declared"], payload["observed"],
-                                              payload["definition_hashes"], payload["observed_hashes"], payload["probeable_tool_ids"]),
+                                              payload["definition_hashes"], payload["observed_hashes"]),
             "coverage": probe_coverage(payload["declared"], payload["observed"],
-                                       payload["definition_hashes"], payload["observed_hashes"]),
+                                       payload["definition_hashes"], payload["observed_hashes"],
+                                       payload["probeable_tool_ids"]),
         }
     if eid == "E4":
         _need(payload, "rankings", "unsafe_reference", "read_only_target_qrels", "encodings")
