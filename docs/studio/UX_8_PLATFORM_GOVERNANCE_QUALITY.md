@@ -22,7 +22,8 @@ Provide a unified workspace for inspecting platform quality and recording eviden
 - Performance: LCP, INP, CLS, load/bundle and resource profile fields, explicitly NOT_RUN.
 - Validation & Quality: build, unit/regression, browser, security and Colab validation matrix.
 - Reports: explicit empty state until a traceable report exists.
-- Six local tabs with click, ArrowLeft/ArrowRight, Home and End keyboard navigation, ARIA tab semantics and responsive layouts.
+- Governance APIs: read-only queries against authenticated Core endpoints — `GET /api/v1/agents` (registered-version picker), `GET …/release-readiness`, `GET …/approvals`, `POST …/authorization/preflight` and `POST /api/v1/policy/evaluate`. Responses are rendered verbatim as Core observations. Release readiness, recorded approvals, authorization preflight and policy verdicts stay distinct states; none grant or prove execution. The panel exposes no mutation control — the approval ceremony POST is not surfaced.
+- Seven local tabs with click, ArrowLeft/ArrowRight, Home and End keyboard navigation, ARIA tab semantics and responsive layouts.
 
 ## Evidence-state semantics
 
@@ -35,7 +36,7 @@ WCAG 2.2 AA is an intended target, not a certification or conformance claim. No 
 
 ## Governance and non-goals
 
-This increment is a local UI surface. It adds no validation runner, browser automation, security scanner, telemetry collector, runtime adapter, isolated worker, execution API, MCP invocation, model call, authorization grant, policy enforcement, secret access, persistence, or deployment automation.
+This increment is a UI surface. It adds no validation runner, browser automation, security scanner, telemetry collector, runtime adapter, isolated worker, execution API, MCP invocation, model call, authorization grant, policy enforcement, secret access, persistence, or deployment automation. The Governance APIs tab issues read-only observation calls to existing authenticated Core endpoints; the authorization-preflight call evaluates trusted preconditions only and never authorizes or invokes a tool.
 
 Discovery metadata, assurance observations and policy descriptions are not proof of enforcement, authorization, semantic correctness or goal fulfilment. Governed MCP execution and isolated workers remain disabled. The fixed experimental protocol and UX-2 through UX-7 behavior are unchanged.
 
@@ -51,6 +52,6 @@ Discovery metadata, assurance observations and policy descriptions are not proof
 4. Verify desktop, tablet and narrow mobile layouts.
 5. Test keyboard-only navigation and screen-reader behavior.
 6. Run actual accessibility, security and performance assessments before recording outcomes.
-7. Confirm no UX-8 action makes runtime, execution, authorization or policy-enforcement requests.
+7. Confirm UX-8 makes only the documented read-only governance observation calls — no runtime, execution, authorization-grant or policy-enforcement mutation requests.
 
 Source assertions are not substitutes for pytest, CI, browser, Colab or assistive-technology acceptance. Do not mark UX-8 accepted until those evidence classes are recorded.
