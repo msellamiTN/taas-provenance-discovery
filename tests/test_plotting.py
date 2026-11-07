@@ -247,3 +247,17 @@ def test_multi_field_facets_render_independent_panels(tmp_path):
     assert len(outputs) == 1
     assert outputs[0].is_file()
     assert outputs[0].stat().st_size > 1000
+
+
+def test_pareto_renderer_handles_multiple_non_dominated_points(tmp_path):
+    figure = _figure("E4-F1")
+    frame = pd.DataFrame({
+        "util_at_5": [0.80, 0.90, 0.70, 0.75],
+        "exp_at_5": [0.20, 0.30, 0.35, 0.10],
+        "series": ["method-a", "method-b", "method-c", "method-d"],
+        "eligible_share": [0.4, 0.5, 0.6, 0.3],
+        "benchmark": ["MCPToolBench++"] * 4,
+    })
+    outputs = render_figure(figure, frame, tmp_path, formats=("svg",), dpi=80)
+    svg = outputs[0].read_text(encoding="utf-8")
+    assert "Non-dominated frontier" in svg
