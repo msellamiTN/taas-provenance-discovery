@@ -1,7 +1,7 @@
 import csv
 import pytest
 
-from experiments.e1.validate_annotation_pair import (
+from taas.e1_annotation_intake import (
     AnnotationValidationError, cohens_kappa, load_sheet, validate_pair,
 )
 
