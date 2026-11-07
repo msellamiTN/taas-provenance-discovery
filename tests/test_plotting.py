@@ -71,6 +71,7 @@ def test_forest_data_requires_valid_confidence_interval():
 
 def test_requested_facet_must_be_present():
     figure = _figure("E4-F3")
+    figure["data_contract"]["required_columns"] = ["category", "series", "value"]
     frame = pd.DataFrame({"category": ["policy"], "series": ["Exp@5"], "value": [0.1]})
     with pytest.raises(ValueError, match="facet column"):
         validate_figure_data(figure, frame)
