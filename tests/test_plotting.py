@@ -73,7 +73,7 @@ def test_requested_facet_must_be_present():
     figure = _figure("E4-F3")
     figure["data_contract"]["required_columns"] = ["category", "series", "value"]
     frame = pd.DataFrame({"category": ["policy"], "series": ["Exp@5"], "value": [0.1]})
-    with pytest.raises(ValueError, match="missing CSV columns"):
+    with pytest.raises(ValueError, match="facet column"):
         validate_figure_data(figure, frame)
 
 
@@ -171,6 +171,7 @@ def test_renderer_smoke_covers_all_chart_families(tmp_path):
             "category": ["PaMCP", "baseline", "baseline"],
             "segment": ["interface", "interface", "flow"],
             "value": [2, 3, 1],
+            "benchmark": ["LiveMCPBench"] * 3,
         }),
         "E11-F1": pd.DataFrame({
             "input_size": [10, 20, 40],
