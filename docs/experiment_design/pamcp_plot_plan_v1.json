@@ -1546,7 +1546,7 @@
             ]
           },
           "comparison": {
-            "primary_configuration": "Full_PaMCP",
+            "primary_configuration": null,
             "baseline_ids": [
               "bm25",
               "dense_lsa",
@@ -1558,7 +1558,7 @@
               "cmtf_adapted"
             ],
             "factorial_cells": [],
-            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+            "comparison_policy": "Compare only registered E8 retrieval methods with observed per-task metrics in the run manifest. Full PaMCP is not an E8 single-tool method and must not be included unless a separately validated single-tool adapter is explicitly executed and recorded."
           },
           "uncertainty": {
             "confidence_level": 0.95,
@@ -1614,7 +1614,7 @@
             ]
           },
           "comparison": {
-            "primary_configuration": "Full_PaMCP",
+            "primary_configuration": null,
             "baseline_ids": [
               "bm25",
               "dense_lsa",
@@ -1626,7 +1626,7 @@
               "cmtf_adapted"
             ],
             "factorial_cells": [],
-            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+            "comparison_policy": "Compare only registered E8 retrieval methods with observed per-task metrics in the run manifest. Full PaMCP is not an E8 single-tool method and must not be included unless a separately validated single-tool adapter is explicitly executed and recorded."
           },
           "uncertainty": {
             "confidence_level": 0.95,
@@ -1648,7 +1648,7 @@
         {
           "id": "E8-F3",
           "title": "Retrieval robustness to distractors",
-          "purpose": "Compare PaMCP and retrieval baselines at matched candidate budgets.",
+          "purpose": "Compare executed registered retrieval methods only at predeclared distractor counts; a full-corpus ranking is not a distractor-count sweep.",
           "role": "supporting",
           "chart_type": "scatter",
           "data_file": "results/visualization/data/E8-F3.csv",
@@ -1681,7 +1681,7 @@
             ]
           },
           "comparison": {
-            "primary_configuration": "Full_PaMCP",
+            "primary_configuration": null,
             "baseline_ids": [
               "bm25",
               "dense_lsa",
@@ -1693,7 +1693,7 @@
               "cmtf_adapted"
             ],
             "factorial_cells": [],
-            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+            "comparison_policy": "Compare only registered E8 retrieval methods with observed per-task metrics in the run manifest. Full PaMCP is not an E8 single-tool method and must not be included unless a separately validated single-tool adapter is explicitly executed and recorded."
           },
           "uncertainty": {
             "confidence_level": 0.95,
@@ -1751,7 +1751,7 @@
             ]
           },
           "comparison": {
-            "primary_configuration": "Full_PaMCP",
+            "primary_configuration": null,
             "baseline_ids": [
               "bm25",
               "dense_lsa",
@@ -1763,7 +1763,7 @@
               "cmtf_adapted"
             ],
             "factorial_cells": [],
-            "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
+            "comparison_policy": "Compare only registered E8 retrieval methods with observed per-task metrics in the run manifest. Full PaMCP is not an E8 single-tool method and must not be included unless a separately validated single-tool adapter is explicitly executed and recorded."
           },
           "uncertainty": {
             "confidence_level": 0.95,
