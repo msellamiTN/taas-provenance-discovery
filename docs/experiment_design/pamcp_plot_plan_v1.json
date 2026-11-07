@@ -3450,7 +3450,8 @@
               "series",
               "value",
               "ci_low",
-              "ci_high"
+              "ci_high",
+              "registry_size"
             ],
             "optional_columns": [
               "series",
