@@ -155,6 +155,26 @@ def prepare_toolret(
     if len(query_sha) != 40 or len(tools_sha) != 40:
         raise RuntimeError("Could not resolve immutable 40-character ToolRet Hub revisions")
 
+    existing_manifest = output_dir / "manifest.json"
+    if existing_manifest.exists():
+        existing = json.loads(existing_manifest.read_text(encoding="utf-8"))
+        revisions = existing.get("source_revisions", {})
+        if (revisions.get("query_revision") == query_sha
+                and revisions.get("tool_revision") == tools_sha):
+            return {
+                "dataset": "ToolRet",
+                "query_revision": query_sha,
+                "tool_revision": tools_sha,
+                "counts": existing.get("counts", {}),
+                "artifact_count": len(existing.get("prepared_artifact_inventory", {})),
+                "output_dir": str(output_dir),
+                "reused_verified": True,
+            }
+        raise FileExistsError(
+            f"ToolRet adapter output already exists with different revisions: {output_dir}. "
+            "Choose a new output directory/run root instead of overwriting a pinned snapshot."
+        )
+
     manifest = adapt_toolret_hf(
         output_dir=output_dir,
         query_revision=query_sha,
