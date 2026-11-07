@@ -27,7 +27,7 @@ def test_mcp_toolbench_download_is_pinned_verified_and_idempotent(tmp_path, monk
 
     raw_root = tmp_path / "data" / "raw"
     result = prepare.prepare_mcptoolbenchpp(raw_root, downloader=downloader)
-    target = raw_root / "mcptoolbenchpp" / "browser" / "fixture.json"
+    target = raw_root / "mcptoolbenchpp" / "browser.json"
     assert target.read_bytes() == payload
     assert result["downloaded"] == ["browser/fixture.json"]
     assert result["reused_verified"] == []
@@ -55,9 +55,9 @@ def test_mcp_toolbench_preparation_rejects_content_hash_mismatch(tmp_path, monke
 def test_mcp_toolbench_preparation_refuses_to_overwrite_tampered_file(tmp_path, monkeypatch):
     monkeypatch.setattr(prepare, "MCPTOOLBENCH_REVISION", "c" * 40)
     monkeypatch.setattr(prepare, "MCPTOOLBENCH_FILES", {"browser/fixture.json": "1" * 40})
-    root = tmp_path / "raw" / "mcptoolbenchpp" / "browser"
+    root = tmp_path / "raw" / "mcptoolbenchpp"
     root.mkdir(parents=True)
-    (root / "fixture.json").write_bytes(b"local unverified content")
+    (root / "browser.json").write_bytes(b"local unverified content")
     with pytest.raises(ValueError, match="file mismatch"):
         prepare.prepare_mcptoolbenchpp(
             tmp_path / "raw", downloader=lambda _url: pytest.fail("must not overwrite")
