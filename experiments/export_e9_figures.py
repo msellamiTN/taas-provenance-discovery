@@ -243,6 +243,7 @@ def export_e9_figures(
     baseline_rows: dict[str, int] = defaultdict(int)
     invalid_reference_visibility: list[dict[str, Any]] = []
     skipped_no_reference = 0
+    skipped_no_reference_task_keys: set[tuple[str, str]] = set()
 
     trace_ref_map = {(r["benchmark"], r["task_id"]): r for r in trace_only}
     for row in ranking_rows:
