@@ -193,7 +193,8 @@ def certificate_check_metrics(audits: Sequence[Mapping]) -> dict:
     }
     complete = sum(
         1 for audit in audits
-        if isinstance(audit.get("recomputed"), Mapping)
+        if audit.get("valid") is True
+        and isinstance(audit.get("recomputed"), Mapping)
         and all(audit["recomputed"].get(key) is True for key in checks)
     )
     return {
