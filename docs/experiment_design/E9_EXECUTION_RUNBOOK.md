@@ -99,6 +99,20 @@ Evaluator references are stored separately:
 
 For trace-only rows, use \`reference_semantics: "annotated_trace_only"\` (or the source-specific trace class) and \`reference_trace_tool_ids\`; do not populate primary acceptable sets from that trace.
 
+## Protocol decomposition and ranking cutoffs
+
+The original experiment specification preregisters three decomposition conditions and three cutoffs:
+
+| Decomposition | Operational input to retrieval |
+|---|---|
+| \`none\` | The original user request is passed as one unsegmented goal/query. |
+| \`clause_splitter\` | A deterministic clause-splitter output is frozen without access to evaluator references. Preserve the source prompt and splitter version. |
+| \`llm_analyst\` | An independently versioned analyst produces a structured GoalSpec. Freeze model ID/revision, prompt version, decoding settings, usage and raw response before evaluation. |
+
+Run all conditions at **k = 5, 10, 20**. Each ranking record must include its \`decomposition\` value and contain the top 20 ordered tool IDs; the exporter derives all three cutoffs from that single frozen ranking. The figure contracts use separate panels for benchmark × decomposition, and E9-F3 additionally facets by k. Never merge the three decomposition conditions into a single average.
+
+The \`llm_analyst\` condition is not executable until a pinned model and accepted analyst outputs are available. Missing analyst outputs are recorded as blocked; do not substitute the clause splitter or an LLM output created after evaluator access.
+
 ## Metrics
 
 For predicted top-k set \(P_k\) and acceptable reference alternatives \(\mathcal{A}=\{A_1,\ldots,A_m\}\):
@@ -118,6 +132,23 @@ Bootstrap intervals use the evaluator's \`independent_unit_id\` (task or a decla
 The frozen E9 experiment object lists exactly: `rag_mcp`, `mcp_zero`, `per_subtask`, `colt_adapted`, `toolscope_adapted`, `cmtf_adapted` and `all_tools`.
 
 The broader baseline catalogue marks `bm25` and `dense_lsa` as usable in E9, and the Core Protocol v2 baseline table mentions BM25/dense retrieval for E8/E9. They are **not** present in E9's frozen `baseline_ids` array. For this confirmatory E9 exporter, the experiment-specific assignment is authoritative: BM25 and Dense LSA are rejected as unregistered E9 primary methods until an explicit, versioned protocol amendment updates E9's baseline assignment and plotting plan. Do not add them to a run manifest as if they were preregistered.
+
+## Protocol comparator reconciliation — unresolved before confirmatory execution
+
+The original \`Experimental_Protocol_PaMCP.docx\` lists E9 comparators as COLT (retrained on MCP dev), MCP-Zero, ToolScope, CMTF with common contracts, and PaMCP without/with backward closure. The repository's machine-readable \`pamcp_experiments_v1.json\` instead assigns \`rag_mcp\`, \`mcp_zero\`, \`per_subtask\`, \`colt_adapted\`, \`toolscope_adapted\`, \`cmtf_adapted\`, and \`all_tools\`, with \`Full_PaMCP\` separately declared as primary.
+
+These lists are not semantically identical:
+
+- \`per_subtask\` performs independent per-subgoal retrieval and union; it is **not** a PaMCP ablation that changes only backward closure.
+- \`rag_mcp\` should be retained as a clearly labelled simple retrieval control because it appears in the current manuscript, but it is not one of the five retained external baselines in the DOCX.
+- \`all_tools\` is an exposure/control condition, not an external baseline.
+- The current \`mcp_zero\` implementation is single-pass and does not reproduce the full iterative active-request protocol.
+- The current \`colt_adapted\` implementation requires genuine training query/tool scenes; server co-membership is not a substitute.
+- The current \`toolscope_adapted\` is a clean-room clustering adaptation, not the full merger + equivalence-check + correction + contextual reranking pipeline.
+- CMTF consumes typed contracts; its errors are dependent on E2 contract quality.
+- A true PaMCP-NoBackwardClosure configuration must preserve eligibility, cost-based set cover and the set-level checks while setting only the closure depth to zero. Do not alias \`per_subtask\` to this condition.
+
+The exporter deliberately validates the repository's current frozen method IDs for software consistency. That does **not** resolve this research-protocol mismatch. Before confirmatory E9, version and approve a single comparator map, then update the frozen experiment/baseline catalogs and manuscript consistently. Until then, report method adapters as software-ready/blocked with fidelity labels; do not call them faithful reproductions or claim E9 completed.
 
 ## Registered methods and prerequisites
 
