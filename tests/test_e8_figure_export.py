@@ -7,7 +7,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from experiments.export_e8_figures import export_e8_figures
+from experiments.export_e8_figures import _mean_ci, export_e8_figures
 from taas.experiments.plotting import iter_figures, load_plot_plan, validate_figure_data
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -140,7 +140,7 @@ def test_exporter_skips_task_category_ci_with_only_one_target_server(tmp_path):
     assert set(f4["benchmark"]) == {"toolret_heterogeneous"}
 
 
-def test_exporter_rejects_mixed_cluster_and_task_level_rows(tmp_path):
+def test_exporter_rejects_missing_mcp_target_server_cluster_ids(tmp_path):
     run_dir = _build_e8_run(tmp_path / "run")
     path = run_dir / "mcptoolbenchpp_single_target_per_task_metrics.csv"
     rows = list(csv.DictReader(path.open(encoding="utf-8")))
@@ -149,5 +149,10 @@ def test_exporter_rejects_mixed_cluster_and_task_level_rows(tmp_path):
         writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
         writer.writeheader()
         writer.writerows(rows)
-    with pytest.raises(ValueError, match="mixes clustered and unclustered"):
+    with pytest.raises(ValueError, match="lacks target-server cluster IDs"):
         export_e8_figures(run_dir, tmp_path / "out", bootstrap_resamples=150)
+
+
+def test_bootstrap_rejects_mixed_cluster_and_task_level_rows():
+    with pytest.raises(ValueError, match="mixes clustered and unclustered"):
+        _mean_ci([0.2, 0.8], ["server-a", ""], seed=5, resamples=150)
