@@ -404,6 +404,7 @@ def test_run_campaign_end_to_end_smoke_is_partial_and_keeps_protocol_baselines_b
     )
     manifest = json.loads((run_dir / "MANIFEST.json").read_text())
     assert manifest["status"] == "partial"
+    assert manifest["amendment_id"] == "E8-TOOLRET-LIGHTWEIGHT-RRF-v1"
     assert manifest["execution_scope_status"] == "EXECUTED_SELECTED_RETRIEVAL_BASELINES"
     assert set(manifest["tracks"]) == {"toolret_heterogeneous", "mcptoolbenchpp_single_target"}
     assert set(manifest["tracks"]["toolret_heterogeneous"]["baseline_ids_executed"]) == set(e8.TOOLRET_BASELINES)
@@ -411,6 +412,7 @@ def test_run_campaign_end_to_end_smoke_is_partial_and_keeps_protocol_baselines_b
     assert "cross_encoder" not in manifest["tracks"]["toolret_heterogeneous"]["baseline_ids_executed"]
     assert "bm25_tfidf_rrf" in manifest["tracks"]["toolret_heterogeneous"]["baseline_ids_executed"]
     assert cross_calls == [{"mcp-q1", "mcp-q2"}]
+    assert manifest["tracks"]["toolret_heterogeneous"]["cross_encoder_checkpoint"]["status"] == "NOT_RUN_BY_DESIGN"
     assert manifest["protocol_baseline_status"]["preregistered_catalog_ids"] == [
         "bm25", "dense_lsa", "rag_mcp", "mcp_zero",
         "per_subtask", "colt_adapted", "toolscope_adapted", "cmtf_adapted",
