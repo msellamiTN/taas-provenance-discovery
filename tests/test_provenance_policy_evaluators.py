@@ -1,6 +1,6 @@
 from taas.experiments.provenance_policy_evaluators import (
     effect_discrepancy, probe_coverage, verifier_error_rates,
-    trust_threshold_sweep, pareto_frontier, policy_threshold_pareto,
+    trust_threshold_sweep, pareto_frontier, policy_threshold_pareto,\n    malicious_provider_exposure_curve, verifier_threshold_sweep,
 )
 
 
@@ -62,3 +62,20 @@ def test_policy_threshold_pareto_keeps_threshold_and_coverage():
     )
     assert len(result["frontier"]) == 2
     assert result["points"][0]["eligible_share"] == 1.0
+
+
+def test_malicious_provider_curve_uses_explicit_provider_assignments():
+    rows = malicious_provider_exposure_curve(
+        {"q1": ["a", "b"]}, {"a": "p1", "b": "p2"},
+        {0.5: ["p1"]}, k=1,
+    )
+    assert rows[0]["Exp@k"]["value"] == 1.0
+
+
+def test_verifier_threshold_sweep_uses_supplied_risk_scores():
+    rows = verifier_threshold_sweep(
+        {"unsafe": True, "safe": False},
+        {"unsafe": .9, "safe": .1}, [.5, 1.0],
+    )
+    assert rows[0]["false_acceptance_rate"]["value"] == 0.0
+    assert rows[1]["false_acceptance_rate"]["value"] == 1.0
