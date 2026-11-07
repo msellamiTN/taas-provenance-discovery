@@ -57,7 +57,11 @@ def _mean_ci(
     if len(clusters) != len(values):
         raise ValueError("Cluster and metric arrays have different lengths")
 
-    if clusters and all(cluster.strip() for cluster in clusters):
+    has_cluster_ids = any(cluster.strip() for cluster in clusters)
+    all_have_cluster_ids = bool(clusters) and all(cluster.strip() for cluster in clusters)
+    if has_cluster_ids and not all_have_cluster_ids:
+        raise ValueError("A metric group mixes clustered and unclustered observations")
+    if all_have_cluster_ids:
         grouped: dict[str, list[float]] = defaultdict(list)
         for value, cluster in zip(values, clusters):
             grouped[cluster].append(value)
@@ -108,7 +112,7 @@ def _group_metrics(
     by_task_category: bool,
     resamples: int,
     seed: int,
-) -> list[dict[str, Any]]:
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     grouped: dict[tuple[str, str, str], list[tuple[float, str]]] = defaultdict(list)
     for row in rows:
         baseline = row["baseline"]
@@ -129,9 +133,21 @@ def _group_metrics(
         )
 
     exported: list[dict[str, Any]] = []
+    skipped: list[dict[str, Any]] = []
     for index, ((baseline, metric_name, task_category), observations) in enumerate(sorted(grouped.items())):
         values = [item[0] for item in observations]
         clusters = [item[1] for item in observations]
+        cluster_ids = {value for value in clusters if value.strip()}
+        if cluster_ids and len(cluster_ids) < 2:
+            skipped.append({
+                "baseline": baseline,
+                "metric": metric_name,
+                "task_category": task_category or None,
+                "n_tasks": len(values),
+                "n_clusters": len(cluster_ids),
+                "reason": "fewer than two independent target-server clusters; cluster CI not estimable",
+            })
+            continue
         point, lower, upper, unit_count = _mean_ci(
             values, clusters, seed + index, resamples
         )
@@ -145,7 +161,7 @@ def _group_metrics(
             "n": len(values),
             "n_independent_units": unit_count,
         })
-    return exported
+    return exported, skipped
 
 
 def _write_rows(path: Path, rows: list[dict[str, Any]]) -> None:
@@ -202,6 +218,7 @@ def export_e8_figures(
 
     f1_rows: list[dict[str, Any]] = []
     f4_rows: list[dict[str, Any]] = []
+    bootstrap_exclusions: list[dict[str, Any]] = []
     run_hashes: dict[str, str] = {}
     supplementary: dict[str, list[str]] = {}
     executed_registered: dict[str, list[str]] = {}
@@ -228,16 +245,22 @@ def export_e8_figures(
         executed_registered[track_id] = sorted(actual_registered)
         supplementary[track_id] = sorted(csv_baselines - registered)
 
-        f1_rows.extend(_group_metrics(
+        f1_part, f1_skipped = _group_metrics(
             rows, track_id, actual_registered,
             by_task_category=False, resamples=bootstrap_resamples,
             seed=seed + 1000 * track_index,
-        ))
-        f4_rows.extend(_group_metrics(
+        )
+        f4_part, f4_skipped = _group_metrics(
             rows, track_id, actual_registered,
             by_task_category=True, resamples=bootstrap_resamples,
             seed=seed + 2000 * track_index,
-        ))
+        )
+        f1_rows.extend(f1_part)
+        f4_rows.extend(f4_part)
+        bootstrap_exclusions.extend(
+            [{"figure_id": "E8-F1", "benchmark": track_id, **item} for item in f1_skipped]
+            + [{"figure_id": "E8-F4", "benchmark": track_id, **item} for item in f4_skipped]
+        )
 
     if not f1_rows:
         raise ValueError(
@@ -268,6 +291,7 @@ def export_e8_figures(
         "registered_baselines_with_observations": executed_registered,
         "supplementary_unregistered_controls_excluded_from_primary_figures": supplementary,
         "figures_exported": ["E8-F1"] + (["E8-F4"] if f4_rows else []),
+        "bootstrap_exclusions": bootstrap_exclusions,
         "figures_not_exported": {
             "E8-F2": (
                 "B1/B1m are not included as validated source conditions in the current "
