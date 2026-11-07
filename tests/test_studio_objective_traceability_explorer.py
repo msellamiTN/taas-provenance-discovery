@@ -27,11 +27,11 @@ def test_ux9_does_not_synthesize_relationships_or_claim_execution():
     assert "No semantic inference, authorization, tool execution" in html
 
 
-def test_ux9_has_all_filters_and_keyboard_accessible_tabs():
+def test_ux9_has_all_filters_and_keyboard_accessible_tabs_and_edges():
     html = HTML.read_text(encoding="utf-8")
     for marker in ('id="ux9-filter-missing"', 'id="ux9-filter-unresolved"',
                    'id="ux9-filter-review"', 'id="ux9-filter-declared"',
-                   "ev.key"):
+                   'line.setAttribute("role","button")', 'inspect("relationship",e)', "ev.key"):
         assert marker in html
     assert "ArrowRight" in html and "ArrowLeft" in html and "Home" in html and "End" in html
 
