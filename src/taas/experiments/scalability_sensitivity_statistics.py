@@ -78,7 +78,7 @@ def jaccard_similarity(left: Sequence[str], right: Sequence[str]) -> float:
     return len(a & b) / len(union) if union else 1.0
 
 
-def weight_sensitivity(reference_toolkits: Mapping[str, Sequence[str]]) -> dict:
+def weight_sensitivity(reference_toolkits: Mapping[str, Sequence[str]], outcomes_by_weight: Mapping[str, Mapping[str, float]] | None = None) -> dict:
     """E20 pairwise toolkit Jaccard similarities, preserving supplied weight IDs."""
     keys = sorted(reference_toolkits)
     rows = []
@@ -87,7 +87,9 @@ def weight_sensitivity(reference_toolkits: Mapping[str, Sequence[str]]) -> dict:
             rows.append({"left": left, "right": right,
                          "jaccard": jaccard_similarity(reference_toolkits[left], reference_toolkits[right])})
     return {"pairs": rows, "n_settings": len(keys),
-            "mean_pairwise_jaccard": mean([r["jaccard"] for r in rows]) if rows else None}
+            "mean_pairwise_jaccard": mean([r["jaccard"] for r in rows]) if rows else None,
+            "outcomes_by_weight": {key: dict(value) for key, value in (outcomes_by_weight or {}).items()},
+            "outcome_metrics": ["Exp@5", "task_success", "price", "latency"]}
 
 
 def evolution_replay_metrics(events: Sequence[Mapping[str, Any]]) -> dict:
