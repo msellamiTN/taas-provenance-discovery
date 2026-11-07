@@ -72,7 +72,7 @@ The frozen E9 experiment object assigns seven baseline IDs: `rag_mcp`, `mcp_zero
 2. Freeze independently authored task GoalSpecs on a development/adjudication split, without evaluator qrels or test trajectories leaking into discovery.
 3. Establish task-to-tool identity mappings against the pinned candidate registry and review all 95 source-resolution audit rows.
 4. Supply independently sourced typed contracts for CMTF and an equivalence oracle for ToolScope, or record these methods as blocked.
-5. Freeze GoalSpecs and all method parameters; run Full PaMCP and each feasible registered baseline with identical candidate visibility and frozen cutoffs.
+5. Freeze GoalSpecs for all three decomposition conditions (`none`, `clause_splitter`, `llm_analyst`) and the k values 5, 10, 20. Resolve the mismatch between the original DOCX comparator list and the machine-readable baseline IDs before any confirmatory method run.
 6. Save per-task rankings before opening evaluator references; then run the E9 exporter and retain per-task metric rows for paired analyses.
 
 E9 remains partial until the frozen baseline/source matrix and reference gates are satisfied. A rendered chart or passing unit test never changes that status.
