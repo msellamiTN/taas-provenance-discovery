@@ -31,7 +31,7 @@ def test_ux9_has_all_filters_and_keyboard_accessible_tabs():
     html = HTML.read_text(encoding="utf-8")
     for marker in ('id="ux9-filter-missing"', 'id="ux9-filter-unresolved"',
                    'id="ux9-filter-review"', 'id="ux9-filter-declared"',
-                   "event.key"):
+                   "ev.key"):
         assert marker in html
     assert "ArrowRight" in html and "ArrowLeft" in html and "Home" in html and "End" in html
 
