@@ -1,5 +1,7 @@
 # E9 execution readiness snapshot
 
+> **Protocol gate:** E9 is not released for confirmatory execution until the upstream E1, E2, E3 and E12 prerequisite artifacts are accepted. See [dataset-led E1–E22 execution sequence](DATASET_LED_EXECUTION_SEQUENCE.md). E9 adapters and export tests may be validated before that gate; they are not benchmark results.
+
 **Snapshot date:** 2026-11-07  
 **Branch:** \`feature/pamcp-publication-visualization-v1\`
 
