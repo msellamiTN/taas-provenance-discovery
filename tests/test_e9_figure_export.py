@@ -29,15 +29,17 @@ def _build_run(root: Path) -> Path:
         ("task-4", "Office", "cluster-c", ["provider::a", "provider::b", "provider::c"]),
     ]
     for baseline in ("Full_PaMCP", "all_tools", "rag_mcp"):
-        for task_id, task_group, _cluster, ranked in task_data:
-            ranking_rows.append({
-                "task_id": task_id,
-                "benchmark": "live_mcpbench_test",
-                "baseline": baseline,
-                "task_group": task_group,
-                "ranked_tool_ids": ranked,
-                "visible_tool_ids": visible,
-            })
+        for decomposition in ("none", "clause_splitter", "llm_analyst"):
+            for task_id, task_group, _cluster, ranked in task_data:
+                ranking_rows.append({
+                    "task_id": task_id,
+                    "benchmark": "live_mcpbench_test",
+                    "baseline": baseline,
+                    "decomposition": decomposition,
+                    "task_group": task_group,
+                    "ranked_tool_ids": ranked,
+                    "visible_tool_ids": visible,
+                })
     (root / "discovery" / "rankings.jsonl").write_text(
         "".join(json.dumps(row) + "\n" for row in ranking_rows), encoding="utf-8"
     )
@@ -79,7 +81,7 @@ def _build_run(root: Path) -> Path:
         "baseline_ids_executed": ["all_tools", "rag_mcp"],
         "primary_configuration_id": "Full_PaMCP",
         "primary_configuration_executed": True,
-        "ranking_cutoffs": [1, 3, 5],
+        "ranking_cutoffs": [5, 10, 20],
     }
     (root / "MANIFEST.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     return root
@@ -98,23 +100,29 @@ def test_e9_export_uses_only_acceptable_set_references_and_renders(tmp_path):
 
     assert result["source_run_status"] == "partial"
     assert result["figures_exported"] == ["E9-F1", "E9-F2", "E9-F3"]
-    assert result["primary_task_metric_rows"] == 27
-    assert result["trace_diagnostic_rows"] == 9
+    assert result["primary_task_metric_rows"] == 81
+    assert result["trace_diagnostic_rows"] == 27
     assert result["primary_configuration_executed"] is True
-    assert result["primary_configuration_rows"] == 3
+    assert result["primary_configuration_rows"] == 9
     assert result["primary_tasks_without_acceptable_set_reference"] == 1
-    assert result["primary_ranking_rows_without_acceptable_set_reference"] == 3
+    assert result["primary_ranking_rows_without_acceptable_set_reference"] == 9
+    assert result["decomposition_conditions_expected"] == ["none", "clause_splitter", "llm_analyst"]
+    assert set(result["decomposition_conditions_observed"]) == {"none", "clause_splitter", "llm_analyst"}
 
     f1 = pd.read_csv(output / "E9-F1.csv")
     f2 = pd.read_csv(output / "E9-F2.csv")
     f3 = pd.read_csv(output / "E9-F3.csv")
     assert set(f1["benchmark"]) == {"live_mcpbench_test"}
     assert set(f1["category"]) == {"Full_PaMCP", "all_tools", "rag_mcp"}
-    assert set(f1["series"]) == {"Group recall@1", "Group recall@3", "Group recall@5"}
+    assert set(f1["series"]) == {"Group recall@5", "Group recall@10", "Group recall@20"}
+    assert set(f1["decomposition"]) == {"none", "clause_splitter", "llm_analyst"}
     assert ((f1["ci_low"] <= f1["value"]) & (f1["value"] <= f1["ci_high"])).all()
-    assert set(f2["series"]) == {"@1", "@3", "@5"}
+    assert set(f2["series"]) == {"@5", "@10", "@20"}
+    assert set(f2["decomposition"]) == {"none", "clause_splitter", "llm_analyst"}
     assert set(f2["label"]) == {"Full_PaMCP", "all_tools", "rag_mcp"}
     assert set(f3["task_group"]) == {"Office", "Travel"}
+    assert set(f3["decomposition"]) == {"none", "clause_splitter", "llm_analyst"}
+    assert set(f3["k"]) == {5, 10, 20}
     assert not f3.empty
 
     for figure_id, frame in [("E9-F1", f1), ("E9-F2", f2), ("E9-F3", f3)]:
