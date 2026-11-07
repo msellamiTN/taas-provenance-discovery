@@ -230,6 +230,10 @@ def validate_figure_data(figure: dict[str, Any], frame: Any) -> dict[str, Any]:
             raise ValueError(f'{figure["id"]}: point estimate lies outside its confidence interval')
     if figure["chart_type"] == "alluvial" and (frame["value"].astype(float) < 0).any():
         raise ValueError(f'{figure["id"]}: alluvial flow values must be non-negative')
+    if figure["chart_type"] == "significance_scatter":
+        p_values = frame[figure["y_axis"]["field"]].astype(float)
+        if ((p_values <= 0) | (p_values > 1)).any():
+            raise ValueError(f'{figure["id"]}: adjusted p-values must be in (0, 1] for logarithmic plotting')
     if figure["chart_type"] == "confusion_matrix" and (frame[figure.get("value_field", "count")].astype(float) < 0).any():
         raise ValueError(f'{figure["id"]}: confusion counts must be non-negative')
     return {"rows": int(len(frame)), "columns": list(frame.columns)}
@@ -269,6 +273,18 @@ def _apply_axis_options(ax: Any, figure: dict[str, Any]) -> None:
             ax.axvline(0, color="0.35", linewidth=1, linestyle="--", zorder=0)
     for value in options.get("reference_y", []):
         ax.axhline(value, color="0.45", linewidth=0.9, linestyle="--", zorder=0)
+    if figure.get("render_options", {}).get("value_format") == "percent":
+        chart = figure["chart_type"]
+        if chart in {"horizontal_forest", "grouped_dot"}:
+            ax.xaxis.set_major_formatter(PercentFormatter(1.0))
+        elif chart in {"line", "dose_response", "interaction_plot", "loglog_scaling"}:
+            if not options.get("log_y"):
+                ax.yaxis.set_major_formatter(PercentFormatter(1.0))
+        elif chart == "stacked_horizontal":
+            ax.xaxis.set_major_formatter(PercentFormatter(1.0))
+        elif chart == "stacked_bar":
+            ax.yaxis.set_major_formatter(PercentFormatter(1.0))
+
 
 
 def _draw(ax: Any, figure: dict[str, Any], frame: Any) -> None:
@@ -335,7 +351,10 @@ def _draw(ax: Any, figure: dict[str, Any], frame: Any) -> None:
                 if not np.isnan(value):
                     label = f"{value:.2f}" if chart == "confusion_matrix" and options.get("normalize") == "true" else f"{value:g}"
                     ax.text(col, row, label, ha="center", va="center", fontsize=8)
-        plt.colorbar(image, ax=ax, fraction=0.046, pad=0.04)
+        colorbar = plt.colorbar(image, ax=ax, fraction=0.046, pad=0.04)
+        if options.get("value_format") == "percent":
+            from matplotlib.ticker import PercentFormatter
+            colorbar.ax.yaxis.set_major_formatter(PercentFormatter(1.0))
     elif chart in {"horizontal_forest", "grouped_dot"}:
         categories = list(dict.fromkeys(frame[figure["y_axis"]["field"]].astype(str)))
         groups = _groups(frame, series_field)
