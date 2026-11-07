@@ -23,7 +23,7 @@ def test_retrieval_metrics_use_exact_request_set():
     )
     assert result["hit@1"]["value"] == 0.5
     assert result["hit@5"]["value"] == 1.0
-    assert result["mrr"]["value"] == 0.75
+    assert result["mrr@5"]["value"] == 0.75
 
 
 def test_exposure_uses_independent_unsafe_reference():
