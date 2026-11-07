@@ -835,6 +835,23 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         </section>
       </div>
       <details class="advanced-json">
+        <summary>Reference · declared contract vocabulary (Θ types, goal classes, σ)</summary>
+        <p class="muted">Declared authoring vocabulary enforced by the validator — a reference surface, not verified evidence about any tool or model.</p>
+        <div class="inline-actions"><button id="vocab-load" type="button" class="secondary">Load vocabulary</button><input id="vocab-filter" type="text" placeholder="Filter vocabulary" maxlength="60" autocomplete="off" style="padding:6px 8px;border:1px solid var(--line,#dce3ed);border-radius:7px"></div>
+        <p id="vocab-status" class="subtle" role="status" aria-live="polite">Vocabulary not loaded.</p>
+        <div id="vocab-panel" class="ux7-kv" hidden></div>
+      </details>
+      <details class="advanced-json">
+        <summary>Policy · guided presets (write into request JSON for review)</summary>
+        <p class="muted">Presets replace <code>policy</code> in the request JSON. Applying a preset is an authored draft change — it grants no authorization and invalidates human review.</p>
+        <div class="inline-actions">
+          <button type="button" class="secondary" data-policy-preset="read-only">Read-only</button>
+          <button type="button" class="secondary" data-policy-preset="egress-limited">Egress-limited</button>
+          <button type="button" class="secondary" data-policy-preset="strict-evidence">Strict evidence</button>
+        </div>
+        <p id="policy-preset-status" class="subtle" role="status" aria-live="polite">No preset applied.</p>
+      </details>
+      <details class="advanced-json">
         <summary>Advanced · inspect or edit the complete discovery JSON</summary>
         <button id="goal-reload-json" type="button" class="secondary" style="margin:8px 0">Reload visual editor from JSON</button>
         <label for="payload">Discovery request (JSON)</label>
@@ -1903,6 +1920,43 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   $("bench-tools").addEventListener("change",invalidateHumanReview);
   $("mcp-tool-list").addEventListener("change",invalidateHumanReview);
   $("payload").addEventListener("input",invalidateHumanReview);
+
+  // Declared contract vocabulary drawer — reference only, loaded on demand.
+  let vocabData=null;
+  const renderVocab=()=>{
+    const panel=$("vocab-panel"); if(!vocabData){panel.hidden=true;return;}
+    const f=($("vocab-filter").value||"").toLowerCase();
+    const match=v=>!f||String(v).toLowerCase().includes(f);
+    const chip=v=>`<code style="display:inline-block;margin:1px 3px 1px 0;padding:1px 6px;border:1px solid var(--line,#dce3ed);border-radius:6px;font-size:11px">${v}</code>`;
+    const chips=list=>list.filter(match).map(chip).join("")||'<span class="subtle">No entries match the filter.</span>';
+    panel.innerHTML="<dt>Model-delegable classes</dt><dd>"+chips(vocabData.goal_classes.model_delegable)+"</dd>"
+      +"<dt>External classes</dt><dd>"+chips(vocabData.goal_classes.external)+"</dd>"
+      +"<dt>σ values</dt><dd>"+chips(vocabData.sigma_values)+"</dd>"
+      +"<dt>Θ kinds</dt><dd>"+chips(vocabData.theta.kinds)+"</dd>"
+      +"<dt>Θ domains</dt><dd>"+chips(vocabData.theta.domains)+"</dd>"
+      +"<dt>Θ common types</dt><dd>"+chips(vocabData.theta.common_types)+"</dd>";
+    panel.hidden=false;
+  };
+  $("vocab-load").addEventListener("click",async()=>{
+    $("vocab-status").textContent="Loading declared vocabulary…";
+    try{const data=await apiGet("/api/v1/reference/vocabulary");vocabData=data;renderVocab();
+      $("vocab-status").textContent="Declared vocabulary loaded. Authoring reference only — not verified evidence.";}
+    catch(e){vocabData=null;$("vocab-panel").hidden=true;$("vocab-status").textContent="Vocabulary unavailable: "+e.message;}
+  });
+  $("vocab-filter").addEventListener("input",renderVocab);
+
+  // Guided policy presets — replace the policy object in the request draft.
+  const POLICY_PRESETS={
+    "read-only":{name:"studio-read-only",required:[],allowed:["read(*)","session"],lmin:"ann",forbidden:[],encoding:"positive"},
+    "egress-limited":{name:"studio-egress-limited",required:[],allowed:["read(*)","session"],lmin:"ann",forbidden:["send(*)","fetch_web(*)","transact(*)","write(*)","delete(*)","exec(*)"],encoding:"positive"},
+    "strict-evidence":{name:"studio-strict-evidence",required:[],allowed:["read(*)"],lmin:"obs",forbidden:["send(*)","transact(*)","write(*)","delete(*)","exec(*)"],encoding:"positive"}
+  };
+  document.querySelectorAll("[data-policy-preset]").forEach(btn=>btn.addEventListener("click",()=>{
+    const preset=POLICY_PRESETS[btn.dataset.policyPreset]; if(!preset)return;
+    try{const body=readRequest();body.policy={...preset};writeRequest(body);invalidateHumanReview();
+      $("policy-preset-status").textContent="Preset '"+preset.name+"' written into the request JSON. Review it before discovery — a policy draft grants no authorization.";}
+    catch(e){$("policy-preset-status").textContent="Request JSON is not parseable: "+e.message;}
+  }));
   const getGoalSpec = () => {
     const body=readRequest(); body.goal_spec=body.goal_spec||{};
     body.goal_spec.prompt=goalSpecState.prompt||"";
