@@ -582,6 +582,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <a href="#objective-traceability-explorer">Objective Traceability Explorer (UX-9)</a>
       <a href="#release-center">Release Center (UX-10)</a>
       <a href="#operations-command-center">Operations Command Center (UX-11)</a>
+      <a href="#provenance-inspector">Evidence &amp; Provenance Inspector (UX-12)</a>
       <span class="nav-label">OPERATE &amp; OBSERVE</span>
       <a href="#workspace">Benchmark workspace</a>
       <a class="overview-shortcut" href="#runtime">Runtime diagnostics</a>
@@ -632,6 +633,23 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     <p class="subtle">A valid HMAC proves service issuance and record integrity, not assessor-claim truth. It is not policy approval and does not authorize or execute a tool. Expired or tampered records are rejected.</p>
   </section>
 
+  <section id="provenance-inspector" class="section-anchor" aria-labelledby="ux12-title" style="margin-bottom:18px">
+    <div class="panel-head"><div><div class="eyebrow">ASSURE · UX-12</div><h2 id="ux12-title" style="margin:4px 0">Evidence &amp; Provenance Inspector</h2><p class="subtle">Inspect one immutable evidence record by its content-addressed SHA-256 identifier. Core verifies the record; this workspace presents only returned fields.</p></div><span class="pill">Read-only · Fail closed</span></div>
+    <div class="ux8-card" style="margin-bottom:12px">
+      <label for="ux12-evidence-id">Evidence ID · lowercase SHA-256</label>
+      <input id="ux12-evidence-id" type="text" autocomplete="off" spellcheck="false" placeholder="64-character evidence ID">
+      <div class="inline-actions"><button id="ux12-inspect" type="button">Verify &amp; inspect evidence</button><span id="ux12-status" class="subtle" role="status" aria-live="polite">No evidence record selected.</span></div>
+    </div>
+    <div id="ux12-summary" class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:12px" hidden></div>
+    <div class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:12px">
+      <article class="ux8-card"><div class="eyebrow">RECORD INTEGRITY</div><strong id="ux12-integrity">NOT VERIFIED</strong><p class="subtle">Core response only</p></article>
+      <article class="ux8-card"><div class="eyebrow">FRESHNESS</div><strong id="ux12-freshness">NOT CHECKED</strong><p class="subtle">Core freshness result</p></article>
+      <article class="ux8-card"><div class="eyebrow">CLAIM TRUTH</div><strong id="ux12-claim-truth">NOT ESTABLISHED</strong><p class="subtle">Integrity does not prove claim truth</p></article>
+      <article class="ux8-card"><div class="eyebrow">AUTHORIZATION / EXECUTION</div><strong id="ux12-boundary">NOT GRANTED / NOT PERFORMED</strong><p class="subtle">Evidence inspection grants neither</p></article>
+    </div>
+    <div class="ux8-card"><div class="panel-head"><h3 style="margin:0">Evidence payload &amp; provenance fields</h3><span class="subtle">Exact Core response fields</span></div><div id="ux12-fields" class="subtle">No verified evidence payload available.</div><details style="margin-top:12px"><summary class="subtle" style="cursor:pointer">Raw verification response</summary><pre id="ux12-raw" style="min-height:90px">No response received.</pre></details></div>
+    <p class="subtle" style="margin:12px 0 0">A valid HMAC or digest establishes service issuance and record integrity within its stated scope—not assessor-claim truth, semantic correctness, policy approval, authorization, or execution. Missing, expired, or unverifiable records remain unverified.</p>
+  </section>
   <section id="operations-command-center" class="section-anchor" aria-labelledby="ux11-title" style="margin-bottom:18px">
     <div class="panel-head"><div><div class="eyebrow">OPERATE · UX-11</div><h2 id="ux11-title" style="margin:4px 0">Operations Command Center</h2><p class="subtle">One read-only operational view across runtime diagnostics, discovery history and audit integrity. Every result is sourced from TaaS Core; retrieval time is recorded locally.</p></div><span class="pill">Read-only · Evidence-led</span></div>
     <div class="inline-actions" style="margin:0 0 12px"><button id="ux11-refresh" type="button">Refresh operational evidence</button><span id="ux11-refresh-state" class="subtle" role="status" aria-live="polite">Not refreshed yet · connect to Studio API first.</span></div>
@@ -3457,6 +3475,46 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   $("obs-load-run").addEventListener("click",obsLoadRun);
   $("obs-refresh-audit").addEventListener("click",obsRefreshAudit);
   $("obs-verify-audit").addEventListener("click",obsVerifyAudit);
+
+  // UX-12 Evidence & Provenance Inspector: exact-ID verification through Core only.
+  (() => {
+    const $12=id=>$(id),button=$12("ux12-inspect"),status=$12("ux12-status");
+    const text=value=>String(value===null||value===undefined||value===""?"Not reported":typeof value==="object"?JSON.stringify(value):value);
+    const renderFields=payload=>{
+      const host=$12("ux12-fields");host.replaceChildren();
+      if(!payload||typeof payload!=="object"||Array.isArray(payload)){host.textContent="Core did not return an evidence object.";return;}
+      const table=document.createElement("table");table.className="coverage-table";
+      const head=document.createElement("thead"),hr=document.createElement("tr");
+      ["Field","Core-reported value"].forEach(v=>{const th=document.createElement("th");th.textContent=v;hr.append(th);});head.append(hr);table.append(head);
+      const body=document.createElement("tbody");
+      Object.entries(payload).forEach(([key,value])=>{const tr=document.createElement("tr"),a=document.createElement("td"),b=document.createElement("td");a.textContent=key;b.textContent=text(value);tr.append(a,b);body.append(tr);});
+      table.append(body);host.append(table);
+    };
+    button.addEventListener("click",async()=>{
+      const id=$12("ux12-evidence-id").value.trim();
+      $12("ux12-summary").hidden=true;$12("ux12-summary").replaceChildren();
+      $12("ux12-integrity").textContent="NOT VERIFIED";$12("ux12-freshness").textContent="NOT CHECKED";
+      $12("ux12-claim-truth").textContent="NOT ESTABLISHED";$12("ux12-boundary").textContent="NOT GRANTED / NOT PERFORMED";
+      $12("ux12-fields").textContent="No verified evidence payload available.";$12("ux12-raw").textContent="No response received.";
+      if(!/^[0-9a-f]{64}$/.test(id)){status.textContent="Enter a lowercase 64-character SHA-256 evidence ID. No request was sent.";return;}
+      button.disabled=true;status.textContent="Verifying evidence signature, binding, digest and freshness through Core…";
+      try{
+        const data=await apiGet("/api/v1/assurance/evidence/"+encodeURIComponent(id));
+        if(!data||!data.evidence||typeof data.evidence!=="object")throw new Error("Core response does not contain an evidence object.");
+        const ev=data.evidence,integrity=data.integrity_verified===true;
+        $12("ux12-integrity").textContent=integrity?"VERIFIED BY CORE":"NOT VERIFIED";
+        $12("ux12-freshness").textContent=text(data.freshness);
+        $12("ux12-claim-truth").textContent=data.assessor_claim_truth_verified===true?"CORE REPORTS VERIFIED":"NOT VERIFIED";
+        $12("ux12-boundary").textContent="Authorization: "+(data.authorization_granted===true?"GRANTED":"NOT GRANTED")+" · Execution: "+(data.execution_performed===true?"PERFORMED":"NOT PERFORMED");
+        [["Evidence type",ev.evidence_type],["Issuer",ev.issuer],["Assessor",ev.assessor],["Observed at",ev.observed_at],["Expires at",ev.expires_at],["Subject binding",ev.subject_binding]].forEach(([label,value])=>{
+          const card=document.createElement("article");card.className="ux8-card";const k=document.createElement("div");k.className="eyebrow";k.textContent=label;const v=document.createElement("strong");v.style.cssText="display:block;overflow-wrap:anywhere;font-size:12px;margin-top:6px";v.textContent=text(value);card.append(k,v);$12("ux12-summary").append(card);
+        });
+        $12("ux12-summary").hidden=false;renderFields(ev);$12("ux12-raw").textContent=JSON.stringify(data,null,2);
+        status.textContent=integrity?"Core returned an integrity-verified evidence record · freshness: "+text(data.freshness)+".":"Core returned a record, but integrity is not verified.";
+      }catch(error){status.textContent="Evidence inspection failed closed: "+error.message;$12("ux12-fields").textContent="No evidence content was accepted.";$12("ux12-raw").textContent=error.message;}
+      finally{button.disabled=false;}
+    });
+  })();
 
   // UX-11 Operations Command Center: read-only source aggregation; no execution paths.
   (() => {
