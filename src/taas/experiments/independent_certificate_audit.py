@@ -150,7 +150,10 @@ def audit_certificate(
 
     # S — every required goal has an independently recomputed witness.
     witnesses = {goal.id: _goal_witness(reach, goal, graph, uncertain) for goal in required}
-    binding_errors = _binding_violations(\n        graph, toolkit, required, witnesses, certificate.bindings, reach, model_edges\n    )\n    sufficiency = all(value is not None for value in witnesses.values()) and not binding_errors
+    binding_errors = _binding_violations(
+        graph, toolkit, required, witnesses, certificate.bindings, reach, model_edges
+    )
+    sufficiency = all(value is not None for value in witnesses.values()) and not binding_errors
 
     # C — selected tool outputs are consumable by the configured executor.
     consumability = all(
