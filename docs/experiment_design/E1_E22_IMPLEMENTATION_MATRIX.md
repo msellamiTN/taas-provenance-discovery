@@ -72,3 +72,24 @@ E8 retrieval reports `MRR@max(k)`; the E8 dispatch requests k = 1, 5 and 10, the
 the protocol output is `MRR@10`. E12 calibration gaps and refutations are computed at the
 calibration-cell level (class, n, language and exactness), comparing mean claimed reliability
 with measured cell accuracy.
+
+
+## Offline CLI
+
+`experiments/evaluate_offline.py` evaluates one frozen JSON payload. The input envelope
+must contain `protocol_version`, `dataset_snapshot_hash`, `definition_hash_manifest`
+and a `payload` object. Example:
+
+```bash
+python experiments/evaluate_offline.py \
+  --experiment E8 \
+  --input artifacts/e8/frozen_payload.json \
+  --output artifacts/e8/evaluation.json \
+  --run-id E8-run-001 \
+  --seed 17
+```
+
+The output records the input SHA-256, run ID, protocol/dataset/hash metadata, seed and
+an explicit `evaluated_payload_not_experiment_completion` status. The CLI is an evaluator,
+not a runner for model agents or MCP tools. The output's timestamp records when the local
+evaluation command was invoked.
