@@ -89,8 +89,9 @@ def retrieval_metrics(
     for k in ks:
         hits = sum(rank is not None and rank <= k for _, rank in rows)
         out[f"hit@{k}"] = _ratio(f"hit@{k}", hits, n).to_dict()
-    rr = sum(1 / rank for _, rank in rows if rank is not None)
-    out["mrr"] = _ratio("mrr", rr, n).to_dict()
+    mrr_k = max(ks) if ks else 0
+    rr = sum(1 / rank for _, rank in rows if rank is not None and rank <= mrr_k)
+    out[f"mrr@{mrr_k}"] = _ratio(f"mrr@{mrr_k}", rr, n).to_dict()
     by_request = {rid: (1.0 if rank == 1 else 0.0) for rid, rank in rows}
     out["macro_hit@1"] = _ratio("macro_hit@1", sum(by_request.values()), n).to_dict()
     out["first_relevant_rank"] = {rid: rank for rid, rank in rows}
