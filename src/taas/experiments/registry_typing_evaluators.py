@@ -11,7 +11,10 @@ def registry_characterization(rows: Sequence[Mapping]) -> dict:
         counts = Counter(str(row.get(field) or "unknown") for row in rows)
         return dict(sorted(counts.items()))
     n = len(rows)
-    unique_tools = len({row.get("tool_id") for row in rows if row.get("tool_id")})
+    tool_ids = [row.get("tool_id") for row in rows if row.get("tool_id")]
+    unique_tools = len(set(tool_ids))
+    missing_tool_ids = n - len(tool_ids)
+    duplicate_tool_rows = len(tool_ids) - unique_tools
     unique_servers = len({row.get("server") for row in rows if row.get("server")})
     hashes_present = sum(bool(row.get("definition_hash")) for row in rows)
     hashes_unique = len({row.get("definition_hash") for row in rows if row.get("definition_hash")})
@@ -19,7 +22,8 @@ def registry_characterization(rows: Sequence[Mapping]) -> dict:
     descriptions_present = sum(bool(row.get("description")) for row in rows)
     return {
         "n_rows": n, "n_unique_tool_ids": unique_tools, "n_unique_servers": unique_servers,
-        "duplicate_tool_rows": n - unique_tools,
+        "duplicate_tool_rows": duplicate_tool_rows,
+        "missing_tool_id_rows": missing_tool_ids,
         "category_distribution": distribution("category"),
         "source_distribution": distribution("source"),
         "transport_distribution": distribution("transport"),
