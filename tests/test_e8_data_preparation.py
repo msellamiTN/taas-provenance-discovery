@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
 
 import pytest
 
 import experiments.prepare_e8_data as prepare
+import experiments.e8_retrieval_campaign as e8
 
 
 def test_git_blob_sha1_uses_git_object_header():
@@ -73,3 +75,36 @@ def test_existing_source_revision_conflict_is_rejected(tmp_path, monkeypatch):
     (raw_root / "SOURCES.txt").write_text("MCPToolBenchPP " + "e" * 40 + "\n", encoding="utf-8")
     with pytest.raises(ValueError, match="different MCPToolBench"):
         prepare.prepare_mcptoolbenchpp(raw_root, downloader=lambda _url: payload)
+
+
+def test_prepared_flat_category_file_is_consumed_by_e8_loader(tmp_path, monkeypatch):
+    payload = json.dumps([{
+        "uuid": "q1",
+        "query": "find an invoice",
+        "call_type": "single",
+        "mcp_tools_dict": {"invoice-server": ["lookup_invoice"]},
+        "tools": [{
+            "name": "lookup_invoice",
+            "description": "Find an invoice by identifier",
+            "input_schema": {"type": "object", "properties": {"id": {"type": "string"}}},
+        }],
+        "function_call_label": [{
+            "name": "lookup_invoice",
+            "mcp_server": "invoice-server",
+            "similar_tools": [],
+        }],
+    }]).encode("utf-8")
+    monkeypatch.setattr(prepare, "MCPTOOLBENCH_REVISION", "f" * 40)
+    monkeypatch.setattr(
+        prepare, "MCPTOOLBENCH_FILES",
+        {"browser/browser_fixture.json": prepare.git_blob_sha1(payload)},
+    )
+    raw_root = tmp_path / "raw"
+    prepare.prepare_mcptoolbenchpp(raw_root, downloader=lambda _url: payload)
+
+    # The registry loader expects data/raw/mcptoolbenchpp/<category>.json, not
+    # the original upstream nested path.
+    assert (raw_root / "mcptoolbenchpp" / "browser.json").is_file()
+    track = e8.load_mcptoolbenchpp_track(raw_root)
+    assert [task.task_id for task in track.tasks] == ["browser::q1"]
+    assert track.qrels == {"browser::q1": {"invoice-server::lookup_invoice": 1.0}}
