@@ -123,12 +123,13 @@ def percentile_bootstrap(
     if not 0 < confidence < 1 or replicates < 1:
         raise ValueError("invalid confidence or replicate count")
     if not xs:
-        return {"estimate": None, "ci": [None, None], "n": 0, "replicates": replicates}
+        return {"estimate": None, "ci": [None, None], "ci_width": None, "n": 0, "replicates": replicates}
     rng = random.Random(seed)
     estimates = [mean(rng.choices(xs, k=len(xs))) for _ in range(replicates)]
     alpha = (1 - confidence) / 2
-    return {"estimate": mean(xs), "ci": [_quantile(estimates, alpha), _quantile(estimates, 1-alpha)],
-            "n": len(xs), "replicates": replicates, "seed": seed,
+    ci_low, ci_high = _quantile(estimates, alpha), _quantile(estimates, 1-alpha)
+    return {"estimate": mean(xs), "ci": [ci_low, ci_high],
+            "ci_width": ci_high - ci_low, "n": len(xs), "replicates": replicates, "seed": seed,
             "resampling_unit": "one supplied value; caller must supply request- or target-tool-level units"}
 
 
