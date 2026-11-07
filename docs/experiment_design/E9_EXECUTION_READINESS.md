@@ -28,7 +28,7 @@ E9-F1/F2/F3 are generated only from evaluator records whose \`reference_semantic
 - \`independently_adjudicated_acceptable_sets\`
 - \`benchmark_native_acceptable_sets\`
 
-LiveMCPBench tool sequences and MCP-Atlas trajectories are positive traces; MCPVerse's annotated tool field is single-target. They remain separate diagnostics unless an independent adjudication supplies valid acceptable-set references.
+The pinned LiveMCPBench paper describes proposer-completed tasks and validator-scrutinized toolchains. The strict subset of 64 tasks with uniquely resolved tool IDs and matching declared tool counts is admissible as one benchmark-native successful reference set per task. It does not establish that the reference is the only valid chain. The 3 count-mismatch and 28 ambiguous/unresolved tasks are excluded and retained in the preparation audit. MCP-Atlas trajectories remain diagnostics because the public schema supplies a successful trace, not exhaustive acceptable-set gold. MCPVerse's annotated tool field is single-target, not multi-tool complete-set ground truth.
 
 The exporter refuses:
 - evaluator labels in discovery rankings;
@@ -67,11 +67,11 @@ The frozen E9 experiment object assigns seven baseline IDs: `rag_mcp`, `mcp_zero
 
 ## Required next research inputs
 
-1. Freeze independently authored task GoalSpecs on a development/adjudication split, without evaluator qrels or test trajectories leaking into discovery.
-2. Establish task-to-tool identity mappings against the pinned candidate registry.
-3. Adjudicate one or more acceptable tool sets per primary test task, with provenance, source revision and independent-unit IDs.
+1. Run `python experiments/prepare_e9_livemcpbench.py --output results/definitive/E9/prepared-livemcpbench-v1` to materialize the strict 64-task LiveMCPBench candidate/task/reference package and the exclusion audit. This is dataset preparation, not a method run.
+2. Freeze independently authored task GoalSpecs on a development/adjudication split, without evaluator qrels or test trajectories leaking into discovery.
+3. Establish task-to-tool identity mappings against the pinned candidate registry and review all 95 source-resolution audit rows.
 4. Supply independently sourced typed contracts for CMTF and an equivalence oracle for ToolScope, or record these methods as blocked.
-5. Run Full PaMCP and each feasible registered baseline with identical candidate visibility and frozen cutoffs.
+5. Freeze GoalSpecs and all method parameters; run Full PaMCP and each feasible registered baseline with identical candidate visibility and frozen cutoffs.
 6. Save per-task rankings before opening evaluator references; then run the E9 exporter and retain per-task metric rows for paired analyses.
 
 E9 remains partial until the frozen baseline/source matrix and reference gates are satisfied. A rendered chart or passing unit test never changes that status.
