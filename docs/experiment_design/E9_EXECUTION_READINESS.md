@@ -59,6 +59,10 @@ python experiments/plot_results.py render --experiment E9
 
 A trace-only run may generate \`E9_TRACE_DIAGNOSTICS.csv\` and an export manifest with no primary figures. This is an intentional scientifically valid partial result, not a failure and not evidence of set completeness.
 
+## Baseline assignment reconciliation
+
+The frozen E9 experiment object assigns seven baseline IDs: `rag_mcp`, `mcp_zero`, `per_subtask`, `colt_adapted`, `toolscope_adapted`, `cmtf_adapted` and `all_tools`. The broader baseline catalogue and Core Protocol v2 also describe BM25 and Dense LSA as E9-capable, but E9's frozen experiment-specific `baseline_ids` omits them. The current exporter follows the experiment-specific assignment and rejects unregistered methods. Add BM25/Dense LSA only through an explicit protocol amendment, not by changing the run manifest.
+
 ## Required next research inputs
 
 1. Freeze independently authored task GoalSpecs on a development/adjudication split, without evaluator qrels or test trajectories leaking into discovery.
