@@ -368,7 +368,7 @@ def export_e9_figures(
                 ),
             }
             (output_dir / "E9_EXPORT_MANIFEST.json").write_text(
-                json.dumps(trace_manifest, indent=2, ensure_ascii=False) + "\\n",
+                json.dumps(trace_manifest, indent=2, ensure_ascii=False) + "\n",
                 encoding="utf-8",
             )
             return trace_manifest
