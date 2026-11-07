@@ -1205,6 +1205,37 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 <p class="subtle">UX-8 is a validation-planning and evidence presentation surface only. It adds no execution endpoint, authorization grant, worker, policy enforcement, secret access, telemetry collector or deployment automation.</p></div></section>
 
 
+<section id="release-center" class="section-anchor" aria-labelledby="ux10-title" style="margin-bottom:18px">
+  <div class="panel-head"><div><div class="eyebrow">OPERATE · UX-10</div><h2 id="ux10-title" style="margin:4px 0">Release Center</h2><p class="subtle">A consolidated, exact-version view of policy diagnostics, release readiness and human-approval evidence.</p></div><span class="pill">Read-only · Core authoritative</span></div>
+  <div class="ux8-card" style="margin-bottom:12px">
+    <div class="field-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px">
+      <label>Agent ID<input id="ux10-agent-id" type="text" autocomplete="off" placeholder="Exact Agent ID"></label>
+      <label>Version<input id="ux10-agent-version" type="text" autocomplete="off" placeholder="Exact semantic version"></label>
+    </div>
+    <div class="inline-actions" style="margin:12px 0">
+      <button id="ux10-refresh-all" type="button">Refresh release assessment</button>
+      <button id="ux10-policy" type="button" class="secondary">Evaluate policy</button>
+      <button id="ux10-readiness" type="button" class="secondary">Check readiness</button>
+      <button id="ux10-approvals" type="button" class="secondary">Inspect approvals</button>
+    </div>
+    <p id="ux10-status" class="subtle" role="status" aria-live="polite">No release assessment requested. Enter an exact Agent ID and version.</p>
+  </div>
+  <div class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:12px">
+    <div class="ux8-card"><div class="eyebrow">POLICY VERDICT</div><strong id="ux10-policy-state">NOT EVALUATED</strong><p class="subtle">Core diagnostic only</p></div>
+    <div class="ux8-card"><div class="eyebrow">RELEASE READINESS</div><strong id="ux10-readiness-state">NOT EVALUATED</strong><p class="subtle">Does not grant release rights</p></div>
+    <div class="ux8-card"><div class="eyebrow">HUMAN APPROVALS</div><strong id="ux10-approvals-state">NOT INSPECTED</strong><p class="subtle">Evidence bound to exact version</p></div>
+    <div class="ux8-card"><div class="eyebrow">AUTHORIZATION</div><strong>NOT GRANTED</strong><p class="subtle">Never inferred from readiness</p></div>
+  </div>
+  <div class="ux8-card">
+    <h3>Release assessment evidence</h3>
+    <p class="subtle">Each panel contains the unmodified response from its corresponding authenticated Core read endpoint. Failed or missing responses remain explicitly unavailable.</p>
+    <details open><summary>Policy verdict response</summary><pre id="ux10-policy-result">No policy response.</pre></details>
+    <details><summary>Release readiness response</summary><pre id="ux10-readiness-result">No readiness response.</pre></details>
+    <details><summary>Human approval records</summary><pre id="ux10-approvals-result">No approval records inspected.</pre></details>
+  </div>
+  <p class="ux8-note">This workspace performs GET requests only. It does not publish an Agent, create or revoke approvals, grant authorization, invoke MCP tools, start a worker, or execute an Agent. Approval is evidence, not authorization; readiness is diagnostic, not execution permission.</p>
+</section>
+
 <section id="objective-traceability-explorer" class="section-anchor" aria-labelledby="ux9-title" style="margin-bottom:18px">
   <div class="panel-head"><div><div class="eyebrow">OBJECTIVE INTELLIGENCE · UX-9</div><h2 id="ux9-title">Objective Traceability Explorer</h2><p class="subtle">Explore Core-projected objective, clause, outcome, goal, skill and evidence relationships with explicit provenance.</p></div><span class="ux9-state">READ-ONLY PROJECTION</span></div>
   <div class="ux9-shell">
@@ -3309,6 +3340,51 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   $("ux8-check-policy").addEventListener("click",()=>ux8RunReadOnly("/policy-verdict","Policy verdict"));
   $("ux8-check-readiness").addEventListener("click",()=>ux8RunReadOnly("/release-readiness","Release readiness"));
   $("ux8-check-approvals").addEventListener("click",()=>ux8RunReadOnly("/approvals","Approval evidence inspection"));
+
+  // UX-10: consolidated read-only release assessment for an exact Agent version.
+  const ux10SubjectPath = () => {
+    const id=$("ux10-agent-id").value.trim(), version=$("ux10-agent-version").value.trim();
+    if(!id || !version) throw new Error("Enter both an exact Agent ID and version.");
+    return "/api/v1/agents/"+encodeURIComponent(id)+"/versions/"+encodeURIComponent(version);
+  };
+  const ux10Read = async (kind, suffix, label) => {
+    const status=$("ux10-status"), output=$("ux10-"+kind+"-result");
+    const state=$("ux10-"+kind+"-state");
+    status.textContent=label+" · requesting Core response…";
+    state.textContent="CHECKING…"; output.textContent="Waiting for authenticated Core response…";
+    try {
+      const data=await apiGet(ux10SubjectPath()+suffix);
+      output.textContent=JSON.stringify(data,null,2);
+      if(kind==="policy") state.textContent=String(data.verdict || data.decision || data.status || "RESPONSE RECEIVED · inspect details").toUpperCase();
+      else if(kind==="readiness") state.textContent=String(data.status || data.readiness || data.ready || "RESPONSE RECEIVED · inspect details").toUpperCase();
+      else {
+        const records=Array.isArray(data.approvals)?data.approvals:(Array.isArray(data.records)?data.records:null);
+        state.textContent=records?records.length+" RECORD(S)":"RESPONSE RECEIVED · inspect details";
+      }
+      status.textContent=label+" · Core response received. No authorization or execution is implied.";
+      return true;
+    } catch(error) {
+      state.textContent="UNAVAILABLE";
+      output.textContent="No successful response. "+error.message;
+      status.textContent=label+" unavailable: "+error.message;
+      return false;
+    }
+  };
+  $("ux10-policy").addEventListener("click",()=>{try{ux10SubjectPath();ux10Read("policy","/policy-verdict","Policy verdict");}catch(e){$("ux10-status").textContent=e.message;}});
+  $("ux10-readiness").addEventListener("click",()=>{try{ux10SubjectPath();ux10Read("readiness","/release-readiness","Release readiness");}catch(e){$("ux10-status").textContent=e.message;}});
+  $("ux10-approvals").addEventListener("click",()=>{try{ux10SubjectPath();ux10Read("approvals","/approvals","Approval inspection");}catch(e){$("ux10-status").textContent=e.message;}});
+  $("ux10-refresh-all").addEventListener("click",async()=>{
+    try{ux10SubjectPath();}catch(e){$("ux10-status").textContent=e.message;return;}
+    $("ux10-refresh-all").disabled=true;
+    $("ux10-status").textContent="Refreshing all three read-only release diagnostics…";
+    const results=await Promise.all([
+      ux10Read("policy","/policy-verdict","Policy verdict"),
+      ux10Read("readiness","/release-readiness","Release readiness"),
+      ux10Read("approvals","/approvals","Approval inspection")
+    ]);
+    $("ux10-status").textContent="Assessment complete · "+results.filter(Boolean).length+"/3 Core responses received. Missing results are not treated as passing.";
+    $("ux10-refresh-all").disabled=false;
+  });
 
   // UX-F02: read-only discovery history and audit integrity workspace.
   const obsRenderRecordList = (host, records, emptyText, onSelect) => {
