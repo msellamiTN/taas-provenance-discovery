@@ -7,7 +7,7 @@ adjudicator and not an experiment result generator.
 ## Run
 
 ```bash
-python -m experiments.e1.validate_annotation_pair annotator_A.csv annotator_B.csv \
+python -m taas.e1_annotation_intake annotator_A.csv annotator_B.csv \
   --json-out e1_intake_report.json \
   --disagreements-out e1_disagreements.csv
 ```
