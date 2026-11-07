@@ -54,3 +54,11 @@ separate and cannot be inferred from certificates.
 `tests/test_independent_certificate_audit.py` covers a matching certificate, a forged
 reported E check, and an unknown selected tool. Test execution and CI status must be
 reported separately from the existence of these test cases.
+
+
+## E10 aggregation
+
+The evaluation core also exposes `certificate_check_metrics`. It reports the six
+mandatory pass rates separately and the overall conjunction. Its denominator is every
+submitted audit record: absent, missing, or non-true checks count as failures rather than
+being dropped. With zero audit records, rates are undefined (null) with denominator zero.
