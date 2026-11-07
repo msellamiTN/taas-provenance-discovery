@@ -185,12 +185,17 @@ def prepare(
     counts = {
         "tasks_total": len(annotations),
         "tasks_primary_eligible": 0,
-        "tasks_excluded_count_mismatch": 0,
-        "tasks_excluded_ambiguous_or_unresolved": 0,
+        "tasks_excluded_no_resolvable_gold": 0,
+        "tasks_with_ambiguous_tool_mentions": 0,
+        "tasks_with_unresolved_tool_mentions": 0,
+        "tasks_with_declared_tool_count_mismatch": 0,
         "tool_mentions_total": 0,
-        "tool_mentions_resolved": 0,
-        "tool_mentions_ambiguous": 0,
+        "tool_mentions_unique_identity": 0,
+        "tool_mentions_ambiguous_identity": 0,
         "tool_mentions_unresolved": 0,
+        "tool_identity_candidates_from_ambiguous_mentions": 0,
+        "acceptable_set_alternatives_total": 0,
+        "maximum_alternatives_per_task": 0,
     }
     seen: set[str] = set()
     annotations_hash = sha256_file(annotations_path)
@@ -211,32 +216,55 @@ def prepare(
         seen.add(task_id)
         counts["tool_mentions_total"] += len(names)
 
-        resolved_sequence: list[str] = []
+        reference_choices: list[dict[str, Any]] = []
+        unique_ids: list[str] = []
         ambiguous: list[dict[str, Any]] = []
         unresolved: list[str] = []
+
         for name in names:
             candidates = resolve_name(name, by_name)
             if len(candidates) == 1:
-                resolved_sequence.append(candidates[0])
-                counts["tool_mentions_resolved"] += 1
+                unique_ids.append(candidates[0])
+                counts["tool_mentions_unique_identity"] += 1
+                reference_choices.append({
+                    "tool_name": name,
+                    "candidate_tool_ids": candidates,
+                    "identity_status": "unique",
+                })
             elif candidates:
                 ambiguous.append({
                     "tool_name": name,
                     "candidate_tool_ids": candidates,
                 })
-                counts["tool_mentions_ambiguous"] += 1
+                counts["tool_mentions_ambiguous_identity"] += 1
+                counts["tool_identity_candidates_from_ambiguous_mentions"] += len(candidates)
+                reference_choices.append({
+                    "tool_name": name,
+                    "candidate_tool_ids": candidates,
+                    "identity_status": "ambiguous_any_candidate_accepted",
+                })
             else:
                 unresolved.append(name)
                 counts["tool_mentions_unresolved"] += 1
 
-        count_matches = declared_count == len(names)
-        fully_resolved = bool(names) and not ambiguous and not unresolved
-        eligible = fully_resolved and count_matches
+        if ambiguous:
+            counts["tasks_with_ambiguous_tool_mentions"] += 1
+        if unresolved:
+            counts["tasks_with_unresolved_tool_mentions"] += 1
 
-        if eligible:
-            acceptable_set = sorted(set(resolved_sequence))
-            if not acceptable_set:
-                raise ValueError(f"{task_id}: resolved acceptable reference set is empty")
+        count_matches = declared_count == len(names)
+        if not count_matches:
+            counts["tasks_with_declared_tool_count_mismatch"] += 1
+
+        # Protocol denominator: retain every task with at least one resolvable gold
+        # tool mention. For an ambiguous mention, any candidate identity is accepted.
+        # Missing names remain disclosed in the audit but are not fabricated as tools.
+        acceptable_sets = build_acceptable_sets(reference_choices)
+        if acceptable_sets:
+            visible_set = set(visible_ids)
+            if any(not set(group).issubset(visible_set) for group in acceptable_sets):
+                raise ValueError(f"{task_id}: acceptable reference includes a tool outside the candidate registry")
+
             discovery_tasks.append({
                 "dataset_id": "livemcpbench",
                 "task_id": task_id,
@@ -254,51 +282,69 @@ def prepare(
                 "benchmark": "live_mcpbench",
                 "task_id": task_id,
                 "reference_semantics": "benchmark_native_acceptable_sets",
-                "acceptable_tool_sets": [acceptable_set],
-                "reference_tool_sequence": resolved_sequence,
+                "acceptable_tool_sets": acceptable_sets,
+                "reference_tool_choices": reference_choices,
                 "reference_tool_names": names,
+                "unresolved_gold_names": unresolved,
+                "declared_tool_count": declared_count,
+                "parsed_tool_mention_count": len(names),
+                "declared_tool_count_matches_parsed_mentions": count_matches,
                 "reference_source": (
-                    "LiveMCPBench proposer-completed task/toolchain, "
-                    "validator-scrutinized"
+                    "LiveMCPBench proposer-completed task/toolchain, validator-scrutinized"
                 ),
                 "reference_source_revision": revision,
                 "reference_source_sha256": annotations_hash,
                 "reference_scope": (
-                    "One benchmark-validated successful toolchain; not an exhaustive "
-                    "enumeration of all alternative valid toolchains."
+                    "One benchmark-validated successful toolchain, with any candidate "
+                    "server::tool identity accepted for ambiguous annotated names; "
+                    "unresolved names are omitted. Not an exhaustive list of all "
+                    "alternative valid toolchains."
                 ),
                 "independent_unit_id": task_id,
             })
             counts["tasks_primary_eligible"] += 1
-            status = "primary_eligible"
-        elif fully_resolved and not count_matches:
-            counts["tasks_excluded_count_mismatch"] += 1
-            status = "excluded_declared_tool_count_mismatch"
+            counts["acceptable_set_alternatives_total"] += len(acceptable_sets)
+            counts["maximum_alternatives_per_task"] = max(
+                counts["maximum_alternatives_per_task"], len(acceptable_sets)
+            )
+            if ambiguous:
+                status = "primary_eligible_with_identity_alternatives"
+            elif unresolved:
+                status = "primary_eligible_with_missing_mentions"
+            else:
+                status = "primary_eligible_unique_identity"
         else:
-            counts["tasks_excluded_ambiguous_or_unresolved"] += 1
-            status = "excluded_ambiguous_or_unresolved_tool_identity"
+            counts["tasks_excluded_no_resolvable_gold"] += 1
+            status = "excluded_no_resolvable_gold"
 
         audit_rows.append({
             "task_id": task_id,
             "category": category,
             "declared_tool_count": declared_count,
             "parsed_tool_mentions": len(names),
-            "resolved_tool_mentions": len(resolved_sequence),
+            "resolved_tool_mentions": len(reference_choices),
+            "unique_identity_mentions": len(unique_ids),
             "ambiguous_tool_mentions": json.dumps(ambiguous, ensure_ascii=False),
             "unresolved_tool_names": json.dumps(unresolved, ensure_ascii=False),
             "count_matches": str(count_matches).lower(),
+            "acceptable_set_alternative_count": len(acceptable_sets),
             "status": status,
         })
 
     expected = {
         "tasks_total": 95,
-        "tasks_primary_eligible": 64,
-        "tasks_excluded_count_mismatch": 3,
-        "tasks_excluded_ambiguous_or_unresolved": 28,
+        "tasks_primary_eligible": 94,
+        "tasks_excluded_no_resolvable_gold": 1,
+        "tool_mentions_total": 256,
+        "tool_mentions_unique_identity": 222,
+        "tool_mentions_ambiguous_identity": 29,
+        "tool_mentions_unresolved": 5,
     }
     for key, value in expected.items():
         if counts[key] != value:
-            raise ValueError(f"LiveMCPBench resolution drift for {key}: expected {value}, got {counts[key]}")
+            raise ValueError(
+                f"LiveMCPBench protocol-scope drift for {key}: expected {value}, got {counts[key]}"
+            )
 
     output_dir.mkdir(parents=True)
     write_json(output_dir / "discovery" / "tools.json", discovery_tools)
