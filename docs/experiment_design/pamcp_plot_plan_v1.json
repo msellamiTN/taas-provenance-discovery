@@ -1715,7 +1715,7 @@
         },
         {
           "id": "E8-F4",
-          "title": "Macro Hit@1 by task category",
+          "title": "Hit@1 by task category",
           "purpose": "Compare registered retrieval methods across task categories within each separate benchmark; do not pool heterogeneous benchmarks.",
           "role": "supporting",
           "chart_type": "horizontal_forest",
