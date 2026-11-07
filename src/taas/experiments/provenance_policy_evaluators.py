@@ -207,3 +207,48 @@ def policy_threshold_pareto(
     return {"points": points, "frontier_indices": indices,
             "frontier": [points[i] for i in indices],
             "objective_note": "eligible share is reported as a coverage dimension, not optimized implicitly"}
+
+
+def malicious_provider_exposure_curve(
+    rankings: Mapping[str, Sequence[str]],
+    provider_by_tool: Mapping[str, str],
+    malicious_provider_sets: Mapping[float, Iterable[str]],
+    k: int = 5,
+) -> list[dict]:
+    """E5 Exp@k against explicit malicious-provider assignments at each fraction."""
+    rows = []
+    for fraction, providers in sorted(malicious_provider_sets.items()):
+        malicious = set(providers)
+        unsafe_by_request = {
+            request: {tool for tool in ranking
+                      if provider_by_tool.get(tool) in malicious}
+            for request, ranking in rankings.items()
+        }
+        metric = exposure_at_k(rankings, unsafe_by_request, k)
+        rows.append({
+            "malicious_provider_fraction": float(fraction),
+            "malicious_provider_count": len(malicious),
+            "Exp@k": metric.to_dict(),
+        })
+    return rows
+
+
+def verifier_threshold_sweep(
+    reference_unsafe: Mapping[str, bool | None],
+    risk_scores: Mapping[str, float | None],
+    thresholds: Sequence[float],
+) -> list[dict]:
+    """E6 verifier operating points from frozen risk scores; no score is synthesized."""
+    if set(reference_unsafe) != set(risk_scores):
+        raise ValueError("Risk-score and reference IDs must match exactly")
+    rows = []
+    for threshold in thresholds:
+        predictions = {
+            item: (None if score is None else float(score) >= float(threshold))
+            for item, score in risk_scores.items()
+        }
+        rows.append({
+            "threshold": float(threshold),
+            **verifier_error_rates(reference_unsafe, predictions),
+        })
+    return rows
