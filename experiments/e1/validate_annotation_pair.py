@@ -77,6 +77,8 @@ def cohens_kappa(labels_a: list[str], labels_b: list[str]) -> float | None:
 
 def validate_pair(path_a: str | Path, path_b: str | Path) -> dict[str, Any]:
     a, b = load_sheet(path_a, "A"), load_sheet(path_b, "B")
+    if not a or not b:
+        raise AnnotationValidationError("Both annotation sheets must contain at least one completed unit")
     ids_a, ids_b = set(a), set(b)
     if ids_a != ids_b:
         only_a, only_b = sorted(ids_a - ids_b), sorted(ids_b - ids_a)
@@ -119,7 +121,7 @@ def main() -> int:
     rendered = json.dumps(report, indent=2, sort_keys=True)
     print(rendered)
     if args.json_out:
-        args.json_out.write_text(rendered + "\\n", encoding="utf-8")
+        args.json_out.write_text(rendered + "\n", encoding="utf-8")
     if args.disagreements_out:
         fields = ["annotation_unit_id", "tool_name", "annotator_a", "annotator_b"]
         with args.disagreements_out.open("w", encoding="utf-8", newline="") as stream:
