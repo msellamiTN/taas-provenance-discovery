@@ -100,7 +100,7 @@ def retrieval_metrics(
 
 def exposure_at_k(
     rankings: Mapping[str, Sequence[str]],
-    independently_unsafe: Mapping[str, Iterable[str]],
+    independently_unsafe: Mapping[str, Iterable[str] | None],
     k: int = 5,
 ) -> Metric:
     """Exp@k: request share whose top-k contains >=1 independently labelled unsafe tool."""
@@ -108,10 +108,13 @@ def exposure_at_k(
         raise ValueError("Ranking and unsafe-reference request IDs must match exactly")
     if k < 1:
         raise ValueError("k must be positive")
-    exposed = sum(bool(set(ranking[:k]) & set(unsafe))
-                  for ranking, unsafe in ((rankings[r], independently_unsafe[r]) for r in rankings))
-    return _ratio(f"Exp@{k}", exposed, len(rankings),
-                  definition="fraction of requests whose top-k contains >=1 independently reference-labelled unsafe tool")
+    known = [request for request, unsafe in independently_unsafe.items() if unsafe is not None]
+    exposed = sum(bool(set(rankings[request][:k]) & set(independently_unsafe[request] or ()))
+                  for request in known)
+    unknown = len(rankings) - len(known)
+    return _ratio(f"Exp@{k}", exposed, len(known),
+                  definition="fraction of requests whose top-k contains >=1 independently reference-labelled unsafe tool",
+                  unknown_reference_requests=unknown, total_requests=len(rankings))
 
 
 def multi_tool_set_metrics(
