@@ -79,9 +79,16 @@ The new `run_pamcp_factorial_preview` executes the eight frozen G×P×S cells in
 ## Next execution order
 
 1. Close the E8 software regression gate after paired PR CI passes.
-2. Execute the full E8 Colab campaign on the pinned source revisions and GPU runtime; preserve ToolRet and MCPToolBench++ as separate tracks. Do not mark E8 complete while its registered baseline/data matrix remains partial.
+2. Execute the amended E8 Colab campaign on the pinned source revisions; preserve ToolRet and MCPToolBench++ as separate tracks. ToolRet uses BM25+TF-IDF RRF and skips Cross-Encoder inference; MCPToolBench++ retains Cross-Encoder. Use a new run ID after the runner amendment. Do not mark E8 complete while its registered baseline/data matrix remains partial.
 3. Implement E15 only from the frozen E15 contract and explicit controlled expansion inputs; do not repurpose E7's scalability script.
 4. Continue E14 offline-only where permitted, and E18 preview/test work; keep runtime/oracle claims blocked until prerequisites exist.
 5. Obtain independent human annotation and isolated runtime references for E2/E3 and the downstream experiments that depend on them.
 
 No protocol change, fabricated score, baseline substitution, or unsupported superiority claim is permitted.
+
+
+## E8 ToolRet lightweight amendment
+
+The implementation branch now contains amendment `E8-TOOLRET-LIGHTWEIGHT-RRF-v1` in `docs/experiment_design/E8_TOOLRET_LIGHTWEIGHT_AMENDMENT.md`. ToolRet's selected retrieval-control matrix replaces Cross-Encoder inference with BM25+TF-IDF reciprocal-rank fusion over top-100 lexical rankings (RRF k0=60). MCPToolBench++ retains its original Cross-Encoder baseline and all other original controls. E5 dense and BM25+E5 RRF remain enabled on both tracks. The amendment is explicitly lexical and is not claimed to be semantically equivalent to Cross-Encoder reranking.
+
+The original partial run and its checkpoints must remain untouched. The notebook adds the amendment identifier to its run-configuration fingerprint so its active-run recovery logic creates a new run rather than selecting the previous Cross-Encoder ToolRet run. The amendment changes the selected retrieval controls only; it does not change dataset snapshots, task selection, qrels, metrics, statistical tests, seeds, or the frozen E8 completion gate. Passing software tests will not constitute a full benchmark result.
