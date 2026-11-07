@@ -115,3 +115,109 @@ def test_unknown_experiment_filter_is_rejected():
     plan = load_plot_plan(ROOT / "docs/experiment_design/pamcp_plot_plan_v1.json")
     with pytest.raises(ValueError, match="Unknown experiment"):
         list(iter_figures(plan, "E99"))
+
+
+def test_renderer_smoke_covers_all_chart_families(tmp_path):
+    # Synthetic rows below are renderer fixtures only. They are never written to
+    # results/visualization/data and are not experimental observations.
+    fixtures = {
+        "E1-F1": pd.DataFrame({
+            "registry": ["reg-a", "reg-a", "reg-b", "reg-b"],
+            "category": ["read", "write", "read", "write"],
+            "value": [8, 3, 6, 5],
+        }),
+        "E1-F3": pd.DataFrame({
+            "registry": ["reg-a", "reg-a", "reg-b", "reg-b"],
+            "series": ["read", "write", "read", "write"],
+            "value": [8, 3, 6, 5],
+        }),
+        "E2-F1": pd.DataFrame({
+            "actual": ["read", "read", "write", "write"],
+            "predicted": ["read", "write", "read", "write"],
+            "count": [8, 1, 2, 7],
+        }),
+        "E2-F2": pd.DataFrame({
+            "category": ["structural", "LLM"],
+            "value": [0.7, 0.85],
+            "ci_low": [0.6, 0.78],
+            "ci_high": [0.8, 0.92],
+            "series": ["macro_f1", "macro_f1"],
+        }),
+        "E2-F3": pd.DataFrame({
+            "threshold": [0.3, 0.6, 0.9],
+            "value": [0.65, 0.78, 0.82],
+            "series": ["LLM", "LLM", "LLM"],
+        }),
+        "E4-F1": pd.DataFrame({
+            "util_at_5": [0.8, 0.9],
+            "exp_at_5": [0.15, 0.07],
+            "series": ["Full_PaMCP", "control"],
+            "eligible_share": [0.4, 0.6],
+            "benchmark": ["native", "native"],
+        }),
+        "E4-F2": pd.DataFrame({
+            "category": ["annotation", "lexical"],
+            "reference": [0.5, 0.4],
+            "candidate": [0.2, 0.25],
+        }),
+        "E4-F3": pd.DataFrame({
+            "category": ["PaMCP", "control"],
+            "series": ["Full", "control"],
+            "value": [0.08, 0.3],
+            "metric": ["Exp@5", "Exp@5"],
+        }),
+        "E10-F3": pd.DataFrame({
+            "category": ["PaMCP", "baseline", "baseline"],
+            "segment": ["interface", "interface", "flow"],
+            "value": [2, 3, 1],
+        }),
+        "E11-F1": pd.DataFrame({
+            "input_size": [10, 20, 40],
+            "value": [2, 3, 5],
+            "series": ["Full_PaMCP"] * 3,
+        }),
+        "E11-F3": pd.DataFrame({
+            "tau": [0.2, 0.5, 0.8],
+            "value": [5, 4, 3],
+            "series": ["calibrated"] * 3,
+        }),
+        "E12-F2": pd.DataFrame({
+            "claimed": [0.3, 0.7, 0.9],
+            "measured": [0.25, 0.65, 0.82],
+            "series": ["model-a"] * 3,
+        }),
+        "E13-F3": pd.DataFrame({
+            "group": ["PaMCP"] * 3 + ["baseline"] * 3,
+            "value": [2, 3, 4, 4, 5, 6],
+        }),
+        "E15-F1": pd.DataFrame({
+            "registry_size": [100, 1000, 10000],
+            "latency_ms": [1, 4, 18],
+            "series": ["PaMCP"] * 3,
+        }),
+        "E16-F4": pd.DataFrame({
+            "source": ["observed", "observed", "attested"],
+            "target": ["retained", "invalidated", "retained"],
+            "value": [6, 2, 3],
+        }),
+        "E18-F1": pd.DataFrame({
+            "metric": ["success", "success"],
+            "configuration": ["Full_PaMCP", "PaMCP_NoGap"],
+            "value": [0.8, 0.7],
+        }),
+        "E22-F3": pd.DataFrame({
+            "rank": [1, 2, 3, 1, 2, 3],
+            "probability": [0.7, 0.2, 0.1, 0.3, 0.4, 0.3],
+            "series": ["PaMCP"] * 3 + ["baseline"] * 3,
+        }),
+        "E22-F4": pd.DataFrame({
+            "effect": [0.15, -0.04],
+            "adjusted_p": [0.02, 0.4],
+            "series": ["baseline-a", "baseline-b"],
+        }),
+    }
+    for figure_id, frame in fixtures.items():
+        figure = _figure(figure_id)
+        rendered = render_figure(figure, frame, tmp_path, formats=("png",), dpi=80)
+        assert len(rendered) == 1
+        assert rendered[0].is_file(), figure_id
