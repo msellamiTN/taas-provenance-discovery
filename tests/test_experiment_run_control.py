@@ -54,7 +54,9 @@ def test_execution_fails_closed_without_handler(tmp_path):
     assert not (tmp_path/"runs.jsonl").exists()
 
 def test_execution_requires_explicit_approved_dependency_manifest(tmp_path, monkeypatch):
-    monkeypatch.setattr(run_control, "DEFAULT_DEPENDENCIES", tmp_path / "absent.json")
+    def missing_manifest():
+        raise RunBlocked("Missing approved execution dependency manifest; do not infer DAG edges.")
+    monkeypatch.setattr(run_control, "load_dependency_manifest", missing_manifest)
     with pytest.raises(RunBlocked, match="Missing approved"):
         execute_experiment("E1", handler=lambda _: {"status":"completed","artifacts":["x"]},
           input_manifest={"protocol_version":"1.0.0","dataset_snapshot_hash":"abc","code_revision":"deadbeef","seed":0},
