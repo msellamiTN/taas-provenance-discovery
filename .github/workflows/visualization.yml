@@ -19,6 +19,8 @@ on:
       - "docs/experiment_design/pamcp_experiments_v1.json"
       - "docs/experiment_design/pamcp_baselines_v1.json"
       - "tests/test_plotting.py"
+      - "tests/test_e8_figure_export.py"
+      - "experiments/export_e8_figures.py"
       - "pyproject.toml"
       - ".github/workflows/visualization.yml"
   pull_request:
@@ -56,4 +58,4 @@ jobs:
       - name: Validate E8 Colab notebook JSON
         run: python -m json.tool experiments/colab/E8_Retrieval_Campaign.ipynb > /dev/null
       - name: Run plotting and E8 tests
-        run: python -m pytest -q tests/test_plotting.py tests/test_e8_retrieval_campaign.py tests/test_e8_data_preparation.py tests/test_e8_figure_export.py
+        run: python -m pytest -q tests/test_plotting.py tests/test_e8_figure_export.py tests/test_e8_retrieval_campaign.py tests/test_e8_data_preparation.py tests/test_e8_figure_export.py
