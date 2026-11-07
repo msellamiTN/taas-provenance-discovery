@@ -203,6 +203,7 @@ def certificate_check_metrics(audits: Sequence[Mapping]) -> dict:
             key: _ratio(f"certificate_pass_{key}", counts[key], n).to_dict()
             for key in checks
         },
+        "failure_counts_by_check": {key: n - counts[key] for key in checks},
         "overall_conjunction": _ratio("certificate_all_mandatory_checks", complete, n).to_dict(),
         "denominator_policy": "all submitted audit records; missing or non-true checks count as failures",
     }
