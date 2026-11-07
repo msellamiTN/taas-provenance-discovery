@@ -107,8 +107,8 @@ def test_rrf_fuses_bm25_and_tfidf_deterministically():
     bm25 = {"q1": ["a", "b", "c"], "q2": ["x", "y"]}
     tfidf = {"q1": ["b", "d", "a"], "q2": ["y", "z", "x"]}
     fused = e8._rrf_fuse_rankings(bm25, tfidf, top_k=3, rrf_k0=60)
-    assert fused["q1"] == ["a", "b", "c"] or fused["q1"] == ["b", "a", "c"]
-    assert fused["q2"][:2] == ["x", "y"]
+    assert fused["q1"] == ["b", "a", "d"]
+    assert fused["q2"] == ["y", "x", "z"]
     assert fused == e8._rrf_fuse_rankings(bm25, tfidf, top_k=3, rrf_k0=60)
 
 
