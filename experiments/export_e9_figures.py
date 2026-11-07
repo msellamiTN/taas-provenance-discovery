@@ -278,6 +278,7 @@ def export_e9_figures(
             raise ValueError(f"{benchmark}/{task_id}/{baseline}: ranking includes tools outside task visibility")
         if key not in refs:
             skipped_no_reference += 1
+            skipped_no_reference_task_keys.add(key)
             trace = trace_ref_map.get(key)
             if trace:
                 ref_tools = set(trace["reference_trace_tool_ids"])
@@ -353,7 +354,8 @@ def export_e9_figures(
                 "primary_configuration_id": primary_id,
                 "primary_configuration_executed": primary_executed,
                 "primary_task_metric_rows": 0,
-                "primary_tasks_without_acceptable_set_reference": skipped_no_reference,
+                "primary_tasks_without_acceptable_set_reference": len(skipped_no_reference_task_keys),
+                "primary_ranking_rows_without_acceptable_set_reference": skipped_no_reference,
                 "trace_diagnostic_rows": len(diagnostic_rows),
                 "figures_exported": [],
                 "figures_not_exported": {
