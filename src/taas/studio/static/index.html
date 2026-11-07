@@ -587,6 +587,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <a href="#skill-lifecycle-center">Skill Lifecycle &amp; Version Control (UX-14)</a>
       <a href="#tool-registry-governance-center">Tool Registry &amp; MCP Governance (UX-15)</a>
       <a href="#ux16-tool-selection-workbench">Tool Selection &amp; Eligibility (UX-16)</a>
+      <a href="#ux17-policy-governance">Governance Policy Designer (UX-17)</a>
       <span class="nav-label">OPERATE &amp; OBSERVE</span>
       <a href="#workspace">Benchmark workspace</a>
       <a class="overview-shortcut" href="#runtime">Runtime diagnostics</a>
@@ -1273,6 +1274,49 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 </section>
 
 
+
+<section id="ux17-policy-governance" class="section-anchor" aria-labelledby="ux17-title" style="margin-bottom:18px">
+  <div class="panel-head"><div><div class="eyebrow">GOVERN &amp; ASSURE · UX-17</div><h2 id="ux17-title" style="margin:4px 0">Governance Policy Designer &amp; Conflict Analyzer</h2><p class="subtle">Evaluate a governance subject against the Core's deterministic built-in rule set and inspect returned findings.</p></div><span class="pill">Core policy engine · analysis only</span></div>
+  <div class="notice" role="note"><strong>Contract boundary.</strong> Core currently exposes <code>POST /api/v1/policy/evaluate</code>. This endpoint accepts a subject and a caller-asserted fact bundle; it does not accept policy definitions, persist drafts, validate YAML, publish or activate policies. Results are diagnostic only: no authorization is granted and execution remains disabled.</div>
+  <div class="ux8-grid" style="display:grid;grid-template-columns:minmax(280px,.9fr) minmax(340px,1.1fr);gap:12px;align-items:start">
+    <div class="ux8-card">
+      <div class="panel-head"><div><h3 style="margin:0">1 · Evaluation input</h3><p class="subtle">Provide an exact subject identity and facts supplied by the caller.</p></div><span class="pill">POST · /policy/evaluate</span></div>
+      <label for="ux17-subject"><strong>Governed subject · JSON</strong></label>
+      <textarea id="ux17-subject" rows="5" spellcheck="false" style="width:100%;margin:6px 0 10px;font:12px ui-monospace,monospace">{
+  "kind": "discovery_candidate",
+  "id": "candidate-to-review"
+}</textarea>
+      <label for="ux17-facts"><strong>Fact bundle · JSON</strong></label>
+      <textarea id="ux17-facts" rows="10" spellcheck="false" style="width:100%;margin:6px 0 8px;font:12px ui-monospace,monospace">{
+}</textarea>
+      <p class="subtle">Facts entered here are caller assertions, not server-verified evidence. Missing facts remain unknown and may cause <code>needs_review</code>.</p>
+      <div class="inline-actions"><button id="ux17-evaluate" type="button">Evaluate governance</button><button id="ux17-reset" type="button" class="secondary">Reset inputs</button></div>
+      <p id="ux17-status" class="subtle" role="status" aria-live="polite">Connect to TaaS Studio before evaluating.</p>
+    </div>
+    <div class="ux8-card">
+      <div class="panel-head"><div><h3 style="margin:0">2 · Governance verdict</h3><p class="subtle">Decision, policy fingerprint and Core-reported invariant flags.</p></div><span id="ux17-decision" class="pill">Not evaluated</span></div>
+      <div class="ux8-grid" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0">
+        <div class="ux8-card"><div class="eyebrow">BLOCKING FAILURES</div><strong id="ux17-blocking-count">—</strong></div>
+        <div class="ux8-card"><div class="eyebrow">REVIEW FINDINGS</div><strong id="ux17-review-count">—</strong></div>
+        <div class="ux8-card"><div class="eyebrow">CONFLICTS</div><strong id="ux17-conflict-count">—</strong></div>
+      </div>
+      <div class="subtle" id="ux17-semantics">No verdict received. A verdict is not authorization or execution permission.</div>
+      <details style="margin-top:12px"><summary>Core policy verdict JSON</summary><pre id="ux17-verdict" class="ux8-json">No policy evaluation requested.</pre></details>
+    </div>
+  </div>
+  <div class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:12px">
+    <div class="ux8-card"><div class="panel-head"><h3 style="margin:0">3 · Fired rules</h3><span class="pill">Core response</span></div><div style="overflow:auto"><table class="data-table" style="width:100%"><thead><tr><th>Rule</th><th>Severity</th><th>Outcome</th><th>Candidate decision</th></tr></thead><tbody id="ux17-rules"><tr><td colspan="4">No rules evaluated.</td></tr></tbody></table></div></div>
+    <div class="ux8-card"><div class="panel-head"><h3 style="margin:0">4 · Conflicts &amp; findings</h3><span class="pill">Core response</span></div><div id="ux17-conflicts" class="subtle">No conflict data received.</div></div>
+  </div>
+  <div class="ux8-card" style="margin-top:12px"><div class="panel-head"><h3 style="margin:0">5 · Capability coverage</h3><span class="pill">Backend contract verified</span></div>
+    <div class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px">
+      <div><strong>Available now</strong><p class="subtle">Deterministic built-in rules, caller-asserted fact evaluation, fail-closed unknown handling, conflict records and policy fingerprint.</p></div>
+      <div><strong>Not exposed by Core</strong><p class="subtle">Custom policy authoring schema, YAML validation, policy persistence/version history, relationship graph, publish and activation APIs.</p></div>
+      <div><strong>Governance invariants</strong><p class="subtle">Evaluation does not grant authorization. Structural checks do not prove semantic correctness. No policy is published or activated by this workspace.</p></div>
+    </div>
+  </div>
+  <p class="ux8-note">No local conflict rules, policy versions, graph edges, validation outcomes or lifecycle events are synthesized. Only the exact response from the Core policy evaluator is displayed.</p>
+</section>
 
 <section id="ux16-tool-selection-workbench" class="section-anchor" aria-labelledby="ux16-title" style="margin-bottom:18px">
 <div class="panel-head"><div><div class="eyebrow">OPERATE &amp; GOVERN · UX-16</div><h2 id="ux16-title" style="margin:4px 0">Tool Selection &amp; Eligibility Workbench</h2><p class="subtle">Retrieve explainable tool candidates, inspect evidence-based policy eligibility and compare exact registry identities.</p></div><span class="pill">Core analysis · pre-execution</span></div>
@@ -4092,6 +4136,58 @@ async function snapshots(){try{const d=await apiGet("/api/v1/mcp/registry/snapsh
 el("ux15-refresh").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-search-button").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-search").addEventListener("keydown",e=>{if(e.key==="Enter"){s.offset=0;tools();}});el("ux15-prev").addEventListener("click",()=>{s.offset=Math.max(0,s.offset-s.limit);tools();});el("ux15-next").addEventListener("click",()=>{s.offset+=s.limit;tools();});el("ux15-refresh-snapshots").addEventListener("click",snapshots);tools();servers();snapshots();})();
 (function initUX16(){const el=id=>document.getElementById(id),s={retrieval:null,eligibility:null,selected:new Set()};const show=(id,v)=>el(id).textContent=JSON.stringify(v,null,2),msg=(v,bad=false)=>{el("ux16-status").textContent=v;el("ux16-status").style.color=bad?"#b42318":"";};async function post(path,body){const t=tokenValue();if(!t)throw Error("Connect to TaaS Studio in the application header first.");const r=await fetch(path,{method:"POST",headers:{"Authorization":"Bearer "+t,"Content-Type":"application/json"},body:JSON.stringify(body)}),d=await readJsonResponse(r);if(r.status===401)markStudioAuthRejected();if(!r.ok)throw Error(formatApiError(d.detail||d,"HTTP "+r.status));return d;}function policy(){const p=el("ux16-policy-properties").value.split(",").map(x=>x.trim()).filter(Boolean),encoding=el("ux16-policy-encoding").value;return {name:"ux16-analysis-policy",required:encoding==="positive"?p:[],forbidden:encoding==="closed_world"?p:[],allowed:["read(*)","egress(*)","session"],lmin:el("ux16-lmin").value.trim()||"obs",encoding};}function ids(){return Array.from(s.selected);}function update(){el("ux16-selected-count").textContent=ids().length;el("ux16-selection").textContent=ids().join(" · ")||"Select at least two candidates.";el("ux16-compare").disabled=ids().length<2||ids().length>8;}function render(){const b=el("ux16-candidates");b.replaceChildren();const a=s.retrieval?.results||[],v=new Map((s.eligibility?.tools||[]).map(x=>[x.tool_id,x]));if(!a.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=6;td.textContent="Core returned no retrieval candidates.";tr.append(td);b.append(tr);}a.forEach(x=>{const tr=document.createElement("tr"),id=x.tool_id,verdict=v.get(id),td=document.createElement("td"),check=document.createElement("input");check.type="checkbox";check.checked=s.selected.has(id);check.setAttribute("aria-label","Select "+id);check.addEventListener("change",()=>{if(check.checked){if(s.selected.size>=8){check.checked=false;msg("Comparison is limited to eight tools.",true);return;}s.selected.add(id);}else s.selected.delete(id);update();});td.append(check);tr.append(td);[id,Number(x.rrf_score).toFixed(6),x.type_filter_pass===true?"Pass":x.type_filter_pass===false?"Filtered":"Not reported",verdict?(verdict.eligible?"Eligible":"Ineligible"):"Not evaluated"].forEach(z=>{const c=document.createElement("td");c.textContent=String(z??"—");tr.append(c);});const c=document.createElement("td"),button=document.createElement("button");button.type="button";button.className="secondary";button.textContent="Explain";button.addEventListener("click",()=>show("ux16-retrieval-detail",x));c.append(button);tr.append(c);b.append(tr);});el("ux16-candidate-count").textContent=a.length;el("ux16-candidate-semantics").textContent=s.retrieval?.score_semantics||"Score semantics unavailable.";update();}async function retrieve(){const query=el("ux16-goal").value.trim();if(!query){msg("Enter a goal or objective before retrieval.",true);return;}el("ux16-retrieve").disabled=true;msg("Requesting explainable retrieval from TaaS Core…");try{const body={query,k:Number(el("ux16-k").value),components:el("ux16-components").value.split(","),type_filter:true,policy:policy()},out=el("ux16-goal-output").value.trim();if(out)body.goal_out=out;const d=await post("/api/v1/tools/retrieve",body);s.retrieval=d;s.eligibility=null;s.selected.clear();show("ux16-retrieval-detail",d);show("ux16-eligibility-detail",{status:"Eligibility has not yet been evaluated."});el("ux16-eligible-count").textContent="—";el("ux16-rejected-count").textContent="—";render();msg("Core retrieval returned "+(d.results||[]).length+" candidate(s).");}catch(e){msg("Retrieval failed: "+e.message,true);}finally{el("ux16-retrieve").disabled=false;}}async function eligibility(){const tools=s.retrieval?.results?.map(x=>x.tool_id);if(!tools?.length){msg("Run retrieval first; eligibility evaluates those exact candidate IDs.",true);return;}el("ux16-eligibility").disabled=true;el("ux16-refresh-eligibility").disabled=true;msg("Requesting Core policy eligibility explanation…");try{const d=await post("/api/v1/tools/eligibility",{tool_ids:tools,policy:policy()});s.eligibility=d;show("ux16-eligibility-detail",d);el("ux16-eligible-count").textContent=d.summary?.eligible??"—";el("ux16-rejected-count").textContent=d.summary?.rejected??"—";render();msg("Core evaluated "+(d.summary?.evaluated??0)+" candidate(s); unknown IDs: "+(d.summary?.unknown??0)+".");}catch(e){msg("Eligibility evaluation failed: "+e.message,true);}finally{el("ux16-eligibility").disabled=false;el("ux16-refresh-eligibility").disabled=false;}}async function compare(){const tool_ids=ids();if(tool_ids.length<2||tool_ids.length>8){msg("Select between two and eight tools to compare.",true);return;}el("ux16-compare").disabled=true;msg("Requesting deterministic Core comparison…");try{const body={tool_ids,policy:policy()},query=el("ux16-goal").value.trim(),goal_output=el("ux16-goal-output").value.trim();if(query)body.query=query;if(goal_output)body.goal_output=goal_output;const d=await post("/api/v1/tools/compare",body);show("ux16-comparison",d);msg("Core comparison returned. Structural analysis is not authorization.");}catch(e){show("ux16-comparison",{error:e.message});msg("Comparison failed: "+e.message,true);}finally{update();}}el("ux16-retrieve").addEventListener("click",retrieve);el("ux16-eligibility").addEventListener("click",eligibility);el("ux16-refresh-eligibility").addEventListener("click",eligibility);el("ux16-compare").addEventListener("click",compare);update();})();
 
+
+(function initUX17(){
+  const el=id=>document.getElementById(id);
+  const show=(id,value)=>{el(id).textContent=JSON.stringify(value,null,2);};
+  const status=(message,bad=false)=>{el("ux17-status").textContent=message;el("ux17-status").style.color=bad?"#b42318":"";};
+  const table=(items)=>{
+    const body=el("ux17-rules");body.replaceChildren();
+    if(!Array.isArray(items)||!items.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=4;td.textContent="Core returned no fired rules.";tr.append(td);body.append(tr);return;}
+    items.forEach(rule=>{const tr=document.createElement("tr");[rule.rule_id,rule.severity,rule.outcome,rule.candidate_decision].forEach(value=>{const td=document.createElement("td");td.textContent=String(value??"Not reported");tr.append(td);});body.append(tr);});
+  };
+  const conflicts=(items)=>{
+    const host=el("ux17-conflicts");host.replaceChildren();
+    if(!Array.isArray(items)||!items.length){const p=document.createElement("p");p.className="subtle";p.textContent="Core reported no conflicts for this evaluation. This is not a global policy consistency proof.";host.append(p);return;}
+    items.forEach(item=>{const card=document.createElement("div");card.style.cssText="padding:10px 0;border-bottom:1px solid #e8edf4";
+      const title=document.createElement("strong");title.textContent=String(item.kind||"Conflict");
+      const detail=document.createElement("p");detail.className="subtle";detail.textContent=String(item.detail||"No detail reported.");
+      const resolution=document.createElement("p");resolution.className="subtle";resolution.textContent="Core resolution: "+String(item.resolution||"Not reported");
+      card.append(title,detail,resolution);host.append(card);
+    });
+  };
+  el("ux17-evaluate").addEventListener("click",async()=>{
+    let subject,facts;
+    try{subject=JSON.parse(el("ux17-subject").value);facts=JSON.parse(el("ux17-facts").value);}
+    catch(error){status("Input JSON is invalid: "+error.message,true);return;}
+    if(!subject||typeof subject!=="object"||Array.isArray(subject)||!subject.kind){status("Subject must be a JSON object with a non-empty kind.",true);return;}
+    if(!facts||typeof facts!=="object"||Array.isArray(facts)){status("Fact bundle must be a JSON object.",true);return;}
+    const token=tokenValue();if(!token){status("Connect to TaaS Studio before evaluating.",true);return;}
+    el("ux17-evaluate").disabled=true;status("Requesting deterministic governance evaluation from TaaS Core…");
+    try{
+      const response=await fetch("/api/v1/policy/evaluate",{method:"POST",headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify({subject,facts})});
+      const data=await readJsonResponse(response);if(response.status===401)markStudioAuthRejected();
+      if(!response.ok)throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
+      if(data.schema!=="taas.policy-verdict/v1")throw new Error("Core response schema is not the supported taas.policy-verdict/v1 contract.");
+      show("ux17-verdict",data);el("ux17-decision").textContent=String(data.decision||"Not reported");
+      el("ux17-blocking-count").textContent=Array.isArray(data.blocking_failures)?data.blocking_failures.length:"—";
+      el("ux17-review-count").textContent=Array.isArray(data.review_findings)?data.review_findings.length:"—";
+      el("ux17-conflict-count").textContent=Array.isArray(data.conflicts)?data.conflicts.length:"—";
+      el("ux17-semantics").textContent="Facts source: "+String(data.facts_source||"not reported")+" · authorization granted: "+String(data.authorization_granted)+" · execution enabled: "+String(data.execution_enabled)+" · semantic correctness verified: "+String(data.semantic_correctness_verified);
+      table(data.fired_rules);conflicts(data.conflicts);
+      status("Core policy verdict received. This diagnostic does not authorize or execute anything.");
+    }catch(error){show("ux17-verdict",{error:error.message});status("Governance evaluation failed: "+error.message,true);}
+    finally{el("ux17-evaluate").disabled=false;}
+  });
+  el("ux17-reset").addEventListener("click",()=>{
+    el("ux17-subject").value=JSON.stringify({kind:"discovery_candidate",id:"candidate-to-review"},null,2);
+    el("ux17-facts").value="{}";el("ux17-decision").textContent="Not evaluated";
+    ["ux17-blocking-count","ux17-review-count","ux17-conflict-count"].forEach(id=>el(id).textContent="—");
+    el("ux17-semantics").textContent="No verdict received. A verdict is not authorization or execution permission.";
+    show("ux17-verdict",{status:"No policy evaluation requested."});table([]);conflicts([]);
+    status("Inputs reset. No policy was saved or changed.");
+  });
+})();
 })();
 </script>
 </body>
