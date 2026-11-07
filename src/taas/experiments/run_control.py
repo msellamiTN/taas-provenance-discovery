@@ -36,6 +36,9 @@ def validate_dependency_manifest(data: Mapping[str, Any]) -> dict[str, Any]:
         raise RunBlocked("Unsupported dependency manifest")
     if not isinstance(deps, dict) or set(deps) != EXPERIMENT_IDS:
         raise RunBlocked("Dependency manifest must define E1-E22 exactly once")
+    external = data.get("external_prerequisites")
+    if not isinstance(external, dict) or set(external) != EXPERIMENT_IDS:
+        raise RunBlocked("External prerequisites must define E1-E22 exactly once")
     for exp, parents in deps.items():
         if not isinstance(parents, list) or any(not isinstance(p, str) for p in parents):
             raise RunBlocked(f"Invalid prerequisite list for {exp}")
@@ -43,6 +46,11 @@ def validate_dependency_manifest(data: Mapping[str, Any]) -> dict[str, Any]:
             raise RunBlocked(f"Duplicate prerequisite for {exp}")
         if any(p not in EXPERIMENT_IDS or p == exp for p in parents):
             raise RunBlocked(f"Invalid prerequisite reference for {exp}")
+    for exp, gates in external.items():
+        if not isinstance(gates, list) or any(not isinstance(g, str) or not g.strip() for g in gates):
+            raise RunBlocked(f"Invalid external prerequisite list for {exp}")
+        if len(gates) != len(set(gates)):
+            raise RunBlocked(f"Duplicate external prerequisite for {exp}")
     _assert_acyclic(deps)
     return dict(data)
 
@@ -98,6 +106,24 @@ def execute_experiment(experiment_id: str, *, handler: Callable[[dict[str, Any]]
     deps = dependency_manifest["depends_on"][experiment_id]
     missing = sorted(set(deps) - latest_successes(read_ledger(ledger_path)))
     if missing: raise RunBlocked(f"{experiment_id} blocked by incomplete prerequisites: {missing}")
+    required_gates = dependency_manifest["external_prerequisites"][experiment_id]
+    gate_evidence = input_manifest.get("external_gate_evidence", {})
+    if not isinstance(gate_evidence, Mapping):
+        raise RunBlocked("external_gate_evidence must be an object")
+    missing_gates = []
+    for gate in required_gates:
+        evidence = gate_evidence.get(gate)
+        digest = evidence.get("sha256", "") if isinstance(evidence, Mapping) else ""
+        refs = evidence.get("artifact_refs", []) if isinstance(evidence, Mapping) else []
+        valid_digest = (isinstance(digest, str) and len(digest) == 64
+                        and all(ch in "0123456789abcdef" for ch in digest.lower()))
+        if (not isinstance(evidence, Mapping) or evidence.get("status") != "satisfied"
+                or not isinstance(refs, list) or not refs
+                or any(not isinstance(ref, str) or not ref.strip() for ref in refs)
+                or not valid_digest):
+            missing_gates.append(gate)
+    if missing_gates:
+        raise RunBlocked(f"{experiment_id} blocked by unsatisfied or unproven external prerequisites: {missing_gates}")
     required = ("dataset_snapshot_hash", "code_revision")
     if any(not input_manifest.get(k) for k in required): raise RunBlocked("Dataset hash and code revision are required")
     if "seed" not in input_manifest: raise RunBlocked("An explicit seed is required, including zero")
@@ -105,7 +131,9 @@ def execute_experiment(experiment_id: str, *, handler: Callable[[dict[str, Any]]
     record = {"experiment_id": experiment_id, "status": "running", "protocol_version": "1.0.0",
               "catalog_hash": canonical_hash(catalog), "definition_hash": canonical_hash(experiment),
               "input_manifest": dict(input_manifest), "input_hash": canonical_hash(input_manifest),
-              "dependencies": deps, "started_at": datetime.now(timezone.utc).isoformat()}
+              "dependencies": deps, "external_prerequisites": required_gates,
+              "external_gate_evidence": {g: dict(gate_evidence[g]) for g in required_gates},
+              "started_at": datetime.now(timezone.utc).isoformat()}
     append_record(record, ledger_path)
     try:
         result = dict(handler(dict(input_manifest)))
