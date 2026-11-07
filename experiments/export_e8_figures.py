@@ -303,9 +303,14 @@ def export_e8_figures(
                 "the full-corpus retrieval rankings do not define distractor-count observations."
             ),
         },
-        "blocked_registered_methods": {
+        "blocked_registered_baselines": {
             key: value for key, value in blocked.items()
-            if key not in {baseline for values in executed_registered.values() for baseline in values}
+            if key in registered
+            and key not in {baseline for values in executed_registered.values() for baseline in values}
+        },
+        "other_blocked_or_not_comparable_conditions": {
+            key: value for key, value in blocked.items()
+            if key not in registered
         },
         "primary_pa_mcp_executed": any(
             "Full_PaMCP" in values for values in executed_registered.values()
