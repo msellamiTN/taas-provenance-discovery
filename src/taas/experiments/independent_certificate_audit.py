@@ -71,6 +71,40 @@ def _goal_witness(rr: ReachResult, goal: GoalContract, graph: Hypergraph,
     return None
 
 
+def _binding_violations(graph: Hypergraph, toolkit: list[str],
+                         goals: list[GoalContract], witnesses: dict[str, str | None],
+                         bindings: dict[str, str], reach: ReachResult,
+                         model_edges: list[ModelEdge]) -> list[dict]:
+    """Independently check provenance for each required-goal witness."""
+    model_ids = {edge.id for edge in model_edges}
+    errors = []
+    for goal in goals:
+        witness = witnesses.get(goal.id)
+        if witness is None:
+            errors.append({"goal": goal.id, "reason": "missing_witness"})
+            continue
+        value = witness[1:] if witness.startswith("~") else witness
+        binding = bindings.get(goal.id)
+        derivation = reach.derivations.get(value)
+        if value in graph.contracts:
+            if value not in toolkit or binding != value:
+                errors.append({"goal": goal.id, "reason": "tool_binding_not_selected"})
+        elif value in reach.tool_types:
+            producer = reach.tool_types[value]
+            if (producer not in toolkit or binding != producer or derivation is None
+                    or derivation.kind != "tool" or derivation.edge != producer):
+                errors.append({"goal": goal.id, "reason": "tool_witness_provenance_mismatch"})
+        elif derivation is not None and derivation.kind == "model":
+            if derivation.edge not in model_ids or binding != derivation.edge:
+                errors.append({"goal": goal.id, "reason": "model_binding_provenance_mismatch"})
+        elif derivation is not None and derivation.kind == "prompt":
+            if binding != "-":
+                errors.append({"goal": goal.id, "reason": "prompt_binding_must_be_dash"})
+        else:
+            errors.append({"goal": goal.id, "reason": "untraceable_witness"})
+    return errors
+
+
 def audit_certificate(
     certificate,
     graph: Hypergraph,
@@ -116,7 +150,7 @@ def audit_certificate(
 
     # S — every required goal has an independently recomputed witness.
     witnesses = {goal.id: _goal_witness(reach, goal, graph, uncertain) for goal in required}
-    sufficiency = all(value is not None for value in witnesses.values())
+    binding_errors = _binding_violations(\n        graph, toolkit, required, witnesses, certificate.bindings, reach, model_edges\n    )\n    sufficiency = all(value is not None for value in witnesses.values()) and not binding_errors
 
     # C — selected tool outputs are consumable by the configured executor.
     consumability = all(
