@@ -90,3 +90,48 @@ def test_shared_apipost_helper_preserves_auth_and_error_handling():
     assert "Bearer " in helper
     assert "markStudioAuthRejected()" in helper
     assert "formatApiError" in helper
+
+
+def test_ux10_release_center_queries_readonly_governance_endpoints():
+    html = _studio_html()
+    assert 'id="release-center"' in html
+    assert 'id="ux10-refresh-all"' in html
+    for suffix in ('"/policy-verdict"', '"/release-readiness"', '"/approvals"'):
+        assert suffix in html
+    section = html.split('id="release-center"', 1)[1].split("</section>", 1)[0]
+    assert "NOT GRANTED" in section
+    assert "GET requests only" in section
+    assert "apiPost(" not in section
+
+
+def test_ux11_operations_center_reports_honest_failures_and_no_execution():
+    html = _studio_html()
+    assert 'id="operations-command-center"' in html
+    assert 'id="ux11-refresh"' in html
+    for endpoint in (
+        "/api/v1/runtime/status",
+        "/api/v1/models/runtime",
+        "/api/v1/discovery/runs?limit=50",
+        "/api/v1/audit/verify",
+    ):
+        assert endpoint in html
+    assert "No execution performed" in html
+
+
+def test_ux12_provenance_inspector_fails_closed_on_malformed_ids():
+    html = _studio_html()
+    assert 'id="provenance-inspector"' in html
+    assert 'id="ux12-inspect"' in html
+    assert "No request was sent" in html
+    assert "failed closed" in html
+    assert "NOT VERIFIED" in html
+
+
+def test_ux13_ux14_lifecycle_centers_list_registry_versions():
+    html = _studio_html()
+    assert 'id="agent-lifecycle-center"' in html
+    assert 'id="skill-lifecycle-center"' in html
+    assert 'id="ux13-refresh"' in html
+    assert 'id="ux14-refresh"' in html
+    assert "/api/v1/agents?limit=500" in html
+    assert "/api/v1/skills?limit=500" in html
