@@ -161,16 +161,41 @@ def _numeric_columns(figure: dict[str, Any]) -> set[str]:
     chart = figure["chart_type"]
     columns = set(NUMERIC_FIELDS_BY_CHART[chart])
     columns.add(figure.get("value_field", "value"))
+    categorical_axes = {
+        "grouped_bar": {"x_axis"},
+        "stacked_bar": {"x_axis"},
+        "heatmap": set(),
+        "factorial_heatmap": set(),
+        "confusion_matrix": {"x_axis", "y_axis"},
+        "horizontal_forest": {"y_axis"},
+        "grouped_dot": {"y_axis"},
+        "dose_response": set(),
+        "line": set(),
+        "pareto_scatter": set(),
+        "dumbbell": {"y_axis"},
+        "stacked_horizontal": {"y_axis"},
+        "violin": {"x_axis"},
+        "alluvial": {"x_axis", "y_axis"},
+        "interaction_plot": set(),
+        "calibration_scatter": set(),
+        "rankogram": set(),
+        "loglog_scaling": set(),
+        "scatter": set(),
+        "significance_scatter": set(),
+    }
     for axis in ("x_axis", "y_axis"):
-        field = figure.get(axis, {}).get("field")
-        if field and field not in {"category", "group", "actual", "predicted", "source", "target"}:
-            # Categorical x/y fields are harmless here; numeric coercion is only required
-            # when the chart contract itself declares them as numeric below.
-            pass
+        if axis not in categorical_axes.get(chart, set()):
+            field = figure.get(axis, {}).get("field")
+            if field:
+                columns.add(field)
     options = figure.get("render_options", {})
     size_field = options.get("size_field")
     if size_field:
         columns.add(size_field)
+    if chart == "dumbbell":
+        columns.update(("reference", "candidate"))
+    if chart == "alluvial":
+        columns.add("value")
     return columns
 
 
@@ -230,10 +255,12 @@ def _apply_axis_options(ax: Any, figure: dict[str, Any]) -> None:
         ax.set_xlim(options.get("x_min"), options.get("x_max"))
     if "y_min" in options or "y_max" in options:
         ax.set_ylim(options.get("y_min"), options.get("y_max"))
-    if options.get("x_format") == "percent":
-        ax.xaxis.set_major_formatter(__import__("matplotlib").ticker.PercentFormatter(1.0))
-    if options.get("y_format") == "percent":
-        ax.yaxis.set_major_formatter(__import__("matplotlib").ticker.PercentFormatter(1.0))
+    if options.get("x_format") == "percent" or options.get("y_format") == "percent":
+        from matplotlib.ticker import PercentFormatter
+        if options.get("x_format") == "percent":
+            ax.xaxis.set_major_formatter(PercentFormatter(1.0))
+        if options.get("y_format") == "percent":
+            ax.yaxis.set_major_formatter(PercentFormatter(1.0))
     if options.get("zero_reference"):
         if figure["chart_type"] == "horizontal_forest":
             ax.axvline(0, color="0.35", linewidth=1, linestyle="--", zorder=0)
@@ -260,12 +287,23 @@ def _draw(ax: Any, figure: dict[str, Any], frame: Any) -> None:
         y = np.arange(len(categories))
         height = 0.82 / max(1, len(groups))
         for index, (label, subset) in enumerate(groups):
-            values = subset.set_index(x_field)[y_field].astype(float).reindex(categories)
+            indexed = subset.set_index(x_field)
+            values = indexed[y_field].astype(float).reindex(categories)
             offset = (index - (len(groups) - 1) / 2) * height
             if options.get("orientation") == "horizontal":
-                ax.barh(y + offset, values.values, height=height * 0.9, label=label)
+                positions = y + offset
+                ax.barh(positions, values.values, height=height * 0.9, label=label)
+                if {"ci_low", "ci_high"}.issubset(subset.columns):
+                    low = indexed["ci_low"].astype(float).reindex(categories)
+                    high = indexed["ci_high"].astype(float).reindex(categories)
+                    ax.errorbar(values, positions, xerr=np.vstack([values-low, high-values]), fmt="none", ecolor="0.2", capsize=2)
             else:
-                ax.bar(np.arange(len(categories)) + offset, values.values, width=height * 0.9, label=label)
+                positions = np.arange(len(categories)) + offset
+                ax.bar(positions, values.values, width=height * 0.9, label=label)
+                if {"ci_low", "ci_high"}.issubset(subset.columns):
+                    low = indexed["ci_low"].astype(float).reindex(categories)
+                    high = indexed["ci_high"].astype(float).reindex(categories)
+                    ax.errorbar(positions, values, yerr=np.vstack([values-low, high-values]), fmt="none", ecolor="0.2", capsize=2)
         if options.get("orientation") == "horizontal":
             ax.set_yticks(y, categories)
         else:
@@ -335,7 +373,7 @@ def _draw(ax: Any, figure: dict[str, Any], frame: Any) -> None:
                 raw = subset[size_field].astype(float).to_numpy()
                 span = raw.max() - raw.min()
                 sizes = 35 + (raw - raw.min()) / (span if span else 1) * 125
-            ax.scatter(subset[x_field].astype(float), subset[y_field].astype(float), s=sizes or 48, alpha=0.82, label=label)
+            ax.scatter(subset[x_field].astype(float), subset[y_field].astype(float), s=48 if sizes is None else sizes, alpha=0.82, label=label)
             if "label" in subset.columns:
                 for _, row in subset.iterrows():
                     ax.annotate(str(row["label"]), (float(row[x_field]), float(row[y_field])), xytext=(4, 3), textcoords="offset points", fontsize=7)
