@@ -14,7 +14,7 @@ The E9 figure contracts, evaluator-separated metric exporter and test fixtures a
 | Input / artifact | Current repository state | Consequence |
 |---|---|---|
 | LiveMCPBench tools and annotations | Pinned revision `36a51a1065dda49c1e503b87edf33a1e0b331a74`; 525 tools / 69 servers | Strict E9 preprocessor resolves task tool names against the LiveMCPTool-only candidate registry |
-| LiveMCPBench benchmark-native successful reference chains | 64/95 tasks pass unique tool-ID and declared-count checks; 3 count mismatches and 28 ambiguous/unresolved tasks excluded | One validator-scrutinized successful chain per eligible task; not an exhaustive enumeration of alternatives |
+| LiveMCPBench benchmark-native successful reference chains | Protocol denominator is 94/95 tasks with at least one resolvable gold tool; 29 ambiguous mentions expand to all candidate identities, 5 unresolved mentions are audited, and 4 declared-count mismatches are flagged but not excluded | One validator-scrutinized successful chain per task with any-candidate identity alternatives; not exhaustive task-solution enumeration |
 | MCP-Atlas public parquet | Adapter exists; raw parquet snapshot is not present | Pin and acquire the 500-task public release before diagnostics |
 | MCPVerse v1.1 CSV | Adapter exists; pinned CSV is not present | Can support a separate single-target diagnostic, not multi-tool complete-set gold |
 | E9 GoalSpecs | No frozen E9 task-level GoalSpec package is present | Do not derive subgoals from evaluator labels or annotator traces |
@@ -28,7 +28,7 @@ E9-F1/F2/F3 are generated only from evaluator records whose \`reference_semantic
 - \`independently_adjudicated_acceptable_sets\`
 - \`benchmark_native_acceptable_sets\`
 
-The strict preparation is implemented at `experiments/prepare_e9_livemcpbench.py` and is executed in CI against the pinned repository data. It produces discovery tasks/tools/visibility separately from evaluator acceptable sets and a 95-row resolution audit. The 64 eligible tasks have one benchmark-native successful toolchain; that set is not claimed to be the only valid solution. MCP-Atlas trajectories remain diagnostic-only; MCPVerse's annotated tool field is single-target, not multi-tool complete-set ground truth.
+The protocol-aligned preparation is implemented at `experiments/prepare_e9_livemcpbench.py`. It produces 94 discovery tasks/tools/visibility records separately from evaluator acceptable-set alternatives and a 95-row resolution audit. Ambiguous names expand to any candidate identity; five unresolved mentions remain disclosed, and only one task with no resolvable gold is excluded. MCP-Atlas trajectories remain diagnostic-only; MCPVerse's annotated tool field is single-target, not multi-tool complete-set ground truth.
 
 The exporter refuses:
 - evaluator labels in discovery rankings;
@@ -68,7 +68,7 @@ The frozen E9 experiment object assigns seven baseline IDs: `rag_mcp`, `mcp_zero
 
 ## Required next research inputs
 
-1. Run `python experiments/prepare_e9_livemcpbench.py --output results/definitive/E9/prepared-livemcpbench-v1` to materialize the strict 64-task LiveMCPBench candidate/task/reference package and the exclusion audit. This is dataset preparation, not a method run.
+1. Run `python experiments/prepare_e9_livemcpbench.py --output results/definitive/E9/prepared-livemcpbench-v2` to materialize the protocol-aligned 94-task LiveMCPBench candidate/task/reference package and the resolution audit. This is dataset preparation, not a method run.
 2. Freeze independently authored task GoalSpecs on a development/adjudication split, without evaluator qrels or test trajectories leaking into discovery.
 3. Establish task-to-tool identity mappings against the pinned candidate registry and review all 95 source-resolution audit rows.
 4. Supply independently sourced typed contracts for CMTF and an equivalence oracle for ToolScope, or record these methods as blocked.
