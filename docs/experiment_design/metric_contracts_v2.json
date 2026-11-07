@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0.0",
+  "policy": "All metric values must include numerator, denominator, evaluation-unit IDs and reference availability. Missing independent reference labels produce null, not zero.",
+  "metrics": {
+    "exposure_at_k": {
+      "definition": "Fraction of fixed evaluation requests with at least one independently unsafe tool in top-k.",
+      "numerator": "requests whose top-k intersects unsafe reference set",
+      "denominator": "all preregistered evaluation requests",
+      "requires": "independent unsafe-tool reference"
+    },
+    "unsafe_share_at_k": {
+      "definition": "Fraction of retrieved tool instances in top-k that are independently unsafe.",
+      "numerator": "unsafe retrieved instances",
+      "denominator": "all retrieved instances across fixed requests",
+      "requires": "independent unsafe-tool reference"
+    },
+    "retrieval_coverage": {
+      "definition": "Fraction of fixed evaluation requests for which the method returns at least one candidate.",
+      "numerator": "requests with non-empty result",
+      "denominator": "all preregistered evaluation requests",
+      "requires": "fixed request list"
+    },
+    "conditional_hit_at_k": {
+      "definition": "Hit rate among requests for which a method returns candidates; always reported alongside coverage.",
+      "numerator": "answered requests whose top-k intersects relevant target set",
+      "denominator": "answered requests with reference relevance"
+    },
+    "unconditional_hit_at_k": {
+      "definition": "Hit rate over all preregistered requests; abstentions count as misses.",
+      "numerator": "all requests whose returned top-k intersects relevant target set",
+      "denominator": "all preregistered requests with relevance reference"
+    },
+    "complete_set_recall": {
+      "definition": "Fraction of tasks for which predicted tool set contains at least one independently acceptable complete tool set.",
+      "numerator": "tasks matching any acceptable reference set",
+      "denominator": "tasks with at least one adjudicated acceptable set"
+    },
+    "joint_feasibility": {
+      "definition": "Fraction of predicted compositions satisfying every independently specified interface, dependency, effect, order, policy and information-flow constraint.",
+      "numerator": "compositions passing all required checks",
+      "denominator": "all compositions submitted to oracle; abstentions separately reported"
+    },
+    "task_success": {
+      "definition": "Benchmark-native external oracle success under its pinned evaluator.",
+      "numerator": "successful tasks",
+      "denominator": "all tasks attempted under fixed task set; report excluded/unavailable separately"
+    },
+    "false_assurance_rate": {
+      "definition": "Fraction of independently invalid compositions accepted as valid by PaMCP assurance.",
+      "numerator": "invalid compositions accepted",
+      "denominator": "all independently invalid compositions presented to assurance"
+    },
+    "false_rejection_rate": {
+      "definition": "Fraction of independently valid compositions rejected by PaMCP assurance.",
+      "numerator": "valid compositions rejected",
+      "denominator": "all independently valid compositions presented to assurance"
+    }
+  },
+  "rules": [
+    "Do not use tool-level rows as independent samples when the hypothesis is request-level.",
+    "Report abstention and coverage; never compare conditional utility without unconditional utility.",
+    "For multiple valid toolchains, evaluate against the full acceptable-set collection.",
+    "Do not compute safety metrics without independent labels.",
+    "Do not use the evaluated method's own certificate as its correctness oracle."
+  ]
+}

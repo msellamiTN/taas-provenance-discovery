@@ -543,6 +543,9 @@ def test_e18_preview_accepts_primary_pamcp_factorial_variants(monkeypatch):
     data = response.json()
     assert data["baseline_count"] == 0
     assert data["pamcp_variant_count"] == 8
+    assert data["pamcp_factorial_preview"]["status"] == "preview_only"
+    assert data["pamcp_factorial_preview"]["variant_count"] == 8
+    assert len(data["pamcp_factorial_preview"]["shared_inputs"]["registry_fingerprint"]) == 64
     assert {x["variant"] for x in data["pamcp_variant_results"]} == set(variants)
     for item in data["pamcp_variant_results"]:
         assert item["result"]["evaluator_labels_accessed"] is False
@@ -620,3 +623,48 @@ def test_e17_no_refinement_adapter_disables_counterexample_repair(monkeypatch):
     assert result["baseline_id"] == "no_refinement"
     assert result["refinement_iterations_allowed"] == 0
     assert result["evaluator_labels_accessed"] is False
+
+
+def test_e18_factorial_preview_runs_all_eight_frozen_cells_with_shared_inputs():
+    from taas.experiments.catalog import load_catalog
+    from taas.experiments.variant_runner import run_pamcp_factorial_preview
+
+    contracts, _, spec, _ = _fixture()
+    goal_spec = {
+        "prompt": spec.prompt,
+        "prompt_inputs": [str(value) for value in spec.prompt_inputs],
+        "goals": [{
+            "id": "g1", "class": "search", "in": ["query"],
+            "out": "record:review", "eff": ["read(reviews)"],
+            "sigma": "data", "desc": "Search customer reviews",
+        }],
+    }
+    policy = Policy.make("read-only-preview", allowed=["read(*)"], lmin="ann")
+    result = run_pamcp_factorial_preview(
+        contracts, goal_spec, policy, top_k=2, refine_k=1
+    )
+
+    expected_order = [
+        cell["name"] for cell in load_catalog()["factorial_design"]["cells"]
+    ]
+    assert result["experiment_id"] == "E18"
+    assert result["status"] == "preview_only"
+    assert result["variant_count"] == 8
+    assert result["variant_order"] == expected_order
+    assert [item["variant_id"] for item in result["results"]] == expected_order
+    assert len(result["shared_inputs"]["registry_fingerprint"]) == 64
+    assert len(result["shared_inputs"]["goal_spec_fingerprint"]) == 64
+    assert len(result["shared_inputs"]["policy_fingerprint"]) == 64
+    assert len(result["shared_inputs"]["model_profile_fingerprint"]) == 64
+    assert {item["model_profile"] for item in result["results"]} == {
+        result["shared_inputs"]["model_profile"]
+    }
+    for item in result["results"]:
+        assert item["evaluator_labels_accessed"] is False
+        assert item["mcp_tools_executed"] is False
+        assert item["model_profile_fingerprint"] == result["shared_inputs"]["model_profile_fingerprint"]
+        if item["factors"]["S"] == 0:
+            assert item["certificate"] is None
+            assert item["certificate_valid"] is False
+            assert item["backward_closure"] is False
+            assert item["joint_compatibility_effect_flow_checks"] is False

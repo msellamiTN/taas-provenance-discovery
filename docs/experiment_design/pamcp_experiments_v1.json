@@ -292,7 +292,9 @@
       "title": "Single-tool retrieval quality",
       "datasets": [
         "MCPToolBench++",
-        "B1/B1m"
+        "B1/B1m",
+        "ToolRet (heterogeneous retrieval track)",
+        "MCP-Atlas public (single-task candidate retrieval diagnostics)"
       ],
       "metrics": [
         "Hit@1",
@@ -320,7 +322,9 @@
       "id": "E9",
       "title": "Multi-tool set retrieval",
       "datasets": [
-        "LiveMCPBench (resolvable tasks)"
+        "LiveMCPBench (resolvable tasks)",
+        "MCP-Atlas public (trajectory diagnostics only)",
+        "MCPVerse time-invariant v1.1 (where tool references resolve)"
       ],
       "metrics": [
         "group recall@k",
@@ -345,7 +349,9 @@
       "id": "E10",
       "title": "Set validity and compatibility",
       "datasets": [
-        "LiveMCPBench"
+        "LiveMCPBench",
+        "Toolathlon-Verified",
+        "τ³-bench (domain-specific state/policy constraints)"
       ],
       "metrics": [
         "joint feasibility",
@@ -420,8 +426,11 @@
       "id": "E13",
       "title": "End-to-end agent execution",
       "datasets": [
-        "LiveMCPBench",
-        "MCP-Bench subset"
+        "MCP-Atlas public",
+        "Toolathlon-Verified",
+        "MCP-Universe",
+        "MCPVerse time-invariant v1.1",
+        "MCP_Bench subset"
       ],
       "metrics": [
         "task success",
@@ -451,8 +460,10 @@
       "id": "E14",
       "title": "Robustness under prompt injection",
       "datasets": [
-        "LiveMCPBench",
-        "MCP-Bench subset"
+        "MCPTox",
+        "InjecAgent",
+        "R-Judge (risk-awareness secondary track)",
+        "controlled MCP prompt-injection sandbox"
       ],
       "metrics": [
         "executed out-of-policy actions",
@@ -479,7 +490,9 @@
       "id": "E15",
       "title": "Cost per request and scalability",
       "datasets": [
-        "merged and synthetic registry clones"
+        "ToolRet corpus",
+        "MCPVerse registry/tool pool",
+        "synthetic registry clones"
       ],
       "metrics": [
         "per-stage p50/p95 latency",
@@ -506,8 +519,9 @@
       "id": "E16",
       "title": "Registry and model evolution",
       "datasets": [
-        "merged registry",
-        "event replay"
+        "MCPVerse time-invariant v1.1",
+        "pinned live registry snapshots",
+        "controlled registry mutation traces"
       ],
       "metrics": [
         "update time",
@@ -548,9 +562,8 @@
       "id": "E18",
       "title": "Component and primary mechanism ablation",
       "datasets": [
-        "LiveMCPBench",
-        "MCPToolBench++",
-        "merged registry"
+        "LiveMCPBench common task set",
+        "MCP-Atlas public common task subset (claims/trajectory diagnostics separated)"
       ],
       "metrics": [
         "group recall",
@@ -629,7 +642,8 @@
       "id": "E21",
       "title": "Experience reuse",
       "datasets": [
-        "confirmed execution trajectory repository"
+        "Toolathlon-Verified trajectories (training-only where licensed)",
+        "confirmed PaMCP execution traces"
       ],
       "metrics": [
         "reuse rate",
@@ -701,5 +715,14 @@
       "S": 0,
       "definition": "Per-subgoal retrieval and union; no backward closure, global set checks, compatibility/effect/flow checks or certificate. Score counterfactual validity with independent evaluator."
     }
-  }
+  },
+  "dataset_integration_notes": [
+    "ToolRet is a heterogeneous retrieval-only track and must not be pooled with MCP-native retrieval scores without stratified reporting.",
+    "MCP-Atlas public release is 500 tasks; TRAJECTORY is a successful diagnostic trace, not an exhaustive acceptable composition oracle.",
+    "Toolathlon-Verified and MCP-Universe require pinned execution environments and native evaluators.",
+    "MCPTox and InjecAgent evaluate distinct threat models; report them as separate attack tracks.",
+    "R-Judge is a risk-awareness benchmark, not an operational-effect reference dataset.",
+    "τ³-bench is a stateful policy-compliance benchmark; it does not measure MCP registry discovery.",
+    "Every external dataset remains planned_not_run until the exact release, license, split, evaluator and adapter validation are recorded."
+  ]
 }

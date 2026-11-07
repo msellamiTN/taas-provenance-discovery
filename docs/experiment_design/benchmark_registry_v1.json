@@ -1,0 +1,186 @@
+{
+  "schema_version": "1.0.0",
+  "title": "PaMCP MultiBenchmark source registry",
+  "policy": "Registry entries describe candidate sources, not downloaded or validated local assets. A source is eligible for an experiment only after its exact release, license, split and schema have been recorded in a local acquisition manifest.",
+  "datasets": [
+    {
+      "id": "live_mcptool",
+      "name": "LiveMCPTool",
+      "role": [
+        "registry"
+      ],
+      "status": "existing_source",
+      "url": "https://github.com/msellamiTN/taas-provenance-discovery/blob/research/pamcp-experimental-v1/src/taas/data/registries.py",
+      "version": null,
+      "license": "verify_at_acquisition",
+      "notes": "Existing local ingestion path reads data/raw/livemcpbench/tools.json. The original upstream source URL/revision must be recovered from the E1 acquisition record before any new external re-download."
+    },
+    {
+      "id": "mcp_toolbench_pp",
+      "name": "MCPToolBench++",
+      "role": [
+        "registry",
+        "single_tool_retrieval"
+      ],
+      "status": "existing_source_subset",
+      "url": "https://github.com/msellamiTN/taas-provenance-discovery/blob/research/pamcp-experimental-v1/src/taas/data/registries.py",
+      "version": null,
+      "license": "verify_at_acquisition",
+      "notes": "Existing local ingestion path reads data/raw/mcptoolbenchpp/*.json. The E1 snapshot is 87 tools/10 servers; recover the original upstream source URL/revision and explain subset selection before describing it as a full dataset."
+    },
+    {
+      "id": "live_mcpbench",
+      "name": "LiveMCPBench",
+      "role": [
+        "multi_tool_retrieval",
+        "composition"
+      ],
+      "status": "existing_source",
+      "url": "https://github.com/",
+      "version": null,
+      "license": "verify_at_acquisition",
+      "notes": "Resolve tasks to exact tool definitions and preserve task-level valid-set semantics."
+    },
+    {
+      "id": "mcp_atlas",
+      "name": "MCP-Atlas",
+      "role": [
+        "single_tool_retrieval",
+        "multi_tool_retrieval",
+        "execution"
+      ],
+      "status": "candidate_external",
+      "url": "https://huggingface.co/datasets/ScaleAI/MCP-Atlas",
+      "version": "HF dataset revision to pin",
+      "license": "CC-BY-4.0 (public HF release; verify dataset card at acquisition)",
+      "notes": "Public HF release is 500 tasks; full benchmark is 1,000 tasks (500 public + 500 private). The repo README/harness is https://github.com/scaleapi/mcp-atlas. Parquet fields: TASK, ENABLED_TOOLS, PROMPT, GTFA_CLAIMS, TRAJECTORY. Claims score answers; trajectory is diagnostic, not exhaustive toolchain ground truth."
+    },
+    {
+      "id": "mcpverse",
+      "name": "MCPVerse",
+      "role": [
+        "retrieval",
+        "scalability",
+        "registry_evolution"
+      ],
+      "status": "candidate_external",
+      "url": "https://github.com/hailsham/mcpverse/blob/995cc9eab953120c760b90d4e8e41ffa7fdc88f1/mcpverse/data/mcpverse_time_invariant_v1.1.csv",
+      "version": "995cc9eab953120c760b90d4e8e41ffa7fdc88f1",
+      "license": "Apache-2.0 (repository license; verify task/data component terms before redistribution)",
+      "notes": "The pinned v1.1 time-invariant CSV is task metadata only (question_id, question, MCP, tool, complexity, answer, eval_method, time-sensitive). It does not provide full tool schemas. Use the MCPVerse native runtime for execution; LLM-as-a-judge rows remain judge-based."
+    },
+    {
+      "id": "toolathlon",
+      "name": "Toolathlon",
+      "role": [
+        "composition",
+        "long_horizon_execution",
+        "experience_reuse"
+      ],
+      "status": "candidate_external",
+      "url": "https://github.com/hkust-nlp/Toolathlon",
+      "version": "verified_release_to_pin",
+      "license": "verify_at_acquisition",
+      "notes": "Pin the verified release; preserve programmatic evaluator and environment setup."
+    },
+    {
+      "id": "toolret",
+      "name": "ToolRet",
+      "role": [
+        "large_scale_retrieval",
+        "scalability"
+      ],
+      "status": "candidate_external",
+      "url": "https://github.com/mangopy/tool-retrieval-benchmark",
+      "version": "ACL_2025_release_to_pin",
+      "license": "verify_at_acquisition",
+      "notes": "Official HF data repos: mangopy/ToolRet-Queries and mangopy/ToolRet-Tools. The upstream config.py lists query configs and tool categories. Pin one immutable HF revision for both repositories; this is a heterogeneous retrieval benchmark, not MCP execution or safety ground truth."
+    },
+    {
+      "id": "mcptox",
+      "name": "MCPTox",
+      "role": [
+        "tool_poisoning",
+        "adversarial_robustness"
+      ],
+      "status": "candidate_external",
+      "url": "https://github.com/stefanoamorelli/inspect-evals-mcptox",
+      "version": "AAAI_2026_release_to_pin",
+      "license": "verify_at_acquisition",
+      "notes": "Third-party Inspect Evals port; pin the exact upstream commit (documented d45705b0a7ae6697c851e311187b06bf7488b13f in current reference) and verify original dataset license. Tool poisoning labels are not operational-effect labels."
+    },
+    {
+      "id": "injecagent",
+      "name": "InjecAgent",
+      "role": [
+        "indirect_prompt_injection"
+      ],
+      "status": "candidate_external",
+      "url": "https://github.com/uiuc-kang-lab/InjecAgent",
+      "version": null,
+      "license": "verify_at_acquisition",
+      "notes": "Official 1,054-case indirect prompt injection benchmark; validate license and task schema before adapter implementation."
+    },
+    {
+      "id": "bfcl",
+      "name": "Berkeley Function Calling Leaderboard V4",
+      "role": [
+        "function_calling",
+        "multi_tool_call"
+      ],
+      "status": "candidate_external",
+      "url": "https://gorilla.cs.berkeley.edu/leaderboard.html",
+      "version": "v4_to_pin",
+      "license": "verify_at_acquisition",
+      "notes": "BFCL V4 includes single/multiple/parallel and multi-turn/agentic function-call evaluations. Pin benchmark code/data commit; not MCP provenance or effect ground truth."
+    },
+    {
+      "id": "tau_bench",
+      "name": "τ³-bench (tau2-bench repository)",
+      "role": [
+        "policy_compliance",
+        "stateful_execution"
+      ],
+      "status": "candidate_external",
+      "url": "https://github.com/sierra-research/tau2-bench",
+      "version": "v1.0.1_or_later_to_pin",
+      "license": "verify_at_acquisition",
+      "notes": "Use current τ³-bench release rather than stale tau-bench repository tasks. Pin release and evaluator; domain-specific policy/state benchmark, not MCP discovery."
+    },
+    {
+      "id": "mcp_universe",
+      "name": "MCP-Universe",
+      "role": [
+        "mcp_execution",
+        "multi_domain_tasks"
+      ],
+      "status": "candidate_external",
+      "url": "https://github.com/SalesforceAIResearch/MCP-Universe",
+      "version": "release_to_pin",
+      "license": "verify_at_acquisition",
+      "notes": "Official Salesforce AI Research repository; pin a release/commit and inspect the current benchmark task and evaluator schemas."
+    },
+    {
+      "id": "r_judge",
+      "name": "R-Judge",
+      "role": [
+        "risk_awareness"
+      ],
+      "status": "candidate_external",
+      "url": "https://rjudgebench.github.io/",
+      "version": "release_to_pin",
+      "license": "CC-BY-NC-SA_terms_to_review",
+      "notes": "Risk-awareness labels are not operational-effect ground truth; check non-commercial/share-alike obligations."
+    }
+  ],
+  "acquisition_requirements": [
+    "Record exact repository commit, release tag or dataset revision.",
+    "Record license text and permitted use before redistribution or commercial use.",
+    "Store source archive checksum and acquisition timestamp.",
+    "Record original split and evaluator version; do not silently regenerate labels.",
+    "Record schema mapping and every lossy normalization.",
+    "Keep evaluator labels in a separate path unavailable to discovery-time code.",
+    "Run task-, tool- and server-disjoint leakage checks where the benchmark permits.",
+    "Represent unavailable labels as null/unknown, never as negative examples."
+  ]
+}

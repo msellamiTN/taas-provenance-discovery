@@ -102,3 +102,49 @@ def test_e1_does_not_overwrite_an_existing_run_directory(tmp_path: Path):
     E1.run_e1(tmp_path, tmp_path / "runs", run_id="fixed-run")
     with pytest.raises(FileExistsError):
         E1.run_e1(tmp_path, tmp_path / "runs", run_id="fixed-run")
+
+
+NOTEBOOK_PATH = ROOT / "notebooks" / "PaMCP_Core_Protocol_v2.ipynb"
+
+
+def _master_colab_code_cells() -> list[str]:
+    notebook = json.loads(NOTEBOOK_PATH.read_text(encoding="utf-8"))
+    assert notebook.get("nbformat") == 4
+    return [
+        "".join(cell.get("source", []))
+        for cell in notebook.get("cells", [])
+        if cell.get("cell_type") == "code"
+    ]
+
+
+def test_master_colab_uses_catalog_matched_descriptive_e1_runner():
+    cells = _master_colab_code_cells()
+    e1 = next(cell for cell in cells if "Execute the catalog-matched metadata-only E1" in cell)
+    assert 'experiments" / "colab" / "e1_registry_characterization.py' in e1
+    assert 'experiments" / "e1_protocol_runner.py' not in e1
+    assert "catalog_status_before_run" in e1
+    assert '["inputs"]["registry_sha256"]' in e1
+    assert '"scope": "descriptive_registry_characterization_only"' in e1
+    assert "independent effect labels" in e1
+
+
+def test_master_colab_e2_intake_is_preregistered_and_fingerprint_gated():
+    cells = _master_colab_code_cells()
+    e2 = next(cell for cell in cells if "E2 preparation only" in cell)
+    for variable in (
+        "PAMCP_E2_SAMPLE_SIZE",
+        "PAMCP_E2_SEED",
+        "PAMCP_E2_SAMPLING_DESIGN",
+    ):
+        assert variable in e2
+    assert "sha256(e2_registry) == e1_record.get(\"registry_sha256\")" in e2
+    assert '"status": "BLOCKED_ORACLE"' in e2
+    assert '"preparation_status": "PREPARED_NOT_RUN"' in e2
+    assert 'e2_manifest.get("llm_silver_labels_used_as_gold") is not False' in e2
+
+
+def test_master_colab_ledger_uses_runtime_e1_and_e2_statuses():
+    cells = _master_colab_code_cells()
+    ledger = next(cell for cell in cells if 'run_manifest["experiment_ledger"]=ledger' in cell)
+    assert 'ledger["E1"] = run_manifest["results"].get("E1", ledger["E1"])' in ledger
+    assert 'ledger["E2"] = run_manifest["results"].get("E2", ledger["E2"])' in ledger
