@@ -171,7 +171,7 @@ def test_e9_does_not_promote_trace_only_data_to_primary_metrics(tmp_path):
     result = export_e9_figures(run_dir, output, bootstrap_resamples=150)
     assert result["figures_exported"] == []
     assert result["primary_task_metric_rows"] == 0
-    assert result["trace_diagnostic_rows"] == 36
+    assert result["trace_diagnostic_rows"] == 108
     assert (output / "E9_TRACE_DIAGNOSTICS.csv").is_file()
     assert not (output / "E9-F1.csv").exists()
     assert not (output / "E9-F2.csv").exists()
