@@ -3,8 +3,10 @@
 
 The discovery ranking file must be materialized before evaluator references are read.
 Only independently adjudicated or benchmark-native acceptable tool sets contribute
-to primary group-recall / set-precision / complete-set figures. Positive traces such
-as MCP-Atlas trajectories and LiveMCPBench annotated sequences are diagnostic only.
+to primary group-recall / set-precision / complete-set figures. A strictly resolved
+LiveMCPBench proposer-completed, validator-scrutinized chain is one benchmark-native
+successful reference set, not an exhaustive enumeration of alternatives. MCP-Atlas
+trajectories remain diagnostics unless the benchmark supplies exhaustive set labels.
 """
 from __future__ import annotations
 
@@ -490,9 +492,11 @@ def export_e9_figures(
         },
         "interpretation": (
             "Primary E9 set metrics use only independently adjudicated or benchmark-native "
-            "acceptable tool sets. MCP-Atlas trajectories and LiveMCPBench annotated traces "
-            "are diagnostic-only unless independently adjudicated as acceptable sets. "
-            "Single-tool MCPVerse references are not promoted to multi-tool set gold."
+            "acceptable tool sets. Strictly resolved, validator-scrutinized LiveMCPBench "
+            "chains are one benchmark-native successful reference set per task, not an "
+            "exhaustive enumeration of alternatives. MCP-Atlas trajectories remain "
+            "diagnostic-only. Single-tool MCPVerse references are not promoted to "
+            "multi-tool set gold."
         ),
     }
     output_dir.mkdir(parents=True, exist_ok=True)
