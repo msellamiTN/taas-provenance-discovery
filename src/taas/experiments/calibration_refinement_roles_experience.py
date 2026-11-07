@@ -29,7 +29,7 @@ def model_profile_calibration(records: Sequence[Mapping], *, tau: float = .9,
         claim = mean(claim_values) if claim_values else None
         if paired:
             claim_cell = mean(value for value, _ in paired)
-            measured_cell = mean(outcome for _, outcome in paired)
+            measured_cell = estimate
             cell_gaps.append(abs(claim_cell - measured_cell))
             claim_cells += 1
             refuted_cells += int(claim_cell >= tau and measured_cell < tau)
