@@ -9,17 +9,17 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Iterable
 
-from .contracts import CapabilityContract
-from .effects import violations
-from .goals import GoalContract
-from .hypergraph import (
+from ..contracts import CapabilityContract
+from ..effects import violations
+from ..goals import GoalContract
+from ..hypergraph import (
     Hypergraph, ModelEdge, ReachResult, effects_of, goal_effect_classes,
     goal_match, type_serves, uncertain_serves,
 )
-from .model_profile import ModelProfile
-from .policy import Policy
-from .provenance import DEFAULT_TRUST
-from .types import SemType, subtype
+from ..model_profile import ModelProfile
+from ..policy import Policy
+from ..provenance import DEFAULT_TRUST
+from ..types import SemType, subtype
 
 
 MANDATORY = ("S", "C", "P", "E", "L", "V")
