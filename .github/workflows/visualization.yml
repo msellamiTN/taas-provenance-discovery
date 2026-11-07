@@ -1,4 +1,4 @@
-name: PaMCP Publication Visualization
+name: PaMCP Publication Visualization and E8 Export
 
 on:
   push:
@@ -12,25 +12,31 @@ on:
       - "experiments/export_e8_figures.py"
       - "experiments/run_e8_and_plot.sh"
       - "experiments/colab/E8_Retrieval_Campaign.ipynb"
-      - "tests/test_e8_retrieval_campaign.py"
-      - "tests/test_e8_data_preparation.py"
-      - "tests/test_e8_figure_export.py"
       - "docs/experiment_design/pamcp_plot_plan_v1.json"
       - "docs/experiment_design/pamcp_experiments_v1.json"
       - "docs/experiment_design/pamcp_baselines_v1.json"
       - "tests/test_plotting.py"
+      - "tests/test_e8_retrieval_campaign.py"
+      - "tests/test_e8_data_preparation.py"
       - "tests/test_e8_figure_export.py"
-      - "experiments/export_e8_figures.py"
       - "pyproject.toml"
       - ".github/workflows/visualization.yml"
   pull_request:
     paths:
       - "src/taas/experiments/plotting.py"
       - "experiments/plot_results.py"
+      - "experiments/e8_retrieval_campaign.py"
+      - "experiments/prepare_e8_data.py"
+      - "experiments/export_e8_figures.py"
+      - "experiments/run_e8_and_plot.sh"
+      - "experiments/colab/E8_Retrieval_Campaign.ipynb"
       - "docs/experiment_design/pamcp_plot_plan_v1.json"
       - "docs/experiment_design/pamcp_experiments_v1.json"
       - "docs/experiment_design/pamcp_baselines_v1.json"
       - "tests/test_plotting.py"
+      - "tests/test_e8_retrieval_campaign.py"
+      - "tests/test_e8_data_preparation.py"
+      - "tests/test_e8_figure_export.py"
       - "pyproject.toml"
       - ".github/workflows/visualization.yml"
 
@@ -40,7 +46,7 @@ permissions:
 jobs:
   validate-plotting:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -49,13 +55,13 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-      - name: Install visualization and test dependencies
-        run: python -m pip install -e ".[visualization,test]"
+      - name: Install benchmark, visualization and test dependencies
+        run: python -m pip install -e ".[benchmark-hf,visualization,retrieval,test]"
       - name: Validate E1-E22 figure registry
         run: python experiments/plot_results.py validate
       - name: Validate E8 launcher syntax
         run: bash -n experiments/run_e8_and_plot.sh
       - name: Validate E8 Colab notebook JSON
         run: python -m json.tool experiments/colab/E8_Retrieval_Campaign.ipynb > /dev/null
-      - name: Run plotting and E8 tests
-        run: python -m pytest -q tests/test_plotting.py tests/test_e8_figure_export.py tests/test_e8_retrieval_campaign.py tests/test_e8_data_preparation.py tests/test_e8_figure_export.py
+      - name: Run plotting and E8 regression tests
+        run: python -m pytest -q tests/test_plotting.py tests/test_e8_figure_export.py tests/test_e8_retrieval_campaign.py tests/test_e8_data_preparation.py
