@@ -39,14 +39,18 @@ python experiments/plot_results.py validate
 python experiments/plot_results.py init-templates
 ```
 
-Populate the generated CSVs only from validated experiment outputs, then validate and render:
+Populate the generated CSVs only from validated experiment outputs. E8 has a separate source-preparation, ranking, task-level export and partial-figure workflow; do not use strict four-figure rendering until its B1/B1m and distractor-sweep inputs are available:
 
 ```bash
-python experiments/plot_results.py validate-data --experiment E8 --strict
-python experiments/plot_results.py render --experiment E8 --strict
+python experiments/prepare_e8_data.py --include-toolret
+# Run the E8 campaign with immutable model revisions (see docs/E8_EXECUTION_AND_EXPORT.md).
+# Export only observed registered E8 baselines, then render the available figures:
+python experiments/export_e8_figures.py --run-dir <E8_RUN_DIRECTORY>
+python experiments/plot_results.py validate-data --experiment E8
+python experiments/plot_results.py render --experiment E8
 ```
 
-Full workflow and per-figure axes are documented in [docs/VISUALIZATION_FRAMEWORK.md](docs/VISUALIZATION_FRAMEWORK.md), the [80-figure catalogue](docs/FIGURE_CATALOG.md), and [docs/experiment_design/pamcp_plot_plan_v1.json](docs/experiment_design/pamcp_plot_plan_v1.json).
+Full workflow and per-figure axes are documented in [docs/VISUALIZATION_FRAMEWORK.md](docs/VISUALIZATION_FRAMEWORK.md), the [E8 execution runbook](docs/E8_EXECUTION_AND_EXPORT.md), the [80-figure catalogue](docs/FIGURE_CATALOG.md), and [docs/experiment_design/pamcp_plot_plan_v1.json](docs/experiment_design/pamcp_plot_plan_v1.json).
 
 ## Definitive PaMCP experimental workbench
 
