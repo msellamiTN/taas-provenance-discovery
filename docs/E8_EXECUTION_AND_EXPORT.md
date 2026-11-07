@@ -139,7 +139,7 @@ Current figure availability is deliberately conditional:
 | E8-F1 | Registered baselines with observed per-task metrics, faceted by benchmark |
 | E8-F2 | Not exported until B1/B1m are provided as verified source conditions with a frozen mapping |
 | E8-F3 | Not exported until a predeclared distractor-count sweep has actually been executed |
-| E8-F4 | Macro Hit@1 by task category, with independent benchmark facets |
+| E8-F4 | Hit@1 by task category, with independent benchmark facets and protocol-specific uncertainty |
 
 Groups with fewer than two independent MCPToolBench++ target-server clusters are
 excluded from confidence-interval figures and listed in \`E8_EXPORT_MANIFEST.json\`.
