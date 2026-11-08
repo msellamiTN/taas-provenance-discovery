@@ -16,6 +16,7 @@ import copy
 import multiprocessing as mp
 import random
 import resource
+import json
 import sys
 import time
 from pathlib import Path
@@ -167,7 +168,9 @@ def hetero_runs() -> dict:
             cs = [c for c in cs]
             specs = goal_specs(types, 20)
             row = {}
-            for mode in (MODES if n <= 10000 else ("partitioned", "lazy")):
+            # beyond 10k tools a materialised relation (eager or partitioned) needs O(n^2) memory (3.07M pairs at
+            # 10k in the default mix; the 100k partitioned run was killed at 7 GB): only the lazy relation is run there
+            for mode in (MODES if n <= 10000 else ("lazy",)):
                 eng, bt = engine(cs, mode, pol)
                 row[f"build_s|{mode}"] = bt
                 row[f"pairs|{mode}"] = len(eng.H.forbidden) if mode != "lazy" else None
@@ -255,12 +258,14 @@ def concurrency() -> dict:
 
 
 def main() -> None:
-    res = {"equality": equality()}
-    print("equality", res["equality"])
-    res["subsamples"] = subsamples()
-    res["concurrency"] = concurrency()
-    res["cloned_builds"] = cloned_builds()
-    res["heterogeneous"] = hetero_runs()
+    part = fe.RES / "R2_X7_partial.json"
+    res = json.loads(part.read_text()) if part.exists() else {}
+    for key, fn in (("equality", equality), ("subsamples", subsamples), ("concurrency", concurrency),
+                    ("cloned_builds", cloned_builds), ("heterogeneous", hetero_runs)):
+        if key not in res:
+            res[key] = fn()
+            part.write_text(json.dumps(res))
+        print(key, "done")
     fe.save("R2_X7_scale", {"results": res},
             "MEASURED (latency, memory on 2 vCPUs); SYNTHETIC (clones, heterogeneous generator)",
             config={"modes": MODES, "hetero": {k: {kk: (str(vv) if kk == "effect_mix" else vv) for kk, vv in v.items()}

@@ -1,0 +1,12 @@
+{
+ "haiku batch 18": "The answering model reported (unprompted) that only the cou-10 items and two cou-40 items were counted item by item; the eight agg-640 sums were entered as a rough mean-based figure (32000) and the remaining cou-40 / cou-160 items as estimates (10 and 40). Answers are scored as given; this is the behaviour of the model under the read-only protocol.",
+ "haiku batches 19-20": "The answering model reported that the 160- and 640-item word counts were tallied by hand from the read text and may be off by a few units; the largest-value items were found by scanning for the top values. Scored as given.",
+ "sonnet batches 08-10": "The answering model reported that the long extract lists were read row by row but not re-checked, so a row may have been missed (longest: ext-640-en-00-0, ext-160-en-01-0, ext-160-en-11-0, ext-160-fr-10-1, ext-160-fr-01-1).",
+ "sonnet batches 21-22": "The answering model reported that in noisy join items list B contains lower-case ids and that it counted them as matches (case-insensitive), the generator's gold; it noted the case-sensitive alternative. The question text does not state the rule, so noisy join items are also scored under either reading (sensitivity).",
+ "sonnet batches 00-01": "Reported counting the classify lists in blocks of 10 by reading; 160-item lists most likely to contain an off-by-one slip; hard negatives treated as negative; typo variants read as intended.",
+ "sonnet batches 06-07": "Reported hand counts in blocks of 10 for cla-640-fr-10-0 and cla-640-fr-11-0 (miscount possible); other items read directly.",
+ "sonnet batches 11-16": "Reported reading each 640-line extract list once without a verification pass; nothing estimated.",
+ "sonnet batch 18": "Reported that the eight agg-640 sums were estimated (640 x 54.5 = 34880), not summed; all count items were counted by reading, cou-160 the most error-prone.",
+ "sonnet batches 02-05": "Reported hand tallies in blocks of 10 for the 640-item classify lists; hard negatives counted as negative; nothing estimated; a miscount of a few possible.",
+ "sonnet batches 23-25": "Reported exact (case-sensitive) matching in join items, the opposite reading to sonnet batches 21-22; joi-640 en-00/en-01/fr-00/fr-01 estimated as 160 (not counted) and joi-640 *-10/*-11 as 160 minus the lower-case twins; all 40- and 160-size join items counted id by id."
+}
