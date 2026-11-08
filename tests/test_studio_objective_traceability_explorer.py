@@ -45,7 +45,6 @@ def test_ux9_documents_evidence_and_acceptance_boundaries():
 
 
 def test_ux9_inline_script_parses_when_node_is_available():
-    import re
     import shutil
     import subprocess
     import tempfile
@@ -55,9 +54,10 @@ def test_ux9_inline_script_parses_when_node_is_available():
         import pytest
         pytest.skip("Node.js is not installed")
     html = HTML.read_text(encoding="utf-8")
-    start = html.index("// UX-9 Objective Traceability Explorer")
-    end = html.index("\n\n})();\n</script>", start)
+    start = html.index("<script>") + len("<script>")
+    end = html.index("</script>", start)
     source_text = html[start:end]
+    assert "// UX-9 Objective Traceability Explorer" in source_text
     with tempfile.NamedTemporaryFile("w", suffix=".js", encoding="utf-8") as source:
         source.write(source_text)
         source.flush()

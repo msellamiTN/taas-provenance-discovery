@@ -4913,10 +4913,6 @@ el("ux15-refresh").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-
     });
   })();
 
-})();
-
-})();
-
   // UX-23: isolated fictional demo dashboard and read-only persisted discovery observations.
   (() => {
     const el=id=>document.getElementById(id),pretty=v=>JSON.stringify(v,null,2),token=()=>el("token")?.value?.trim()||"";
@@ -4935,7 +4931,7 @@ el("ux15-refresh").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-
       el("ux23-live-mode").disabled=true;el("ux23-demo-banner").hidden=true;el("ux23-discovery-composition").classList.add("u23-live-mode");set("ux23-mode-pill","LIVE CORE OBSERVATIONS · LIMITED");set("ux23-status","Loading persisted discovery observations…");
       try{
         const response=await fetch("/api/v1/discovery/runs?limit=100",{headers:{"Authorization":"Bearer "+t,"Accept":"application/json","Cache-Control":"no-cache"},cache:"no-store"});
-        const data=await response.json().catch(()=>({detail:"Core returned non-JSON response"}));if(!response.ok)throw Error("HTTP "+response.status+": "+(data.detail||"request failed"));
+        const data=await readJsonResponse(response);if(response.status===401)markStudioAuthRejected();if(!response.ok)throw Error(formatApiError(data.detail||data,"HTTP "+response.status));
         if(data.schema!=="taas.discovery-run-list/v1"||!Array.isArray(data.runs)||typeof data.total_matching!=="number"||data.record_semantics!=="observation_of_pre_execution_analysis_not_execution")throw Error("Unexpected discovery-run list schema or record semantics.");
         const runs=data.runs,selected=runs.filter(x=>x.status==="selected").length,abstained=runs.filter(x=>x.status==="abstained").length,unknown=runs.length-selected-abstained;
         set("ux23-runs",data.total_matching);set("ux23-runs-note","Core total_matching · bounded retained store");
@@ -4964,6 +4960,12 @@ el("ux15-refresh").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-
     el("ux23-history").addEventListener("click",async event=>{const tr=event.target.closest("tr");if(!tr)return;const id=tr.cells?.[0]?.textContent;if(!id||id==="No persisted discovery runs returned.")return;});
     demo();
   })();
+
+})();
+
+})();
+
+
 
 </script>
 </body>
