@@ -5245,8 +5245,6 @@ el("ux15-refresh").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-
 
 })();
 
-})();
-
 
 
   // UX-26: read-only revision history; render only source-reported values.
@@ -5264,6 +5262,8 @@ el("ux15-refresh").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-
     };
     el("ux26-load").addEventListener("click",async()=>{const id=el("ux26-id").value.trim(),token=el("token")?.value?.trim();if(!id){status("Enter a workspace ID.",true);return;}if(!token){status("Connect to TaaS Studio and provide an API token.",true);return;}const b=el("ux26-load");b.disabled=true;status("Loading immutable revision records from Core…");try{const res=await fetch("/api/v1/workspaces/"+encodeURIComponent(id)+"/revisions?limit=500",{headers:{"Authorization":"Bearer "+token,"Accept":"application/json","Cache-Control":"no-cache"},cache:"no-store"});const data=await readJsonResponse(res);if(res.status===401){markStudioAuthRejected();throw Error("API token rejected; reconnect and retry.");}if(res.status===404)throw Error("Workspace not found; it may have been deleted with its revision history.");if(!res.ok)throw Error(formatApiError(data.detail||data,"HTTP "+res.status));if(data.schema!=="taas.workspace-revision-history/v1"||!Array.isArray(data.revisions)||data.workspace_id!==id)throw Error("Unexpected workspace revision history schema.");revisions=data.revisions;el("ux26-summary").hidden=false;el("ux26-workspace").textContent=data.workspace_id;el("ux26-count").textContent=display(data.count);el("ux26-semantics").textContent=display(data.record_semantics);el("ux26-total").textContent=String(revisions.length);const list=el("ux26-timeline");list.replaceChildren();if(!revisions.length)list.append(make("p","subtle","No revisions returned."));revisions.forEach((r,i)=>{const c=r.changes&&typeof r.changes==="object"?r.changes:{},kind=Object.prototype.hasOwnProperty.call(c,"kind")?display(c.kind):"kind not reported",b=make("button","ux26-revision");b.type="button";b.setAttribute("aria-pressed","false");b.append(make("span","", "Revision "+display(r.revision)+" · "+kind),make("small","",display(r.actor)+" · "+display(r.occurred_at)));b.addEventListener("click",()=>detail(i));list.append(b);});if(revisions.length)detail(0);else{el("ux26-detail").replaceChildren(make("p","subtle","No revision is available."));el("ux26-kind").textContent="Empty";}status("Loaded "+revisions.length+" revision record(s). No workspace state was changed.");}catch(e){revisions=[];el("ux26-summary").hidden=true;el("ux26-timeline").replaceChildren(make("p","ux26-unknown",e.message));el("ux26-detail").replaceChildren(make("p","ux26-unknown","Revision details unavailable."));status("Revision history unavailable: "+e.message,true);}finally{b.disabled=false;}});
   })();
+
+})();
 </script>
 </body>
 </html>
