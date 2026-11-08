@@ -1,0 +1,24 @@
+- E1_categories: Tools per source-qualified category of the merged registry, tools not read-only under labels B, and annotated tools (tick).
+- E2_typing_f1: Per-kind F1 of output types against the independent labels B (kinds with ≥5 tools).
+- E4_exposure_utility: Exposure and utility of read-only policy encodings by retriever (coverage 1, 273 requests with read-only targets).
+- E4_coverage: Verified-evidence encoding: utility, eligible share and exposure against the share of tools the verifier probes (5 seeds below ρ = 1).
+- E5_forgery: Exp@5 against the fraction of malicious servers, by attack (5 seeds; PaMCP retrieval).
+- E6_verifier: Exp@5 of verified evidence against the verifier's false-accept rate (random or look-alike errors, coverage 1, ψ = 0), with the lexical encoding as reference.
+- E7_trust_pareto: Utility against exposure as the trust threshold varies, by trust policy and probe-coverage floor (δ = 20%, FAR 5%).
+- E8_forest: Hit@1 on the 300-query MCPToolBench++ sample over the merged registry.
+- E8_distractors: Hit@1 as LiveMCPTool distractors are added to the 87 MCPToolBench++ tools (5 seeds).
+- E9_group_recall: Group recall of the selected sets with mean toolkit size, LiveMCPBench.
+- E10_checks: Per-check pass rates and joint feasibility under each task's least-privilege policy (independent evaluator, labels B).
+- E12_calibration: Claimed against measured reliability per class and input size (16 cells per model).
+- E11_gap: Toolkit size of the review scenario against input size n, by threshold τ and exactness (Sonnet profile; NoGap abstains in every setting).
+- E14_injection: Revision 1 offline re-analysis using task-level outcomes and all five attack classes. Definite violations and indeterminate scope cases are separate; conservative possible exposure is their union. LLM labels are not human ground truth and attacks were not executed.
+- E18_shapley: Shapley attribution of the full-vs-none difference to the three mechanisms (2^3 factorial, least-privilege policies).
+- E15_latency: Median per-stage latency against registry size (synthetic clones, 30 tasks, 2 vCPUs).
+- E17_refinement: Share of tasks with a certified toolkit against the refinement bound (LLM-free repairs).
+- paper_eligibility: composite regenerated from committed final-evaluation JSONs; underlying evidence retains its original measured/labelled/simulated/synthetic status.
+- paper_retrieval: composite regenerated from committed final-evaluation JSONs; underlying evidence retains its original measured/labelled/simulated/synthetic status.
+- paper_profile_gap: composite regenerated from committed final-evaluation JSONs; underlying evidence retains its original measured/labelled/simulated/synthetic status.
+- paper_factorial: composite regenerated from committed final-evaluation JSONs; underlying evidence retains its original measured/labelled/simulated/synthetic status.
+- paper_scalability: composite regenerated from committed final-evaluation JSONs; underlying evidence retains its original measured/labelled/simulated/synthetic status.
+- revision1_label_overlap: Machine-label audit only, not human ground truth. If B-unsafe is a subset of A-unsafe, an ideal simulated verifier based on A cannot admit a B-unsafe tool; this is construction-dependent.
+- revision1_manifest_canaries: Transformation-level canary test, not an agent or runtime attack experiment. The alias manifest is a prototype; the adapter and execution path are not validated here.

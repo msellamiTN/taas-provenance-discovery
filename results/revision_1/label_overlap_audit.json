@@ -1,0 +1,24 @@
+{
+  "evidence_class": "LLM_LABEL_AUDIT_NOT_HUMAN_GROUND_TRUTH",
+  "n_common_tools": 569,
+  "unsafe_A": 131,
+  "unsafe_B": 120,
+  "intersection": 120,
+  "B_unsafe_not_in_A": [],
+  "A_unsafe_not_in_B": [
+    "playwright::playwright_fill",
+    "playwright::playwright_go_back",
+    "playwright::playwright_go_forward",
+    "playwright::playwright_hover",
+    "playwright::playwright_iframe_fill",
+    "playwright::playwright_navigate",
+    "playwright::playwright_select",
+    "puppeteer::puppeteer_fill",
+    "puppeteer::puppeteer_hover",
+    "puppeteer::puppeteer_navigate",
+    "puppeteer::puppeteer_select"
+  ],
+  "B_unsafe_subset_A_unsafe": true,
+  "cohen_kappa_binary_unsafe": 0.9438044873809247,
+  "interpretation": "If B_unsafe_subset_A_unsafe is true, an error-free simulated verifier that admits exactly A-safe tools cannot admit a B-unsafe tool. Its zero false-admission result is therefore construction-dependent, not an independent empirical verifier-accuracy result."
+}

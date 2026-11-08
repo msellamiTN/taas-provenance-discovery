@@ -1,0 +1,216 @@
+{
+ "experiment": "E1_registry",
+ "evidence": "MEASURED (counts); LABELLED (non-read-only share, labels B)",
+ "notes": "Three views; categories are source-qualified (LiveMCPTool server categories and MCPToolBench++ request categories are different taxonomies).",
+ "manifest": {
+  "run_id": "E1_registry-2026-11-08T06:43:50Z-12b5336ee5",
+  "created": "2026-11-08T06:43:50Z",
+  "commit": "699fdc92c5aa033fda108e0cdbbf53afe72f8ea7",
+  "dirty_code_files": [
+   "experiments/final/e01_e03_registry_typing_effects.py",
+   "experiments/final/e04_e07_exposure.py",
+   "experiments/final/e09_e10_sets.py",
+   "experiments/final/e11_e12_profile.py",
+   "experiments/final/e14_e18_factorial.py",
+   "experiments/final/e15_e16_scale_evolution.py",
+   "experiments/final/e17_e20_refine_sensitivity.py",
+   "experiments/final/e22_statistics.py",
+   "experiments/final/fe.py",
+   "experiments/final/tables_final.py"
+  ],
+  "code_sha256": "12b5336ee577c5389219434098fe345d627ce5f7a2b179d2d9ce6a1a00f0c997",
+  "python": "3.13.18",
+  "config": {
+   "views": [
+    "LiveMCPTool",
+    "MCPToolBench++ (original 87)",
+    "merged"
+   ]
+  },
+  "inputs": {
+   "data/processed/registry_merged.json": "a24bb9c5c788f8856288993c8f3c21b7fcd84b6491cc1a2b778b3b5d5a787045"
+  },
+  "labels": {
+   "data/llm_records/silver_labels.json": "a9bfdda22c417197dcbdbcd6ddcd36245c64293b8d59f3d76084a6a705ebc1a3",
+   "data/llm_records/reference_labels_opus_part0.jsonl": "1bbaffd69206a61c26bf60d1c679c56bed085a8df7f4bab47893cf0edbadbb3e",
+   "data/llm_records/reference_labels_opus_part1.jsonl": "0ef047fe57862e9123f6f92c0c572dc6f78e7c488248dd1c0771f188e6470b22",
+   "data/llm_records/reference_labels_opus_part2.jsonl": "b9c329d5fd97f1c800703b98f8483d08de7d18eb39e69be6a184ecbfbd5e3920"
+  },
+  "llm_records": {
+   "data/llm_records/analyst_haiku.jsonl": "9c46187501c70d64ff39e8dddcfb2c1083ba1608cdf7705cad40484ed03b3182",
+   "data/llm_records/analyst_mcpbench_prompt_v1_0_sonnet.jsonl": "9644fe997d1d1d3026ee89b4d632785666b033e2d5e5c1ba8098fe9124fcd65f",
+   "data/llm_records/analyst_mcpbench_prompt_v1_1_sonnet.jsonl": "d72740cfde8a3855df2dc14b43edbecc7956a91a00cde4ab626c5ba2e06dd39e",
+   "data/llm_records/analyst_mcpbench_prompt_v1_1_theta_sonnet.jsonl": "cf0fefa547d099b9f4be9488bf0ed077ff21b00236dbb739c39687b38d6dd840",
+   "data/llm_records/analyst_sonnet_A.jsonl": "16764040beb08c21af41fda2aa80d4503db8f3fa6445405b14dfe2329d26abea",
+   "data/llm_records/analyst_sonnet_B.jsonl": "21ff4fb98d3ba2ee1a1a33eb5672970672b0098315a92c3a6eba1b4a7f8b6e23",
+   "data/llm_records/analyst_sonnet_e8_part0.jsonl": "0f85289319734fc7eb0bf2b3559e9f3c6427c3764d4eb77aae4c3696640c24e3",
+   "data/llm_records/analyst_sonnet_e8_part1.jsonl": "01df80721e2f66656fbbd43974d59c9060143755820e357a8a04dfa211df15c2",
+   "data/llm_records/analyst_sonnet_e8_part2.jsonl": "7fbf7be565640a54b1afb75d604725d04de031b06e1327e0231c115f0de8b8ff",
+   "data/llm_records/calibration_answers_haiku.json": "ba766acd12b301699cb48959dc0cbe3f0d0d529f35af8bf09833fcd80d012561",
+   "data/llm_records/calibration_answers_opus.json": "a842a448f709ea4c778738ddddf2d0362815da6dac3569342bfd663ac905b0da",
+   "data/llm_records/calibration_answers_sonnet.json": "6a3ae7baa9bf7a3a81a3f396479526564287ff91730ff22de0b9dc3f2331a23d",
+   "data/llm_records/calibration_self_assessment_haiku.json": "c172609360670e095338a5c833c29d7c0b5adc9c69c8d6c165bd081103eb00e6",
+   "data/llm_records/calibration_self_assessment_opus.json": "7f9128dad0541247130ea04a7df267246887c7473aad25fcb426890e00ad0462",
+   "data/llm_records/calibration_self_assessment_sonnet.json": "b27dff24c251b0b2a07095969d23645b11dab9d5f82f73ba930d0da1dd226867",
+   "data/llm_records/colt_train_queries_sonnet_part0.jsonl": "b137e6da7ba850a7566d0d25d9141e2a3f6f1aef4c1a32936c5c092b44f32090",
+   "data/llm_records/colt_train_queries_sonnet_part1.jsonl": "923c53ca85b3c5dc3d9b4968d7e8a7228a4b975e18f3df1e29c7b7b0dc025912",
+   "data/llm_records/colt_train_queries_sonnet_part2.jsonl": "7f24212afcd1ef8647aa4af4e08bed7664cf9d5296dd6ea45730a635bcb20720",
+   "data/llm_records/mcpzero_requests_sonnet_part0.jsonl": "3a0e5011f86db8144e7acd1b37c8df572a6e825c842c1ab69ffb3628a40c262c",
+   "data/llm_records/mcpzero_requests_sonnet_part1.jsonl": "aa1d304fff250b1fc44519840fd777816793a07ca1874237816053dff8acb075",
+   "data/llm_records/mcpzero_requests_sonnet_part2.jsonl": "fee6745201cfd27ff916cc7759a3eb2393fa915c1bdcd10e0e735f3f7abfcd7b",
+   "data/llm_records/mcpzero_requests_sonnet_part3.jsonl": "d339efef9190a575017f354a31cf284d24a80c3de2d377f9318636455ddb4fa6",
+   "data/llm_records/mcpzero_server_summaries_sonnet.jsonl": "f3a65c211a247dfa84d9eeff6956069e0dd6b93482d5107aea3a2ca6f02f44f8",
+   "data/llm_records/reference_labels_opus_part0.jsonl": "1bbaffd69206a61c26bf60d1c679c56bed085a8df7f4bab47893cf0edbadbb3e",
+   "data/llm_records/reference_labels_opus_part1.jsonl": "0ef047fe57862e9123f6f92c0c572dc6f78e7c488248dd1c0771f188e6470b22",
+   "data/llm_records/reference_labels_opus_part2.jsonl": "b9c329d5fd97f1c800703b98f8483d08de7d18eb39e69be6a184ecbfbd5e3920",
+   "data/llm_records/silver_labels.json": "a9bfdda22c417197dcbdbcd6ddcd36245c64293b8d59f3d76084a6a705ebc1a3",
+   "data/llm_records/silver_labels_part0.jsonl": "9a2b025b6675441eb2cfa6e695b66f2612ef07a9b73fdbc518fb03d279edad70",
+   "data/llm_records/silver_labels_part1.jsonl": "26d0be08d2d367f89678bc696c4247546dc46cc95eadaa5c47fa34953bc4c877",
+   "data/llm_records/silver_labels_part2.jsonl": "ef7b33f91a5c0760376299f868c66da3c73fd14d585b76ba3b9ba91936a19bce",
+   "data/llm_records/toolscope_equiv_sonnet_part0.jsonl": "e3a37310c6ac401db495ee5a1dc5cf7ccb3c699f7aa20c5fdfdb3c7c333ac7aa",
+   "data/llm_records/toolscope_equiv_sonnet_part1.jsonl": "923ec05434c581d05f8ac8c7edfdf473ce9886354413f419803b7a455a85b25c"
+  },
+  "raw": {},
+  "models": "LLM roles were played by Claude models requested by alias (sonnet, opus, haiku) through the session; exact version strings were not exposed and are not recorded"
+ },
+ "results": {
+  "LiveMCPTool": {
+   "view": "LiveMCPTool",
+   "tools": 525,
+   "servers": 69,
+   "tools_per_server": {
+    "median": 4,
+    "mean": 7.608695652173913,
+    "max": 35
+   },
+   "categories": {
+    "LiveMCPTool:Code": 64,
+    "LiveMCPTool:Discovery": 122,
+    "LiveMCPTool:Entertainment": 43,
+    "LiveMCPTool:File Access": 81,
+    "LiveMCPTool:Finance": 31,
+    "LiveMCPTool:Location": 12,
+    "LiveMCPTool:Miscellaneous": 87,
+    "LiveMCPTool:Visualization": 85
+   },
+   "n_categories": 8,
+   "annotated": 44,
+   "annotated_share": 0.0838095238095238,
+   "declared_read_only": 44,
+   "declared_read_only_share": 0.0838095238095238,
+   "description_chars": {
+    "mean": 221.49142857142857,
+    "median": 61,
+    "p90": 588,
+    "empty": 19
+   },
+   "non_read_only_B": 113,
+   "non_read_only_A": 124,
+   "labelled": 525,
+   "non_read_only_B_share": 0.21523809523809523,
+   "non_read_only_B_ci": [
+    0.1822171114421288,
+    0.25239620188269285
+   ],
+   "annotated_but_unsafe_B": [
+    "opgg-mcp::lol-summoner-renewal"
+   ]
+  },
+  "MCPToolBench++ (original 87)": {
+   "view": "MCPToolBench++ (original 87)",
+   "tools": 87,
+   "servers": 10,
+   "tools_per_server": {
+    "median": 7.0,
+    "mean": 8.7,
+    "max": 25
+   },
+   "categories": {
+    "MCPToolBench++:browser": 32,
+    "MCPToolBench++:file_system": 11,
+    "MCPToolBench++:finance": 1,
+    "MCPToolBench++:map": 32,
+    "MCPToolBench++:pay": 6,
+    "MCPToolBench++:search": 5
+   },
+   "n_categories": 6,
+   "annotated": 0,
+   "annotated_share": 0.0,
+   "declared_read_only": 0,
+   "declared_read_only_share": 0.0,
+   "description_chars": {
+    "mean": 145.2528735632184,
+    "median": 51,
+    "p90": 323,
+    "empty": 0
+   },
+   "non_read_only_B": 24,
+   "non_read_only_A": 33,
+   "labelled": 87,
+   "non_read_only_B_share": 0.27586206896551724,
+   "non_read_only_B_ci": [
+    0.19294158124476965,
+    0.37773969253288286
+   ],
+   "annotated_but_unsafe_B": []
+  },
+  "merged": {
+   "view": "merged",
+   "tools": 569,
+   "servers": 76,
+   "tools_per_server": {
+    "median": 4.5,
+    "mean": 7.4868421052631575,
+    "max": 35
+   },
+   "categories": {
+    "LiveMCPTool:Code": 64,
+    "LiveMCPTool:Discovery": 122,
+    "LiveMCPTool:Entertainment": 43,
+    "LiveMCPTool:File Access": 81,
+    "LiveMCPTool:Finance": 31,
+    "LiveMCPTool:Location": 12,
+    "LiveMCPTool:Miscellaneous": 87,
+    "LiveMCPTool:Visualization": 85,
+    "MCPToolBench++:finance": 1,
+    "MCPToolBench++:map": 32,
+    "MCPToolBench++:pay": 6,
+    "MCPToolBench++:search": 5
+   },
+   "n_categories": 12,
+   "annotated": 44,
+   "annotated_share": 0.0773286467486819,
+   "declared_read_only": 44,
+   "declared_read_only_share": 0.0773286467486819,
+   "description_chars": {
+    "mean": 218.57293497363796,
+    "median": 61,
+    "p90": 601,
+    "empty": 19
+   },
+   "non_read_only_B": 120,
+   "non_read_only_A": 131,
+   "labelled": 569,
+   "non_read_only_B_share": 0.210896309314587,
+   "non_read_only_B_ci": [
+    0.17937167064748777,
+    0.24629853207521957
+   ],
+   "annotated_but_unsafe_B": [
+    "opgg-mcp::lol-summoner-renewal"
+   ]
+  },
+  "overlap": {
+   "tools_in_both": 43,
+   "servers_in_both": 3
+  },
+  "raw_inputs": {
+   "browser.json": "cab77b32e40f457155da0887e78d0c258f42196fb5198e996072f2bb5ab29d06",
+   "file_system.json": "77ad59f0f1733dac7017cebe64226cf3367f44f66d74a1343608d81827ea8e06",
+   "finance.json": "47262716aea2cb3c4cfe08ec9826a181c3384dcb74742b0a02b160055cf44432",
+   "map.json": "56fbe85b95b8dbd6b00dfc0a5d5cf202c84b73f83cbc6229e4031fb2a0f1710d",
+   "pay.json": "018a07cec6d24047172835b5beb690594393fe177d570a35a9e7b2fde2288dfd",
+   "search.json": "2b4b65d1b6bf0fdc1c1a4c4b39712edce1a4b283f23312e552df562aeb5336af"
+  }
+ }
+}

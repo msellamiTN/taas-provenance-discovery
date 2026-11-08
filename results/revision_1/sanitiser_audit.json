@@ -1,0 +1,40 @@
+{
+  "evidence_class": "LOCAL_TRANSFORMATION_TEST_NOT_RUNTIME_ATTACK_EVALUATION",
+  "canaries": {
+    "description": "PAMCPREV1DESCRIPTIONCANARY",
+    "tool_name": "PAMCPREV1TOOLNAMECANARY",
+    "argument_key": "PAMCPREV1ARGUMENTCANARY"
+  },
+  "counts": {
+    "n_tools": 569,
+    "current_description_canary_leaks": 0,
+    "current_tool_name_canary_leaks": 569,
+    "current_argument_key_canary_leaks": 517,
+    "alias_manifest_canary_leaks": 0,
+    "alias_binding_canary_occurrences_server_side": 1557
+  },
+  "examples": [
+    {
+      "tool_id": "yahoo-finance::get_current_stock_price",
+      "current_name_has_name_canary": true,
+      "current_schema_has_argument_canary": true,
+      "current_description_has_description_canary": false,
+      "alias_manifest_has_any_canary": false
+    },
+    {
+      "tool_id": "yahoo-finance::get_stock_price_by_date",
+      "current_name_has_name_canary": true,
+      "current_schema_has_argument_canary": true,
+      "current_description_has_description_canary": false,
+      "alias_manifest_has_any_canary": false
+    },
+    {
+      "tool_id": "yahoo-finance::get_stock_price_date_range",
+      "current_name_has_name_canary": true,
+      "current_schema_has_argument_canary": true,
+      "current_description_has_description_canary": false,
+      "alias_manifest_has_any_canary": false
+    }
+  ],
+  "interpretation": "The current sanitizer rebuilds the description rather than copying provider prose, but it retains provider-controlled tool names and argument keys in the model-visible JSON. The alias-manifest prototype excludes these raw identifiers from its visible payload and keeps the reverse mapping server-side. This test does not assess model behaviour, indirect prompt injection, runtime calls or the adapter that must translate aliases back to provider identifiers."
+}
