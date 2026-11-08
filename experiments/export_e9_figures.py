@@ -230,7 +230,8 @@ def export_e9_figures(
     output_dir: Path,
     protocol_path: Path = PROTOCOL,
     bootstrap_resamples: int = 10000,
-    seed: int = 20261107,
+    seed: int = 20261108,
+    sign_flip_resamples: int = 100000,
 ) -> dict[str, Any]:
     run_dir = run_dir.resolve()
     output_dir = output_dir.resolve()
@@ -719,7 +720,8 @@ def main() -> int:
     parser.add_argument("--output-dir", type=Path, default=ROOT / "results/visualization/data")
     parser.add_argument("--protocol", type=Path, default=PROTOCOL)
     parser.add_argument("--bootstrap-resamples", type=int, default=10000)
-    parser.add_argument("--seed", type=int, default=20261107)
+    parser.add_argument("--sign-flip-resamples", type=int, default=100000)
+    parser.add_argument("--seed", type=int, default=20261108)
     args = parser.parse_args()
     result = export_e9_figures(
         args.run_dir, args.output_dir, args.protocol,
