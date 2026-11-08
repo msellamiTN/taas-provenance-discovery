@@ -2020,6 +2020,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         cache: "no-store"
       });
       const data = await readJsonResponse(response);
+      if (response.status === 401) markStudioAuthRejected();
       if (!response.ok) throw new Error(formatApiError(data.detail || data, "HTTP " + response.status));
       const host = data.host || {}, hardware = data.hardware || {}, gpu = hardware.gpu || {};
       $("runtime-cpu").textContent = host.cpu_count ?? "Not reported";
@@ -2736,6 +2737,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         headers: { "Authorization": "Bearer " + token }
       });
       const data = await readJsonResponse(response);
+      if (response.status === 401) markStudioAuthRejected();
       if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
       const models = data.models || [];
       $("model-status").textContent = data.count + " model metadata record(s). Repository metadata only; weights downloaded: no.";
@@ -2865,6 +2867,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         headers: { "Authorization": "Bearer " + token }
       });
       const data = await readJsonResponse(response);
+      if (response.status === 401) markStudioAuthRejected();
       if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
       $("artifact-status").textContent =
         data.file_count + " repository file(s) inspected · weights downloaded: no · T4 compatibility: not verified.";
@@ -2882,6 +2885,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     try {
       const response = await fetch("/api/v1/runtime/hardware", { headers: { "Authorization": "Bearer " + token } });
       const data = await readJsonResponse(response);
+      if (response.status === 401) markStudioAuthRejected();
       if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
       const backendAvailable = data.cuda_available === true && data.torch_installed === true;
       $("gpu-status").textContent = backendAvailable
@@ -2941,6 +2945,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         body: JSON.stringify(body)
       });
       const data = await readJsonResponse(response);
+      if (response.status === 401) markStudioAuthRejected();
       if (!response.ok) throw new Error(data.detail || ("HTTP " + response.status));
       const benchmarkTaskNotEvaluated = Boolean(bench.selectedTask);
       renderDiscoveryResult(data, {benchmarkTaskNotEvaluated});
