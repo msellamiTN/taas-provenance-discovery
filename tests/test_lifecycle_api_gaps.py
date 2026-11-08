@@ -355,3 +355,85 @@ def test_goalspec_template_draft_validates_through_goals_validate(client, header
                           json=detail["template"]["goal_spec"])
         assert val.status_code == 200, t["id"]
         assert val.json()["valid"] is True
+
+
+# ---------- A5: per-agent recorded activity ----------
+
+def test_agent_version_activity_reports_only_recorded_data(client, headers):
+    _create_publish(client, headers, "act-agent", "1.0.0")
+    _create_publish(client, headers, "act-agent", "2.0.0")
+
+    resp = client.get("/api/v1/agents/act-agent/versions/1.0.0/activity",
+                      headers=headers)
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["schema"] == "taas.agent-version-activity/v1"
+    assert body["lifecycle_state"] == "published"
+
+    # Lifecycle counts are version-scoped from the persisted event column —
+    # version 1.0.0 shows created+validated+published, never version 2.0.0's.
+    events = body["recorded_activity"]["lifecycle_events"]
+    assert events["count"] == 3
+    assert events["latest"]["to_state"] == "published"
+    assert events["latest"]["version"] == "1.0.0"
+
+    # No verdicts or approvals recorded yet — counts are zero, not synthetic.
+    assert body["recorded_activity"]["policy_verdicts"]["count"] == 0
+    assert body["recorded_activity"]["human_approvals"]["verified_count"] == 0
+    assert body["recorded_activity"]["revocation"] is None
+
+    # Unsupported metrics stay explicitly unavailable with the architectural reason.
+    assert "per-agent latency" in body["unsupported_metrics"]
+    assert "execution/run count" in body["unsupported_metrics"]
+    assert "governed execution" in body["unavailable_reason"]
+    assert body["semantics"].endswith("not_execution_proof")
+    assert body["authorization_granted"] is False
+    assert body["execution_performed"] is False
+
+
+def test_agent_version_activity_counts_verdicts_and_approvals_separately(client, headers):
+    _create_publish(client, headers, "act-verdict", "1.0.0")
+
+    verdict = client.get("/api/v1/agents/act-verdict/versions/1.0.0/policy-verdict",
+                         headers=headers)
+    assert verdict.status_code == 200
+
+    approval = client.post("/api/v1/agents/act-verdict/versions/1.0.0/approvals",
+                           headers=headers, json={"note": "release check"})
+    assert approval.status_code == 201, approval.text
+
+    resp = client.get("/api/v1/agents/act-verdict/versions/1.0.0/activity",
+                      headers=headers)
+    body = resp.json()
+    ra = body["recorded_activity"]
+    assert ra["policy_verdicts"]["count"] == 1
+    assert ra["policy_verdicts"]["latest_recorded_at"] is not None
+    # Approvals come only from human_approval evidence records.
+    assert ra["human_approvals"]["verified_count"] == 1
+    assert ra["human_approvals"]["audit_approval_events"] == 1
+    # Verified evidence of other types is reported separately, never as approval.
+    assert ra["evidence_records"]["verified_non_approval_count"] == 0
+
+
+def test_agent_version_activity_404_and_auth(client, headers):
+    assert client.get("/api/v1/agents/ghost/versions/1.0.0/activity",
+                      headers=headers).status_code == 404
+    _create_publish(client, headers, "act-auth", "1.0.0")
+    assert client.get("/api/v1/agents/act-auth/versions/1.0.0/activity").status_code == 401
+
+
+def test_list_events_version_filter_is_exact_match(monkeypatch, tmp_path):
+    monkeypatch.setenv("TAAS_AGENT_REGISTRY_PATH", str(tmp_path / "a.sqlite3"))
+    manifest = _agent_manifest("vfilter", "1.0.0")
+    agent_registry.create_draft(manifest)
+    manifest2 = _agent_manifest("vfilter", "2.0.0")
+    manifest2["metadata"]["version"] = "2.0.0"
+    agent_registry.create_draft(manifest2)
+
+    v1 = agent_registry.list_events(agent_id="vfilter", version="1.0.0")
+    assert v1["count"] == 1
+    assert all(e["version"] == "1.0.0" for e in v1["events"])
+    none = agent_registry.list_events(agent_id="vfilter", version="9.9.9")
+    assert none["count"] == 0
+    all_events = agent_registry.list_events(agent_id="vfilter")
+    assert all_events["count"] == 2

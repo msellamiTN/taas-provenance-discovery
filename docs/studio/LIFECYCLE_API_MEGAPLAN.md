@@ -23,73 +23,84 @@ Boundary invariant preserved throughout: **proposal ≠ evidence ≠ authorizati
 ≠ execution**. No surface may imply execution occurred; approval does not grant
 authorization; preflight does not execute; diagnostics are observations.
 
-## 2. UX surface → activity mapping
+## 2. UX surface → activity mapping (shared coordination map)
+
+**Lane ownership.** Devin = Core API, schemas, registries, evidence, policy,
+audit, Hypergraph (this table's *API contract* column). Codex = UX surfaces,
+mockups, API integration, demo experience (the *Demo state* column is
+co-authored: Devin seeds it, Codex maintains per-surface scenario docs). Contract
+= this table; neither lane duplicates the other's implementation. UX-xx labels
+are internal traceability only — never user-facing.
+
+Demo states: `live-only` (real Core data, no synthetic) · `demo/live split`
+(explicit `DEMO DATA · ILLUSTRATIVE` vs `LIVE CORE` modes) · `demo-only`
+(no live source — must not imply real data) · `pending` (scenario not yet authored).
 
 ### A1 · Define intent
 
-| Surface | Role |
-|---|---|
-| Objective Engineering (`#agent-goal-panel`, UX-2) | Intent → GoalSpec decomposition, model proposal (proposal only) |
-| Objective Traceability Explorer (UX-9) | Model-assisted `objectives/prepare`, clause→goal→outcome projection |
-| GoalSpec designer (`#goal-editor`, UX-5) | Visual goals, deps, classes, Θ vocabulary drawer, policy presets |
-| Agent Engineering (`#agent-engineering-workspace`) | `agents/decompose` assisted authoring |
+| Surface | Feature | API contract | Demo state |
+|---|---|---|---|
+| Objective Engineering (`#agent-goal-panel`, UX-2) | Intent → GoalSpec decomposition; model proposal is proposal-only | `POST /objectives/discover`, `POST /objectives/prepare`, `POST /goals/validate` | live-only |
+| Objective Traceability Explorer (UX-9) | Clause→goal→outcome projection via Hypergraph | `POST /objectives/prepare`, `GET /hypergraph/objective-traceability` | live-only |
+| GoalSpec designer (`#goal-editor`, UX-5) | Visual goals/deps/classes, Θ drawer, policy presets, template catalog | `POST /goals/validate`, `GET /goalspec/templates`, `GET /goalspec/templates/{id}`, `GET /reference/vocabulary` | live-only (templates authored, not validated on load) |
+| Agent Engineering (`#agent-engineering-workspace`) | `agents/decompose` assisted authoring | `POST /agents/decompose`, `POST /agents/validate`, `POST /goals/validate` | live-only |
 
 ### A2 · Build & configure capabilities
 
-| Surface | Role |
-|---|---|
-| Agent registry manifest workspace (`#agent-manifest…`) | Register/validate/publish immutable Agent versions |
-| Skill Lifecycle & Version Control (UX-14) | Skill versions, signatures, revocation |
-| Model catalog + runtime (`#models`, `#model-runtime-panel`) | Unverified metadata; load/status (no sandboxed inference claims) |
-| Model inference sandbox (`#agent-chat-panel`) | Chat completions where a model is loaded — labeled runtime sandbox |
-| Workspace drafts (`/api/v1/workspaces` UI) | Durable draft save/restore; restore invalidates review |
+| Surface | Feature | API contract | Demo state |
+|---|---|---|---|
+| Agent lifecycle & versions (`#agent-lifecycle-center`, UX-13) | Register/validate/publish immutable versions, sign/revoke, diff, events | `POST/GET /agents`, `GET …/versions/{v}`, `POST …/validate`, `POST …/publish`, `GET …/diff/{b}`, `POST/GET …/sign(ature)`, `POST/GET …/revoke(ation)`, `GET /agents/events` | live-only |
+| Skill lifecycle & versions (UX-14) | Skill versions, signatures, revocation, dependency DAG | `POST/GET /skills`, `…/validate`, `…/publish`, `…/sign(ature)`, `…/revoke(ation)`, `GET /skills/events`, `GET …/dependency-graph` | live-only |
+| Model catalog + runtime (`#models`, `#model-runtime-panel`) | Unverified metadata; load/status | `GET /models/search`, `/models/detail`, `/models/artifacts`, `POST /models/estimate-memory`, `POST /models/load`, `GET /models/runtime` | live-only (metadata unverified by design) |
+| Model inference sandbox (`#agent-chat-panel`) | Chat completions where a model is loaded — labeled runtime sandbox | `POST /models/chat` | live-only, sandbox-scoped |
+| Workspace drafts | Durable draft save/restore; revision provenance | `GET/POST/PUT/DELETE /workspaces`, `GET /workspaces/{id}/revisions` | live-only |
 
 ### A3 · Discover & compose tools
 
-| Surface | Role |
-|---|---|
-| Tool registry (`#bench-tools`, UX-3) | Browse, filter, basket, inspector w/ Core identity + capability intelligence |
-| Tool Registry & MCP Governance (UX-15) | Retained identities, MCP servers, content-addressed snapshots |
-| Tool discovery (`#discovery`) | Core engine run; certificate; reproducibility envelope |
-| Tool Selection & Eligibility (UX-16) | retrieve → eligibility → compare; RRF relevance ≠ authorization |
-| Discovery Selection & Composition (UX-23) | Persisted-run observation; demo/live separation |
-| Hypergraph explorer | Reachability/projection views |
-| MCP connections (`#mcp-studio`) | Server inventory + inspect (tools/list only, no tools/call) |
+| Surface | Feature | API contract | Demo state |
+|---|---|---|---|
+| Tool registry (`#bench-tools`, UX-3) | Browse, filter, basket, inspector + capability intelligence | `GET /tools`, `GET /tools?category=`, `GET /tools/{server}/{name}`, `GET /tools/{server}/{name}/intelligence` | live-only |
+| Registry & MCP governance (UX-15) | Facet filters, retained identities, snapshots | `GET /tools` (`facets` block), `GET /mcp/servers`, `GET /mcp/servers/{id}/inspect`, `GET /mcp/registry/snapshots*` | live-only |
+| Tool discovery (`#discovery`) | Core engine run, certificate, reproducibility envelope | `POST /discover`, `GET /discovery/runs`, `GET /discovery/runs/{id}` | live-only |
+| Selection & eligibility (UX-16) | retrieve → eligibility → compare; RRF ≠ authorization | `POST /tools/retrieve`, `POST /tools/eligibility`, `POST /tools/compare` | live-only |
+| Discovery & composition (UX-23) | Persisted-run observation; demo/live separation | `GET /discovery/runs`, `GET /discovery/runs/{id}`, `GET /discovery/runs/{a}/diff/{b}` | demo/live split (verified) |
+| Hypergraph explorer | Reachability/projection views | `GET /hypergraph/skills/{id}/versions/{v}`, `GET /hypergraph/objective-traceability` | live-only |
+| MCP connections (`#mcp-studio`) | Server inventory + inspect; tools/list only, no tools/call | `GET /mcp/servers`, `GET /mcp/servers/{id}/inspect`, `GET /mcp/registry/snapshots`, `POST /mcp/registry/snapshots/inspect` | live-only (invocation disabled by design) |
 
 ### A4 · Verify trust & compliance
 
-| Surface | Role |
-|---|---|
-| Assurance center (`#certificate-panel`) | Certificate S/C/P/E/L/V + M/B diagnostics, counterexamples |
-| Agent Governance & Trust Center (UX-24) | Exact-version posture: verdict/readiness/approvals/events/audit |
-| Release Center (UX-10) | Readiness verdicts + approvals ledger + preflight boundary |
-| Governance Policy Designer (UX-17) | Subject+facts → `policy/evaluate` verdict (diagnostic only) |
-| Policy Testing & Simulation (UX-18) | Client-side scenario suites, MATCH/MISMATCH/ERROR, nothing persisted |
-| Compliance & Assurance Dashboard (UX-20) | Demo/live separation; live = audit observations only |
-| Risk & Remediation Workbench (UX-21) | Same separation; no risk-register API → unavailable |
-| Evidence & Provenance Inspector (UX-12) | Content-addressed evidence verify, fail closed |
-| Evidence explorer / diff & impact (UX-6) | Evidence records + change impact |
-| Platform Governance & Quality (UX-8) | Quality posture, governance APIs tab, agents picker |
+| Surface | Feature | API contract | Demo state |
+|---|---|---|---|
+| Assurance center (`#certificate-panel`) | Certificate S/C/P/E/L/V + M/B diagnostics, counterexamples | `GET /assurance/evidence/{id}`, `POST /assurance/evidence/freshness` | live-only |
+| Trust center (UX-24) | Exact-version posture: verdict/readiness/approvals/events/audit | `GET …/policy-verdict(+history)`, `GET …/release-readiness`, `GET …/approvals`, `GET /agents/events`, `GET /audit/verify` | live-only |
+| Release Center (UX-10) | Readiness verdicts + approvals + preflight boundary | `GET …/release-readiness`, `GET/POST …/approvals`, `POST …/authorization/preflight` | live-only |
+| Policy designer (UX-17) | Subject+facts → verdict (diagnostic only) | `POST /policy/evaluate` | live-only |
+| Policy testing (UX-18) | Client-side scenario suites; nothing persisted | `POST /policy/evaluate` (per-case) | live-only |
+| Compliance dashboard (UX-20) | Demo/live separation; live = audit observations only | `GET /audit/events`, `GET /audit/verify` | demo/live split (verified) |
+| Risk & remediation (UX-21) | Same separation; no risk-register API → unavailable | `GET /audit/events`, `GET /audit/verify` | demo/live split (verified) |
+| Evidence inspector (UX-12) | Content-addressed verify, fail closed | `GET /assurance/evidence/{id}` | live-only |
+| Evidence explorer / diff & impact (UX-6) | Evidence records + change impact | `GET /assurance/evidence/{id}`, `POST /assurance/evidence/freshness` | live-only |
+| Governance & quality (UX-8) | Quality posture, governance APIs tab, agents picker | `GET /agents`, `GET /audit/events` | live-only |
 
 ### A5 · Operate, observe & audit
 
-| Surface | Role |
-|---|---|
-| Runtime & Observability (UX-7) | Host/hardware/model diagnostics — observations not execution |
-| Operations Command Center (UX-11) | 4-endpoint ops view + source retrieval log |
-| Agent Lifecycle & Version Control (UX-13) | Registry inventory, lifecycle states |
-| Agent Observability (UX-22) | Agents/events/runs/runtime — bounded, demo/live |
-| Governance Audit Timeline (UX-19) | `audit/events` + `audit/verify`, hash chain, evidence links |
-| Discovery history & audit (`#discovery-observability`) | Persisted runs inspector |
-| Runtime diagnostics (`#runtime-overview`) | Process/GPU probe |
+| Surface | Feature | API contract | Demo state |
+|---|---|---|---|
+| Runtime & observability (UX-7) | Host/hardware/model diagnostics — observations not execution | `GET /runtime/status`, `GET /runtime/hardware`, `GET /models/runtime` | live-only |
+| Operations Command Center (UX-11) | 4-endpoint ops view + source retrieval log | `GET /runtime/status`, `GET /discovery/runs`, `GET /audit/verify`, `GET /agents` | live-only |
+| Agent lifecycle & version control (UX-13) | Registry inventory, lifecycle states | `GET /agents`, `GET /agents/events` | live-only |
+| Agent observability (UX-22) | Agents/events/runs/runtime — bounded, demo/live | `GET /agents`, `GET /agents/events`, `GET /discovery/runs`, `GET /runtime/*`, **NEW** `GET /agents/{id}/versions/{v}/activity` | demo/live split (verified); `/activity` consumption pending Codex mockup |
+| Audit timeline (UX-19) | `audit/events` cursor paging + `audit/verify`, evidence links | `GET /audit/events?after_seq=`, `GET /audit/verify` | live-only |
+| Discovery history & audit (`#discovery-observability`) | Persisted runs inspector | `GET /discovery/runs`, `GET /discovery/runs/{id}` | live-only |
+| Runtime diagnostics (`#runtime`) | Process/GPU probe | `GET /runtime/status`, `GET /runtime/hardware` | live-only |
 
 ### A6 · Evaluate results & manage platform
 
-| Surface | Role |
-|---|---|
-| Benchmark workspace / task browser (`#workspace`) | Dataset counts, task selection → GoalSpec seed |
-| Platform overview / settings | Health/readiness, token, connection state |
-| Deferred: evaluator UX | `eval/*` deliberately absent — separate security project, gold-label isolation |
+| Surface | Feature | API contract | Demo state |
+|---|---|---|---|
+| Benchmark workspace / task browser (`#workspace`) | Dataset counts, task selection → GoalSpec seed | `GET /bench/datasets`, `GET /bench/tasks`, `GET /bench/tools` | live-only |
+| Platform overview / settings (`#overview-workspace`) | Health/readiness, token, connection state | `GET /health`, `GET /ready` | live-only |
+| Deferred: evaluator UX | `eval/*` deliberately absent — separate security project, gold-label isolation | — | unavailable by design |
 
 ## 3. Core API → activity mapping (68 routes)
 
@@ -135,7 +146,7 @@ authorization; preflight does not execute; diagnostics are observations.
 | A4 Verify | No evidence freshness batch query | **Delivered** — `POST /assurance/evidence/freshness` (`taas.evidence-freshness/v1`, fail-closed per binding) |
 | A5 Operate | Audit events bounded to 1,000 oldest-first, no cursor | **Delivered** — `after_seq` keyset pagination with `has_more`/`next_cursor` |
 | A5 Operate | `audit/verify` scanned only the first 1,000 events | **Delivered** — full-ledger scan in bounded batches, `scan_scope: full_ledger` |
-| A5 Operate | No per-agent operational metrics | Open — UX-22 correctly reports unavailable; needs real runtime telemetry source |
+| A5 Operate | No per-agent operational metrics | **Delivered (recorded activity)** — `GET /agents/{id}/versions/{v}/activity` (`taas.agent-version-activity/v1`): version-scoped lifecycle events, verdict/approval audit counts, verified human_approval evidence, revocation, manifest facts; performance telemetry stays on the explicit `unsupported_metrics` list until governed execution/telemetry exists |
 | A6 Evaluate | Everything in §3-A6 | Deferred, not gaps |
 
 ## 5. Navigation target (UX/D)
