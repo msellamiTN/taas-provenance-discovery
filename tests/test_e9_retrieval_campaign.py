@@ -109,6 +109,9 @@ def test_goal_spec_loader_requires_all_decomposition_conditions_and_freeze_prove
         "llm_analyst": {
             "status": "frozen", "model_id": "analyst",
             "model_revision": "rev-1",
+            "prompt_version": "analyst-prompt-v1",
+            "decoding_settings": {"temperature": 0, "max_tokens": 1024},
+            "usage": {"input_tokens": 20, "output_tokens": 30},
             "prompt_path": "analyst_prompt.txt", "prompt_sha256": file_hash("analyst_prompt.txt"),
             "raw_response_path": "analyst_response.json", "raw_response_sha256": file_hash("analyst_response.json"),
         },
@@ -547,3 +550,55 @@ def test_e9_dataset_snapshot_requires_pinned_revision_and_exact_denominators():
     wrong_task_split[-1]["split"] = "train"
     with pytest.raises(ValueError, match="benchmark_evaluation split"):
         validate_e9_dataset_snapshot(tools, wrong_task_split, manifest)
+
+
+def test_llm_analyst_goalspec_requires_frozen_prompt_decoding_and_usage_metadata(tmp_path):
+    prompt = "Retrieve the required evidence and summarize it."
+    (tmp_path / "analyst_prompt.txt").write_text("Pinned analyst instruction", encoding="utf-8")
+    (tmp_path / "analyst_response.json").write_text('{"goals":[{"id":"g1"}]}', encoding="utf-8")
+    import hashlib
+    digest = lambda name: hashlib.sha256((tmp_path / name).read_bytes()).hexdigest()
+    metadata = {
+        "status": "frozen",
+        "model_id": "analyst-model",
+        "model_revision": "immutable-revision",
+        "prompt_version": "prompt-v1",
+        "prompt_sha256": digest("analyst_prompt.txt"),
+        "raw_response_sha256": digest("analyst_response.json"),
+        "prompt_path": "analyst_prompt.txt",
+        "raw_response_path": "analyst_response.json",
+        "decoding_settings": {"temperature": 0, "max_tokens": 512},
+        "usage": {"input_tokens": 12, "output_tokens": 20},
+    }
+    row = {
+        "task_id": "t1",
+        "decomposition": "llm_analyst",
+        "prompt": prompt,
+        "prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest(),
+        "evaluator_reference_accessed": False,
+        "freeze_metadata": metadata,
+        "goal_spec": {"prompt_inputs": ["text"], "goals": [
+            {"id": "g1", "class": "retrieve", "in": ["text"], "out": "record", "desc": "retrieve"}
+        ]},
+    }
+    path = tmp_path / "goals.jsonl"
+    bad = dict(row)
+    bad["freeze_metadata"] = dict(metadata)
+    bad["freeze_metadata"].pop("prompt_version")
+    _jsonl(path, [bad])
+    with pytest.raises(ValueError, match="missing prompt_version"):
+        load_goal_specs(path, [{"task_id": "t1", "prompt": prompt}])
+
+    bad = dict(row)
+    bad["freeze_metadata"] = dict(metadata)
+    bad["freeze_metadata"]["decoding_settings"] = {}
+    _jsonl(path, [bad])
+    with pytest.raises(ValueError, match="non-empty decoding_settings"):
+        load_goal_specs(path, [{"task_id": "t1", "prompt": prompt}])
+
+    bad = dict(row)
+    bad["freeze_metadata"] = dict(metadata)
+    bad["freeze_metadata"]["usage"] = None
+    _jsonl(path, [bad])
+    with pytest.raises(ValueError, match="non-empty usage"):
+        load_goal_specs(path, [{"task_id": "t1", "prompt": prompt}])
