@@ -21,7 +21,7 @@ Fetched from branch devin/studio-convergence:
 | Product UX blueprint | docs/studio/PRODUCT_UX_BLUEPRINT.md | f61de4c213af437df2fa5f4b543b3be5120620fe | 12,719 characters |
 | Feature catalog | docs/studio/FEATURE_CATALOG.md | c1da24f36bd73b58b21261d897d1caccb5f59bd1 | 14,265 characters |
 
-Static source extraction found 34 unique HTML section IDs and 62 API route declarations (49 GET, 13 POST). These are source counts, not test or runtime counts.
+Static source extraction found 34 unique HTML section IDs and 62 API route declarations (35 GET, 27 POST). These are source counts, not test or runtime counts.
 
 The frontend remains a single HTML document with embedded CSS and JavaScript. The API remains a large FastAPI module importing multiple domain services. Both need incremental modularization with behavior-preserving tests, not a wholesale rewrite.
 
