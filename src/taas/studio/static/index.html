@@ -623,9 +623,11 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <div class="workspace-context" aria-label="Current Studio workspace">
         <span class="workspace-context-crumb">TaaS Studio</span>
         <span class="workspace-context-separator" aria-hidden="true">/</span>
+        <span id="studio-workspace-activity" class="workspace-context-crumb"></span>
+        <span id="studio-workspace-activity-separator" class="workspace-context-separator" aria-hidden="true" hidden>/</span>
         <strong id="studio-workspace-context-title" class="workspace-context-title" aria-live="polite">Overview</strong>
         <span class="workspace-context-spacer"></span>
-        <span class="workspace-context-hint">Workspace navigation</span>
+        <span id="studio-workspace-boundary" class="workspace-context-hint">Workspace navigation</span>
       </div>
 
     <section id="agent-engineering-workspace" class="section-anchor" style="margin-bottom:18px" aria-labelledby="agent-engineering-title">
@@ -2029,6 +2031,26 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     const workspaceContextTitle = document.getElementById("studio-workspace-context-title");
     if (workspaceContextTitle) {
       workspaceContextTitle.textContent = link.textContent.replace(/\s+/g, " ").trim();
+    }
+    let activity = "";
+    for (let node = link.previousElementSibling; node; node = node.previousElementSibling) {
+      if (node.classList && node.classList.contains("nav-label")) { activity = node.textContent.trim(); break; }
+    }
+    const activityEl = document.getElementById("studio-workspace-activity");
+    const activitySep = document.getElementById("studio-workspace-activity-separator");
+    if (activityEl) activityEl.textContent = activity;
+    if (activitySep) activitySep.hidden = !activity;
+    const boundaryEl = document.getElementById("studio-workspace-boundary");
+    if (boundaryEl) {
+      const boundaryHints = {
+        "1 · DEFINE": "Drafts & proposals — not verified evidence",
+        "2 · BUILD": "Configuration — grants no execution",
+        "3 · DISCOVER": "Analysis — not authorization",
+        "4 · VERIFY": "Diagnostics — not authorization or execution",
+        "5 · OPERATE": "Observations — not execution proof",
+        "6 · EVALUATE & MANAGE": "Platform management — no hidden execution",
+      };
+      boundaryEl.textContent = boundaryHints[activity] || "Workspace navigation";
     }
     if (updateHistory && window.location.hash !== href) {
       history.pushState({studioWorkspace: targetId}, "", href);
