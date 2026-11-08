@@ -163,10 +163,74 @@ jobs:
           path: /tmp/e9-livemcpbench-prepared/
           if-no-files-found: error
           retention-days: 30
-      - name: Upload proposed E2 human-annotation package
+      - name: Split proposed E2 files into independent annotator and owner packages
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+          from zipfile import ZipFile, ZIP_DEFLATED
+
+          source = Path("/tmp/e2-annotation-proposal")
+          base = Path("/tmp/e2-packages")
+          base.mkdir(parents=True, exist_ok=True)
+          proposal = (source / "E2_SAMPLE_DESIGN_PROPOSAL.md").read_bytes()
+
+          def create_zip(path, payload):
+              checksums = {name: hashlib.sha256(data).hexdigest() for name, data in payload.items()}
+              payload = dict(payload)
+              payload["SHA256SUMS.json"] = (json.dumps(checksums, indent=2) + "\n").encode()
+              with ZipFile(path, "w", ZIP_DEFLATED) as archive:
+                  for name, data in payload.items():
+                      archive.writestr(name, data)
+
+          for letter in ("A", "B"):
+              payload = {
+                  f"annotator_{letter}.csv": (source / f"annotator_{letter}.csv").read_bytes(),
+                  "E2_SAMPLE_DESIGN_PROPOSAL.md": proposal,
+                  "README_FIRST.txt": (
+                      f"ANNOTATOR {letter} — PROPOSED, NOT FROZEN\n\n"
+                      "Do not start annotation until the study owner formally approves and freezes "
+                      "the sample size, seed, sampling design and scoring rules. Work independently. "
+                      "Do not view model predictions, silver labels, the other annotator's answers, "
+                      "or the restricted mapping. Keep annotation_unit_id unchanged.\n"
+                  ).encode(),
+              }
+              create_zip(base / f"PaMCP-E2-ANNOTATOR-{letter}-PROPOSAL-NOT-FROZEN.zip", payload)
+
+          owner_payload = {
+              "restricted_mapping_DO_NOT_DISTRIBUTE.csv": (source / "restricted_mapping.csv").read_bytes(),
+              "sample_manifest.json": (source / "sample_manifest.json").read_bytes(),
+              "E2_SAMPLE_DESIGN_PROPOSAL.md": proposal,
+              "OWNER_README_FIRST.txt": (
+                  "OWNER-ONLY CONTROL PACKAGE — DO NOT DISTRIBUTE TO ANNOTATORS.\n"
+                  "Contains the restricted annotation-unit-to-tool mapping. Keep it under study-owner "
+                  "control until both independent sheets are frozen and submitted. The sample remains "
+                  "proposed_not_frozen; accept or amend the design before releasing A/B sheets.\n"
+              ).encode(),
+          }
+          create_zip(base / "PaMCP-E2-OWNER-CONTROL-NOT-FROZEN.zip", owner_payload)
+          for path in sorted(base.glob("*.zip")):
+              print(path.name, path.stat().st_size)
+          PY
+      - name: Upload proposed E2 Annotator A package (no restricted mapping)
         uses: actions/upload-artifact@v4
         with:
-          name: PaMCP-E2-Annotation-Proposal-NOT-FROZEN
-          path: /tmp/e2-annotation-proposal/
+          name: PaMCP-E2-ANNOTATOR-A-PROPOSAL-NOT-FROZEN
+          path: /tmp/e2-packages/PaMCP-E2-ANNOTATOR-A-PROPOSAL-NOT-FROZEN.zip
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload proposed E2 Annotator B package (no restricted mapping)
+        uses: actions/upload-artifact@v4
+        with:
+          name: PaMCP-E2-ANNOTATOR-B-PROPOSAL-NOT-FROZEN
+          path: /tmp/e2-packages/PaMCP-E2-ANNOTATOR-B-PROPOSAL-NOT-FROZEN.zip
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload E2 owner-only control package
+        uses: actions/upload-artifact@v4
+        with:
+          name: PaMCP-E2-OWNER-CONTROL-NOT-FROZEN-RESTRICTED
+          path: /tmp/e2-packages/PaMCP-E2-OWNER-CONTROL-NOT-FROZEN.zip
           if-no-files-found: error
           retention-days: 30
