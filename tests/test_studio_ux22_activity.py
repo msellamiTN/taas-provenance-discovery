@@ -62,7 +62,8 @@ def test_ux22_live_request_is_authenticated_and_exact_version_scoped():
 
 def test_ux22_preserves_unknown_and_unavailable_instead_of_synthesizing_zero():
     script = _ux22_script()
-    assert 'put("ux22-lifecycle-count","UNAVAILABLE")' in script
+    assert '["ux22-lifecycle-count","ux22-verdict-count","ux22-approval-count"].forEach(id=>put(id,"UNAVAILABLE"))' in script
+    assert 'life.state==="recorded"?(life.count??0):"UNAVAILABLE"' in script
     assert 'put("ux22-authorization","UNKNOWN")' in script
     assert 'put("ux22-execution","UNKNOWN")' in script
     assert "No demo fallback" in script
