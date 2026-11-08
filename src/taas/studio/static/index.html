@@ -2993,6 +2993,109 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       }, null, 2);
     } catch (e) { $("gpu-status").textContent = "Diagnostics failed: " + e.message; }
   });
+  // UX-25: explicit pre-discovery review. This is a client-side review gate only;
+  // the existing Core discovery endpoint and its authorization semantics are unchanged.
+  let ux25BypassReviewOnce = false;
+  const ux25Dialog = document.createElement("dialog");
+  ux25Dialog.id = "ux25-discovery-review";
+  ux25Dialog.setAttribute("aria-labelledby", "ux25-title");
+  ux25Dialog.innerHTML = `
+    <style>
+      #ux25-discovery-review{width:min(1080px,calc(100vw - 32px));max-width:1080px;max-height:calc(100vh - 32px);padding:0;border:1px solid #dce4f0;border-radius:16px;color:#172033;box-shadow:0 24px 80px #0b173455}
+      #ux25-discovery-review::backdrop{background:#101a30aa;backdrop-filter:blur(3px)}
+      #ux25-discovery-review .u25-head{padding:20px 24px;border-bottom:1px solid #e6ebf3}
+      #ux25-discovery-review .u25-steps{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 16px}
+      #ux25-discovery-review .u25-step{font-size:12px;font-weight:700;padding:7px 10px;border-radius:999px;background:#f1f4f9;color:#64748b}
+      #ux25-discovery-review .u25-step.done{background:#e7f7ef;color:#087443}
+      #ux25-discovery-review .u25-step.active{background:#e8efff;color:#174db6}
+      #ux25-discovery-review .u25-body{padding:18px 24px;display:grid;grid-template-columns:minmax(0,1.65fr) minmax(260px,1fr);gap:14px}
+      #ux25-discovery-review .u25-card{border:1px solid #e1e7f0;border-radius:12px;padding:14px;min-width:0;background:#fff}
+      #ux25-discovery-review .u25-card h3{font-size:14px;margin:0 0 12px}
+      #ux25-discovery-review .u25-kv{display:grid;grid-template-columns:130px minmax(0,1fr);gap:8px 12px;font-size:13px}
+      #ux25-discovery-review .u25-kv dt{color:#64748b;font-weight:650}
+      #ux25-discovery-review .u25-kv dd{margin:0;overflow-wrap:anywhere}
+      #ux25-discovery-review .u25-check{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #eef1f6;font-size:13px}
+      #ux25-discovery-review .u25-state{font-weight:750;color:#166534}
+      #ux25-discovery-review .u25-state.warn{color:#9a5b00}
+      #ux25-discovery-review .u25-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+      #ux25-discovery-review .u25-metric{background:#f3f6fc;border-radius:9px;padding:11px;font-size:12px;color:#526078}
+      #ux25-discovery-review .u25-metric strong{display:block;font-size:22px;color:#172033;margin-bottom:2px}
+      #ux25-discovery-review pre{max-height:220px;min-height:0;margin:0;font-size:11px}
+      #ux25-discovery-review .u25-note{background:#eef4ff;border:1px solid #d7e5ff;border-radius:10px;padding:11px;font-size:12px;line-height:1.5;margin-top:12px}
+      #ux25-discovery-review .u25-foot{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 24px;border-top:1px solid #e6ebf3;background:#fbfcfe}
+      #ux25-discovery-review .u25-confirm{display:flex;gap:9px;align-items:flex-start;font-size:12px;line-height:1.45;max-width:620px}
+      #ux25-discovery-review .u25-actions{display:flex;gap:8px;flex-wrap:wrap}
+      #ux25-discovery-review button{margin:0}
+      @media(max-width:760px){#ux25-discovery-review .u25-body{grid-template-columns:1fr;padding:14px}#ux25-discovery-review .u25-head,#ux25-discovery-review .u25-foot{padding:14px}#ux25-discovery-review .u25-foot{align-items:stretch;flex-direction:column}#ux25-discovery-review .u25-kv{grid-template-columns:105px minmax(0,1fr)}}
+    </style>
+    <div class="u25-head">
+      <div class="eyebrow">DISCOVER · REVIEW GATE · UX-25</div>
+      <h2 id="ux25-title" style="margin:5px 0 4px;font-size:20px">Discovery Review &amp; Confirmation</h2>
+      <p class="muted" style="margin:0">Review the exact request that will be submitted to TaaS Core. No MCP tool is invoked in this step.</p>
+      <div class="u25-steps" style="margin-top:16px"><span class="u25-step done">1 · GoalSpec</span><span class="u25-step done">2 · Toolset</span><span class="u25-step active">3 · Review &amp; confirm</span><span class="u25-step">4 · Discovery</span><span class="u25-step">5 · Results</span></div>
+    </div>
+    <div class="u25-body">
+      <div>
+        <section class="u25-card"><h3>Discovery request · GoalSpec</h3><dl class="u25-kv"><dt>Objective</dt><dd id="ux25-objective">—</dd><dt>Goals</dt><dd id="ux25-goals">—</dd><dt>Prompt context</dt><dd id="ux25-context">—</dd></dl></section>
+        <section class="u25-card" style="margin-top:12px"><h3>Toolset &amp; policy</h3><dl class="u25-kv"><dt>Tools supplied</dt><dd id="ux25-tools">—</dd><dt>Tool sources</dt><dd id="ux25-sources">—</dd><dt>Policy</dt><dd id="ux25-policy">—</dd><dt>Restrictions</dt><dd id="ux25-restrictions">—</dd><dt>Engine settings</dt><dd id="ux25-engine">—</dd></dl></section>
+        <section class="u25-card" style="margin-top:12px"><h3>Exact request preview (JSON)</h3><pre id="ux25-json"></pre></section>
+      </div>
+      <aside>
+        <section class="u25-card"><h3>Pre-discovery readiness</h3>
+          <div class="u25-check"><span>GoalSpec local structure</span><strong id="ux25-goal-state" class="u25-state">—</strong></div>
+          <div class="u25-check"><span>Human semantic review</span><strong id="ux25-human-state" class="u25-state">—</strong></div>
+          <div class="u25-check"><span>Studio API token</span><strong id="ux25-token-state" class="u25-state">—</strong></div>
+          <div class="u25-check"><span>Benchmark task review</span><strong id="ux25-bench-state" class="u25-state">—</strong></div>
+          <div class="u25-summary"><div class="u25-metric"><strong id="ux25-agent-count">0</strong>Agents</div><div class="u25-metric"><strong id="ux25-tool-count">0</strong>Tools</div><div class="u25-metric"><strong id="ux25-goal-count">0</strong>Goals</div></div>
+          <p id="ux25-readiness-note" class="u25-note" role="status">Readiness is a client-side preflight summary, not a policy verdict or authorization decision.</p>
+        </section>
+        <section class="u25-card" style="margin-top:12px"><h3>Important boundaries</h3><p class="muted" style="margin:0;line-height:1.55">This step reviews request content and local prerequisites only. It does not prove that the GoalSpec faithfully captures the prompt, that tool metadata is trustworthy, or that the selected toolkit will fulfill the task. Discovery is analysis only: no MCP invocation, Agent execution, approval or authorization grant occurs.</p></section>
+      </aside>
+    </div>
+    <div class="u25-foot">
+      <label class="u25-confirm"><input id="ux25-ack" type="checkbox" style="width:auto;margin:2px 0 0"><span>I reviewed the objective, GoalSpec, supplied tool metadata, policy and engine settings. I understand that confirmation submits this request for discovery analysis only.</span></label>
+      <div class="u25-actions"><button type="button" class="secondary" id="ux25-cancel">Cancel</button><button type="button" class="secondary" id="ux25-back">Back to request</button><button type="button" id="ux25-confirm" disabled>Confirm &amp; Run Discovery</button></div>
+    </div>`;
+  document.body.append(ux25Dialog);
+  const ux25SetState=(id,ok,yes,no)=>{const node=$(id);node.textContent=ok?yes:no;node.classList.toggle("warn",!ok);};
+  const ux25OpenReview=()=>{
+    $("ux25-ack").checked=false;
+    $("ux25-confirm").disabled=true;
+    let body;
+    try{body=JSON.parse($("payload").value)}catch(error){setDiscoveryStatus("Invalid JSON: "+error.message);return}
+    const spec=body.goal_spec||{},goals=Array.isArray(spec.goals)?spec.goals:[];
+    const tools=Array.isArray(body.tools)?body.tools:[];
+    const sources=[...new Set(tools.map(t=>t.source||t.server||"unspecified"))];
+    const restrictions=[...(Array.isArray(body.policy&&body.policy.forbidden)?body.policy.forbidden:[])];
+    $("ux25-objective").textContent=spec.prompt||"No objective supplied";
+    $("ux25-goals").textContent=goals.length+" goal(s) · "+goals.map(g=>g.id||"unnamed").join(", ");
+    $("ux25-context").textContent=Array.isArray(spec.prompt_inputs)?spec.prompt_inputs.join(", "):(spec.prompt_inputs||"Not declared");
+    $("ux25-tools").textContent=tools.length+" supplied tool definition(s)";
+    $("ux25-sources").textContent=sources.join(", ")||"No source declared";
+    $("ux25-policy").textContent=(body.policy&&body.policy.name)||"No named policy";
+    $("ux25-restrictions").textContent=restrictions.length?restrictions.join(", "):"No forbidden effects declared";
+    $("ux25-engine").textContent=Object.keys(body.engine||{}).length?JSON.stringify(body.engine):"Core defaults";
+    $("ux25-json").textContent=JSON.stringify(body,null,2);
+    const errors=validateGoalSpecLocal();
+    const goalOk=errors.length===0, humanOk=$("goal-semantic-review").checked, tokenOk=Boolean($("token").value.trim());
+    const benchRequired=Boolean(bench.selectedTask),benchOk=!benchRequired||$("bench-goal-review").checked;
+    ux25SetState("ux25-goal-state",goalOk, "PASS · local checks","NEEDS REVIEW · "+errors.length+" issue(s)");
+    ux25SetState("ux25-human-state",humanOk,"CONFIRMED","NOT CONFIRMED");
+    ux25SetState("ux25-token-state",tokenOk,"PRESENT","MISSING");
+    ux25SetState("ux25-bench-state",benchOk,benchRequired?"CONFIRMED":"NOT REQUIRED", "NOT CONFIRMED");
+    $("ux25-agent-count").textContent=String(Array.isArray(body.agents)?body.agents.length:0);
+    $("ux25-tool-count").textContent=String(tools.length);
+    $("ux25-goal-count").textContent=String(goals.length);
+    const ready=goalOk&&humanOk&&tokenOk&&benchOk;
+    $("ux25-readiness-note").textContent=ready?"Local prerequisites appear satisfied. This is not an authorization decision or a guarantee of discovery success.":"Review prerequisites are incomplete. Close this panel, correct the request or confirmations, then reopen the review.";
+    $("ux25-confirm").disabled=!ready||!$("ux25-ack").checked;
+    ux25Dialog.showModal();
+  };
+  $("ux25-ack").addEventListener("change",()=>{$("ux25-confirm").disabled=!$("ux25-ack").checked||!["PASS · local checks"].includes($("ux25-goal-state").textContent)||$("ux25-human-state").textContent!=="CONFIRMED"||$("ux25-token-state").textContent!=="PRESENT"||$("ux25-bench-state").textContent==="NOT CONFIRMED"});
+  $("ux25-cancel").addEventListener("click",()=>ux25Dialog.close());
+  $("ux25-back").addEventListener("click",()=>ux25Dialog.close());
+  $("ux25-confirm").addEventListener("click",()=>{if($("ux25-confirm").disabled)return;ux25Dialog.close();ux25BypassReviewOnce=true;run.click()});
+  run.addEventListener("click",(event)=>{if(ux25BypassReviewOnce){ux25BypassReviewOnce=false;return}event.preventDefault();event.stopImmediatePropagation();ux25OpenReview()},true);
   run.addEventListener("click", async () => {
     let body;
     try { body = JSON.parse($("payload").value); }
