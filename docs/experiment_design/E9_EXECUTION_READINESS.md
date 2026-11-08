@@ -2,7 +2,7 @@
 
 > **Protocol gate:** E9 is not released for confirmatory execution until the upstream E1, E2, E3 and E12 prerequisite artifacts are accepted. See [dataset-led E1–E22 execution sequence](DATASET_LED_EXECUTION_SEQUENCE.md). E9 adapters and export tests may be validated before that gate; they are not benchmark results.
 
-**Snapshot date:** 2026-11-07  
+**Snapshot date:** 2026-11-08  
 **Branch:** \`feature/pamcp-publication-visualization-v1\`
 
 ## Current status
@@ -23,7 +23,7 @@ The E9 figure contracts, 94-task LiveMCPBench preparer, protocol-gated retrieval
 
 ## Primary metric gate
 
-E9-F1/F2/F3 are generated only from evaluator records whose \`reference_semantics\` is either:
+E9-F1/F2/F3/F4 are generated only from evaluator records whose \`reference_semantics\` is either:
 
 - \`independently_adjudicated_acceptable_sets\`
 - \`benchmark_native_acceptable_sets\`
@@ -49,12 +49,13 @@ The exporter refuses:
 
 ## Run interface
 
-Once the upstream release gate and all frozen input bundles are accepted, execute the runner as specified in E9_EXECUTION_RUNBOOK.md. It materializes rankings before reading evaluator references. The export/render commands below apply only after a definitive or partial E9 run manifest exists:
+Once the upstream release gate and all frozen input bundles are accepted, execute the runner as specified in E9_EXECUTION_RUNBOOK.md. It materializes one task × method × decomposition × k result for k={1,3,5,10,20} before reading evaluator references. The export/render commands below apply only after a definitive or partial E9 run manifest exists:
 
     python experiments/export_e9_figures.py \
       --run-dir results/definitive/E9/<run-id> \
       --output-dir results/visualization/data \
-      --bootstrap-resamples 5000 \
+      --bootstrap-resamples 10000 \
+      --sign-flip-resamples 100000 \
       --seed 20261108
 
     python experiments/plot_results.py validate-data --experiment E9
@@ -64,7 +65,7 @@ A trace-only run may generate E9_TRACE_DIAGNOSTICS.csv and an export manifest wi
 
 ## Baseline assignment reconciliation
 
-The frozen E9 experiment object assigns seven baseline IDs: rag_mcp, mcp_zero, per_subtask, colt_adapted, toolscope_adapted, cmtf_adapted and all_tools. The broader baseline catalogue and Core Protocol v2 also describe BM25 and Dense LSA as E9-capable, but E9's frozen experiment-specific baseline_ids omits them. Add BM25/Dense LSA only through an explicit protocol amendment, not by changing the run manifest.
+The E9 comparator set follows the original Experimental Protocol: COLT, MCP-Zero, ToolScope, CMTF with common accepted contracts, and PaMCP without backward closure. Full PaMCP with backward closure is the separate primary configuration. The machine-readable E9 baseline IDs are mcp_zero, colt_adapted, toolscope_adapted, cmtf_adapted and pamcp_no_backward_closure. RAG-MCP, per_subtask and all_tools are not E9 confirmatory comparators; per_subtask is not the PaMCP no-backward-closure ablation.
 
 ## Required next research inputs
 
