@@ -3,7 +3,7 @@
 **Status:** proposed_not_frozen  
 **Protocol source:** E2 Human Annotation Protocol  
 **Population snapshot:** E1 merged registry, 569 unique tool definitions  
-**Proposed sample:** 120 tools  
+**Proposed sample:** 120 tools / 481 semantic-type annotation units  
 **Proposed seed:** 20261107  
 **Proposed sampling design:** proportional stratification by source × source category, with at least one tool sampled in every non-empty stratum
 
@@ -43,7 +43,9 @@ The pinned registry has 12 non-empty source × category strata. The generated al
 | MCPToolBench++ | search | 5 | 2 |
 | **Total** | | **569** | **120** |
 
-The generation script records actual sample IDs, per-stratum counts, registry SHA-256, annotation-unit count and output checksums. The two annotator sheets contain the same annotation units but independently shuffled order. The restricted ID mapping remains separate.
+The generation script records actual sample IDs, per-stratum counts, registry SHA-256, annotation-unit count and output checksums. The two annotator sheets contain the same 481 annotation units but independently shuffled order.
+
+The CI workflow produces three separate archives after generation: `PaMCP-E2-ANNOTATOR-A-PROPOSAL-NOT-FROZEN.zip`, `PaMCP-E2-ANNOTATOR-B-PROPOSAL-NOT-FROZEN.zip`, and `PaMCP-E2-OWNER-CONTROL-NOT-FROZEN.zip`. The A/B archives contain only the relevant annotation sheet and proposal instructions; they exclude the restricted tool-ID mapping. The owner control archive contains the mapping and must not be distributed to annotators. The current proposal is not frozen, so none of these files are an authorization to begin annotation.
 
 ## Required safeguards before annotation
 
