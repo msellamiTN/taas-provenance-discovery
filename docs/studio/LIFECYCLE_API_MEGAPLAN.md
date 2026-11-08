@@ -157,9 +157,10 @@ occurs in this activity" where applicable).
 ## 6. Execution order (bottom-up, green each step)
 
 1. ~~**Nav regroup**~~ — **done** (`c92d3cc`): six activity groups, all links verified.
-2. **Group headers + boundary copy** — activity eyebrow labels per section; tests pin ids, not eyebrow text.
+2. ~~**Group headers + boundary copy**~~ — **done** (`4429cd6`): activity eyebrow labels via dynamic nav-label derivation + per-activity boundary hints; tests pin ids.
 3. ~~**A2 parity**~~ — **done**: agent sign/signature/revoke/revocation mirror skills; revoked versions refuse signatures.
 4. ~~**A3 facets**~~ — **done**: `facets` block on `/api/v1/tools`; UX-15 consumption is a follow-on slice.
 5. ~~**A5 cursor**~~ — **done**: `after_seq` keyset pagination; verify walks the full ledger.
-6. **A1 provenance** — field-level edit events for GoalSpec/agent authoring (open design item).
-7. **Deferred** — evaluator (`eval/*`), production auth, execution sandbox: separate security projects per MEGAPLAN §6; do not build in this lane.
+6. ~~**A1 provenance**~~ — **done** (`3bf8584`): immutable per-revision workspace edit history with field-level added/removed/changed paths + actor.
+7. ~~**A1 templates**~~ — **done** (`4964cec`): versioned GoalSpec template catalog; every draft round-trips `/goals/validate`.
+8. **Deferred** — evaluator (`eval/*`), production auth, execution sandbox: separate security projects per MEGAPLAN §6; do not build in this lane.
