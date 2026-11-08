@@ -65,17 +65,27 @@ def main() -> None:
         rows = []
         for k in sources:
             v = R[k]
-            tri_state = v.get("evaluation_scope") == "covered_only"
-            # Legacy declared results double-counted missing hints as negatives. Hide that
-            # confusion row until E3 has been rerun with the tri-state scorer.
+            # The immediately preceding E3 run already excluded None predictions from
+            # TP/FP/FN/TN, but used the older with_prediction/unknown_but_unsafe schema.
+            legacy_tri_state = (k == "declared_vs_B" and "with_prediction" in v
+                                and "unknown_but_unsafe" in v)
+            tri_state = v.get("evaluation_scope") == "covered_only" or legacy_tri_state
             if k == "declared_vs_B" and not tri_state:
-                rows.append([k, "—", "—", "—", "—", "—", "—", v.get("unknown", "—"), "—", "—", "—", "—"])
+                rows.append([k, "—", "—", "—", "—", "—", "—", v.get("unknown", "—"),
+                             "—", "—", "—", "—"])
                 continue
             total = v.get("n_total", R.get("n", 0))
-            known = v.get("n_evaluated", total - v.get("unknown", 0))
+            known = v.get("n_evaluated", v.get("with_prediction", total - v.get("unknown", 0)))
             coverage = v.get("coverage", known / total if total else 0.0)
-            unknown_comp = (f"{v.get('unknown_unsafe', '—')}/{v.get('unknown_safe', '—')}"
-                            if tri_state else "0/0")
+            if "unknown_unsafe" in v:
+                unknown_unsafe = v["unknown_unsafe"]
+                unknown_safe = v["unknown_safe"]
+            elif legacy_tri_state:
+                unknown_unsafe = v["unknown_but_unsafe"]
+                unknown_safe = v["unknown"] - unknown_unsafe
+            else:
+                unknown_unsafe = unknown_safe = 0
+            unknown_comp = f"{unknown_unsafe}/{unknown_safe}" if tri_state else "0/0"
             rows.append([k, known, pct(coverage), v["tp"], v["fp"], v["fn"], v["tn"],
                          v["unknown"], unknown_comp, num(v["precision"]), num(v["recall"]),
                          pct(v["discrepancy_rate"])])
@@ -83,12 +93,21 @@ def main() -> None:
                table(["Source", "Known n", "Coverage", "TP", "FP", "FN", "TN", "Unknown n",
                       "Unknown unsafe/safe", "Precision", "Recall (known)", "Mismatch (known)"], rows), ""]
         declared = R["declared_vs_B"]
-        if declared.get("evaluation_scope") == "covered_only":
-            md += [f"Declared-hint coverage: {declared['n_evaluated']}/{declared['n_total']} "
-                   f"({pct(declared['coverage'])}); {declared['unknown_unsafe']} reference-unsafe and "
-                   f"{declared['unknown_safe']} reference-safe tools have no hint. "
+        if declared.get("evaluation_scope") == "covered_only" or (
+                "with_prediction" in declared and "unknown_but_unsafe" in declared):
+            known = declared.get("n_evaluated", declared.get("with_prediction"))
+            total = declared.get("n_total", R.get("n", 0))
+            coverage = declared.get("coverage", known / total if total else 0.0)
+            unknown_unsafe = declared.get("unknown_unsafe", declared.get("unknown_but_unsafe"))
+            unknown_safe = declared.get("unknown_safe", declared.get("unknown", 0) - unknown_unsafe)
+            unsafe_capture = declared.get("unsafe_capture_rate_all")
+            if unsafe_capture is None:
+                unsafe_capture = (declared["tp"] / R["reference_unsafe_B"]
+                                  if R.get("reference_unsafe_B", 0) else None)
+            md += [f"Declared-hint coverage: {known}/{total} ({pct(coverage)}); "
+                   f"{unknown_unsafe} reference-unsafe and {unknown_safe} reference-safe tools have no hint. "
                    f"Only covered tools enter the confusion metrics; unsafe capture over all "
-                   f"reference-unsafe tools is {pct(declared['unsafe_capture_rate_all'])}.", ""]
+                   f"reference-unsafe tools is {pct(unsafe_capture)}.", ""]
         else:
             md += ["WARNING: the checked-in E3 declared-hint confusion row predates the tri-state correction. "
                    "Rerun E3 before interpreting declared-hint precision, recall or discrepancy.", ""]
