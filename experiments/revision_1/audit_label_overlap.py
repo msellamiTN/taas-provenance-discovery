@@ -49,7 +49,7 @@ def main() -> None:
     out_dir = Path(os.environ.get("PAMCP_REVISION_RESULTS", ROOT / "results" / "revision_1"))
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / "label_overlap_audit.json"
-    path.write_text(json.dumps(result, indent=2) + "\\n", encoding="utf-8")
+    path.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(result, indent=2))
     print(f"Wrote {path}")
 
