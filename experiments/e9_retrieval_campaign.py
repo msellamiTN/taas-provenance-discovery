@@ -117,8 +117,80 @@ def git_value(*args: str) -> str | None:
         return None
 
 
+def verify_prepared_package_integrity(prepared_dir: Path) -> dict[str, Any]:
+    """Verify package inventory and discovery bytes without opening evaluator references."""
+    sums_path = prepared_dir / "SHA256SUMS.json"
+    if not sums_path.is_file():
+        raise FileNotFoundError(f"Missing E9 package checksum manifest: {sums_path}")
+    checksums = read_json(sums_path)
+    if not isinstance(checksums, dict) or not checksums:
+        raise ValueError("E9 package SHA256SUMS.json must be a non-empty object")
+
+    expected_names: set[str] = set()
+    normalized_checksums: dict[str, str] = {}
+    for relative, expected_hash in checksums.items():
+        if not isinstance(relative, str) or not relative.strip():
+            raise ValueError("E9 package checksum paths must be non-empty relative paths")
+        relative_path = Path(relative.replace("\\", "/"))
+        if (
+            relative_path.is_absolute()
+            or any(part in {"", ".", ".."} for part in relative_path.parts)
+            or relative_path.as_posix() != relative
+        ):
+            raise ValueError(f"Unsafe or non-canonical E9 package path: {relative}")
+        canonical_name = relative_path.as_posix()
+        if canonical_name in expected_names:
+            raise ValueError(f"Duplicate E9 package checksum path: {canonical_name}")
+        if not isinstance(expected_hash, str) or len(expected_hash) != 64 or any(
+            char not in "0123456789abcdef" for char in expected_hash.lower()
+        ):
+            raise ValueError(f"Invalid SHA-256 in E9 package manifest: {canonical_name}")
+        target = prepared_dir / relative_path
+        if target.is_symlink() or not target.is_file():
+            raise FileNotFoundError(f"Missing or unsafe E9 package file: {target}")
+        expected_names.add(canonical_name)
+        normalized_checksums[canonical_name] = expected_hash.lower()
+
+    actual_names: set[str] = set()
+    for item in prepared_dir.rglob("*"):
+        if item == sums_path:
+            continue
+        if item.is_symlink():
+            raise ValueError(f"E9 prepared package must not contain symlinks: {item}")
+        if item.is_file():
+            actual_names.add(item.relative_to(prepared_dir).as_posix())
+        elif not item.is_dir():
+            raise ValueError(f"Unsupported non-regular E9 package entry: {item}")
+    if actual_names != expected_names:
+        extra = sorted(actual_names - expected_names)
+        missing = sorted(expected_names - actual_names)
+        raise ValueError(
+            "E9 prepared package inventory differs from SHA256SUMS.json: "
+            f"unlisted_files={extra[:5]} ({len(extra)}), missing_files={missing[:5]} ({len(missing)})"
+        )
+
+    evaluator_name = "evaluator/task_references.jsonl"
+    if evaluator_name not in normalized_checksums:
+        raise ValueError("E9 package checksum manifest must include evaluator/task_references.jsonl")
+    for relative, expected_hash in normalized_checksums.items():
+        if relative == evaluator_name:
+            # The evaluator path is checked for presence/inventory only here. Its bytes are
+            # hashed and parsed only after discovery rankings have been frozen.
+            continue
+        actual_hash = sha256_file(prepared_dir / relative)
+        if actual_hash != expected_hash:
+            raise ValueError(f"E9 prepared package SHA-256 mismatch: {relative}")
+
+    return {
+        "checksums_sha256": sha256_file(sums_path),
+        "file_count": len(normalized_checksums),
+        "evaluator_references_sha256": normalized_checksums[evaluator_name],
+    }
+
+
 def load_discovery_package(prepared_dir: Path):
     """Load only discovery-side material; evaluator references are deliberately untouched."""
+    integrity = verify_prepared_package_integrity(prepared_dir)
     manifest_path = prepared_dir / "PREPARATION_MANIFEST.json"
     tools_path = prepared_dir / "discovery" / "tools.json"
     tasks_path = prepared_dir / "discovery" / "tasks.jsonl"
@@ -158,8 +230,10 @@ def load_discovery_package(prepared_dir: Path):
         leaked = FORBIDDEN_EVALUATOR_KEYS.intersection(row)
         if leaked:
             raise ValueError(f"{row.get('task_id')}: evaluator-only keys in discovery task: {sorted(leaked)}")
+    manifest["_package_checksums_sha256"] = integrity["checksums_sha256"]
+    manifest["_evaluator_references_sha256"] = integrity["evaluator_references_sha256"]
+    manifest["_package_file_count"] = integrity["file_count"]
     return tools, tasks, visibility, manifest
-
 
 def load_goal_specs(path: Path, tasks: list[dict[str, Any]]) -> dict[tuple[str, str], GoalSpec]:
     rows = read_jsonl(path)
@@ -988,6 +1062,9 @@ def run_campaign(args: argparse.Namespace) -> dict:
 
     # Only now open evaluator references from the prepared dataset.
     evaluator_source = prepared_dir / "evaluator" / "task_references.jsonl"
+    evaluator_hash = sha256_file(evaluator_source)
+    if evaluator_hash != prep_manifest.get("_evaluator_references_sha256"):
+        raise ValueError("E9 evaluator reference SHA-256 mismatch against the prepared package manifest")
     evaluator_rows = read_jsonl(evaluator_source)
     expected_task_ids = {str(row["task_id"]) for row in tasks}
     actual_ref_ids = {str(row.get("task_id") or "") for row in evaluator_rows}
@@ -1046,6 +1123,8 @@ def run_campaign(args: argparse.Namespace) -> dict:
         "dataset": {
             "benchmark": "live_mcpbench",
             "preparation_manifest_sha256": sha256_file(prepared_dir / "PREPARATION_MANIFEST.json"),
+            "package_checksums_sha256": prep_manifest.get("_package_checksums_sha256"),
+            "package_file_count": prep_manifest.get("_package_file_count"),
             "source_revision": prep_manifest.get("source_revision"),
             "candidate_tool_count": len(tools),
             "task_count": len(tasks),
