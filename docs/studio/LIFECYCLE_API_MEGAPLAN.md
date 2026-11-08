@@ -42,7 +42,7 @@ Demo states: `live-only` (real Core data, no synthetic) · `demo/live split`
 |---|---|---|---|
 | Objective Engineering (`#agent-goal-panel`, UX-2) | Intent → GoalSpec decomposition; model proposal is proposal-only | `POST /objectives/discover`, `POST /objectives/prepare`, `POST /goals/validate` | live-only |
 | Objective Traceability Explorer (UX-9) | Clause→goal→outcome projection via Hypergraph | `POST /objectives/prepare`, `GET /hypergraph/objective-traceability` | live-only |
-| GoalSpec designer (`#goal-editor`, UX-5) | Visual goals/deps/classes, Θ drawer, policy presets, template catalog | `POST /goals/validate`, `GET /goalspec/templates`, `GET /goalspec/templates/{id}`, `GET /reference/vocabulary` | live-only (templates authored, not validated on load) |
+| GoalSpec designer (`#goal-editor`, UX-5) | Visual goals/deps/classes, Θ drawer, policy presets, template catalog | `POST /goals/validate`, `GET /goalspec/templates`, `GET /goalspec/templates/{id}`, `GET /reference/vocabulary` | live-only — catalog consumed end-to-end (verified); templates authored, not validated on load |
 | Agent Engineering (`#agent-engineering-workspace`) | `agents/decompose` assisted authoring | `POST /agents/decompose`, `POST /agents/validate`, `POST /goals/validate` | live-only |
 
 ### A2 · Build & configure capabilities
