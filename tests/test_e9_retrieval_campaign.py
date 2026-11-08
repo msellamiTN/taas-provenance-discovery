@@ -13,6 +13,7 @@ from experiments.e9_retrieval_campaign import (
     load_training_scenes,
     make_no_backward_closure_config,
     canonical_sha256,
+    load_encoder,
     validate_release_gate,
 )
 from taas.experiments.baseline_runner import BaselineResult
@@ -267,3 +268,88 @@ def test_colt_scene_crosswalk_hash_must_match(tmp_path):
     })
     with pytest.raises(ValueError, match="crosswalk SHA-256 mismatch"):
         load_training_scenes(path, {"live::x"}, {"e9-1"})
+
+
+def test_encoder_bundle_requires_complete_hash_bound_snapshot_inventory(tmp_path):
+    import hashlib
+
+    model = tmp_path / "model"
+    model.mkdir()
+    config = model / "config.json"
+    weights = model / "weights.bin"
+    config.write_text('{"model_type":"test"}', encoding="utf-8")
+    weights.write_bytes(b"pinned-weights")
+
+    digest = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+    bundle_path = tmp_path / "encoder.json"
+    _json(bundle_path, {
+        "schema_version": "1.0.0",
+        "status": "accepted",
+        "provider": "sentence-transformers-local",
+        "model_id": "test/model",
+        "model_revision": "immutable-revision",
+        "package_version": "5.0.0",
+        "model_path": "model",
+        "files": {
+            "config.json": digest(config),
+            "weights.bin": digest(weights),
+        },
+    })
+
+    encoder, metadata = load_encoder(bundle_path, "cpu")
+    assert encoder.expected_package_version == "5.0.0"
+    assert metadata["files_verified"] == 2
+
+    # Any extra file can alter tokenizer/model loading behaviour and must be frozen.
+    (model / "tokenizer_config.json").write_text('{"padding_side":"left"}', encoding="utf-8")
+    with pytest.raises(ValueError, match="inventory differs"):
+        load_encoder(bundle_path, "cpu")
+
+
+def test_encoder_bundle_rejects_path_traversal(tmp_path):
+    import hashlib
+
+    model = tmp_path / "model"
+    model.mkdir()
+    outside = tmp_path / "outside.bin"
+    outside.write_bytes(b"outside")
+    _json(tmp_path / "encoder.json", {
+        "schema_version": "1.0.0",
+        "status": "accepted",
+        "provider": "sentence-transformers-local",
+        "model_id": "test/model",
+        "model_revision": "immutable-revision",
+        "package_version": "5.0.0",
+        "model_path": "model",
+        "files": {"../outside.bin": hashlib.sha256(outside.read_bytes()).hexdigest()},
+    })
+    with pytest.raises(ValueError, match="Unsafe encoder manifest path"):
+        load_encoder(tmp_path / "encoder.json", "cpu")
+
+
+def test_release_gate_requires_acceptance_id_for_each_accepted_prerequisite(tmp_path):
+    import hashlib
+
+    artifact = tmp_path / "accepted-artifact.json"
+    artifact.write_text('{"status":"accepted"}', encoding="utf-8")
+    artifact_sha = hashlib.sha256(artifact.read_bytes()).hexdigest()
+    prereqs = {
+        experiment: {
+            "status": "accepted",
+            "artifact_path": str(artifact),
+            "sha256": artifact_sha,
+            "acceptance_id": "acceptance-" + experiment,
+        }
+        for experiment in ("E1", "E2", "E3", "E12")
+    }
+    prereqs["E3"].pop("acceptance_id")
+    gate_path = tmp_path / "release-gate.json"
+    _json(gate_path, {
+        "schema_version": "1.0.0",
+        "status": "accepted",
+        "prerequisites": prereqs,
+    })
+    comparator_path = tmp_path / "comparators.json"
+    _json(comparator_path, {})
+    with pytest.raises(ValueError, match="E3 accepted prerequisite must carry"):
+        validate_release_gate(gate_path, comparator_path)
