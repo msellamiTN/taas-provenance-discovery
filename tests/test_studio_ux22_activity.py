@@ -81,7 +81,6 @@ def test_ux22_keeps_configuration_distinct_from_usage_and_execution():
     section = _ux22()
     assert "Manifest-derived configuration only" in section
     assert "do not demonstrate tool usage" in section
-    assert "authorization_granted" in script if False else True
     script = _ux22_script()
     assert 'payload.authorization_granted===false' in script
     assert 'payload.execution_performed===false' in script
