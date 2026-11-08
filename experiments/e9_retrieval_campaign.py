@@ -550,20 +550,75 @@ def validate_release_gate(gate_path: Path, comparator_path: Path) -> dict:
 def load_training_scenes(
     path: Path | None, candidate_ids: set[str], evaluation_task_ids: set[str]
 ) -> list[dict[str, Any]]:
+    """Build COLT scene co-use only from MCPToolBench++ dev queries and server membership.
+
+    The source-to-candidate tool crosswalk is explicit and hash-bound. Scene members
+    are mapped LiveMCPTool candidate IDs; no LiveMCPBench evaluator labels are used.
+    """
     if path is None:
         return []
-    rows = read_jsonl(path)
-    for row in rows:
-        if str(row.get("split") or "").lower() not in {"train", "training"}:
-            raise ValueError("COLT training scenes must be explicitly marked train/training")
-        if not row.get("task_id") or not isinstance(row.get("tools"), list):
-            raise ValueError("Each training scene requires task_id and tools")
-        if str(row["task_id"]) in evaluation_task_ids:
-            raise ValueError("COLT training scene task_id overlaps the E9 evaluation task set")
-        if not set(map(str, row["tools"])).issubset(candidate_ids):
-            raise ValueError(f"{row['task_id']}: training scene contains out-of-registry tools")
-    return rows
+    bundle = read_json(path)
+    if bundle.get("schema_version") != "1.0.0" or bundle.get("status") != "accepted":
+        raise ValueError("COLT scene bundle must be accepted, schema_version=1.0.0")
+    if bundle.get("source_dataset") != "MCPToolBench++" or bundle.get("source_split") != "dev":
+        raise ValueError("COLT scenes must originate from the MCPToolBench++ development split")
+    if bundle.get("scene_source") != "server_membership":
+        raise ValueError("COLT E9 scenes must be derived from server membership")
+    if bundle.get("e9_evaluator_labels_used") is not False:
+        raise ValueError("COLT scene preparation must explicitly certify no E9 evaluator-label use")
+    crosswalk = bundle.get("tool_crosswalk")
+    tool_servers = bundle.get("source_tool_servers")
+    queries = bundle.get("dev_query_server_membership")
+    if not isinstance(crosswalk, dict) or not crosswalk:
+        raise ValueError("COLT bundle requires a source-tool to LiveMCPTool crosswalk")
+    if bundle.get("crosswalk_sha256") != canonical_sha256(crosswalk):
+        raise ValueError("COLT tool crosswalk SHA-256 mismatch")
+    if not isinstance(tool_servers, dict) or not tool_servers:
+        raise ValueError("COLT bundle requires MCPToolBench++ tool-to-server membership")
+    if not isinstance(queries, list) or not queries:
+        raise ValueError("COLT bundle requires development query-to-server memberships")
+    if not set(crosswalk).issubset(set(tool_servers)):
+        raise ValueError("COLT crosswalk contains tool IDs without source server membership")
+    for source_tool, target_tool in crosswalk.items():
+        if str(target_tool) not in candidate_ids:
+            raise ValueError(f"COLT crosswalk target falls outside LiveMCPTool registry: {target_tool}")
+    source_by_server: dict[str, list[str]] = defaultdict(list)
+    for source_tool, server_id in tool_servers.items():
+        if not str(server_id).strip():
+            raise ValueError(f"{source_tool}: blank MCPToolBench++ server ID")
+        if source_tool in crosswalk:
+            source_by_server[str(server_id)].append(str(crosswalk[source_tool]))
 
+    scenes = []
+    seen_task_ids = set()
+    for query in queries:
+        task_id = str(query.get("task_id") or "")
+        split = str(query.get("split") or "").lower()
+        server_ids = query.get("server_ids")
+        if not task_id or split != "dev" or not isinstance(server_ids, list) or not server_ids:
+            raise ValueError("Each COLT dev query requires task_id, split=dev and server_ids")
+        if task_id in seen_task_ids:
+            raise ValueError(f"Duplicate COLT development query: {task_id}")
+        seen_task_ids.add(task_id)
+        if task_id in evaluation_task_ids:
+            raise ValueError("COLT development query overlaps the E9 LiveMCPBench evaluation set")
+        members = sorted({
+            target_tool
+            for server_id in map(str, server_ids)
+            for target_tool in source_by_server.get(server_id, [])
+        })
+        if not members:
+            raise ValueError(f"{task_id}: no dev-server members resolve through the frozen tool crosswalk")
+        scenes.append({
+            "task_id": f"MCPToolBench++:dev:{task_id}",
+            "source_task_id": task_id,
+            "split": "train",
+            "source_dataset": "MCPToolBench++",
+            "scene_source": "server_membership",
+            "server_ids": sorted(set(map(str, server_ids))),
+            "tools": members,
+        })
+    return scenes
 
 def load_equivalence_oracle(path: Path | None, candidate_ids: set[str]) -> dict | None:
     if path is None:
