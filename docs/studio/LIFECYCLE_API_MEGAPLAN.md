@@ -62,6 +62,7 @@ Demo states: `live-only` (real Core data, no synthetic) · `demo/live split`
 | Tool registry (`#bench-tools`, UX-3) | Browse, filter, basket, inspector + capability intelligence | `GET /tools`, `GET /tools?category=`, `GET /tools/{server}/{name}`, `GET /tools/{server}/{name}/intelligence` | live-only |
 | Registry & MCP governance (UX-15) | Facet filters, retained identities, snapshots | `GET /tools` (`facets` block), `GET /mcp/servers`, `GET /mcp/servers/{id}/inspect`, `GET /mcp/registry/snapshots*` | live-only |
 | Tool discovery (`#discovery`) | Core engine run, certificate, reproducibility envelope | `POST /discover`, `GET /discovery/runs`, `GET /discovery/runs/{id}` | live-only |
+| Discovery review gate (UX-25) | Client-side pre-run review dialog: GoalSpec/toolset/policy summary, exact JSON preview, readiness checks, explicit ack | none — review gate on the existing `POST /discover` submit path; Core contract unchanged | live-only (verified) |
 | Selection & eligibility (UX-16) | retrieve → eligibility → compare; RRF ≠ authorization | `POST /tools/retrieve`, `POST /tools/eligibility`, `POST /tools/compare` | live-only |
 | Discovery & composition (UX-23) | Persisted-run observation; demo/live separation | `GET /discovery/runs`, `GET /discovery/runs/{id}`, `GET /discovery/runs/{a}/diff/{b}` | demo/live split (verified) |
 | Hypergraph explorer | Reachability/projection views | `GET /hypergraph/skills/{id}/versions/{v}`, `GET /hypergraph/objective-traceability` | live-only |
