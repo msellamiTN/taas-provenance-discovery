@@ -12,10 +12,9 @@ from __future__ import annotations
 
 import gzip
 import json
-import math
 import os
-from collections import defaultdict
 from pathlib import Path
+import re
 import sys
 
 import numpy as np
@@ -52,7 +51,6 @@ def task_requirements(record: dict, policy: str) -> TaskEffectRequirements:
     ambiguous: set[str] = set()
     raw_values: list[str] = []
     from taas.effects import parse_effect
-    import re
 
     for goal in record.get("goals", []) or []:
         for item in goal.get("eff", []) or []:
@@ -92,7 +90,7 @@ def evaluate_attack(toolkit: list[str], attack: str, requirements: TaskEffectReq
 
     statuses = [classify_effect(effect, requirements) for _, effect in candidates]
     definite = any(status == "violation" for status in statuses)
-    indeterminate = (not definite) and any(status == "indeterminate" for status in statuses)
+    indeterminate = any(status == "indeterminate" for status in statuses)
     return {
         "reachable": bool(definite),
         "indeterminate": bool(indeterminate),
@@ -186,7 +184,7 @@ def main() -> None:
         # One paired observation per task. Unknown cases count as possible exposure in
         # this conservative upper-bound outcome; definite and indeterminate rates remain
         # separately reported above.
-        d = np.array([
+        differences = np.array([
             float(left[i]["possible_oos_any"]) - float(right[i]["possible_oos_any"])
             for i in ids
         ])
@@ -194,9 +192,9 @@ def main() -> None:
             "contrast": f"{METHOD_A} minus {METHOD_B}",
             "unit": "task (attacks nested within task)",
             "n_tasks": len(ids),
-            "mean_difference": float(np.mean(d)),
-            "ci95_task_cluster_bootstrap": cluster_bootstrap_ci(d),
-            "two_sided_signflip_p": signflip_task(d),
+            "mean_difference": float(np.mean(differences)),
+            "ci95_task_cluster_bootstrap": cluster_bootstrap_ci(differences),
+            "two_sided_signflip_p": signflip_task(differences),
             "status": "EXPLORATORY_NOT_CONFIRMATORY",
             "reason": "The outcome/estimand differs from the original preregistered F5 task-by-attack comparison.",
         }
