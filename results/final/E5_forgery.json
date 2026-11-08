@@ -1,0 +1,1312 @@
+{
+ "experiment": "E5_forgery",
+ "evidence": "SIMULATED attacker and verifier (FAR 5%), scored against labels B",
+ "notes": "",
+ "manifest": {
+  "run_id": "E5_forgery-2026-11-08T06:51:02Z-ced1f72b4a",
+  "created": "2026-11-08T06:51:02Z",
+  "commit": "5a606c8644a41ef322099e0b7986400a076b25dd",
+  "dirty_code_files": [],
+  "code_sha256": "ced1f72b4a192f9736a49621705bb6a05a5f0a6de14ed3a11b8009bb5effdb08",
+  "python": "3.13.18",
+  "config": {
+   "attacks": [
+    "forge",
+    "launder",
+    "both"
+   ],
+   "delta": [
+    0.0,
+    0.05,
+    0.1,
+    0.2,
+    0.3
+   ],
+   "seeds": 5,
+   "far": 0.05,
+   "k": 5
+  },
+  "inputs": {
+   "data/processed/registry_merged.json": "a24bb9c5c788f8856288993c8f3c21b7fcd84b6491cc1a2b778b3b5d5a787045"
+  },
+  "labels": {
+   "data/llm_records/silver_labels.json": "a9bfdda22c417197dcbdbcd6ddcd36245c64293b8d59f3d76084a6a705ebc1a3",
+   "data/llm_records/reference_labels_opus_part0.jsonl": "1bbaffd69206a61c26bf60d1c679c56bed085a8df7f4bab47893cf0edbadbb3e",
+   "data/llm_records/reference_labels_opus_part1.jsonl": "0ef047fe57862e9123f6f92c0c572dc6f78e7c488248dd1c0771f188e6470b22",
+   "data/llm_records/reference_labels_opus_part2.jsonl": "b9c329d5fd97f1c800703b98f8483d08de7d18eb39e69be6a184ecbfbd5e3920"
+  },
+  "llm_records": {
+   "data/llm_records/analyst_haiku.jsonl": "9c46187501c70d64ff39e8dddcfb2c1083ba1608cdf7705cad40484ed03b3182",
+   "data/llm_records/analyst_mcpbench_prompt_v1_0_sonnet.jsonl": "9644fe997d1d1d3026ee89b4d632785666b033e2d5e5c1ba8098fe9124fcd65f",
+   "data/llm_records/analyst_mcpbench_prompt_v1_1_sonnet.jsonl": "d72740cfde8a3855df2dc14b43edbecc7956a91a00cde4ab626c5ba2e06dd39e",
+   "data/llm_records/analyst_mcpbench_prompt_v1_1_theta_sonnet.jsonl": "cf0fefa547d099b9f4be9488bf0ed077ff21b00236dbb739c39687b38d6dd840",
+   "data/llm_records/analyst_sonnet_A.jsonl": "16764040beb08c21af41fda2aa80d4503db8f3fa6445405b14dfe2329d26abea",
+   "data/llm_records/analyst_sonnet_B.jsonl": "21ff4fb98d3ba2ee1a1a33eb5672970672b0098315a92c3a6eba1b4a7f8b6e23",
+   "data/llm_records/analyst_sonnet_e8_part0.jsonl": "0f85289319734fc7eb0bf2b3559e9f3c6427c3764d4eb77aae4c3696640c24e3",
+   "data/llm_records/analyst_sonnet_e8_part1.jsonl": "01df80721e2f66656fbbd43974d59c9060143755820e357a8a04dfa211df15c2",
+   "data/llm_records/analyst_sonnet_e8_part2.jsonl": "7fbf7be565640a54b1afb75d604725d04de031b06e1327e0231c115f0de8b8ff",
+   "data/llm_records/calibration_answers_haiku.json": "ba766acd12b301699cb48959dc0cbe3f0d0d529f35af8bf09833fcd80d012561",
+   "data/llm_records/calibration_answers_opus.json": "a842a448f709ea4c778738ddddf2d0362815da6dac3569342bfd663ac905b0da",
+   "data/llm_records/calibration_answers_sonnet.json": "6a3ae7baa9bf7a3a81a3f396479526564287ff91730ff22de0b9dc3f2331a23d",
+   "data/llm_records/calibration_self_assessment_haiku.json": "c172609360670e095338a5c833c29d7c0b5adc9c69c8d6c165bd081103eb00e6",
+   "data/llm_records/calibration_self_assessment_opus.json": "7f9128dad0541247130ea04a7df267246887c7473aad25fcb426890e00ad0462",
+   "data/llm_records/calibration_self_assessment_sonnet.json": "b27dff24c251b0b2a07095969d23645b11dab9d5f82f73ba930d0da1dd226867",
+   "data/llm_records/colt_train_queries_sonnet_part0.jsonl": "b137e6da7ba850a7566d0d25d9141e2a3f6f1aef4c1a32936c5c092b44f32090",
+   "data/llm_records/colt_train_queries_sonnet_part1.jsonl": "923c53ca85b3c5dc3d9b4968d7e8a7228a4b975e18f3df1e29c7b7b0dc025912",
+   "data/llm_records/colt_train_queries_sonnet_part2.jsonl": "7f24212afcd1ef8647aa4af4e08bed7664cf9d5296dd6ea45730a635bcb20720",
+   "data/llm_records/mcpzero_requests_sonnet_part0.jsonl": "3a0e5011f86db8144e7acd1b37c8df572a6e825c842c1ab69ffb3628a40c262c",
+   "data/llm_records/mcpzero_requests_sonnet_part1.jsonl": "aa1d304fff250b1fc44519840fd777816793a07ca1874237816053dff8acb075",
+   "data/llm_records/mcpzero_requests_sonnet_part2.jsonl": "fee6745201cfd27ff916cc7759a3eb2393fa915c1bdcd10e0e735f3f7abfcd7b",
+   "data/llm_records/mcpzero_requests_sonnet_part3.jsonl": "d339efef9190a575017f354a31cf284d24a80c3de2d377f9318636455ddb4fa6",
+   "data/llm_records/mcpzero_server_summaries_sonnet.jsonl": "f3a65c211a247dfa84d9eeff6956069e0dd6b93482d5107aea3a2ca6f02f44f8",
+   "data/llm_records/reference_labels_opus_part0.jsonl": "1bbaffd69206a61c26bf60d1c679c56bed085a8df7f4bab47893cf0edbadbb3e",
+   "data/llm_records/reference_labels_opus_part1.jsonl": "0ef047fe57862e9123f6f92c0c572dc6f78e7c488248dd1c0771f188e6470b22",
+   "data/llm_records/reference_labels_opus_part2.jsonl": "b9c329d5fd97f1c800703b98f8483d08de7d18eb39e69be6a184ecbfbd5e3920",
+   "data/llm_records/silver_labels.json": "a9bfdda22c417197dcbdbcd6ddcd36245c64293b8d59f3d76084a6a705ebc1a3",
+   "data/llm_records/silver_labels_part0.jsonl": "9a2b025b6675441eb2cfa6e695b66f2612ef07a9b73fdbc518fb03d279edad70",
+   "data/llm_records/silver_labels_part1.jsonl": "26d0be08d2d367f89678bc696c4247546dc46cc95eadaa5c47fa34953bc4c877",
+   "data/llm_records/silver_labels_part2.jsonl": "ef7b33f91a5c0760376299f868c66da3c73fd14d585b76ba3b9ba91936a19bce",
+   "data/llm_records/toolscope_equiv_sonnet_part0.jsonl": "e3a37310c6ac401db495ee5a1dc5cf7ccb3c699f7aa20c5fdfdb3c7c333ac7aa",
+   "data/llm_records/toolscope_equiv_sonnet_part1.jsonl": "923ec05434c581d05f8ac8c7edfdf473ce9886354413f419803b7a455a85b25c"
+  },
+  "raw": {
+   "path": "results/final/raw/E5_forgery.jsonl.gz",
+   "sha256": "7456a9aacfc4bdedad5fbc1d10ceab361a512d4b3411162b3f68665d84b84bbb",
+   "rows": 1009
+  },
+  "models": "LLM roles were played by Claude models requested by alias (sonnet, opus, haiku) through the session; exact version strings were not exposed and are not recorded"
+ },
+ "results": {
+  "forge|0.0": {
+   "pamcp_rrf|no_filter": {
+    "Exp@5": 0.4249084249084249,
+    "Util@5": 0.4981684981684982,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|mcp_default_annotations": {
+    "Exp@5": 0.4249084249084249,
+    "Util@5": 0.4981684981684982,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|closed_world_annotations": {
+    "Exp@5": 0.315018315018315,
+    "Util@5": 0.003663003663003663,
+    "eligible_share": 0.0773286467486819
+   },
+   "pamcp_rrf|lexical_positive": {
+    "Exp@5": 0.0989010989010989,
+    "Util@5": 0.41025641025641024,
+    "eligible_share": 0.6783831282952548
+   },
+   "pamcp_rrf|lexical_closed_world": {
+    "Exp@5": 0.0989010989010989,
+    "Util@5": 0.41025641025641024,
+    "eligible_share": 0.6783831282952548
+   },
+   "pamcp_rrf|verified_evidence": {
+    "Exp@5": 0.0,
+    "Util@5": 0.46886446886446886,
+    "eligible_share": 0.7768014059753954
+   },
+   "pamcp_rrf|observed_lexical_fallback": {
+    "Exp@5": 0.0,
+    "Util@5": 0.46886446886446886,
+    "eligible_share": 0.7768014059753954
+   },
+   "pamcp_rrf|attested_only": {
+    "Exp@5": 0.003663003663003663,
+    "Util@5": 0.16483516483516483,
+    "eligible_share": 0.26537785588752194
+   },
+   "rag_mcp|no_filter": {
+    "Exp@5": 0.326007326007326,
+    "Util@5": 0.4432234432234432,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|mcp_default_annotations": {
+    "Exp@5": 0.326007326007326,
+    "Util@5": 0.4432234432234432,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|closed_world_annotations": {
+    "Exp@5": 0.2600732600732601,
+    "Util@5": 0.007326007326007326,
+    "eligible_share": 0.0773286467486819
+   },
+   "rag_mcp|lexical_positive": {
+    "Exp@5": 0.07692307692307693,
+    "Util@5": 0.34065934065934067,
+    "eligible_share": 0.6783831282952548
+   },
+   "rag_mcp|lexical_closed_world": {
+    "Exp@5": 0.07692307692307693,
+    "Util@5": 0.34065934065934067,
+    "eligible_share": 0.6783831282952548
+   },
+   "rag_mcp|verified_evidence": {
+    "Exp@5": 0.0,
+    "Util@5": 0.41025641025641024,
+    "eligible_share": 0.7768014059753954
+   },
+   "rag_mcp|observed_lexical_fallback": {
+    "Exp@5": 0.0,
+    "Util@5": 0.41025641025641024,
+    "eligible_share": 0.7768014059753954
+   },
+   "rag_mcp|attested_only": {
+    "Exp@5": 0.0,
+    "Util@5": 0.16483516483516483,
+    "eligible_share": 0.26537785588752194
+   }
+  },
+  "forge|0.05": {
+   "pamcp_rrf|no_filter": {
+    "Exp@5": 0.4249084249084249,
+    "Util@5": 0.4981684981684982,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|mcp_default_annotations": {
+    "Exp@5": 0.4249084249084249,
+    "Util@5": 0.4981684981684982,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|closed_world_annotations": {
+    "Exp@5": 0.39853479853479856,
+    "Util@5": 0.036630036630036625,
+    "eligible_share": 0.14762741652021089
+   },
+   "pamcp_rrf|lexical_positive": {
+    "Exp@5": 0.0989010989010989,
+    "Util@5": 0.41025641025641024,
+    "eligible_share": 0.6783831282952548
+   },
+   "pamcp_rrf|lexical_closed_world": {
+    "Exp@5": 0.0989010989010989,
+    "Util@5": 0.41025641025641024,
+    "eligible_share": 0.6783831282952548
+   },
+   "pamcp_rrf|verified_evidence": {
+    "Exp@5": 0.05421245421245422,
+    "Util@5": 0.4644688644688645,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|observed_lexical_fallback": {
+    "Exp@5": 0.05421245421245422,
+    "Util@5": 0.4644688644688645,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|attested_only": {
+    "Exp@5": 0.05860805860805861,
+    "Util@5": 0.22344322344322345,
+    "eligible_share": 0.24850615114235497
+   },
+   "rag_mcp|no_filter": {
+    "Exp@5": 0.326007326007326,
+    "Util@5": 0.44322344322344326,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|mcp_default_annotations": {
+    "Exp@5": 0.326007326007326,
+    "Util@5": 0.44322344322344326,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|closed_world_annotations": {
+    "Exp@5": 0.3743589743589744,
+    "Util@5": 0.03956043956043956,
+    "eligible_share": 0.14762741652021089
+   },
+   "rag_mcp|lexical_positive": {
+    "Exp@5": 0.07692307692307693,
+    "Util@5": 0.34065934065934067,
+    "eligible_share": 0.6783831282952548
+   },
+   "rag_mcp|lexical_closed_world": {
+    "Exp@5": 0.07692307692307693,
+    "Util@5": 0.34065934065934067,
+    "eligible_share": 0.6783831282952548
+   },
+   "rag_mcp|verified_evidence": {
+    "Exp@5": 0.03809523809523809,
+    "Util@5": 0.40512820512820513,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|observed_lexical_fallback": {
+    "Exp@5": 0.03809523809523809,
+    "Util@5": 0.40512820512820513,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|attested_only": {
+    "Exp@5": 0.06153846153846154,
+    "Util@5": 0.2271062271062271,
+    "eligible_share": 0.24850615114235497
+   }
+  },
+  "forge|0.1": {
+   "pamcp_rrf|no_filter": {
+    "Exp@5": 0.4249084249084249,
+    "Util@5": 0.4981684981684982,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|mcp_default_annotations": {
+    "Exp@5": 0.4249084249084249,
+    "Util@5": 0.4981684981684982,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|closed_world_annotations": {
+    "Exp@5": 0.5677655677655677,
+    "Util@5": 0.06373626373626373,
+    "eligible_share": 0.20456942003514939
+   },
+   "pamcp_rrf|lexical_positive": {
+    "Exp@5": 0.0989010989010989,
+    "Util@5": 0.41025641025641024,
+    "eligible_share": 0.6783831282952548
+   },
+   "pamcp_rrf|lexical_closed_world": {
+    "Exp@5": 0.0989010989010989,
+    "Util@5": 0.41025641025641024,
+    "eligible_share": 0.6783831282952548
+   },
+   "pamcp_rrf|verified_evidence": {
+    "Exp@5": 0.05421245421245422,
+    "Util@5": 0.4644688644688645,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|observed_lexical_fallback": {
+    "Exp@5": 0.05421245421245422,
+    "Util@5": 0.4644688644688645,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|attested_only": {
+    "Exp@5": 0.05860805860805861,
+    "Util@5": 0.22344322344322345,
+    "eligible_share": 0.24850615114235497
+   },
+   "rag_mcp|no_filter": {
+    "Exp@5": 0.326007326007326,
+    "Util@5": 0.44322344322344326,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|mcp_default_annotations": {
+    "Exp@5": 0.326007326007326,
+    "Util@5": 0.44322344322344326,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|closed_world_annotations": {
+    "Exp@5": 0.5245421245421246,
+    "Util@5": 0.0673992673992674,
+    "eligible_share": 0.20456942003514939
+   },
+   "rag_mcp|lexical_positive": {
+    "Exp@5": 0.07692307692307693,
+    "Util@5": 0.34065934065934067,
+    "eligible_share": 0.6783831282952548
+   },
+   "rag_mcp|lexical_closed_world": {
+    "Exp@5": 0.07692307692307693,
+    "Util@5": 0.34065934065934067,
+    "eligible_share": 0.6783831282952548
+   },
+   "rag_mcp|verified_evidence": {
+    "Exp@5": 0.03809523809523809,
+    "Util@5": 0.40512820512820513,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|observed_lexical_fallback": {
+    "Exp@5": 0.03809523809523809,
+    "Util@5": 0.40512820512820513,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|attested_only": {
+    "Exp@5": 0.06153846153846154,
+    "Util@5": 0.2271062271062271,
+    "eligible_share": 0.24850615114235497
+   }
+  },
+  "forge|0.2": {
+   "pamcp_rrf|no_filter": {
+    "Exp@5": 0.4249084249084249,
+    "Util@5": 0.4981684981684982,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|mcp_default_annotations": {
+    "Exp@5": 0.4249084249084249,
+    "Util@5": 0.4981684981684982,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|closed_world_annotations": {
+    "Exp@5": 0.5802197802197802,
+    "Util@5": 0.11794871794871795,
+    "eligible_share": 0.2759226713532513
+   },
+   "pamcp_rrf|lexical_positive": {
+    "Exp@5": 0.0989010989010989,
+    "Util@5": 0.41025641025641024,
+    "eligible_share": 0.6783831282952548
+   },
+   "pamcp_rrf|lexical_closed_world": {
+    "Exp@5": 0.0989010989010989,
+    "Util@5": 0.41025641025641024,
+    "eligible_share": 0.6783831282952548
+   },
+   "pamcp_rrf|verified_evidence": {
+    "Exp@5": 0.05421245421245422,
+    "Util@5": 0.4644688644688645,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|observed_lexical_fallback": {
+    "Exp@5": 0.05421245421245422,
+    "Util@5": 0.4644688644688645,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|attested_only": {
+    "Exp@5": 0.05860805860805861,
+    "Util@5": 0.22344322344322345,
+    "eligible_share": 0.24850615114235497
+   },
+   "rag_mcp|no_filter": {
+    "Exp@5": 0.326007326007326,
+    "Util@5": 0.44322344322344326,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|mcp_default_annotations": {
+    "Exp@5": 0.326007326007326,
+    "Util@5": 0.44322344322344326,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|closed_world_annotations": {
+    "Exp@5": 0.5604395604395604,
+    "Util@5": 0.11648351648351647,
+    "eligible_share": 0.2759226713532513
+   },
+   "rag_mcp|lexical_positive": {
+    "Exp@5": 0.07692307692307693,
+    "Util@5": 0.34065934065934067,
+    "eligible_share": 0.6783831282952548
+   },
+   "rag_mcp|lexical_closed_world": {
+    "Exp@5": 0.07692307692307693,
+    "Util@5": 0.34065934065934067,
+    "eligible_share": 0.6783831282952548
+   },
+   "rag_mcp|verified_evidence": {
+    "Exp@5": 0.03809523809523809,
+    "Util@5": 0.40512820512820513,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|observed_lexical_fallback": {
+    "Exp@5": 0.03809523809523809,
+    "Util@5": 0.40512820512820513,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|attested_only": {
+    "Exp@5": 0.06153846153846154,
+    "Util@5": 0.2271062271062271,
+    "eligible_share": 0.24850615114235497
+   }
+  },
+  "forge|0.3": {
+   "pamcp_rrf|no_filter": {
+    "Exp@5": 0.4249084249084249,
+    "Util@5": 0.4981684981684982,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|mcp_default_annotations": {
+    "Exp@5": 0.4249084249084249,
+    "Util@5": 0.4981684981684982,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|closed_world_annotations": {
+    "Exp@5": 0.6256410256410256,
+    "Util@5": 0.19194139194139195,
+    "eligible_share": 0.39261862917398943
+   },
+   "pamcp_rrf|lexical_positive": {
+    "Exp@5": 0.0989010989010989,
+    "Util@5": 0.41025641025641024,
+    "eligible_share": 0.6783831282952548
+   },
+   "pamcp_rrf|lexical_closed_world": {
+    "Exp@5": 0.0989010989010989,
+    "Util@5": 0.41025641025641024,
+    "eligible_share": 0.6783831282952548
+   },
+   "pamcp_rrf|verified_evidence": {
+    "Exp@5": 0.05421245421245422,
+    "Util@5": 0.4644688644688645,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|observed_lexical_fallback": {
+    "Exp@5": 0.05421245421245422,
+    "Util@5": 0.4644688644688645,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|attested_only": {
+    "Exp@5": 0.05860805860805861,
+    "Util@5": 0.22344322344322345,
+    "eligible_share": 0.24850615114235497
+   },
+   "rag_mcp|no_filter": {
+    "Exp@5": 0.326007326007326,
+    "Util@5": 0.44322344322344326,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|mcp_default_annotations": {
+    "Exp@5": 0.326007326007326,
+    "Util@5": 0.44322344322344326,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|closed_world_annotations": {
+    "Exp@5": 0.5655677655677656,
+    "Util@5": 0.19926739926739928,
+    "eligible_share": 0.39261862917398943
+   },
+   "rag_mcp|lexical_positive": {
+    "Exp@5": 0.07692307692307693,
+    "Util@5": 0.34065934065934067,
+    "eligible_share": 0.6783831282952548
+   },
+   "rag_mcp|lexical_closed_world": {
+    "Exp@5": 0.07692307692307693,
+    "Util@5": 0.34065934065934067,
+    "eligible_share": 0.6783831282952548
+   },
+   "rag_mcp|verified_evidence": {
+    "Exp@5": 0.03809523809523809,
+    "Util@5": 0.40512820512820513,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|observed_lexical_fallback": {
+    "Exp@5": 0.03809523809523809,
+    "Util@5": 0.40512820512820513,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|attested_only": {
+    "Exp@5": 0.06153846153846154,
+    "Util@5": 0.2271062271062271,
+    "eligible_share": 0.24850615114235497
+   }
+  },
+  "launder|0.0": {
+   "pamcp_rrf|no_filter": {
+    "Exp@5": 0.4249084249084249,
+    "Util@5": 0.4981684981684982,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|mcp_default_annotations": {
+    "Exp@5": 0.4249084249084249,
+    "Util@5": 0.4981684981684982,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|closed_world_annotations": {
+    "Exp@5": 0.315018315018315,
+    "Util@5": 0.003663003663003663,
+    "eligible_share": 0.0773286467486819
+   },
+   "pamcp_rrf|lexical_positive": {
+    "Exp@5": 0.0989010989010989,
+    "Util@5": 0.41025641025641024,
+    "eligible_share": 0.6783831282952548
+   },
+   "pamcp_rrf|lexical_closed_world": {
+    "Exp@5": 0.0989010989010989,
+    "Util@5": 0.41025641025641024,
+    "eligible_share": 0.6783831282952548
+   },
+   "pamcp_rrf|verified_evidence": {
+    "Exp@5": 0.0,
+    "Util@5": 0.46886446886446886,
+    "eligible_share": 0.7768014059753954
+   },
+   "pamcp_rrf|observed_lexical_fallback": {
+    "Exp@5": 0.0,
+    "Util@5": 0.46886446886446886,
+    "eligible_share": 0.7768014059753954
+   },
+   "pamcp_rrf|attested_only": {
+    "Exp@5": 0.003663003663003663,
+    "Util@5": 0.16483516483516483,
+    "eligible_share": 0.26537785588752194
+   },
+   "rag_mcp|no_filter": {
+    "Exp@5": 0.326007326007326,
+    "Util@5": 0.4432234432234432,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|mcp_default_annotations": {
+    "Exp@5": 0.326007326007326,
+    "Util@5": 0.4432234432234432,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|closed_world_annotations": {
+    "Exp@5": 0.2600732600732601,
+    "Util@5": 0.007326007326007326,
+    "eligible_share": 0.0773286467486819
+   },
+   "rag_mcp|lexical_positive": {
+    "Exp@5": 0.07692307692307693,
+    "Util@5": 0.34065934065934067,
+    "eligible_share": 0.6783831282952548
+   },
+   "rag_mcp|lexical_closed_world": {
+    "Exp@5": 0.07692307692307693,
+    "Util@5": 0.34065934065934067,
+    "eligible_share": 0.6783831282952548
+   },
+   "rag_mcp|verified_evidence": {
+    "Exp@5": 0.0,
+    "Util@5": 0.41025641025641024,
+    "eligible_share": 0.7768014059753954
+   },
+   "rag_mcp|observed_lexical_fallback": {
+    "Exp@5": 0.0,
+    "Util@5": 0.41025641025641024,
+    "eligible_share": 0.7768014059753954
+   },
+   "rag_mcp|attested_only": {
+    "Exp@5": 0.0,
+    "Util@5": 0.16483516483516483,
+    "eligible_share": 0.26537785588752194
+   }
+  },
+  "launder|0.05": {
+   "pamcp_rrf|no_filter": {
+    "Exp@5": 0.4300366300366301,
+    "Util@5": 0.495970695970696,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|mcp_default_annotations": {
+    "Exp@5": 0.4300366300366301,
+    "Util@5": 0.495970695970696,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|closed_world_annotations": {
+    "Exp@5": 0.306959706959707,
+    "Util@5": 0.003663003663003663,
+    "eligible_share": 0.0773286467486819
+   },
+   "pamcp_rrf|lexical_positive": {
+    "Exp@5": 0.09816849816849818,
+    "Util@5": 0.40366300366300367,
+    "eligible_share": 0.6804920913884006
+   },
+   "pamcp_rrf|lexical_closed_world": {
+    "Exp@5": 0.09816849816849818,
+    "Util@5": 0.40366300366300367,
+    "eligible_share": 0.6804920913884006
+   },
+   "pamcp_rrf|verified_evidence": {
+    "Exp@5": 0.05567765567765568,
+    "Util@5": 0.4666666666666667,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|observed_lexical_fallback": {
+    "Exp@5": 0.05567765567765568,
+    "Util@5": 0.4666666666666667,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|attested_only": {
+    "Exp@5": 0.06007326007326007,
+    "Util@5": 0.22417582417582418,
+    "eligible_share": 0.24850615114235497
+   },
+   "rag_mcp|no_filter": {
+    "Exp@5": 0.33992673992673994,
+    "Util@5": 0.4395604395604396,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|mcp_default_annotations": {
+    "Exp@5": 0.33992673992673994,
+    "Util@5": 0.4395604395604396,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|closed_world_annotations": {
+    "Exp@5": 0.2542124542124542,
+    "Util@5": 0.007326007326007326,
+    "eligible_share": 0.0773286467486819
+   },
+   "rag_mcp|lexical_positive": {
+    "Exp@5": 0.07912087912087912,
+    "Util@5": 0.34505494505494505,
+    "eligible_share": 0.6804920913884006
+   },
+   "rag_mcp|lexical_closed_world": {
+    "Exp@5": 0.07912087912087912,
+    "Util@5": 0.34505494505494505,
+    "eligible_share": 0.6804920913884006
+   },
+   "rag_mcp|verified_evidence": {
+    "Exp@5": 0.03736263736263736,
+    "Util@5": 0.4065934065934066,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|observed_lexical_fallback": {
+    "Exp@5": 0.03736263736263736,
+    "Util@5": 0.4065934065934066,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|attested_only": {
+    "Exp@5": 0.06373626373626373,
+    "Util@5": 0.22637362637362637,
+    "eligible_share": 0.24850615114235497
+   }
+  },
+  "launder|0.1": {
+   "pamcp_rrf|no_filter": {
+    "Exp@5": 0.4366300366300367,
+    "Util@5": 0.4989010989010989,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|mcp_default_annotations": {
+    "Exp@5": 0.4366300366300367,
+    "Util@5": 0.4989010989010989,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|closed_world_annotations": {
+    "Exp@5": 0.31575091575091574,
+    "Util@5": 0.003663003663003663,
+    "eligible_share": 0.0773286467486819
+   },
+   "pamcp_rrf|lexical_positive": {
+    "Exp@5": 0.09304029304029304,
+    "Util@5": 0.4043956043956044,
+    "eligible_share": 0.6818980667838312
+   },
+   "pamcp_rrf|lexical_closed_world": {
+    "Exp@5": 0.09304029304029304,
+    "Util@5": 0.4043956043956044,
+    "eligible_share": 0.6818980667838312
+   },
+   "pamcp_rrf|verified_evidence": {
+    "Exp@5": 0.05641025641025641,
+    "Util@5": 0.4652014652014652,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|observed_lexical_fallback": {
+    "Exp@5": 0.05641025641025641,
+    "Util@5": 0.4652014652014652,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|attested_only": {
+    "Exp@5": 0.06153846153846153,
+    "Util@5": 0.22124542124542126,
+    "eligible_share": 0.24850615114235497
+   },
+   "rag_mcp|no_filter": {
+    "Exp@5": 0.3487179487179487,
+    "Util@5": 0.4344322344322345,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|mcp_default_annotations": {
+    "Exp@5": 0.3487179487179487,
+    "Util@5": 0.4344322344322345,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|closed_world_annotations": {
+    "Exp@5": 0.2637362637362638,
+    "Util@5": 0.007326007326007326,
+    "eligible_share": 0.0773286467486819
+   },
+   "rag_mcp|lexical_positive": {
+    "Exp@5": 0.08058608058608059,
+    "Util@5": 0.34798534798534797,
+    "eligible_share": 0.6818980667838312
+   },
+   "rag_mcp|lexical_closed_world": {
+    "Exp@5": 0.08058608058608059,
+    "Util@5": 0.34798534798534797,
+    "eligible_share": 0.6818980667838312
+   },
+   "rag_mcp|verified_evidence": {
+    "Exp@5": 0.03809523809523809,
+    "Util@5": 0.40512820512820513,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|observed_lexical_fallback": {
+    "Exp@5": 0.03809523809523809,
+    "Util@5": 0.40512820512820513,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|attested_only": {
+    "Exp@5": 0.05860805860805861,
+    "Util@5": 0.2271062271062271,
+    "eligible_share": 0.24850615114235497
+   }
+  },
+  "launder|0.2": {
+   "pamcp_rrf|no_filter": {
+    "Exp@5": 0.4373626373626374,
+    "Util@5": 0.4945054945054945,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|mcp_default_annotations": {
+    "Exp@5": 0.4373626373626374,
+    "Util@5": 0.4945054945054945,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|closed_world_annotations": {
+    "Exp@5": 0.2989010989010989,
+    "Util@5": 0.003663003663003663,
+    "eligible_share": 0.0773286467486819
+   },
+   "pamcp_rrf|lexical_positive": {
+    "Exp@5": 0.0879120879120879,
+    "Util@5": 0.4073260073260073,
+    "eligible_share": 0.6857644991212654
+   },
+   "pamcp_rrf|lexical_closed_world": {
+    "Exp@5": 0.0879120879120879,
+    "Util@5": 0.4073260073260073,
+    "eligible_share": 0.6857644991212654
+   },
+   "pamcp_rrf|verified_evidence": {
+    "Exp@5": 0.05494505494505495,
+    "Util@5": 0.46080586080586083,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|observed_lexical_fallback": {
+    "Exp@5": 0.05494505494505495,
+    "Util@5": 0.46080586080586083,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|attested_only": {
+    "Exp@5": 0.05787545787545788,
+    "Util@5": 0.2197802197802198,
+    "eligible_share": 0.24850615114235497
+   },
+   "rag_mcp|no_filter": {
+    "Exp@5": 0.3465201465201465,
+    "Util@5": 0.4322344322344323,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|mcp_default_annotations": {
+    "Exp@5": 0.3465201465201465,
+    "Util@5": 0.4322344322344323,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|closed_world_annotations": {
+    "Exp@5": 0.2571428571428572,
+    "Util@5": 0.007326007326007326,
+    "eligible_share": 0.0773286467486819
+   },
+   "rag_mcp|lexical_positive": {
+    "Exp@5": 0.08131868131868132,
+    "Util@5": 0.34945054945054943,
+    "eligible_share": 0.6857644991212654
+   },
+   "rag_mcp|lexical_closed_world": {
+    "Exp@5": 0.08131868131868132,
+    "Util@5": 0.34945054945054943,
+    "eligible_share": 0.6857644991212654
+   },
+   "rag_mcp|verified_evidence": {
+    "Exp@5": 0.039560439560439566,
+    "Util@5": 0.4043956043956044,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|observed_lexical_fallback": {
+    "Exp@5": 0.039560439560439566,
+    "Util@5": 0.4043956043956044,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|attested_only": {
+    "Exp@5": 0.06153846153846154,
+    "Util@5": 0.22490842490842491,
+    "eligible_share": 0.24850615114235497
+   }
+  },
+  "launder|0.3": {
+   "pamcp_rrf|no_filter": {
+    "Exp@5": 0.4329670329670329,
+    "Util@5": 0.4937728937728938,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|mcp_default_annotations": {
+    "Exp@5": 0.4329670329670329,
+    "Util@5": 0.4937728937728938,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|closed_world_annotations": {
+    "Exp@5": 0.3047619047619048,
+    "Util@5": 0.003663003663003663,
+    "eligible_share": 0.0773286467486819
+   },
+   "pamcp_rrf|lexical_positive": {
+    "Exp@5": 0.08717948717948718,
+    "Util@5": 0.4065934065934066,
+    "eligible_share": 0.6882249560632688
+   },
+   "pamcp_rrf|lexical_closed_world": {
+    "Exp@5": 0.08717948717948718,
+    "Util@5": 0.4065934065934066,
+    "eligible_share": 0.6882249560632688
+   },
+   "pamcp_rrf|verified_evidence": {
+    "Exp@5": 0.05641025641025641,
+    "Util@5": 0.46080586080586083,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|observed_lexical_fallback": {
+    "Exp@5": 0.05641025641025641,
+    "Util@5": 0.46080586080586083,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|attested_only": {
+    "Exp@5": 0.05421245421245421,
+    "Util@5": 0.2197802197802198,
+    "eligible_share": 0.24850615114235497
+   },
+   "rag_mcp|no_filter": {
+    "Exp@5": 0.35311355311355314,
+    "Util@5": 0.43589743589743596,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|mcp_default_annotations": {
+    "Exp@5": 0.35311355311355314,
+    "Util@5": 0.43589743589743596,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|closed_world_annotations": {
+    "Exp@5": 0.25567765567765566,
+    "Util@5": 0.007326007326007326,
+    "eligible_share": 0.0773286467486819
+   },
+   "rag_mcp|lexical_positive": {
+    "Exp@5": 0.08131868131868132,
+    "Util@5": 0.3487179487179487,
+    "eligible_share": 0.6882249560632688
+   },
+   "rag_mcp|lexical_closed_world": {
+    "Exp@5": 0.08131868131868132,
+    "Util@5": 0.3487179487179487,
+    "eligible_share": 0.6882249560632688
+   },
+   "rag_mcp|verified_evidence": {
+    "Exp@5": 0.04249084249084249,
+    "Util@5": 0.4065934065934066,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|observed_lexical_fallback": {
+    "Exp@5": 0.04249084249084249,
+    "Util@5": 0.4065934065934066,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|attested_only": {
+    "Exp@5": 0.05860805860805861,
+    "Util@5": 0.22564102564102564,
+    "eligible_share": 0.24850615114235497
+   }
+  },
+  "both|0.0": {
+   "pamcp_rrf|no_filter": {
+    "Exp@5": 0.4249084249084249,
+    "Util@5": 0.4981684981684982,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|mcp_default_annotations": {
+    "Exp@5": 0.4249084249084249,
+    "Util@5": 0.4981684981684982,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|closed_world_annotations": {
+    "Exp@5": 0.315018315018315,
+    "Util@5": 0.003663003663003663,
+    "eligible_share": 0.0773286467486819
+   },
+   "pamcp_rrf|lexical_positive": {
+    "Exp@5": 0.0989010989010989,
+    "Util@5": 0.41025641025641024,
+    "eligible_share": 0.6783831282952548
+   },
+   "pamcp_rrf|lexical_closed_world": {
+    "Exp@5": 0.0989010989010989,
+    "Util@5": 0.41025641025641024,
+    "eligible_share": 0.6783831282952548
+   },
+   "pamcp_rrf|verified_evidence": {
+    "Exp@5": 0.0,
+    "Util@5": 0.46886446886446886,
+    "eligible_share": 0.7768014059753954
+   },
+   "pamcp_rrf|observed_lexical_fallback": {
+    "Exp@5": 0.0,
+    "Util@5": 0.46886446886446886,
+    "eligible_share": 0.7768014059753954
+   },
+   "pamcp_rrf|attested_only": {
+    "Exp@5": 0.003663003663003663,
+    "Util@5": 0.16483516483516483,
+    "eligible_share": 0.26537785588752194
+   },
+   "rag_mcp|no_filter": {
+    "Exp@5": 0.326007326007326,
+    "Util@5": 0.4432234432234432,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|mcp_default_annotations": {
+    "Exp@5": 0.326007326007326,
+    "Util@5": 0.4432234432234432,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|closed_world_annotations": {
+    "Exp@5": 0.2600732600732601,
+    "Util@5": 0.007326007326007326,
+    "eligible_share": 0.0773286467486819
+   },
+   "rag_mcp|lexical_positive": {
+    "Exp@5": 0.07692307692307693,
+    "Util@5": 0.34065934065934067,
+    "eligible_share": 0.6783831282952548
+   },
+   "rag_mcp|lexical_closed_world": {
+    "Exp@5": 0.07692307692307693,
+    "Util@5": 0.34065934065934067,
+    "eligible_share": 0.6783831282952548
+   },
+   "rag_mcp|verified_evidence": {
+    "Exp@5": 0.0,
+    "Util@5": 0.41025641025641024,
+    "eligible_share": 0.7768014059753954
+   },
+   "rag_mcp|observed_lexical_fallback": {
+    "Exp@5": 0.0,
+    "Util@5": 0.41025641025641024,
+    "eligible_share": 0.7768014059753954
+   },
+   "rag_mcp|attested_only": {
+    "Exp@5": 0.0,
+    "Util@5": 0.16483516483516483,
+    "eligible_share": 0.26537785588752194
+   }
+  },
+  "both|0.05": {
+   "pamcp_rrf|no_filter": {
+    "Exp@5": 0.4300366300366301,
+    "Util@5": 0.495970695970696,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|mcp_default_annotations": {
+    "Exp@5": 0.4300366300366301,
+    "Util@5": 0.495970695970696,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|closed_world_annotations": {
+    "Exp@5": 0.39780219780219783,
+    "Util@5": 0.036630036630036625,
+    "eligible_share": 0.14762741652021089
+   },
+   "pamcp_rrf|lexical_positive": {
+    "Exp@5": 0.09816849816849818,
+    "Util@5": 0.40366300366300367,
+    "eligible_share": 0.6804920913884006
+   },
+   "pamcp_rrf|lexical_closed_world": {
+    "Exp@5": 0.09816849816849818,
+    "Util@5": 0.40366300366300367,
+    "eligible_share": 0.6804920913884006
+   },
+   "pamcp_rrf|verified_evidence": {
+    "Exp@5": 0.05567765567765568,
+    "Util@5": 0.4666666666666667,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|observed_lexical_fallback": {
+    "Exp@5": 0.05567765567765568,
+    "Util@5": 0.4666666666666667,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|attested_only": {
+    "Exp@5": 0.06007326007326007,
+    "Util@5": 0.22417582417582418,
+    "eligible_share": 0.24850615114235497
+   },
+   "rag_mcp|no_filter": {
+    "Exp@5": 0.33992673992673994,
+    "Util@5": 0.4395604395604396,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|mcp_default_annotations": {
+    "Exp@5": 0.33992673992673994,
+    "Util@5": 0.4395604395604396,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|closed_world_annotations": {
+    "Exp@5": 0.37509157509157515,
+    "Util@5": 0.03882783882783882,
+    "eligible_share": 0.14762741652021089
+   },
+   "rag_mcp|lexical_positive": {
+    "Exp@5": 0.07912087912087912,
+    "Util@5": 0.34505494505494505,
+    "eligible_share": 0.6804920913884006
+   },
+   "rag_mcp|lexical_closed_world": {
+    "Exp@5": 0.07912087912087912,
+    "Util@5": 0.34505494505494505,
+    "eligible_share": 0.6804920913884006
+   },
+   "rag_mcp|verified_evidence": {
+    "Exp@5": 0.03736263736263736,
+    "Util@5": 0.4065934065934066,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|observed_lexical_fallback": {
+    "Exp@5": 0.03736263736263736,
+    "Util@5": 0.4065934065934066,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|attested_only": {
+    "Exp@5": 0.06373626373626373,
+    "Util@5": 0.22637362637362637,
+    "eligible_share": 0.24850615114235497
+   }
+  },
+  "both|0.1": {
+   "pamcp_rrf|no_filter": {
+    "Exp@5": 0.4366300366300367,
+    "Util@5": 0.4989010989010989,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|mcp_default_annotations": {
+    "Exp@5": 0.4366300366300367,
+    "Util@5": 0.4989010989010989,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|closed_world_annotations": {
+    "Exp@5": 0.5714285714285714,
+    "Util@5": 0.06300366300366302,
+    "eligible_share": 0.20456942003514939
+   },
+   "pamcp_rrf|lexical_positive": {
+    "Exp@5": 0.09304029304029304,
+    "Util@5": 0.4043956043956044,
+    "eligible_share": 0.6818980667838312
+   },
+   "pamcp_rrf|lexical_closed_world": {
+    "Exp@5": 0.09304029304029304,
+    "Util@5": 0.4043956043956044,
+    "eligible_share": 0.6818980667838312
+   },
+   "pamcp_rrf|verified_evidence": {
+    "Exp@5": 0.05641025641025641,
+    "Util@5": 0.4652014652014652,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|observed_lexical_fallback": {
+    "Exp@5": 0.05641025641025641,
+    "Util@5": 0.4652014652014652,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|attested_only": {
+    "Exp@5": 0.06153846153846153,
+    "Util@5": 0.22124542124542126,
+    "eligible_share": 0.24850615114235497
+   },
+   "rag_mcp|no_filter": {
+    "Exp@5": 0.3487179487179487,
+    "Util@5": 0.4344322344322345,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|mcp_default_annotations": {
+    "Exp@5": 0.3487179487179487,
+    "Util@5": 0.4344322344322345,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|closed_world_annotations": {
+    "Exp@5": 0.5369963369963371,
+    "Util@5": 0.06666666666666667,
+    "eligible_share": 0.20456942003514939
+   },
+   "rag_mcp|lexical_positive": {
+    "Exp@5": 0.08058608058608059,
+    "Util@5": 0.34798534798534797,
+    "eligible_share": 0.6818980667838312
+   },
+   "rag_mcp|lexical_closed_world": {
+    "Exp@5": 0.08058608058608059,
+    "Util@5": 0.34798534798534797,
+    "eligible_share": 0.6818980667838312
+   },
+   "rag_mcp|verified_evidence": {
+    "Exp@5": 0.03809523809523809,
+    "Util@5": 0.40512820512820513,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|observed_lexical_fallback": {
+    "Exp@5": 0.03809523809523809,
+    "Util@5": 0.40512820512820513,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|attested_only": {
+    "Exp@5": 0.05860805860805861,
+    "Util@5": 0.2271062271062271,
+    "eligible_share": 0.24850615114235497
+   }
+  },
+  "both|0.2": {
+   "pamcp_rrf|no_filter": {
+    "Exp@5": 0.4373626373626374,
+    "Util@5": 0.4945054945054945,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|mcp_default_annotations": {
+    "Exp@5": 0.4373626373626374,
+    "Util@5": 0.4945054945054945,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|closed_world_annotations": {
+    "Exp@5": 0.5868131868131867,
+    "Util@5": 0.11648351648351647,
+    "eligible_share": 0.2759226713532513
+   },
+   "pamcp_rrf|lexical_positive": {
+    "Exp@5": 0.0879120879120879,
+    "Util@5": 0.4073260073260073,
+    "eligible_share": 0.6857644991212654
+   },
+   "pamcp_rrf|lexical_closed_world": {
+    "Exp@5": 0.0879120879120879,
+    "Util@5": 0.4073260073260073,
+    "eligible_share": 0.6857644991212654
+   },
+   "pamcp_rrf|verified_evidence": {
+    "Exp@5": 0.05494505494505495,
+    "Util@5": 0.46080586080586083,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|observed_lexical_fallback": {
+    "Exp@5": 0.05494505494505495,
+    "Util@5": 0.46080586080586083,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|attested_only": {
+    "Exp@5": 0.05787545787545788,
+    "Util@5": 0.2197802197802198,
+    "eligible_share": 0.24850615114235497
+   },
+   "rag_mcp|no_filter": {
+    "Exp@5": 0.3465201465201465,
+    "Util@5": 0.4322344322344323,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|mcp_default_annotations": {
+    "Exp@5": 0.3465201465201465,
+    "Util@5": 0.4322344322344323,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|closed_world_annotations": {
+    "Exp@5": 0.6014652014652014,
+    "Util@5": 0.11575091575091574,
+    "eligible_share": 0.2759226713532513
+   },
+   "rag_mcp|lexical_positive": {
+    "Exp@5": 0.08131868131868132,
+    "Util@5": 0.34945054945054943,
+    "eligible_share": 0.6857644991212654
+   },
+   "rag_mcp|lexical_closed_world": {
+    "Exp@5": 0.08131868131868132,
+    "Util@5": 0.34945054945054943,
+    "eligible_share": 0.6857644991212654
+   },
+   "rag_mcp|verified_evidence": {
+    "Exp@5": 0.039560439560439566,
+    "Util@5": 0.4043956043956044,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|observed_lexical_fallback": {
+    "Exp@5": 0.039560439560439566,
+    "Util@5": 0.4043956043956044,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|attested_only": {
+    "Exp@5": 0.06153846153846154,
+    "Util@5": 0.22490842490842491,
+    "eligible_share": 0.24850615114235497
+   }
+  },
+  "both|0.3": {
+   "pamcp_rrf|no_filter": {
+    "Exp@5": 0.4329670329670329,
+    "Util@5": 0.4937728937728938,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|mcp_default_annotations": {
+    "Exp@5": 0.4329670329670329,
+    "Util@5": 0.4937728937728938,
+    "eligible_share": 1.0
+   },
+   "pamcp_rrf|closed_world_annotations": {
+    "Exp@5": 0.6256410256410256,
+    "Util@5": 0.19706959706959706,
+    "eligible_share": 0.39261862917398943
+   },
+   "pamcp_rrf|lexical_positive": {
+    "Exp@5": 0.08717948717948718,
+    "Util@5": 0.4065934065934066,
+    "eligible_share": 0.6882249560632688
+   },
+   "pamcp_rrf|lexical_closed_world": {
+    "Exp@5": 0.08717948717948718,
+    "Util@5": 0.4065934065934066,
+    "eligible_share": 0.6882249560632688
+   },
+   "pamcp_rrf|verified_evidence": {
+    "Exp@5": 0.05641025641025641,
+    "Util@5": 0.46080586080586083,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|observed_lexical_fallback": {
+    "Exp@5": 0.05641025641025641,
+    "Util@5": 0.46080586080586083,
+    "eligible_share": 0.7803163444639719
+   },
+   "pamcp_rrf|attested_only": {
+    "Exp@5": 0.05421245421245421,
+    "Util@5": 0.2197802197802198,
+    "eligible_share": 0.24850615114235497
+   },
+   "rag_mcp|no_filter": {
+    "Exp@5": 0.35311355311355314,
+    "Util@5": 0.43589743589743596,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|mcp_default_annotations": {
+    "Exp@5": 0.35311355311355314,
+    "Util@5": 0.43589743589743596,
+    "eligible_share": 1.0
+   },
+   "rag_mcp|closed_world_annotations": {
+    "Exp@5": 0.5948717948717948,
+    "Util@5": 0.2,
+    "eligible_share": 0.39261862917398943
+   },
+   "rag_mcp|lexical_positive": {
+    "Exp@5": 0.08131868131868132,
+    "Util@5": 0.3487179487179487,
+    "eligible_share": 0.6882249560632688
+   },
+   "rag_mcp|lexical_closed_world": {
+    "Exp@5": 0.08131868131868132,
+    "Util@5": 0.3487179487179487,
+    "eligible_share": 0.6882249560632688
+   },
+   "rag_mcp|verified_evidence": {
+    "Exp@5": 0.04249084249084249,
+    "Util@5": 0.4065934065934066,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|observed_lexical_fallback": {
+    "Exp@5": 0.04249084249084249,
+    "Util@5": 0.4065934065934066,
+    "eligible_share": 0.7803163444639719
+   },
+   "rag_mcp|attested_only": {
+    "Exp@5": 0.05860805860805861,
+    "Util@5": 0.22564102564102564,
+    "eligible_share": 0.24850615114235497
+   }
+  }
+ },
+ "n_requests": 394
+}
