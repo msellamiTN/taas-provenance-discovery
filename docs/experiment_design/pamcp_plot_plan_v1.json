@@ -1801,7 +1801,7 @@
         {
           "id": "E9-F1",
           "title": "Goal-group retrieval recall",
-          "purpose": "Protocol primary: group recall@k by baseline, benchmark, and decomposition condition; series identifies k.",
+          "purpose": "Protocol primary: Group Recall@k by registered comparator, benchmark and decomposition condition for k={1,3,5,10,20}.",
           "role": "primary",
           "chart_type": "grouped_dot",
           "data_file": "results/visualization/data/E9-F1.csv",
@@ -1839,13 +1839,11 @@
           "comparison": {
             "primary_configuration": "Full_PaMCP",
             "baseline_ids": [
-              "rag_mcp",
               "mcp_zero",
-              "per_subtask",
               "colt_adapted",
               "toolscope_adapted",
               "cmtf_adapted",
-              "all_tools"
+              "pamcp_no_backward_closure"
             ],
             "factorial_cells": [],
             "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
@@ -1874,7 +1872,7 @@
         {
           "id": "E9-F2",
           "title": "Set precision versus group recall",
-          "purpose": "Supporting set precision versus group recall for each k, baseline, benchmark, and decomposition condition; bubble size is complete-set share.",
+          "purpose": "Supporting set precision versus Group Recall@k for each registered comparator and decomposition condition; bubble size is complete-set share.",
           "role": "supporting",
           "chart_type": "pareto_scatter",
           "data_file": "results/visualization/data/E9-F2.csv",
@@ -1911,13 +1909,11 @@
           "comparison": {
             "primary_configuration": "Full_PaMCP",
             "baseline_ids": [
-              "rag_mcp",
               "mcp_zero",
-              "per_subtask",
               "colt_adapted",
               "toolscope_adapted",
               "cmtf_adapted",
-              "all_tools"
+              "pamcp_no_backward_closure"
             ],
             "factorial_cells": [],
             "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
@@ -1950,7 +1946,7 @@
         {
           "id": "E9-F3",
           "title": "Complete-set coverage by task group",
-          "purpose": "Supporting complete-set share by task group, baseline, k, benchmark, and decomposition condition.",
+          "purpose": "Supporting complete-set share by task group, comparator, k={1,3,5,10,20}, benchmark and decomposition condition.",
           "role": "supporting",
           "chart_type": "heatmap",
           "data_file": "results/visualization/data/E9-F3.csv",
@@ -1987,13 +1983,11 @@
           "comparison": {
             "primary_configuration": "Full_PaMCP",
             "baseline_ids": [
-              "rag_mcp",
               "mcp_zero",
-              "per_subtask",
               "colt_adapted",
               "toolscope_adapted",
               "cmtf_adapted",
-              "all_tools"
+              "pamcp_no_backward_closure"
             ],
             "factorial_cells": [],
             "comparison_policy": "Only use baselines assigned to this experiment in the frozen catalogue; runtime-security comparators remain separately identified."
@@ -2028,6 +2022,8 @@
           "llm_analyst"
         ],
         "k": [
+          1,
+          3,
           5,
           10,
           20
