@@ -472,18 +472,55 @@ def load_encoder(path: Path, device: str):
     model_path = Path(bundle.get("model_path") or "")
     if not model_path.is_absolute():
         model_path = (path.parent / model_path).resolve()
+    if model_path.is_symlink() or not model_path.is_dir():
+        raise FileNotFoundError(f"Pinned encoder snapshot directory missing or unsafe: {model_path}")
     expected_files = bundle.get("files")
     if not isinstance(expected_files, dict) or not expected_files:
         raise ValueError("Encoder bundle must record per-file SHA-256 values")
+
+    # A partial manifest is insufficient: tokenizer/config/weights or nested module
+    # files could otherwise change the loaded model without changing the bundle hash.
+    expected_names: set[str] = set()
     actual_files = {}
     for relative, expected_hash in expected_files.items():
-        file_path = model_path / relative
-        if not file_path.is_file():
-            raise FileNotFoundError(f"Missing pinned encoder file: {file_path}")
+        if not isinstance(relative, str) or not relative.strip():
+            raise ValueError("Encoder manifest file paths must be non-empty relative paths")
+        normalized = relative.replace("\\", "/")
+        relative_path = Path(normalized)
+        if relative_path.is_absolute() or any(part in {"", ".", ".."} for part in relative_path.parts):
+            raise ValueError(f"Unsafe encoder manifest path: {relative}")
+        canonical_name = relative_path.as_posix()
+        if canonical_name in expected_names:
+            raise ValueError(f"Duplicate encoder manifest path: {canonical_name}")
+        expected_names.add(canonical_name)
+        if not isinstance(expected_hash, str) or len(expected_hash) != 64 or any(
+            char not in "0123456789abcdef" for char in expected_hash.lower()
+        ):
+            raise ValueError(f"Invalid SHA-256 in encoder manifest: {canonical_name}")
+        file_path = model_path / relative_path
+        if file_path.is_symlink() or not file_path.is_file():
+            raise FileNotFoundError(f"Missing or unsafe pinned encoder file: {file_path}")
         actual_hash = sha256_file(file_path)
-        if actual_hash != expected_hash:
-            raise ValueError(f"Encoder file hash mismatch: {relative}")
-        actual_files[relative] = actual_hash
+        if actual_hash != expected_hash.lower():
+            raise ValueError(f"Encoder file hash mismatch: {canonical_name}")
+        actual_files[canonical_name] = actual_hash
+
+    actual_names: set[str] = set()
+    for file_path in model_path.rglob("*"):
+        if file_path.is_symlink():
+            raise ValueError(f"Encoder snapshot must be materialized without symlinks: {file_path}")
+        if file_path.is_file():
+            actual_names.add(file_path.relative_to(model_path).as_posix())
+        elif not file_path.is_dir():
+            raise ValueError(f"Unsupported non-regular entry in encoder snapshot: {file_path}")
+    if actual_names != expected_names:
+        missing = sorted(actual_names - expected_names)
+        absent = sorted(expected_names - actual_names)
+        raise ValueError(
+            "Encoder snapshot inventory differs from its SHA-256 manifest: "
+            f"unhashed_files={missing[:5]} ({len(missing)}), "
+            f"missing_files={absent[:5]} ({len(absent)})"
+        )
     encoder = LocalSentenceTransformerEncoder(model_path, device)
     encoder.expected_package_version = str(bundle["package_version"])
     return encoder, {
@@ -509,6 +546,9 @@ def validate_release_gate(gate_path: Path, comparator_path: Path) -> dict:
     prerequisite_proofs = {}
     for experiment in REQUIRED_PREREQUISITES:
         item = prereqs[experiment]
+        acceptance_id = item.get("acceptance_id")
+        if not isinstance(acceptance_id, str) or not acceptance_id.strip():
+            raise ValueError(f"{experiment} accepted prerequisite must carry a non-empty acceptance_id")
         artifact = Path(item.get("artifact_path") or "")
         if not artifact.is_absolute():
             artifact = (gate_path.parent / artifact).resolve()
