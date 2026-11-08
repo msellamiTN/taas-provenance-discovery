@@ -13,6 +13,7 @@ from collections import Counter
 from pathlib import Path
 
 import fe
+from effect_metrics import confusion_with_unknown
 from taas.data.registries import load_mcptoolbenchpp
 from taas.types import parse_type
 
@@ -138,7 +139,8 @@ def human_sheet(n: int = 150, seed: int = 11) -> Path:
 
 
 def e3() -> dict:
-    """Declared (annotations) and lexical effect inference against labels B; labels A against B.
+    """Compare declared/lexical cues and LLM labels against labels B, preserving missing hints as unknown.
+    Confusion metrics are conditional on covered records; coverage and unknown composition are explicit.
     Observed effects (sandbox traces) are BLOCKED: no runnable servers in this environment."""
     A, B = fe.labels_A(), fe.labels_B()
     cs = {c.tool: c for c in fe.contracts_cached("declared")}
@@ -146,15 +148,6 @@ def e3() -> dict:
     ids = sorted(R)
     ref = [B[t].unsafe_read_only for t in ids]
 
-    def conf(pred):
-        tp = sum(1 for p, r in zip(pred, ref) if p is True and r)
-        fp = sum(1 for p, r in zip(pred, ref) if p is True and not r)
-        fn = sum(1 for p, r in zip(pred, ref) if p is not True and r)
-        tn = sum(1 for p, r in zip(pred, ref) if p is not True and not r)
-        unk = sum(1 for p in pred if p is None)
-        return {"tp": tp, "fp": fp, "fn": fn, "tn": tn, "unknown": unk,
-                "precision": tp / (tp + fp) if tp + fp else None, "recall": tp / (tp + fn) if tp + fn else None,
-                "discrepancy_rate": (fp + fn) / len(ids)}
     declared = []
     for t in ids:
         an = R[t].get("annotations") or {}
@@ -162,7 +155,9 @@ def e3() -> dict:
     lexical = [any(cs[t].strength(p) >= 0.25 for p in ("writes", "deletes", "execs", "pays")) for t in ids]
     silverA = [A[t].unsafe_read_only for t in ids]
     out = {"n": len(ids), "reference_unsafe_B": sum(ref),
-           "declared_vs_B": conf(declared), "lexical_vs_B": conf(lexical), "labelsA_vs_B": conf(silverA),
+           "declared_vs_B": confusion_with_unknown(declared, ref),
+           "lexical_vs_B": confusion_with_unknown(lexical, ref),
+           "labelsA_vs_B": confusion_with_unknown(silverA, ref),
            "kappa_A_B_state": fe.kappa(silverA, ref),
            "kappa_A_B_private": fe.kappa([A[t].private_source for t in ids], [B[t].private_source for t in ids]),
            "class_agreement": {}}
