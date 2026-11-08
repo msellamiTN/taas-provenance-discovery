@@ -146,6 +146,8 @@ The comparator mapping follows the explicit E9 comparison table in the original 
 
 \`per_subtask\` is independent per-goal retrieval followed by union; it is not the PaMCP-NoBackwardClosure ablation. \`rag_mcp\` and \`all_tools\` may be useful supplementary controls elsewhere in the study, but are not E9 confirmatory comparators under the explicit E9 comparator table. They must not be inserted into E9's confirmatory baseline list without a versioned protocol amendment.
 
+The ToolScope oracle loader rejects duplicate unordered pairs (including reversed duplicates), contradictory labels, malformed/out-of-pool IDs, and an oracle missing either positive or negative examples. Its merge metrics are not emitted from a contradictory or one-class oracle.
+
 The current repository implementation maturity is disclosed in each run manifest. MCP-Zero remains blocked until the official active-request loop is implemented. COLT remains blocked unless the accepted MCPToolBench++ dev scene bundle and crosswalk validate. ToolScope remains blocked until its independent equivalence oracle is accepted. CMTF is executable only with the accepted common typed-contract bundle. None may be silently replaced by a similarly named method.
 
 ## Executable E9 runner and accepted inputs
@@ -165,7 +167,7 @@ Required input package:
 | Composer config | approved E9 ComposerConfig with base K=20 and positive backward-closure depth; frozen refinement depth |
 | Encoder bundle | accepted, materialized local SentenceTransformers snapshot; model ID/revision and package version pinned; SHA-256 manifest covers the exact complete file inventory (no unlisted files, traversal paths or symlinks) |
 | COLT scene bundle | accepted MCPToolBench++ development split; query-to-server memberships; server-derived scenes; source-tool-to-LiveMCPTool crosswalk and SHA-256 |
-| ToolScope oracle | independent accepted positive/negative tool-equivalence pairs, not derived from E9 evaluator references |
+| ToolScope oracle | independently accepted positive and negative tool-equivalence pairs; every unordered pair is unique, labels are non-conflicting, both classes are represented, and no E9 evaluator labels are used |
 
 The runner uses a local-only SentenceTransformers model snapshot; it sets offline flags and does not silently download or substitute an encoder. The encoder bundle must hash every regular file in the materialized snapshot, with exact inventory equality; symlinks and path traversal are rejected so tokenizer/config/weight changes cannot be hidden outside the manifest. It does not synthesize GoalSpecs, contracts, effects, model profiles, training scenes or equivalence labels.
 
