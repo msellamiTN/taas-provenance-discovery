@@ -64,7 +64,7 @@ On each assessment, UX-24 clears prior subject data before requesting the newly 
 - [ ] Approval and audit data are read-only.
 - [ ] Keyboard-operable tabs and responsive layouts work.
 - [ ] No MCP endpoint is called and no execution path is introduced.
-- [ ] Focused tests, full regression suite, browser acceptance and Colab validation pass on the exact implementation head.
+- [ ] Focused tests, inline JavaScript syntax check, full regression suite, browser acceptance and Colab validation pass on the exact implementation head.
 
 ## Validation record
 
