@@ -318,3 +318,40 @@ def test_workspace_revision_history_records_field_level_edits(client, headers):
     assert client.delete(f"/api/v1/workspaces/{wid}", headers=headers).status_code == 200
     assert client.get(f"/api/v1/workspaces/{wid}/revisions",
                       headers=headers).status_code == 404
+
+
+# ---------- A1: GoalSpec template catalog ----------
+
+def test_goalspec_template_catalog_lists_and_details(client, headers):
+    resp = client.get("/api/v1/goalspec/templates", headers=headers)
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["schema"] == "taas.goalspec-template-list/v1"
+    assert body["count"] >= 3
+    ids = [t["id"] for t in body["templates"]]
+    assert ids == sorted(ids)
+    assert all("goal_spec" not in t for t in body["templates"])  # metadata only
+    assert all(len(t["spec_sha256"]) == 64 for t in body["templates"])
+    assert "not_authorization" in body["semantics"]
+
+    detail = client.get(f"/api/v1/goalspec/templates/{ids[0]}", headers=headers)
+    assert detail.status_code == 200
+    d = detail.json()
+    assert d["schema"] == "taas.goalspec-template/v1"
+    assert "goals" in d["template"]["goal_spec"]
+    assert "not_validation" in d["semantics"]
+
+    missing = client.get("/api/v1/goalspec/templates/nope", headers=headers)
+    assert missing.status_code == 404
+
+
+def test_goalspec_template_draft_validates_through_goals_validate(client, headers):
+    # Every catalog draft must pass the canonical validation path it claims to feed.
+    resp = client.get("/api/v1/goalspec/templates", headers=headers)
+    for t in resp.json()["templates"]:
+        detail = client.get(f"/api/v1/goalspec/templates/{t['id']}",
+                            headers=headers).json()
+        val = client.post("/api/v1/goals/validate", headers=headers,
+                          json=detail["template"]["goal_spec"])
+        assert val.status_code == 200, t["id"]
+        assert val.json()["valid"] is True
