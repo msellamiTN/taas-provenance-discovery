@@ -161,8 +161,8 @@ Required input package:
 | Release gate | schema_version=1.0.0, status=accepted; E1/E2/E3/E12 each have status=accepted, an artifact path, SHA-256 and acceptance ID |
 | Comparator map | status=accepted; baseline IDs exactly match the frozen E9 experiment; separate Full_PaMCP primary ID; protocol document SHA-256 and approval record |
 | GoalSpecs | 94 tasks × 3 decomposition conditions = 282 frozen JSONL records; prompt hash, explicit no-evaluator-access flag and transformation provenance |
-| Contract bundle | status=accepted; all 525 candidate tools are hash-bound to their definitions; no evaluator labels used; accepted E2 and E3 source-artifact hashes |
-| Model profile | accepted E12 bundle with model ID/revision and measured ModelProfile class curves |
+| Contract bundle | status=accepted; all 525 candidate tools are hash-bound to their definitions; no evaluator labels used; E2/E3 source artifact SHA-256 values and acceptance IDs exactly match the accepted E9 release-gate proofs |
+| Model profile | accepted E12 bundle with model ID/revision, measured ModelProfile class curves, and a calibration-source record whose hash and acceptance ID match the E12 release-gate proof |
 | Policy bundle | accepted and versioned E9 policy artifact |
 | Composer config | approved E9 ComposerConfig with base K=20 and positive backward-closure depth; frozen refinement depth |
 | Encoder bundle | accepted, materialized local SentenceTransformers snapshot; model ID/revision and package version pinned; SHA-256 manifest covers the exact complete file inventory (no unlisted files, traversal paths or symlinks) |
