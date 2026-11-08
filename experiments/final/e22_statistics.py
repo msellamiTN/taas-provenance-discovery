@@ -47,7 +47,7 @@ def split_stability(rows, n_splits: int = 200) -> dict:
         for _ in range(n_splits):
             if mode == "stratified":
                 h1 = set()
-                for c in set(cat.values()):
+                for c in sorted(set(cat.values())):   # sorted: the split must not depend on PYTHONHASHSEED
                     xs = [i for i in ids if cat[i] == c]
                     rng.shuffle(xs)
                     h1 |= set(xs[: len(xs) // 2])
