@@ -12,8 +12,8 @@ from taas.experiments.plotting import iter_figures, load_plot_plan, render_figur
 
 ROOT = Path(__file__).resolve().parents[1]
 REGISTERED = [
-    "rag_mcp", "mcp_zero", "per_subtask", "colt_adapted",
-    "toolscope_adapted", "cmtf_adapted", "all_tools",
+    "mcp_zero", "colt_adapted", "toolscope_adapted",
+    "cmtf_adapted", "pamcp_no_backward_closure",
 ]
 
 
@@ -28,18 +28,28 @@ def _build_run(root: Path) -> Path:
         ("task-3", "Travel", "cluster-b", ["provider::a", "provider::b", "provider::c"]),
         ("task-4", "Office", "cluster-c", ["provider::a", "provider::b", "provider::c"]),
     ]
-    for baseline in ("Full_PaMCP", "all_tools", "rag_mcp"):
+    methods = ["Full_PaMCP", *REGISTERED]
+    for baseline in methods:
         for decomposition in ("none", "clause_splitter", "llm_analyst"):
-            for task_id, task_group, _cluster, ranked in task_data:
-                ranking_rows.append({
-                    "task_id": task_id,
-                    "benchmark": "live_mcpbench_test",
-                    "baseline": baseline,
-                    "decomposition": decomposition,
-                    "task_group": task_group,
-                    "ranked_tool_ids": ranked,
-                    "visible_tool_ids": visible,
-                })
+            for k in (1, 3, 5, 10, 20):
+                for task_id, task_group, _cluster, ranked in task_data:
+                    prediction_kind = (
+                        "selected_toolkit"
+                        if baseline in {"Full_PaMCP", "pamcp_no_backward_closure"}
+                        else "top_k_retrieved_tools"
+                    )
+                    prediction = ranked[:min(k, len(ranked))]
+                    ranking_rows.append({
+                        "task_id": task_id,
+                        "benchmark": "live_mcpbench_test",
+                        "baseline": baseline,
+                        "decomposition": decomposition,
+                        "ranking_k": k,
+                        "prediction_kind": prediction_kind,
+                        "task_group": task_group,
+                        "ranked_tool_ids": prediction,
+                        "visible_tool_ids": visible,
+                    })
     (root / "discovery" / "rankings.jsonl").write_text(
         "".join(json.dumps(row) + "\n" for row in ranking_rows), encoding="utf-8"
     )
@@ -78,14 +88,13 @@ def _build_run(root: Path) -> Path:
         "run_id": "E9-test",
         "status": "partial",
         "baseline_ids_registered": REGISTERED,
-        "baseline_ids_executed": ["all_tools", "rag_mcp"],
+        "baseline_ids_executed": REGISTERED,
         "primary_configuration_id": "Full_PaMCP",
         "primary_configuration_executed": True,
-        "ranking_cutoffs": [5, 10, 20],
+        "ranking_cutoffs": [1, 3, 5, 10, 20],
     }
     (root / "MANIFEST.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     return root
-
 
 def _figure(figure_id: str):
     plan = load_plot_plan(ROOT / "docs/experiment_design/pamcp_plot_plan_v1.json")
@@ -99,13 +108,13 @@ def test_e9_export_uses_only_acceptable_set_references_and_renders(tmp_path):
     result = export_e9_figures(run_dir, output, bootstrap_resamples=200, seed=42)
 
     assert result["source_run_status"] == "partial"
-    assert result["figures_exported"] == ["E9-F1", "E9-F2", "E9-F3"]
-    assert result["primary_task_metric_rows"] == 81
-    assert result["trace_diagnostic_rows"] == 27
+    assert result["figures_exported"] == ["E9-F1", "E9-F2", "E9-F3", "E9-F4"]
+    assert result["primary_task_metric_rows"] == 270
+    assert result["trace_diagnostic_rows"] == 90
     assert result["primary_configuration_executed"] is True
-    assert result["primary_configuration_rows"] == 9
+    assert result["primary_configuration_rows"] == 45
     assert result["primary_tasks_without_acceptable_set_reference"] == 1
-    assert result["primary_ranking_rows_without_acceptable_set_reference"] == 9
+    assert result["primary_ranking_rows_without_acceptable_set_reference"] == 90
     assert result["decomposition_conditions_expected"] == ["none", "clause_splitter", "llm_analyst"]
     assert set(result["decomposition_conditions_observed"]) == {"none", "clause_splitter", "llm_analyst"}
 
@@ -114,20 +123,22 @@ def test_e9_export_uses_only_acceptable_set_references_and_renders(tmp_path):
     f3 = pd.read_csv(output / "E9-F3.csv")
     assert set(f1["benchmark"]) == {"live_mcpbench_test"}
     assert set(f1["category"]) == {"Full_PaMCP", "all_tools", "rag_mcp"}
-    assert set(f1["series"]) == {"Group recall@5", "Group recall@10", "Group recall@20"}
+    assert set(f1["series"]) == {"Group recall@1", "Group recall@3", "Group recall@5", "Group recall@10", "Group recall@20"}
     assert set(f1["decomposition"]) == {"none", "clause_splitter", "llm_analyst"}
     assert ((f1["ci_low"] <= f1["value"]) & (f1["value"] <= f1["ci_high"])).all()
-    assert set(f2["series"]) == {"@5", "@10", "@20"}
+    assert set(f2["series"]) == {"@1", "@3", "@5", "@10", "@20"}
     assert set(f2["decomposition"]) == {"none", "clause_splitter", "llm_analyst"}
     assert set(f2["label"]) == {"Full_PaMCP", "all_tools", "rag_mcp"}
     assert set(f3["task_group"]) == {"Office", "Travel"}
     assert set(f3["decomposition"]) == {"none", "clause_splitter", "llm_analyst"}
-    assert set(f3["k"]) == {5, 10, 20}
-    assert set(f3["decomposition"]) == {"none", "clause_splitter", "llm_analyst"}
-    assert set(f3["k"]) == {5, 10, 20}
+    assert set(f3["k"]) == {1, 3, 5, 10, 20}
     assert not f3.empty
+    f4 = pd.read_csv(output / "E9-F4.csv")
+    assert set(f4["group"]) == {"Full_PaMCP", *REGISTERED}
+    assert set(f4["k"]) == {1, 3, 5, 10, 20}
+    assert len(f4) == 270
 
-    for figure_id, frame in [("E9-F1", f1), ("E9-F2", f2), ("E9-F3", f3)]:
+    for figure_id, frame in [("E9-F1", f1), ("E9-F2", f2), ("E9-F3", f3), ("E9-F4", f4)]:
         figure = _figure(figure_id)
         validate_figure_data(figure, frame)
         outputs = render_figure(figure, frame, figures, formats=("png",), dpi=90)
@@ -171,7 +182,7 @@ def test_e9_does_not_promote_trace_only_data_to_primary_metrics(tmp_path):
     result = export_e9_figures(run_dir, output, bootstrap_resamples=150)
     assert result["figures_exported"] == []
     assert result["primary_task_metric_rows"] == 0
-    assert result["trace_diagnostic_rows"] == 108
+    assert result["trace_diagnostic_rows"] == 360
     assert (output / "E9_TRACE_DIAGNOSTICS.csv").is_file()
     assert not (output / "E9-F1.csv").exists()
     assert not (output / "E9-F2.csv").exists()
