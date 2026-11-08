@@ -591,6 +591,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <a href="#ux18-policy-test-workbench">Policy Testing &amp; Simulation (UX-18)</a>
       <a href="#ux19-governance-audit-timeline">Governance Evidence &amp; Policy Audit Timeline (UX-19)</a>
       <a href="#ux20-compliance-dashboard">Compliance &amp; Assurance Dashboard (UX-20)</a>
+      <a href="#ux21-remediation-workbench">Risk &amp; Remediation Workbench (UX-21)</a>
       <span class="nav-label">OPERATE &amp; OBSERVE</span>
       <a href="#workspace">Benchmark workspace</a>
       <a class="overview-shortcut" href="#runtime">Runtime diagnostics</a>
@@ -1320,6 +1321,62 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   </div>
   <p class="ux8-note">No local conflict rules, policy versions, graph edges, validation outcomes or lifecycle events are synthesized. Only the exact response from the Core policy evaluator is displayed.</p>
 
+</section>
+<section id="ux21-remediation-workbench" class="section-anchor" aria-labelledby="ux21-title" style="margin-bottom:18px">
+<style>
+#ux21-remediation-workbench .ux21-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:12px 0}
+#ux21-remediation-workbench .ux21-kpi{background:var(--panel,#fff);border:1px solid var(--line);border-radius:12px;padding:13px}
+#ux21-remediation-workbench .ux21-kpi strong{display:block;font-size:25px;margin-top:5px}
+#ux21-remediation-workbench .ux21-layout{display:grid;grid-template-columns:minmax(280px,1fr) minmax(280px,1fr);gap:12px;align-items:start}
+#ux21-remediation-workbench .ux21-card{background:var(--panel,#fff);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+#ux21-remediation-workbench .ux21-card h3{margin:0 0 8px}
+#ux21-remediation-workbench .ux21-tag{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:700;background:#eef2ff;color:#3730a3}
+#ux21-remediation-workbench .ux21-tag.high{background:#fee2e2;color:#991b1b}
+#ux21-remediation-workbench .ux21-tag.medium{background:#fef3c7;color:#92400e}
+#ux21-remediation-workbench .ux21-tag.low{background:#dcfce7;color:#166534}
+#ux21-remediation-workbench .ux21-bar{height:9px;background:#e8edf5;border-radius:20px;overflow:hidden;min-width:72px}
+#ux21-remediation-workbench .ux21-bar span{display:block;height:100%;border-radius:20px;background:#4f46e5}
+#ux21-remediation-workbench .ux21-risk{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+#ux21-remediation-workbench .ux21-risk div{min-height:54px;border-radius:8px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;font-weight:700;padding:5px;color:#312e81;background:#e0e7ff}
+#ux21-remediation-workbench .ux21-risk .r-high{background:#fecaca;color:#7f1d1d}
+#ux21-remediation-workbench .ux21-risk .r-med{background:#fde68a;color:#78350f}
+#ux21-remediation-workbench .ux21-workflow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+#ux21-remediation-workbench .ux21-step{border:1px solid var(--line);border-radius:9px;padding:9px 5px;text-align:center;font-size:11px;font-weight:700;background:#f8fafc;color:#475569}
+#ux21-remediation-workbench .ux21-step.active{background:#e0e7ff;border-color:#818cf8;color:#3730a3}
+#ux21-remediation-workbench .ux21-chart{width:100%;height:auto;display:block}
+#ux21-remediation-workbench .ux21-chart text{font:11px system-ui;fill:#64748b}
+#ux21-remediation-workbench .ux21-table{width:100%;border-collapse:collapse;font-size:13px}
+#ux21-remediation-workbench .ux21-table th,#ux21-remediation-workbench .ux21-table td{padding:9px 7px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+#ux21-remediation-workbench .ux21-table th{font-size:11px;text-transform:uppercase;color:var(--muted,#64748b)}
+#ux21-remediation-workbench .ux21-demo{border:1px solid #d8b56b;background:#fff7e5;color:#713f12;border-radius:10px;padding:11px;margin:10px 0}
+@media(max-width:850px){#ux21-remediation-workbench .ux21-layout{grid-template-columns:1fr}#ux21-remediation-workbench .ux21-workflow{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style>
+<div class="panel-head"><div><div class="eyebrow">GOVERN · REMEDIATE · IMPROVE · UX-21</div><h2 id="ux21-title" style="margin:4px 0">Governance Remediation &amp; Risk Prioritization Workbench</h2><p class="subtle">Prioritize governance risks, coordinate remediation and monitor action progress.</p></div><span id="ux21-mode-pill" class="pill">DEMO DATA · ILLUSTRATIVE</span></div>
+<div class="notice"><strong>Evidence and action boundary.</strong> Demo mode is fictional and for UX review only. Live mode reports only Core audit observations. Core currently exposes no general risk register, remediation plan/action service, SLA tracker or historical risk analytics. No remediation is executed or authorized by this workspace.</div>
+<div class="ux21-card" style="margin-bottom:12px"><div class="panel-head"><div><h3 style="margin:0">Workspace data mode</h3><p class="subtle">Demo values are isolated from authenticated live Core observations.</p></div><div class="inline-actions" style="margin:0"><button id="ux21-demo-mode" class="secondary" type="button">Show demo data</button><button id="ux21-live-mode" type="button">Load live Core data</button></div></div><p id="ux21-status" class="subtle" role="status" aria-live="polite">Illustrative remediation workspace loaded.</p></div>
+<div id="ux21-demo-banner" class="ux21-demo"><strong>DEMO DATA — NOT LIVE / NOT VERIFIED.</strong> All risk scores, findings, owners, deadlines, action statuses, SLA values and chart series are fictional examples. They do not describe a real TaaS deployment.</div>
+<div class="ux21-kpis">
+<div class="ux21-kpi"><div class="eyebrow">OPEN FINDINGS</div><strong id="ux21-open">12</strong><span class="subtle">Illustrative inventory</span></div>
+<div class="ux21-kpi"><div class="eyebrow">HIGH RISKS</div><strong id="ux21-high">3</strong><span class="subtle">Priority attention</span></div>
+<div class="ux21-kpi"><div class="eyebrow">OVERDUE ACTIONS</div><strong id="ux21-overdue">4</strong><span class="subtle">Illustrative SLA status</span></div>
+<div class="ux21-kpi"><div class="eyebrow">IN PROGRESS</div><strong id="ux21-progress">7</strong><span class="subtle">Remediation actions</span></div>
+<div class="ux21-kpi"><div class="eyebrow">RESOLVED</div><strong id="ux21-resolved">18</strong><span class="subtle">Illustrative completion</span></div>
+</div>
+<div class="ux21-layout">
+<div class="ux21-card"><div class="panel-head"><div><h3>1 · Risk prioritization matrix</h3><p class="subtle">Likelihood × impact · illustrative risk placement.</p></div><span class="ux21-tag high" id="ux21-risk-state">DEMO</span></div>
+<div class="ux21-risk" id="ux21-risk-matrix"><div>Medium</div><div class="r-high">High · 2</div><div class="r-high">Critical · 1</div><div>Low · 2</div><div class="r-med">Medium · 3</div><div class="r-high">High · 2</div><div>Low · 1</div><div>Medium · 1</div><div class="r-med">Medium · 1</div></div>
+<div class="subtle" style="display:flex;justify-content:space-between;margin-top:8px"><span>Lower likelihood</span><span>Higher likelihood →</span></div></div>
+<div class="ux21-card"><div class="panel-head"><div><h3>2 · Risk severity distribution</h3><p class="subtle">Findings grouped by illustrative severity.</p></div><span class="ux21-tag">DEMO</span></div>
+<svg class="ux21-chart" viewBox="0 0 440 190" role="img" aria-label="Illustrative severity distribution bar chart"><line x1="28" y1="150" x2="420" y2="150" stroke="#cbd5e1"/><g><rect x="65" y="45" width="62" height="105" rx="7" fill="#dc2626"/><text x="96" y="37" text-anchor="middle">3</text><text x="96" y="170" text-anchor="middle">High</text></g><g><rect x="188" y="15" width="62" height="135" rx="7" fill="#d97706"/><text x="219" y="10" text-anchor="middle">6</text><text x="219" y="170" text-anchor="middle">Medium</text></g><g><rect x="311" y="82" width="62" height="68" rx="7" fill="#16a34a"/><text x="342" y="74" text-anchor="middle">3</text><text x="342" y="170" text-anchor="middle">Low</text></g></svg></div>
+<div class="ux21-card"><div class="panel-head"><div><h3>3 · Governance findings register</h3><p class="subtle">Prioritized issues, impacted domains and target dates.</p></div><span class="ux21-tag">DEMO</span></div><div style="overflow:auto"><table class="ux21-table"><thead><tr><th>Finding</th><th>Domain</th><th>Severity</th><th>Due</th></tr></thead><tbody id="ux21-findings"><tr><td>Privileged access review overdue</td><td>Identity</td><td><span class="ux21-tag high">High</span></td><td>Nov 10</td></tr><tr><td>Evidence freshness below target</td><td>Assurance</td><td><span class="ux21-tag high">High</span></td><td>Nov 12</td></tr><tr><td>Retention mapping incomplete</td><td>Data</td><td><span class="ux21-tag medium">Medium</span></td><td>Nov 18</td></tr><tr><td>Policy exception pending review</td><td>Policy</td><td><span class="ux21-tag medium">Medium</span></td><td>Nov 20</td></tr></tbody></table></div></div>
+<div class="ux21-card"><div class="panel-head"><div><h3>4 · Remediation planning</h3><p class="subtle">Action, accountable owner, priority and due date.</p></div><span class="ux21-tag">DEMO</span></div><div style="overflow:auto"><table class="ux21-table"><thead><tr><th>Action</th><th>Owner</th><th>Priority</th><th>Due</th><th>Progress</th></tr></thead><tbody id="ux21-actions"><tr><td>Re-certify privileged roles</td><td>IAM Lead</td><td>High</td><td>Nov 10</td><td>65%</td></tr><tr><td>Refresh evidence bundle</td><td>Assurance</td><td>High</td><td>Nov 12</td><td>40%</td></tr><tr><td>Complete retention mapping</td><td>Data Gov</td><td>Medium</td><td>Nov 18</td><td>25%</td></tr></tbody></table></div></div>
+<div class="ux21-card"><div class="panel-head"><div><h3>5 · Remediation workflow</h3><p class="subtle">Detect → analyze → plan → execute → verify.</p></div><span class="ux21-tag">PROCESS MODEL</span></div><div class="ux21-workflow"><div class="ux21-step active">1 · Detect</div><div class="ux21-step active">2 · Analyze</div><div class="ux21-step active">3 · Plan</div><div class="ux21-step">4 · Execute</div><div class="ux21-step">5 · Verify</div></div><p class="subtle" style="margin-top:10px">Workflow stages illustrate a process model only. No action is triggered from this screen.</p></div>
+<div class="ux21-card"><div class="panel-head"><div><h3>6 · SLA &amp; action tracking</h3><p class="subtle">On-track, at-risk and overdue action distribution.</p></div><span class="ux21-tag">DEMO</span></div><svg class="ux21-chart" viewBox="0 0 440 175" role="img" aria-label="Illustrative remediation SLA chart"><text x="18" y="34">On track</text><rect x="112" y="18" width="280" height="22" rx="6" fill="#e2e8f0"/><rect x="112" y="18" width="196" height="22" rx="6" fill="#16a34a"/><text x="402" y="34">70%</text><text x="18" y="82">At risk</text><rect x="112" y="66" width="280" height="22" rx="6" fill="#e2e8f0"/><rect x="112" y="66" width="56" height="22" rx="6" fill="#d97706"/><text x="402" y="82">20%</text><text x="18" y="130">Overdue</text><rect x="112" y="114" width="280" height="22" rx="6" fill="#e2e8f0"/><rect x="112" y="114" width="28" height="22" rx="6" fill="#dc2626"/><text x="402" y="130">10%</text></svg></div>
+<div class="ux21-card"><div class="panel-head"><div><h3>7 · Risk &amp; remediation trend</h3><p class="subtle">Illustrative monthly open-finding and closure series.</p></div><span class="ux21-tag">DEMO</span></div><svg class="ux21-chart" viewBox="0 0 440 190" role="img" aria-label="Illustrative monthly risk and remediation trend"><line x1="35" y1="150" x2="415" y2="150" stroke="#cbd5e1"/><polyline points="45,48 115,62 185,78 255,92 325,112 395,128" fill="none" stroke="#4f46e5" stroke-width="3"/><polyline points="45,132 115,120 185,105 255,94 325,77 395,58" fill="none" stroke="#16a34a" stroke-width="3"/><g fill="#4f46e5"><circle cx="45" cy="48" r="4"/><circle cx="115" cy="62" r="4"/><circle cx="185" cy="78" r="4"/><circle cx="255" cy="92" r="4"/><circle cx="325" cy="112" r="4"/><circle cx="395" cy="128" r="4"/></g><g fill="#16a34a"><circle cx="45" cy="132" r="4"/><circle cx="115" cy="120" r="4"/><circle cx="185" cy="105" r="4"/><circle cx="255" cy="94" r="4"/><circle cx="325" cy="77" r="4"/><circle cx="395" cy="58" r="4"/></g><g><text x="45" y="170" text-anchor="middle">Jun</text><text x="115" y="170" text-anchor="middle">Jul</text><text x="185" y="170" text-anchor="middle">Aug</text><text x="255" y="170" text-anchor="middle">Sep</text><text x="325" y="170" text-anchor="middle">Oct</text><text x="395" y="170" text-anchor="middle">Nov</text></g></svg><div class="subtle"> <span style="color:#4f46e5">● Open findings</span> &nbsp; <span style="color:#16a34a">● Remediations closed</span></div></div>
+</div>
+<div class="ux21-card" style="margin-top:12px"><div class="panel-head"><div><h3 style="margin:0">8 · Impact, coverage &amp; next steps</h3><p class="subtle">Illustrative impact summary and prioritized actions.</p></div><span class="ux21-tag">DEMO</span></div><div class="ux21-layout" style="margin-top:10px"><div><p><strong>Impacted domains</strong></p><p>Identity &amp; access · Evidence assurance · Data governance · Policy lifecycle · Operational resilience</p><p><strong>Coverage</strong></p><div style="display:flex;align-items:center;gap:10px"><div class="ux21-bar" style="flex:1"><span style="width:78%"></span></div><strong>78%</strong></div><p class="subtle">Illustrative scope coverage; not measured.</p></div><div><p><strong>Prioritized next steps</strong></p><ol><li>Close privileged access review and validate evidence.</li><li>Refresh expiring assurance evidence.</li><li>Complete retention mapping and obtain domain review.</li></ol></div></div></div>
+<div class="ux21-card" style="margin-top:12px"><div class="panel-head"><div><h3 style="margin:0">9 · Live Core observations &amp; capability boundary</h3><p class="subtle">Exact returned audit observations; no synthetic live risk interpretation.</p></div><span id="ux21-live-state" class="pill">NOT LOADED</span></div><pre id="ux21-live-detail" class="ux8-json">Live data has not been requested. Switch to live mode to retrieve supported Core observations.</pre></div>
+<p class="ux8-note">Verified Core scope: <code>GET /api/v1/audit/events</code> and <code>GET /api/v1/audit/verify</code>. Audit event types include evidence, signature, approval, revocation, policy_verdict and discovery_run. These are not a risk register. There is no Core API for remediation findings, owners, due dates, action progress, SLAs, risk scoring or historical remediation trends. Live risk and remediation panels are therefore unavailable; only the exact audit observations and hash-chain response are displayed. No publish, activation, authorization or execution occurs.</p>
 </section>
 <section id="ux20-compliance-dashboard" class="section-anchor" aria-labelledby="ux20-title" style="margin-bottom:18px">
 <div class="panel-head"><div><div class="eyebrow">GOVERN · ASSURE · COMPLY · UX-20</div><h2 id="ux20-title" style="margin:4px 0">Governance Compliance &amp; Assurance Dashboard</h2><p class="subtle">A consolidated view of governance evidence, assurance signals, approvals and operational findings.</p></div><span id="ux20-mode-pill" class="pill">DEMO DATA · ILLUSTRATIVE</span></div>
@@ -4242,6 +4299,53 @@ el("ux15-refresh").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-
     show("ux17-verdict",{status:"No policy evaluation requested."});table([]);conflicts([]);
     status("Inputs reset. No policy was saved or changed.");
   });
+
+  // UX-21: mockup-faithful risk/remediation workspace; fictional demo data is isolated from live Core audit observations.
+  (() => {
+    const el=id=>document.getElementById(id), pretty=v=>JSON.stringify(v,null,2);
+    const demoFindings=[
+      ["Privileged access review overdue","Identity","High","Nov 10"],
+      ["Evidence freshness below target","Assurance","High","Nov 12"],
+      ["Retention mapping incomplete","Data","Medium","Nov 18"],
+      ["Policy exception pending review","Policy","Medium","Nov 20"],
+      ["Recovery test evidence missing","Resilience","Medium","Nov 22"]
+    ];
+    const demoActions=[
+      ["Re-certify privileged roles","IAM Lead","High","Nov 10",65],
+      ["Refresh assurance evidence","Assurance","High","Nov 12",40],
+      ["Complete retention mapping","Data Gov","Medium","Nov 18",25],
+      ["Review policy exception","Policy Owner","Medium","Nov 20",10]
+    ];
+    const demo=()=>{
+      el("ux21-demo-banner").hidden=false;el("ux21-mode-pill").textContent="DEMO DATA · ILLUSTRATIVE";el("ux21-live-state").textContent="DEMO ONLY";
+      el("ux21-status").textContent="Demo mode active. All dashboard values and chart series are fictional.";
+      [["ux21-open","12"],["ux21-high","3"],["ux21-overdue","4"],["ux21-progress","7"],["ux21-resolved","18"]].forEach(([id,v])=>el(id).textContent=v);
+      el("ux21-risk-state").textContent="DEMO MATRIX";
+      el("ux21-findings").innerHTML=demoFindings.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td><span class="ux21-tag '+r[2].toLowerCase()+'">'+r[2]+'</span></td><td>'+r[3]+'</td></tr>').join("");
+      el("ux21-actions").innerHTML=demoActions.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td><td><div style="display:flex;align-items:center;gap:7px"><div class="ux21-bar"><span style="width:'+r[4]+'%"></span></div>'+r[4]+'%</div></td></tr>').join("");
+      el("ux21-live-detail").textContent="DEMO DATA ONLY. No Core request was made. The charts, matrix, findings, owners, dates, action states and progress values above are fictional examples.";
+      el("ux21-demo-mode").disabled=true;el("ux21-live-mode").disabled=false;
+    };
+    const live=async()=>{
+      const token=el("token")?.value?.trim();
+      if(!token){el("ux21-status").textContent="Connect to TaaS Studio and provide an API token before loading live data.";return}
+      el("ux21-live-mode").disabled=true;el("ux21-demo-banner").hidden=true;el("ux21-mode-pill").textContent="LIVE CORE OBSERVATIONS · LIMITED";el("ux21-status").textContent="Retrieving supported audit observations…";
+      const get=async path=>{const r=await fetch(path,{headers:{"Authorization":"Bearer "+token,"Accept":"application/json","Cache-Control":"no-cache"},cache:"no-store"});const d=await r.json().catch(()=>({detail:"Non-JSON response"}));if(!r.ok)throw Error("HTTP "+r.status+": "+(d.detail||"request failed"));return d};
+      const [a,v]=await Promise.allSettled([get("/api/v1/audit/events?limit=1000"),get("/api/v1/audit/verify")]);
+      const audit=a.status==="fulfilled"&&a.value.schema==="taas.audit-events/v1"&&Array.isArray(a.value.events)?a.value:null;
+      const verify=v.status==="fulfilled"&&v.value.schema==="taas.audit-verify/v1"&&typeof v.value.chain_valid==="boolean"?v.value:null;
+      const errors=[];if(!audit)errors.push("Audit events: "+(a.status==="rejected"?a.reason.message:"unexpected schema"));if(!verify)errors.push("Audit verification: "+(v.status==="rejected"?v.reason.message:"unexpected schema"));
+      const events=audit?.events||[],types=events.reduce((m,e)=>(m[e.event_type]=(m[e.event_type]||0)+1,m),{});
+      [["ux21-open","Unavailable"],["ux21-high","Unavailable"],["ux21-overdue","Unavailable"],["ux21-progress","Unavailable"],["ux21-resolved","Unavailable"]].forEach(([id,v])=>el(id).textContent=v);
+      el("ux21-risk-state").textContent="NOT AVAILABLE";el("ux21-findings").innerHTML='<tr><td colspan="4">No Core risk/findings register or risk-assessment endpoint. No live findings inferred.</td></tr>';
+      el("ux21-actions").innerHTML='<tr><td colspan="5">No Core remediation action, owner, deadline or progress API. No live actions inferred.</td></tr>';
+      el("ux21-live-state").textContent=errors.length?"PARTIAL / ERROR":"CORE RESPONSES";
+      el("ux21-live-detail").textContent=pretty({audit_events:audit?{schema:audit.schema,count:audit.count,record_semantics:audit.record_semantics,event_type_counts:types,events}:null,audit_verification:verify?{schema:verify.schema,chain_valid:verify.chain_valid,event_count:verify.event_count,first_divergence:verify.first_divergence??null,verify_semantics:verify.verify_semantics}:null,errors,unsupported_live_capabilities:["risk scoring","risk matrix classification","global findings register","remediation plans/actions","action owners and deadlines","SLA status","historical risk/remediation trends","control coverage"],invariants:{audit_integrity_is_not_claim_truth:true,execution_performed:false,authorization_granted:false}});
+      el("ux21-status").textContent="Live Core responses loaded. Risk and remediation metrics remain unavailable because Core exposes no supporting APIs.";
+      el("ux21-demo-mode").disabled=false;el("ux21-live-mode").disabled=false;
+    };
+    el("ux21-demo-mode").addEventListener("click",demo);el("ux21-live-mode").addEventListener("click",live);demo();
+  })();
 
   // UX-20: isolated fictional demo data plus read-only live Core observations.
   (() => {
