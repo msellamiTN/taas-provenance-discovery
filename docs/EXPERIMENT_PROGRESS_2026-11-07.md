@@ -18,7 +18,7 @@ Two blinded 569-row annotation sheets are prepared. Annotator A and B packages a
 
 ## E9 — LiveMCPBench dataset and retrieval pipeline
 
-The pinned LiveMCPBench source is revision \`36a51a1065dda49c1e503b87edf33a1e0b331a74\`. E9 uses the LiveMCPTool-only candidate pool (525 tools / 69 servers), not the E1 union with MCPToolBench++.
+The pinned LiveMCPBench source is revision \`36a51a1065dda49c1e503b87edf33a1e0b331a74\`. E9 uses the LiveMCPTool-only candidate pool (525 tools / 69 servers), not the E1 union with MCPToolBench++. The runner now validates this exact source revision, candidate registry view and denominator (94 eligible tasks from 95) before any method execution; a correctly checksummed package from another revision is rejected.
 
 The protocol-aligned audit of 95 public tasks produced:
 
