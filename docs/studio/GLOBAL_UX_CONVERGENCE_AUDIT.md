@@ -175,7 +175,7 @@ The discovery handler explicitly rejects requests without human_review_confirmed
 ## 6. Existing approved work and branch handling
 
 - UX-7/UX-8/UX-9, F02, Evidence workspace and Release Center are covered by the approved implementation scope in issue #87. Do not restart mockup review for designs already approved.
-- UX-24 is on feature/ux-24-agent-governance-trust-center and tracked by draft PR #88. Its documented automated suite passed 666 tests on code/test commit 1e69553aff3614d1aa934ca1f67927caf68c8170. A documentation-only follow-up exists at e2d26b94fa12e406d006975d063d4927d0547386. Browser/keyboard acceptance and live Colab validation remain pending.
+- UX-24 is on feature/ux-24-agent-governance-trust-center and tracked by draft PR #88, targeting devin/studio-convergence. Current PR head is d1c464c8545f3124497eab55d5fe3c0b4f68df27; it remains open, draft, unmerged and mergeable. The branch now includes a Playwright browser test for Hypergraph Explorer and UX-24, an exact-revision Colab launcher pin (c799e657b5620f1a3fa3fd35c94cff928bb01dc5), and an updated browser notebook. GitHub Actions run #42457100242 succeeded with 666 passed, 4 skipped and 1 existing warning; the four live-browser cases are skipped in CI because no Colab URL/token is configured. Actual Colab browser execution and screenshot inspection remain pending.
 - PR #88 has no submitted reviews or inline review threads at this audit.
 - Preserve feature branches and accepted baselines until integration and validation evidence are reviewed. No merge or deployment is included in this audit.
 
