@@ -1,19 +1,20 @@
 \begin{table}[t]
 \caption{Preregistered confirmatory family (E22): paired sign-flip tests, bootstrap 95\% CIs of the mean
-difference (first method minus second), Holm-adjusted $p_H$. For F1, $p$ is the one-sided non-inferiority test.}
+difference (\\pamcp{}, or the first method named, minus the second), Holm-adjusted $p_H$. For F1, $p$ is the one-sided
+non-inferiority test with margin 0.05.}
 \label{tab:ev-family}
 \centering\footnotesize\setlength{\tabcolsep}{1.8pt}
 \begin{tabular}{@{}lp{2.6cm}rrlrr@{}}
 \toprule
 ID & Comparison & $n$ & $\Delta$ & 95\% CI & $p$ & $p_H$\\
 \midrule
-F1 & E9 recall, \pamcp{} vs.\ per-subtask (non-inferiority, $\Delta_0{=}0.05$) & 94 & $-$0.080 & [$-$0.166, 0.002] & 0.763 & 1.000\\
-F2 & E9 recall at equal size, \pamcp{} vs.\ RAG-MCP & 84 & 0.060 & [$-$0.016, 0.137] & 0.132 & 0.397\\
-F3 & E10 joint feasibility, \pamcp{} vs.\ per-subtask (eligible) & 94 & 0.043 & [$-$0.085, 0.181] & 0.641 & 1.000\\
-F4 & E4 Exp@5, verified vs.\ lexical evidence & 273 & $-$0.099 & [$-$0.139, $-$0.066] & $<$0.001 & $<$0.001\\
-F5 & E14 reachable attacks, \pamcp{} vs.\ per-subtask & 712 & $-$0.027 & [$-$0.039, $-$0.015] & $<$0.001 & $<$0.001\\
+F1 & E9 recall vs.\ per-subtask (non-inf.) & 94 & $-$0.080 & [$-$0.166, 0.002] & 0.763 & 1.000\\
+F2 & E9 recall, equal size, vs.\ RAG-MCP & 84 & 0.060 & [$-$0.016, 0.137] & 0.132 & 0.397\\
+F3 & E10 joint feas.\ vs.\ per-subtask (elig.) & 94 & 0.043 & [$-$0.085, 0.181] & 0.641 & 1.000\\
+F4 & E4 Exp@5, verified vs.\ lexical & 273 & $-$0.099 & [$-$0.139, $-$0.066] & $<$0.001 & $<$0.001\\
+F5 & E14 reach vs.\ per-subtask & 712 & $-$0.027 & [$-$0.039, $-$0.015] & $<$0.001 & $<$0.001\\
 F6 & E18 tokens, Full vs.\ NoGap & 155 & $-$16.7 & [$-$34.6, 1.0] & 0.067 & 0.269\\
-F7 & E8 Hit@1, goal contract vs.\ raw-text RRF & 300 & $-$0.157 & [$-$0.213, $-$0.100] & $<$0.001 & $<$0.001\\
+F7 & E8 Hit@1, contract vs.\ raw-text RRF & 300 & $-$0.157 & [$-$0.213, $-$0.100] & $<$0.001 & $<$0.001\\
 \bottomrule
 \end{tabular}
 \end{table}

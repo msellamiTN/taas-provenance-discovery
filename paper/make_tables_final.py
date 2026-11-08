@@ -173,13 +173,13 @@ Cell & Mech. & $|K|$ & Tok. & Rec. & Joint\% & Reach\% & R-O\% & Abst.\%\\
 
 def family():
     fam = L("E22_statistics")["family"]
-    lab = {"F1": "E9 recall, \\pamcp{} vs.\\ per-subtask (non-inferiority, $\\Delta_0{=}0.05$)",
-           "F2": "E9 recall at equal size, \\pamcp{} vs.\\ RAG-MCP",
-           "F3": "E10 joint feasibility, \\pamcp{} vs.\\ per-subtask (eligible)",
-           "F4": "E4 Exp@5, verified vs.\\ lexical evidence",
-           "F5": "E14 reachable attacks, \\pamcp{} vs.\\ per-subtask",
+    lab = {"F1": "E9 recall vs.\\ per-subtask (non-inf.)",
+           "F2": "E9 recall, equal size, vs.\\ RAG-MCP",
+           "F3": "E10 joint feas.\\ vs.\\ per-subtask (elig.)",
+           "F4": "E4 Exp@5, verified vs.\\ lexical",
+           "F5": "E14 reach vs.\\ per-subtask",
            "F6": "E18 tokens, Full vs.\\ NoGap",
-           "F7": "E8 Hit@1, goal contract vs.\\ raw-text RRF"}
+           "F7": "E8 Hit@1, contract vs.\\ raw-text RRF"}
     body = []
     for k, v in fam.items():
         dd = 1 if k == "F6" else 3
@@ -190,7 +190,8 @@ def family():
                     f"{fmt(pv)} & {fmt(ph)}\\\\")
     tex = r"""\begin{table}[t]
 \caption{Preregistered confirmatory family (E22): paired sign-flip tests, bootstrap 95\% CIs of the mean
-difference (first method minus second), Holm-adjusted $p_H$. For F1, $p$ is the one-sided non-inferiority test.}
+difference (\\pamcp{}, or the first method named, minus the second), Holm-adjusted $p_H$. For F1, $p$ is the one-sided
+non-inferiority test with margin 0.05.}
 \label{tab:ev-family}
 \centering\footnotesize\setlength{\tabcolsep}{1.8pt}
 \begin{tabular}{@{}lp{2.6cm}rrlrr@{}}
