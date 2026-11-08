@@ -590,6 +590,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <a href="#ux17-policy-governance">Governance Policy Designer (UX-17)</a>
       <a href="#ux18-policy-test-workbench">Policy Testing &amp; Simulation (UX-18)</a>
       <a href="#ux19-governance-audit-timeline">Governance Evidence &amp; Policy Audit Timeline (UX-19)</a>
+      <a href="#ux20-compliance-dashboard">Compliance &amp; Assurance Dashboard (UX-20)</a>
       <span class="nav-label">OPERATE &amp; OBSERVE</span>
       <a href="#workspace">Benchmark workspace</a>
       <a class="overview-shortcut" href="#runtime">Runtime diagnostics</a>
@@ -1319,6 +1320,26 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   </div>
   <p class="ux8-note">No local conflict rules, policy versions, graph edges, validation outcomes or lifecycle events are synthesized. Only the exact response from the Core policy evaluator is displayed.</p>
 
+</section>
+<section id="ux20-compliance-dashboard" class="section-anchor" aria-labelledby="ux20-title" style="margin-bottom:18px">
+<div class="panel-head"><div><div class="eyebrow">GOVERN · ASSURE · COMPLY · UX-20</div><h2 id="ux20-title" style="margin:4px 0">Governance Compliance &amp; Assurance Dashboard</h2><p class="subtle">A consolidated view of governance evidence, assurance signals, approvals and operational findings.</p></div><span id="ux20-mode-pill" class="pill">DEMO DATA · ILLUSTRATIVE</span></div>
+<div class="notice" role="note"><strong>Data provenance is explicit.</strong> Demo mode contains fabricated sample data for layout review only. It is not sourced from TaaS Core and is not a compliance result. Live mode shows only bounded responses actually returned by supported Core endpoints. Missing APIs or unqueried resources are shown as unavailable, never estimated.</div>
+<div class="ux8-card" style="margin-bottom:12px"><div class="panel-head"><div><h3 style="margin:0">Dashboard data mode</h3><p class="subtle">Switch between illustrative sample content and authenticated Core observations.</p></div><div class="inline-actions" style="margin:0"><button id="ux20-demo-mode" class="secondary" type="button">Show demo data</button><button id="ux20-live-mode" type="button">Load live Core data</button></div></div><p id="ux20-status" class="subtle" role="status" aria-live="polite">Demo mode active. Every sample below is fictional and visibly labelled.</p></div>
+<div id="ux20-demo-banner" class="notice" style="border-color:#d8b56b;background:#fff7e5"><strong>DEMO DATA — NOT LIVE / NOT VERIFIED.</strong> All numbers, percentages, dates, controls, approvals, findings and trends below are invented examples. Do not use them for audit, compliance, release or operational decisions.</div>
+<div class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;margin-bottom:12px">
+<div class="ux8-card"><div class="eyebrow">CONTROL COVERAGE</div><strong id="ux20-coverage">84%</strong><p class="subtle" id="ux20-coverage-note">Demo illustration · not measured</p></div>
+<div class="ux8-card"><div class="eyebrow">EVIDENCE ITEMS</div><strong id="ux20-evidence-count">128</strong><p class="subtle" id="ux20-evidence-note">Demo illustration · not persisted</p></div>
+<div class="ux8-card"><div class="eyebrow">APPROVALS</div><strong id="ux20-approval-count">16</strong><p class="subtle" id="ux20-approval-note">Demo illustration · not verified</p></div>
+<div class="ux8-card"><div class="eyebrow">OPEN FINDINGS</div><strong id="ux20-findings-count">7</strong><p class="subtle" id="ux20-findings-note">Demo illustration · not assessed</p></div>
+<div class="ux8-card"><div class="eyebrow">AUDIT CHAIN</div><strong id="ux20-chain-state">Valid</strong><p class="subtle" id="ux20-chain-note">Demo illustration · not checked</p></div></div>
+<div class="ux8-grid" style="display:grid;grid-template-columns:minmax(300px,1.1fr) minmax(280px,.9fr);gap:12px;align-items:start">
+<div class="ux8-card"><div class="panel-head"><div><h3 style="margin:0">1 · Governance control domains</h3><p class="subtle">Illustrative domain coverage in demo mode; live control inventory is not exposed by current Core APIs.</p></div><span class="pill" id="ux20-controls-state">DEMO</span></div><div id="ux20-controls"></div></div>
+<div class="ux8-card"><div class="panel-head"><div><h3 style="margin:0">2 · Evidence integrity &amp; freshness</h3><p class="subtle">Integrity/freshness are distinct from truth of claims.</p></div><span class="pill" id="ux20-evidence-state">DEMO</span></div><div id="ux20-evidence-panel"></div></div>
+<div class="ux8-card"><div class="panel-head"><div><h3 style="margin:0">3 · Assurance findings</h3><p class="subtle">Only findings returned by a supported assessor may be represented as live.</p></div><span class="pill" id="ux20-findings-state">DEMO</span></div><div id="ux20-findings"></div></div>
+<div class="ux8-card"><div class="panel-head"><div><h3 style="margin:0">4 · Approval &amp; change governance</h3><p class="subtle">Approval evidence is not authorization and does not execute a change.</p></div><span class="pill" id="ux20-approvals-state">DEMO</span></div><div id="ux20-approvals"></div></div>
+<div class="ux8-card"><div class="panel-head"><div><h3 style="margin:0">5 · Compliance activity trend</h3><p class="subtle">Demo series is fictional. Live trend requires a historical compliance analytics API.</p></div><span class="pill" id="ux20-trend-state">DEMO</span></div><div id="ux20-trend"></div></div>
+<div class="ux8-card"><div class="panel-head"><div><h3 style="margin:0">6 · Data source &amp; verification details</h3><p class="subtle">Exact endpoint outcomes and their semantic limits.</p></div><span class="pill" id="ux20-source-state">DEMO</span></div><pre id="ux20-source-detail" class="ux8-json">Illustrative demo data only. No Core request has been made.</pre></div></div>
+<p class="ux8-note">Live source scope: <code>GET /api/v1/audit/events</code>, <code>GET /api/v1/audit/verify</code>, and exact evidence lookup only when an evidence ID is explicitly available. Current Core APIs do not expose a global control inventory, compliance assessment, cross-Agent approval index, global evidence inventory, or historical compliance trend. Those live panels remain unavailable. Audit integrity does not prove event truth; evidence signatures do not prove assessor claims; approval is not authorization; authorization is not execution.</p>
 </section>
 <section id="ux19-governance-audit-timeline" class="section-anchor" aria-labelledby="ux19-title" style="margin-bottom:18px">
 <div class="panel-head"><div><div class="eyebrow">GOVERN · ASSURE · AUDIT · UX-19</div><h2 id="ux19-title" style="margin:4px 0">Governance Evidence &amp; Policy Audit Timeline</h2><p class="subtle">Inspect persisted Core audit events, verify the ledger hash chain and trace exact evidence references.</p></div><span class="pill">Core-backed · read-only</span></div>
@@ -4221,6 +4242,41 @@ el("ux15-refresh").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-
     show("ux17-verdict",{status:"No policy evaluation requested."});table([]);conflicts([]);
     status("Inputs reset. No policy was saved or changed.");
   });
+
+  // UX-20: isolated fictional demo data plus read-only live Core observations.
+  (() => {
+    const el=id=>document.getElementById(id),demo={
+      metrics:["84%","128","16","7","Valid"],
+      controls:[["Identity & access","92%","Compliant","Sample role review"],["Data governance","86%","Review needed","Sample classification"],["Security & privacy","78%","Review needed","Sample evidence gap"],["Policy & ethics","88%","Compliant","Sample policy"],["Operations & resilience","76%","Non-compliant","Sample recovery gap"]],
+      evidence:[["Integrity verified","112","Illustrative"],["Fresh","96","Illustrative"],["Stale / expired","12","Illustrative"],["Claim truth verified","0","Never inferred"]],
+      findings:[["High","Privileged access review overdue","DEMO-CTRL-014"],["High","Evidence freshness below target","DEMO-EVD-022"],["Medium","Data retention mapping incomplete","DEMO-DATA-008"],["Medium","Policy exception awaiting review","DEMO-POL-031"]],
+      approvals:[["Approved","Agent release · v2.1","2026-10-28"],["In review","Data access policy · draft","2026-10-30"],["Rejected","External connector · v1.0","2026-11-02"]],
+      trend:[["Jun","72%"],["Jul","75%"],["Aug","79%"],["Sep","81%"],["Oct","84%"]]
+    };
+    const put=(id,v)=>el(id).textContent=String(v),clear=id=>el(id).replaceChildren();
+    const table=(id,heads,rows)=>{clear(id);const t=document.createElement("table");t.className="coverage-table";const hd=document.createElement("tr");heads.forEach(v=>{const x=document.createElement("th");x.textContent=v;hd.append(x)});const thead=document.createElement("thead");thead.append(hd);t.append(thead);const b=document.createElement("tbody");rows.forEach(row=>{const tr=document.createElement("tr");row.forEach(v=>{const td=document.createElement("td");td.textContent=String(v);tr.append(td)});b.append(tr)});t.append(b);el(id).append(t)};
+    const unavailable=(id,msg)=>{const p=document.createElement("p");p.className="subtle";p.textContent=msg;el(id).replaceChildren(p)};
+    const demoMode=()=>{put("ux20-mode-pill","DEMO DATA · ILLUSTRATIVE");put("ux20-status","Demo mode active. All sample content is fictional and not sourced from TaaS Core.");el("ux20-demo-banner").hidden=false;
+      ["ux20-coverage","ux20-evidence-count","ux20-approval-count","ux20-findings-count","ux20-chain-state"].forEach((id,i)=>put(id,demo.metrics[i]));
+      ["ux20-coverage-note","ux20-evidence-note","ux20-approval-note","ux20-findings-note","ux20-chain-note"].forEach(id=>put(id,"Fictional sample · not live"));
+      ["controls","evidence","findings","approvals","trend","source"].forEach(k=>put("ux20-"+k+"-state","DEMO"));
+      table("ux20-controls",["Control domain","Coverage","Example state","Illustrative note"],demo.controls);table("ux20-evidence-panel",["Evidence signal","Sample count","Meaning"],demo.evidence);table("ux20-findings",["Severity","Illustrative finding","Sample reference"],demo.findings);table("ux20-approvals",["Sample state","Illustrative change","Sample date"],demo.approvals);table("ux20-trend",["Month","Illustrative coverage"],demo.trend);
+      put("ux20-source-detail","DEMO DATA ONLY\nNo API requests were made. All values, records, dates and statuses are fabricated examples; they do not describe a real TaaS environment.");el("ux20-demo-mode").disabled=true;el("ux20-live-mode").disabled=false};
+    const liveMode=async()=>{const token=el("token")?.value?.trim();if(!token){put("ux20-status","Connect to TaaS Studio and provide an API token before loading live data.");return}
+      el("ux20-live-mode").disabled=true;put("ux20-status","Requesting supported live Core observations…");el("ux20-demo-banner").hidden=true;put("ux20-mode-pill","LIVE CORE OBSERVATIONS · LIMITED");
+      const get=async path=>{const r=await fetch(path,{headers:{"Authorization":"Bearer "+token,"Accept":"application/json","Cache-Control":"no-cache"},cache:"no-store"}),d=await r.json().catch(()=>({detail:"Non-JSON response"}));if(!r.ok)throw Error("HTTP "+r.status+": "+(d.detail||"request failed"));return d};
+      const [a,v]=await Promise.allSettled([get("/api/v1/audit/events?limit=1000"),get("/api/v1/audit/verify")]);
+      const audit=a.status==="fulfilled"&&a.value.schema==="taas.audit-events/v1"&&Array.isArray(a.value.events)?a.value:null;
+      const verify=v.status==="fulfilled"&&v.value.schema==="taas.audit-verify/v1"&&typeof v.value.chain_valid==="boolean"?v.value:null;
+      const errors=[];if(!audit)errors.push("Audit events: "+(a.status==="rejected"?a.reason.message:"unexpected schema"));if(!verify)errors.push("Audit verification: "+(v.status==="rejected"?v.reason.message:"unexpected schema"));
+      const events=audit?.events||[],counts=events.reduce((m,e)=>(m[e.event_type]=(m[e.event_type]||0)+1,m),{});
+      put("ux20-coverage","Unavailable");put("ux20-coverage-note","No global control inventory or compliance assessor API");put("ux20-evidence-count",counts.evidence??"Not reported");put("ux20-evidence-note","Audit event-type count only; not an evidence inventory");put("ux20-approval-count",counts.approval??"Not reported");put("ux20-approval-note","Approval-type audit events only; not verified approval records");put("ux20-findings-count","Unavailable");put("ux20-findings-note","No global assurance findings endpoint");put("ux20-chain-state",verify?(verify.chain_valid?"Valid":"Divergence"):"Unavailable");put("ux20-chain-note",verify?"Core hash-chain check · "+verify.event_count+" events checked":"No verified response");
+      ["controls","findings","approvals","trend"].forEach(k=>put("ux20-"+k+"-state","UNAVAILABLE"));put("ux20-evidence-state",audit?"AUDIT EVENTS ONLY":"UNAVAILABLE");put("ux20-source-state","LIVE RESPONSE");
+      unavailable("ux20-controls","Control inventory unavailable: Core exposes no global control inventory or compliance scoring endpoint.");unavailable("ux20-evidence-panel","Evidence inventory unavailable: audit feed is not a complete evidence inventory; exact lookup requires a known evidence ID.");unavailable("ux20-findings","Global findings unavailable: no cross-resource assurance findings API exists.");unavailable("ux20-approvals","Global approvals unavailable: approval listing is scoped to an exact Agent ID and version; no global index exists.");unavailable("ux20-trend","Historical compliance trend unavailable: no persisted compliance analytics endpoint exists.");
+      put("ux20-source-detail",JSON.stringify({audit_events:audit?{count:audit.count,record_semantics:audit.record_semantics,oldest_first:true,maximum_requested:1000}:null,audit_verification:verify?{chain_valid:verify.chain_valid,event_count:verify.event_count,first_divergence:verify.first_divergence??null}:null,event_type_counts:counts,errors,semantics:{audit_integrity_is_not_claim_truth:true,approval_is_not_authorization:true,execution_performed:false}},null,2));
+      put("ux20-status","Live Core responses loaded. Only returned audit observations are shown; unsupported compliance panels remain unavailable.");el("ux20-demo-mode").disabled=false;el("ux20-live-mode").disabled=false};
+    el("ux20-demo-mode").addEventListener("click",demoMode);el("ux20-live-mode").addEventListener("click",liveMode);demoMode();
+  })();
 
   // UX-19: read-only audit timeline over the persisted Core ledger.
   (() => {
