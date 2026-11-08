@@ -41,6 +41,8 @@ The exporter refuses:
 
 The release gate now requires a non-empty acceptance ID for each accepted E1/E2/E3/E12 artifact in addition to checking the artifact SHA-256. The local encoder snapshot is required to be materialized and its SHA-256 manifest must exactly match every regular file in the snapshot; path traversal, symlinks and extra unlisted files are rejected. The ToolScope oracle rejects malformed, duplicate/reversed or contradictory unordered pairs and requires both positive and negative adjudicated examples. Regression tests cover these cases; the latest previously confirmed CI run predates this hardening pass.
 
+The prepared 94-task package is also checked against its \`SHA256SUMS.json\`: exact file inventory and discovery-side hashes are verified before retrieval. The evaluator reference file's existence and expected digest are read from the checksum manifest, but its content hash and JSONL parsing are deferred until rankings are frozen.
+
 ## Available implementation
 
 - [LiveMCPBench E9 dataset preparer](../../experiments/prepare_e9_livemcpbench.py) (creates task/reference package, not method rankings)
