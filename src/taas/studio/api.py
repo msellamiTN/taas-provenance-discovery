@@ -1165,10 +1165,13 @@ def discovery_run_diff(run_id_a: str, run_id_b: str) -> dict[str, Any]:
 
 @app.get("/api/v1/audit/events", dependencies=[Depends(require_api_token)])
 def audit_event_list(limit: int = 100, event_type: str | None = None,
-                     after_seq: int | None = None) -> dict[str, Any]:
+                     after_seq: int | None = None,
+                     subject_agent_id: str | None = Query(default=None, max_length=63),
+                     subject_version: str | None = Query(default=None, max_length=63)) -> dict[str, Any]:
     """List audit-ledger events (oldest first, keyset-paginated). Read-only."""
     page = audit_ledger.list_events_page(
-        limit=limit, event_type=event_type, after_seq=after_seq)
+        limit=limit, event_type=event_type, after_seq=after_seq,
+        subject_agent_id=subject_agent_id, subject_version=subject_version)
     return {"schema": "taas.audit-events/v1", "events": page["events"],
             "count": len(page["events"]),
             "has_more": page["has_more"], "next_cursor": page["next_cursor"],
@@ -1905,8 +1908,9 @@ def skill_list(skill_id: str | None = Query(default=None, max_length=63),
 
 @app.get("/api/v1/skills/events", dependencies=[Depends(require_api_token)])
 def skill_events(skill_id: str | None = Query(default=None, max_length=63),
+                 version: str | None = Query(default=None, max_length=63),
                  limit: int = Query(default=200, ge=1, le=1000)) -> dict[str, Any]:
-    return skill_registry.list_events(skill_id=skill_id, limit=limit)
+    return skill_registry.list_events(skill_id=skill_id, version=version, limit=limit)
 
 
 @app.get("/api/v1/skills/{skill_id}/versions/{version}", dependencies=[Depends(require_api_token)])
@@ -1918,6 +1922,98 @@ def skill_get(skill_id: str, version: str) -> dict[str, Any]:
     return {
         **resource, "semantic_correctness_verified": False,
         "tools_authorized": False, "execution_enabled": False,
+    }
+
+
+@app.get("/api/v1/skills/{skill_id}/versions/{version_a}/diff/{version_b}",
+         dependencies=[Depends(require_api_token)])
+def skill_version_diff(skill_id: str, version_a: str, version_b: str) -> dict[str, Any]:
+    """Structural diff of two persisted skill manifests. Compares records, not behavior."""
+    try:
+        return skill_registry.diff_versions(skill_id, version_a, version_b)
+    except skill_registry.SkillRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.get("/api/v1/skills/{skill_id}/versions/{version}/activity",
+         dependencies=[Depends(require_api_token)])
+def skill_version_activity(skill_id: str, version: str) -> dict[str, Any]:
+    """Recorded governance activity for one exact Skill version.
+
+    Every number is a count of persisted records — lifecycle events, verified
+    publisher signatures, revocation — never synthesized. This is recorded
+    governance activity: not performance telemetry, not authorization, not
+    execution.
+    """
+    try:
+        skill = skill_registry.get_version(skill_id, version)
+    except skill_registry.SkillRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    manifest = skill.get("manifest") or {}
+    spec = manifest.get("spec") or {}
+
+    def _unavailable(reason: str) -> dict[str, Any]:
+        return {"state": "unavailable", "reason": reason[:200]}
+
+    try:
+        lifecycle = skill_registry.list_events(skill_id=skill_id, version=version, limit=500)
+        lifecycle_block = {
+            "state": "recorded",
+            "count": lifecycle["count"],
+            "latest": lifecycle["events"][0] if lifecycle["events"] else None,
+        }
+    except Exception as exc:
+        lifecycle_block = _unavailable(str(exc))
+
+    try:
+        signatures = assurance_evidence.list_verified_evidence_for_subject(
+            _skill_signature_binding(skill), expected_type="publisher_signature")
+        signatures_block = {
+            "state": "recorded",
+            "verified_count": signatures["count"],
+            "latest_observed_at": (signatures["valid"][0]["observed_at"]
+                                   if signatures["valid"] else None),
+        }
+    except assurance_evidence.EvidenceError as exc:
+        signatures_block = _unavailable(str(exc))
+
+    try:
+        revocation = skill_registry.get_revocation(skill_id, version)
+        revocation_block = {"state": "recorded", "record": revocation}
+    except Exception as exc:
+        revocation_block = _unavailable(str(exc))
+
+    return {
+        "schema": "taas.skill-version-activity/v1",
+        "skill_id": skill_id,
+        "version": version,
+        "lifecycle_state": skill.get("lifecycle_state"),
+        "manifest_sha256": skill.get("manifest_sha256"),
+        "recorded_activity": {
+            "lifecycle_events": lifecycle_block,
+            "publisher_signatures": signatures_block,
+            "revocation": revocation_block,
+            "configuration": {
+                # Manifest-derived facts — authored configuration, not telemetry.
+                "state": "recorded",
+                "dependencies": len(spec.get("dependencies") or []),
+                "trigger_phrases": len(spec.get("trigger_phrases") or []),
+                "tags": len(spec.get("tags") or []),
+            },
+        },
+        "unsupported_metrics": [
+            "per-skill invocation count",
+            "execution/run telemetry",
+            "resource attribution",
+        ],
+        "unavailable_reason": (
+            "no governed execution or runtime telemetry capability exists in the "
+            "current architecture; these remain unavailable until a separately "
+            "governed execution/telemetry capability is delivered"
+        ),
+        "semantics": "recorded_governance_activity_not_performance_telemetry_not_execution_proof",
+        "authorization_granted": False,
+        "execution_performed": False,
     }
 
 
@@ -2983,8 +3079,9 @@ def agent_list_human_approvals(agent_id: str, version: str) -> dict[str, Any]:
 
 @app.get("/api/v1/agents/events", dependencies=[Depends(require_api_token)])
 def agent_events(agent_id: str | None = Query(default=None, max_length=63),
+                 version: str | None = Query(default=None, max_length=63),
                  limit: int = Query(default=200, ge=1, le=1000)) -> dict[str, Any]:
-    return agent_registry.list_events(agent_id=agent_id, limit=limit)
+    return agent_registry.list_events(agent_id=agent_id, version=version, limit=limit)
 
 
 @app.post("/api/v1/mcp/registry/snapshots/inspect", dependencies=[Depends(require_api_token)])
@@ -3078,6 +3175,22 @@ def mcp_registry_snapshot_get(snapshot_id: str) -> dict[str, Any]:
         raise HTTPException(status_code=422, detail="snapshot_id must be a lowercase SHA-256 hex digest")
     try:
         return agent_registry.get_mcp_snapshot(snapshot_id)
+    except agent_registry.AgentRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except agent_registry.AgentRegistryError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.get("/api/v1/mcp/registry/snapshots/{snapshot_id_a}/diff/{snapshot_id_b}",
+         dependencies=[Depends(require_api_token)])
+def mcp_registry_snapshot_diff(snapshot_id_a: str, snapshot_id_b: str) -> dict[str, Any]:
+    """Structural diff of two captured registry snapshots. Compares recorded
+    schemas — not tool behavior, not authorization, not execution."""
+    for sid in (snapshot_id_a, snapshot_id_b):
+        if not re.fullmatch(r"[0-9a-f]{64}", sid):
+            raise HTTPException(status_code=422, detail="snapshot ids must be lowercase SHA-256 hex digests")
+    try:
+        return agent_registry.diff_mcp_snapshots(snapshot_id_a, snapshot_id_b)
     except agent_registry.AgentRegistryNotFound as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except agent_registry.AgentRegistryError as exc:
