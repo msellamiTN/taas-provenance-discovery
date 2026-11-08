@@ -10,7 +10,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import taas.studio.api as studio_api
-from taas.studio import agent_registry, audit_ledger, discovery_runs
+from taas.studio import agent_registry, audit_ledger, discovery_runs, workspaces
 
 
 @pytest.fixture(autouse=True)
@@ -318,3 +318,53 @@ def test_workspace_revision_history_records_field_level_edits(client, headers):
     assert client.delete(f"/api/v1/workspaces/{wid}", headers=headers).status_code == 200
     assert client.get(f"/api/v1/workspaces/{wid}/revisions",
                       headers=headers).status_code == 404
+
+
+
+def test_workspace_revision_insert_is_append_only():
+    created = workspaces.create_workspace(name="append-only", draft={"goal": "v1"})
+    history_before = workspaces.list_revisions(created["workspace_id"])
+    revision = history_before["revisions"][0]
+    with workspaces._connect() as connection:
+        with pytest.raises(Exception):
+            workspaces._record_revision(
+                connection,
+                workspace_id=created["workspace_id"],
+                revision=revision["revision"],
+                draft_sha256=revision["draft_sha256"],
+                actor="attempted-rewrite",
+                changes={"kind": "rewritten"},
+            )
+    history_after = workspaces.list_revisions(created["workspace_id"])
+    assert history_after == history_before
+    assert history_after["revisions"][0]["actor"] == "studio-api"
+
+
+def test_workspace_create_and_revision_record_are_atomic(monkeypatch):
+    def fail_revision(*args, **kwargs):
+        raise RuntimeError("injected revision write failure")
+
+    monkeypatch.setattr(workspaces, "_record_revision", fail_revision)
+    with pytest.raises(RuntimeError, match="injected revision write failure"):
+        workspaces.create_workspace(name="atomic-create", draft={"goal": "v1"})
+    assert workspaces.list_workspaces()["count"] == 0
+
+
+def test_workspace_update_and_revision_record_are_atomic(monkeypatch):
+    created = workspaces.create_workspace(name="atomic-update", draft={"goal": "v1"})
+
+    def fail_revision(*args, **kwargs):
+        raise RuntimeError("injected revision write failure")
+
+    monkeypatch.setattr(workspaces, "_record_revision", fail_revision)
+    with pytest.raises(RuntimeError, match="injected revision write failure"):
+        workspaces.update_workspace(
+            created["workspace_id"], name=None, draft={"goal": "v2"},
+            revision=1, actor="test-actor",
+        )
+
+    unchanged = workspaces.get_workspace(created["workspace_id"])
+    assert unchanged["revision"] == 1
+    assert unchanged["draft"] == {"goal": "v1"}
+    history = workspaces.list_revisions(created["workspace_id"])
+    assert history["count"] == 1
