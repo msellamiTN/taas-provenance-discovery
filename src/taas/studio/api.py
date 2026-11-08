@@ -48,6 +48,7 @@ from taas.studio.agent_skill_bindings import (
 )
 from taas.studio import agent_registry
 from taas.studio import skill_registry
+from taas.studio.goalspec_templates import get_template, list_templates
 from taas.studio import skill_dependency_graph
 from taas.studio import assurance_evidence
 from taas.studio.skill_spec import validate_skill_manifest
@@ -815,6 +816,38 @@ def validate_goal_spec_endpoint(payload: dict[str, Any]) -> dict[str, Any]:
         "goal_order": [goal.id for goal in order],
         "prompt_inputs": [str(item) for item in parsed.prompt_inputs],
         "semantic_correctness_verified": False,
+    }
+
+
+@app.get("/api/v1/goalspec/templates", dependencies=[Depends(require_api_token)])
+def goalspec_template_list() -> dict[str, Any]:
+    """List the versioned GoalSpec template catalog (metadata only).
+
+    Templates are authored drafts — a catalog entry identifies an exact draft via
+    `spec_sha256`. It is not validation, evidence, or authorization.
+    """
+    return {
+        "schema": "taas.goalspec-template-list/v1",
+        "count": len(list_templates()),
+        "templates": list_templates(),
+        "semantics": "authored_draft_catalog_not_validation_not_evidence_not_authorization",
+    }
+
+
+@app.get("/api/v1/goalspec/templates/{template_id}", dependencies=[Depends(require_api_token)])
+def goalspec_template_detail(template_id: str) -> dict[str, Any]:
+    """Return one template's full GoalSpec draft payload.
+
+    The draft still requires `POST /goals/validate` before it can be treated as
+    well-formed; even a valid spec remains a proposal.
+    """
+    template = get_template(template_id)
+    if template is None:
+        raise HTTPException(status_code=404, detail="goalspec template not found")
+    return {
+        "schema": "taas.goalspec-template/v1",
+        "template": template,
+        "semantics": "authored_draft_not_validation_not_evidence_not_authorization",
     }
 
 
