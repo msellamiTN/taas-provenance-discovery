@@ -959,12 +959,14 @@ def tool_registry_search(
     q: str | None = Query(None, max_length=300),
     server: str | None = Query(None, max_length=128),
     source: str | None = Query(None, max_length=64),
+    category: str | None = Query(None, max_length=128),
     offset: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=200),
 ) -> dict[str, Any]:
     """Search retained-registry tool identities with definition-hash pins."""
     return tool_registry.search_registry_tools(
-        q=q, server=server, source=source, offset=offset, limit=limit
+        q=q, server=server, source=source, category=category,
+        offset=offset, limit=limit
     )
 
 

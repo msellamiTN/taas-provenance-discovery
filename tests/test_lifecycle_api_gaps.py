@@ -85,6 +85,16 @@ def test_tools_facets_reflect_filters(client, headers):
     assert all(v == {} for v in body["facets"].values())
 
 
+def test_tools_category_filter_matches_facet_values(client, headers):
+    base = client.get("/api/v1/tools?limit=1", headers=headers).json()
+    category = next(iter(base["facets"]["category"]))
+    filtered = client.get(f"/api/v1/tools?limit=50&category={category}",
+                          headers=headers).json()
+    assert filtered["total"] == base["facets"]["category"][category]
+    assert all(t["category"] == category for t in filtered["tools"])
+    assert list(filtered["facets"]["category"]) == [category]
+
+
 def _record_run(status, tool_ids, tool_hashes=None, certificate=None):
     return discovery_runs.record_discovery_run(
         goal_spec={"goals": [{"id": "g1"}]},

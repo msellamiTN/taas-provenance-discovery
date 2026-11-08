@@ -180,6 +180,9 @@ def test_ux15_tool_registry_governance_center_uses_read_only_endpoints():
     # UX-15 is an inventory/inspection surface — no tool invocation.
     section = html[html.index('id="tool-registry-governance-center"'):html.index("</section>", html.index('id="tool-registry-governance-center"'))]
     assert "No MCP connection, tool call" in section
+    # Facet filters consume the deterministic Core facets block.
+    assert 'id="ux15-facet-server"' in html and 'id="ux15-facet-source"' in html
+    assert 'id="ux15-facet-category"' in html and "renderFacets" in html
 
 
 def test_ux16_selection_workbench_wires_retrieval_eligibility_compare():
@@ -224,7 +227,9 @@ def test_ux19_audit_timeline_is_read_only_ledger_inspection():
     section = html[html.index('id="ux19-governance-audit-timeline"'):html.index("</section>", html.index('id="ux19-governance-audit-timeline"'))]
     # Tamper-evidence is not truth/authorization/execution proof.
     assert "not proof of execution" in section
-    assert "maximum 1,000" in section and "not necessarily complete" in html
+    assert "maximum 1,000" in section and "incomplete until the cursor" in html
+    # Cursor pagination is wired: next-page appends with after_seq.
+    assert 'id="ux19-more"' in html and "after_seq" in html and "next_cursor" in html
     # Linked-evidence inspection reuses the real evidence route only for
     # exact SHA-256 ids found in stored records — no inferred references.
     assert "evidence_id" in html and "assurance/evidence/" in html
