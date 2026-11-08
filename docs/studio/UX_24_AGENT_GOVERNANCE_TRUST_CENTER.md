@@ -49,9 +49,25 @@ The current policy engine exposes default rules through the per-Agent verdict's 
 
 The current per-Agent verdict response does not expose the complete internal fact bundle. The UI does not reconstruct or infer missing facts; evidence summaries not present in the response remain UNKNOWN.
 
-The current audit verifier scans at most the first 1,000 events in ascending sequence (`audit_ledger.verify_chain`). UX-24 therefore labels a successful result `SCANNED_PREFIX_VALID` and states the scan limit. It must not be interpreted as whole-ledger verification if more than 1,000 events exist.
+The audit verifier recomputes the hash chain over the entire recorded ledger in bounded batches (`audit_ledger.verify_chain`, `scan_scope: full_ledger`). UX-24 therefore labels a successful result `FULL_CHAIN_VALID`. Audit-event listing remains keyset-paginated at 1,000 events per page via `after_seq`; verification itself is a whole-ledger guarantee. This is tamper evidence over recorded events — never proof of execution.
 
 On each assessment, UX-24 clears prior subject data before requesting the newly selected immutable version and temporarily locks the selectors to prevent late responses from being attributed to a different selection. An empty evidence summary is rendered as `NO_VERIFIED_RECORDS`, not as evidence present.
+
+
+## Browser and Colab acceptance harness
+
+A real-browser acceptance harness is now included:
+
+- Test file: `tests/test_studio_browser_e2e.py`.
+- Existing Hypergraph Explorer browser journey remains covered.
+- UX-24 browser journey covers navigation, all five tabs, ArrowRight/Home/End keyboard operation, authenticated Agent/version retrieval, read-only assessment when an immutable version exists, and the no-Agent empty state.
+- UX-24 browser assertions reject non-GET API requests and MCP requests from the UX-24 workflow.
+- Desktop (1440px) and mobile (390px) screenshots are exported under `TAAS_E2E_ARTIFACT_DIR`.
+- The Colab launcher pins code/test revision `c799e657b5620f1a3fa3fd35c94cff928bb01dc5`; the browser notebook reuses that running process, token and proxy.
+
+GitHub Actions run [#42457100242](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/42457100242) on the follow-up branch head completed successfully: **666 passed, 4 skipped, 1 existing warning**. The four browser cases are skipped in ordinary CI because no live Colab URL/token is configured; the notebook runs them against the real Colab process.
+
+**Still pending:** execute the updated Colab launcher and browser notebook, inspect the four desktop/mobile screenshots, and record the exact runtime commit and test output. Automated CI success is not Colab acceptance.
 
 ## Acceptance criteria
 
