@@ -1,4 +1,4 @@
-# PaMCP experimental progress — 7 November 2026
+# PaMCP experimental progress — 8 November 2026
 
 ## Executive status
 
@@ -20,19 +20,27 @@ Two blinded 569-row annotation sheets are prepared. Annotator A and B packages a
 
 The pinned LiveMCPBench source is revision \`36a51a1065dda49c1e503b87edf33a1e0b331a74\`. The strict E9 preparation uses the LiveMCPTool-only candidate pool (525 tools / 69 servers), not the E1 union with MCPToolBench++.
 
-The pinned annotation set has 95 tasks. A strict identity/count audit produced:
+The pinned annotation set has 95 tasks. The protocol-aligned identity audit produced:
 
-| Resolution | Tasks |
+| Resolution | Count |
 |---|---:|
-| Primary eligible | 64 |
-| Fully resolvable but declared tool-count mismatch | 3 |
-| Ambiguous or unresolved tool identity | 28 |
+| Tasks with at least one resolvable gold tool | 94 |
+| Tasks with no resolvable gold tool (excluded) | 1 |
+| Unique-identity tool mentions | 222 |
+| Ambiguous tool-name mentions | 29 |
+| Unresolved tool mentions | 5 |
 
-The 64 accepted tasks each have one benchmark-native successful toolchain reference, because the benchmark paper describes proposer-completed tasks with validator-scrutinized toolchains. This is one successful reference set, not an exhaustive listing of all alternative valid solutions. MCP-Atlas trajectories remain diagnostic-only for E9; MCPVerse v1.1's single-tool reference is not multi-tool acceptable-set gold.
+For the 29 ambiguous mentions, every candidate server::tool identity is accepted as an alternative. The five unresolved mentions remain in the audit and are omitted from resolvable gold for those tasks; a task remains eligible when at least one gold tool resolves. Declared tool-count mismatches are audit flags and do not independently remove an otherwise resolvable task. Each reference represents one benchmark-native proposer-completed, validator-scrutinized successful toolchain; it is not an exhaustive list of all possible valid task solutions. MCP-Atlas trajectories remain diagnostic-only; MCPVerse v1.1's single-tool reference is not multi-tool acceptable-set gold.
 
-The prepared package separates discovery tools/tasks/visibility from evaluator references and the 95-row resolution audit. It is marked \`prepared_not_run\`: it contains no PaMCP or baseline rankings or performance scores.
+The prepared package separates discovery tools/tasks/visibility from evaluator references and the 95-row resolution audit. It is marked prepared_not_run: it contains no PaMCP or baseline rankings or performance scores.
 
-[Download prepared E9 dataset artifact](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/42421468967/artifacts/13593766923)
+[Download protocol-aligned 94-task E9 dataset artifact](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/42422126446/artifacts/13593902899)
+
+## E9 retrieval runner implementation
+
+A protocol-gated runner now exists at experiments/e9_retrieval_campaign.py. It requires accepted E1/E2/E3/E12 proof artifacts and an approved comparator map; 282 frozen GoalSpecs; accepted hash-bound contracts for all 525 candidates; accepted E12 model profile, policy, composer configuration and local encoder snapshot. It freezes one top-20 ranking per task × method × decomposition before it opens evaluator references. It derives k=5/10/20 from that frozen ranking. Missing COLT training scenes or ToolScope equivalence oracle are explicitly reported as blocked, not replaced.
+
+This is orchestration/software implementation only. No accepted release gate or E9 method result has been generated.
 
 ## Software verification
 
