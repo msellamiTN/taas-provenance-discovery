@@ -1,4 +1,9 @@
 from pathlib import Path
+import re
+import shutil
+import subprocess
+
+import pytest
 
 ROOT = Path(__file__).parents[1]
 HTML = ROOT / "src" / "taas" / "studio" / "static" / "index.html"
@@ -71,3 +76,22 @@ def test_ux24_clears_stale_subject_data_and_does_not_overstate_empty_evidence():
     assert "agentSelect.disabled=true;versionSelect.disabled=true" in html
     assert "NO_VERIFIED_RECORDS" in html
     assert 'verified>0?"VERIFIED_RECORDS_PRESENT":"NO_VERIFIED_RECORDS"' in html
+
+
+def test_studio_inline_javascript_parses_with_node(tmp_path):
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("Node.js is unavailable; browser/runtime acceptance remains separate.")
+    html = HTML.read_text(encoding="utf-8")
+    scripts = re.findall(r"<script\\b[^>]*>(.*?)</script>", html, flags=re.DOTALL)
+    assert scripts, "Studio page must contain its application script."
+    for index, script in enumerate(scripts):
+        source = tmp_path / f"studio-{index}.js"
+        source.write_text(script, encoding="utf-8")
+        result = subprocess.run(
+            [node, "--check", str(source)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert result.returncode == 0, result.stderr
