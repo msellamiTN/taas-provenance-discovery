@@ -8,5 +8,8 @@
  "sonnet batches 11-16": "Reported reading each 640-line extract list once without a verification pass; nothing estimated.",
  "sonnet batch 18": "Reported that the eight agg-640 sums were estimated (640 x 54.5 = 34880), not summed; all count items were counted by reading, cou-160 the most error-prone.",
  "sonnet batches 02-05": "Reported hand tallies in blocks of 10 for the 640-item classify lists; hard negatives counted as negative; nothing estimated; a miscount of a few possible.",
- "sonnet batches 23-25": "Reported exact (case-sensitive) matching in join items, the opposite reading to sonnet batches 21-22; joi-640 en-00/en-01/fr-00/fr-01 estimated as 160 (not counted) and joi-640 *-10/*-11 as 160 minus the lower-case twins; all 40- and 160-size join items counted id by id."
+ "sonnet batches 23-25": "Reported exact (case-sensitive) matching in join items, the opposite reading to sonnet batches 21-22; joi-640 en-00/en-01/fr-00/fr-01 estimated as 160 (not counted) and joi-640 *-10/*-11 as 160 minus the lower-case twins; all 40- and 160-size join items counted id by id.",
+ "sonnet batch 17": "Reported summing in running sub-totals in groups of 10 for every sum (including approximate ones), nothing estimated; 40- and 160-number sums at higher risk of an arithmetic slip; ext-640-fr-11-0 from a single scan.",
+ "sonnet batches 19-20": "Reported counting cou-160-fr-11-1 line by line and the eight cou-640 items in blocks of ten with a running total (off-by-one or two possible); largest-value items found by scanning for the maximum.",
+ "haiku batches 23-25": "Reported that joi-640-en-11-0, joi-640-fr-00-0, joi-640-fr-01-0, joi-640-fr-10-0 and joi-640-fr-11-0 are estimates (membership check of ~500-600 ids not completed) and joi-640-en-00-0, -en-01-0, -en-10-0 low-confidence; all other items checked id by id."
 }
