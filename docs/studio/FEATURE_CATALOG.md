@@ -1,5 +1,7 @@
 # TaaS Studio — Verified Feature Catalog and UX Audit
 
+> **Historical snapshot notice (2026-11-08):** The audit baseline below is from `feature/studio-goalspec-editor` at `e641fc7412dbb77ae44304562820db619aaf7359`. It is not a current branch inventory and must not be used as proof of present implementation or acceptance. For the current convergence baseline, use [GLOBAL_UX_CONVERGENCE_AUDIT.md](./GLOBAL_UX_CONVERGENCE_AUDIT.md), then reconcile each feature against the exact branch/PR head and test evidence. Historical UX identifiers are preserved; unresolved identifier collisions must be clarified rather than silently renumbered.
+
 Audit baseline: branch `feature/studio-goalspec-editor`, commit `e641fc7412dbb77ae44304562820db619aaf7359`.
 
 This catalog records what is present in the repository at the audit baseline. “Implemented” means a code/API surface exists; it does not imply production readiness or browser validation. No runtime invocation of MCP tools is provided by Studio.
