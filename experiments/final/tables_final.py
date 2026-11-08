@@ -58,7 +58,7 @@ def main() -> None:
                "Structural typer certainty thresholds: " + "; ".join(
                    f"≥{k}: {pct(v['certain_share'])} certain, kind agreement {pct(v['kind_agreement_certain'])}"
                    for k, v in R["struct_thresholds"].items()), "", f"Human annotation sheet: `{r['human_sheet']}`.", ""]
-    r = load("E3_effects")
+    r = load("E3_effects_tristate") or load("E3_effects")
     if r:
         R = r["results"]
         sources = ("declared_vs_B", "lexical_vs_B", "labelsA_vs_B")
