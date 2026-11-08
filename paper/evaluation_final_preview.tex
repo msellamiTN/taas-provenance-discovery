@@ -1,0 +1,23 @@
+% Stand-alone preview of the final Experimental Evaluation section in the manuscript's format (IEEEtran,
+% compsoc, 10pt, two columns). Counters match its place in the paper: inserted as Section 8 before the
+% Conclusion (which becomes Section 9), after Figures 1-7 and Tables 1-6.
+\documentclass[10pt,journal,compsoc]{IEEEtran}
+\usepackage[nocompress]{cite}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath,amssymb}
+\usepackage{url}
+\newcommand{\pamcp}{PaMCP}
+\graphicspath{{../results/final/figures/}}
+\begin{document}
+\setcounter{section}{7}
+\setcounter{figure}{7}
+\setcounter{table}{6}
+\setcounter{equation}{7}
+\setcounter{page}{13}
+\input{sections/evaluation_final}
+\clearpage
+\typeout{EVAL-LAST-PAGE: \the\numexpr\value{page}-1\relax}
+\bibliographystyle{IEEEtran}
+\bibliography{evaluation_final}
+\end{document}

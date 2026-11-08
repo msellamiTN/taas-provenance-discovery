@@ -1,0 +1,30 @@
+\begin{table}[t]
+\caption{Mechanism ablation (E18) and injection reach (E14) on 155 tasks under each task's least-privilege
+policy. G: model-conditioned gap; P: provenance-sound eligibility; S: set-level reasoning and certificate. Joint:
+joint feasibility (independent evaluator); Reach: worst-case share of task $\times$ out-of-scope attack pairs the
+toolkit can realise under $J_B$ (least privilege: 712 pairs; strict read-only: 775). Shapley attribution of the
+full-vs-none difference (G/P/S): Rec.: $-$0.017/$-$0.013/$-$0.060; Tok.: $-$55.3/0.8/$-$66.3; Joint: 0.010/0.026/$-$0.010; Reach: $-$0.012/$-$0.018/$-$0.022.}
+\label{tab:ev-factorial}
+\centering\footnotesize\setlength{\tabcolsep}{2.0pt}
+\begin{tabular}{@{}llrrrrrrr@{}}
+\toprule
+Cell & Mech. & $|K|$ & Tok. & Rec. & Joint\% & Reach\% & R-O\% & Abst.\%\\
+\midrule
+Full \pamcp{} & G P S & 1.23 & 176 & 0.181 & 56.1 & 0.0 & 0.0 & 10.3\\
+NoCert & G P \textendash & 1.46 & 229 & 0.253 & 56.8 & 0.1 & 0.4 & 0.0\\
+Declared & G \textendash{} S & 1.25 & 189 & 0.230 & 54.8 & 0.0 & 0.0 & 6.5\\
+NoGap & \textendash{} P S & 1.50 & 193 & 0.183 & 55.5 & 0.0 & 0.0 & 20.0\\
+ & G \textendash{} \textendash & 1.46 & 208 & 0.239 & 55.5 & 0.4 & 3.7 & 0.0\\
+ & \textendash{} P \textendash & 2.09 & 316 & 0.295 & 58.1 & 0.1 & 0.4 & 0.0\\
+ & \textendash{} \textendash{} S & 1.53 & 221 & 0.223 & 52.9 & 0.1 & 0.1 & 16.1\\
+None & \textendash{} \textendash{} \textendash & 2.08 & 297 & 0.270 & 53.5 & 1.1 & 4.9 & 0.0\\
+\midrule
+RAG-MCP top-5 & & 5.00 & 1189 & 0.393 & 52.3 & 8.1 & 14.3 & --\\
+Per-subtask & & 2.08 & 308 & 0.321 & 51.0 & 2.7 & 9.4 & --\\
+MCP-Zero & & 1.46 & 228 & 0.340 & 49.0 & 1.5 & 8.4 & --\\
+ToolScope top-5 & & 5.30 & 1042 & 0.461 & 58.7 & 7.6 & 14.7 & --\\
+COLT top-5 & & 5.00 & 1118 & 0.395 & 50.3 & 7.2 & 12.9 & --\\
+CMTF (path) & & 0.61 & 114 & 0.141 & 23.9 & 0.7 & 2.2 & --\\
+\bottomrule
+\end{tabular}
+\end{table}

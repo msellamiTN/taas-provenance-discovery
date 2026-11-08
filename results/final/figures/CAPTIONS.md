@@ -2,5 +2,15 @@
 - `E2_typing_f1`: Per-kind F1 of output types against the independent labels B (kinds with ≥5 tools).
 - `E4_exposure_utility`: Exposure and utility of read-only policy encodings by retriever (coverage 1, 273 requests with read-only targets).
 - `E4_coverage`: Verified-evidence encoding: utility, eligible share and exposure against the share of tools the verifier probes (5 seeds below ρ = 1).
+- `E5_forgery`: Exp@5 against the fraction of malicious servers, by attack (5 seeds; PaMCP retrieval).
+- `E6_verifier`: Exp@5 of verified evidence against the verifier's false-accept rate (random or look-alike errors, coverage 1, ψ = 0), with the lexical encoding as reference.
+- `E7_trust_pareto`: Utility against exposure as the trust threshold varies, by trust policy and probe-coverage floor (δ = 20%, FAR 5%).
+- `E8_forest`: Hit@1 on the 300-query MCPToolBench++ sample over the merged registry.
+- `E8_distractors`: Hit@1 as LiveMCPTool distractors are added to the 87 MCPToolBench++ tools (5 seeds).
+- `E9_group_recall`: Group recall of the selected sets with mean toolkit size, LiveMCPBench.
+- `E10_checks`: Per-check pass rates and joint feasibility under each task's least-privilege policy (independent evaluator, labels B).
 - `E12_calibration`: Claimed against measured reliability per class and input size (16 cells per model).
 - `E11_gap`: Toolkit size of the review scenario against input size n, by threshold τ and exactness (Sonnet profile; NoGap abstains in every setting).
+- `E14_injection`: Share of task × out-of-scope attack pairs the exposed toolkit can realise under labels B (least-privilege policies, 155 tasks).
+- `E18_shapley`: Shapley attribution of the full-vs-none difference to the three mechanisms (2^3 factorial, least-privilege policies).
+- `E17_refinement`: Share of tasks with a certified toolkit against the refinement bound (LLM-free repairs).

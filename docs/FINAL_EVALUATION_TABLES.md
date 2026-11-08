@@ -25,11 +25,11 @@ Human annotation sheet: `docs/annotation/E2_human_annotation_sheet.csv`.
 
 ## E3 Declared and lexical effects vs labels B (observed effects blocked)
 
-| Source | TP | FP | FN | TN | Unknown | Precision | Recall | Discrepancy |
-|---|---|---|---|---|---|---|---|---|
-| declared_vs_B | 0 | 0 | 120 | 449 | 525 | – | 0.000 | 21.1% |
-| lexical_vs_B | 99 | 84 | 21 | 365 | 0 | 0.541 | 0.825 | 18.5% |
-| labelsA_vs_B | 120 | 11 | 0 | 438 | 0 | 0.916 | 1.000 | 1.9% |
+| Source | With prediction | TP | FP | FN | TN | No prediction (of which unsafe) | Precision | Recall | Discrepancy (predicted tools) |
+|---|---|---|---|---|---|---|---|---|---|
+| declared_vs_B | 44 | 0 | 0 | 1 | 43 | 525 (119) | – | 0.000 | 2.3% |
+| lexical_vs_B | 569 | 99 | 84 | 21 | 365 | 0 (0) | 0.541 | 0.825 | 18.5% |
+| labelsA_vs_B | 569 | 120 | 11 | 0 | 438 | 0 (0) | 0.916 | 1.000 | 1.9% |
 
 Agreement of labels A and B: κ = 0.944 (state modification), 0.893 (private output); per class: write 120/107 (κ 0.93), delete 11/10 (κ 0.85), exec 8/9 (κ 0.94), money 3/3 (κ 1.00), egress 303/300 (κ 0.95)
 
@@ -48,6 +48,210 @@ Agreement of labels A and B: κ = 0.944 (state modification), 0.893 (private out
 | attested_only | 26.4% | 0.0% [0.0%, 0.0%] | 16.5% | 0.0% / 16.5% | 0.0% / 18.3% | 0.0% / 16.1% |
 
 Verified evidence vs coverage ρ (PaMCP retrieval): ρ=1.0: Exp@5 0.0%, Util@5 46.2%, eligible 77.0%; ρ=0.75: Exp@5 0.0%, Util@5 34.7%, eligible 57.1%; ρ=0.5: Exp@5 0.0%, Util@5 26.8%, eligible 38.3%; ρ=0.25: Exp@5 0.0%, Util@5 16.3%, eligible 18.7%
+
+## E5 Forged and laundered metadata (Exp@5 / Util@5, PaMCP retrieval, verifier FAR 5%)
+
+| Attack | δ | no_filter | closed_world_annotations | lexical_positive | verified_evidence |
+|---|---|---|---|---|---|
+| forge | 0.0 | 42.5% / 49.8% | 31.5% / 0.4% | 9.9% / 41.0% | 0.0% / 46.9% |
+| forge | 0.05 | 42.5% / 49.8% | 39.9% / 3.7% | 9.9% / 41.0% | 5.4% / 46.4% |
+| forge | 0.1 | 42.5% / 49.8% | 56.8% / 6.4% | 9.9% / 41.0% | 5.4% / 46.4% |
+| forge | 0.2 | 42.5% / 49.8% | 58.0% / 11.8% | 9.9% / 41.0% | 5.4% / 46.4% |
+| forge | 0.3 | 42.5% / 49.8% | 62.6% / 19.2% | 9.9% / 41.0% | 5.4% / 46.4% |
+| launder | 0.0 | 42.5% / 49.8% | 31.5% / 0.4% | 9.9% / 41.0% | 0.0% / 46.9% |
+| launder | 0.05 | 43.0% / 49.6% | 30.7% / 0.4% | 9.8% / 40.4% | 5.6% / 46.7% |
+| launder | 0.1 | 43.7% / 49.9% | 31.6% / 0.4% | 9.3% / 40.4% | 5.6% / 46.5% |
+| launder | 0.2 | 43.7% / 49.5% | 29.9% / 0.4% | 8.8% / 40.7% | 5.5% / 46.1% |
+| launder | 0.3 | 43.3% / 49.4% | 30.5% / 0.4% | 8.7% / 40.7% | 5.6% / 46.1% |
+| both | 0.0 | 42.5% / 49.8% | 31.5% / 0.4% | 9.9% / 41.0% | 0.0% / 46.9% |
+| both | 0.05 | 43.0% / 49.6% | 39.8% / 3.7% | 9.8% / 40.4% | 5.6% / 46.7% |
+| both | 0.1 | 43.7% / 49.9% | 57.1% / 6.3% | 9.3% / 40.4% | 5.6% / 46.5% |
+| both | 0.2 | 43.7% / 49.5% | 58.7% / 11.6% | 8.8% / 40.7% | 5.5% / 46.1% |
+| both | 0.3 | 43.3% / 49.4% | 62.6% / 19.7% | 8.7% / 40.7% | 5.6% / 46.1% |
+
+## E6 Imperfect verifier: break-even false-accept rate
+
+| δ | placement | ψ | ρ | Lexical Exp@5 | Break-even φ |
+|---|---|---|
+| 0.0|random|0.0|0.5 | 9.9% | 0.1 |
+| 0.0|random|0.0|1.0 | 9.9% | 0.2 |
+| 0.0|random|0.2|0.5 | 9.9% | 0.1 |
+| 0.0|random|0.2|1.0 | 9.9% | 0.1 |
+| 0.0|lookalike|0.0|0.5 | 9.9% | 0.2 |
+| 0.0|lookalike|0.0|1.0 | 9.9% | 0.2 |
+| 0.0|lookalike|0.2|0.5 | 9.9% | 0.2 |
+| 0.0|lookalike|0.2|1.0 | 9.9% | 0.2 |
+| 0.2|random|0.0|0.5 | 9.2% | 0.1 |
+| 0.2|random|0.0|1.0 | 9.2% | 0.1 |
+| 0.2|random|0.2|0.5 | 9.2% | 0.1 |
+| 0.2|random|0.2|1.0 | 9.2% | 0.1 |
+| 0.2|lookalike|0.0|0.5 | 9.2% | 0.2 |
+| 0.2|lookalike|0.0|1.0 | 9.2% | 0.2 |
+| 0.2|lookalike|0.2|0.5 | 9.2% | 0.2 |
+| 0.2|lookalike|0.2|1.0 | 9.2% | 0.2 |
+
+| φ | δ=0 random | δ=0 look-alike | δ=0.2 random | δ=0.2 look-alike |
+|---|---|---|---|---|
+| 0.0 | 0.0% | 0.0% | 0.0% | 0.0% |
+| 0.01 | 1.2% | 1.5% | 1.1% | 1.1% |
+| 0.02 | 1.2% | 2.2% | 1.1% | 1.8% |
+| 0.05 | 5.4% | 4.8% | 5.7% | 4.4% |
+| 0.1 | 8.9% | 4.8% | 9.3% | 4.8% |
+| 0.2 | 14.1% | 11.7% | 15.8% | 13.6% |
+
+## E7 Trust threshold, trust policy and coverage floor (δ = 0.2, FAR 5%)
+
+| Trust policy | κ floor | ℓmin | Eligible | Exp@5 | Util@5 |
+|---|---|---|---|---|---|
+| default | 0.0 | 0.5 | 78.0% | 5.5% | 45.8% |
+| default | 0.0 | 0.65 | 63.9% | 3.5% | 34.4% |
+| default | 0.0 | 0.75 | 25.4% | 10.3% | 23.1% |
+| default | 0.0 | 0.9 | 25.4% | 10.3% | 23.1% |
+| default | 0.5 | 0.5 | 56.5% | 2.8% | 32.6% |
+| default | 0.5 | 0.65 | 56.5% | 2.8% | 32.6% |
+| default | 0.5 | 0.75 | 17.9% | 6.6% | 20.6% |
+| default | 0.5 | 0.9 | 17.9% | 6.6% | 20.6% |
+| default | 0.8 | 0.5 | 21.6% | 0.6% | 14.3% |
+| default | 0.8 | 0.65 | 21.6% | 0.6% | 14.3% |
+| default | 0.8 | 0.75 | 6.7% | 1.1% | 10.0% |
+| default | 0.8 | 0.9 | 6.7% | 1.1% | 10.0% |
+| signer_weighted | 0.0 | 0.5 | 76.1% | 5.7% | 43.8% |
+| signer_weighted | 0.0 | 0.65 | 31.2% | 6.5% | 18.4% |
+| signer_weighted | 0.0 | 0.75 | 12.8% | 18.6% | 14.8% |
+| signer_weighted | 0.0 | 0.9 | 12.8% | 18.6% | 14.8% |
+| signer_weighted | 0.5 | 0.5 | 56.5% | 2.8% | 32.6% |
+| signer_weighted | 0.5 | 0.65 | 27.8% | 2.8% | 17.0% |
+| signer_weighted | 0.5 | 0.75 | 9.4% | 0.7% | 12.7% |
+| signer_weighted | 0.5 | 0.9 | 9.4% | 0.7% | 12.7% |
+| signer_weighted | 0.8 | 0.5 | 21.6% | 0.6% | 14.3% |
+| signer_weighted | 0.8 | 0.65 | 11.0% | 1.2% | 8.5% |
+| signer_weighted | 0.8 | 0.75 | 3.6% | 2.3% | 7.4% |
+| signer_weighted | 0.8 | 0.9 | 3.6% | 2.3% | 7.4% |
+
+## E8 Single-tool retrieval
+
+Registries: B1 = 81 tools, B1m = 569 tools. CIs: target-tool clusters.
+
+| Set|registry | Method | Hit@1 [95% CI] | Hit@5 | MRR@10 | Tool-macro Hit@1 | n |
+|---|---|---|---|---|---|---|
+| sample|B1 | mcp_zero | 68.0% [50.0%, 81.4%] | 86.3% | 0.758 | 53.5% | 300 |
+| sample|B1 | pamcp_contract | 66.0% [47.4%, 79.4%] | 88.7% | 0.764 | 45.8% | 300 |
+| sample|B1 | toolscope_adapted | 57.7% [40.2%, 71.6%] | 78.0% | 0.662 | 47.3% | 300 |
+| sample|B1 | cmtf_adapted | 57.7% [38.3%, 72.9%] | 89.7% | 0.723 | 39.9% | 300 |
+| sample|B1 | rrf | 54.3% [41.2%, 69.5%] | 81.3% | 0.648 | 53.4% | 300 |
+| sample|B1 | bm25 | 52.7% [40.8%, 66.7%] | 82.0% | 0.640 | 56.8% | 300 |
+| sample|B1 | dense_lsa | 49.7% [36.2%, 65.4%] | 77.0% | 0.620 | 49.3% | 300 |
+| sample|B1 | colt_adapted | 47.3% [35.0%, 61.6%] | 76.3% | 0.603 | 47.0% | 300 |
+| sample|B1m | mcp_zero | 50.0% [31.8%, 69.9%] | 85.3% | 0.641 | 48.8% | 300 |
+| sample|B1m | bm25 | 39.7% [24.6%, 57.8%] | 63.7% | 0.494 | 47.2% | 300 |
+| sample|B1m | rrf | 38.7% [23.4%, 57.0%] | 61.0% | 0.480 | 43.9% | 300 |
+| sample|B1m | dense_lsa | 37.3% [21.7%, 56.2%] | 54.3% | 0.451 | 40.8% | 300 |
+| sample|B1m | toolscope_adapted | 36.0% [21.2%, 54.2%] | 55.3% | 0.446 | 37.3% | 300 |
+| sample|B1m | colt_adapted | 35.0% [20.8%, 52.2%] | 57.3% | 0.437 | 38.7% | 300 |
+| sample|B1m | cmtf_adapted | 33.3% [19.0%, 50.4%] | 55.3% | 0.434 | 29.7% | 300 |
+| sample|B1m | pamcp_contract | 23.0% [11.3%, 37.2%] | 56.0% | 0.368 | 20.0% | 300 |
+| full|B1 | bm25 | 54.2% [41.5%, 67.0%] | 73.8% | 0.628 | 57.0% | 1509 |
+| full|B1 | rrf | 52.5% [39.7%, 65.3%] | 72.9% | 0.610 | 54.1% | 1509 |
+| full|B1 | dense_lsa | 46.3% [33.0%, 59.9%] | 67.9% | 0.563 | 48.8% | 1509 |
+| full|B1 | colt_adapted | 34.7% [21.9%, 47.9%] | 64.8% | 0.477 | 38.3% | 1509 |
+| full|B1m | bm25 | 42.3% [28.1%, 56.8%] | 61.3% | 0.498 | 47.2% | 1509 |
+| full|B1m | rrf | 39.9% [26.5%, 53.6%] | 58.8% | 0.478 | 43.0% | 1509 |
+| full|B1m | dense_lsa | 36.6% [23.4%, 50.8%] | 54.3% | 0.442 | 38.2% | 1509 |
+| full|B1m | colt_adapted | 25.4% [13.0%, 39.0%] | 49.0% | 0.357 | 29.4% | 1509 |
+
+Distractor curve (Hit@1, sample): +0: bm25 52.7%, colt_adapted 47.3%, dense_lsa 49.7%, mcp_zero 68.0%, pamcp_contract 66.0%, rrf 54.3%, toolscope_adapted 57.7%; +50: bm25 49.9%, colt_adapted 43.3%, dense_lsa 46.6%, mcp_zero 65.4%, pamcp_contract 48.9%, rrf 51.5%, toolscope_adapted 45.5%; +150: bm25 46.2%, colt_adapted 40.1%, dense_lsa 42.9%, mcp_zero 61.8%, pamcp_contract 37.0%, rrf 46.7%, toolscope_adapted 41.4%; +300: bm25 42.2%, colt_adapted 36.5%, dense_lsa 38.8%, mcp_zero 50.9%, pamcp_contract 29.4%, rrf 41.1%, toolscope_adapted 37.3%; +488: bm25 39.7%, colt_adapted 35.0%, dense_lsa 37.3%, mcp_zero 50.0%, pamcp_contract 23.0%, rrf 38.7%, toolscope_adapted 36.0%
+
+| Paired test (sample, B1m, Hit@1) | Δ | 95% CI | p |
+|---|---|---|---|
+| pamcp_contract vs bm25|hit1 | -0.167 |  [-0.223, -0.110] | 0.0000 |
+| pamcp_contract vs dense_lsa|hit1 | -0.143 |  [-0.203, -0.083] | 0.0000 |
+| pamcp_contract vs rrf|hit1 | -0.157 |  [-0.213, -0.100] | 0.0000 |
+| pamcp_contract vs mcp_zero|hit1 | -0.270 |  [-0.327, -0.217] | 0.0000 |
+| pamcp_contract vs colt_adapted|hit1 | -0.120 |  [-0.177, -0.063] | 0.0001 |
+| pamcp_contract vs toolscope_adapted|hit1 | -0.130 |  [-0.190, -0.073] | 0.0002 |
+| pamcp_contract vs cmtf_adapted|hit1 | -0.103 |  [-0.157, -0.053] | 0.0002 |
+
+## E9 Multi-tool set retrieval (LiveMCPBench, open policy)
+
+| Method | |K| | Tokens | Group recall [95% CI] | Complete set | Set precision |
+|---|---|---|---|---|---|
+| cmtf_path | 0.64 | 105 | 0.072 [0.039, 0.110] | 1.1% | 0.298 |
+| colt@10 | 10.00 | 2433 | 0.391 [0.313, 0.469] | 19.1% | 0.099 |
+| colt@20 | 20.00 | 5417 | 0.518 [0.438, 0.599] | 31.9% | 0.065 |
+| colt@5 | 5.00 | 1094 | 0.295 [0.227, 0.367] | 12.8% | 0.140 |
+| colt@size-matched | 1.64 | 417 | 0.084 [0.046, 0.126] | 1.2% | 0.149 |
+| mcp_zero | 1.76 | 250 | 0.227 [0.165, 0.294] | 8.5% | 0.293 |
+| mcp_zero_ranked@10 | 9.61 | 1657 | 0.439 [0.362, 0.513] | 23.4% | 0.111 |
+| mcp_zero_ranked@20 | 17.83 | 3314 | 0.526 [0.442, 0.605] | 34.0% | 0.081 |
+| mcp_zero_ranked@5 | 5.00 | 811 | 0.373 [0.296, 0.449] | 20.2% | 0.172 |
+| mcp_zero_ranked@size-matched | 1.64 | 241 | 0.200 [0.138, 0.266] | 7.1% | 0.276 |
+| pamcp@10 | 1.46 | 198 | 0.174 [0.123, 0.228] | 4.3% | 0.265 |
+| pamcp@20 | 1.46 | 200 | 0.174 [0.123, 0.228] | 4.3% | 0.265 |
+| pamcp@5 | 1.47 | 199 | 0.169 [0.118, 0.223] | 4.3% | 0.262 |
+| pamcp@size-matched | 1.64 | 223 | 0.189 [0.132, 0.251] | 4.8% | 0.262 |
+| pamcp_noclosure | 1.40 | 195 | 0.168 [0.118, 0.222] | 4.3% | 0.261 |
+| per_subtask[analyst] | 2.59 | 346 | 0.249 [0.186, 0.319] | 9.6% | 0.249 |
+| per_subtask[analyst]@10 | 10.00 | 1763 | 0.537 [0.458, 0.617] | 34.0% | 0.131 |
+| per_subtask[analyst]@20 | 20.00 | 4046 | 0.677 [0.601, 0.748] | 46.8% | 0.088 |
+| per_subtask[analyst]@5 | 5.00 | 791 | 0.387 [0.313, 0.461] | 19.1% | 0.177 |
+| per_subtask[analyst]@size-matched | 1.64 | 225 | 0.138 [0.087, 0.194] | 3.6% | 0.196 |
+| per_subtask[clause] | 2.27 | 532 | 0.142 [0.093, 0.190] | 3.2% | 0.166 |
+| per_subtask[clause]@10 | 10.00 | 2381 | 0.383 [0.304, 0.461] | 21.3% | 0.093 |
+| per_subtask[clause]@20 | 20.00 | 4969 | 0.490 [0.412, 0.571] | 28.7% | 0.063 |
+| per_subtask[clause]@5 | 5.00 | 1141 | 0.267 [0.202, 0.336] | 10.6% | 0.123 |
+| per_subtask[none] | 1.00 | 252 | 0.105 [0.067, 0.147] | 1.1% | 0.266 |
+| per_subtask[none]@10 | 10.00 | 2845 | 0.383 [0.307, 0.460] | 19.1% | 0.098 |
+| per_subtask[none]@20 | 20.00 | 5945 | 0.480 [0.403, 0.561] | 27.7% | 0.063 |
+| per_subtask[none]@5 | 5.00 | 1350 | 0.274 [0.207, 0.345] | 11.7% | 0.138 |
+| rag_mcp@10 | 10.00 | 2644 | 0.397 [0.323, 0.472] | 18.1% | 0.101 |
+| rag_mcp@20 | 20.00 | 5631 | 0.494 [0.415, 0.571] | 29.8% | 0.064 |
+| rag_mcp@5 | 5.00 | 1244 | 0.293 [0.225, 0.366] | 13.8% | 0.136 |
+| rag_mcp@size-matched | 1.64 | 422 | 0.130 [0.085, 0.177] | 1.2% | 0.205 |
+| toolscope[analyst]@10 | 10.35 | 2423 | 0.462 [0.389, 0.536] | 22.3% | 0.113 |
+| toolscope[analyst]@20 | 20.69 | 5502 | 0.552 [0.473, 0.629] | 35.1% | 0.070 |
+| toolscope[analyst]@5 | 5.20 | 976 | 0.361 [0.288, 0.436] | 17.0% | 0.170 |
+| toolscope[clause]@10 | 10.31 | 2614 | 0.410 [0.336, 0.486] | 20.2% | 0.101 |
+| toolscope[clause]@20 | 20.68 | 5715 | 0.508 [0.432, 0.586] | 30.9% | 0.064 |
+| toolscope[clause]@5 | 5.23 | 1194 | 0.299 [0.230, 0.369] | 12.8% | 0.137 |
+| toolscope[none]@10 | 10.31 | 2762 | 0.406 [0.330, 0.481] | 20.2% | 0.101 |
+| toolscope[none]@20 | 20.67 | 5842 | 0.503 [0.423, 0.583] | 30.9% | 0.064 |
+| toolscope[none]@5 | 5.19 | 1312 | 0.314 [0.245, 0.385] | 14.9% | 0.144 |
+
+| Paired test (recall) | n | Δ | 95% CI | p | p non-inferior (margin 0.05) |
+|---|---|---|---|---|---|
+| pamcp@5 vs rag_mcp@5 | 94 | -0.124 |  [-0.223, -0.033] | 0.0159 | 0.9310 |
+| pamcp@5 vs colt@5 | 94 | -0.126 |  [-0.224, -0.034] | 0.0131 | 0.9352 |
+| pamcp@5 vs mcp_zero | 94 | -0.058 |  [-0.130, 0.011] | 0.1078 | 0.5866 |
+| pamcp@5 vs mcp_zero_ranked@5 | 94 | -0.204 |  [-0.293, -0.119] | 0.0001 | 0.9997 |
+| pamcp@5 vs toolscope[analyst]@5 | 94 | -0.192 |  [-0.291, -0.096] | 0.0005 | 0.9968 |
+| pamcp@5 vs cmtf_path | 94 | 0.097 |  [0.047, 0.148] | 0.0002 | 0.0000 |
+| pamcp@5 vs per_subtask[analyst] | 94 | -0.080 |  [-0.166, 0.002] | 0.0632 | 0.7635 |
+| pamcp@5 vs pamcp_noclosure | 94 | 0.001 |  [-0.013, 0.013] | 1.0000 | 0.0000 |
+| size-matched pamcp vs rag_mcp | 84 | 0.060 |  [-0.016, 0.137] | 0.1322 | – |
+| size-matched pamcp vs colt | 84 | 0.105 |  [0.032, 0.178] | 0.0068 | – |
+| size-matched pamcp vs mcp_zero_ranked | 84 | -0.011 |  [-0.078, 0.057] | 0.7548 | – |
+| size-matched pamcp vs per_subtask[analyst] | 84 | 0.051 |  [-0.020, 0.119] | 0.1576 | – |
+
+## E10 Set validity (independent evaluator, least-privilege policies)
+
+| Method | Abstain | Joint feasible [95% CI] | S | C | E | L | V | M | Interface mism. | Forbidden tools | Flow viol. | Recall |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| toolscope[analyst]@5|eligible-only | 0.0% | 73.4% [63.7%, 81.3%] | 83.0% | 89.4% | 100.0% | 96.8% | 100.0% | 22.3% | 0.15 | 0.00 | 3 | 0.357 |
+| pamcp(K=10) | 7.4% | 67.0% [57.0%, 75.7%] | 68.1% | 97.9% | 100.0% | 100.0% | 100.0% | 87.2% | 0.02 | 0.00 | 0 | 0.174 |
+| pamcp(K=20) | 7.4% | 67.0% [57.0%, 75.7%] | 68.1% | 97.9% | 100.0% | 100.0% | 100.0% | 87.2% | 0.02 | 0.00 | 0 | 0.174 |
+| pamcp(K=40) | 7.4% | 67.0% [57.0%, 75.7%] | 68.1% | 97.9% | 100.0% | 100.0% | 100.0% | 88.3% | 0.02 | 0.00 | 0 | 0.174 |
+| per_subtask[analyst]|eligible-only | 0.0% | 62.8% [52.7%, 71.9%] | 72.3% | 88.3% | 100.0% | 98.9% | 100.0% | 36.2% | 0.13 | 0.00 | 1 | 0.238 |
+| rag_mcp@5|eligible-only | 0.0% | 60.6% [50.5%, 69.9%] | 69.1% | 88.3% | 98.9% | 96.8% | 100.0% | 36.2% | 0.23 | 0.01 | 3 | 0.300 |
+| colt@5|eligible-only | 0.0% | 59.6% [49.5%, 68.9%] | 63.8% | 91.5% | 100.0% | 94.7% | 100.0% | 41.5% | 0.20 | 0.00 | 5 | 0.294 |
+| pamcp_nocert | 0.0% | 59.6% [49.5%, 68.9%] | 68.1% | 88.3% | 100.0% | 98.9% | 100.0% | 74.5% | 0.12 | 0.00 | 1 | 0.181 |
+| toolscope[analyst]@5|unfiltered | 0.0% | 59.6% [49.5%, 68.9%] | 84.0% | 91.5% | 74.5% | 97.9% | 74.5% | 21.3% | 0.13 | 0.39 | 2 | 0.361 |
+| mcp_zero|eligible-only | 0.0% | 57.4% [47.4%, 67.0%] | 61.7% | 93.6% | 100.0% | 97.9% | 100.0% | 81.9% | 0.06 | 0.00 | 2 | 0.227 |
+| mcp_zero|unfiltered | 0.0% | 55.3% [45.3%, 65.0%] | 62.8% | 93.6% | 95.7% | 97.9% | 95.7% | 81.9% | 0.06 | 0.05 | 2 | 0.227 |
+| per_subtask[analyst]|unfiltered | 0.0% | 52.1% [42.1%, 61.9%] | 72.3% | 88.3% | 86.2% | 98.9% | 84.0% | 37.2% | 0.13 | 0.15 | 1 | 0.249 |
+| rag_mcp@5|unfiltered | 0.0% | 48.9% [39.1%, 58.9%] | 71.3% | 90.4% | 75.5% | 97.9% | 76.6% | 34.0% | 0.21 | 0.37 | 2 | 0.293 |
+| colt@5|unfiltered | 0.0% | 47.9% [38.1%, 57.9%] | 64.9% | 92.6% | 78.7% | 95.7% | 78.7% | 40.4% | 0.20 | 0.38 | 4 | 0.295 |
+| cmtf_path|eligible-only | 0.0% | 25.5% [17.8%, 35.2%] | 25.5% | 97.9% | 100.0% | 100.0% | 100.0% | 97.9% | 0.02 | 0.00 | 0 | 0.077 |
+| cmtf_path|unfiltered | 0.0% | 23.4% [16.0%, 32.9%] | 24.5% | 97.9% | 98.9% | 100.0% | 98.9% | 97.9% | 0.02 | 0.01 | 0 | 0.072 |
 
 ## E11 Capability gap (review scenario; |K| (native share))
 
@@ -89,4 +293,252 @@ sonnet: extract n=10: 4/4, n=40: 4/4, n=160: 4/4, n=640: 4/4; aggregate_sum n=10
 haiku: extract n=10: 4/4, n=40: 4/4, n=160: 4/4, n=640: 4/4; aggregate_sum n=10: 4/4, n=40: 4/4, n=160: 1/4, n=640: 0/4; classify n=10: 4/4, n=40: 4/4, n=160: 4/4, n=640: 4/4; count n=10: 3/4, n=40: 4/4, n=160: 3/4, n=640: 0/4
 
 opus: extract n=10: 4/4, n=40: 4/4, n=160: 4/4, n=640: 4/4; aggregate_sum n=10: 4/4, n=40: 4/4, n=160: 4/4, n=640: 4/4; classify n=10: 4/4, n=40: 4/4, n=160: 4/4, n=640: 4/4; count n=10: 4/4, n=40: 4/4, n=160: 4/4, n=640: 4/4
+
+## E14 Prompt injection (offline, worst case under labels B)
+
+| Policy | method | Reachable out-of-scope actions [95% CI] | k / n |
+|---|---|---|
+| least_privilege|Full-derivation_flow | 0.0% [0.0%, 0.5%] | 0 / 712 |
+| least_privilege|Full-no_closure | 0.0% [0.0%, 0.5%] | 0 / 712 |
+| least_privilege|Full-no_refinement | 0.0% [0.0%, 0.5%] | 0 / 712 |
+| least_privilege|Full-no_relevance_term | 0.0% [0.0%, 0.5%] | 0 / 712 |
+| least_privilege|Full-no_utility_floor | 0.0% [0.0%, 0.5%] | 0 / 712 |
+| least_privilege|Full_PaMCP | 0.0% [0.0%, 0.5%] | 0 / 712 |
+| least_privilege|PaMCP_Declared | 0.0% [0.0%, 0.5%] | 0 / 712 |
+| least_privilege|PaMCP_NoGap | 0.0% [0.0%, 0.5%] | 0 / 712 |
+| least_privilege|cmtf_path|eligible | 0.0% [0.0%, 0.5%] | 0 / 712 |
+| least_privilege|G0_P0_S1 | 0.1% [0.0%, 0.8%] | 1 / 712 |
+| least_privilege|G0_P1_S0 | 0.1% [0.0%, 0.8%] | 1 / 712 |
+| least_privilege|PaMCP_NoCert | 0.1% [0.0%, 0.8%] | 1 / 712 |
+| least_privilege|per_subtask|eligible | 0.1% [0.0%, 0.8%] | 1 / 712 |
+| least_privilege|mcp_zero|eligible | 0.3% [0.1%, 1.0%] | 2 / 712 |
+| least_privilege|G1_P0_S0 | 0.4% [0.1%, 1.2%] | 3 / 712 |
+| least_privilege|cmtf_path|unfiltered | 0.7% [0.3%, 1.6%] | 5 / 712 |
+| least_privilege|G0_P0_S0 | 1.1% [0.6%, 2.2%] | 8 / 712 |
+| least_privilege|colt@5|eligible | 1.1% [0.6%, 2.2%] | 8 / 712 |
+| least_privilege|rag_mcp@5|eligible | 1.3% [0.7%, 2.4%] | 9 / 712 |
+| least_privilege|toolscope@5|eligible | 1.4% [0.8%, 2.6%] | 10 / 712 |
+| least_privilege|mcp_zero|unfiltered | 1.5% [0.9%, 2.7%] | 11 / 712 |
+| least_privilege|per_subtask|unfiltered | 2.7% [1.7%, 4.1%] | 19 / 712 |
+| least_privilege|colt@5|unfiltered | 7.2% [5.5%, 9.3%] | 51 / 712 |
+| least_privilege|toolscope@5|unfiltered | 7.6% [5.9%, 9.8%] | 54 / 712 |
+| least_privilege|rag_mcp@5|unfiltered | 8.1% [6.4%, 10.4%] | 58 / 712 |
+| least_privilege|all_tools|eligible | 36.1% [32.7%, 39.7%] | 257 / 712 |
+| least_privilege|all_tools|unfiltered | 100.0% [99.5%, 100.0%] | 712 / 712 |
+| read_only|Full-derivation_flow | – | 0 / 0 |
+| read_only|Full-no_closure | – | 0 / 0 |
+| read_only|Full-no_refinement | – | 0 / 0 |
+| read_only|Full-no_relevance_term | – | 0 / 0 |
+| read_only|Full-no_utility_floor | – | 0 / 0 |
+| read_only|Full_PaMCP | 0.0% [0.0%, 0.5%] | 0 / 775 |
+| read_only|PaMCP_Declared | 0.0% [0.0%, 0.5%] | 0 / 775 |
+| read_only|PaMCP_NoGap | 0.0% [0.0%, 0.5%] | 0 / 775 |
+| read_only|cmtf_path|eligible | 0.0% [0.0%, 0.5%] | 0 / 775 |
+| read_only|G0_P0_S1 | 0.1% [0.0%, 0.7%] | 1 / 775 |
+| read_only|G0_P1_S0 | 0.4% [0.1%, 1.1%] | 3 / 775 |
+| read_only|PaMCP_NoCert | 0.4% [0.1%, 1.1%] | 3 / 775 |
+| read_only|per_subtask|eligible | 0.4% [0.1%, 1.1%] | 3 / 775 |
+| read_only|mcp_zero|eligible | 0.8% [0.4%, 1.7%] | 6 / 775 |
+| read_only|colt@5|eligible | 1.7% [1.0%, 2.8%] | 13 / 775 |
+| read_only|rag_mcp@5|eligible | 2.1% [1.3%, 3.3%] | 16 / 775 |
+| read_only|cmtf_path|unfiltered | 2.2% [1.4%, 3.5%] | 17 / 775 |
+| read_only|toolscope@5|eligible | 2.5% [1.6%, 3.8%] | 19 / 775 |
+| read_only|G1_P0_S0 | 3.7% [2.6%, 5.3%] | 29 / 775 |
+| read_only|G0_P0_S0 | 4.9% [3.6%, 6.7%] | 38 / 775 |
+| read_only|mcp_zero|unfiltered | 8.4% [6.6%, 10.5%] | 65 / 775 |
+| read_only|per_subtask|unfiltered | 9.4% [7.6%, 11.7%] | 73 / 775 |
+| read_only|colt@5|unfiltered | 12.9% [10.7%, 15.4%] | 100 / 775 |
+| read_only|rag_mcp@5|unfiltered | 14.3% [12.0%, 17.0%] | 111 / 775 |
+| read_only|toolscope@5|unfiltered | 14.7% [12.4%, 17.4%] | 114 / 775 |
+| read_only|all_tools|eligible | 20.0% [17.3%, 23.0%] | 155 / 775 |
+| read_only|all_tools|unfiltered | 100.0% [99.5%, 100.0%] | 775 / 775 |
+
+| Policy | method | Output-borne exposure | Exploitable output-borne | Poisoned definition shown (10% / 30%) | Raw definitions poisoned (30%) |
+|---|---|---|---|---|
+| least_privilege|Full-derivation_flow | 61.9% | 0.0% | 0.0% / 0.0% | 33.2% |
+| least_privilege|Full-no_closure | 54.2% | 0.0% | 0.0% / 0.0% | 30.6% |
+| least_privilege|Full-no_refinement | 55.5% | 0.0% | 0.0% / 0.0% | 32.1% |
+| least_privilege|Full-no_relevance_term | 55.5% | 0.0% | 0.0% / 0.0% | 33.9% |
+| least_privilege|Full-no_utility_floor | 55.5% | 0.0% | 0.0% / 0.0% | 32.6% |
+| least_privilege|Full_PaMCP | 55.5% | 0.0% | 0.0% / 0.0% | 32.6% |
+| least_privilege|G0_P0_S0 | 76.1% | 4.5% | 20.4% / 53.5% | 53.5% |
+| least_privilege|G0_P0_S1 | 54.8% | 0.6% | 0.0% / 0.0% | 36.5% |
+| least_privilege|G0_P1_S0 | 77.4% | 0.6% | 20.0% / 51.9% | 51.9% |
+| least_privilege|G1_P0_S0 | 72.3% | 1.3% | 14.7% / 41.7% | 41.7% |
+| least_privilege|PaMCP_Declared | 60.6% | 0.0% | 0.0% / 0.0% | 32.9% |
+| least_privilege|PaMCP_NoCert | 74.2% | 0.6% | 15.0% / 40.5% | 40.5% |
+| least_privilege|PaMCP_NoGap | 49.7% | 0.0% | 0.0% / 0.0% | 34.7% |
+| least_privilege|all_tools|eligible | 100.0% | 100.0% | 100.0% / 100.0% | 100.0% |
+| least_privilege|all_tools|unfiltered | 100.0% | 100.0% | 100.0% / 100.0% | 100.0% |
+| least_privilege|cmtf_path|eligible | 37.4% | 0.0% | 7.2% / 18.2% | 18.2% |
+| least_privilege|cmtf_path|unfiltered | 38.7% | 3.2% | 7.2% / 17.4% | 17.4% |
+| least_privilege|colt@5|eligible | 80.6% | 5.2% | 42.1% / 79.9% | 79.9% |
+| least_privilege|colt@5|unfiltered | 81.9% | 18.7% | 40.8% / 81.0% | 81.0% |
+| least_privilege|mcp_zero|eligible | 71.6% | 1.3% | 13.0% / 40.4% | 40.4% |
+| least_privilege|mcp_zero|unfiltered | 73.5% | 3.9% | 12.1% / 40.8% | 40.8% |
+| least_privilege|per_subtask|eligible | 77.4% | 0.6% | 20.0% / 51.9% | 51.9% |
+| least_privilege|per_subtask|unfiltered | 78.7% | 10.3% | 19.2% / 51.4% | 51.4% |
+| least_privilege|rag_mcp@5|eligible | 79.4% | 5.8% | 39.7% / 80.9% | 80.9% |
+| least_privilege|rag_mcp@5|unfiltered | 79.4% | 21.9% | 39.5% / 83.6% | 83.6% |
+| least_privilege|toolscope@5|eligible | 83.2% | 5.8% | 40.3% / 85.2% | 85.2% |
+| least_privilege|toolscope@5|unfiltered | 83.2% | 22.6% | 40.5% / 86.2% | 86.2% |
+
+## E16 Registry and model evolution
+
+| Quantity | Value |
+|---|---|
+| Events replayed | 152 |
+| Incremental update p50 / p95 (ms) | 13.5 / 565.4 |
+| Full rebuild (s) | 4.22 |
+| Cached toolkits invalidated per event, exact rule vs flush | 1.09% vs 100% |
+| Toolkits equal to recomputation after replay | 33 / 35 |
+| Rug pulls detected (evidence dropped) | 20 / 20 |
+| Evidence restored after revert | 20 / 20 |
+| Model change (ms) | 0.012 |
+| MCP-Zero index rebuild (s) | 0.06 |
+| COLT graph rebuild (s) | 0.02 |
+
+## E17 Counterexample-guided refinement (LLM-free repairs)
+
+| Budget | k | Certified | Repair success by first χ | Tasks by first outcome | Iterations (repaired) |
+|---|---|---|---|---|
+| K=5|k=0 | 89.0% | chi1: 0.0%, chi5: 0.0% | valid: 138, chi1: 9, chi5: 8 | – |
+| K=5|k=1 | 89.7% | chi1: 11.1%, chi5: 0.0% | valid: 138, chi1: 9, chi5: 8 | 1.00 |
+| K=5|k=2 | 89.7% | chi1: 11.1%, chi5: 0.0% | valid: 138, chi1: 9, chi5: 8 | 1.00 |
+| K=5|k=3 | 89.7% | chi1: 11.1%, chi5: 0.0% | valid: 138, chi1: 9, chi5: 8 | 1.00 |
+| K=5|k=5 | 89.7% | chi1: 11.1%, chi5: 0.0% | valid: 138, chi1: 9, chi5: 8 | 1.00 |
+| K=1 (induced chi1)|k=0 | 73.5% | chi1: 0.0%, chi5: 0.0%, chi2: 0.0% | valid: 114, chi1: 28, chi5: 10, chi2: 3 | – |
+| K=1 (induced chi1)|k=1 | 83.9% | chi1: 46.4%, chi5: 30.0%, chi2: 0.0% | valid: 114, chi1: 28, chi5: 10, chi2: 3 | 1.00 |
+| K=1 (induced chi1)|k=2 | 83.9% | chi1: 46.4%, chi5: 30.0%, chi2: 0.0% | valid: 114, chi1: 28, chi5: 10, chi2: 3 | 1.00 |
+| K=1 (induced chi1)|k=3 | 85.8% | chi1: 46.4%, chi5: 30.0%, chi2: 100.0% | valid: 114, chi1: 28, chi5: 10, chi2: 3 | 1.32 |
+| K=1 (induced chi1)|k=5 | 85.8% | chi1: 46.4%, chi5: 30.0%, chi2: 100.0% | valid: 114, chi1: 28, chi5: 10, chi2: 3 | 1.32 |
+
+Revenue scenario (flow counterexample): revenue_scenario|k=0: toolkit None, χ chi5, outcome –; revenue_scenario|k=3: toolkit ['filesystem::write_file', 'postgres::query', 'slack::post_message', 'stats::aggregate'], χ –, outcome repaired(split)
+
+## E18 Factorial ablation (2^3) and Shapley attribution
+
+| Policy | metric | n | Full − none | Shapley G | Shapley P | Shapley S | G×P | G×S | P×S |
+|---|---|---|---|---|---|---|---|---|
+| least_privilege|recall | 154 | -0.089 | -0.017 | -0.013 | -0.060 | -0.005 (p 0.130) | 0.019 (p 0.005) | -0.032 (p 0.018) |
+| least_privilege|size | 155 | -0.852 | -0.449 | -0.008 | -0.395 | 0.000 (p 1.000) | 0.174 (p 0.000) | -0.016 (p 0.395) |
+| least_privilege|tokens | 155 | -120.813 | -55.261 | 0.790 | -66.342 | 4.289 (p 0.145) | 32.047 (p 0.000) | -20.115 (p 0.023) |
+| least_privilege|joint | 155 | 0.026 | 0.010 | 0.026 | -0.010 | -0.011 (p 0.066) | 0.005 (p 0.788) | -0.005 (p 0.834) |
+| least_privilege|reach_any | 155 | -0.052 | -0.012 | -0.018 | -0.022 | 0.010 (p 0.046) | 0.006 (p 0.231) | 0.013 (p 0.058) |
+| least_privilege|E_ok | 155 | 0.052 | 0.016 | 0.019 | 0.016 | -0.011 (p 0.023) | -0.008 (p 0.132) | -0.011 (p 0.123) |
+| read_only|recall | 154 | -0.055 | -0.014 | 0.003 | -0.044 | -0.005 (p 0.070) | 0.011 (p 0.068) | -0.006 (p 0.445) |
+| read_only|size | 155 | -1.348 | -0.403 | 0.006 | -0.952 | -0.005 (p 0.394) | 0.231 (p 0.000) | -0.005 (p 0.673) |
+| read_only|tokens | 155 | -199.052 | -56.200 | -0.794 | -142.058 | 2.698 (p 0.303) | 38.240 (p 0.000) | -3.476 (p 0.669) |
+| read_only|joint | 155 | 0.065 | 0.011 | 0.020 | 0.033 | -0.015 (p 0.006) | -0.002 (p 1.000) | -0.018 (p 0.080) |
+| read_only|reach_any | 155 | -0.239 | -0.018 | -0.102 | -0.118 | 0.015 (p 0.006) | 0.011 (p 0.041) | 0.095 (p 0.000) |
+| read_only|E_ok | 155 | 0.226 | 0.018 | 0.105 | 0.102 | -0.015 (p 0.006) | -0.011 (p 0.041) | -0.098 (p 0.000) |
+
+| Policy | method | |K| | Tokens | Recall | Joint feasible | Effects within policy | Attack reach (any) | Abstain |
+|---|---|---|---|---|---|---|---|
+| least_privilege|Full-derivation_flow | 1.29 | 206 | 0.236 | 60.6% | 100.0% | 0.0% | 5.8% |
+| least_privilege|Full-no_closure | 1.18 | 173 | 0.181 | 53.5% | 100.0% | 0.0% | 12.3% |
+| least_privilege|Full-no_refinement | 1.21 | 175 | 0.179 | 55.5% | 100.0% | 0.0% | 11.0% |
+| least_privilege|Full-no_relevance_term | 1.21 | 141 | 0.167 | 54.8% | 100.0% | 0.0% | 10.3% |
+| least_privilege|Full-no_utility_floor | 1.23 | 176 | 0.181 | 56.1% | 100.0% | 0.0% | 10.3% |
+| least_privilege|Full_PaMCP | 1.23 | 176 | 0.181 | 56.1% | 100.0% | 0.0% | 10.3% |
+| least_privilege|G0_P0_S0 | 2.08 | 297 | 0.270 | 53.5% | 94.8% | 5.2% | 0.0% |
+| least_privilege|G0_P0_S1 | 1.53 | 221 | 0.223 | 52.9% | 98.7% | 0.6% | 16.1% |
+| least_privilege|G0_P1_S0 | 2.09 | 316 | 0.295 | 58.1% | 99.4% | 0.6% | 0.0% |
+| least_privilege|G1_P0_S0 | 1.46 | 208 | 0.239 | 55.5% | 98.7% | 1.9% | 0.0% |
+| least_privilege|PaMCP_Declared | 1.25 | 189 | 0.230 | 54.8% | 100.0% | 0.0% | 6.5% |
+| least_privilege|PaMCP_NoCert | 1.46 | 229 | 0.253 | 56.8% | 100.0% | 0.6% | 0.0% |
+| least_privilege|PaMCP_NoGap | 1.50 | 193 | 0.183 | 55.5% | 100.0% | 0.0% | 20.0% |
+| least_privilege|all_tools|eligible | 475.59 | 80780 | 0.932 | 0.0% | 65.8% | 100.0% | 0.0% |
+| least_privilege|all_tools|unfiltered | 569.00 | 96420 | 1.000 | 0.0% | 0.0% | 100.0% | 0.0% |
+| least_privilege|cmtf_path|eligible | 0.63 | 122 | 0.131 | 25.2% | 100.0% | 0.0% | 0.0% |
+| least_privilege|cmtf_path|unfiltered | 0.61 | 114 | 0.141 | 23.9% | 96.8% | 3.2% | 0.0% |
+| least_privilege|colt@5|eligible | 5.00 | 1080 | 0.375 | 65.8% | 98.1% | 5.2% | 0.0% |
+| least_privilege|colt@5|unfiltered | 5.00 | 1118 | 0.395 | 50.3% | 73.5% | 27.7% | 0.0% |
+| least_privilege|mcp_zero|eligible | 1.46 | 231 | 0.320 | 51.0% | 98.1% | 1.3% | 0.0% |
+| least_privilege|mcp_zero|unfiltered | 1.46 | 228 | 0.340 | 49.0% | 92.9% | 6.5% | 0.0% |
+| least_privilege|per_subtask|eligible | 2.09 | 316 | 0.295 | 58.1% | 99.4% | 0.6% | 0.0% |
+| least_privilege|per_subtask|unfiltered | 2.08 | 308 | 0.321 | 51.0% | 87.7% | 12.3% | 0.0% |
+| least_privilege|rag_mcp@5|eligible | 5.00 | 1172 | 0.385 | 65.2% | 97.4% | 5.8% | 0.0% |
+| least_privilege|rag_mcp@5|unfiltered | 5.00 | 1189 | 0.393 | 52.3% | 71.6% | 29.0% | 0.0% |
+| least_privilege|toolscope@5|eligible | 5.26 | 1048 | 0.432 | 73.5% | 95.5% | 6.5% | 0.0% |
+| least_privilege|toolscope@5|unfiltered | 5.30 | 1042 | 0.461 | 58.7% | 71.0% | 29.0% | 0.0% |
+| read_only|Full_PaMCP | 0.73 | 100 | 0.113 | 37.4% | 100.0% | 0.0% | 37.4% |
+| read_only|G0_P0_S0 | 2.08 | 299 | 0.168 | 31.0% | 77.4% | 23.9% | 0.0% |
+| read_only|G0_P0_S1 | 0.90 | 124 | 0.121 | 36.8% | 99.4% | 0.6% | 46.5% |
+| read_only|G0_P1_S0 | 2.10 | 301 | 0.185 | 36.8% | 100.0% | 1.9% | 0.0% |
+| read_only|G1_P0_S0 | 1.45 | 204 | 0.151 | 34.2% | 82.6% | 18.7% | 0.0% |
+| read_only|PaMCP_Declared | 0.73 | 99 | 0.119 | 38.1% | 100.0% | 0.0% | 37.4% |
+| read_only|PaMCP_NoCert | 1.45 | 205 | 0.151 | 35.5% | 100.0% | 1.9% | 0.0% |
+| read_only|PaMCP_NoGap | 0.90 | 113 | 0.120 | 37.4% | 100.0% | 0.0% | 46.5% |
+| read_only|all_tools|eligible | 438.00 | 75373 | 0.737 | 0.0% | 100.0% | 100.0% | 0.0% |
+| read_only|all_tools|unfiltered | 569.00 | 96420 | 1.000 | 0.0% | 0.0% | 100.0% | 0.0% |
+| read_only|cmtf_path|eligible | 0.57 | 103 | 0.099 | 21.3% | 100.0% | 0.0% | 0.0% |
+| read_only|cmtf_path|unfiltered | 0.61 | 114 | 0.141 | 20.0% | 91.0% | 9.0% | 0.0% |
+| read_only|colt@5|eligible | 5.00 | 1008 | 0.263 | 46.5% | 100.0% | 8.4% | 0.0% |
+| read_only|colt@5|unfiltered | 5.00 | 1118 | 0.395 | 34.8% | 53.5% | 49.0% | 0.0% |
+| read_only|mcp_zero|eligible | 1.46 | 211 | 0.194 | 31.6% | 100.0% | 3.9% | 0.0% |
+| read_only|mcp_zero|unfiltered | 1.46 | 228 | 0.340 | 30.3% | 66.5% | 33.5% | 0.0% |
+| read_only|per_subtask|eligible | 2.10 | 301 | 0.185 | 36.8% | 100.0% | 1.9% | 0.0% |
+| read_only|per_subtask|unfiltered | 2.08 | 308 | 0.321 | 29.7% | 60.0% | 40.6% | 0.0% |
+| read_only|rag_mcp@5|eligible | 5.00 | 1124 | 0.266 | 44.5% | 100.0% | 10.3% | 0.0% |
+| read_only|rag_mcp@5|unfiltered | 5.00 | 1189 | 0.393 | 35.5% | 49.7% | 52.9% | 0.0% |
+| read_only|toolscope@5|eligible | 5.26 | 978 | 0.309 | 49.0% | 97.4% | 12.3% | 0.0% |
+| read_only|toolscope@5|unfiltered | 5.30 | 1042 | 0.461 | 37.4% | 43.9% | 57.4% | 0.0% |
+
+## E20 Sensitivity to cost weights and the utility floor
+
+| Setting | Jaccard vs default | Changed toolkits | Recall | Forbidden tools | Abstain |
+|---|---|---|---|---|---|
+| default | 1.000 | 0.0% | 0.202 | 0.00 | 10.3% |
+| beta=0.0 | 1.000 | 0.0% | 0.202 | 0.00 | 10.3% |
+| beta=0.25 | 1.000 | 0.0% | 0.202 | 0.00 | 10.3% |
+| beta=1.0 | 1.000 | 0.0% | 0.202 | 0.00 | 10.3% |
+| gamma=0.0 | 0.844 | 20.1% | 0.209 | 0.00 | 10.3% |
+| gamma=0.25 | 0.927 | 8.6% | 0.215 | 0.00 | 10.3% |
+| gamma=1.0 | 0.942 | 7.2% | 0.197 | 0.00 | 10.3% |
+| delta=0.0 | 0.935 | 7.2% | 0.208 | 0.00 | 10.3% |
+| delta=0.25 | 0.971 | 2.9% | 0.202 | 0.00 | 10.3% |
+| delta=1.0 | 0.947 | 5.8% | 0.202 | 0.00 | 10.3% |
+| eta=0.0 | 1.000 | 0.0% | 0.202 | 0.00 | 10.3% |
+| eta=0.25 | 1.000 | 0.0% | 0.202 | 0.00 | 10.3% |
+| eta=1.0 | 1.000 | 0.0% | 0.202 | 0.00 | 10.3% |
+| zeta=0.0 | 1.000 | 0.0% | 0.202 | 0.00 | 10.3% |
+| zeta=0.25 | 1.000 | 0.0% | 0.202 | 0.00 | 10.3% |
+| zeta=1.0 | 1.000 | 0.0% | 0.202 | 0.00 | 10.3% |
+| u_min=0.4 | 1.000 | 0.0% | 0.202 | 0.00 | 10.3% |
+| u_min=0.6 | 1.000 | 0.0% | 0.202 | 0.00 | 10.3% |
+| u_min=0.8 | 0.996 | 0.7% | 0.202 | 0.00 | 10.3% |
+| beta=0.0,gamma=0.0 | 0.844 | 20.1% | 0.209 | 0.00 | 10.3% |
+| beta=0.0,gamma=0.25 | 0.917 | 10.1% | 0.210 | 0.00 | 10.3% |
+| beta=0.0,gamma=1.0 | 0.927 | 8.6% | 0.197 | 0.01 | 10.3% |
+| beta=0.25,gamma=0.0 | 0.844 | 20.1% | 0.209 | 0.00 | 10.3% |
+| beta=0.25,gamma=0.25 | 0.927 | 8.6% | 0.215 | 0.00 | 10.3% |
+| beta=0.25,gamma=1.0 | 0.927 | 8.6% | 0.197 | 0.01 | 10.3% |
+| beta=1.0,gamma=0.0 | 0.844 | 20.1% | 0.209 | 0.00 | 10.3% |
+| beta=1.0,gamma=0.25 | 0.927 | 8.6% | 0.215 | 0.00 | 10.3% |
+| beta=1.0,gamma=1.0 | 0.942 | 7.2% | 0.197 | 0.00 | 10.3% |
+
+## E22 Statistics and the confirmatory family
+
+| ID | Test | n | Δ | 95% CI | p | p (Holm) | Significant |
+|---|---|---|---|---|---|---|---|
+| F1 | E9 recall non-inferiority PaMCP vs per-subtask (margin 0.05) | 94 | -0.0804 |  [-0.1655, 0.0015] | 0.76346 | 1.00000 | no |
+| F2 | E9 size-matched recall PaMCP vs RAG-MCP | 84 | 0.0595 |  [-0.0159, 0.1369] | 0.13224 | 0.39673 | no |
+| F3 | E10 joint feasibility PaMCP(K=10) vs per-subtask (eligible) | 94 | 0.0426 |  [-0.0854, 0.1809] | 0.64062 | 1.00000 | no |
+| F4 | E4 Exp@5 verified vs lexical-positive (coverage 1) | 273 | -0.0989 |  [-0.1392, -0.0659] | 0.00005 | 0.00035 | yes |
+| F5 | E14 reachable out-of-scope attacks PaMCP vs per-subtask (task x attack) | 712 | -0.0267 |  [-0.0393, -0.0154] | 0.00010 | 0.00050 | yes |
+| F6 | E18 tokens Full vs NoGap | 155 | -16.7097 |  [-34.6092, 0.9894] | 0.06715 | 0.26859 | no |
+| F7 | E8 Hit@1 goal-contract vs raw-text RRF (B1m sample) | 300 | -0.1567 |  [-0.2133, -0.1000] | 0.00005 | 0.00035 | yes |
+
+| Method (E8 B1m sample) | Hit@1 | CI width, request unit | CI width, target-tool unit |
+|---|---|---|---|
+| bm25 | 39.7% | 11.0% | 33.1% |
+| dense_lsa | 37.3% | 10.7% | 34.4% |
+| rrf | 38.7% | 10.7% | 33.6% |
+| pamcp_contract | 23.0% | 9.7% | 25.9% |
+| mcp_zero | 50.0% | 11.7% | 38.2% |
+| colt_adapted | 35.0% | 10.7% | 31.4% |
+| toolscope_adapted | 36.0% | 10.7% | 33.0% |
+| cmtf_adapted | 33.3% | 10.7% | 31.4% |
+
+Ranking stability across 200 half splits: stratified: Kendall τ 0.688 (5th pct 0.429), same best method 100.0%; tool_disjoint: Kendall τ 0.431 (5th pct 0.143), same best method 87.5%
 

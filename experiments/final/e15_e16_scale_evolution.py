@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import copy
 import random
+import sys
 import resource
 import time
 
@@ -55,6 +56,9 @@ def pctl(xs, q):
 
 
 RAW15: list[dict] = []
+NODE_BUDGET = 20_000    # the engine's default branch-and-bound node budget (as in E9-E20); when exhausted the
+                        # composer falls back to the greedy regime and reports regime 'greedy(after-budget)'
+
 RAW_GAP: list[dict] = []
 
 
@@ -161,10 +165,12 @@ def optimality_gap() -> dict:
             spec = {"id": "x", "prompt_inputs": ["query"], "goals": goals}
             pol = Policy.make("p", required=(), allowed=("read(*)",), lmin=0.0, forbidden_pairs=())
             res = {}
+            t_inst = time.perf_counter()
             for regime, nmax in (("exact", 10 ** 6), ("greedy", 0)):
                 eng = DiscoveryEngine(cs, fe.profile("sonnet"),
-                                      cfg=EngineConfig(ComposerConfig(n_max=nmax, relevance=0.0, K=10, node_budget=10 ** 6),
-                                                       refine_k=0), pair_policy=pol)
+                                      cfg=EngineConfig(ComposerConfig(n_max=nmax, relevance=0.0, K=10,
+                                                                      node_budget=NODE_BUDGET), refine_k=0),
+                                      pair_policy=pol)
                 t0 = time.perf_counter()
                 r = eng.discover(copy.deepcopy(spec), pol)
                 dt = time.perf_counter() - t0
@@ -175,15 +181,18 @@ def optimality_gap() -> dict:
             RAW_GAP.append({"goals": ng, "seed": seed, "exact_cost": res["exact"][0], "greedy_cost": res["greedy"][0],
                             "exact_ms": 1000 * res["exact"][1], "greedy_ms": 1000 * res["greedy"][1],
                             "exact_regime": res["exact"][2], "greedy_regime": res["greedy"][2]})
-            if res["exact"][0] and res["greedy"][0]:
-                ratios.append(res["greedy"][0] / res["exact"][0])
+            if res["exact"][0] and res["greedy"][0] and "budget" not in str(res["exact"][2]):
+                ratios.append(res["greedy"][0] / res["exact"][0])   # only where the exact search completed
             exact_ms.append(1000 * res["exact"][1])
             greedy_ms.append(1000 * res["greedy"][1])
         out[str(ng)] = {"abstained_exact": sum(1 for x in RAW_GAP if x["goals"] == ng and x["exact_cost"] is None),
                         "abstained_greedy": sum(1 for x in RAW_GAP if x["goals"] == ng and x["greedy_cost"] is None),
                         "greedy_over_exact_mean": float(np.mean(ratios)) if ratios else None,
                         "greedy_over_exact_max": float(np.max(ratios)) if ratios else None,
-                        "n": len(ratios), "exact_ms_p50": pctl(exact_ms, 50), "greedy_ms_p50": pctl(greedy_ms, 50)}
+                        "exact_budget_exhausted": sum(1 for x in RAW_GAP if x["goals"] == ng
+                                                      and "budget" in str(x["exact_regime"])),
+                        "n": len(ratios), "exact_ms_p50": pctl(exact_ms, 50), "greedy_ms_p50": pctl(greedy_ms, 50),
+                        "exact_ms_max": max(exact_ms), "greedy_ms_max": max(greedy_ms)}
         print("gap", ng, out[str(ng)])
     return out
 
@@ -267,6 +276,15 @@ def e16() -> dict:
 
 
 def main() -> None:
+    if "--e15-only" in sys.argv:
+        gap = optimality_gap()
+        r15 = e15()
+        fe.save("E15_scalability", {"results": r15, "optimality_gap": gap},
+                "SYNTHETIC (clones; generated cover instances); MEASURED latencies on 2 vCPUs",
+                config={"n": [569, 1000, 10000, 100000], "tasks": 30, "eligibility_only_n": 1000000,
+                        "gap_goals": [1, 3, 5, 8, 12], "gap_seeds": 10, "node_budget": NODE_BUDGET},
+                raw=fe.save_raw("E15_scalability", RAW15 + [{"optimality": x} for x in RAW_GAP]))
+        return
     r16 = e16()
     ev = r16.pop("event_log")
     fe.save("E16_evolution", {"results": r16}, "MEASURED (real registry, simulated evidence for the rug-pull check)",

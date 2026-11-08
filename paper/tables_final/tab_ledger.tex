@@ -1,0 +1,37 @@
+\begin{table}[t]
+\caption{Experiment series of the protocol, research question, status and evidence class. M: measured on
+benchmark data; L: scored against the independent labels $J_B$; S: simulated evidence or attacker scored against
+$J_B$; Y: synthetic registries. $^a$Agreement with $J_B$; human study not run. $^b$Observed effects need executed
+servers. $^c$Task success needs E13. $^d$64-item set, three models. $^e$Needs executed MCP servers.
+$^f$Deterministic repairs only.}
+\label{tab:ev-ledger}
+\centering\footnotesize\setlength{\tabcolsep}{2.6pt}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+ID & Series & RQ & Status & Evid.\\
+\midrule
+E1 & Registry characterisation & RQ1 & run & M, L\\
+E2 & Semantic typing & RQ1 & proxy$^a$ & L\\
+E3 & Declared vs.\ observed effects & RQ2 & partial$^b$ & L\\
+E4 & Exposure under policy encodings & RQ2 & run & S\\
+E5 & Forged and laundered metadata & RQ2 & run & S\\
+E6 & Imperfect verifier & RQ2 & run & S\\
+E7 & Trust policy and evidence strength & RQ2 & run & S\\
+E8 & Single-tool retrieval & RQ3 & run & M\\
+E9 & Multi-tool set retrieval & RQ3 & run & M\\
+E10 & Set validity & RQ3 & run & L\\
+E11 & Capability gap & RQ1, RQ3 & partial$^c$ & M\\
+E12 & Model-profile calibration & RQ1 & partial$^d$ & M\\
+E13 & End-to-end execution & -- & blocked$^e$ & --\\
+E14 & Prompt injection & RQ2, RQ3 & offline$^e$ & L\\
+E15 & Cost and scalability & RQ3, RQ4 & run & Y\\
+E16 & Registry and model evolution & RQ4 & run & M\\
+E17 & Counterexample-guided refinement & RQ4 & partial$^f$ & M\\
+E18 & Mechanism ablation ($2^3$) & all & run & M, L\\
+E19 & LLM role configurations & RQ1 & not run & --\\
+E20 & Cost weights, utility floor & RQ3 & run & M\\
+E21 & Experience reuse & RQ4 & blocked$^e$ & --\\
+E22 & Statistical validity & all & run & --\\
+\bottomrule
+\end{tabular}
+\end{table}
