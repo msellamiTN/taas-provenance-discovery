@@ -58,12 +58,12 @@ def test_audit_events_cursor_pagination(client, headers):
     assert seqs == sorted(seqs) and len(set(seqs)) == 7
 
 
-def test_audit_verify_scans_full_ledger():
-    for i in range(5):
+def test_audit_verify_scans_full_ledger_beyond_page_limit():
+    for i in range(1005):
         audit_ledger.append_event("evidence", {"i": i}, {})
     result = audit_ledger.verify_chain()
     assert result["chain_valid"] is True
-    assert result["event_count"] == 5
+    assert result["event_count"] == 1005
     assert result["scan_scope"] == "full_ledger"
 
 
