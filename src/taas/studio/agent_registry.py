@@ -506,7 +506,13 @@ def revoke_version(agent_id: str, version: str, *, reason: str,
     return get_revocation(agent_id, version)
 
 
-def list_events(agent_id: str | None = None, limit: int = 200) -> dict[str, Any]:
+def list_events(agent_id: str | None = None, limit: int = 200,
+                version: str | None = None) -> dict[str, Any]:
+    """Append-only lifecycle events, newest first.
+
+    `version` filtering is exact-match on the persisted per-event column —
+    events that were never recorded with a version are never attributed to one.
+    """
     connection = _connect()
     try:
         if agent_id is None:
@@ -516,12 +522,19 @@ def list_events(agent_id: str | None = None, limit: int = 200) -> dict[str, Any]
                 "ORDER BY event_id DESC LIMIT ?",
                 (limit,),
             ).fetchall()
-        else:
+        elif version is None:
             rows = connection.execute(
                 "SELECT event_id, agent_id, version, event_type, from_state, to_state, "
                 "manifest_sha256, actor, occurred_at, registry_snapshot_id FROM agent_events "
                 "WHERE agent_id = ? ORDER BY event_id DESC LIMIT ?",
                 (agent_id, limit),
+            ).fetchall()
+        else:
+            rows = connection.execute(
+                "SELECT event_id, agent_id, version, event_type, from_state, to_state, "
+                "manifest_sha256, actor, occurred_at, registry_snapshot_id FROM agent_events "
+                "WHERE agent_id = ? AND version = ? ORDER BY event_id DESC LIMIT ?",
+                (agent_id, version, limit),
             ).fetchall()
     finally:
         connection.close()

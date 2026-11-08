@@ -134,6 +134,36 @@ def list_events(*, limit: int = 100, event_type: str | None = None,
                             after_seq=after_seq)["events"]
 
 
+def count_events_for_subject(*, agent_id: str, version: str,
+                             event_type: str | None = None) -> dict[str, Any]:
+    """Count audit events whose subject exactly matches an agent_id + version.
+
+    Scans the full recorded ledger in bounded pages (same discipline as
+    `verify_chain`); matching is exact on `subject.agent_id` and
+    `subject.version` — no prefix or inferred attribution. `latest` is the
+    highest-seq matching event, so ordering is deterministic by seq.
+    """
+    count = 0
+    latest: dict[str, Any] | None = None
+    cursor: int | None = None
+    while True:
+        page = list_events_page(limit=1000, after_seq=cursor, event_type=event_type)
+        for event in page["events"]:
+            subject = event.get("subject") or {}
+            if subject.get("agent_id") == agent_id and subject.get("version") == version:
+                count += 1
+                latest = event  # pages ascend by seq; last match is the newest
+        cursor = page["next_cursor"]
+        if cursor is None:
+            break
+    return {
+        "count": count,
+        "latest": latest,
+        "scan_scope": "full_ledger",
+        "history_complete": True,
+    }
+
+
 def verify_chain() -> dict[str, Any]:
     """Recompute the hash chain over the entire ledger, in bounded batches."""
     events: list[dict[str, Any]] = []

@@ -2707,6 +2707,99 @@ def agent_policy_verdict_history(agent_id: str, version: str,
     }
 
 
+@app.get("/api/v1/agents/{agent_id}/versions/{version}/activity",
+         dependencies=[Depends(require_api_token)])
+def agent_version_activity(agent_id: str, version: str) -> dict[str, Any]:
+    """Recorded governance activity for one exact Agent version.
+
+    Every number is a count of persisted records — lifecycle events, audit
+    verdict events, approval evidence, revocation — never synthesized.
+    `unsupported_metrics` lists what is unavailable in the current
+    architecture until a separately governed execution/telemetry capability
+    exists. This is recorded governance activity: not performance telemetry,
+    not authorization, not execution.
+    """
+    agent = _release_subject_or_http(agent_id, version)
+    manifest = agent.get("manifest") or {}
+    spec = manifest.get("spec") or {}
+
+    lifecycle = agent_registry.list_events(agent_id=agent_id, version=version, limit=500)
+    latest_lifecycle = lifecycle["events"][0] if lifecycle["events"] else None
+
+    verdicts = audit_ledger.count_events_for_subject(
+        agent_id=agent_id, version=version, event_type="policy_verdict")
+    approvals_audit = audit_ledger.count_events_for_subject(
+        agent_id=agent_id, version=version, event_type="approval")
+
+    binding = release_readiness.build_release_subject_binding(agent)
+    try:
+        approval_evidence = assurance_evidence.list_verified_evidence_for_subject(
+            binding, expected_type="human_approval")
+    except assurance_evidence.EvidenceError:
+        approval_evidence = {"count": 0, "valid": [], "invalid": []}
+    try:
+        all_evidence = assurance_evidence.list_verified_evidence_for_subject(binding)
+    except assurance_evidence.EvidenceError:
+        all_evidence = {"count": 0, "valid": [], "invalid": []}
+    other_evidence_count = sum(
+        1 for item in all_evidence["valid"] if item.get("evidence_type") != "human_approval")
+
+    revocation = agent_registry.get_revocation(agent_id, version)
+
+    return {
+        "schema": "taas.agent-version-activity/v1",
+        "agent_id": agent_id,
+        "version": version,
+        "lifecycle_state": agent.get("lifecycle_state"),
+        "manifest_sha256": agent.get("manifest_sha256"),
+        "recorded_activity": {
+            "lifecycle_events": {
+                "count": lifecycle["count"],
+                "latest": latest_lifecycle,
+            },
+            "policy_verdicts": {
+                "count": verdicts["count"],
+                "latest_recorded_at": (verdicts["latest"] or {}).get("created_at"),
+            },
+            "human_approvals": {
+                "verified_count": approval_evidence["count"],
+                "latest_observed_at": (approval_evidence["valid"][0]["observed_at"]
+                                       if approval_evidence["valid"] else None),
+                "audit_approval_events": approvals_audit["count"],
+            },
+            "evidence_records": {
+                # Verified non-approval evidence bound to this exact version.
+                # Never folded into approvals — separate kinds of records.
+                "verified_non_approval_count": other_evidence_count,
+            },
+            "revocation": revocation,
+            "configuration": {
+                # Manifest-derived facts — authored configuration, not telemetry.
+                "skill_references": len(spec.get("skill_refs") or []),
+                "tool_allowlist_entries": len(spec.get("tool_allowlist") or []),
+            },
+        },
+        "unsupported_metrics": [
+            "per-agent latency",
+            "success/failure rate",
+            "execution/run count",
+            "tool-call volume",
+            "per-agent resource attribution (cpu/memory/gpu)",
+            "cost and billing",
+            "health score",
+            "historical performance time series",
+        ],
+        "unavailable_reason": (
+            "no governed execution or runtime telemetry capability exists in the "
+            "current architecture; these remain unavailable until a separately "
+            "governed execution/telemetry capability is delivered"
+        ),
+        "semantics": "recorded_governance_activity_not_performance_telemetry_not_execution_proof",
+        "authorization_granted": False,
+        "execution_performed": False,
+    }
+
+
 @app.get("/api/v1/agents/{agent_id}/versions/{version}/release-readiness", dependencies=[Depends(require_api_token)])
 def agent_release_readiness(agent_id: str, version: str) -> dict[str, Any]:
     """Assess release readiness from immutable Agent and MCP snapshot evidence.
