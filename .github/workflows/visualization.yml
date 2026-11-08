@@ -25,6 +25,9 @@ on:
       - "experiments/e2/prepare_annotation_tasks.py"
       - "tests/test_e9_figure_export.py"
       - "tests/test_e9_retrieval_campaign.py"
+      - "experiments/e3_simulation.py"
+      - "tests/test_e3_simulation.py"
+      - "docs/experiment_design/E3_SIMULATION_HARNESS.md"
       - "pyproject.toml"
       - ".github/workflows/visualization.yml"
   pull_request:
@@ -49,6 +52,9 @@ on:
       - "experiments/e2/prepare_annotation_tasks.py"
       - "tests/test_e9_figure_export.py"
       - "tests/test_e9_retrieval_campaign.py"
+      - "experiments/e3_simulation.py"
+      - "tests/test_e3_simulation.py"
+      - "docs/experiment_design/E3_SIMULATION_HARNESS.md"
       - "pyproject.toml"
       - ".github/workflows/visualization.yml"
 
@@ -253,3 +259,24 @@ jobs:
           path: /tmp/e2-packages/PaMCP-E2-OWNER-CONTROL-NOT-FROZEN.zip
           if-no-files-found: error
           retention-days: 30
+
+      - name: Validate E3 synthetic fixture harness (software-only; not empirical)
+        run: |
+          python experiments/e3_simulation.py --output /tmp/e3-simulation
+          python -m pytest -q tests/test_e3_simulation.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path("/tmp/e3-simulation/e3_simulation_manifest.json").read_text())
+          assert manifest["status"] == "software_validation_only"
+          assert manifest["empirical_evidence"] is False
+          assert manifest["live_mcp_calls"] == 0
+          assert manifest["fixture_exact_matches"] == manifest["fixture_count"]
+          assert "e3_synthetic_fixture_coverage.svg" in {p.name for p in Path("/tmp/e3-simulation").iterdir()}
+          print(json.dumps({
+              "E3_fixture_validation": manifest["fixture_exact_matches"],
+              "fixture_count": manifest["fixture_count"],
+              "empirical_evidence": manifest["empirical_evidence"],
+              "status": manifest["status"]
+          }, indent=2))
+          PY
