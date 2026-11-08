@@ -30,6 +30,18 @@ def _jsonl(path: Path, rows):
     path.write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
 
 
+
+def _seal_prepared_package(root: Path):
+    import hashlib
+
+    hashes = {
+        path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in sorted(root.rglob("*"))
+        if path.is_file()
+    }
+    _json(root / "SHA256SUMS.json", hashes)
+
+
 def test_discovery_package_load_does_not_require_or_open_evaluator_references(tmp_path):
     root = tmp_path / "prepared"
     _json(root / "PREPARATION_MANIFEST.json", {
@@ -46,7 +58,11 @@ def test_discovery_package_load_does_not_require_or_open_evaluator_references(tm
     _jsonl(root / "discovery" / "task_visibility.jsonl", [
         {"task_id": "t1", "visible_tool_ids": ["srv::a", "srv::b"]},
     ])
-    # There is intentionally no evaluator/ directory in this fixture.
+    # The evaluator file is deliberately malformed JSON: discovery loading must
+    # verify its path exists without opening or parsing its contents.
+    (root / "evaluator" / "task_references.jsonl").parent.mkdir(parents=True, exist_ok=True)
+    (root / "evaluator" / "task_references.jsonl").write_text("not json yet", encoding="utf-8")
+    _seal_prepared_package(root)
     tools, tasks, visibility, manifest = load_discovery_package(root)
     assert [row["tool_id"] for row in tools] == ["srv::a", "srv::b"]
     assert tasks[0]["task_id"] == "t1"
@@ -68,6 +84,8 @@ def test_discovery_package_rejects_evaluator_fields(tmp_path):
     _jsonl(root / "discovery" / "task_visibility.jsonl", [{
         "task_id": "t1", "visible_tool_ids": ["srv::a"],
     }])
+    _jsonl(root / "evaluator" / "task_references.jsonl", [{"task_id": "t1"}])
+    _seal_prepared_package(root)
     with pytest.raises(ValueError, match="evaluator-only"):
         load_discovery_package(root)
 
@@ -412,3 +430,56 @@ def test_toolscope_oracle_requires_both_pair_classes(tmp_path):
     })
     with pytest.raises(ValueError, match="at least one positive and one negative"):
         load_equivalence_oracle(tmp_path / "oracle.json", {"srv::a", "srv::b"})
+
+
+def test_discovery_package_rejects_tampered_discovery_file(tmp_path):
+    root = tmp_path / "prepared"
+    _json(root / "PREPARATION_MANIFEST.json", {
+        "experiment_id": "E9", "status": "prepared_not_run",
+    })
+    _json(root / "discovery" / "tools.json", [{"tool_id": "srv::a", "definition_hash": "abc"}])
+    _jsonl(root / "discovery" / "tasks.jsonl", [{"task_id": "t1", "prompt": "Find a record."}])
+    _jsonl(root / "discovery" / "task_visibility.jsonl", [{"task_id": "t1", "visible_tool_ids": ["srv::a"]}])
+    _jsonl(root / "evaluator" / "task_references.jsonl", [{"task_id": "t1"}])
+    _seal_prepared_package(root)
+    (root / "discovery" / "tools.json").write_text('[{"tool_id":"srv::tampered"}]', encoding="utf-8")
+    with pytest.raises(ValueError, match="SHA-256 mismatch"):
+        load_discovery_package(root)
+
+
+def test_prepared_package_rejects_unlisted_files(tmp_path):
+    root = tmp_path / "prepared"
+    _json(root / "PREPARATION_MANIFEST.json", {
+        "experiment_id": "E9", "status": "prepared_not_run",
+    })
+    _json(root / "discovery" / "tools.json", [{"tool_id": "srv::a"}])
+    _jsonl(root / "discovery" / "tasks.jsonl", [{"task_id": "t1", "prompt": "Find a record."}])
+    _jsonl(root / "discovery" / "task_visibility.jsonl", [{"task_id": "t1", "visible_tool_ids": ["srv::a"]}])
+    _jsonl(root / "evaluator" / "task_references.jsonl", [{"task_id": "t1"}])
+    _seal_prepared_package(root)
+    (root / "discovery" / "extra.json").write_text("{}", encoding="utf-8")
+    with pytest.raises(ValueError, match="inventory differs"):
+        load_discovery_package(root)
+
+
+def test_evaluator_file_digest_is_deferred_until_after_rankings_freeze(tmp_path):
+    from experiments.e9_retrieval_campaign import verify_prepared_package_integrity
+
+    root = tmp_path / "prepared"
+    _json(root / "PREPARATION_MANIFEST.json", {
+        "experiment_id": "E9", "status": "prepared_not_run",
+    })
+    _json(root / "discovery" / "tools.json", [{"tool_id": "srv::a"}])
+    _jsonl(root / "discovery" / "tasks.jsonl", [{"task_id": "t1", "prompt": "Find a record."}])
+    _jsonl(root / "discovery" / "task_visibility.jsonl", [{"task_id": "t1", "visible_tool_ids": ["srv::a"]}])
+    evaluator = root / "evaluator" / "task_references.jsonl"
+    evaluator.parent.mkdir(parents=True, exist_ok=True)
+    evaluator.write_text("not parsed during discovery", encoding="utf-8")
+    _seal_prepared_package(root)
+    expected_hash = __import__("hashlib").sha256(evaluator.read_bytes()).hexdigest()
+    evaluator.write_text("tampered after checksum freeze", encoding="utf-8")
+
+    integrity = verify_prepared_package_integrity(root)
+    assert integrity["evaluator_references_sha256"] == expected_hash
+    # The pre-discovery integrity pass validates the evaluator path and expected
+    # digest only; the campaign compares the actual digest after ranking freeze.
