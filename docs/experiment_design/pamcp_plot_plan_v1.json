@@ -1790,12 +1790,11 @@
       "protocol_metrics": [
         "group recall@k",
         "set precision",
-        "complete-set share"
+        "complete-set share",
+        "toolchain-size distribution"
       ],
       "datasets": [
-        "LiveMCPBench (resolvable tasks)",
-        "MCP-Atlas public (trajectory diagnostics only)",
-        "MCPVerse time-invariant v1.1 (where tool references resolve)"
+        "94 resolvable LiveMCPBench tasks"
       ],
       "figures": [
         {
@@ -2002,6 +2001,72 @@
           },
           "render_options": {
             "value_format": "percent",
+            "facet_field": [
+              "benchmark",
+              "decomposition",
+              "k"
+            ]
+          },
+          "outputs": [
+            "pdf",
+            "svg",
+            "png"
+          ]
+        },
+        {
+          "id": "E9-F4",
+          "title": "Toolchain-size distribution",
+          "purpose": "Supporting task-level distribution of retrieved set sizes by protocol comparator, decomposition condition and candidate budget.",
+          "role": "supporting",
+          "chart_type": "violin",
+          "data_file": "results/visualization/data/E9-F4.csv",
+          "x_axis": {
+            "field": "group",
+            "label": "Method"
+          },
+          "y_axis": {
+            "field": "value",
+            "label": "Retrieved tool count"
+          },
+          "value_field": "value",
+          "data_contract": {
+            "required_columns": [
+              "group",
+              "value",
+              "benchmark",
+              "decomposition",
+              "k"
+            ],
+            "optional_columns": [
+              "series",
+              "label",
+              "n",
+              "ci_low",
+              "ci_high",
+              "facet",
+              "benchmark",
+              "method",
+              "metric"
+            ]
+          },
+          "comparison": {
+            "primary_configuration": "Full_PaMCP",
+            "baseline_ids": [
+              "mcp_zero",
+              "colt_adapted",
+              "toolscope_adapted",
+              "cmtf_adapted",
+              "pamcp_no_backward_closure"
+            ],
+            "factorial_cells": [],
+            "comparison_policy": "Only registered E9 comparators and the Full PaMCP primary configuration; blocked adapters are omitted with their status recorded in the run manifest."
+          },
+          "uncertainty": {
+            "confidence_level": 0.95,
+            "interval_columns": [],
+            "resampling": "Show task-level size observations; do not interpret violin width as uncertainty."
+          },
+          "render_options": {
             "facet_field": [
               "benchmark",
               "decomposition",
