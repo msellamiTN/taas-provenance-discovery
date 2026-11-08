@@ -49,6 +49,8 @@ The current policy engine exposes default rules through the per-Agent verdict's 
 
 The current per-Agent verdict response does not expose the complete internal fact bundle. The UI does not reconstruct or infer missing facts; evidence summaries not present in the response remain UNKNOWN.
 
+The current audit verifier scans at most the first 1,000 events in ascending sequence (`audit_ledger.verify_chain`). UX-24 therefore labels a successful result `SCANNED_PREFIX_VALID` and states the scan limit. It must not be interpreted as whole-ledger verification if more than 1,000 events exist.
+
 ## Acceptance criteria
 
 - [ ] Navigation link opens UX-24 through the existing workspace router.
@@ -64,6 +66,6 @@ The current per-Agent verdict response does not expose the complete internal fac
 
 ## Validation record
 
-Implementation commit: `99d060633de7de249c98f19e792c9e77c9589034`.
+Initial frontend implementation commit: `99d060633de7de249c98f19e792c9e77c9589034`. Current implementation and validation state are tracked by the head commit and checks on [PR #88](https://github.com/msellamiTN/taas-provenance-discovery/pull/88).
 
 The commit records frontend implementation only. Automated CI, full regression, browser interaction and live Colab acceptance are not yet claimed.
