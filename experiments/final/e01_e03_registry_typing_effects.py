@@ -93,7 +93,7 @@ def e2() -> dict:
         rows.append({"id": tid, "tau": str(a.get("out", "")), "ref": str(b.get("out", "")),
                      "struct": str(struct.type), "struct_conf": struct.confidence, "conf_A": a.get("conf", 1.0),
                      "sure_B": b.get("sure", 1.0)})
-    out = {"n": len(rows)}
+    out = {"n": len(rows), "_rows": rows}
     for m in ("tau", "struct"):
         ka = [kind(r[m]) for r in rows]
         kb = [kind(r["ref"]) for r in rows]
@@ -146,8 +146,7 @@ def human_sheet(n: int = 150, seed: int = 11) -> Path:
 
 
 def e3() -> dict:
-    """Compare declared/lexical cues and LLM labels against labels B, preserving missing hints as unknown.
-    Confusion metrics are conditional on covered records; coverage and unknown composition are explicit.
+    """Declared (annotations) and lexical effect inference against labels B; labels A against B.
     Observed effects (sandbox traces) are BLOCKED: no runnable servers in this environment."""
     A, B = fe.labels_A(), fe.labels_B()
     cs = {c.tool: c for c in fe.contracts_cached("declared")}
@@ -179,20 +178,21 @@ def e3() -> dict:
 def main(raw_dir: str) -> None:
     r1 = e1(Path(raw_dir))
     fe.save("E1_registry", {"results": r1}, "MEASURED (counts); LABELLED (non-read-only share, labels B)",
-            inputs=LABEL_INPUTS,
+            inputs=LABEL_INPUTS, config={"views": ["LiveMCPTool", "MCPToolBench++ (original 87)", "merged"]},
             notes="Three views; categories are source-qualified (LiveMCPTool server categories and "
                   "MCPToolBench++ request categories are different taxonomies).")
     r2 = e2()
+    rows2 = r2.pop("_rows")
     sheet = human_sheet()
-    fe.save("E2_typing", {"results": r2, "human_sheet": str(sheet.relative_to(fe.ROOT))},
+    fe.save("E2_typing", {"results": r2, "human_sheet": str(sheet.relative_to(fe.ROOT)),
+                          "human_sheet_sha256": fe.sha256(sheet)},
             "LABELLED (agreement with independent LLM labels B); human study BLOCKED (sheet prepared)",
-            inputs=LABEL_INPUTS,
-            notes="Agreement, not accuracy: neither labelling is human ground truth.")
+            inputs=LABEL_INPUTS, notes="Agreement, not accuracy: neither labelling is human ground truth.",
+            config={"thresholds": [0.5, 0.7, 0.9], "sheet_items": 150, "sheet_seed": 11},
+            raw=fe.save_raw("E2_typing", rows2))
     r3 = e3()
     fe.save("E3_effects_tristate", {"results": r3}, "LABELLED (LLM labels A/B); observed effects BLOCKED",
-            inputs=LABEL_INPUTS,
-            notes="Missing readOnlyHint values remain unknown. Confusion metrics are conditional on hint coverage; "
-                  "unknown unsafe/safe counts and full-reference unsafe capture are explicit.")
+            inputs=LABEL_INPUTS, notes="Declared = MCP readOnlyHint (missing = unknown); lexical = engine's lexical cues.")
     print({k: (v["tools"], v["servers"], v["annotated"], v["non_read_only_B"]) for k, v in r1.items()
            if isinstance(v, dict) and "tools" in v})
     print("E2", {m: (round(r2[m]["kind_agreement"], 3), round(r2[m]["kind_kappa"], 3), round(r2[m]["macro_f1"], 3))
