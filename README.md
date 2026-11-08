@@ -12,6 +12,25 @@ repository implements every definition, proposition and algorithm of the paper, 
 scenarios exactly, and tests the four hypotheses of its evaluation plan on the public registries of
 Table 1 (LiveMCPTool + MCPToolBench++, 76 servers, 569 tools).
 
+## Reproducing the final evaluation (protocol E1–E22) — for reviewers
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/msellamiTN/taas-provenance-discovery/blob/research/pamcp-final-evaluation/notebooks/colab/pamcp_evaluation_reviewers.ipynb)
+
+`notebooks/colab/pamcp_evaluation_reviewers.ipynb` re-runs the evaluation of Section 8 (series E1–E22 of the
+experimental protocol) on a free Colab CPU runtime and compares every result with the paper's. No GPU, API key or
+MCP server is needed: all LLM outputs are replayed from `data/llm_records/`. Locally:
+
+```bash
+pip install -r requirements.txt
+python experiments/final/run_all.py --list                                   # steps and measured run times
+python experiments/final/run_all.py --all --e15-max-n 10000 --out results/reproduced
+python experiments/final/compare_results.py results/reproduced             # -> results/reproduced/comparison.md
+```
+
+Reproduction runs write to `--out`; the paper's results in `results/final/` are not touched. Methods and
+deviations: `docs/FINAL_EVALUATION_METHODS.md`; preregistered tests: `docs/FINAL_EVALUATION_PLAN.md`; findings:
+`docs/FINAL_EVALUATION.md`.
+
 ## What is here
 
 | Path | Content |

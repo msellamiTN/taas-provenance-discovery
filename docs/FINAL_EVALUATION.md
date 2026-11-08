@@ -266,5 +266,5 @@ latencies, so η and ζ cannot act.
 | F7 | E8 Hit@1, goal contract vs raw-text RRF | −0.157 | < 0.001 | < 0.001 |
 
 Target-tool clustered intervals are 2.7–3.3 times wider than request-level ones (300 requests, 66 targets).
-Method ranking: stratified half splits Kendall τ 0.69, same best method in 200/200; tool-disjoint τ 0.43, same
+Method ranking: stratified half splits Kendall τ 0.68, same best method in 200/200; tool-disjoint τ 0.43, same
 best 87.5%.

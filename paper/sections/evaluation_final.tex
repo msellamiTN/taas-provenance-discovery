@@ -74,9 +74,10 @@ level (V) and no tool is redundant (M). Paired comparisons use sign-flip permuta
 intervals, with target tools as clusters for request-level metrics, and proportions use Wilson intervals. A
 confirmatory family of seven comparisons (F1--F7, Table~\ref{tab:ev-family}), a non-inferiority margin of 0.05
 for recall and Holm correction were fixed before E9, E10, E14 and E18 were run; every other comparison is
-exploratory. Code, recorded LLM outputs and per-item results are
+exploratory. Code, recorded LLM outputs, per-item results and a notebook that re-runs every series on a standard
+CPU runtime and compares the outcome with the reported results are
 available.\footnote{\url{https://github.com/msellamiTN/taas-provenance-discovery}, branch
-\texttt{research/pamcp-final-evaluation}.}
+\texttt{research/pamcp-final-evaluation}, notebook \texttt{notebooks/colab/pamcp\_evaluation\_reviewers.ipynb}.}
 
 \subsection{Representation and Model Profile (RQ1)}
 \label{sec:ev-rq1}
@@ -309,7 +310,7 @@ default quality of service.
 \emph{Statistical validity (E22).} With 300 requests on 66 target tools, intervals that resample target tools are
 2.7--3.3 times wider than request-level intervals (33.6 against 10.7 points for raw-text fusion), so
 request-level intervals would overstate precision. The ranking of the retrieval methods is stable across
-category-stratified half splits (Kendall's $\tau=0.69$, same best method in all 200 splits) but less so across
+category-stratified half splits (Kendall's $\tau=0.68$, same best method in all 200 splits) but less so across
 tool-disjoint splits ($\tau=0.43$, same best method in 87.5\%). Of the seven confirmatory comparisons
 (Table~\ref{tab:ev-family}), two favour \pamcp{} after correction (F4, F5), one goes against it (F7), non-inferiority
 of recall is not established (F1), and three are not significant (F2, F3, F6).

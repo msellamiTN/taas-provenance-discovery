@@ -33,35 +33,35 @@ PP_REPO = "https://github.com/mcp-tool-bench/MCPToolBenchPP.git"
 PP_COMMIT = "2bd35e58ed5ebe79bbb12df0f9919a34ed2cb037"
 PP_CATEGORIES = ("browser", "file_system", "finance", "map", "pay", "search")
 
-# name -> (description, commands, result files written, minutes on two vCPUs [reference machine])
+# name -> (description, commands, result files written, minutes measured on two vCPUs from a fresh clone)
 STEPS: dict[str, tuple[str, list[list[str]], list[str], str]] = {
     "data": ("Fetch the six MCPToolBench++ request files (pinned commit; needed by E1 only)",
              [], [], "<1"),
     "E1-E3": ("Registry characterisation, typing agreement, declared and lexical effects",
-              [["e01_e03_registry_typing_effects.py"]], ["E1_registry", "E2_typing", "E3_effects"], "~1"),
+              [["e01_e03_registry_typing_effects.py"]], ["E1_registry", "E2_typing", "E3_effects"], "<1"),
     "E4-E7": ("Exposure under policy encodings, forged metadata, imperfect verifier, trust policy",
               [["e04_e07_exposure.py"], ["e04_admitted.py"]],
-              ["E4_exposure", "E5_forgery", "E6_verifier", "E7_trust", "E4_admitted"], "~25"),
+              ["E4_exposure", "E5_forgery", "E6_verifier", "E7_trust", "E4_admitted"], "13"),
     "E8": ("Single-tool retrieval (300-query sample, distractor curve) and its diagnosis",
-           [["e08_single_tool.py"], ["e08_diagnostic.py"]], ["E8_single_tool", "E8_diagnostic"], "~15"),
+           [["e08_single_tool.py"], ["e08_diagnostic.py"]], ["E8_single_tool", "E8_diagnostic"], "15"),
     "E9-E10": ("Multi-tool set retrieval and set validity (independent evaluator)",
-               [["e09_e10_sets.py"]], ["E9_sets", "E10_validity"], "~10"),
+               [["e09_e10_sets.py"]], ["E9_sets", "E10_validity"], "13"),
     "E11-E12": ("Capability gap on the review scenario; model-profile calibration",
-                [["e11_e12_profile.py"]], ["E11_gap", "E12_profile"], "~1"),
+                [["e11_e12_profile.py"]], ["E11_gap", "E12_profile"], "<1"),
     "E14-E18": ("Prompt-injection reachability and the 2^3 mechanism ablation",
-                [["e14_e18_factorial.py"]], ["E14_injection", "E18_factorial"], "~15"),
+                [["e14_e18_factorial.py"]], ["E14_injection", "E18_factorial"], "20"),
     "E16": ("Registry and model evolution (152 events, rug pulls, cache invalidation)",
-            [["e15_e16_scale_evolution.py", "--e16-only"]], ["E16_evolution"], "~3"),
+            [["e15_e16_scale_evolution.py", "--e16-only"]], ["E16_evolution"], "1"),
     "E15": ("Cost and scalability on cloned registries; greedy vs exact optimality gap",
             [["e15_e16_scale_evolution.py", "--e15-only"]], ["E15_optimality_gap", "E15_scalability"],
-            "~10 (to 10^4) / ~50 (to 10^5)"),
+            "7 (to 10^4) / 55 (to 10^5)"),
     "E17-E20": ("Counterexample-guided refinement; cost-weight and utility-floor sensitivity",
-                [["e17_e20_refine_sensitivity.py"]], ["E17_refinement", "E20_sensitivity"], "~10"),
+                [["e17_e20_refine_sensitivity.py"]], ["E17_refinement", "E20_sensitivity"], "6"),
     "E22": ("Preregistered confirmatory family F1-F7 (Holm), resampling unit, split stability",
-            [["e22_statistics.py"]], ["E22_statistics"], "~2"),
+            [["e22_statistics.py"]], ["E22_statistics"], "<1"),
     "report": ("Markdown tables, figures, the paper's LaTeX tables",
                [["tables_final.py"], ["plots_final.py"], ["paper_figures_final.py"],
-                [str(ROOT / "paper" / "make_tables_final.py")]], [], "~1"),
+                [str(ROOT / "paper" / "make_tables_final.py")]], [], "<1"),
 }
 ORDER = list(STEPS)
 # inputs a step reads from the results directory (copied from the reference results when absent, and logged)
@@ -156,9 +156,9 @@ def main() -> None:
     ap.add_argument("--list", action="store_true", help="list the steps and exit")
     a = ap.parse_args()
     if a.list or not (a.all or a.only):
-        print(f"{'step':9} {'minutes':>14}  description")
+        print(f"{'step':9} {'minutes':>26}  description")
         for k in ORDER:
-            print(f"{k:9} {STEPS[k][3]:>14}  {STEPS[k][0]}")
+            print(f"{k:9} {STEPS[k][3]:>26}  {STEPS[k][0]}")
         return
     out = Path(a.out)
     out = out if out.is_absolute() else ROOT / out
