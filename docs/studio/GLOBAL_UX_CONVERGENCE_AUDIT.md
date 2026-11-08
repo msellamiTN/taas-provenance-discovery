@@ -21,7 +21,7 @@ Fetched from branch devin/studio-convergence:
 | Product UX blueprint | docs/studio/PRODUCT_UX_BLUEPRINT.md | f61de4c213af437df2fa5f4b543b3be5120620fe | 12,719 characters |
 | Feature catalog | docs/studio/FEATURE_CATALOG.md | c1da24f36bd73b58b21261d897d1caccb5f59bd1 | 14,265 characters |
 
-Static source extraction found 34 unique HTML section IDs and 62 API route declarations (35 GET, 27 POST). These are source counts, not test or runtime counts.
+Static source extraction found 34 unique HTML section IDs and 62 route decorators in api.py (35 GET, 27 POST). The application also mounts a separate assurance router, which adds GET /api/v1/assurance/evidence/{evidence_id}; therefore the inspected API surface contains at least 63 effective route paths (36 GET, 27 POST). These are source counts, not test or runtime counts.
 
 The frontend remains a single HTML document with embedded CSS and JavaScript. The API remains a large FastAPI module importing multiple domain services. Both need incremental modularization with behavior-preserving tests, not a wholesale rewrite.
 
@@ -131,10 +131,11 @@ Static extraction from src/taas/studio/api.py found:
 
 **Policy/evidence/audit**
 - POST /api/v1/policy/evaluate
+- GET /api/v1/assurance/evidence/{evidence_id}
 - GET /api/v1/audit/events
 - GET /api/v1/audit/verify
 
-Route existence does not prove frontend integration, production authorization, safe operational readiness, or correct UI semantics. Each route needs request/response schema, auth, side-effect, error, pagination, provenance and state-semantics review before being exposed as an action.
+The assurance evidence route is defined in the separately mounted src/taas/studio/assurance_routes.py router, not directly in api.py. Route existence does not prove frontend integration, production authorization, safe operational readiness, or correct UI semantics. Each route needs request/response schema, auth, side-effect, error, pagination, provenance and state-semantics review before being exposed as an action.
 
 ## 5. Confirmed convergence defects and risks
 
