@@ -220,7 +220,7 @@ def main() -> None:
     out_dir = Path(os.environ.get("PAMCP_REVISION_RESULTS", ROOT / "results" / "revision_1"))
     out_dir.mkdir(parents=True, exist_ok=True)
     output = out_dir / "E14_scope_aware.json"
-    output.write_text(json.dumps(result, indent=2, allow_nan=False) + "\\n", encoding="utf-8")
+    output.write_text(json.dumps(result, indent=2, allow_nan=False) + "\n", encoding="utf-8")
     print(json.dumps({k: v for k, v in result.items() if k != "raw"}, indent=2, allow_nan=False))
     print(f"Wrote {output}")
 
