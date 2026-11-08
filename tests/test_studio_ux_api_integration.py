@@ -158,3 +158,12 @@ def test_workspace_drafts_ui_uses_explicit_save_restore():
     assert "not an execution record" in html or "execution record" in html
     # Draft restore must keep the human-review gate invalid.
     assert "restore rewrites the request JSON" in html.lower() or "restored into the request JSON" in html
+
+
+def test_reproducibility_envelope_links_certificate_to_run_record():
+    html = _studio_html()
+    assert 'id="repro-panel"' in html
+    assert 'id="repro-inspect"' in html
+    assert "discovery_run_id" in html
+    assert '"/api/v1/discovery/runs/"+encodeURIComponent(runId)' in html
+    assert "not tool invocation" in html
