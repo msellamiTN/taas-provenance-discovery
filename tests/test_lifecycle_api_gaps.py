@@ -6,6 +6,8 @@ history + evidence freshness batch.
 """
 from __future__ import annotations
 
+import sqlite3
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -326,7 +328,7 @@ def test_workspace_revision_insert_is_append_only():
     history_before = workspaces.list_revisions(created["workspace_id"])
     revision = history_before["revisions"][0]
     with workspaces._connect() as connection:
-        with pytest.raises(Exception):
+        with pytest.raises(sqlite3.IntegrityError):
             workspaces._record_revision(
                 connection,
                 workspace_id=created["workspace_id"],
