@@ -163,11 +163,11 @@ Required input package:
 | Model profile | accepted E12 bundle with model ID/revision and measured ModelProfile class curves |
 | Policy bundle | accepted and versioned E9 policy artifact |
 | Composer config | approved E9 ComposerConfig with base K=20 and positive backward-closure depth; frozen refinement depth |
-| Encoder bundle | accepted local SentenceTransformers snapshot, model ID/revision, package version and per-file SHA-256 list |
+| Encoder bundle | accepted, materialized local SentenceTransformers snapshot; model ID/revision and package version pinned; SHA-256 manifest covers the exact complete file inventory (no unlisted files, traversal paths or symlinks) |
 | COLT scene bundle | accepted MCPToolBench++ development split; query-to-server memberships; server-derived scenes; source-tool-to-LiveMCPTool crosswalk and SHA-256 |
 | ToolScope oracle | independent accepted positive/negative tool-equivalence pairs, not derived from E9 evaluator references |
 
-The runner uses a local-only SentenceTransformers model snapshot; it sets offline flags and does not silently download or substitute an encoder. It does not synthesize GoalSpecs, contracts, effects, model profiles, training scenes or equivalence labels.
+The runner uses a local-only SentenceTransformers model snapshot; it sets offline flags and does not silently download or substitute an encoder. The encoder bundle must hash every regular file in the materialized snapshot, with exact inventory equality; symlinks and path traversal are rejected so tokenizer/config/weight changes cannot be hidden outside the manifest. It does not synthesize GoalSpecs, contracts, effects, model profiles, training scenes or equivalence labels.
 
 Launch command after all mandatory input artifacts have been accepted:
 
