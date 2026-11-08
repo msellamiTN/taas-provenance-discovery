@@ -70,7 +70,7 @@ Frontend: `src/taas/studio/static/index.html` (single HTML document, inline CSS 
 | Experiments/evaluation | Research scripts and tests exist outside the Studio workflow | No integrated evaluator, run history, comparison dashboard or gold-label isolation UX |
 | Settings | Token/API connection is represented in the page | No complete connection manager, profile management, audit settings or durable preferences |
 
-Delivered Studio workspaces (all read-only / analysis-only, wired to real Core routes): UX-2 Objective Engineering, UX-3 Tool Registry, UX-5 GoalSpec designer, UX-7 runtime observability, UX-8 governance actions, UX-9 model-assisted objective preparation, UX-10 Release Center, UX-11 Operations Command Center, UX-12 Evidence & Provenance Inspector, UX-13/14 Agent & Skill Lifecycle centers, UX-15 Tool Registry & MCP Governance, UX-16 Tool Selection & Eligibility, UX-17 Policy Designer, UX-18 Policy Testing & Simulation, UX-19 Governance Audit Timeline, UX-20 Compliance & Assurance Dashboard (demo/live separation). Boundary invariants preserved throughout: no tool invocation, approval != authorization != execution, diagnostics are observations not proof.
+Delivered Studio workspaces (all read-only / analysis-only, wired to real Core routes): UX-2 Objective Engineering, UX-3 Tool Registry, UX-5 GoalSpec designer, UX-7 runtime observability, UX-8 governance actions, UX-9 model-assisted objective preparation, UX-10 Release Center, UX-11 Operations Command Center, UX-12 Evidence & Provenance Inspector, UX-13/14 Agent & Skill Lifecycle centers, UX-15 Tool Registry & MCP Governance, UX-16 Tool Selection & Eligibility, UX-17 Policy Designer, UX-18 Policy Testing & Simulation, UX-19 Governance Audit Timeline, UX-20 Compliance & Assurance Dashboard, UX-21 Risk & Remediation Workbench, UX-22 Agent Observability (all demo/live separated). Boundary invariants preserved throughout: no tool invocation, approval != authorization != execution, diagnostics are observations not proof.
 
 The page contains responsive CSS breakpoints and a grouped left-rail navigation. It is not yet the full persistent shell described in `PRODUCT_UX_BLUEPRINT.md`.
 
@@ -149,7 +149,7 @@ The page contains responsive CSS breakpoints and a grouped left-rail navigation.
 
 ## 7. Validation status at this audit baseline
 
-- Integration branch `devin/studio-ux-integration-v1` tip `84078fcb2968e89e51395e1418099ad2e0129eb1`: 686 tests green locally; notebook acceptance verified on Colab at `b84d53e` (229 v2 + 122 v3/API + readiness/intelligence/governance cells).
+- Integration branch `devin/studio-ux-integration-v1` tip `29f8a615fe81c4bc6f07794c54220b2d91d6111a`: 688 tests green locally; notebook acceptance verified on Colab at `b84d53e` (229 v2 + 122 v3/API + readiness/intelligence/governance cells).
 - Earlier baseline `e641fc7412dbb77ae44304562820db619aaf7359`: GitHub Actions run completed successfully.
 - Repository tests in `tests/test_studio_api.py`: 52 test functions are present at this baseline; this count is a static source inspection, not a claim that each was executed locally during this audit.
 - The current PR's browser/Colab workflow has not been executed by this agent in this session. Browser behavior remains unverified.
