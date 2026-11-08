@@ -3,12 +3,80 @@
  "evidence": "MEASURED (engine on a review-type goal spec); task success BLOCKED (E13)",
  "notes": "",
  "manifest": {
-  "commit": "d54706adb32d335a4e366b1a0a5fe01256574951",
-  "created": "2026-11-08T06:11:17Z",
+  "run_id": "E11_gap-2026-11-08T06:49:10Z-12b5336ee5",
+  "created": "2026-11-08T06:49:10Z",
+  "commit": "afc62c905baaa841c35fa91530db0e9d71b78a47",
+  "dirty_code_files": [],
+  "code_sha256": "12b5336ee577c5389219434098fe345d627ce5f7a2b179d2d9ce6a1a00f0c997",
   "python": "3.13.18",
+  "config": {
+   "models": [
+    "sonnet",
+    "haiku",
+    "opus"
+   ],
+   "tau": [
+    0.6,
+    0.75,
+    0.9
+   ],
+   "n": [
+    30,
+    300,
+    3000,
+    30000
+   ],
+   "exactness": [
+    "tolerant",
+    "exact"
+   ],
+   "registry": "review scenario (Fig. 1)"
+  },
   "inputs": {
    "data/processed/registry_merged.json": "a24bb9c5c788f8856288993c8f3c21b7fcd84b6491cc1a2b778b3b5d5a787045"
-  }
+  },
+  "labels": {
+   "data/llm_records/silver_labels.json": "a9bfdda22c417197dcbdbcd6ddcd36245c64293b8d59f3d76084a6a705ebc1a3",
+   "data/llm_records/reference_labels_opus_part0.jsonl": "1bbaffd69206a61c26bf60d1c679c56bed085a8df7f4bab47893cf0edbadbb3e",
+   "data/llm_records/reference_labels_opus_part1.jsonl": "0ef047fe57862e9123f6f92c0c572dc6f78e7c488248dd1c0771f188e6470b22",
+   "data/llm_records/reference_labels_opus_part2.jsonl": "b9c329d5fd97f1c800703b98f8483d08de7d18eb39e69be6a184ecbfbd5e3920"
+  },
+  "llm_records": {
+   "data/llm_records/analyst_haiku.jsonl": "9c46187501c70d64ff39e8dddcfb2c1083ba1608cdf7705cad40484ed03b3182",
+   "data/llm_records/analyst_mcpbench_prompt_v1_0_sonnet.jsonl": "9644fe997d1d1d3026ee89b4d632785666b033e2d5e5c1ba8098fe9124fcd65f",
+   "data/llm_records/analyst_mcpbench_prompt_v1_1_sonnet.jsonl": "d72740cfde8a3855df2dc14b43edbecc7956a91a00cde4ab626c5ba2e06dd39e",
+   "data/llm_records/analyst_mcpbench_prompt_v1_1_theta_sonnet.jsonl": "cf0fefa547d099b9f4be9488bf0ed077ff21b00236dbb739c39687b38d6dd840",
+   "data/llm_records/analyst_sonnet_A.jsonl": "16764040beb08c21af41fda2aa80d4503db8f3fa6445405b14dfe2329d26abea",
+   "data/llm_records/analyst_sonnet_B.jsonl": "21ff4fb98d3ba2ee1a1a33eb5672970672b0098315a92c3a6eba1b4a7f8b6e23",
+   "data/llm_records/analyst_sonnet_e8_part0.jsonl": "0f85289319734fc7eb0bf2b3559e9f3c6427c3764d4eb77aae4c3696640c24e3",
+   "data/llm_records/analyst_sonnet_e8_part1.jsonl": "01df80721e2f66656fbbd43974d59c9060143755820e357a8a04dfa211df15c2",
+   "data/llm_records/analyst_sonnet_e8_part2.jsonl": "7fbf7be565640a54b1afb75d604725d04de031b06e1327e0231c115f0de8b8ff",
+   "data/llm_records/calibration_answers_haiku.json": "ba766acd12b301699cb48959dc0cbe3f0d0d529f35af8bf09833fcd80d012561",
+   "data/llm_records/calibration_answers_opus.json": "a842a448f709ea4c778738ddddf2d0362815da6dac3569342bfd663ac905b0da",
+   "data/llm_records/calibration_answers_sonnet.json": "6a3ae7baa9bf7a3a81a3f396479526564287ff91730ff22de0b9dc3f2331a23d",
+   "data/llm_records/calibration_self_assessment_haiku.json": "c172609360670e095338a5c833c29d7c0b5adc9c69c8d6c165bd081103eb00e6",
+   "data/llm_records/calibration_self_assessment_opus.json": "7f9128dad0541247130ea04a7df267246887c7473aad25fcb426890e00ad0462",
+   "data/llm_records/calibration_self_assessment_sonnet.json": "b27dff24c251b0b2a07095969d23645b11dab9d5f82f73ba930d0da1dd226867",
+   "data/llm_records/colt_train_queries_sonnet_part0.jsonl": "b137e6da7ba850a7566d0d25d9141e2a3f6f1aef4c1a32936c5c092b44f32090",
+   "data/llm_records/colt_train_queries_sonnet_part1.jsonl": "923c53ca85b3c5dc3d9b4968d7e8a7228a4b975e18f3df1e29c7b7b0dc025912",
+   "data/llm_records/colt_train_queries_sonnet_part2.jsonl": "7f24212afcd1ef8647aa4af4e08bed7664cf9d5296dd6ea45730a635bcb20720",
+   "data/llm_records/mcpzero_requests_sonnet_part0.jsonl": "3a0e5011f86db8144e7acd1b37c8df572a6e825c842c1ab69ffb3628a40c262c",
+   "data/llm_records/mcpzero_requests_sonnet_part1.jsonl": "aa1d304fff250b1fc44519840fd777816793a07ca1874237816053dff8acb075",
+   "data/llm_records/mcpzero_requests_sonnet_part2.jsonl": "fee6745201cfd27ff916cc7759a3eb2393fa915c1bdcd10e0e735f3f7abfcd7b",
+   "data/llm_records/mcpzero_requests_sonnet_part3.jsonl": "d339efef9190a575017f354a31cf284d24a80c3de2d377f9318636455ddb4fa6",
+   "data/llm_records/mcpzero_server_summaries_sonnet.jsonl": "f3a65c211a247dfa84d9eeff6956069e0dd6b93482d5107aea3a2ca6f02f44f8",
+   "data/llm_records/reference_labels_opus_part0.jsonl": "1bbaffd69206a61c26bf60d1c679c56bed085a8df7f4bab47893cf0edbadbb3e",
+   "data/llm_records/reference_labels_opus_part1.jsonl": "0ef047fe57862e9123f6f92c0c572dc6f78e7c488248dd1c0771f188e6470b22",
+   "data/llm_records/reference_labels_opus_part2.jsonl": "b9c329d5fd97f1c800703b98f8483d08de7d18eb39e69be6a184ecbfbd5e3920",
+   "data/llm_records/silver_labels.json": "a9bfdda22c417197dcbdbcd6ddcd36245c64293b8d59f3d76084a6a705ebc1a3",
+   "data/llm_records/silver_labels_part0.jsonl": "9a2b025b6675441eb2cfa6e695b66f2612ef07a9b73fdbc518fb03d279edad70",
+   "data/llm_records/silver_labels_part1.jsonl": "26d0be08d2d367f89678bc696c4247546dc46cc95eadaa5c47fa34953bc4c877",
+   "data/llm_records/silver_labels_part2.jsonl": "ef7b33f91a5c0760376299f868c66da3c73fd14d585b76ba3b9ba91936a19bce",
+   "data/llm_records/toolscope_equiv_sonnet_part0.jsonl": "e3a37310c6ac401db495ee5a1dc5cf7ccb3c699f7aa20c5fdfdb3c7c333ac7aa",
+   "data/llm_records/toolscope_equiv_sonnet_part1.jsonl": "923ec05434c581d05f8ac8c7edfdf473ce9886354413f419803b7a455a85b25c"
+  },
+  "raw": {},
+  "models": "LLM roles were played by Claude models requested by alias (sonnet, opus, haiku) through the session; exact version strings were not exposed and are not recorded"
  },
  "results": {
   "sonnet|0.6|30|tolerant|gap": {
@@ -18,6 +86,7 @@
    "goals": 5,
    "native_share": 0.6,
    "beta": 0.6,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "report::generate"
@@ -30,6 +99,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.6|30|exact|gap": {
@@ -39,6 +109,7 @@
    "goals": 5,
    "native_share": 0.4,
    "beta": 0.4,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::sentiment",
@@ -53,6 +124,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.6|300|tolerant|gap": {
@@ -62,6 +134,7 @@
    "goals": 5,
    "native_share": 0.6,
    "beta": 0.6,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "report::generate"
@@ -74,6 +147,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.6|300|exact|gap": {
@@ -83,6 +157,7 @@
    "goals": 5,
    "native_share": 0.4,
    "beta": 0.4,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::sentiment",
@@ -97,6 +172,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.6|3000|tolerant|gap": {
@@ -106,6 +182,7 @@
    "goals": 5,
    "native_share": 0.6,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.6|3000|tolerant|nogap": {
@@ -115,6 +192,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.6|3000|exact|gap": {
@@ -124,6 +202,7 @@
    "goals": 5,
    "native_share": 0.4,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.6|3000|exact|nogap": {
@@ -133,6 +212,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.6|30000|tolerant|gap": {
@@ -142,6 +222,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.6|30000|tolerant|nogap": {
@@ -151,6 +232,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.6|30000|exact|gap": {
@@ -160,6 +242,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.6|30000|exact|nogap": {
@@ -169,6 +252,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.75|30|tolerant|gap": {
@@ -178,6 +262,7 @@
    "goals": 5,
    "native_share": 0.6,
    "beta": 0.6,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "report::generate"
@@ -190,6 +275,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.75|30|exact|gap": {
@@ -199,6 +285,7 @@
    "goals": 5,
    "native_share": 0.4,
    "beta": 0.4,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::sentiment",
@@ -213,6 +300,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.75|300|tolerant|gap": {
@@ -222,6 +310,7 @@
    "goals": 5,
    "native_share": 0.6,
    "beta": 0.6,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "report::generate"
@@ -234,6 +323,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.75|300|exact|gap": {
@@ -243,6 +333,7 @@
    "goals": 5,
    "native_share": 0.4,
    "beta": 0.4,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::sentiment",
@@ -257,6 +348,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.75|3000|tolerant|gap": {
@@ -266,6 +358,7 @@
    "goals": 5,
    "native_share": 0.19999999999999996,
    "beta": 0.2,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::classify",
@@ -282,6 +375,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.75|3000|exact|gap": {
@@ -291,6 +385,7 @@
    "goals": 5,
    "native_share": 0.19999999999999996,
    "beta": 0.2,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::classify",
@@ -307,6 +402,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.75|30000|tolerant|gap": {
@@ -316,6 +412,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.75|30000|tolerant|nogap": {
@@ -325,6 +422,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.75|30000|exact|gap": {
@@ -334,6 +432,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.75|30000|exact|nogap": {
@@ -343,6 +442,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.9|30|tolerant|gap": {
@@ -352,6 +452,7 @@
    "goals": 5,
    "native_share": 0.6,
    "beta": 0.6,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "report::generate"
@@ -364,6 +465,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.9|30|exact|gap": {
@@ -373,6 +475,7 @@
    "goals": 5,
    "native_share": 0.4,
    "beta": 0.4,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::sentiment",
@@ -387,6 +490,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.9|300|tolerant|gap": {
@@ -396,6 +500,7 @@
    "goals": 5,
    "native_share": 0.6,
    "beta": 0.6,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "report::generate"
@@ -408,6 +513,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.9|300|exact|gap": {
@@ -417,6 +523,7 @@
    "goals": 5,
    "native_share": 0.4,
    "beta": 0.4,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::sentiment",
@@ -431,6 +538,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.9|3000|tolerant|gap": {
@@ -440,6 +548,7 @@
    "goals": 5,
    "native_share": 0.19999999999999996,
    "beta": 0.2,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::classify",
@@ -456,6 +565,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.9|3000|exact|gap": {
@@ -465,6 +575,7 @@
    "goals": 5,
    "native_share": 0.19999999999999996,
    "beta": 0.2,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::classify",
@@ -481,6 +592,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.9|30000|tolerant|gap": {
@@ -490,6 +602,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.9|30000|tolerant|nogap": {
@@ -499,6 +612,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.9|30000|exact|gap": {
@@ -508,6 +622,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "sonnet|0.9|30000|exact|nogap": {
@@ -517,6 +632,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.6|30|tolerant|gap": {
@@ -526,6 +642,7 @@
    "goals": 5,
    "native_share": 0.6,
    "beta": 0.6,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "report::generate"
@@ -538,6 +655,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.6|30|exact|gap": {
@@ -547,6 +665,7 @@
    "goals": 5,
    "native_share": 0.4,
    "beta": 0.4,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::sentiment",
@@ -561,6 +680,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.6|300|tolerant|gap": {
@@ -570,6 +690,7 @@
    "goals": 5,
    "native_share": 0.6,
    "beta": 0.6,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "report::generate"
@@ -582,6 +703,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.6|300|exact|gap": {
@@ -591,6 +713,7 @@
    "goals": 5,
    "native_share": 0.4,
    "beta": 0.4,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::sentiment",
@@ -605,6 +728,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.6|3000|tolerant|gap": {
@@ -614,6 +738,7 @@
    "goals": 5,
    "native_share": 0.6,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.6|3000|tolerant|nogap": {
@@ -623,6 +748,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.6|3000|exact|gap": {
@@ -632,6 +758,7 @@
    "goals": 5,
    "native_share": 0.4,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.6|3000|exact|nogap": {
@@ -641,6 +768,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.6|30000|tolerant|gap": {
@@ -650,6 +778,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.6|30000|tolerant|nogap": {
@@ -659,6 +788,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.6|30000|exact|gap": {
@@ -668,6 +798,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.6|30000|exact|nogap": {
@@ -677,6 +808,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.75|30|tolerant|gap": {
@@ -686,6 +818,7 @@
    "goals": 5,
    "native_share": 0.6,
    "beta": 0.6,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "report::generate"
@@ -698,6 +831,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.75|30|exact|gap": {
@@ -707,6 +841,7 @@
    "goals": 5,
    "native_share": 0.4,
    "beta": 0.4,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::sentiment",
@@ -721,6 +856,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.75|300|tolerant|gap": {
@@ -730,6 +866,7 @@
    "goals": 5,
    "native_share": 0.6,
    "beta": 0.6,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "report::generate"
@@ -742,6 +879,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.75|300|exact|gap": {
@@ -751,6 +889,7 @@
    "goals": 5,
    "native_share": 0.4,
    "beta": 0.4,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::sentiment",
@@ -765,6 +904,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.75|3000|tolerant|gap": {
@@ -774,6 +914,7 @@
    "goals": 5,
    "native_share": 0.19999999999999996,
    "beta": 0.2,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::classify",
@@ -790,6 +931,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.75|3000|exact|gap": {
@@ -799,6 +941,7 @@
    "goals": 5,
    "native_share": 0.19999999999999996,
    "beta": 0.2,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::classify",
@@ -815,6 +958,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.75|30000|tolerant|gap": {
@@ -824,6 +968,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.75|30000|tolerant|nogap": {
@@ -833,6 +978,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.75|30000|exact|gap": {
@@ -842,6 +988,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.75|30000|exact|nogap": {
@@ -851,6 +998,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.9|30|tolerant|gap": {
@@ -860,6 +1008,7 @@
    "goals": 5,
    "native_share": 0.6,
    "beta": 0.6,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "report::generate"
@@ -872,6 +1021,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.9|30|exact|gap": {
@@ -881,6 +1031,7 @@
    "goals": 5,
    "native_share": 0.4,
    "beta": 0.4,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::sentiment",
@@ -895,6 +1046,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.9|300|tolerant|gap": {
@@ -904,6 +1056,7 @@
    "goals": 5,
    "native_share": 0.6,
    "beta": 0.6,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "report::generate"
@@ -916,6 +1069,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.9|300|exact|gap": {
@@ -925,6 +1079,7 @@
    "goals": 5,
    "native_share": 0.4,
    "beta": 0.4,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::sentiment",
@@ -939,6 +1094,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.9|3000|tolerant|gap": {
@@ -948,6 +1104,7 @@
    "goals": 5,
    "native_share": 0.19999999999999996,
    "beta": 0.2,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::classify",
@@ -964,6 +1121,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.9|3000|exact|gap": {
@@ -973,6 +1131,7 @@
    "goals": 5,
    "native_share": 0.19999999999999996,
    "beta": 0.2,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::classify",
@@ -989,6 +1148,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.9|30000|tolerant|gap": {
@@ -998,6 +1158,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.9|30000|tolerant|nogap": {
@@ -1007,6 +1168,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.9|30000|exact|gap": {
@@ -1016,6 +1178,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "haiku|0.9|30000|exact|nogap": {
@@ -1025,6 +1188,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.6|30|tolerant|gap": {
@@ -1034,6 +1198,7 @@
    "goals": 5,
    "native_share": 0.6,
    "beta": 0.6,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "report::generate"
@@ -1046,6 +1211,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.6|30|exact|gap": {
@@ -1055,6 +1221,7 @@
    "goals": 5,
    "native_share": 0.4,
    "beta": 0.4,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::sentiment",
@@ -1069,6 +1236,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.6|300|tolerant|gap": {
@@ -1078,6 +1246,7 @@
    "goals": 5,
    "native_share": 0.6,
    "beta": 0.6,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "report::generate"
@@ -1090,6 +1259,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.6|300|exact|gap": {
@@ -1099,6 +1269,7 @@
    "goals": 5,
    "native_share": 0.4,
    "beta": 0.4,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::sentiment",
@@ -1113,6 +1284,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.6|3000|tolerant|gap": {
@@ -1122,6 +1294,7 @@
    "goals": 5,
    "native_share": 0.6,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.6|3000|tolerant|nogap": {
@@ -1131,6 +1304,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.6|3000|exact|gap": {
@@ -1140,6 +1314,7 @@
    "goals": 5,
    "native_share": 0.4,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.6|3000|exact|nogap": {
@@ -1149,6 +1324,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.6|30000|tolerant|gap": {
@@ -1158,6 +1334,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.6|30000|tolerant|nogap": {
@@ -1167,6 +1344,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.6|30000|exact|gap": {
@@ -1176,6 +1354,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.6|30000|exact|nogap": {
@@ -1185,6 +1364,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.75|30|tolerant|gap": {
@@ -1194,6 +1374,7 @@
    "goals": 5,
    "native_share": 0.6,
    "beta": 0.6,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "report::generate"
@@ -1206,6 +1387,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.75|30|exact|gap": {
@@ -1215,6 +1397,7 @@
    "goals": 5,
    "native_share": 0.4,
    "beta": 0.4,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::sentiment",
@@ -1229,6 +1412,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.75|300|tolerant|gap": {
@@ -1238,6 +1422,7 @@
    "goals": 5,
    "native_share": 0.6,
    "beta": 0.6,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "report::generate"
@@ -1250,6 +1435,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.75|300|exact|gap": {
@@ -1259,6 +1445,7 @@
    "goals": 5,
    "native_share": 0.4,
    "beta": 0.4,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::sentiment",
@@ -1273,6 +1460,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.75|3000|tolerant|gap": {
@@ -1282,6 +1470,7 @@
    "goals": 5,
    "native_share": 0.19999999999999996,
    "beta": 0.2,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::classify",
@@ -1298,6 +1487,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.75|3000|exact|gap": {
@@ -1307,6 +1497,7 @@
    "goals": 5,
    "native_share": 0.19999999999999996,
    "beta": 0.2,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::classify",
@@ -1323,6 +1514,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.75|30000|tolerant|gap": {
@@ -1332,6 +1524,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.75|30000|tolerant|nogap": {
@@ -1341,6 +1534,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.75|30000|exact|gap": {
@@ -1350,6 +1544,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.75|30000|exact|nogap": {
@@ -1359,6 +1554,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.9|30|tolerant|gap": {
@@ -1368,6 +1564,7 @@
    "goals": 5,
    "native_share": 0.6,
    "beta": 0.6,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "report::generate"
@@ -1380,6 +1577,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.9|30|exact|gap": {
@@ -1389,6 +1587,7 @@
    "goals": 5,
    "native_share": 0.4,
    "beta": 0.4,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::sentiment",
@@ -1403,6 +1602,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.9|300|tolerant|gap": {
@@ -1412,6 +1612,7 @@
    "goals": 5,
    "native_share": 0.6,
    "beta": 0.6,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "report::generate"
@@ -1424,6 +1625,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.9|300|exact|gap": {
@@ -1433,6 +1635,7 @@
    "goals": 5,
    "native_share": 0.4,
    "beta": 0.4,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::sentiment",
@@ -1447,6 +1650,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.9|3000|tolerant|gap": {
@@ -1456,6 +1660,7 @@
    "goals": 5,
    "native_share": 0.19999999999999996,
    "beta": 0.2,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::classify",
@@ -1472,6 +1677,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.9|3000|exact|gap": {
@@ -1481,6 +1687,7 @@
    "goals": 5,
    "native_share": 0.19999999999999996,
    "beta": 0.2,
+   "chi": "",
    "toolkit": [
     "db::query_reviews",
     "nlp::classify",
@@ -1497,6 +1704,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.9|30000|tolerant|gap": {
@@ -1506,6 +1714,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.9|30000|tolerant|nogap": {
@@ -1515,6 +1724,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.9|30000|exact|gap": {
@@ -1524,6 +1734,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   },
   "opus|0.9|30000|exact|nogap": {
@@ -1533,6 +1744,7 @@
    "goals": 5,
    "native_share": 0.0,
    "beta": null,
+   "chi": "chi1",
    "toolkit": null
   }
  }
