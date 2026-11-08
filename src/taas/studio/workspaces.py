@@ -129,7 +129,7 @@ def _record_revision(connection: sqlite3.Connection, *, workspace_id: str,
     """
     connection.execute(
         """
-        INSERT OR REPLACE INTO workspace_revisions (
+        INSERT INTO workspace_revisions (
             workspace_id, revision, draft_sha256, actor, changes_json, occurred_at
         ) VALUES (?, ?, ?, ?, ?, ?)
         """,
@@ -145,6 +145,7 @@ def create_workspace(*, name: str, draft: dict[str, Any],
     now = _now()
     digest = _sha256(draft)
     with _connect() as connection:
+        connection.execute("BEGIN IMMEDIATE")
         connection.execute(
             """
             INSERT INTO workspaces (
@@ -213,6 +214,7 @@ def update_workspace(
     """
     new_digest = _sha256(draft)
     with _connect() as connection:
+        connection.execute("BEGIN IMMEDIATE")
         row = connection.execute(
             "SELECT revision, name, draft_json FROM workspaces WHERE workspace_id = ?",
             (workspace_id,),
