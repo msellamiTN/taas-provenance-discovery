@@ -107,7 +107,7 @@ The original E9 protocol preregisters three decomposition conditions:
 |---|---|
 | \`none\` | The original user request is passed as one unsegmented goal/query. |
 | \`clause_splitter\` | A deterministic clause-splitter output is frozen without access to evaluator references. Preserve the source prompt, splitter version and source-code hash. |
-| \`llm_analyst\` | An independently versioned analyst produces a structured GoalSpec. Freeze model ID/revision, prompt version, decoding settings, usage, raw response and their hashes before evaluation. |
+| \`llm_analyst\` | An independently versioned analyst produces a structured GoalSpec. Freeze model ID/revision, non-empty prompt version, decoding-settings object and usage object, plus the raw prompt/response artifacts and their SHA-256 hashes before evaluation. The runner requires each field and verifies both artifact hashes. |
 
 The current full evaluation protocol preregisters **k = 1, 3, 5, 10, 20**. Execute every value as a separate candidate-budget condition. Every discovery row must include \`decomposition\` and \`ranking_k\`; the unique observation key is benchmark × task × method × decomposition × k. Do not derive lower k conditions by truncating a single k=20 output.
 
