@@ -498,8 +498,18 @@ def test_prepared_package_rejects_symlinked_checksum_manifest(tmp_path):
 
 
 def test_e9_dataset_snapshot_requires_pinned_revision_and_exact_denominators():
-    tools = [{"tool_id": f"server-{i}::tool-{i}"} for i in range(525)]
-    tasks = [{"task_id": f"task-{i}"} for i in range(94)]
+    tools = [
+        {
+            "dataset_id": "livemcpbench",
+            "tool_id": f"server-{i % 69}::tool-{i}",
+            "server_id": f"server-{i % 69}",
+        }
+        for i in range(525)
+    ]
+    tasks = [
+        {"dataset_id": "livemcpbench", "task_id": f"task-{i}", "split": "benchmark_evaluation"}
+        for i in range(94)
+    ]
     manifest = {
         "benchmark": "LiveMCPBench",
         "source_revision": "36a51a1065dda49c1e503b87edf33a1e0b331a74",
