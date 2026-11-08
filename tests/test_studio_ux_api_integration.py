@@ -265,3 +265,20 @@ def test_ux21_remediation_workbench_separates_demo_from_bounded_live():
     assert "/api/v1/audit/verify" in html
     assert "unsupported_live_capabilities" in html
     assert '"Unavailable"' in html
+
+
+def test_ux22_agent_observability_bounded_live_and_hidden_demo():
+    html = _studio_html()
+    assert 'id="ux22-agent-observability"' in html
+    assert 'id="ux22-demo-mode"' in html
+    assert 'id="ux22-live-mode"' in html
+    assert "DEMO DATA · ILLUSTRATIVE" in html
+    # Live mode queries only real read-only routes.
+    for path in ("/api/v1/agents?limit=500", "/api/v1/agents/events?limit=1000",
+                 "/api/v1/discovery/runs?limit=100", "/api/v1/runtime/status",
+                 "/api/v1/runtime/hardware", "/api/v1/models/runtime"):
+        assert path in html
+    # Demo visuals must be hidden in live mode (not merely overwritten).
+    assert "u22-live-mode .u22-chart" in html and "display:none" in html
+    # Boundary: no lifecycle mutation, deployment, invocation or execution.
+    assert "No Agent registration, lifecycle mutation, deployment" in html or "not proof of Agent execution" in html
