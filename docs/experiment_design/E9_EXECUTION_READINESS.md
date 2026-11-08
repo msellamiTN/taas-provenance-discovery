@@ -7,7 +7,7 @@
 
 ## Current status
 
-The E9 figure contracts, evaluator-separated metric exporter and test fixtures are implemented. E9 has **not** been executed as a definitive benchmark. The test suite validates software behavior with isolated fixtures; fixture values are not experimental observations.
+The E9 figure contracts, 94-task LiveMCPBench preparer, protocol-gated retrieval runner, evaluator-separated metric exporter and regression tests are implemented. E9 has **not** been executed as a definitive benchmark. The test suite validates software/data-preparation behavior with isolated fixtures; fixture values are not experimental observations.
 
 ## Data inventory
 
@@ -41,38 +41,39 @@ The exporter refuses:
 
 - [LiveMCPBench E9 dataset preparer](../../experiments/prepare_e9_livemcpbench.py) (creates task/reference package, not method rankings)
 - [E9 execution runbook](experiment_design/E9_EXECUTION_RUNBOOK.md)
-- [E9 figure exporter](../experiments/export_e9_figures.py)
-- [E9 exporter/rendering tests](../tests/test_e9_figure_export.py)
+- [E9 retrieval campaign runner](../../experiments/e9_retrieval_campaign.py)
+- [E9 figure exporter](../../experiments/export_e9_figures.py)
+- [E9 runner and protocol-gate tests](../../tests/test_e9_retrieval_campaign.py)
+- [E9 exporter/rendering tests](../../tests/test_e9_figure_export.py)
 - [E9 plot contracts](experiment_design/pamcp_plot_plan_v1.json)
 
 ## Run interface
 
-Once a run has separately materialized discovery rankings and evaluator references:
+Once the upstream release gate and all frozen input bundles are accepted, execute the runner as specified in E9_EXECUTION_RUNBOOK.md. It materializes rankings before reading evaluator references. The export/render commands below apply only after a definitive or partial E9 run manifest exists:
 
-\`\`\`bash
-python experiments/export_e9_figures.py \\
-  --run-dir results/definitive/E9/<run-id> \\
-  --output-dir results/visualization/data \\
-  --bootstrap-resamples 5000 \\
-  --seed 20261107
+    python experiments/export_e9_figures.py \
+      --run-dir results/definitive/E9/<run-id> \
+      --output-dir results/visualization/data \
+      --bootstrap-resamples 5000 \
+      --seed 20261108
 
-python experiments/plot_results.py validate-data --experiment E9
-python experiments/plot_results.py render --experiment E9
-\`\`\`
+    python experiments/plot_results.py validate-data --experiment E9
+    python experiments/plot_results.py render --experiment E9
 
-A trace-only run may generate \`E9_TRACE_DIAGNOSTICS.csv\` and an export manifest with no primary figures. This is an intentional scientifically valid partial result, not a failure and not evidence of set completeness.
+A trace-only run may generate E9_TRACE_DIAGNOSTICS.csv and an export manifest with no primary figures. This is an intentional scientifically valid partial result, not a failure and not evidence of set completeness.
 
 ## Baseline assignment reconciliation
 
-The frozen E9 experiment object assigns seven baseline IDs: `rag_mcp`, `mcp_zero`, `per_subtask`, `colt_adapted`, `toolscope_adapted`, `cmtf_adapted` and `all_tools`. The broader baseline catalogue and Core Protocol v2 also describe BM25 and Dense LSA as E9-capable, but E9's frozen experiment-specific `baseline_ids` omits them. The current exporter follows the experiment-specific assignment and rejects unregistered methods. Add BM25/Dense LSA only through an explicit protocol amendment, not by changing the run manifest.
+The frozen E9 experiment object assigns seven baseline IDs: rag_mcp, mcp_zero, per_subtask, colt_adapted, toolscope_adapted, cmtf_adapted and all_tools. The broader baseline catalogue and Core Protocol v2 also describe BM25 and Dense LSA as E9-capable, but E9's frozen experiment-specific baseline_ids omits them. Add BM25/Dense LSA only through an explicit protocol amendment, not by changing the run manifest.
 
 ## Required next research inputs
 
-1. Run `python experiments/prepare_e9_livemcpbench.py --output results/definitive/E9/prepared-livemcpbench-v2` to materialize the protocol-aligned 94-task LiveMCPBench candidate/task/reference package and the resolution audit. This is dataset preparation, not a method run.
-2. Freeze independently authored task GoalSpecs on a development/adjudication split, without evaluator qrels or test trajectories leaking into discovery.
-3. Establish task-to-tool identity mappings against the pinned candidate registry and review all 95 source-resolution audit rows.
-4. Supply independently sourced typed contracts for CMTF and an equivalence oracle for ToolScope, or record these methods as blocked.
-5. Freeze GoalSpecs for all three decomposition conditions (`none`, `clause_splitter`, `llm_analyst`) and the k values 5, 10, 20. Resolve the mismatch between the original DOCX comparator list and the machine-readable baseline IDs before any confirmatory method run.
-6. Save per-task rankings before opening evaluator references; then run the E9 exporter and retain per-task metric rows for paired analyses.
+1. Use the preserved 94-task LiveMCPBench dataset artifact from CI run 42422126446 (artifact 13593902899), or regenerate it from the pinned source.
+2. Complete and accept E1, E2, E3 and E12; update the release gate with accepted artifact paths, SHA-256 values and acceptance IDs.
+3. Approve a comparator map that resolves the original DOCX versus machine-readable E9 baseline mismatch without silently changing the preregistration.
+4. Freeze all 282 GoalSpecs (94 tasks × three decomposition conditions), including raw LLM-analyst and clause-splitter artifact hashes.
+5. Supply accepted hash-bound contracts for all 525 candidate definitions, a calibrated E12 model profile, accepted policy, composer configuration and local model encoder snapshot.
+6. Supply training-only COLT scenes and an independently adjudicated ToolScope equivalence oracle; otherwise those baselines are marked blocked and the run remains partial.
+7. Execute experiments/e9_retrieval_campaign.py; then run the E9 exporter and retain per-task metric rows for paired analyses.
 
 E9 remains partial until the frozen baseline/source matrix and reference gates are satisfied. A rendered chart or passing unit test never changes that status.
