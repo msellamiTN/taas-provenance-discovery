@@ -78,13 +78,13 @@ The page contains responsive CSS breakpoints and a horizontal anchor navigation,
 |---|---|---|
 | Authentication boundary | Bearer dependency on protected API routes | Production identity provider, role model, tenant isolation, token lifecycle UX, rate limiting and audit trail |
 | Intent / GoalSpec | Visual authoring and structural server validation | Semantic intent grounding, assisted GoalSpec synthesis, provenance of human edits, reusable versioned templates |
-| Registry | Read-only retained snapshot browsing | Live registry synchronization, registry version pinning, richer search facets, trusted verification pipeline |
-| Discovery | Core engine exposed via API | Saved runs, reproducibility envelope, side-by-side candidates, explainable policy editor and cancellation |
-| Assurance | Certificate and counterexample response surfaces | Evidence lifecycle/freshness, formal check documentation, exportable signed assurance package |
-| Model metadata | Read-only catalog and artifact metadata | Model serving, measured benchmarks, controlled download and isolated inference |
-| Runtime | Host diagnostics only | Sandboxed MCP invocation, credential isolation, network controls, quotas, cancellation, event logs and output capture |
+| Registry | Read-only retained snapshot browsing + tool detail/intelligence views (UX-3) | Live registry synchronization, registry version pinning, richer search facets, trusted verification pipeline |
+| Discovery | Core engine + persisted run records + reproducibility envelope + human-review gate | Side-by-side candidates, policy editor guided presets (implemented: read-only/egress-limited/strict-evidence), cancellation |
+| Assurance | Certificate and counterexample response surfaces + evidence inspector (UX-12) + audit ledger | Evidence lifecycle/freshness beyond recorded fields, formal check documentation, exportable signed assurance package |
+| Model metadata | Read-only catalog and artifact metadata + live runtime status/load/chat | Model serving at scale, measured benchmarks, controlled download and isolated inference |
+| Runtime | Host diagnostics + read-only runtime observability workspace (UX-7) | Sandboxed MCP invocation, credential isolation, network controls, quotas, cancellation, event logs and output capture |
 | Evaluation | Gold labels isolated from discovery endpoint | Dedicated evaluator service/API, benchmark scoring, experiment IDs and result provenance |
-| Workspace lifecycle | In-memory page state | Create/save/restore, durable history, sharing, versioning and collaboration |
+| Workspace lifecycle | Durable draft save/restore via `/api/v1/workspaces` (explicit save, optimistic concurrency) | Sharing, versioning and collaboration |
 | Operations | Health/readiness and host probe | Structured logs, metrics, traces, deployment profiles, backup/recovery and production runbooks |
 
 ## 5. UX and engineering priorities
