@@ -45,7 +45,7 @@ The confirmatory E9 comparison is aligned to the explicit protocol:
 - NoBackwardClosure changes only closure depth to zero; \`per_subtask\` is not used as a proxy.
 - Decomposition conditions are \`none\`, \`clause_splitter\`, \`llm_analyst\`.
 - Candidate budgets are independent runs at \(k=\{1,3,5,10,20\}\).
-- The exporter creates F1 group recall, F2 set-precision/recall, F3 complete-set share, F4 retrieved-set-size distribution, and matched-task paired tests with bootstrap intervals, sign-flip tests and Holm adjustment.
+- The exporter creates F1 group recall, F2 set-precision/recall, F3 complete-set share, F4 retrieved-set-size distribution, and matched-task paired tests with bootstrap intervals, sign-flip tests and Holm adjustment. Paired inference resamples whole `independent_unit_id` clusters and applies one sign flip per cluster; its point estimate is the task-weighted mean paired difference. Exact enumeration is used through 16 independent units and Monte Carlo beyond that.
 
 MCP-Zero remains blocked until its official iterative active-request loop exists. COLT requires the accepted MCPToolBench++ dev/server-membership scenes and frozen crosswalk. ToolScope requires an independent equivalence oracle. CMTF requires the accepted common contract bundle. Missing methods are recorded as blocked; the runner does not fabricate their scores.
 
