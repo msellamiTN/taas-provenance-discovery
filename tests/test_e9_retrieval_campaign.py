@@ -217,6 +217,7 @@ def test_composer_parameters_are_loaded_only_from_approved_e9_config(tmp_path):
 
 
 def test_no_backward_closure_changes_only_depth():
+    from dataclasses import asdict
     from taas.composer import ComposerConfig
 
     full = ComposerConfig(K=20, depth=3, relevance=7.5, beta=0.25)
