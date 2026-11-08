@@ -183,12 +183,24 @@ def load_goal_specs(path: Path, tasks: list[dict[str, Any]]) -> dict[tuple[str, 
             if metadata.get("transform") != "unsegmented_single_goal":
                 raise ValueError(f"{task_id}: none condition must represent the unsegmented request")
         elif decomposition == "clause_splitter":
-            if not metadata.get("splitter_version") or not metadata.get("splitter_sha256"):
-                raise ValueError(f"{task_id}: clause-splitter version/hash missing")
+            for field in ("splitter_version", "splitter_path", "splitter_sha256"):
+                if not metadata.get(field):
+                    raise ValueError(f"{task_id}: clause-splitter metadata missing {field}")
+            splitter_path = Path(metadata["splitter_path"])
+            if not splitter_path.is_absolute():
+                splitter_path = (path.parent / splitter_path).resolve()
+            if not splitter_path.is_file() or sha256_file(splitter_path) != metadata["splitter_sha256"]:
+                raise ValueError(f"{task_id}: clause-splitter artifact is missing or hash-mismatched")
         else:
-            for field in ("model_id", "model_revision", "prompt_sha256", "raw_response_sha256"):
+            for field in ("model_id", "model_revision", "prompt_sha256", "raw_response_sha256", "prompt_path", "raw_response_path"):
                 if not metadata.get(field):
                     raise ValueError(f"{task_id}: llm_analyst metadata missing {field}")
+            for path_key, hash_key in (("prompt_path", "prompt_sha256"), ("raw_response_path", "raw_response_sha256")):
+                artifact_path = Path(metadata[path_key])
+                if not artifact_path.is_absolute():
+                    artifact_path = (path.parent / artifact_path).resolve()
+                if not artifact_path.is_file() or sha256_file(artifact_path) != metadata[hash_key]:
+                    raise ValueError(f"{task_id}: llm_analyst {path_key} is missing or hash-mismatched")
         spec_data = row.get("goal_spec")
         if not isinstance(spec_data, dict) or not spec_data.get("goals"):
             raise ValueError(f"{task_id}/{decomposition}: non-empty GoalSpec is required")
@@ -447,11 +459,13 @@ def validate_release_gate(gate_path: Path, comparator_path: Path) -> dict:
     if gate.get("schema_version") != "1.0.0" or gate.get("status") != "accepted":
         raise ValueError("E9 release gate must be accepted, schema_version=1.0.0")
     prereqs = gate.get("prerequisites") or {}
-    prerequisite_proofs = {}
     for experiment in REQUIRED_PREREQUISITES:
         item = prereqs.get(experiment) or {}
         if item.get("status") != "accepted":
             raise ValueError(f"Confirmatory E9 execution blocked: {experiment} prerequisite is not accepted")
+    prerequisite_proofs = {}
+    for experiment in REQUIRED_PREREQUISITES:
+        item = prereqs[experiment]
         artifact = Path(item.get("artifact_path") or "")
         if not artifact.is_absolute():
             artifact = (gate_path.parent / artifact).resolve()
@@ -490,7 +504,9 @@ def validate_release_gate(gate_path: Path, comparator_path: Path) -> dict:
     }
 
 
-def load_training_scenes(path: Path | None, candidate_ids: set[str]) -> list[dict[str, Any]]:
+def load_training_scenes(
+    path: Path | None, candidate_ids: set[str], evaluation_task_ids: set[str]
+) -> list[dict[str, Any]]:
     if path is None:
         return []
     rows = read_jsonl(path)
@@ -499,6 +515,8 @@ def load_training_scenes(path: Path | None, candidate_ids: set[str]) -> list[dic
             raise ValueError("COLT training scenes must be explicitly marked train/training")
         if not row.get("task_id") or not isinstance(row.get("tools"), list):
             raise ValueError("Each training scene requires task_id and tools")
+        if str(row["task_id"]) in evaluation_task_ids:
+            raise ValueError("COLT training scene task_id overlaps the E9 evaluation task set")
         if not set(map(str, row["tools"])).issubset(candidate_ids):
             raise ValueError(f"{row['task_id']}: training scene contains out-of-registry tools")
     return rows
@@ -589,7 +607,8 @@ def run_campaign(args: argparse.Namespace) -> dict:
     encoder, encoder_info = load_encoder(args.encoder_bundle, args.device)
     goal_specs = load_goal_specs(args.goal_specs, tasks)
     candidate_ids = {str(row["tool_id"]) for row in tools}
-    train_scenes = load_training_scenes(args.training_scenes, candidate_ids)
+    evaluation_task_ids = {str(row["task_id"]) for row in tasks}
+    train_scenes = load_training_scenes(args.training_scenes, candidate_ids, evaluation_task_ids)
     equivalence_oracle = load_equivalence_oracle(args.equivalence_oracle, candidate_ids)
 
     # Fit one pinned model to the full tool-definition collection; no evaluator files
