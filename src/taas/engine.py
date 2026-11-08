@@ -7,6 +7,7 @@
 """
 from __future__ import annotations
 
+import copy
 import time
 from dataclasses import dataclass, field
 from typing import Iterable
@@ -17,7 +18,7 @@ from .composer import ComposeResult, Composer, ComposerConfig
 from .contracts import CapabilityContract
 from .goals import GapResult, GoalSpec, gap_analysis, parse_goal_spec
 from .hypergraph import Hypergraph
-from .manifest import manifest
+from .manifest import PatternRepository, manifest
 from .model_profile import ModelProfile
 from .policy import Policy
 from .provenance import DEFAULT_TRUST, TrustPolicy
@@ -80,6 +81,25 @@ class DiscoveryEngine:
                     g.sigma, g.sigma_reason = "data", "ablation: model coverage disabled"
             gr.gap = [g for g in spec.goals if not g.optional]
         return gr
+
+    def discover_prompt(self, prompt: str, analyst, policy: Policy, patterns: PatternRepository | None = None,
+                        store: bool = True) -> tuple[DiscoveryResult, bool]:
+        """Request path with the experience repository R (Revision 2, E21). A stored pattern similar to the prompt
+        seeds the goal specification in place of the analyst call; the full pipeline (gap analysis, current
+        eligibility and evidence, composition, certificate) always runs again, so a pattern can never bypass a
+        check. Returns the result and whether a pattern was reused. ``analyst`` is a callable returning the goal
+        specification (dict) for the prompt; it is called only when no pattern is reused."""
+        pat = patterns.lookup(prompt) if patterns is not None else None
+        if pat is not None:
+            spec = {"id": "pattern", "prompt_inputs": pat.prompt_inputs, "goals": [dict(g) for g in pat.goals]}
+        else:
+            spec = analyst()
+        r = self.discover(parse_goal_spec(copy.deepcopy(spec), prompt) if isinstance(spec, dict) else spec, policy)
+        if (patterns is not None and pat is None and store and r.certificate is not None and r.certificate.valid
+                and r.toolkit):
+            patterns.store(prompt, spec["goals"] if isinstance(spec, dict) else [], self.H, r.certificate, "verifier",
+                           prompt_inputs=(spec.get("prompt_inputs", []) if isinstance(spec, dict) else []))
+        return r, pat is not None
 
     def discover(self, spec: GoalSpec | dict, policy: Policy, refine_on_failure: bool = True) -> DiscoveryResult:
         t0 = time.perf_counter()

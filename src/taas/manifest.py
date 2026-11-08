@@ -102,6 +102,7 @@ class Pattern:
     goals: list[dict]
     classes: list[str]
     certificate: dict
+    prompt_inputs: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -114,11 +115,12 @@ class PatternRepository:
     patterns: list[Pattern] = field(default_factory=list)
     threshold: float = 0.6
 
-    def store(self, prompt: str, goals: list[dict], H: Hypergraph, cert: Certificate, confirmed_by: str) -> bool:
+    def store(self, prompt: str, goals: list[dict], H: Hypergraph, cert: Certificate, confirmed_by: str,
+              prompt_inputs: list[str] | None = None) -> bool:
         if confirmed_by not in ("user", "postcondition", "verifier"):
             return False
         classes = sorted({Hypergraph.head_key(H.contracts[t].head) for t in cert.toolkit})
-        self.patterns.append(Pattern(prompt, goals, classes, cert.to_dict()))
+        self.patterns.append(Pattern(prompt, [dict(g) for g in goals], classes, cert.to_dict(), list(prompt_inputs or [])))
         return True
 
     def lookup(self, prompt: str) -> Pattern | None:
