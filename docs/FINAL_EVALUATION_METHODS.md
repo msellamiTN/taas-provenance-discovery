@@ -22,6 +22,11 @@ Plan, evidence classes and the preregistered confirmatory family: `docs/FINAL_EV
   modification), 0.893 (private output). Both are LLM labels from one model family; neither is human ground
   truth. A blank, stratified two-annotator sheet (150 tools, disagreements over-sampled) is in
   `docs/annotation/E2_human_annotation_sheet.csv`.
+* E3 treats a missing `readOnlyHint` as unknown, not as a negative declaration. Its TP/FP/FN/TN,
+  precision, recall and discrepancy rate are conditional on tools with a present hint; registry coverage,
+  unknown-safe and unknown-unsafe counts, and unsafe capture over the full reference-unsafe population are
+  reported separately. See `docs/E3_TRISTATE_CORRECTION.md`; the pre-correction E3 output is archived under
+  `results/history/` and must not be used as the corrected declared-hint confusion matrix.
 
 ## Recorded LLM inputs (all replayed; no LLM call at evaluation time)
 
