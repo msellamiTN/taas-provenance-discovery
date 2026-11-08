@@ -43,6 +43,7 @@ def search_registry_tools(
     q: str | None = None,
     server: str | None = None,
     source: str | None = None,
+    category: str | None = None,
     offset: int = 0,
     limit: int = 50,
 ) -> dict[str, Any]:
@@ -52,6 +53,8 @@ def search_registry_tools(
         entries = [e for e in entries if e.get("server") == server]
     if source is not None:
         entries = [e for e in entries if e.get("source") == source]
+    if category is not None:
+        entries = [e for e in entries if e.get("category") == category]
     if q:
         needle = q.casefold()
         entries = [e for e in entries if needle in " ".join((
