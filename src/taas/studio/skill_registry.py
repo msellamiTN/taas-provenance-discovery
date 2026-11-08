@@ -48,6 +48,35 @@ def _connect() -> sqlite3.Connection:
         ON skill_versions BEGIN SELECT RAISE(ABORT, 'Skill version content is immutable'); END""")
     db.execute("""CREATE TRIGGER IF NOT EXISTS skill_versions_no_delete
         BEFORE DELETE ON skill_versions BEGIN SELECT RAISE(ABORT, 'Skill versions cannot be deleted'); END""")
+    # Lifecycle columns are protected at the engine level, not only by the
+    # transition() application path: direct SQL cannot bypass transition rules,
+    # skip the append-only event record, or silently move updated_at.
+    db.execute("""CREATE TRIGGER IF NOT EXISTS skill_versions_valid_transition
+        BEFORE UPDATE OF lifecycle_state ON skill_versions
+        WHEN NOT (
+            OLD.lifecycle_state = NEW.lifecycle_state
+            OR (OLD.lifecycle_state = 'draft' AND NEW.lifecycle_state = 'validated')
+            OR (OLD.lifecycle_state = 'validated' AND NEW.lifecycle_state = 'published')
+        )
+        BEGIN SELECT RAISE(ABORT, 'Invalid Skill lifecycle transition'); END""")
+    db.execute("""CREATE TRIGGER IF NOT EXISTS skill_versions_state_requires_event
+        AFTER UPDATE OF lifecycle_state ON skill_versions
+        WHEN OLD.lifecycle_state <> NEW.lifecycle_state
+        BEGIN
+            SELECT RAISE(ABORT, 'Skill lifecycle change requires a recorded event')
+            WHERE NOT EXISTS (
+                SELECT 1 FROM skill_events
+                WHERE skill_id = NEW.skill_id AND version = NEW.version
+                  AND from_state = OLD.lifecycle_state
+                  AND to_state = NEW.lifecycle_state
+                  AND manifest_sha256 = NEW.manifest_sha256
+                  AND occurred_at = NEW.updated_at
+            );
+        END""")
+    db.execute("""CREATE TRIGGER IF NOT EXISTS skill_versions_updated_at_guard
+        BEFORE UPDATE OF updated_at ON skill_versions
+        WHEN OLD.lifecycle_state = NEW.lifecycle_state
+        BEGIN SELECT RAISE(ABORT, 'Skill updated_at may only change with a lifecycle transition'); END""")
     db.execute("""CREATE TRIGGER IF NOT EXISTS skill_events_no_update
         BEFORE UPDATE ON skill_events BEGIN SELECT RAISE(ABORT, 'Skill lifecycle events are append-only'); END""")
     db.execute("""CREATE TRIGGER IF NOT EXISTS skill_events_no_delete
@@ -203,10 +232,13 @@ def transition(skill_id: str, version: str, target_state: str, actor: str = "stu
         if allowed.get(current)!=target_state:
             db.rollback(); raise SkillRegistryConflict(f"Invalid Skill lifecycle transition {current} -> {target_state}")
         now=_now()
-        db.execute("UPDATE skill_versions SET lifecycle_state=?,updated_at=? WHERE skill_id=? AND version=?",
-                   (target_state,now,skill_id,version))
+        # Event recorded before the state update: the AFTER-trigger verifies the
+        # matching event exists inside this transaction. An aborted UPDATE rolls
+        # back both — state and history stay atomic.
         _event(db,skill_id=skill_id,version=version,event_type=f"skill.{target_state}",from_state=current,
                to_state=target_state,digest=row["manifest_sha256"],actor=actor,occurred_at=now)
+        db.execute("UPDATE skill_versions SET lifecycle_state=?,updated_at=? WHERE skill_id=? AND version=?",
+                   (target_state,now,skill_id,version))
         db.commit()
     finally: db.close()
     return get_version(skill_id,version)
