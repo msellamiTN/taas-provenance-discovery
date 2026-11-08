@@ -57,12 +57,23 @@ def search_registry_tools(
         entries = [e for e in entries if needle in " ".join((
             str(e.get("server", "")), str(e.get("name", "")), str(e.get("description", "")),
         )).casefold()]
+    facets: dict[str, dict[str, int]] = {"server": {}, "source": {}, "category": {}}
+    for e in entries:
+        for field in facets:
+            value = e.get(field)
+            if value is not None:
+                key = str(value)
+                facets[field][key] = facets[field].get(key, 0) + 1
     page = entries[offset:offset + limit]
     return {
         "schema": RESOLVER_SCHEMA,
         "total": len(entries),
         "offset": offset,
         "limit": limit,
+        "facets": {
+            field: {key: facets[field][key] for key in sorted(facets[field])}
+            for field in facets
+        },
         "tools": [
             {
                 "tool_id": e.get("id"),

@@ -123,14 +123,19 @@ authorization; preflight does not execute; diagnostics are observations.
 
 ## 4. API gap analysis per activity
 
-| Activity | Gaps worth filing |
-|---|---|
-| A1 Define | Server-side proposal provenance (who edited which goal field); versioned GoalSpec templates |
-| A2 Build | Agent version diff endpoint; manifest signature/attestation parity with skills (skills have sign/revoke, agents don't) |
-| A3 Discover | `GET /tools` lacks category/source facet counts for faceted search; no run-diff endpoint (`runs/a vs runs/b`) |
-| A4 Verify | No persisted policy-verdict history (UX-18 suites are session-only by design); no evidence freshness batch query |
-| A5 Operate | No per-agent operational metrics (UX-22 marks them unavailable — correct today); audit events bounded to 1,000 oldest-first, no cursor |
-| A6 Evaluate | Everything in §3-A6 — deferred, not gaps |
+| Activity | Gaps worth filing | Status |
+|---|---|---|
+| A1 Define | Server-side proposal provenance (who edited which goal field); versioned GoalSpec templates | Open — needs a field-level edit-event schema |
+| A2 Build | Agent version diff endpoint | **Delivered** — `GET /agents/{id}/versions/{a}/diff/{b}` (`taas.agent-version-diff/v1`) |
+| A2 Build | Manifest signature/attestation parity with skills | **Delivered** — `POST/GET …/sign`, `…/signature`, `POST/GET …/revoke`, `…/revocation`; revoked versions refuse new signatures |
+| A3 Discover | `GET /tools` lacks category/source facet counts | **Delivered** — deterministic `facets` over the filtered result set |
+| A3 Discover | No run-diff endpoint | **Delivered** — `GET /discovery/runs/{a}/diff/{b}` (`taas.discovery-run-diff/v1`) |
+| A4 Verify | No persisted policy-verdict history | **Delivered** — agent-scoped verdicts append `policy_verdict` ledger events; `GET …/policy-verdict/history` |
+| A4 Verify | No evidence freshness batch query | **Delivered** — `POST /assurance/evidence/freshness` (`taas.evidence-freshness/v1`, fail-closed per binding) |
+| A5 Operate | Audit events bounded to 1,000 oldest-first, no cursor | **Delivered** — `after_seq` keyset pagination with `has_more`/`next_cursor` |
+| A5 Operate | `audit/verify` scanned only the first 1,000 events | **Delivered** — full-ledger scan in bounded batches, `scan_scope: full_ledger` |
+| A5 Operate | No per-agent operational metrics | Open — UX-22 correctly reports unavailable; needs real runtime telemetry source |
+| A6 Evaluate | Everything in §3-A6 | Deferred, not gaps |
 
 ## 5. Navigation target (UX/D)
 
@@ -150,9 +155,10 @@ occurs in this activity" where applicable).
 
 ## 6. Execution order (bottom-up, green each step)
 
-1. **Nav regroup** — reorder `<nav>` links only; zero functional change; nav test already scoped to `<nav>`.
-2. **Group headers + boundary copy** — activity eyebrow labels per section (rename "GOVERN · ASSURE" etc. to activity names); tests pin specific ids, not eyebrow text.
-3. **A2 parity** — Agent manifest sign/attest endpoints mirroring skills (Core work, needs owner decision).
-4. **A3 facets** — `/tools?facets=` for UX-15 faceted search (Core + UX slice).
-5. **A5 cursor** — audit events pagination cursor (Core).
-6. **Deferred** — evaluator (`eval/*`), production auth, execution sandbox: separate security projects per MEGAPLAN §6; do not build in this lane.
+1. ~~**Nav regroup**~~ — **done** (`c92d3cc`): six activity groups, all links verified.
+2. **Group headers + boundary copy** — activity eyebrow labels per section; tests pin ids, not eyebrow text.
+3. ~~**A2 parity**~~ — **done**: agent sign/signature/revoke/revocation mirror skills; revoked versions refuse signatures.
+4. ~~**A3 facets**~~ — **done**: `facets` block on `/api/v1/tools`; UX-15 consumption is a follow-on slice.
+5. ~~**A5 cursor**~~ — **done**: `after_seq` keyset pagination; verify walks the full ledger.
+6. **A1 provenance** — field-level edit events for GoalSpec/agent authoring (open design item).
+7. **Deferred** — evaluator (`eval/*`), production auth, execution sandbox: separate security projects per MEGAPLAN §6; do not build in this lane.

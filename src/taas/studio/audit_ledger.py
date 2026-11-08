@@ -88,10 +88,19 @@ def append_event(event_type: str, subject: dict[str, Any],
     }
 
 
-def list_events(*, limit: int = 100, event_type: str | None = None) -> list[dict[str, Any]]:
+def list_events_page(*, limit: int = 100, event_type: str | None = None,
+                     after_seq: int | None = None) -> dict[str, Any]:
+    """Keyset-paginated read: ascending ``seq`` order, bounded page size."""
     limit = max(1, min(int(limit), 1000))
-    where = "WHERE event_type = ?" if event_type else ""
-    params = (event_type,) if event_type else ()
+    clauses: list[str] = []
+    params: list[Any] = []
+    if event_type:
+        clauses.append("event_type = ?")
+        params.append(event_type)
+    if after_seq is not None:
+        clauses.append("seq > ?")
+        params.append(int(after_seq))
+    where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
     with _connect() as connection:
         rows = connection.execute(
             f"""
@@ -99,9 +108,10 @@ def list_events(*, limit: int = 100, event_type: str | None = None) -> list[dict
                    prev_hash, event_hash
             FROM audit_events {where} ORDER BY seq ASC LIMIT ?
             """,
-            (*params, limit),
+            (*params, limit + 1),
         ).fetchall()
-    return [
+    has_more = len(rows) > limit
+    events = [
         {
             "seq": r["seq"], "event_type": r["event_type"],
             "subject": json.loads(r["subject_json"]),
@@ -109,13 +119,31 @@ def list_events(*, limit: int = 100, event_type: str | None = None) -> list[dict
             "created_at": r["created_at"],
             "prev_hash": r["prev_hash"], "event_hash": r["event_hash"],
         }
-        for r in rows
+        for r in rows[:limit]
     ]
+    return {
+        "events": events,
+        "has_more": has_more,
+        "next_cursor": events[-1]["seq"] if (has_more and events) else None,
+    }
+
+
+def list_events(*, limit: int = 100, event_type: str | None = None,
+                after_seq: int | None = None) -> list[dict[str, Any]]:
+    return list_events_page(limit=limit, event_type=event_type,
+                            after_seq=after_seq)["events"]
 
 
 def verify_chain() -> dict[str, Any]:
-    """Recompute the hash chain; report the first divergence honestly."""
-    events = list_events(limit=1000)
+    """Recompute the hash chain over the entire ledger, in bounded batches."""
+    events: list[dict[str, Any]] = []
+    cursor: int | None = None
+    while True:
+        page = list_events_page(limit=1000, after_seq=cursor)
+        events.extend(page["events"])
+        cursor = page["next_cursor"]
+        if cursor is None:
+            break
     prev_hash = _GENESIS
     first_divergence = None
     for event in events:
@@ -136,6 +164,7 @@ def verify_chain() -> dict[str, Any]:
     return {
         "schema": VERIFY_SCHEMA,
         "event_count": len(events),
+        "scan_scope": "full_ledger",
         "chain_valid": first_divergence is None,
         "first_divergence": first_divergence,
         "verify_semantics": "tamper_evidence_over_recorded_events_not_execution_proof",

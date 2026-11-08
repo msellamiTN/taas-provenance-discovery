@@ -65,10 +65,10 @@ def test_ux24_policy_verdict_remains_non_authorizing_in_core():
 def test_ux24_labels_audit_verification_as_scanned_prefix_only():
     html = HTML.read_text(encoding="utf-8")
     ledger = (ROOT / "src" / "taas" / "studio" / "audit_ledger.py").read_text(encoding="utf-8")
-    assert "first 1,000 events" in html
-    assert "SCANNED_PREFIX_VALID" in html
-    assert "SCANNED_PREFIX_INVALID_OR_UNKNOWN" in html
-    assert "events = list_events(limit=1000)" in ledger
+    assert "entire recorded ledger" in html
+    assert "FULL_CHAIN_VALID" in html
+    assert "FULL_CHAIN_INVALID_OR_UNKNOWN" in html
+    assert "list_events_page(limit=1000" in ledger
     assert '"chain_valid": first_divergence is None' in ledger
 
 

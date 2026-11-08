@@ -157,6 +157,39 @@ def _connect() -> sqlite3.Connection:
         END
         """
     )
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS agent_revocations (
+            agent_id TEXT NOT NULL,
+            version TEXT NOT NULL,
+            manifest_sha256 TEXT NOT NULL,
+            revoked_by TEXT NOT NULL,
+            reason TEXT NOT NULL,
+            occurred_at TEXT NOT NULL,
+            PRIMARY KEY (agent_id, version),
+            FOREIGN KEY (agent_id, version)
+                REFERENCES agent_versions(agent_id, version)
+        )
+        """
+    )
+    connection.execute(
+        """
+        CREATE TRIGGER IF NOT EXISTS agent_revocations_no_update
+        BEFORE UPDATE ON agent_revocations
+        BEGIN
+            SELECT RAISE(ABORT, 'Agent revocations are immutable');
+        END
+        """
+    )
+    connection.execute(
+        """
+        CREATE TRIGGER IF NOT EXISTS agent_revocations_no_delete
+        BEFORE DELETE ON agent_revocations
+        BEGIN
+            SELECT RAISE(ABORT, 'Agent revocations are immutable');
+        END
+        """
+    )
     if os.name == "posix":
         try:
             os.chmod(path.parent, 0o700)
@@ -253,6 +286,7 @@ def get_version(agent_id: str, version: str) -> dict[str, Any]:
         "manifest_sha256": row["manifest_sha256"],
         "lifecycle_state": row["lifecycle_state"],
         "registry_snapshot_id": row["registry_snapshot_id"],
+        "revoked": is_revoked(agent_id, version),
         "created_at": row["created_at"],
         "updated_at": row["updated_at"],
     }
@@ -349,6 +383,78 @@ def transition(
     return get_version(agent_id, version)
 
 
+def is_revoked(agent_id: str, version: str) -> bool:
+    connection = _connect()
+    try:
+        row = connection.execute(
+            "SELECT 1 FROM agent_revocations WHERE agent_id = ? AND version = ?",
+            (agent_id, version),
+        ).fetchone()
+    finally:
+        connection.close()
+    return row is not None
+
+
+def get_revocation(agent_id: str, version: str) -> dict[str, Any] | None:
+    connection = _connect()
+    try:
+        row = connection.execute(
+            "SELECT agent_id, version, manifest_sha256, revoked_by, reason, occurred_at "
+            "FROM agent_revocations WHERE agent_id = ? AND version = ?",
+            (agent_id, version),
+        ).fetchone()
+    finally:
+        connection.close()
+    return dict(row) if row is not None else None
+
+
+def revoke_version(agent_id: str, version: str, *, reason: str,
+                   actor: str = "studio-api") -> dict[str, Any]:
+    """Record an immutable revocation for an Agent version.
+
+    Revocation never deletes or mutates the version; it marks it unfit for new
+    signatures, approvals, or release evaluations. Existing immutable records
+    remain inspectable — revocation is a provenance event, not a deletion.
+    """
+    if not isinstance(reason, str) or not reason.strip() or len(reason) > 500:
+        raise AgentRegistryConflict("Revocation reason must be 1-500 characters")
+    connection = _connect()
+    try:
+        connection.execute("BEGIN IMMEDIATE")
+        row = connection.execute(
+            "SELECT lifecycle_state, manifest_sha256 FROM agent_versions "
+            "WHERE agent_id = ? AND version = ?",
+            (agent_id, version),
+        ).fetchone()
+        if row is None:
+            connection.rollback()
+            raise AgentRegistryNotFound(f"Agent version {agent_id}@{version} was not found")
+        if row["lifecycle_state"] == "draft":
+            connection.rollback()
+            raise AgentRegistryConflict("Draft Agent versions cannot be revoked")
+        now = _now()
+        try:
+            connection.execute(
+                "INSERT INTO agent_revocations "
+                "(agent_id, version, manifest_sha256, revoked_by, reason, occurred_at) "
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                (agent_id, version, row["manifest_sha256"], actor, reason.strip(), now),
+            )
+        except sqlite3.IntegrityError as exc:
+            connection.rollback()
+            raise AgentRegistryConflict(f"Agent version {agent_id}@{version} is already revoked") from exc
+        _record_event(
+            connection, agent_id=agent_id, version=version,
+            event_type="agent.revoked", from_state=row["lifecycle_state"],
+            to_state="revoked", manifest_sha256=row["manifest_sha256"],
+            actor=actor, occurred_at=now,
+        )
+        connection.commit()
+    finally:
+        connection.close()
+    return get_revocation(agent_id, version)
+
+
 def list_events(agent_id: str | None = None, limit: int = 200) -> dict[str, Any]:
     connection = _connect()
     try:
@@ -369,6 +475,71 @@ def list_events(agent_id: str | None = None, limit: int = 200) -> dict[str, Any]
     finally:
         connection.close()
     return {"count": len(rows), "events": [dict(row) for row in rows]}
+
+
+_MAX_DIFF_PATHS = 500
+
+
+def _walk_diff(a: Any, b: Any, path: str, out: dict[str, list]) -> None:
+    """Record JSON-path differences between two manifest values, sorted later."""
+    if len(out["added"]) + len(out["removed"]) + len(out["changed"]) >= _MAX_DIFF_PATHS:
+        out["truncated"] = True
+        return
+    if isinstance(a, dict) and isinstance(b, dict):
+        for key in sorted(set(a) | set(b), key=str):
+            sub = f"{path}.{key}" if path else str(key)
+            if key not in a:
+                out["added"].append(sub)
+            elif key not in b:
+                out["removed"].append(sub)
+            else:
+                _walk_diff(a[key], b[key], sub, out)
+        return
+    if isinstance(a, list) and isinstance(b, list):
+        if a == b:
+            return
+        # Lists compare as values; report the path once with both lengths.
+        out["changed"].append({"path": path or "$",
+                               "a_items": len(a), "b_items": len(b)})
+        return
+    if a != b:
+        out["changed"].append({"path": path or "$", "a": a, "b": b})
+
+
+def diff_versions(agent_id: str, version_a: str, version_b: str) -> dict[str, Any]:
+    """Structural manifest diff between two immutable versions of one Agent.
+
+    Compares stored manifests only — it proves nothing about runtime behavior;
+    it reports how two recorded configurations differ.
+    """
+    va = get_version(agent_id, version_a)
+    vb = get_version(agent_id, version_b)
+    out: dict[str, Any] = {"added": [], "removed": [], "changed": [],
+                           "truncated": False}
+    _walk_diff(va["manifest"], vb["manifest"], "", out)
+    out["added"].sort()
+    out["removed"].sort()
+    out["changed"].sort(key=lambda c: c["path"])
+    return {
+        "schema": "taas.agent-version-diff/v1",
+        "agent_id": agent_id,
+        "version_a": version_a,
+        "version_b": version_b,
+        "manifest_sha256": {"a": va["manifest_sha256"], "b": vb["manifest_sha256"],
+                            "same": va["manifest_sha256"] == vb["manifest_sha256"]},
+        "lifecycle_state": {"a": va["lifecycle_state"], "b": vb["lifecycle_state"]},
+        "registry_snapshot_id": {"a": va["registry_snapshot_id"],
+                                 "b": vb["registry_snapshot_id"],
+                                 "same": va["registry_snapshot_id"] == vb["registry_snapshot_id"]},
+        "changes": {
+            "added_paths": out["added"],
+            "removed_paths": out["removed"],
+            "changed_paths": out["changed"],
+            "truncated": out["truncated"],
+        },
+        "record_semantics": "structural_diff_of_persisted_manifests_not_behavior_evidence",
+        "execution_record": False,
+    }
 
 
 def store_mcp_snapshot(snapshot: dict[str, Any]) -> dict[str, Any]:

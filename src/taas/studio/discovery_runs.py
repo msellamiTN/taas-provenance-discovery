@@ -198,3 +198,53 @@ def get_discovery_run(run_id: str) -> dict[str, Any] | None:
         "record_semantics": "observation_of_pre_execution_analysis_not_execution",
         "execution_record": False,
     }
+
+
+def diff_discovery_runs(run_id_a: str, run_id_b: str) -> dict[str, Any] | None:
+    """Field-level diff of two persisted run envelopes. None when either is unknown.
+
+    Compares stored digests and tool pins only — it re-runs nothing and proves
+    nothing about execution; it reports how two recorded analyses differed.
+    """
+    a = get_discovery_run(run_id_a)
+    b = get_discovery_run(run_id_b)
+    if a is None or b is None:
+        return None
+
+    def _pin_map(run: dict[str, Any]) -> dict[str, str | None]:
+        return {tid: run["tool_definition_hashes"].get(tid) for tid in run["tool_ids"]}
+
+    pins_a, pins_b = _pin_map(a), _pin_map(b)
+    ids_a, ids_b = set(pins_a), set(pins_b)
+    changed_hash = sorted(
+        tid for tid in ids_a & ids_b if pins_a[tid] != pins_b[tid]
+    )
+    digest_fields = (
+        "request_sha256", "goal_spec_sha256",
+        "policy_fingerprint", "projection_sha256",
+    )
+    return {
+        "schema": "taas.discovery-run-diff/v1",
+        "run_id_a": run_id_a,
+        "run_id_b": run_id_b,
+        "digests": {
+            field: {
+                "a": a.get(field),
+                "b": b.get(field),
+                "same": a.get(field) == b.get(field),
+            }
+            for field in digest_fields
+        },
+        "status": {"a": a.get("status"), "b": b.get("status"),
+                   "same": a.get("status") == b.get("status")},
+        "tools": {
+            "added_in_b": sorted(ids_b - ids_a),
+            "removed_in_b": sorted(ids_a - ids_b),
+            "definition_hash_changed": changed_hash,
+            "count_a": len(ids_a),
+            "count_b": len(ids_b),
+        },
+        "created_at": {"a": a.get("created_at"), "b": b.get("created_at")},
+        "record_semantics": "diff_of_persisted_analysis_envelopes_not_execution",
+        "execution_record": False,
+    }
