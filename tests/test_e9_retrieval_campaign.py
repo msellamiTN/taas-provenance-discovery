@@ -70,16 +70,22 @@ def test_goal_spec_loader_requires_all_decomposition_conditions_and_freeze_prove
     prompt = "Find the latest public filings and summarize them."
     task = [{"task_id": "t1", "prompt": prompt}]
     rows = []
+    (tmp_path / "splitter.py").write_text("# frozen clause splitter\\n")
+    (tmp_path / "analyst_prompt.txt").write_text("You are an analyst.")
+    (tmp_path / "analyst_response.json").write_text('{"goals": []}')
+    import hashlib
+    file_hash = lambda name: hashlib.sha256((tmp_path / name).read_bytes()).hexdigest()
     metadata = {
         "none": {"status": "frozen", "transform": "unsegmented_single_goal"},
         "clause_splitter": {
             "status": "frozen", "splitter_version": "cs-1",
-            "splitter_sha256": "a" * 64,
+            "splitter_path": "splitter.py", "splitter_sha256": file_hash("splitter.py"),
         },
         "llm_analyst": {
             "status": "frozen", "model_id": "analyst",
-            "model_revision": "rev-1", "prompt_sha256": "b" * 64,
-            "raw_response_sha256": "c" * 64,
+            "model_revision": "rev-1",
+            "prompt_path": "analyst_prompt.txt", "prompt_sha256": file_hash("analyst_prompt.txt"),
+            "raw_response_path": "analyst_response.json", "raw_response_sha256": file_hash("analyst_response.json"),
         },
     }
     for mode in DECOMPOSITIONS:
