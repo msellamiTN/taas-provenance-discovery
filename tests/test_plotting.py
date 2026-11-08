@@ -31,7 +31,7 @@ def test_plot_plan_covers_all_experiments_and_matches_frozen_baselines():
     )
     assert result["valid"] is True
     assert result["experiments"] == 22
-    assert result["figures"] == 80
+    assert result["figures"] == 81
 
 
 def test_e18_contains_all_eight_factorial_cells():
@@ -45,7 +45,7 @@ def test_e18_contains_all_eight_factorial_cells():
 def test_csv_templates_are_header_only(tmp_path):
     plan = load_plot_plan(ROOT / "docs/experiment_design/pamcp_plot_plan_v1.json")
     created = create_csv_templates(tmp_path, plan=plan)
-    assert len(created) == 80
+    assert len(created) == 81
     for path in created:
         lines = path.read_text(encoding="utf-8").splitlines()
         assert len(lines) == 1
