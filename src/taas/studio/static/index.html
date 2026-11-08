@@ -4785,9 +4785,10 @@ el("ux15-refresh").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-
     };
     const showTimeline=(block)=>{
       clear("ux22-timeline");
-      const events=block?.state==="recorded"&&Array.isArray(block.events)?block.events:[];
-      if(!events.length){const p=document.createElement("p");p.className="subtle";p.textContent=block?.state==="unavailable"?"Lifecycle event source unavailable.":"No lifecycle event records returned for this exact version.";el("ux22-timeline").append(p);return;}
-      events.forEach(event=>{const item=document.createElement("div");item.className="u22-event";const dot=document.createElement("span");dot.className="u22-event-dot";const body=document.createElement("div"),title=document.createElement("strong"),meta=document.createElement("p");title.textContent=event.event_type||event.event||"Recorded event";meta.className="subtle";meta.textContent=[event.created_at||event.timestamp||"Timestamp unavailable",event.version?("Version "+event.version):""].filter(Boolean).join(" · ");body.append(title,meta);item.append(dot,body);el("ux22-timeline").append(item);});
+      const event=block?.state==="recorded"?block.latest:null;
+      if(!event){const p=document.createElement("p");p.className="subtle";p.textContent=block?.state==="unavailable"?"Lifecycle event source unavailable.":(block?.count===0?"No lifecycle events recorded for this exact version.":"No latest lifecycle event is available.");el("ux22-timeline").append(p);return;}
+      const item=document.createElement("div");item.className="u22-event";const dot=document.createElement("span");dot.className="u22-event-dot";const body=document.createElement("div"),title=document.createElement("strong"),meta=document.createElement("p");title.textContent=event.event_type||event.event||"Latest recorded event";meta.className="subtle";meta.textContent=[event.created_at||event.timestamp||"Timestamp unavailable",event.version?("Version "+event.version):""].filter(Boolean).join(" · ");body.append(title,meta);item.append(dot,body);el("ux22-timeline").append(item);
+      const note=document.createElement("p");note.className="subtle";note.textContent="Core returns the latest event and total count in this contract; a full event history is not implied.";el("ux22-timeline").append(note);
     };
     const render=payload=>{
       const activity=payload.recorded_activity||{};
@@ -4846,6 +4847,8 @@ el("ux15-refresh").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-
         ["ux22-lifecycle-count","ux22-verdict-count","ux22-approval-count"].forEach(id=>put(id,"UNAVAILABLE"));
         ["ux22-lifecycle-note","ux22-verdict-note","ux22-approval-note"].forEach(id=>put(id,"Source unavailable; no zero inferred."));
         clear("ux22-timeline");const p=document.createElement("p");p.className="subtle";p.textContent="Live activity unavailable. No demo fallback.";el("ux22-timeline").append(p);
+        clear("ux22-governance-rows");["Verified human approvals","Audit approval events","Verified non-approval evidence","Policy verdicts","Revocation"].forEach(k=>el("ux22-governance-rows").append(row(k,"UNAVAILABLE")));
+        clear("ux22-config-rows");[["Skill references","UNAVAILABLE"],["Tool allowlist entries","UNAVAILABLE"]].forEach(([k,v])=>el("ux22-config-rows").append(row(k,v)));
         put("ux22-authorization","UNKNOWN");put("ux22-execution","UNKNOWN");
       }finally{el("ux22-demo-mode").disabled=false;el("ux22-live-mode").disabled=false;}
     };
