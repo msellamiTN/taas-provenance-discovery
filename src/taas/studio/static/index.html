@@ -2479,7 +2479,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       getGoalSpec();
       const body=readRequest();
       const response=await fetch("/api/v1/goals/validate",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify(body.goal_spec)});
-      const data=await readJsonResponse(response);if(!response.ok)throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
+      const data=await readJsonResponse(response);if(response.status===401)markStudioAuthRejected();if(!response.ok)throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
       box.className="goal-validation valid";
       box.textContent="Server validation passed · "+data.goal_count+" goal(s) · topological order: "+data.goal_order.join(" → ")+". Structural validity only; semantic correctness is not automatically verified.";
     }catch(e){box.className="goal-validation invalid";box.textContent="Server validation failed: "+e.message;}
@@ -2557,7 +2557,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     $("model-memory-status").textContent="Waiting for model metadata.";
     try{
       const response=await fetch("/api/v1/models/detail?"+new URLSearchParams({model_id:modelId}),{headers:{"Authorization":"Bearer "+token}});
-      const data=await readJsonResponse(response);if(!response.ok)throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
+      const data=await readJsonResponse(response);if(response.status===401)markStudioAuthRejected();if(!response.ok)throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
       selectedModelRecord=data;
       $("model-selected-subtitle").textContent=[data.pipeline_tag,data.library_name,data.license].filter(Boolean).join(" · ")||"Repository metadata";
       $("model-selected-state").textContent="Metadata inspected · weights not downloaded";
@@ -2602,7 +2602,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     $("model-selected-artifacts").textContent="Inspecting repository files metadata…";
     try{
       const response=await fetch("/api/v1/models/artifacts?"+new URLSearchParams({model_id:selectedModelRecord.model_id}),{headers:{"Authorization":"Bearer "+$("token").value.trim()}});
-      const data=await readJsonResponse(response);if(!response.ok)throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
+      const data=await readJsonResponse(response);if(response.status===401)markStudioAuthRejected();if(!response.ok)throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
       selectedModelArtifacts=data;
       $("model-selected-artifacts").textContent=JSON.stringify(data,null,2);
       $("model-selected-state").textContent="Artifacts inspected · runtime compatibility unverified";
@@ -2620,7 +2620,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       const kvComplete=kvKeys.every(key=>Number.isInteger(arch[key])&&arch[key]>0);
       if(kvComplete){for(const key of kvKeys)body[key]=arch[key];if(Number.isInteger(context)&&context>0)body.context_length=context;}
       const response=await fetch("/api/v1/models/estimate-memory",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+$("token").value.trim()},body:JSON.stringify(body)});
-      const data=await readJsonResponse(response);if(!response.ok)throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
+      const data=await readJsonResponse(response);if(response.status===401)markStudioAuthRejected();if(!response.ok)throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
       $("model-memory-results").textContent=JSON.stringify(data,null,2);
       $("model-memory-status").textContent="Estimate calculated from reported parameter count"+(data.kv_cache_memory_gib!==null?" and complete KV-cache dimensions.":"; KV cache excluded because complete architecture dimensions were unavailable.");
     }catch(e){$("model-memory-status").textContent="Memory estimate failed: "+e.message;}
@@ -3856,7 +3856,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     agentEngineeringPrepare.disabled=true;agentEngineeringStatus.className="agent-trace-state";agentEngineeringStatus.textContent="Preparing Objective with TaaS Core…";
     try{
       const response=await fetch("/api/v1/objectives/prepare",{method:"POST",headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json","Cache-Control":"no-cache"},cache:"no-store",body:JSON.stringify({provider:$("agent-engineering-provider").value,prompt,context:$("agent-engineering-context").value.trim()})});
-      const data=await readJsonResponse(response);if(!response.ok)throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
+      const data=await readJsonResponse(response);if(response.status===401)markStudioAuthRejected();if(!response.ok)throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));
       agentEngineeringRaw.textContent=JSON.stringify(data,null,2);renderAgentTrace(data);
       const coverage=data.objective_coverage?.summary||{};
       agentEngineeringStatus.className="agent-trace-state success";agentEngineeringStatus.textContent="Core response received · "+(coverage.covered??"Not reported")+" covered / "+(coverage.required??"Not reported")+" required outcomes · human review remains required.";
@@ -4406,7 +4406,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       const token=tokenValue();if(!token){setStatus("Connect to TaaS Studio before requesting a projection.",true);return;}
       let traceability;try{traceability=JSON.parse($9("ux9-trace-input").value);}catch(e){setStatus("Invalid JSON: "+e.message,true);return;}
       $9("ux9-project").disabled=true;setStatus("Requesting a Core-owned objective traceability projection…");
-      try{const response=await fetch("/api/v1/hypergraph/objective-traceability",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({traceability})});const data=await readJsonResponse(response);if(!response.ok)throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));if(!data.hypergraph_projection||data.hypergraph_projection.schema!=="taas.hypergraph-projection/v1")throw new Error("Core response did not contain the supported hypergraph projection schema.");state.projection=data.hypergraph_projection;state.selected=null;render();setStatus("Core projection loaded · "+vertices().length+" vertices · "+edges().length+" hyperedges. No tools executed; no authorization granted.");}
+      try{const response=await fetch("/api/v1/hypergraph/objective-traceability",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({traceability})});const data=await readJsonResponse(response);if(response.status===401)markStudioAuthRejected();if(!response.ok)throw new Error(formatApiError(data.detail||data,"HTTP "+response.status));if(!data.hypergraph_projection||data.hypergraph_projection.schema!=="taas.hypergraph-projection/v1")throw new Error("Core response did not contain the supported hypergraph projection schema.");state.projection=data.hypergraph_projection;state.selected=null;render();setStatus("Core projection loaded · "+vertices().length+" vertices · "+edges().length+" hyperedges. No tools executed; no authorization granted.");}
       catch(e){state.projection=null;$9("ux9-projection-state").textContent="PROJECTION UNAVAILABLE";setStatus("Projection request failed: "+e.message,true);}
       finally{$9("ux9-project").disabled=false;}
     });
@@ -4573,7 +4573,7 @@ el("ux15-refresh").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-
       busy=true;el("ux18-run").disabled=true;el("ux18-validate").disabled=true;el("ux18-run-state").textContent="Running";records=[];render();
       try{for(let i=0;i<suite.length;i++){const x=suite[i];try{
         const res=await fetch("/api/v1/policy/evaluate",{method:"POST",headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json","Cache-Control":"no-cache"},cache:"no-store",body:JSON.stringify({subject:x.subject,facts:x.facts})});
-        const data=await readJsonResponse(res);if(!res.ok)throw Error("HTTP "+res.status+": "+(data.detail||data.message||"evaluation failed"));
+        const data=await readJsonResponse(res);if(res.status===401)markStudioAuthRejected();if(!res.ok)throw Error("HTTP "+res.status+": "+(data.detail||data.message||"evaluation failed"));
         if(data.schema!=="taas.policy-verdict/v1"||!["allow","deny","needs_review"].includes(data.decision)||!Array.isArray(data.fired_rules))throw Error("Response does not match taas.policy-verdict/v1.");
         records.push({name:x.name,expected:x.expected_decision,actual:data.decision,assertion:data.decision===x.expected_decision?"MATCH":"MISMATCH",ruleCount:data.fired_rules.length,response:data});
       }catch(e){records.push({name:x.name,expected:x.expected_decision,actual:"No verdict",assertion:"ERROR",ruleCount:"—",error:e.message})}
