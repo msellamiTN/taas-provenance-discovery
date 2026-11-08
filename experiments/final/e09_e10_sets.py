@@ -48,11 +48,15 @@ def main() -> None:
         G = t["gold"]
         decomp = {"none": [t["query"]], "clause": M.clause_split(t["query"]), "analyst": M.subqueries(spec)}
         sets: dict[str, list[str]] = {}
+        meta: dict[str, dict] = {}
         # PaMCP (open policy) with retrieval budget K = k, and without backward closure
         for k in KS:
-            sets[f"pamcp@{k}"] = w.pamcp(1, 1, 1, spec, rec, pol_open)["K"] if k == 5 else \
-                worlds[k].pamcp(1, 1, 1, spec, rec, pol_open)["K"]
-        sets["pamcp_noclosure"] = w_nc.pamcp(1, 1, 1, spec, rec, pol_open)["K"]
+            r = (w if k == 5 else worlds[k]).pamcp(1, 1, 1, spec, rec, pol_open)
+            sets[f"pamcp@{k}"] = r["K"]
+            meta[f"pamcp@{k}"] = {"abstain": r["abstain"], "certified": r["valid"], "chi": r["chi"]}
+        r = w_nc.pamcp(1, 1, 1, spec, rec, pol_open)
+        sets["pamcp_noclosure"] = r["K"]
+        meta["pamcp_noclosure"] = {"abstain": r["abstain"], "certified": r["valid"], "chi": r["chi"]}
         sets["mcp_zero"] = mz.select(t["id"], w.pool, 1)
         sets["cmtf_path"] = cm.plan(spec, w.pool)["path"]
         for dname, sq in decomp.items():
@@ -68,7 +72,8 @@ def main() -> None:
         for name, K in sets.items():
             rows9.append({"id": t["id"], "method": name, "size": len(K), "tokens": w.tokens(K),
                           "recall": fe.group_recall(K, G), "complete": fe.complete(K, G),
-                          "precision": fe.set_precision(K, G)})
+                          "precision": fe.set_precision(K, G), "n_gold_groups": len(G),
+                          **meta.get(name, {"abstain": False, "certified": None, "chi": ""}), "toolkit": K})
         # size-matched: ranked baselines truncated to PaMCP@5's size
         n = len(sets["pamcp@5"])
         if n:
@@ -88,9 +93,11 @@ def main() -> None:
         pol, need = M.least_privilege(rec)
         elig = set(w.eligible(1, pol))
         e10 = {}
+        m10 = {}
         for k in (10, 20, 40):
             r = worlds[k].pamcp(1, 1, 1, spec, rec, pol)
             e10[f"pamcp(K={k})"] = (r["K"], r["abstain"])
+            m10[f"pamcp(K={k})"] = {"certified": r["valid"], "chi": r["chi"]}
         r = w.pamcp(1, 1, 0, spec, rec, pol)
         e10["pamcp_nocert"] = (r["K"], False)
         pool_e = sorted(elig)
@@ -110,7 +117,8 @@ def main() -> None:
         for name, (K, ab) in e10.items():
             ev = SE.evaluate(K, rec, need, verified=elig)
             rows10.append({"id": t["id"], "method": name, "abstain": ab, "size": len(K),
-                           "recall": fe.group_recall(K, G), **ev})
+                           "recall": fe.group_recall(K, G), **ev,
+                           **m10.get(name, {"certified": None, "chi": ""}), "toolkit": K})
     methods9 = sorted({r["method"] for r in rows9})
     s9 = fe.summarise(rows9, ["method"], ["size", "tokens", "recall", "complete", "precision"])
     # paired tests (recall) PaMCP@5 vs comparators at k=5 and size-matched
@@ -132,6 +140,9 @@ def main() -> None:
         sel = [r for r in rows10 if r["method"] == m]
         n = len(sel)
         s10[m] = {"n": n, "abstain": sum(r["abstain"] for r in sel) / n,
+                  "certified": (sum(1 for r in sel if r["certified"]) / n) if sel[0]["certified"] is not None else None,
+                  "joint_among_non_abstained": (sum(r["joint"] for r in sel if not r["abstain"]) /
+                                                max(1, sum(1 for r in sel if not r["abstain"]))),
                   "joint_feasible": sum(r["joint"] for r in sel) / n,
                   "joint_ci": fe.wilson(sum(r["joint"] for r in sel), n),
                   "pass": {c: sum(1 for r in sel if r[c]) / n for c in ("S", "C", "E", "L", "V", "M")},
@@ -148,10 +159,25 @@ def main() -> None:
         ids = sorted(set(by10["pamcp(K=10)"]) & set(by10[comp]))
         t10[f"pamcp(K=10) vs {comp}"] = fe.paired([float(by10["pamcp(K=10)"][i]["joint"]) for i in ids],
                                                    [float(by10[comp][i]["joint"]) for i in ids])
-    fe.save("E9_sets", {"summary": s9, "tests": tests, "rows": rows9, "methods": methods9, "n_tasks": len(tasks)},
-            "MEASURED against LiveMCPBench gold chains (recorded analyst, MCP-Zero and LLM-assisted baselines)")
-    fe.save("E10_validity", {"summary": s10, "tests": t10, "rows": rows10},
-            "LABELLED: independent set evaluator over labels B; V from simulated verifier evidence (labels A)")
+    abst9 = {m: {"abstain_rate": sum(1 for r in rows9 if r["method"] == m and r.get("abstain")) /
+                                 max(1, sum(1 for r in rows9 if r["method"] == m)),
+                 "certified_rate": (sum(1 for r in rows9 if r["method"] == m and r.get("certified")) /
+                                    max(1, sum(1 for r in rows9 if r["method"] == m)))
+                 if any(r.get("certified") is not None for r in rows9 if r["method"] == m) else None,
+                 "chi": dict(__import__("collections").Counter(r.get("chi") for r in rows9
+                                                               if r["method"] == m and r.get("chi")))}
+             for m in methods9}
+    fe.save("E9_sets", {"summary": s9, "abstention_and_certification": abst9, "tests": tests, "methods": methods9,
+                        "n_tasks": len(tasks)},
+            "MEASURED against LiveMCPBench gold chains (recorded analyst, MCP-Zero and LLM-assisted baselines)",
+            config={"policy": "open", "k": list(KS), "decomposition": ["none", "clause", "analyst"],
+                    "size_matched_to": "pamcp@5", "noninferiority_margin": 0.05},
+            raw=fe.save_raw("E9_sets", rows9))
+    fe.save("E10_validity", {"summary": s10, "tests": t10},
+            "LABELLED: independent set evaluator over labels B; V from simulated verifier evidence (labels A)",
+            config={"policy": "least privilege per task", "pamcp_K": [10, 20, 40], "baselines": "unfiltered and "
+                    "eligible-only", "evaluator": "experiments/final/set_evaluator.py"},
+            raw=fe.save_raw("E10_validity", rows10))
     for m in ("pamcp@5", "pamcp@10", "pamcp@20", "rag_mcp@5", "colt@5", "mcp_zero", "toolscope[analyst]@5", "cmtf_path",
               "per_subtask[analyst]", "pamcp_noclosure"):
         v = s9[m]

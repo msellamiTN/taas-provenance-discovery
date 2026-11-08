@@ -31,6 +31,9 @@ def correct(ans, gold) -> bool:
     return str(g).lower() in a
 
 
+RAW12: list[dict] = []
+
+
 def e12() -> tuple[dict, dict]:
     gold = json.load(open(fe.ROOT / "data/calibration/gold.json"))
     index = {d["id"]: d for d in json.load(open(fe.ROOT / "data/calibration/index.json"))}
@@ -40,6 +43,8 @@ def e12() -> tuple[dict, dict]:
         self_a = json.load(open(fe.REC / f"calibration_self_assessment_{model}.json"))["self_assessment"]
         recs = [{"class": it["class"], "n": it["n"], "correct": correct(ans.get(i, ""), gold[i])}
                 for i, it in index.items()]
+        RAW12.extend({"model": model, "item": i, "class": it["class"], "n": it["n"], "answer": ans.get(i),
+                      "gold": gold[i]["answer"], "correct": correct(ans.get(i, ""), gold[i])} for i, it in index.items())
         recs_by[model] = recs
         cells = {}
         for r in recs:
@@ -99,17 +104,20 @@ def e11(recs_by: dict) -> dict:
                             "size": len(r.toolkit or []), "abstain": r.toolkit is None, "gap": len(r.gap.gap),
                             "goals": len(G), "native_share": 1 - len(r.gap.gap) / len(G),
                             "beta": r.certificate.bridge_ratio if r.certificate else None,
-                            "toolkit": r.toolkit}
+                            "chi": r.counterexample.kind if r.counterexample else "", "toolkit": r.toolkit}
     return out
 
 
 def main() -> None:
     r12, recs = e12()
     fe.save("E12_profile", {"results": r12}, "MEASURED (model answers vs gold); self-assessment recorded",
-            inputs=["data/llm_records/calibration_answers_opus.json"],
-            notes="64-item set; protocol's 10-class/30k/three-script corpus not built (scope limit).")
+            inputs=["data/calibration/gold.json", "data/calibration/index.json"],
+            notes="64-item set; protocol's 10-class/30k/three-script corpus not built (scope limit).",
+            config={"models": ["sonnet", "haiku", "opus"], "tau": 0.9}, raw=fe.save_raw("E12_profile", RAW12))
     r11 = e11(recs)
-    fe.save("E11_gap", {"results": r11}, "MEASURED (engine on a review-type goal spec); task success BLOCKED (E13)")
+    fe.save("E11_gap", {"results": r11}, "MEASURED (engine on a review-type goal spec); task success BLOCKED (E13)",
+            config={"models": ["sonnet", "haiku", "opus"], "tau": [0.6, 0.75, 0.9], "n": [30, 300, 3000, 30000],
+                    "exactness": ["tolerant", "exact"], "registry": "review scenario (Fig. 1)"})
     for m in ("sonnet", "haiku", "opus"):
         print(m, round(r12[m]["overall_accuracy"], 3), "MAE", round(r12[m]["self_assessment_mae"], 3),
               "signed", round(r12[m]["mean_signed_error"], 3))

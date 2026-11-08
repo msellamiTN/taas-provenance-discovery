@@ -85,7 +85,7 @@ def e2() -> dict:
         rows.append({"id": tid, "tau": str(a.get("out", "")), "ref": str(b.get("out", "")),
                      "struct": str(struct.type), "struct_conf": struct.confidence, "conf_A": a.get("conf", 1.0),
                      "sure_B": b.get("sure", 1.0)})
-    out = {"n": len(rows)}
+    out = {"n": len(rows), "_rows": rows}
     for m in ("tau", "struct"):
         ka = [kind(r[m]) for r in rows]
         kb = [kind(r["ref"]) for r in rows]
@@ -147,14 +147,19 @@ def e3() -> dict:
     ref = [B[t].unsafe_read_only for t in ids]
 
     def conf(pred):
+        """Positive = 'not read-only'. Tools without a prediction (no declaration) are counted separately and
+        excluded from TP/FP/FN/TN; discrepancy is over the tools with a prediction."""
         tp = sum(1 for p, r in zip(pred, ref) if p is True and r)
         fp = sum(1 for p, r in zip(pred, ref) if p is True and not r)
-        fn = sum(1 for p, r in zip(pred, ref) if p is not True and r)
-        tn = sum(1 for p, r in zip(pred, ref) if p is not True and not r)
+        fn = sum(1 for p, r in zip(pred, ref) if p is False and r)
+        tn = sum(1 for p, r in zip(pred, ref) if p is False and not r)
         unk = sum(1 for p in pred if p is None)
-        return {"tp": tp, "fp": fp, "fn": fn, "tn": tn, "unknown": unk,
+        unk_unsafe = sum(1 for p, r in zip(pred, ref) if p is None and r)
+        known = tp + fp + fn + tn
+        return {"tp": tp, "fp": fp, "fn": fn, "tn": tn, "unknown": unk, "unknown_but_unsafe": unk_unsafe,
                 "precision": tp / (tp + fp) if tp + fp else None, "recall": tp / (tp + fn) if tp + fn else None,
-                "discrepancy_rate": (fp + fn) / len(ids)}
+                "recall_incl_unknown": tp / (tp + fn + unk_unsafe) if tp + fn + unk_unsafe else None,
+                "discrepancy_rate": (fp + fn) / known if known else None, "with_prediction": known}
     declared = []
     for t in ids:
         an = R[t].get("annotations") or {}
@@ -177,13 +182,18 @@ def e3() -> dict:
 def main(raw_dir: str) -> None:
     r1 = e1(Path(raw_dir))
     fe.save("E1_registry", {"results": r1}, "MEASURED (counts); LABELLED (non-read-only share, labels B)",
+            config={"views": ["LiveMCPTool", "MCPToolBench++ (original 87)", "merged"]},
             notes="Three views; categories are source-qualified (LiveMCPTool server categories and "
                   "MCPToolBench++ request categories are different taxonomies).")
     r2 = e2()
+    rows2 = r2.pop("_rows")
     sheet = human_sheet()
-    fe.save("E2_typing", {"results": r2, "human_sheet": str(sheet.relative_to(fe.ROOT))},
+    fe.save("E2_typing", {"results": r2, "human_sheet": str(sheet.relative_to(fe.ROOT)),
+                          "human_sheet_sha256": fe.sha256(sheet)},
             "LABELLED (agreement with independent LLM labels B); human study BLOCKED (sheet prepared)",
-            notes="Agreement, not accuracy: neither labelling is human ground truth.")
+            notes="Agreement, not accuracy: neither labelling is human ground truth.",
+            config={"thresholds": [0.5, 0.7, 0.9], "sheet_items": 150, "sheet_seed": 11},
+            raw=fe.save_raw("E2_typing", rows2))
     r3 = e3()
     fe.save("E3_effects", {"results": r3}, "LABELLED; observed effects BLOCKED",
             notes="Declared = MCP readOnlyHint (missing = unknown); lexical = engine's lexical cues.")

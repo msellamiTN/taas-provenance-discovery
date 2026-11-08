@@ -54,6 +54,10 @@ def pctl(xs, q):
     return float(np.percentile(xs, q)) if xs else float("nan")
 
 
+RAW15: list[dict] = []
+RAW_GAP: list[dict] = []
+
+
 def e15() -> dict:
     A = fe.labels_A()
     tasks = [t for t in fe.tasks_live() if t["gold"]][:30]
@@ -76,16 +80,25 @@ def e15() -> dict:
         for t in tasks:
             spec, rec = fe.spec_for(t)
             pol, _ = M.least_privilege(rec)
-            t0 = time.perf_counter()
-            el = eligible_set(eng.index, pol)
-            st["eligibility"].append(time.perf_counter() - t0)
-            t0 = time.perf_counter()
-            for g in spec.goals:
-                eng.retriever.retrieve(g.rendering(), g.out, el, set(), 5)
-            st["retrieval"].append(time.perf_counter() - t0)
-            r = eng.discover(copy.deepcopy(spec), pol)
-            st["total"].append(r.time_s)
-            st["compose"].append(r.compose.stats.get("time_s", float("nan")) if r.compose.stats else float("nan"))
+            row = {"n": n, "id": t["id"]}
+            try:
+                t0 = time.perf_counter()
+                el = eligible_set(eng.index, pol)
+                st["eligibility"].append(time.perf_counter() - t0)
+                t0 = time.perf_counter()
+                for g in spec.goals:
+                    eng.retriever.retrieve(g.rendering(), g.out, el, set(), 5)
+                st["retrieval"].append(time.perf_counter() - t0)
+                r = eng.discover(copy.deepcopy(spec), pol)
+                st["total"].append(r.time_s)
+                st["compose"].append(r.compose.stats.get("time_s", float("nan")) if r.compose.stats else float("nan"))
+                row |= {"eligibility_s": st["eligibility"][-1], "retrieval_s": st["retrieval"][-1],
+                        "compose_s": st["compose"][-1], "total_s": r.time_s, "eligible": len(el),
+                        "abstain": r.toolkit is None, "chi": r.counterexample.kind if r.counterexample else "",
+                        "regime": r.compose.regime, "size": len(r.toolkit or [])}
+            except Exception as e:     # failures are recorded, not dropped
+                row |= {"error": repr(e)}
+            RAW15.append(row)
         rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
         # baselines at this size (single-pass routing/ranking per task)
         base = {}
@@ -95,7 +108,10 @@ def e15() -> dict:
         for q in tq:
             eng.retriever.scores(q, None, pool, set(), components=("den",))
         base["rag_mcp_ms"] = 1000 * (time.perf_counter() - t0) / len(tq)
+        sel = [x for x in RAW15 if x["n"] == n]
         res[str(n)] = {"build_contracts_s": build, "index_build_s": index_s, "peak_rss_mb": rss,
+                       "tasks": len(sel), "failures": sum(1 for x in sel if "error" in x),
+                       "abstentions": sum(1 for x in sel if x.get("abstain")),
                        **{f"{k}_p50_ms": 1000 * pctl(v, 50) for k, v in st.items()},
                        **{f"{k}_p95_ms": 1000 * pctl(v, 95) for k, v in st.items()}, **base}
         print("E15", n, {k: round(v, 2) for k, v in res[str(n)].items()})
@@ -156,11 +172,16 @@ def optimality_gap() -> dict:
                 if r.toolkit is not None:
                     cost = sum(eng.H.contracts[t].qos.price + eng.H.contracts[t].qos.latency + 1.0 for t in r.toolkit)
                 res[regime] = (cost, dt, r.compose.regime)
+            RAW_GAP.append({"goals": ng, "seed": seed, "exact_cost": res["exact"][0], "greedy_cost": res["greedy"][0],
+                            "exact_ms": 1000 * res["exact"][1], "greedy_ms": 1000 * res["greedy"][1],
+                            "exact_regime": res["exact"][2], "greedy_regime": res["greedy"][2]})
             if res["exact"][0] and res["greedy"][0]:
                 ratios.append(res["greedy"][0] / res["exact"][0])
             exact_ms.append(1000 * res["exact"][1])
             greedy_ms.append(1000 * res["greedy"][1])
-        out[str(ng)] = {"greedy_over_exact_mean": float(np.mean(ratios)) if ratios else None,
+        out[str(ng)] = {"abstained_exact": sum(1 for x in RAW_GAP if x["goals"] == ng and x["exact_cost"] is None),
+                        "abstained_greedy": sum(1 for x in RAW_GAP if x["goals"] == ng and x["greedy_cost"] is None),
+                        "greedy_over_exact_mean": float(np.mean(ratios)) if ratios else None,
                         "greedy_over_exact_max": float(np.max(ratios)) if ratios else None,
                         "n": len(ratios), "exact_ms_p50": pctl(exact_ms, 50), "greedy_ms_p50": pctl(greedy_ms, 50)}
         print("gap", ng, out[str(ng)])
@@ -187,14 +208,19 @@ def e16() -> dict:
         r = eng.discover(copy.deepcopy(spec), pol)
         if r.toolkit:
             cached[t["id"]] = (spec, list(r.toolkit))
-    upd, events = [], 0
+    upd, events, ev_log = [], 0, []
     inval_exact = inval_flush = stale = correct = checked = 0
     for s in servers:
         for new_list in ([], by_srv[s]):
             t0 = time.perf_counter()
-            m.on_list_changed(s, new_list, pol)
+            rec_ = m.on_list_changed(s, new_list, pol)
             upd.append(time.perf_counter() - t0)
             events += 1
+            ev_log.append({"server": s, "event": "insert" if new_list else "remove", "ms": 1000 * upd[-1],
+                           "deleted": len(rec_["deleted"]), "inserted": len(rec_["inserted"]),
+                           "changed": len(rec_["changed"]), "evidence_restored": rec_["evidence_restored"],
+                           "cached_invalidated_exact": sum(1 for _, (sp, K) in cached.items()
+                                                           if not new_list and any(x.startswith(s + "::") for x in K))})
             # exact rule: a cached toolkit is invalid iff it contains a removed/changed tool of s
             for tid, (spec, K) in cached.items():
                 touched = any(x.startswith(s + "::") for x in K)
@@ -231,7 +257,7 @@ def e16() -> dict:
     t0 = time.perf_counter()
     M.COLT(w, set())
     colt_s = time.perf_counter() - t0
-    return {"events": events, "incremental_ms_p50": 1000 * pctl(upd, 50), "incremental_ms_p95": 1000 * pctl(upd, 95),
+    return {"event_log": ev_log, "events": events, "incremental_ms_p50": 1000 * pctl(upd, 50), "incremental_ms_p95": 1000 * pctl(upd, 95),
             "full_rebuild_s": full_s, "cached_toolkits": len(cached),
             "invalidated_exact_share": inval_exact / max(1, inval_flush), "invalidated_flush_share": 1.0,
             "recompute_equal": correct, "recompute_checked": checked, "rug_pulls": len(rug),
@@ -242,12 +268,18 @@ def e16() -> dict:
 
 def main() -> None:
     r16 = e16()
-    fe.save("E16_evolution", {"results": r16}, "MEASURED (real registry, simulated evidence for the rug-pull check)")
+    ev = r16.pop("event_log")
+    fe.save("E16_evolution", {"results": r16}, "MEASURED (real registry, simulated evidence for the rug-pull check)",
+            config={"events": "remove + re-insert each server", "rug_pulls": 20, "cached_tasks": 40},
+            raw=fe.save_raw("E16_evolution", ev))
     print("E16", {k: v for k, v in r16.items() if k != "rug_details"})
     gap = optimality_gap()
     r15 = e15()
     fe.save("E15_scalability", {"results": r15, "optimality_gap": gap},
-            "SYNTHETIC (clones; generated cover instances); MEASURED latencies on 2 vCPUs")
+            "SYNTHETIC (clones; generated cover instances); MEASURED latencies on 2 vCPUs",
+            config={"n": [569, 1000, 10000, 100000], "tasks": 30, "eligibility_only_n": 1000000,
+                    "gap_goals": [1, 3, 5, 8, 12], "gap_seeds": 10},
+            raw=fe.save_raw("E15_scalability", RAW15 + [{"optimality": x} for x in RAW_GAP]))
 
 
 if __name__ == "__main__":

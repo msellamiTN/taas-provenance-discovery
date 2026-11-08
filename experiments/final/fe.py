@@ -58,12 +58,59 @@ def sha256(p: Path) -> str:
     return h.hexdigest()
 
 
-def save(name: str, obj: dict, evidence: str | dict, inputs: Sequence[str] = (), notes: str = "") -> Path:
+def code_state() -> dict:
+    """Commit, dirty files and a content hash of the code that produced a result (experiments/final + src/taas)."""
+    files = sorted(list((ROOT / "experiments" / "final").glob("*.py")) + list((ROOT / "src" / "taas").rglob("*.py")))
+    h = hashlib.sha256()
+    for f in files:
+        h.update(str(f.relative_to(ROOT)).encode())
+        h.update(open(f, "rb").read())
+    try:
+        dirty = subprocess.check_output(["git", "-C", str(ROOT), "status", "--porcelain", "--", "experiments/final",
+                                         "src"], text=True).split("\n")
+        dirty = [d[3:] for d in dirty if d.strip()]
+    except Exception:  # pragma: no cover
+        dirty = ["unknown"]
+    return {"commit": git_commit(), "dirty_code_files": dirty, "code_sha256": h.hexdigest()}
+
+
+LABEL_FILES = ["data/llm_records/silver_labels.json"] + [f"data/llm_records/reference_labels_opus_part{k}.jsonl"
+                                                        for k in range(3)]
+
+
+def save_raw(name: str, rows: list) -> dict:
+    """Raw per-item records as gzipped JSON lines; returns path and hash for the manifest."""
+    import gzip
+    d = RES / "raw"
+    d.mkdir(exist_ok=True)
+    p = d / f"{name}.jsonl.gz"
+    with gzip.open(p, "wt") as f:
+        for r in rows:
+            f.write(json.dumps(r, default=_default) + "\n")
+    return {"path": str(p.relative_to(ROOT)), "sha256": sha256(p), "rows": len(rows)}
+
+
+def load_raw(name: str) -> list:
+    import gzip
+    with gzip.open(RES / "raw" / f"{name}.jsonl.gz", "rt") as f:
+        return [json.loads(x) for x in f if x.strip()]
+
+
+def save(name: str, obj: dict, evidence: str | dict, inputs: Sequence[str] = (), notes: str = "",
+         config: dict | None = None, raw: dict | None = None) -> Path:
     files = [ROOT / "data/processed/registry_merged.json"] + [ROOT / i for i in inputs]
+    created = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    cs = code_state()
     out = {"experiment": name, "evidence": evidence, "notes": notes,
-           "manifest": {"commit": git_commit(), "created": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                        "python": sys.version.split()[0],
-                        "inputs": {str(f.relative_to(ROOT)): sha256(f) for f in files if f.exists()}},
+           "manifest": {"run_id": f"{name}-{created}-{cs['code_sha256'][:10]}", "created": created,
+                        **cs, "python": sys.version.split()[0], "config": config or {},
+                        "inputs": {str(f.relative_to(ROOT)): sha256(f) for f in files if f.exists()},
+                        "labels": {f: sha256(ROOT / f) for f in LABEL_FILES if (ROOT / f).exists()},
+                        "llm_records": {str(f.relative_to(ROOT)): sha256(f) for f in sorted(REC.glob("*"))
+                                        if f.is_file()},
+                        "raw": raw or {},
+                        "models": "LLM roles were played by Claude models requested by alias (sonnet, opus, haiku) "
+                                  "through the session; exact version strings were not exposed and are not recorded"},
            **obj}
     p = RES / f"{name}.json"
     json.dump(out, open(p, "w"), indent=1, default=_default)

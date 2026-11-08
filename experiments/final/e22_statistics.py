@@ -110,7 +110,7 @@ def main() -> None:
     t = f4_rows()
     fam["F4"] = {"test": "E4 Exp@5 verified vs lexical-positive (coverage 1)", "p": t["p"], "diff": t["diff"],
                  "ci": t["ci"], "n": t["n"]}
-    rows = [r for r in e18["rows"] if r["policy"] == "least_privilege"]
+    rows = [r for r in fe.load_raw("E18_factorial") if r["policy"] == "least_privilege"]
     by = defaultdict(dict)
     for r in rows:
         by[r["method"]][r["id"]] = r

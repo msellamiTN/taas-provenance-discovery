@@ -1,0 +1,1539 @@
+{
+ "experiment": "E11_gap",
+ "evidence": "MEASURED (engine on a review-type goal spec); task success BLOCKED (E13)",
+ "notes": "",
+ "manifest": {
+  "commit": "d54706adb32d335a4e366b1a0a5fe01256574951",
+  "created": "2026-11-08T06:11:17Z",
+  "python": "3.13.18",
+  "inputs": {
+   "data/processed/registry_merged.json": "a24bb9c5c788f8856288993c8f3c21b7fcd84b6491cc1a2b778b3b5d5a787045"
+  }
+ },
+ "results": {
+  "sonnet|0.6|30|tolerant|gap": {
+   "size": 2,
+   "abstain": false,
+   "gap": 2,
+   "goals": 5,
+   "native_share": 0.6,
+   "beta": 0.6,
+   "toolkit": [
+    "db::query_reviews",
+    "report::generate"
+   ]
+  },
+  "sonnet|0.6|30|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.6|30|exact|gap": {
+   "size": 4,
+   "abstain": false,
+   "gap": 3,
+   "goals": 5,
+   "native_share": 0.4,
+   "beta": 0.4,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "sonnet|0.6|30|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.6|300|tolerant|gap": {
+   "size": 2,
+   "abstain": false,
+   "gap": 2,
+   "goals": 5,
+   "native_share": 0.6,
+   "beta": 0.6,
+   "toolkit": [
+    "db::query_reviews",
+    "report::generate"
+   ]
+  },
+  "sonnet|0.6|300|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.6|300|exact|gap": {
+   "size": 4,
+   "abstain": false,
+   "gap": 3,
+   "goals": 5,
+   "native_share": 0.4,
+   "beta": 0.4,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "sonnet|0.6|300|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.6|3000|tolerant|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 2,
+   "goals": 5,
+   "native_share": 0.6,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.6|3000|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.6|3000|exact|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 3,
+   "goals": 5,
+   "native_share": 0.4,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.6|3000|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.6|30000|tolerant|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.6|30000|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.6|30000|exact|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.6|30000|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.75|30|tolerant|gap": {
+   "size": 2,
+   "abstain": false,
+   "gap": 2,
+   "goals": 5,
+   "native_share": 0.6,
+   "beta": 0.6,
+   "toolkit": [
+    "db::query_reviews",
+    "report::generate"
+   ]
+  },
+  "sonnet|0.75|30|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.75|30|exact|gap": {
+   "size": 4,
+   "abstain": false,
+   "gap": 3,
+   "goals": 5,
+   "native_share": 0.4,
+   "beta": 0.4,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "sonnet|0.75|30|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.75|300|tolerant|gap": {
+   "size": 2,
+   "abstain": false,
+   "gap": 2,
+   "goals": 5,
+   "native_share": 0.6,
+   "beta": 0.6,
+   "toolkit": [
+    "db::query_reviews",
+    "report::generate"
+   ]
+  },
+  "sonnet|0.75|300|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.75|300|exact|gap": {
+   "size": 4,
+   "abstain": false,
+   "gap": 3,
+   "goals": 5,
+   "native_share": 0.4,
+   "beta": 0.4,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "sonnet|0.75|300|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.75|3000|tolerant|gap": {
+   "size": 6,
+   "abstain": false,
+   "gap": 4,
+   "goals": 5,
+   "native_share": 0.19999999999999996,
+   "beta": 0.2,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::classify",
+    "nlp::extract",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "sonnet|0.75|3000|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.75|3000|exact|gap": {
+   "size": 6,
+   "abstain": false,
+   "gap": 4,
+   "goals": 5,
+   "native_share": 0.19999999999999996,
+   "beta": 0.2,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::classify",
+    "nlp::extract",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "sonnet|0.75|3000|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.75|30000|tolerant|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.75|30000|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.75|30000|exact|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.75|30000|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.9|30|tolerant|gap": {
+   "size": 2,
+   "abstain": false,
+   "gap": 2,
+   "goals": 5,
+   "native_share": 0.6,
+   "beta": 0.6,
+   "toolkit": [
+    "db::query_reviews",
+    "report::generate"
+   ]
+  },
+  "sonnet|0.9|30|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.9|30|exact|gap": {
+   "size": 4,
+   "abstain": false,
+   "gap": 3,
+   "goals": 5,
+   "native_share": 0.4,
+   "beta": 0.4,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "sonnet|0.9|30|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.9|300|tolerant|gap": {
+   "size": 2,
+   "abstain": false,
+   "gap": 2,
+   "goals": 5,
+   "native_share": 0.6,
+   "beta": 0.6,
+   "toolkit": [
+    "db::query_reviews",
+    "report::generate"
+   ]
+  },
+  "sonnet|0.9|300|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.9|300|exact|gap": {
+   "size": 4,
+   "abstain": false,
+   "gap": 3,
+   "goals": 5,
+   "native_share": 0.4,
+   "beta": 0.4,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "sonnet|0.9|300|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.9|3000|tolerant|gap": {
+   "size": 6,
+   "abstain": false,
+   "gap": 4,
+   "goals": 5,
+   "native_share": 0.19999999999999996,
+   "beta": 0.2,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::classify",
+    "nlp::extract",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "sonnet|0.9|3000|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.9|3000|exact|gap": {
+   "size": 6,
+   "abstain": false,
+   "gap": 4,
+   "goals": 5,
+   "native_share": 0.19999999999999996,
+   "beta": 0.2,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::classify",
+    "nlp::extract",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "sonnet|0.9|3000|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.9|30000|tolerant|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.9|30000|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.9|30000|exact|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "sonnet|0.9|30000|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.6|30|tolerant|gap": {
+   "size": 2,
+   "abstain": false,
+   "gap": 2,
+   "goals": 5,
+   "native_share": 0.6,
+   "beta": 0.6,
+   "toolkit": [
+    "db::query_reviews",
+    "report::generate"
+   ]
+  },
+  "haiku|0.6|30|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.6|30|exact|gap": {
+   "size": 4,
+   "abstain": false,
+   "gap": 3,
+   "goals": 5,
+   "native_share": 0.4,
+   "beta": 0.4,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "haiku|0.6|30|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.6|300|tolerant|gap": {
+   "size": 2,
+   "abstain": false,
+   "gap": 2,
+   "goals": 5,
+   "native_share": 0.6,
+   "beta": 0.6,
+   "toolkit": [
+    "db::query_reviews",
+    "report::generate"
+   ]
+  },
+  "haiku|0.6|300|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.6|300|exact|gap": {
+   "size": 4,
+   "abstain": false,
+   "gap": 3,
+   "goals": 5,
+   "native_share": 0.4,
+   "beta": 0.4,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "haiku|0.6|300|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.6|3000|tolerant|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 2,
+   "goals": 5,
+   "native_share": 0.6,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.6|3000|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.6|3000|exact|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 3,
+   "goals": 5,
+   "native_share": 0.4,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.6|3000|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.6|30000|tolerant|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.6|30000|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.6|30000|exact|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.6|30000|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.75|30|tolerant|gap": {
+   "size": 2,
+   "abstain": false,
+   "gap": 2,
+   "goals": 5,
+   "native_share": 0.6,
+   "beta": 0.6,
+   "toolkit": [
+    "db::query_reviews",
+    "report::generate"
+   ]
+  },
+  "haiku|0.75|30|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.75|30|exact|gap": {
+   "size": 4,
+   "abstain": false,
+   "gap": 3,
+   "goals": 5,
+   "native_share": 0.4,
+   "beta": 0.4,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "haiku|0.75|30|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.75|300|tolerant|gap": {
+   "size": 2,
+   "abstain": false,
+   "gap": 2,
+   "goals": 5,
+   "native_share": 0.6,
+   "beta": 0.6,
+   "toolkit": [
+    "db::query_reviews",
+    "report::generate"
+   ]
+  },
+  "haiku|0.75|300|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.75|300|exact|gap": {
+   "size": 4,
+   "abstain": false,
+   "gap": 3,
+   "goals": 5,
+   "native_share": 0.4,
+   "beta": 0.4,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "haiku|0.75|300|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.75|3000|tolerant|gap": {
+   "size": 6,
+   "abstain": false,
+   "gap": 4,
+   "goals": 5,
+   "native_share": 0.19999999999999996,
+   "beta": 0.2,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::classify",
+    "nlp::extract",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "haiku|0.75|3000|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.75|3000|exact|gap": {
+   "size": 6,
+   "abstain": false,
+   "gap": 4,
+   "goals": 5,
+   "native_share": 0.19999999999999996,
+   "beta": 0.2,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::classify",
+    "nlp::extract",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "haiku|0.75|3000|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.75|30000|tolerant|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.75|30000|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.75|30000|exact|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.75|30000|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.9|30|tolerant|gap": {
+   "size": 2,
+   "abstain": false,
+   "gap": 2,
+   "goals": 5,
+   "native_share": 0.6,
+   "beta": 0.6,
+   "toolkit": [
+    "db::query_reviews",
+    "report::generate"
+   ]
+  },
+  "haiku|0.9|30|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.9|30|exact|gap": {
+   "size": 4,
+   "abstain": false,
+   "gap": 3,
+   "goals": 5,
+   "native_share": 0.4,
+   "beta": 0.4,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "haiku|0.9|30|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.9|300|tolerant|gap": {
+   "size": 2,
+   "abstain": false,
+   "gap": 2,
+   "goals": 5,
+   "native_share": 0.6,
+   "beta": 0.6,
+   "toolkit": [
+    "db::query_reviews",
+    "report::generate"
+   ]
+  },
+  "haiku|0.9|300|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.9|300|exact|gap": {
+   "size": 4,
+   "abstain": false,
+   "gap": 3,
+   "goals": 5,
+   "native_share": 0.4,
+   "beta": 0.4,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "haiku|0.9|300|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.9|3000|tolerant|gap": {
+   "size": 6,
+   "abstain": false,
+   "gap": 4,
+   "goals": 5,
+   "native_share": 0.19999999999999996,
+   "beta": 0.2,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::classify",
+    "nlp::extract",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "haiku|0.9|3000|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.9|3000|exact|gap": {
+   "size": 6,
+   "abstain": false,
+   "gap": 4,
+   "goals": 5,
+   "native_share": 0.19999999999999996,
+   "beta": 0.2,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::classify",
+    "nlp::extract",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "haiku|0.9|3000|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.9|30000|tolerant|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.9|30000|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.9|30000|exact|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "haiku|0.9|30000|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.6|30|tolerant|gap": {
+   "size": 2,
+   "abstain": false,
+   "gap": 2,
+   "goals": 5,
+   "native_share": 0.6,
+   "beta": 0.6,
+   "toolkit": [
+    "db::query_reviews",
+    "report::generate"
+   ]
+  },
+  "opus|0.6|30|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.6|30|exact|gap": {
+   "size": 4,
+   "abstain": false,
+   "gap": 3,
+   "goals": 5,
+   "native_share": 0.4,
+   "beta": 0.4,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "opus|0.6|30|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.6|300|tolerant|gap": {
+   "size": 2,
+   "abstain": false,
+   "gap": 2,
+   "goals": 5,
+   "native_share": 0.6,
+   "beta": 0.6,
+   "toolkit": [
+    "db::query_reviews",
+    "report::generate"
+   ]
+  },
+  "opus|0.6|300|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.6|300|exact|gap": {
+   "size": 4,
+   "abstain": false,
+   "gap": 3,
+   "goals": 5,
+   "native_share": 0.4,
+   "beta": 0.4,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "opus|0.6|300|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.6|3000|tolerant|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 2,
+   "goals": 5,
+   "native_share": 0.6,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.6|3000|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.6|3000|exact|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 3,
+   "goals": 5,
+   "native_share": 0.4,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.6|3000|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.6|30000|tolerant|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.6|30000|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.6|30000|exact|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.6|30000|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.75|30|tolerant|gap": {
+   "size": 2,
+   "abstain": false,
+   "gap": 2,
+   "goals": 5,
+   "native_share": 0.6,
+   "beta": 0.6,
+   "toolkit": [
+    "db::query_reviews",
+    "report::generate"
+   ]
+  },
+  "opus|0.75|30|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.75|30|exact|gap": {
+   "size": 4,
+   "abstain": false,
+   "gap": 3,
+   "goals": 5,
+   "native_share": 0.4,
+   "beta": 0.4,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "opus|0.75|30|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.75|300|tolerant|gap": {
+   "size": 2,
+   "abstain": false,
+   "gap": 2,
+   "goals": 5,
+   "native_share": 0.6,
+   "beta": 0.6,
+   "toolkit": [
+    "db::query_reviews",
+    "report::generate"
+   ]
+  },
+  "opus|0.75|300|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.75|300|exact|gap": {
+   "size": 4,
+   "abstain": false,
+   "gap": 3,
+   "goals": 5,
+   "native_share": 0.4,
+   "beta": 0.4,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "opus|0.75|300|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.75|3000|tolerant|gap": {
+   "size": 6,
+   "abstain": false,
+   "gap": 4,
+   "goals": 5,
+   "native_share": 0.19999999999999996,
+   "beta": 0.2,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::classify",
+    "nlp::extract",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "opus|0.75|3000|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.75|3000|exact|gap": {
+   "size": 6,
+   "abstain": false,
+   "gap": 4,
+   "goals": 5,
+   "native_share": 0.19999999999999996,
+   "beta": 0.2,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::classify",
+    "nlp::extract",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "opus|0.75|3000|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.75|30000|tolerant|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.75|30000|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.75|30000|exact|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.75|30000|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.9|30|tolerant|gap": {
+   "size": 2,
+   "abstain": false,
+   "gap": 2,
+   "goals": 5,
+   "native_share": 0.6,
+   "beta": 0.6,
+   "toolkit": [
+    "db::query_reviews",
+    "report::generate"
+   ]
+  },
+  "opus|0.9|30|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.9|30|exact|gap": {
+   "size": 4,
+   "abstain": false,
+   "gap": 3,
+   "goals": 5,
+   "native_share": 0.4,
+   "beta": 0.4,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "opus|0.9|30|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.9|300|tolerant|gap": {
+   "size": 2,
+   "abstain": false,
+   "gap": 2,
+   "goals": 5,
+   "native_share": 0.6,
+   "beta": 0.6,
+   "toolkit": [
+    "db::query_reviews",
+    "report::generate"
+   ]
+  },
+  "opus|0.9|300|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.9|300|exact|gap": {
+   "size": 4,
+   "abstain": false,
+   "gap": 3,
+   "goals": 5,
+   "native_share": 0.4,
+   "beta": 0.4,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "opus|0.9|300|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.9|3000|tolerant|gap": {
+   "size": 6,
+   "abstain": false,
+   "gap": 4,
+   "goals": 5,
+   "native_share": 0.19999999999999996,
+   "beta": 0.2,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::classify",
+    "nlp::extract",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "opus|0.9|3000|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.9|3000|exact|gap": {
+   "size": 6,
+   "abstain": false,
+   "gap": 4,
+   "goals": 5,
+   "native_share": 0.19999999999999996,
+   "beta": 0.2,
+   "toolkit": [
+    "db::query_reviews",
+    "nlp::classify",
+    "nlp::extract",
+    "nlp::sentiment",
+    "report::generate",
+    "stats::aggregate"
+   ]
+  },
+  "opus|0.9|3000|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.9|30000|tolerant|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.9|30000|tolerant|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.9|30000|exact|gap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  },
+  "opus|0.9|30000|exact|nogap": {
+   "size": 0,
+   "abstain": true,
+   "gap": 5,
+   "goals": 5,
+   "native_share": 0.0,
+   "beta": null,
+   "toolkit": null
+  }
+ }
+}

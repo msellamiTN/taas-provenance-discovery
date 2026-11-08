@@ -25,6 +25,10 @@ def tasks_specs():
     return out
 
 
+RAW17: list[dict] = []
+RAW20: list[dict] = []
+
+
 def e17(ts) -> dict:
     w = M.World()
     cs = w.cs["verified"]
@@ -43,6 +47,10 @@ def e17(ts) -> dict:
                 rows.append({"id": t["id"], "valid": r.toolkit is not None,
                              "steps": len(r.trace.steps) if r.trace else 0,
                              "outcome": r.trace.outcome if r.trace else "", "tokens": w.tokens(r.toolkit or [])})
+                RAW17.append({"budget": budget, "k": k, **rows[-1], "first_chi": first[(budget, t["id"])],
+                              "final_chi": r.counterexample.kind if r.counterexample else "",
+                              "ops": [st.get("op") for st in (r.trace.steps if r.trace else [])],
+                              "toolkit": r.toolkit, "time_s": r.time_s})
             by_chi = defaultdict(list)
             for r in rows:
                 by_chi[first[(budget, r["id"])]].append(r)
@@ -68,18 +76,24 @@ def e17(ts) -> dict:
     return res
 
 
+CUR = ["default"]
+
+
 def e20(ts) -> dict:
     w = M.World()
     eng = DiscoveryEngine(w.cs["verified"], w.prof, cfg=EngineConfig(ComposerConfig()), pair_policy=M.open_policy())
     cfg = eng.composer.cfg
     B = fe.labels_B_raw()
     default = {f: getattr(cfg, f) for f in ("beta", "gamma", "delta", "eta", "zeta", "u_min")}
+    CUR[0] = "default"
 
     def run():
         out = {}
         for t, spec, rec, pol, need in ts:
             r = eng.discover(copy.deepcopy(spec), pol)
             out[t["id"]] = r.toolkit
+            RAW20.append({"setting": CUR[0], "id": t["id"], "toolkit": r.toolkit,
+                          "chi": r.counterexample.kind if r.counterexample else ""})
         return out
 
     def stats(K_by, ref):
@@ -105,15 +119,18 @@ def e20(ts) -> dict:
     for f in ("beta", "gamma", "delta", "eta", "zeta"):
         for v in (0.0, 0.25, 1.0):
             setattr(cfg, f, v)
+            CUR[0] = f"{f}={v}"
             res[f"{f}={v}"] = stats(run(), ref)
             setattr(cfg, f, default[f])
     for v in (0.4, 0.6, 0.8):
         cfg.u_min = v
+        CUR[0] = f"u_min={v}"
         res[f"u_min={v}"] = stats(run(), ref)
         cfg.u_min = default["u_min"]
     for b in (0.0, 0.25, 1.0):
         for g in (0.0, 0.25, 1.0):
             cfg.beta, cfg.gamma = b, g
+            CUR[0] = f"beta={b},gamma={g}"
             res[f"beta={b},gamma={g}"] = stats(run(), ref)
     cfg.beta, cfg.gamma = default["beta"], default["gamma"]
     return res
@@ -122,9 +139,13 @@ def e20(ts) -> dict:
 def main() -> None:
     ts = tasks_specs()
     r17 = e17(ts)
-    fe.save("E17_refinement", {"results": r17}, "MEASURED (engine; LLM-free repairs); assistant-role variants not run")
+    fe.save("E17_refinement", {"results": r17}, "MEASURED (engine; LLM-free repairs); assistant-role variants not run",
+            config={"tasks": len(ts), "policy": "least privilege", "k": [0, 1, 2, 3, 5], "budgets": ["K=5", "K=1"]},
+            raw=fe.save_raw("E17_refinement", RAW17))
     r20 = e20(ts)
-    fe.save("E20_sensitivity", {"results": r20}, "MEASURED (toolkits, recall vs gold); LABELLED (forbidden tools, B)")
+    fe.save("E20_sensitivity", {"results": r20}, "MEASURED (toolkits, recall vs gold); LABELLED (forbidden tools, B)",
+            config={"tasks": len(ts), "weights": [0.0, 0.25, 0.5, 1.0], "u_min": [0.4, 0.5, 0.6, 0.8],
+                    "joint": "beta x gamma"}, raw=fe.save_raw("E20_sensitivity", RAW20))
     for k, v in r20.items():
         print("E20", k, {x: round(y, 3) for x, y in v.items() if isinstance(y, float)})
 

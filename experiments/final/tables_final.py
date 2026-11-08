@@ -62,8 +62,10 @@ def main() -> None:
     if r:
         R = r["results"]
         md += ["## E3 Declared and lexical effects vs labels B (observed effects blocked)", "", table(
-            ["Source", "TP", "FP", "FN", "TN", "Unknown", "Precision", "Recall", "Discrepancy"],
-            [[k, v["tp"], v["fp"], v["fn"], v["tn"], v["unknown"], num(v["precision"]), num(v["recall"]),
+            ["Source", "With prediction", "TP", "FP", "FN", "TN", "No prediction (of which unsafe)", "Precision",
+             "Recall", "Discrepancy (predicted tools)"],
+            [[k, v["with_prediction"], v["tp"], v["fp"], v["fn"], v["tn"],
+              f"{v['unknown']} ({v['unknown_but_unsafe']})", num(v["precision"]), num(v["recall"]),
               pct(v["discrepancy_rate"])] for k, v in ((x, R[x]) for x in ("declared_vs_B", "lexical_vs_B",
                                                                            "labelsA_vs_B"))]), "",
                f"Agreement of labels A and B: κ = {R['kappa_A_B_state']:.3f} (state modification), "

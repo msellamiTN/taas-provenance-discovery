@@ -71,12 +71,17 @@ def main() -> None:
             res = {}
             for (G, P, S) in CELLS:
                 r = w.pamcp(G, P, S, spec, rec, pol1 if P else pol0)
-                res[CELL_NAME[(G, P, S)]] = (r["K"], r["abstain"], r.get("manifest_tokens"), r.get("valid"))
+                res[CELL_NAME[(G, P, S)]] = (r["K"], r["abstain"], r.get("manifest_tokens"),
+                                             r.get("valid") if S else None, r.get("chi", ""))
             if pname == "least_privilege":
                 for k, eng in comp_eng.items():
                     import copy
                     rr = eng.discover(copy.deepcopy(spec), pol1)
-                    res[f"Full-{k}"] = (rr.toolkit or [], rr.toolkit is None, None, None)
+                    from taas.manifest import manifest_tokens
+                    res[f"Full-{k}"] = (rr.toolkit or [], rr.toolkit is None,
+                                        manifest_tokens(rr.manifest["tools"]) if rr.manifest else 0,
+                                        bool(rr.certificate and rr.certificate.valid),
+                                        rr.counterexample.kind if rr.counterexample else "")
             pool_e = sorted(elig1)
             sq = M.subqueries(spec)
             bl = {"rag_mcp@5": lambda p: w.rank(t["query"], p, ("den",))[:5],
@@ -87,10 +92,10 @@ def main() -> None:
                   "per_subtask": lambda p: [x for q in sq for x in w.rank(q, p, ("lex", "den"))[:1]],
                   "all_tools": lambda p: list(p)}
             for name, f in bl.items():
-                res[f"{name}|unfiltered"] = (f(w.pool), False, None, None)
-                res[f"{name}|eligible"] = (f(pool_e), False, None, None)
+                res[f"{name}|unfiltered"] = (f(w.pool), False, None, None, "")
+                res[f"{name}|eligible"] = (f(pool_e), False, None, None, "")
             oos = out_of_scope(need)
-            for name, (K, ab, mtok, valid) in res.items():
+            for name, (K, ab, mtok, valid, chi) in res.items():
                 K = list(dict.fromkeys(K))
                 ev = SE.evaluate(K, rec, need, verified=elig1)
                 reach = {a: attack_success(K, B, a) for a in oos}
@@ -109,7 +114,8 @@ def main() -> None:
                              "reach": sum(reach.values()), "reach_any": float(any(reach.values())),
                              **{f"reach_{a}": float(v) for a, v in reach.items()},
                              "output_borne": float(output_borne(K, Bd)),
-                             "exploitable_output": float(output_borne(K, Bd) and any(reach.values())), **pois})
+                             "exploitable_output": float(output_borne(K, Bd) and any(reach.values())), **pois,
+                             "certified": valid, "chi": chi, "toolkit": K, "need": sorted(need)})
     # ---------------------------------------------------------------- summaries
     metrics = ["size", "tokens", "manifest_tokens", "recall", "joint", "E_ok", "reach_any", "output_borne",
                "exploitable_output", "poison_shown_0.1", "poison_shown_0.3", "poison_raw_0.3", "abstain"]
@@ -171,11 +177,26 @@ def main() -> None:
                 shap[fname] = tot / factorial(3)
             fac[f"{pol}|{m}"] = {"n": len(ok), "cell_means": {CELL_NAME[c]: mean[c] for c in mean}, "effects": eff,
                                  "shapley": shap, "full_minus_none": mean[(1, 1, 1)] - mean[(0, 0, 0)]}
-    fe.save("E18_factorial", {"summary": summ, "factorial": fac, "rows": rows},
+    n_tasks = len({r["id"] for r in rows})
+    per_method = {}
+    for r in rows:
+        k = f"{r['policy']}|{r['method']}"
+        d = per_method.setdefault(k, {"n": 0, "abstain": 0, "certified": 0, "chi": {}})
+        d["n"] += 1
+        d["abstain"] += bool(r["abstain"])
+        d["certified"] += bool(r["certified"])
+        if r["chi"]:
+            d["chi"][r["chi"]] = d["chi"].get(r["chi"], 0) + 1
+    cfg = {"tasks": n_tasks, "policies": ["least_privilege", "read_only"], "cells": {v: list(k) for k, v in
+                                                                                     CELL_NAME.items()},
+           "components": list(comps) + ["no_refinement"], "baselines": "unfiltered and eligible-only",
+           "poison_density": [0.1, 0.3], "poison_seeds": 5, "same_tasks_registry_scoring": True}
+    raw = fe.save_raw("E18_factorial", rows)
+    fe.save("E18_factorial", {"summary": summ, "factorial": fac, "abstention_certification": per_method},
             "MEASURED (recall, size, tokens) and LABELLED (joint feasibility, effects under labels B); evidence "
-            "SIMULATED from labels A; task success BLOCKED")
+            "SIMULATED from labels A; task success BLOCKED", config=cfg, raw=raw)
     fe.save("E14_injection", {"attack_rates": att, "summary": {k: v for k, v in summ.items()}},
-            "LABELLED (reachable actions under labels B), offline; executed actions BLOCKED")
+            "LABELLED (reachable actions under labels B), offline; executed actions BLOCKED", config=cfg, raw=raw)
     for m in ("Full_PaMCP", "PaMCP_NoGap", "PaMCP_Declared", "PaMCP_NoCert", "G0_P0_S0", "per_subtask|unfiltered",
               "per_subtask|eligible", "rag_mcp@5|unfiltered", "mcp_zero|unfiltered", "all_tools|unfiltered"):
         s = summ.get(f"least_privilege|{m}")

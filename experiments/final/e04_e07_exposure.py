@@ -148,7 +148,7 @@ class Rankers:
         return [names[i] for i in order[:k]]
 
 
-def score(rankers, reqs, el, B, names, ks=(1, 3, 5, 10)) -> dict:
+def score(rankers, reqs, el, B, names, ks=(1, 3, 5, 10), sink=None, tag=None) -> dict:
     out = {}
     for name in names:
         for enc, pool in el.items():
@@ -172,6 +172,11 @@ def score(rankers, reqs, el, B, names, ks=(1, 3, 5, 10)) -> dict:
             m["Exp@5_ci"] = fe.boot_ci([x["exp5"] for x in ro], clusters=[x["cl"] for x in ro])
             m["Util@5_ci"] = fe.boot_ci([x["util5"] for x in ro], clusters=[x["cl"] for x in ro])
             out[f"{name}|{enc}"] = m
+            if sink is not None:   # raw per-request outcomes, request order = requests()
+                sink.append({**(tag or {}), "retriever": name, "encoding": enc, "eligible": len(pool),
+                             "ro": "".join(str(int(x["ro"])) for x in rows),
+                             **{f"exp{k}": "".join(str(int(x[f"exp{k}"])) for x in rows) for k in ks},
+                             **{f"util{k}": "".join(str(int(x[f"util{k}"])) for x in rows) for k in ks}})
     return out
 
 
@@ -199,23 +204,28 @@ def main(quick: bool = False) -> None:
     print("consistency", consistency)
     # ---------------- E4: encodings × retrievers × k, coverage rho
     e4 = {}
-    skip_e4 = (fe.RES / "E4_exposure.json").exists() and "--redo-e4" not in sys.argv
-    for rho in (() if skip_e4 else (1.0, 0.75, 0.5, 0.25)):
+    header = {"requests": [r["id"] for r in reqs], "sets": [r["set"] for r in reqs]}
+    raw4 = [header]
+    for rho in (1.0, 0.75, 0.5, 0.25):
         seeds = [0] if rho == 1.0 else list(range(5))
         acc = []
         for sd in seeds:
             dec = verifier_decisions(raw, A, rho=rho, seed=sd)
-            acc.append(score(rk0, reqs, eligibility(raw, cs0, dec), B, names))
+            acc.append(score(rk0, reqs, eligibility(raw, cs0, dec), B, names, sink=raw4,
+                             tag={"rho": rho, "seed": sd}))
         e4[str(rho)] = {k: {m: (float(np.mean([a[k][m] for a in acc])) if not isinstance(acc[0][k][m], (list, tuple))
                                 else acc[0][k][m]) for m in acc[0][k]} for k in acc[0]}
         print("E4 rho", rho, {k.split("|")[1]: round(v["Exp@5"], 3) for k, v in e4[str(rho)].items()
                                if k.startswith("pamcp_rrf")})
-    if not skip_e4:
-        fe.save("E4_exposure", {"consistency_check": consistency, "results": e4, "n_requests": len(reqs)},
-                "SIMULATED evidence (labels A) scored against labels B",
-                inputs=["data/llm_records/mcpzero_requests_sonnet_part0.jsonl"])
+    fe.save("E4_exposure", {"consistency_check": consistency, "results": e4, "n_requests": len(reqs)},
+            "SIMULATED evidence (labels A) scored against labels B",
+            inputs=["data/llm_inputs/final/e8_sample.json"],
+            config={"rho": [1.0, 0.75, 0.5, 0.25], "seeds_below_rho1": 5, "far": 0.0, "k": [1, 3, 5, 10],
+                    "retrievers": names, "encodings": ENCODINGS, "attest": 0.3, "kappa": 0.9},
+            raw=fe.save_raw("E4_exposure", raw4))
     # ---------------- E5: forged / laundered metadata
     e5 = {}
+    raw5 = [header]
     deltas = (0.0, 0.05, 0.1, 0.2, 0.3)
     for attack in ("forge", "launder", "both"):
         for delta in deltas:
@@ -226,13 +236,18 @@ def main(quick: bool = False) -> None:
                 cs = build_contracts(atk, None)
                 rk = Rankers(cs, w, mz, ts)
                 dec = verifier_decisions(atk, A, far=0.05, seed=sd)
-                acc.append(score(rk, reqs, eligibility(atk, cs, dec), B, ["pamcp_rrf", "rag_mcp"], ks=(5,)))
+                acc.append(score(rk, reqs, eligibility(atk, cs, dec), B, ["pamcp_rrf", "rag_mcp"], ks=(5,),
+                                 sink=raw5, tag={"attack": attack, "delta": delta, "seed": sd,
+                                                 "adversarial_servers": len(adv)}))
             e5[f"{attack}|{delta}"] = {k: {m: float(np.mean([a[k][m] for a in acc])) for m in ("Exp@5", "Util@5",
                                                                                              "eligible_share")}
                                        for k in acc[0]}
         print("E5", attack, {d: round(e5[f"{attack}|{d}"]["pamcp_rrf|closed_world_annotations"]["Exp@5"], 3)
                              for d in deltas})
-    fe.save("E5_forgery", {"results": e5}, "SIMULATED attacker and verifier (FAR 5%), scored against labels B")
+    fe.save("E5_forgery", {"results": e5, "n_requests": len(reqs)},
+            "SIMULATED attacker and verifier (FAR 5%), scored against labels B",
+            config={"attacks": ["forge", "launder", "both"], "delta": list(deltas), "seeds": 5, "far": 0.05, "k": 5},
+            raw=fe.save_raw("E5_forgery", raw5))
     # ---------------- E6: imperfect verifier
     # look-alike ranking: unsafe tools by similarity to their nearest read-only tool (dense encoder)
     ret = rk0.ret
@@ -242,6 +257,7 @@ def main(quick: bool = False) -> None:
     sim = {u: float(np.max(V[safe_idx] @ V[ret.pos[u]])) for u in uns}
     look = sorted(uns, key=lambda u: -sim[u])
     e6 = {}
+    raw6 = [header]
     for delta in (0.0, 0.2):
         atk, _ = attack_registry(raw, delta, 0, launder_desc=True, forge=True) if delta else (raw, set())
         cs = build_contracts(atk, None)
@@ -257,7 +273,9 @@ def main(quick: bool = False) -> None:
                             el = eligibility(atk, cs, dec)
                             el = {k: el[k] for k in ("verified_evidence", "lexical_positive",
                                                      "observed_lexical_fallback")}
-                            acc.append(score(rk, reqs, el, B, ["pamcp_rrf"], ks=(5,)))
+                            acc.append(score(rk, reqs, el, B, ["pamcp_rrf"], ks=(5,), sink=raw6,
+                                             tag={"delta": delta, "placement": placement, "psi": psi, "rho": rho,
+                                                  "phi": phi, "seed": sd}))
                         e6[f"{delta}|{placement}|{psi}|{rho}|{phi}"] = {
                             k: {m: float(np.mean([a[k][m] for a in acc])) for m in ("Exp@5", "Util@5")}
                             for k in acc[0]}
@@ -273,13 +291,18 @@ def main(quick: bool = False) -> None:
                     hit = [phi for phi, c in cells if c["pamcp_rrf|verified_evidence"]["Exp@5"] >= lex]
                     be[f"{delta}|{placement}|{psi}|{rho}"] = {"break_even_phi": hit[0] if hit else "> 0.2",
                                                              "lexical_Exp@5": lex}
-    fe.save("E6_verifier", {"results": e6, "break_even": be}, "SIMULATED verifier errors, scored against labels B")
+    fe.save("E6_verifier", {"results": e6, "break_even": be, "n_requests": len(reqs)},
+            "SIMULATED verifier errors, scored against labels B",
+            config={"delta": [0.0, 0.2], "placement": ["random", "lookalike"], "psi": [0.0, 0.2], "rho": [0.5, 1.0],
+                    "phi": [0.0, 0.01, 0.02, 0.05, 0.1, 0.2], "seeds_random": 5, "k": 5},
+            raw=fe.save_raw("E6_verifier", raw6))
     print("E6 break-even", be)
     # ---------------- E7: trust threshold × trust policy × coverage floor (alpha 0.2 both, FAR 5%, κ ~ U(0.3, 1))
     atk, _ = attack_registry(raw, 0.2, 0, launder_desc=True, forge=True)
     cs = build_contracts(atk, None)
     rk = Rankers(cs, w, mz, ts)
     e7 = {}
+    raw7 = [header]
     for trust in ("default", "signer_weighted"):
         for floor in (0.0, 0.5, 0.8):
             for lmin in [round(0.2 + 0.05 * i, 2) for i in range(16)]:
@@ -288,12 +311,16 @@ def main(quick: bool = False) -> None:
                     dec = verifier_decisions(atk, A, far=0.05, seed=sd, kappa_range=(0.3, 1.0))
                     el = eligibility(atk, cs, dec, trust=trust, lmin=lmin, floor=floor)
                     acc.append(score(rk, reqs, {"verified_evidence": el["verified_evidence"]}, B, ["pamcp_rrf"],
-                                     ks=(5,)))
+                                     ks=(5,), sink=raw7, tag={"trust": trust, "floor": floor, "lmin": lmin,
+                                                               "seed": sd}))
                 e7[f"{trust}|{floor}|{lmin}"] = {m: float(np.mean([a["pamcp_rrf|verified_evidence"][m] for a in acc]))
                                                  for m in ("Exp@5", "Util@5", "eligible_share")}
     fe.save("E7_trust", {"results": e7, "note": "property-specific policy equals default under a single-property "
                                                 "read-only policy; not reported separately"},
-            "SIMULATED evidence (κ ~ U(0.3, 1), 50% trusted signers), scored against labels B")
+            "SIMULATED evidence (κ ~ U(0.3, 1), 50% trusted signers), scored against labels B",
+            config={"delta": 0.2, "attack": "both", "far": 0.05, "kappa_range": [0.3, 1.0], "trusted_share": 0.5,
+                    "lmin": [round(0.2 + 0.05 * i, 2) for i in range(16)], "floor": [0.0, 0.5, 0.8], "seeds": 3,
+                    "k": 5}, raw=fe.save_raw("E7_trust", raw7))
     print("E7 sample", {k: v for k, v in list(e7.items())[:3]})
 
 
