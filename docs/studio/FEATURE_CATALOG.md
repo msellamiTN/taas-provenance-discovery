@@ -1,6 +1,6 @@
 # TaaS Studio — Verified Feature Catalog and UX Audit
 
-Audit baseline: branch `devin/studio-ux-integration-v1`, commit `c3160b8754fa75201d2d58da81733661a7aac88a` (724 tests green). Earlier audit baselines: `e641fc7412dbb77ae44304562820db619aaf7359`, `a94d8e8`.
+Audit baseline: branch `devin/studio-ux-integration-v1`, commit `7fbd3fc` (731 tests green). Earlier audit baselines: `c3160b8754fa75201d2d58da81733661a7aac88a`, `e641fc7412dbb77ae44304562820db619aaf7359`, `a94d8e8`.
 
 This catalog records what is present in the repository at the audit baseline. “Implemented” means a code/API surface exists; it does not imply production readiness or browser validation. No runtime invocation of MCP tools is provided by Studio.
 
@@ -55,11 +55,11 @@ Frontend: `src/taas/studio/static/index.html` (single HTML document, inline CSS 
 | Surface | Current behavior | Remaining UX work |
 |---|---|---|
 | Studio header and anchor navigation | Left-rail section navigation with grouped workspace links | No active route state, workspace identity or capability-aware navigation |
-| Discovery workspace | Request configuration, result, reproducibility envelope and run-history deep link; durable draft save/restore via `/api/v1/workspaces` | No multi-draft workspace switching UI or review/confirmation step |
+| Discovery workspace | Request configuration, result, reproducibility envelope and run-history deep link; durable draft save/restore via `/api/v1/workspaces`; UX-25 pre-run review & confirmation gate | No multi-draft workspace switching UI |
 | Benchmark catalogue | Displays retained dataset counts/source | Add dataset snapshot/version identity and robust empty/error states |
 | Task browser | Search, category, pagination, select task and copy prompt | No task provenance detail; imported task still requires human-authored semantic goals |
 | Tool registry | Search/source filter, pagination, basket independent of filters, tool inspector with Core identity + capability intelligence; dedicated governance center (UX-15) | Trusted verification pipeline and registry version pinning |
-| GoalSpec editor | Visual goal cards, prompt context types, add/remove, local checks, server validation, advanced JSON reload | Add dependency graph/table equivalence, type/effect reference catalogue, examples/templates, clearer field-level diagnostics |
+| GoalSpec editor | Visual goal cards, prompt context types, add/remove, local checks, server validation, advanced JSON reload, live template catalog (`/goalspec/templates`) | Clearer field-level diagnostics |
 | Request JSON | Advanced JSON payload editor + guided policy presets (read-only/egress-limited/strict-evidence) | Engine settings are not yet first-class guided editors |
 | Discovery results | Status, metrics, selected toolkit, explanation and full response | Add explicit request/decision state taxonomy and candidate comparison |
 | Assurance | Certificate mandatory/diagnostic checks, witnesses, goal binding/coverage and counterexample | Explain each check's formal meaning and evidence source/freshness; prevent green styling from implying task completion |
@@ -70,7 +70,7 @@ Frontend: `src/taas/studio/static/index.html` (single HTML document, inline CSS 
 | Experiments/evaluation | Research scripts and tests exist outside the Studio workflow | No integrated evaluator, run history, comparison dashboard or gold-label isolation UX |
 | Settings | Token/API connection is represented in the page | No complete connection manager, profile management, audit settings or durable preferences |
 
-Delivered Studio workspaces (all read-only / analysis-only, wired to real Core routes): UX-2 Objective Engineering, UX-3 Tool Registry, UX-5 GoalSpec designer, UX-7 runtime observability, UX-8 governance actions, UX-9 model-assisted objective preparation, UX-10 Release Center, UX-11 Operations Command Center, UX-12 Evidence & Provenance Inspector, UX-13/14 Agent & Skill Lifecycle centers, UX-15 Tool Registry & MCP Governance, UX-16 Tool Selection & Eligibility, UX-17 Policy Designer, UX-18 Policy Testing & Simulation, UX-19 Governance Audit Timeline, UX-20 Compliance & Assurance Dashboard, UX-21 Risk & Remediation, UX-22 Agent Observability, UX-23 Discovery Composition (all demo/live separated), UX-24 Agent Governance & Trust Center. Boundary invariants preserved throughout: no tool invocation, approval != authorization != execution, diagnostics are observations not proof.
+Delivered Studio workspaces (all read-only / analysis-only, wired to real Core routes): UX-2 Objective Engineering, UX-3 Tool Registry, UX-5 GoalSpec designer, UX-7 runtime observability, UX-8 governance actions, UX-9 model-assisted objective preparation, UX-10 Release Center, UX-11 Operations Command Center, UX-12 Evidence & Provenance Inspector, UX-13/14 Agent & Skill Lifecycle centers, UX-15 Tool Registry & MCP Governance, UX-16 Tool Selection & Eligibility, UX-17 Policy Designer, UX-18 Policy Testing & Simulation, UX-19 Governance Audit Timeline, UX-20 Compliance & Assurance Dashboard, UX-21 Risk & Remediation, UX-22 Agent Observability, UX-23 Discovery Composition (all demo/live separated), UX-24 Agent Governance & Trust Center, UX-25 Discovery Review & Confirmation gate. Boundary invariants preserved throughout: no tool invocation, approval != authorization != execution, diagnostics are observations not proof.
 
 The page contains responsive CSS breakpoints and a grouped left-rail navigation. It is not yet the full persistent shell described in `PRODUCT_UX_BLUEPRINT.md`.
 
@@ -81,7 +81,7 @@ The page contains responsive CSS breakpoints and a grouped left-rail navigation.
 | Authentication boundary | Bearer dependency on protected API routes | Production identity provider, role model, tenant isolation, token lifecycle UX, rate limiting and audit trail |
 | Intent / GoalSpec | Visual authoring and structural server validation + versioned template catalog (`/goalspec/templates`) + workspace revision provenance (`/workspaces/{id}/revisions`) | Semantic intent grounding, assisted GoalSpec synthesis beyond `objectives/prepare` |
 | Registry | Read-only retained snapshot browsing + tool detail/intelligence views (UX-3) + deterministic facet counts + category filter (UX-15) | Live registry synchronization, trusted verification pipeline |
-| Discovery | Core engine + persisted run records + reproducibility envelope + human-review gate | Side-by-side candidates, policy editor guided presets (implemented: read-only/egress-limited/strict-evidence), cancellation |
+| Discovery | Core engine + persisted run records + reproducibility envelope + human-review gate + UX-25 pre-run review/confirmation dialog | Side-by-side candidates, cancellation |
 | Assurance | Certificate and counterexample surfaces + evidence inspector (UX-12) + audit ledger (full-ledger verify + cursor paging) + audit timeline (UX-19) + evidence freshness batch + agent sign/revoke parity + version/run diffs + recorded-activity endpoint (`/activity`) | Formal check documentation, exportable signed assurance package |
 | Model metadata | Read-only catalog and artifact metadata + live runtime status/load/chat | Model serving at scale, measured benchmarks, controlled download and isolated inference |
 | Runtime | Host diagnostics + read-only runtime observability workspace (UX-7) | Sandboxed MCP invocation, credential isolation, network controls, quotas, cancellation, event logs and output capture |
