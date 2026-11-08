@@ -852,6 +852,17 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         <p id="policy-preset-status" class="subtle" role="status" aria-live="polite">No preset applied.</p>
       </details>
       <details class="advanced-json">
+        <summary>Workspace drafts · save / restore (durable)</summary>
+        <p class="muted">Drafts persist the current request JSON server-side. Saving is explicit — nothing is persisted automatically. A draft is authored intent state, not analysis, authorization, or an execution record.</p>
+        <div class="inline-actions">
+          <input id="ws-name" type="text" maxlength="200" autocomplete="off" placeholder="Draft name" style="padding:6px 8px;border:1px solid var(--line,#dce3ed);border-radius:7px">
+          <button id="ws-save" type="button" class="secondary">Save draft</button>
+          <button id="ws-refresh" type="button" class="secondary">List drafts</button>
+        </div>
+        <p id="ws-status" class="subtle" role="status" aria-live="polite">No drafts listed.</p>
+        <ul id="ws-list" style="list-style:none;padding:0;margin:8px 0"></ul>
+      </details>
+      <details class="advanced-json">
         <summary>Advanced · inspect or edit the complete discovery JSON</summary>
         <button id="goal-reload-json" type="button" class="secondary" style="margin:8px 0">Reload visual editor from JSON</button>
         <label for="payload">Discovery request (JSON)</label>
@@ -1957,6 +1968,45 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       $("policy-preset-status").textContent="Preset '"+preset.name+"' written into the request JSON. Review it before discovery — a policy draft grants no authorization.";}
     catch(e){$("policy-preset-status").textContent="Request JSON is not parseable: "+e.message;}
   }));
+
+  // Durable workspace drafts — explicit save/restore of the request JSON only.
+  const wsStatus=(m)=>{$("ws-status").textContent=m;};
+  const wsLoadList=async()=>{
+    wsStatus("Listing drafts…"); $("ws-list").replaceChildren();
+    try{const data=await apiSend("GET","/api/v1/workspaces?limit=100");
+      const items=data.workspaces||[];
+      if(!items.length){wsStatus("No saved drafts. Drafts persist only after explicit save.");return;}
+      items.forEach(w=>{
+        const li=document.createElement("li"); li.className="subtle"; li.style.margin="6px 0";
+        const name=document.createElement("strong"); name.textContent=w.name+" ";
+        const meta=document.createElement("span"); meta.textContent="rev "+w.revision+" · "+String(w.updated_at||"").slice(0,19)+" ";
+        const restore=document.createElement("button"); restore.type="button"; restore.className="secondary"; restore.textContent="Restore";
+        restore.addEventListener("click",async()=>{
+          try{const rec=await apiSend("GET","/api/v1/workspaces/"+encodeURIComponent(w.workspace_id));
+            writeRequest(rec.draft); invalidateHumanReview();
+            wsStatus("Draft '"+w.name+"' restored into the request JSON (rev "+rec.revision+"). Review before discovery — a restored draft grants no authorization.");}
+          catch(e){wsStatus("Restore failed: "+e.message);}
+        });
+        const del=document.createElement("button"); del.type="button"; del.className="secondary"; del.textContent="Delete"; del.style.marginLeft="6px";
+        del.addEventListener("click",async()=>{
+          try{await apiSend("DELETE","/api/v1/workspaces/"+encodeURIComponent(w.workspace_id)); li.remove();
+            wsStatus("Draft '"+w.name+"' deleted.");}
+          catch(e){wsStatus("Delete failed: "+e.message);}
+        });
+        li.append(name,meta,restore,del); $("ws-list").append(li);
+      });
+      wsStatus(items.length+" saved draft(s). Restore rewrites the request JSON; review before discovery.");}
+    catch(e){wsStatus("Draft listing unavailable: "+e.message);}
+  };
+  $("ws-save").addEventListener("click",async()=>{
+    const name=$("ws-name").value.trim(); if(!name){wsStatus("Enter a draft name first.");return;}
+    let draft; try{draft=readRequest();}catch(e){wsStatus("Request JSON is not parseable: "+e.message);return;}
+    try{const rec=await apiSend("POST","/api/v1/workspaces",{name,draft});
+      wsStatus("Draft '"+name+"' saved (rev "+rec.revision+"). Drafts are authored intent state — not analysis or execution evidence.");
+      wsLoadList();}
+    catch(e){wsStatus("Save failed: "+e.message);}
+  });
+  $("ws-refresh").addEventListener("click",wsLoadList);
   const getGoalSpec = () => {
     const body=readRequest(); body.goal_spec=body.goal_spec||{};
     body.goal_spec.prompt=goalSpecState.prompt||"";
@@ -2776,6 +2826,16 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   const apiPost = async (path, body) => {
     const token=tokenValue(); if(!token) throw new Error("Connect to TaaS Studio in the application header first.");
     const r=await fetch(path,{method:"POST",headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const d=await readJsonResponse(r);
+    if(r.status===401){markStudioAuthRejected();throw new Error("Studio API rejected the bearer token. Reconnect in the header, then retry.");}
+    if(!r.ok) throw new Error(formatApiError(d.detail||d,"HTTP "+r.status));
+    return d;
+  };
+  const apiSend = async (method, path, body) => {
+    const token=tokenValue(); if(!token) throw new Error("Connect to TaaS Studio in the application header first.");
+    const init={method,headers:{"Authorization":"Bearer "+token}};
+    if(body!==undefined){init.headers["Content-Type"]="application/json";init.body=JSON.stringify(body);}
+    const r=await fetch(path,init);
     const d=await readJsonResponse(r);
     if(r.status===401){markStudioAuthRejected();throw new Error("Studio API rejected the bearer token. Reconnect in the header, then retry.");}
     if(!r.ok) throw new Error(formatApiError(d.detail||d,"HTTP "+r.status));

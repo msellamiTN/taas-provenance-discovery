@@ -147,3 +147,14 @@ def test_vocabulary_drawer_and_policy_presets_are_reference_only():
         assert f'data-policy-preset="{preset}"' in html
     assert "grants no authorization" in html
     assert "invalidateHumanReview" in html
+
+
+def test_workspace_drafts_ui_uses_explicit_save_restore():
+    html = _studio_html()
+    assert 'id="ws-save"' in html
+    assert 'id="ws-refresh"' in html
+    assert 'id="ws-name"' in html
+    assert '"/api/v1/workspaces' in html
+    assert "not an execution record" in html or "execution record" in html
+    # Draft restore must keep the human-review gate invalid.
+    assert "restore rewrites the request JSON" in html.lower() or "restored into the request JSON" in html
