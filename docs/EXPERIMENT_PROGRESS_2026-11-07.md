@@ -33,7 +33,7 @@ The protocol-aligned audit of 95 public tasks produced:
 
 The 94-task package separates discovery tools/tasks/visibility from evaluator acceptable-set alternatives and the 95-row resolution audit. Each reference is one benchmark-native proposer-completed, validator-scrutinized successful toolchain, not an exhaustive list of every valid solution. The package is explicitly \`prepared_not_run\`; it contains no PaMCP or comparator rankings/scores.
 
-The latest CI package is preserved as artifact [PaMCP-E9-LiveMCPBench-Prepared, run 42451685845](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/42451685845/artifacts/13605638416). The artifact manifest's internal SHA-256 checks were verified after download.
+The latest CI package is preserved as artifact [PaMCP-E9-LiveMCPBench-Prepared, run 42451849668](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/42451849668/artifacts/13605144489). The artifact manifest's internal SHA-256 checks were verified after download.
 
 ## E9 retrieval runner and metrics
 
@@ -63,7 +63,7 @@ The current proposal archive from the successful pre-split CI run is available a
 
 Working branch: \`feature/pamcp-publication-visualization-v1\`.
 
-GitHub Actions run [42451685845](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/42451685845) completed successfully. It validated the E1–E22 figure registry (81 figure contracts), E8 launcher syntax and notebook JSON, regenerated the pinned 94-task E9 package, generated the proposed E2 sample, compiled the E9 runner, and passed **58 regression tests**. This proves software and dataset-preparation behavior, not a PaMCP-versus-baselines experiment.
+GitHub Actions run [42451849668](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/42451849668) completed successfully. It validated the 81-figure E1–E22 registry, E8 launcher and notebook, regenerated the pinned 94-task E9 package, generated the proposed E2 sample, compiled the E9 runner, split E2 into annotator-only/owner-only archives and passed **58 regression tests**. The packaging step verified SHA-256 values and asserted that A/B archives do not contain the restricted mapping. This proves software and dataset-preparation behavior, not a PaMCP-versus-baselines experiment.
 
 ## Remaining protocol blockers
 
