@@ -72,7 +72,7 @@ def main() -> None:
     examples = []
     for contract in contracts:
         attacked = copy.deepcopy(contract)
-        attacked.description = (attacked.description or "") + "\\n" + DESC_CANARY
+        attacked.description = (attacked.description or "") + "\n" + DESC_CANARY
         attacked.name = f"{NAME_CANARY}_{attacked.name}"
         attacked.args = tuple(replace(a, name=f"{ARG_CANARY}_{a.name}") for a in attacked.args)
 
@@ -122,7 +122,7 @@ def main() -> None:
     out_dir = Path(os.environ.get("PAMCP_REVISION_RESULTS", ROOT / "results" / "revision_1"))
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / "sanitiser_audit.json"
-    path.write_text(json.dumps(result, indent=2) + "\\n", encoding="utf-8")
+    path.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(result, indent=2))
     print(f"Wrote {path}")
 
