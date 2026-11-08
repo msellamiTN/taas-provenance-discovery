@@ -929,6 +929,12 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <p id="explanation" class="muted" aria-live="polite">Run a request to see why TaaS selected a toolkit or abstained.</p>
       <h2>Selected toolkit</h2>
       <pre id="toolkit">No discovery result yet.</pre>
+      <section class="certificate-panel" id="repro-panel" hidden aria-labelledby="repro-title">
+        <div class="certificate-head"><h3 id="repro-title" style="font-size:13px;margin:0">Reproducibility envelope</h3><span id="repro-state" class="certificate-state">Not persisted</span></div>
+        <p class="subtle">Server-stored record of this analysis: request, GoalSpec, tool and policy fingerprints. It proves an analysis occurred under those inputs — not tool invocation, task success, or authorization.</p>
+        <dl class="ux7-kv" id="repro-data"></dl>
+        <div class="inline-actions" style="margin-top:8px"><button id="repro-inspect" type="button" class="secondary">Open run in history &amp; audit</button></div>
+      </section>
       <section class="certificate-panel" id="discovery-diagnostics-panel" hidden aria-labelledby="discovery-diagnostics-title">
         <div class="certificate-head"><h3 id="discovery-diagnostics-title">Discovery pipeline diagnostics</h3><span id="discovery-diagnostics-stage" class="certificate-state">Not reported</span></div>
         <p id="discovery-diagnostics-summary" class="subtle">Core registry, policy eligibility and candidate retrieval diagnostics appear after discovery.</p>
@@ -1868,6 +1874,25 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         }
         renderHypergraphProjection(data.hypergraph_projection_status === "available" ? data.hypergraph_projection : null);
         $("response").textContent = JSON.stringify(data, null, 2);
+        renderReproEnvelope(data);
+  };
+  const renderReproEnvelope = async (data) => {
+    const panel=$("repro-panel"),dl=$("repro-data"),state=$("repro-state");
+    const runId=data.discovery_run_id||null;
+    if(!runId){panel.hidden=true;return;}
+    panel.hidden=false;state.className="certificate-state";state.textContent="Persisted · run "+String(runId).slice(0,12);
+    const kv=(l,v)=>{const dt=document.createElement("dt");dt.textContent=l;const dd=document.createElement("dd");dd.textContent=v;dl.append(dt,dd);};
+    dl.replaceChildren();kv("Run ID",runId);
+    try{const rec=await apiGet("/api/v1/discovery/runs/"+encodeURIComponent(runId));
+      kv("Request digest",rec.request_sha256||"Not reported");
+      kv("GoalSpec digest",rec.goal_spec_sha256||"Not reported");
+      kv("Policy fingerprint",rec.policy_fingerprint||"Not reported");
+      kv("Projection digest",rec.projection_sha256||"Not reported");
+      kv("Tool IDs / hashes",(rec.tool_ids||[]).length+" / "+Object.keys(rec.tool_definition_hashes||{}).length);
+      kv("Status / created",(rec.status||"—")+" · "+(rec.created_at||"—"));
+      kv("Record semantics",rec.record_semantics||"Not reported");}
+    catch(e){kv("Record lookup","failed: "+e.message);}
+    $("repro-inspect").onclick=()=>{ $("obs-run-id").value=runId; location.hash="discovery-observability"; $("obs-load-run").click(); };
   };
   const persistDiscoveryResult = (data, context = {}) => {
     try {
