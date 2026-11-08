@@ -165,6 +165,53 @@ E9's frozen baselines are \`rag_mcp\`, \`mcp_zero\`, \`per_subtask\`, \`colt_ada
 
 Every method's exact adaptation, parameters, candidate visibility and run status must be in the manifest. A method that cannot run is recorded as blocked/not comparable, not replaced with a similarly named method.
 
+## Executable E9 runner and accepted inputs
+
+The campaign runner is **experiments/e9_retrieval_campaign.py**. It does not load evaluator/task_references.jsonl until the top-20 discovery rankings have been written and hashed. It refuses to start unless the E1, E2, E3 and E12 prerequisite artifacts are explicitly accepted and SHA-256 verified, and the comparator-map approval is in place.
+
+Required input package:
+
+| Input | Acceptance contract |
+|---|---|
+| Release gate | schema_version=1.0.0, status=accepted; E1/E2/E3/E12 each include status=accepted, artifact_path, SHA-256 and acceptance_id |
+| Comparator map | status=accepted; exact baseline IDs from the frozen E9 experiment, separate Full_PaMCP primary ID, protocol DOCX SHA-256 and approval record |
+| GoalSpecs | 94 tasks × 3 decomposition conditions = 282 frozen JSONL records; prompt hash, explicit no-evaluator-access flag and transformation provenance |
+| Contract bundle | status=accepted; all 525 candidate tools hash-bound to their definition; no evaluator labels used; accepted E2 and E3 source-artifact hashes |
+| Model profile | accepted E12 bundle with model ID/revision and measured ModelProfile class curves |
+| Policy bundle | accepted and versioned E9 policy artifact |
+| Composer config | accepted E9 ComposerConfig with K=20 and frozen refinement depth |
+| Encoder bundle | accepted local SentenceTransformers snapshot, model ID/revision, package version and per-file SHA-256 list |
+| COLT scenes | training-only JSONL; task IDs must not overlap the 94 E9 evaluation tasks |
+| ToolScope oracle | independent, accepted positive/negative tool-equivalence pairs; not derived from E9 reference labels |
+
+The runner uses a local-only SentenceTransformers model snapshot; it sets offline flags and does not silently download or substitute an encoder. It does not synthesize GoalSpecs, contracts, effects, model profiles, training scenes or equivalence labels. Method/adapter fidelity is preserved in the run manifest.
+
+Launch command (after all input artifacts have been accepted):
+
+    pip install -e ".[retrieval,experiment]"
+
+    python experiments/e9_retrieval_campaign.py \
+      --prepared-dir results/definitive/E9/prepared-livemcpbench-v2 \
+      --release-gate artifacts/e9/release_gate.json \
+      --comparator-map artifacts/e9/comparator_map.json \
+      --goal-specs artifacts/e9/goal_specs_94x3.jsonl \
+      --contract-bundle artifacts/e9/contracts_525.json \
+      --model-profile artifacts/e12/accepted_model_profile.json \
+      --policy-bundle artifacts/e9/policy.json \
+      --composer-config artifacts/e9/composer_config.json \
+      --encoder-bundle artifacts/e9/encoder_bundle.json \
+      --training-scenes artifacts/e9/colt_training_scenes.jsonl \
+      --equivalence-oracle artifacts/e9/tool_equivalence_oracle.json \
+      --output-dir results/definitive/E9/e9-livemcpbench-run-001 \
+      --run-id e9-livemcpbench-run-001 \
+      --device cuda
+
+The training-scenes and equivalence-oracle arguments may be omitted only when COLT and ToolScope are explicitly recorded as blocked; the resulting run is partial, not complete. MCP-Zero is recorded as the repository's single-pass adaptation, not as a faithful reproduction of the official active-request loop.
+
+For every task × method × decomposition condition, the runner emits one ordered top-20 ranking. The exporter derives k=5,10,20 from that frozen ranking. It does not treat the three cutoffs as independent task observations. Full PaMCP is run once per task/decomposition with its frozen K=20 composition budget and certificate; its selected toolkit is recorded as the method output. A PaMCP abstention is retained as an empty prediction, not deleted from the denominator.
+
+The runner output is results/definitive/E9/<run-id>/MANIFEST.json, discovery/rankings.jsonl and the copied evaluator references. The manifest remains partial whenever a registered method is blocked or incomplete.
+
 ## Export and render
 
 After the run has materialized discovery rankings and evaluator references:
@@ -193,4 +240,4 @@ A partial E9 run can render partial figures. A rendered figure does not change t
 
 ## Current readiness boundary
 
-The repository contains the pinned LiveMCPBench snapshot and the strict E9 preparation script. That script can produce 64 benchmark-native successful reference sets in a separated evaluator directory. The repository still has no E9 definitive run manifest or per-task rankings generated with frozen GoalSpecs/contracts and the full registered baseline matrix. Therefore the dataset/reference preparation is available, but no E9 method comparison or scientific performance result is claimed.
+The repository contains the pinned LiveMCPBench snapshot, a protocol-aligned 94-task preparer, an E9 retrieval campaign runner and an evaluator-separated metric exporter. The runner has not yet produced a definitive run: no accepted E1/E2/E3/E12 release gate, comparator approval, frozen 282-row GoalSpec matrix, accepted 525-tool contract bundle, E12 profile, policy/config/encoder package, COLT training scenes or ToolScope equivalence oracle has been supplied. Therefore E9 method comparisons and performance results are not yet available.
