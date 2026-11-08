@@ -1,0 +1,336 @@
+{
+ "experiment": "R2_evaluator_audit",
+ "evidence": "Hand-built ground truth (cases); LABELLED (E10 re-scoring under J_B)",
+ "notes": "Truth verdicts were written before either evaluator was run on the cases. Cases whose deciding information (resource scope, credentials, declassification conditions) is absent from the labels cannot be decided by either evaluator.",
+ "manifest": {
+  "run_id": "R2_evaluator_audit-2026-11-08T14:44:24Z-9c2f6d2f0c",
+  "created": "2026-11-08T14:44:24Z",
+  "commit": "3e88b8224a76c635527631eba8b7380f8333ec61",
+  "dirty_code_files": [
+   "experiments/final/set_evaluator.py"
+  ],
+  "code_sha256": "9c2f6d2f0cceafadc36e88019dfad799d049712ba6e79215517d28f76eda81b7",
+  "python": "3.13.18",
+  "packages": {
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "sklearn": "1.9.1",
+   "matplotlib": "3.11.2"
+  },
+  "config": {},
+  "inputs": {
+   "data/processed/registry_merged.json": "a24bb9c5c788f8856288993c8f3c21b7fcd84b6491cc1a2b778b3b5d5a787045"
+  },
+  "labels": {
+   "data/llm_records/silver_labels.json": "a9bfdda22c417197dcbdbcd6ddcd36245c64293b8d59f3d76084a6a705ebc1a3",
+   "data/llm_records/reference_labels_opus_part0.jsonl": "1bbaffd69206a61c26bf60d1c679c56bed085a8df7f4bab47893cf0edbadbb3e",
+   "data/llm_records/reference_labels_opus_part1.jsonl": "0ef047fe57862e9123f6f92c0c572dc6f78e7c488248dd1c0771f188e6470b22",
+   "data/llm_records/reference_labels_opus_part2.jsonl": "b9c329d5fd97f1c800703b98f8483d08de7d18eb39e69be6a184ecbfbd5e3920"
+  },
+  "llm_records": {
+   "data/llm_records/analyst_haiku.jsonl": "9c46187501c70d64ff39e8dddcfb2c1083ba1608cdf7705cad40484ed03b3182",
+   "data/llm_records/analyst_mcpbench_prompt_v1_0_sonnet.jsonl": "9644fe997d1d1d3026ee89b4d632785666b033e2d5e5c1ba8098fe9124fcd65f",
+   "data/llm_records/analyst_mcpbench_prompt_v1_1_sonnet.jsonl": "d72740cfde8a3855df2dc14b43edbecc7956a91a00cde4ab626c5ba2e06dd39e",
+   "data/llm_records/analyst_mcpbench_prompt_v1_1_theta_sonnet.jsonl": "cf0fefa547d099b9f4be9488bf0ed077ff21b00236dbb739c39687b38d6dd840",
+   "data/llm_records/analyst_sonnet_A.jsonl": "16764040beb08c21af41fda2aa80d4503db8f3fa6445405b14dfe2329d26abea",
+   "data/llm_records/analyst_sonnet_B.jsonl": "21ff4fb98d3ba2ee1a1a33eb5672970672b0098315a92c3a6eba1b4a7f8b6e23",
+   "data/llm_records/analyst_sonnet_e8_part0.jsonl": "0f85289319734fc7eb0bf2b3559e9f3c6427c3764d4eb77aae4c3696640c24e3",
+   "data/llm_records/analyst_sonnet_e8_part1.jsonl": "01df80721e2f66656fbbd43974d59c9060143755820e357a8a04dfa211df15c2",
+   "data/llm_records/analyst_sonnet_e8_part2.jsonl": "7fbf7be565640a54b1afb75d604725d04de031b06e1327e0231c115f0de8b8ff",
+   "data/llm_records/calibration_answers_haiku.json": "ba766acd12b301699cb48959dc0cbe3f0d0d529f35af8bf09833fcd80d012561",
+   "data/llm_records/calibration_answers_opus.json": "a842a448f709ea4c778738ddddf2d0362815da6dac3569342bfd663ac905b0da",
+   "data/llm_records/calibration_answers_sonnet.json": "6a3ae7baa9bf7a3a81a3f396479526564287ff91730ff22de0b9dc3f2331a23d",
+   "data/llm_records/calibration_self_assessment_haiku.json": "c172609360670e095338a5c833c29d7c0b5adc9c69c8d6c165bd081103eb00e6",
+   "data/llm_records/calibration_self_assessment_opus.json": "7f9128dad0541247130ea04a7df267246887c7473aad25fcb426890e00ad0462",
+   "data/llm_records/calibration_self_assessment_sonnet.json": "b27dff24c251b0b2a07095969d23645b11dab9d5f82f73ba930d0da1dd226867",
+   "data/llm_records/colt_train_queries_sonnet_part0.jsonl": "b137e6da7ba850a7566d0d25d9141e2a3f6f1aef4c1a32936c5c092b44f32090",
+   "data/llm_records/colt_train_queries_sonnet_part1.jsonl": "923c53ca85b3c5dc3d9b4968d7e8a7228a4b975e18f3df1e29c7b7b0dc025912",
+   "data/llm_records/colt_train_queries_sonnet_part2.jsonl": "7f24212afcd1ef8647aa4af4e08bed7664cf9d5296dd6ea45730a635bcb20720",
+   "data/llm_records/mcpzero_requests_sonnet_part0.jsonl": "3a0e5011f86db8144e7acd1b37c8df572a6e825c842c1ab69ffb3628a40c262c",
+   "data/llm_records/mcpzero_requests_sonnet_part1.jsonl": "aa1d304fff250b1fc44519840fd777816793a07ca1874237816053dff8acb075",
+   "data/llm_records/mcpzero_requests_sonnet_part2.jsonl": "fee6745201cfd27ff916cc7759a3eb2393fa915c1bdcd10e0e735f3f7abfcd7b",
+   "data/llm_records/mcpzero_requests_sonnet_part3.jsonl": "d339efef9190a575017f354a31cf284d24a80c3de2d377f9318636455ddb4fa6",
+   "data/llm_records/mcpzero_server_summaries_sonnet.jsonl": "f3a65c211a247dfa84d9eeff6956069e0dd6b93482d5107aea3a2ca6f02f44f8",
+   "data/llm_records/reference_labels_opus_part0.jsonl": "1bbaffd69206a61c26bf60d1c679c56bed085a8df7f4bab47893cf0edbadbb3e",
+   "data/llm_records/reference_labels_opus_part1.jsonl": "0ef047fe57862e9123f6f92c0c572dc6f78e7c488248dd1c0771f188e6470b22",
+   "data/llm_records/reference_labels_opus_part2.jsonl": "b9c329d5fd97f1c800703b98f8483d08de7d18eb39e69be6a184ecbfbd5e3920",
+   "data/llm_records/silver_labels.json": "a9bfdda22c417197dcbdbcd6ddcd36245c64293b8d59f3d76084a6a705ebc1a3",
+   "data/llm_records/silver_labels_part0.jsonl": "9a2b025b6675441eb2cfa6e695b66f2612ef07a9b73fdbc518fb03d279edad70",
+   "data/llm_records/silver_labels_part1.jsonl": "26d0be08d2d367f89678bc696c4247546dc46cc95eadaa5c47fa34953bc4c877",
+   "data/llm_records/silver_labels_part2.jsonl": "ef7b33f91a5c0760376299f868c66da3c73fd14d585b76ba3b9ba91936a19bce",
+   "data/llm_records/toolscope_equiv_sonnet_part0.jsonl": "e3a37310c6ac401db495ee5a1dc5cf7ccb3c699f7aa20c5fdfdb3c7c333ac7aa",
+   "data/llm_records/toolscope_equiv_sonnet_part1.jsonl": "923ec05434c581d05f8ac8c7edfdf473ce9886354413f419803b7a455a85b25c"
+  },
+  "raw": {},
+  "models": "LLM roles were played by Claude models requested by alias (sonnet, opus, haiku) through the session; exact version strings were not exposed and are not recorded"
+ },
+ "cases": [
+  {
+   "case": "same shape, different meaning",
+   "truth_joint": false,
+   "check": "S",
+   "labels_carry_the_information": true,
+   "paper_evaluator_joint": true,
+   "strict_evaluator_joint": false,
+   "paper_correct": false,
+   "strict_correct": true
+  },
+  {
+   "case": "same basic type, incompatible domain",
+   "truth_joint": false,
+   "check": "S",
+   "labels_carry_the_information": true,
+   "paper_evaluator_joint": true,
+   "strict_evaluator_joint": false,
+   "paper_correct": false,
+   "strict_correct": true
+  },
+  {
+   "case": "required identifier not obtainable",
+   "truth_joint": false,
+   "check": "C",
+   "labels_carry_the_information": true,
+   "paper_evaluator_joint": true,
+   "strict_evaluator_joint": false,
+   "paper_correct": false,
+   "strict_correct": true
+  },
+  {
+   "case": "array versus scalar",
+   "truth_joint": false,
+   "check": "S",
+   "labels_carry_the_information": true,
+   "paper_evaluator_joint": true,
+   "strict_evaluator_joint": false,
+   "paper_correct": false,
+   "strict_correct": true
+  },
+  {
+   "case": "resource scope mismatch (write outside /reports)",
+   "truth_joint": false,
+   "check": "E (scope)",
+   "labels_carry_the_information": false,
+   "paper_evaluator_joint": true,
+   "strict_evaluator_joint": true,
+   "paper_correct": false,
+   "strict_correct": false
+  },
+  {
+   "case": "prerequisite or credential missing",
+   "truth_joint": false,
+   "check": "C (credentials)",
+   "labels_carry_the_information": false,
+   "paper_evaluator_joint": true,
+   "strict_evaluator_joint": true,
+   "paper_correct": false,
+   "strict_correct": false
+  },
+  {
+   "case": "private data and indirect egress (fixed destination)",
+   "truth_joint": false,
+   "check": "L",
+   "labels_carry_the_information": true,
+   "paper_evaluator_joint": false,
+   "strict_evaluator_joint": false,
+   "paper_correct": true,
+   "strict_correct": true
+  },
+  {
+   "case": "declassification with an unmet condition",
+   "truth_joint": false,
+   "check": "L (declassification)",
+   "labels_carry_the_information": false,
+   "paper_evaluator_joint": true,
+   "strict_evaluator_joint": true,
+   "paper_correct": false,
+   "strict_correct": false
+  },
+  {
+   "case": "optional argument of an unobtainable kind",
+   "truth_joint": true,
+   "check": "C",
+   "labels_carry_the_information": true,
+   "paper_evaluator_joint": true,
+   "strict_evaluator_joint": true,
+   "paper_correct": true,
+   "strict_correct": true
+  },
+  {
+   "case": "pairwise-safe tools, multi-tool violation (private -> file -> publisher)",
+   "truth_joint": false,
+   "check": "L",
+   "labels_carry_the_information": true,
+   "paper_evaluator_joint": true,
+   "strict_evaluator_joint": false,
+   "paper_correct": false,
+   "strict_correct": true
+  }
+ ],
+ "correct": {
+  "paper": 2,
+  "strict": 7
+ },
+ "n_cases": 10,
+ "e10_strict": {
+  "pamcp(K=10)": {
+   "S_strict": 0.32978723404255317,
+   "C_strict": 0.7446808510638298,
+   "E_strict": 1.0,
+   "L_strict": 1.0,
+   "M_strict": 0.9680851063829787,
+   "joint_strict": 0.2765957446808511,
+   "joint_paper": 0.6702127659574468,
+   "n": 94
+  },
+  "pamcp(K=20)": {
+   "S_strict": 0.32978723404255317,
+   "C_strict": 0.7446808510638298,
+   "E_strict": 1.0,
+   "L_strict": 1.0,
+   "M_strict": 0.9680851063829787,
+   "joint_strict": 0.2765957446808511,
+   "joint_paper": 0.6702127659574468,
+   "n": 94
+  },
+  "pamcp(K=40)": {
+   "S_strict": 0.32978723404255317,
+   "C_strict": 0.7446808510638298,
+   "E_strict": 1.0,
+   "L_strict": 1.0,
+   "M_strict": 0.9787234042553191,
+   "joint_strict": 0.2765957446808511,
+   "joint_paper": 0.6702127659574468,
+   "n": 94
+  },
+  "pamcp_nocert": {
+   "S_strict": 0.24468085106382978,
+   "C_strict": 0.5957446808510638,
+   "E_strict": 1.0,
+   "L_strict": 0.9680851063829787,
+   "M_strict": 0.9787234042553191,
+   "joint_strict": 0.13829787234042554,
+   "joint_paper": 0.5957446808510638,
+   "n": 94
+  },
+  "rag_mcp@5|unfiltered": {
+   "S_strict": 0.2978723404255319,
+   "C_strict": 0.40425531914893614,
+   "E_strict": 0.7553191489361702,
+   "L_strict": 0.8404255319148937,
+   "M_strict": 0.7553191489361702,
+   "joint_strict": 0.05319148936170213,
+   "joint_paper": 0.48936170212765956,
+   "n": 94
+  },
+  "rag_mcp@5|eligible-only": {
+   "S_strict": 0.2765957446808511,
+   "C_strict": 0.3829787234042553,
+   "E_strict": 0.9893617021276596,
+   "L_strict": 0.8191489361702128,
+   "M_strict": 0.776595744680851,
+   "joint_strict": 0.05319148936170213,
+   "joint_paper": 0.6063829787234043,
+   "n": 94
+  },
+  "colt@5|unfiltered": {
+   "S_strict": 0.26595744680851063,
+   "C_strict": 0.46808510638297873,
+   "E_strict": 0.7872340425531915,
+   "L_strict": 0.7340425531914894,
+   "M_strict": 0.7872340425531915,
+   "joint_strict": 0.07446808510638298,
+   "joint_paper": 0.4787234042553192,
+   "n": 94
+  },
+  "colt@5|eligible-only": {
+   "S_strict": 0.2553191489361702,
+   "C_strict": 0.425531914893617,
+   "E_strict": 1.0,
+   "L_strict": 0.7553191489361702,
+   "M_strict": 0.7978723404255319,
+   "joint_strict": 0.0851063829787234,
+   "joint_paper": 0.5957446808510638,
+   "n": 94
+  },
+  "mcp_zero|unfiltered": {
+   "S_strict": 0.24468085106382978,
+   "C_strict": 0.6702127659574468,
+   "E_strict": 0.9574468085106383,
+   "L_strict": 0.8829787234042553,
+   "M_strict": 0.9468085106382979,
+   "joint_strict": 0.11702127659574468,
+   "joint_paper": 0.5531914893617021,
+   "n": 94
+  },
+  "mcp_zero|eligible-only": {
+   "S_strict": 0.24468085106382978,
+   "C_strict": 0.6702127659574468,
+   "E_strict": 1.0,
+   "L_strict": 0.8829787234042553,
+   "M_strict": 0.9468085106382979,
+   "joint_strict": 0.11702127659574468,
+   "joint_paper": 0.574468085106383,
+   "n": 94
+  },
+  "toolscope[analyst]@5|unfiltered": {
+   "S_strict": 0.39361702127659576,
+   "C_strict": 0.3404255319148936,
+   "E_strict": 0.7446808510638298,
+   "L_strict": 0.7659574468085106,
+   "M_strict": 0.6595744680851063,
+   "joint_strict": 0.11702127659574468,
+   "joint_paper": 0.5957446808510638,
+   "n": 94
+  },
+  "toolscope[analyst]@5|eligible-only": {
+   "S_strict": 0.3829787234042553,
+   "C_strict": 0.3404255319148936,
+   "E_strict": 1.0,
+   "L_strict": 0.7553191489361702,
+   "M_strict": 0.6702127659574468,
+   "joint_strict": 0.11702127659574468,
+   "joint_paper": 0.7340425531914894,
+   "n": 94
+  },
+  "cmtf_path|unfiltered": {
+   "S_strict": 0.19148936170212766,
+   "C_strict": 0.8723404255319149,
+   "E_strict": 0.9893617021276596,
+   "L_strict": 0.9893617021276596,
+   "M_strict": 1.0,
+   "joint_strict": 0.14893617021276595,
+   "joint_paper": 0.23404255319148937,
+   "n": 94
+  },
+  "cmtf_path|eligible-only": {
+   "S_strict": 0.18085106382978725,
+   "C_strict": 0.8723404255319149,
+   "E_strict": 1.0,
+   "L_strict": 0.9893617021276596,
+   "M_strict": 1.0,
+   "joint_strict": 0.14893617021276595,
+   "joint_paper": 0.2553191489361702,
+   "n": 94
+  },
+  "per_subtask[analyst]|unfiltered": {
+   "S_strict": 0.26595744680851063,
+   "C_strict": 0.43617021276595747,
+   "E_strict": 0.8617021276595744,
+   "L_strict": 0.9148936170212766,
+   "M_strict": 0.8085106382978723,
+   "joint_strict": 0.06382978723404255,
+   "joint_paper": 0.5212765957446809,
+   "n": 94
+  },
+  "per_subtask[analyst]|eligible-only": {
+   "S_strict": 0.2765957446808511,
+   "C_strict": 0.43617021276595747,
+   "E_strict": 1.0,
+   "L_strict": 0.9042553191489362,
+   "M_strict": 0.8085106382978723,
+   "joint_strict": 0.0851063829787234,
+   "joint_paper": 0.6276595744680851,
+   "n": 94
+  }
+ }
+}
