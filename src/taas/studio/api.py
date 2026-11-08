@@ -1116,12 +1116,27 @@ def discovery_run_get(run_id: str) -> dict[str, Any]:
     return run
 
 
+@app.get("/api/v1/discovery/runs/{run_id_a}/diff/{run_id_b}",
+         dependencies=[Depends(require_api_token)])
+def discovery_run_diff(run_id_a: str, run_id_b: str) -> dict[str, Any]:
+    """Diff two persisted discovery-run envelopes. Re-runs nothing."""
+    diff = discovery_runs.diff_discovery_runs(run_id_a, run_id_b)
+    if diff is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Unknown discovery run in pair: {run_id_a}, {run_id_b}")
+    return diff
+
+
 @app.get("/api/v1/audit/events", dependencies=[Depends(require_api_token)])
-def audit_event_list(limit: int = 100, event_type: str | None = None) -> dict[str, Any]:
-    """List audit-ledger events (oldest first). Read-only."""
-    events = audit_ledger.list_events(limit=limit, event_type=event_type)
-    return {"schema": "taas.audit-events/v1", "events": events,
-            "count": len(events),
+def audit_event_list(limit: int = 100, event_type: str | None = None,
+                     after_seq: int | None = None) -> dict[str, Any]:
+    """List audit-ledger events (oldest first, keyset-paginated). Read-only."""
+    page = audit_ledger.list_events_page(
+        limit=limit, event_type=event_type, after_seq=after_seq)
+    return {"schema": "taas.audit-events/v1", "events": page["events"],
+            "count": len(page["events"]),
+            "has_more": page["has_more"], "next_cursor": page["next_cursor"],
             "record_semantics": "tamper_evident_event_log_not_execution_proof"}
 
 
@@ -2203,6 +2218,16 @@ def agent_get(agent_id: str, version: str) -> dict[str, Any]:
     }
 
 
+@app.get("/api/v1/agents/{agent_id}/versions/{version_a}/diff/{version_b}",
+         dependencies=[Depends(require_api_token)])
+def agent_version_diff(agent_id: str, version_a: str, version_b: str) -> dict[str, Any]:
+    """Structural diff of two persisted manifests. Compares records, not behavior."""
+    try:
+        return agent_registry.diff_versions(agent_id, version_a, version_b)
+    except agent_registry.AgentRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
 @app.post("/api/v1/agents/{agent_id}/versions/{version}/validate", dependencies=[Depends(require_api_token)])
 def agent_validate_saved_version(agent_id: str, version: str) -> dict[str, Any]:
     """Revalidate stored bytes and advance draft -> validated; this is structural only."""
@@ -2285,6 +2310,183 @@ def agent_publish_version(
         "resolved_tool_grants": resolved_grants,
         "resolved_skill_references": resolved_skill_refs,
         "semantic_correctness_verified": False,
+        "tools_authorized": False,
+        "execution_enabled": False,
+    }
+
+
+class AgentSignatureRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    publisher_id: str = Field(default="", max_length=128,
+                              pattern=r"^$|^[A-Za-z0-9][A-Za-z0-9_.:@/-]{0,127}$")
+    statement: str = Field(default="", max_length=500)
+
+
+def _agent_signature_binding(resource: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "agent_id": resource["agent_id"],
+        "version": resource["version"],
+        "manifest_sha256": resource["manifest_sha256"],
+    }
+
+
+@app.post("/api/v1/agents/{agent_id}/versions/{version}/sign",
+          status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_api_token)])
+def agent_sign_version(agent_id: str, version: str,
+                       request: AgentSignatureRequest) -> dict[str, Any]:
+    """Attest a registry signature for a published Agent version.
+
+    The signature is a service-attested supply-chain record bound to the exact
+    manifest digest. It proves registry issuance and integrity; it is not a
+    portable third-party identity, authorization, or execution right.
+    """
+    try:
+        resource = agent_registry.get_version(agent_id, version)
+    except agent_registry.AgentRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    if resource.get("lifecycle_state") != "published":
+        raise HTTPException(
+            status_code=409,
+            detail="Only published Agent versions can be signed",
+        )
+    if resource.get("revoked"):
+        raise HTTPException(
+            status_code=409, detail="Revoked Agent versions cannot be signed",
+        )
+    actor = os.environ.get("TAAS_STUDIO_ACTOR", "studio-api")
+    publisher = request.publisher_id or actor
+    try:
+        envelope = assurance_evidence.attest_evidence(
+            evidence_type="publisher_signature",
+            subject_binding=_agent_signature_binding(resource),
+            issuer="taas-studio",
+            assessor=actor,
+            method="registry_manifest_signature",
+            payload={"publisher_id": publisher, "statement": request.statement},
+        )
+        record = assurance_evidence.store_evidence(envelope)
+        try:
+            audit_ledger.append_event(
+                "signature",
+                {"agent_id": agent_id, "version": version,
+                 "evidence_id": record["evidence_id"]},
+                {"publisher_id": publisher},
+            )
+        except Exception:
+            pass
+    except assurance_evidence.EvidenceConfigurationError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except assurance_evidence.EvidenceError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return {
+        "signature": {
+            "evidence_id": record["evidence_id"],
+            "evidence_type": record["evidence_type"],
+            "subject_binding": record["subject_binding"],
+            "publisher_id": publisher,
+            "signed_by": record["assessor"],
+            "observed_at": record["observed_at"],
+            "expires_at": record["expires_at"],
+        },
+        "signature_scope": "registry_attested_not_portable_identity",
+        "integrity_verified": True,
+        "tools_authorized": False,
+        "execution_enabled": False,
+        "assessor_claim_truth_verified": False,
+    }
+
+
+@app.get("/api/v1/agents/{agent_id}/versions/{version}/signature",
+         dependencies=[Depends(require_api_token)])
+def agent_signature_status(agent_id: str, version: str) -> dict[str, Any]:
+    """Return verified signature records bound to this exact Agent version."""
+    try:
+        resource = agent_registry.get_version(agent_id, version)
+    except agent_registry.AgentRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    try:
+        found = assurance_evidence.list_verified_evidence_for_subject(
+            _agent_signature_binding(resource), expected_type="publisher_signature"
+        )
+    except assurance_evidence.EvidenceError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    return {
+        "agent_id": agent_id,
+        "version": version,
+        "manifest_sha256": resource["manifest_sha256"],
+        "verified": found["count"] > 0,
+        "signatures": [
+            {
+                "evidence_id": item["evidence_id"],
+                "publisher_id": item["payload"].get("publisher_id"),
+                "signed_by": item["assessor"],
+                "observed_at": item["observed_at"],
+                "expires_at": item["expires_at"],
+            }
+            for item in found["valid"]
+        ],
+        "invalid_records": found["invalid"],
+        "signature_scope": "registry_attested_not_portable_identity",
+        "tools_authorized": False,
+        "execution_enabled": False,
+    }
+
+
+class AgentRevocationRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    reason: str = Field(min_length=1, max_length=500)
+
+
+@app.post("/api/v1/agents/{agent_id}/versions/{version}/revoke",
+          dependencies=[Depends(require_api_token)])
+def agent_revoke_version(agent_id: str, version: str,
+                         request: AgentRevocationRequest) -> dict[str, Any]:
+    """Record an immutable revocation for an Agent version.
+
+    Revoked versions refuse new signatures. The immutable version and its
+    revocation remain inspectable; revocation is a provenance event, not a
+    deletion or authorization change.
+    """
+    try:
+        revocation = agent_registry.revoke_version(
+            agent_id, version, reason=request.reason,
+            actor=os.environ.get("TAAS_STUDIO_ACTOR", "studio-api"),
+        )
+    except agent_registry.AgentRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except agent_registry.AgentRegistryConflict as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    try:
+        audit_ledger.append_event(
+            "revocation",
+            {"agent_id": agent_id, "version": version},
+            {"reason": request.reason},
+        )
+    except Exception:
+        pass
+    return {
+        "revocation": revocation,
+        "revoked": True,
+        "semantic_correctness_verified": False,
+        "tools_authorized": False,
+        "execution_enabled": False,
+    }
+
+
+@app.get("/api/v1/agents/{agent_id}/versions/{version}/revocation",
+         dependencies=[Depends(require_api_token)])
+def agent_revocation_status(agent_id: str, version: str) -> dict[str, Any]:
+    """Inspect the immutable revocation record for an Agent version, if any."""
+    try:
+        agent_registry.get_version(agent_id, version)
+    except agent_registry.AgentRegistryNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    revocation = agent_registry.get_revocation(agent_id, version)
+    return {
+        "agent_id": agent_id,
+        "version": version,
+        "revoked": revocation is not None,
+        "revocation": revocation,
         "tools_authorized": False,
         "execution_enabled": False,
     }
@@ -2400,7 +2602,60 @@ def agent_policy_verdict(agent_id: str, version: str) -> dict[str, Any]:
     )
     verdict["facts_source"] = "registry_assembled"
     verdict["release_readiness"] = readiness
+    try:
+        audit_ledger.append_event(
+            "policy_verdict",
+            {"kind": "agent_version", "agent_id": agent_id, "version": version,
+             "manifest_sha256": agent.get("manifest_sha256")},
+            {"decision": verdict.get("decision"),
+             "facts_source": "registry_assembled"},
+        )
+    except Exception:
+        pass
     return verdict
+
+
+@app.get("/api/v1/agents/{agent_id}/versions/{version}/policy-verdict/history",
+         dependencies=[Depends(require_api_token)])
+def agent_policy_verdict_history(agent_id: str, version: str,
+                                 limit: int = Query(default=50, ge=1, le=500)) -> dict[str, Any]:
+    """Recorded verdict-evaluation events for this exact Agent version.
+
+    A history of evaluations that were computed — each entry proves a verdict
+    was produced at a time, never that it authorized or executed anything.
+    """
+    _release_subject_or_http(agent_id, version)
+    matched: list[dict[str, Any]] = []
+    cursor: int | None = None
+    while len(matched) < limit:
+        page = audit_ledger.list_events_page(
+            limit=500, event_type="policy_verdict", after_seq=cursor)
+        for event in page["events"]:
+            subject = event.get("subject") or {}
+            if (subject.get("kind") == "agent_version"
+                    and subject.get("agent_id") == agent_id
+                    and subject.get("version") == version):
+                matched.append({
+                    "seq": event["seq"],
+                    "created_at": event["created_at"],
+                    "event_hash": event["event_hash"],
+                    "decision": (event.get("payload") or {}).get("decision"),
+                    "manifest_sha256": subject.get("manifest_sha256"),
+                })
+                if len(matched) >= limit:
+                    break
+        cursor = page["next_cursor"]
+        if cursor is None:
+            break
+    matched.sort(key=lambda item: item["seq"], reverse=True)
+    return {
+        "schema": "taas.policy-verdict-history/v1",
+        "agent_id": agent_id,
+        "version": version,
+        "count": len(matched),
+        "verdicts": matched,
+        "record_semantics": "recorded_evaluations_not_authorization_or_execution",
+    }
 
 
 @app.get("/api/v1/agents/{agent_id}/versions/{version}/release-readiness", dependencies=[Depends(require_api_token)])
