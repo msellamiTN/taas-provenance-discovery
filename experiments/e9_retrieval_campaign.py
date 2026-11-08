@@ -45,6 +45,10 @@ from taas.types import TypeAssignment, parse_type
 DECOMPOSITIONS = ("none", "clause_splitter", "llm_analyst")
 RANKING_CUTOFFS = (1, 3, 5, 10, 20)
 PRIMARY_CONFIGURATION_ID = "Full_PaMCP"
+EXPECTED_LIVEMCPBENCH_REVISION = "36a51a1065dda49c1e503b87edf33a1e0b331a74"
+EXPECTED_E9_CANDIDATE_TOOL_COUNT = 525
+EXPECTED_E9_CANDIDATE_SERVER_COUNT = 69
+EXPECTED_E9_TASK_COUNT = 94
 REQUIRED_PREREQUISITES = ("E1", "E2", "E3", "E12")
 FORBIDDEN_EVALUATOR_KEYS = {
     "acceptable_tool_sets", "target_tool_ids", "qrels", "labels", "gtfa_claims",
@@ -236,6 +240,61 @@ def load_discovery_package(prepared_dir: Path):
     manifest["_evaluator_references_sha256"] = integrity["evaluator_references_sha256"]
     manifest["_package_file_count"] = integrity["file_count"]
     return tools, tasks, visibility, manifest
+
+def validate_e9_dataset_snapshot(
+    tools: list[dict[str, Any]],
+    tasks: list[dict[str, Any]],
+    manifest: dict[str, Any],
+) -> dict[str, Any]:
+    """Enforce the exact pinned LiveMCPBench source and E9 dataset denominators."""
+    if manifest.get("benchmark") != "LiveMCPBench":
+        raise ValueError("E9 dataset benchmark must be LiveMCPBench")
+    if manifest.get("source_revision") != EXPECTED_LIVEMCPBENCH_REVISION:
+        raise ValueError(
+            "E9 LiveMCPBench source revision mismatch: "
+            f"expected={EXPECTED_LIVEMCPBENCH_REVISION}, got={manifest.get('source_revision')!r}"
+        )
+    if manifest.get("candidate_registry_view") != (
+        "LiveMCPTool only; MCPToolBench++ is not merged into E9 candidates"
+    ):
+        raise ValueError("E9 candidate registry must be the pinned LiveMCPTool-only view")
+    resolution = manifest.get("resolution")
+    expected = {
+        "candidate_tool_count": EXPECTED_E9_CANDIDATE_TOOL_COUNT,
+        "candidate_server_count": EXPECTED_E9_CANDIDATE_SERVER_COUNT,
+        "tasks_total": 95,
+        "tasks_primary_eligible": EXPECTED_E9_TASK_COUNT,
+        "tasks_excluded_no_resolvable_gold": 1,
+    }
+    observed = {
+        "candidate_tool_count": manifest.get("candidate_tool_count"),
+        "candidate_server_count": manifest.get("candidate_server_count"),
+        "tasks_total": (resolution or {}).get("tasks_total") if isinstance(resolution, dict) else None,
+        "tasks_primary_eligible": (resolution or {}).get("tasks_primary_eligible") if isinstance(resolution, dict) else None,
+        "tasks_excluded_no_resolvable_gold": (
+            (resolution or {}).get("tasks_excluded_no_resolvable_gold")
+            if isinstance(resolution, dict) else None
+        ),
+    }
+    if observed != expected:
+        raise ValueError(f"E9 prepared dataset manifest denominator mismatch: expected={expected}, got={observed}")
+    if len(tools) != EXPECTED_E9_CANDIDATE_TOOL_COUNT:
+        raise ValueError(
+            f"E9 candidate registry contains {len(tools)} tools; "
+            f"expected {EXPECTED_E9_CANDIDATE_TOOL_COUNT}"
+        )
+    if len(tasks) != EXPECTED_E9_TASK_COUNT:
+        raise ValueError(
+            f"E9 discovery task set contains {len(tasks)} tasks; expected {EXPECTED_E9_TASK_COUNT}"
+        )
+    return {
+        "source_revision": EXPECTED_LIVEMCPBENCH_REVISION,
+        "candidate_tool_count": len(tools),
+        "candidate_server_count": EXPECTED_E9_CANDIDATE_SERVER_COUNT,
+        "task_count": len(tasks),
+        "protocol_denominator": "94/95 tasks with at least one resolvable gold tool",
+    }
+
 
 def load_goal_specs(path: Path, tasks: list[dict[str, Any]]) -> dict[tuple[str, str], GoalSpec]:
     rows = read_jsonl(path)
@@ -835,6 +894,7 @@ def run_campaign(args: argparse.Namespace) -> dict:
         raise FileExistsError(f"Refusing to overwrite E9 result directory: {output_dir}")
     gate_info = validate_release_gate(args.release_gate, args.comparator_map)
     tools, tasks, visibility, prep_manifest = load_discovery_package(prepared_dir)
+    dataset_info = validate_e9_dataset_snapshot(tools, tasks, prep_manifest)
     contracts, contract_info = load_contracts(args.contract_bundle, tools)
     if contract_info["coverage"] < 1.0:
         raise ValueError(
@@ -1124,6 +1184,7 @@ def run_campaign(args: argparse.Namespace) -> dict:
         "code_branch": git_value("branch", "--show-current"),
         "dataset": {
             "benchmark": "live_mcpbench",
+            **dataset_info,
             "preparation_manifest_sha256": sha256_file(prepared_dir / "PREPARATION_MANIFEST.json"),
             "package_checksums_sha256": prep_manifest.get("_package_checksums_sha256"),
             "package_file_count": prep_manifest.get("_package_file_count"),
