@@ -4507,7 +4507,7 @@ el("ux15-refresh").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-
       put("ux20-source-detail","DEMO DATA ONLY\nNo API requests were made. All values, records, dates and statuses are fabricated examples; they do not describe a real TaaS environment.");el("ux20-demo-mode").disabled=true;el("ux20-live-mode").disabled=false};
     const liveMode=async()=>{const token=el("token")?.value?.trim();if(!token){put("ux20-status","Connect to TaaS Studio and provide an API token before loading live data.");return}
       el("ux20-live-mode").disabled=true;put("ux20-status","Requesting supported live Core observations…");el("ux20-demo-banner").hidden=true;put("ux20-mode-pill","LIVE CORE OBSERVATIONS · LIMITED");
-      const get=async path=>{const r=await fetch(path,{headers:{"Authorization":"Bearer "+token,"Accept":"application/json","Cache-Control":"no-cache"},cache:"no-store"}),d=await r.json().catch(()=>({detail:"Non-JSON response"}));if(!r.ok)throw Error("HTTP "+r.status+": "+(d.detail||"request failed"));return d};
+      const get=async path=>{const r=await fetch(path,{headers:{"Authorization":"Bearer "+token,"Accept":"application/json","Cache-Control":"no-cache"},cache:"no-store"}),d=await readJsonResponse(r);if(r.status===401)markStudioAuthRejected();if(!r.ok)throw Error(formatApiError(d.detail||d,"HTTP "+r.status));return d};
       const [a,v]=await Promise.allSettled([get("/api/v1/audit/events?limit=1000"),get("/api/v1/audit/verify")]);
       const audit=a.status==="fulfilled"&&a.value.schema==="taas.audit-events/v1"&&Array.isArray(a.value.events)?a.value:null;
       const verify=v.status==="fulfilled"&&v.value.schema==="taas.audit-verify/v1"&&typeof v.value.chain_valid==="boolean"?v.value:null;
