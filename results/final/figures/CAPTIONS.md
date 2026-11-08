@@ -13,4 +13,5 @@
 - `E11_gap`: Toolkit size of the review scenario against input size n, by threshold τ and exactness (Sonnet profile; NoGap abstains in every setting).
 - `E14_injection`: Share of task × out-of-scope attack pairs the exposed toolkit can realise under labels B (least-privilege policies, 155 tasks).
 - `E18_shapley`: Shapley attribution of the full-vs-none difference to the three mechanisms (2^3 factorial, least-privilege policies).
+- `E15_latency`: Median per-stage latency against registry size (synthetic clones, 30 tasks, 2 vCPUs).
 - `E17_refinement`: Share of tasks with a certified toolkit against the refinement bound (LLM-free repairs).

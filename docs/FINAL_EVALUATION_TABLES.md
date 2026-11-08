@@ -383,6 +383,25 @@ opus: extract n=10: 4/4, n=40: 4/4, n=160: 4/4, n=640: 4/4; aggregate_sum n=10: 
 | least_privilege|toolscope@5|eligible | 83.2% | 5.8% | 40.3% / 85.2% | 85.2% |
 | least_privilege|toolscope@5|unfiltered | 83.2% | 22.6% | 40.5% / 86.2% | 86.2% |
 
+## E15 Scalability (synthetic clones; p50 / p95 ms)
+
+| Tools | Eligibility | Retrieval | Composition | Total | Index build (s) | Peak RSS (MB) | RAG-MCP ranking (ms) |
+|---|---|---|---|---|---|---|---|
+| 569 | 0.08 / 0.09 | 42.4 / 69.4 | 43.8 / 163.5 | 45.2 / 163.9 | 2.0 | 981 | 12.3 |
+| 1000 | 0.16 / 0.21 | 50.2 / 84.2 | 52.9 / 714.7 | 54.8 / 787.3 | 2.9 | 981 | 12.4 |
+| 10000 | 5.17 / 5.55 | 256.2 / 427.8 | 225.8 / 5510.3 | 251.8 / 5784.6 | 31.6 | 981 | 33.4 |
+| 100000 | 326.75 / 361.05 | 2521.1 / 4894.3 | 2328.8 / 8868.4 | 2575.4 / 13492.7 | 2078.0 | 3136 | 211.6 |
+
+10^6 tools, eligibility only: 0.03 ms per query (index build 123 s).
+
+| |Γ| | Greedy / exact cost (mean) | max | n | Exact ms (p50) | Greedy ms (p50) |
+|---|---|---|---|---|---|
+| 1 | 1.008 | 1.039 | 10 | 3.2 | 2.9 |
+| 3 | 1.027 | 1.219 | 10 | 20.6 | 5.6 |
+| 5 | 1.157 | 1.395 | 10 | 1057.6 | 11.4 |
+| 8 | – | – | 0 | 11551.0 | 28.4 |
+| 12 | – | – | 0 | 17604.7 | 66.5 |
+
 ## E16 Registry and model evolution
 
 | Quantity | Value |
