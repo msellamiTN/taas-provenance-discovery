@@ -10,6 +10,9 @@ from experiments.e9_retrieval_campaign import (
     load_discovery_package,
     load_goal_specs,
     load_composer_config,
+    load_training_scenes,
+    make_no_backward_closure_config,
+    canonical_sha256,
     validate_release_gate,
 )
 from taas.experiments.baseline_runner import BaselineResult
@@ -211,3 +214,55 @@ def test_composer_parameters_are_loaded_only_from_approved_e9_config(tmp_path):
     })
     with pytest.raises(ValueError, match="K=20"):
         load_composer_config(path)
+
+
+def test_no_backward_closure_changes_only_depth():
+    from taas.composer import ComposerConfig
+
+    full = ComposerConfig(K=20, depth=3, relevance=7.5, beta=0.25)
+    no_backward = make_no_backward_closure_config(full)
+    full_values = asdict(full)
+    no_backward_values = asdict(no_backward)
+    assert no_backward.depth == 0
+    full_values.pop("depth")
+    no_backward_values.pop("depth")
+    assert full_values == no_backward_values
+
+
+def test_colt_scenes_are_dev_only_and_built_from_server_membership_crosswalk(tmp_path):
+    crosswalk = {"mcp::search": "live::search", "mcp::read": "live::read"}
+    bundle = {
+        "schema_version": "1.0.0",
+        "status": "accepted",
+        "source_dataset": "MCPToolBench++",
+        "source_split": "dev",
+        "scene_source": "server_membership",
+        "e9_evaluator_labels_used": False,
+        "crosswalk_sha256": canonical_sha256(crosswalk),
+        "tool_crosswalk": crosswalk,
+        "source_tool_servers": {"mcp::search": "server-a", "mcp::read": "server-a"},
+        "dev_query_server_membership": [
+            {"task_id": "dev-001", "split": "dev", "server_ids": ["server-a"]},
+        ],
+    }
+    path = tmp_path / "colt-scenes.json"
+    _json(path, bundle)
+    scenes = load_training_scenes(path, {"live::search", "live::read"}, {"e9-task-1"})
+    assert len(scenes) == 1
+    assert set(scenes[0]["tools"]) == {"live::search", "live::read"}
+    assert scenes[0]["split"] == "train"
+    assert scenes[0]["scene_source"] == "server_membership"
+
+
+def test_colt_scene_crosswalk_hash_must_match(tmp_path):
+    path = tmp_path / "colt-scenes.json"
+    _json(path, {
+        "schema_version": "1.0.0", "status": "accepted",
+        "source_dataset": "MCPToolBench++", "source_split": "dev",
+        "scene_source": "server_membership", "e9_evaluator_labels_used": False,
+        "crosswalk_sha256": "0" * 64, "tool_crosswalk": {"mcp::x": "live::x"},
+        "source_tool_servers": {"mcp::x": "s1"},
+        "dev_query_server_membership": [{"task_id": "d1", "split": "dev", "server_ids": ["s1"]}],
+    })
+    with pytest.raises(ValueError, match="crosswalk SHA-256 mismatch"):
+        load_training_scenes(path, {"live::x"}, {"e9-1"})
