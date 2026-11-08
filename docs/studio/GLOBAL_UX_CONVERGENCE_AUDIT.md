@@ -170,7 +170,7 @@ The discovery handler explicitly rejects requests without human_review_confirmed
 | C-07 | API includes state-changing operations | Agent/Skill publish, approval, sign, revoke, model load/chat and authorization preflight POST routes exist | Classify side effects, permissions, confirmation and audit semantics |
 | C-08 | Navigation mixes legacy and domain labels | HTML includes workspace labels and UX-number labels | Preserve identifiers in traceability; consolidate labels only through approved mockups |
 | C-09 | Browser acceptance remains unproven | PR #88 records browser/keyboard and live Colab validation as pending | Add exact-head browser and Colab acceptance evidence |
-| C-10 | Feature coverage is not proven by route counts | Static source extraction only | Build screen → endpoint → schema → test → acceptance matrix |
+| C-10 | Feature coverage is not proven by route counts | Static source extraction only | Build screen → endpoint → schema → test → acceptance matrix |\n| C-11 | UX-8 is currently an evidence-planning surface, not the governed policy workflow described in issue #87 | The HTML shows static NOT_RUN/UNKNOWN evidence tables; no calls to policy-verdict, release-readiness, approvals or authorization/preflight are present | Reconcile UX-8's approved scope with UX-24; implement only the already-approved workflow and keep unavailable evidence explicit |\n| C-12 | UX-24 adds read-only Agent trust views but deliberately omits authorization preflight | PR #88 uses version, readiness, policy verdict, approvals, Agent events and audit verification; it does not call authorization/preflight | Preserve the read-only UX-24 boundary; map any separately approved preflight view to the correct UX-8 workflow and label it diagnostic, never authorization |
 
 ## 6. Existing approved work and branch handling
 
@@ -179,7 +179,22 @@ The discovery handler explicitly rejects requests without human_review_confirmed
 - PR #88 has no submitted reviews or inline review threads at this audit.
 - Preserve feature branches and accepted baselines until integration and validation evidence are reviewed. No merge or deployment is included in this audit.
 
-## 7. Remediation workstreams
+
+## 7. Existing issue and PR traceability
+
+| Tracker | Existing scope | Convergence treatment |
+|---|---|---|
+| Issue #63 | Design system and application shell | Reconcile target shell with current approved mockups; avoid a wholesale rewrite |
+| Issue #64 | Platform overview dashboard | Verify every count/status against live Core data and real empty/error states |
+| Issue #65 | Model, Agent, Skill, Tool and Assurance workspace integration | Use as the main cross-domain workflow integration anchor |
+| Issue #66 | API-backed Hypergraph Explorer | Preserve Core-projected graph semantics and exact version/provenance |
+| Issue #67 | Studio/Core API contract coordination | Require endpoint/schema/state/error/provenance contract before integration |
+| Issue #87 | Approved UX-7/8/9, F02, Evidence and Release Center implementation scope | Treat prior mockup approvals as valid; close functional and acceptance gaps |
+| PR #88 | UX-24 Agent Governance & Trust Center | Keep draft until browser/keyboard and exact-head Colab acceptance are complete |
+
+The UX-24 branch comparison against the accepted M1 merge base 85594cd shows changes limited to three files: the Studio HTML (+94 lines), UX-24 tests (+97 lines), and UX-24 documentation (+73 lines). The API file is unchanged, consistent with UX-24 reusing existing Core endpoints. The convergence branch's changes relative to that same baseline are confined to this audit document.
+
+## 8. Remediation workstreams
 
 ### W1 — Source of truth and traceability
 Reconcile feature IDs, historical branch/PR ownership, implementation state and evidence. Resolve reused identifiers against repository history; never silently renumber.
@@ -199,7 +214,7 @@ Complete API-backed Build & Engineer, Discover & Compose, Assure & Govern, Opera
 ### W6 — Quality and acceptance
 Add focused unit/API/frontend tests, negative governance tests, full regression, browser interaction, keyboard accessibility, responsive acceptance, exact-commit Colab validation where required, and linked artifacts.
 
-## 8. Mandatory engineering rules
+## 9. Mandatory engineering rules
 
 1. Preserve approved mockups and existing working behavior.
 2. New UX follows mockup → explicit approval → implementation.
@@ -212,7 +227,7 @@ Add focused unit/API/frontend tests, negative governance tests, full regression,
 9. Build → focused tests → full tests → browser/Colab acceptance → documentation.
 10. No merge or deployment without explicit authorization.
 
-## 9. First execution order
+## 10. First execution order
 
 1. Complete feature-to-screen-to-route-to-test traceability.
 2. Reconcile UX-24 with the convergence branch and validate exact-head CI.
