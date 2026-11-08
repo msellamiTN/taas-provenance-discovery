@@ -588,6 +588,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <a href="#tool-registry-governance-center">Tool Registry &amp; MCP Governance (UX-15)</a>
       <a href="#ux16-tool-selection-workbench">Tool Selection &amp; Eligibility (UX-16)</a>
       <a href="#ux17-policy-governance">Governance Policy Designer (UX-17)</a>
+      <a href="#ux18-policy-test-workbench">Policy Testing &amp; Simulation (UX-18)</a>
       <span class="nav-label">OPERATE &amp; OBSERVE</span>
       <a href="#workspace">Benchmark workspace</a>
       <a class="overview-shortcut" href="#runtime">Runtime diagnostics</a>
@@ -1316,8 +1317,30 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     </div>
   </div>
   <p class="ux8-note">No local conflict rules, policy versions, graph edges, validation outcomes or lifecycle events are synthesized. Only the exact response from the Core policy evaluator is displayed.</p>
-</section>
 
+</section>
+<section id="ux18-policy-test-workbench" class="section-anchor" aria-labelledby="ux18-title" style="margin-bottom:18px">
+<div class="panel-head"><div><div class="eyebrow">GOVERN &amp; ASSURE · UX-18</div><h2 id="ux18-title" style="margin:4px 0">Governance Policy Testing &amp; Simulation Workbench</h2><p class="subtle">Run operator-authored scenarios against the Core evaluator and compare returned decisions with explicit expectations.</p></div><span class="pill">Core evaluations · client-side suite</span></div>
+<div class="notice" role="note"><strong>Execution boundary.</strong> Each scenario submits only <code>subject</code> and caller-asserted <code>facts</code> to <code>POST /api/v1/policy/evaluate</code>. The browser sequences independent requests; suites and results are not persisted. This is not a policy-definition runner, YAML validator, coverage engine, publisher or activator. Evaluation does not authorize or execute tools.</div>
+<div class="ux8-grid" style="display:grid;grid-template-columns:minmax(300px,1fr) minmax(280px,.9fr);gap:12px;align-items:start">
+<div class="ux8-card"><div class="panel-head"><div><h3 style="margin:0">1 · Test suite definition</h3><p class="subtle">Each case requires name, subject, facts and expected_decision.</p></div><span class="pill">Local browser input</span></div>
+<label for="ux18-suite"><strong>Scenario suite · JSON</strong></label>
+<textarea id="ux18-suite" rows="20" spellcheck="false" style="width:100%;margin:6px 0 8px;font:12px ui-monospace,monospace">[
+  {"name":"Unknown facts require review","subject":{"kind":"discovery_candidate","id":"scenario-unknown-facts"},"facts":{},"expected_decision":"needs_review"},
+  {"name":"Blocking contract failure denies","subject":{"kind":"discovery_candidate","id":"scenario-invalid-contract"},"facts":{"objective_contract_valid":false},"expected_decision":"deny"}
+]</textarea>
+<p class="subtle">Editable examples only; not stored test records. Facts are caller assertions and are not server-verified.</p>
+<div class="inline-actions"><button id="ux18-run" type="button">Run suite</button><button id="ux18-validate" type="button" class="secondary">Validate JSON &amp; cases</button><button id="ux18-reset" type="button" class="secondary">Reset examples</button></div>
+<p id="ux18-status" class="subtle" role="status" aria-live="polite">Connect to TaaS Studio before running evaluations.</p></div>
+<div class="ux8-card"><div class="panel-head"><div><h3 style="margin:0">2 · Run summary</h3><p class="subtle">Counts derived only from this browser run.</p></div><span id="ux18-run-state" class="pill">Not run</span></div>
+<div class="ux8-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">
+<div class="ux8-card"><div class="eyebrow">SCENARIOS RUN</div><strong id="ux18-ran">—</strong></div><div class="ux8-card"><div class="eyebrow">EXPECTED MATCHES</div><strong id="ux18-passed">—</strong></div><div class="ux8-card"><div class="eyebrow">MISMATCHES</div><strong id="ux18-failed">—</strong></div><div class="ux8-card"><div class="eyebrow">REQUEST ERRORS</div><strong id="ux18-errors">—</strong></div></div>
+<div style="margin-top:14px"><div class="eyebrow">OBSERVED RULE IDS</div><strong id="ux18-rule-count">—</strong><p class="subtle">Distinct rule identifiers returned across successful scenarios. Observation count only—not coverage; Core exposes no complete rule inventory or coverage API.</p></div>
+<div class="notice" style="margin:12px 0 0"><strong>Interpretation.</strong> Expected-decision match is a test assertion, not proof of policy correctness, completeness, consistency, authorization or execution safety.</div></div></div>
+<div class="ux8-card" style="margin-top:12px"><div class="panel-head"><div><h3 style="margin:0">3 · Scenario results</h3><p class="subtle">Expected and Core-returned decisions remain distinct.</p></div><span class="pill">Per-request Core responses</span></div><div style="overflow:auto"><table class="data-table" style="width:100%"><thead><tr><th>Scenario</th><th>Expected</th><th>Actual</th><th>Assertion</th><th>Rules returned</th><th>Details</th></tr></thead><tbody id="ux18-results"><tr><td colspan="6">No suite has been run.</td></tr></tbody></table></div></div>
+<div class="ux8-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:12px"><div class="ux8-card"><h3 style="margin:0 0 8px">4 · Rule trace</h3><p class="subtle">Exact fired-rule records from the selected Core response.</p><label for="ux18-selected"><strong>Scenario response</strong></label><select id="ux18-selected" style="width:100%"><option value="">No scenario response</option></select><pre id="ux18-trace" class="ux8-json">No rule trace available.</pre></div><div class="ux8-card"><h3 style="margin:0 0 8px">5 · Raw response</h3><p class="subtle">Exact JSON response for the selected successful evaluation.</p><pre id="ux18-raw" class="ux8-json">No Core response available.</pre></div></div>
+<p class="ux8-note">No suite persistence, policy-definition YAML/JSON parsing, custom rule authoring, policy versioning, batch endpoint, coverage percentage or recommendations API is exposed. API errors remain errors, never converted into verdicts.</p>
+</section>
 <section id="ux16-tool-selection-workbench" class="section-anchor" aria-labelledby="ux16-title" style="margin-bottom:18px">
 <div class="panel-head"><div><div class="eyebrow">OPERATE &amp; GOVERN · UX-16</div><h2 id="ux16-title" style="margin:4px 0">Tool Selection &amp; Eligibility Workbench</h2><p class="subtle">Retrieve explainable tool candidates, inspect evidence-based policy eligibility and compare exact registry identities.</p></div><span class="pill">Core analysis · pre-execution</span></div>
 <div class="notice" role="note"><strong>Critical boundary.</strong> These endpoints perform retrieval, policy eligibility analysis and deterministic comparison only. They do not invoke MCP tools or execute workflows. Relevance is not eligibility; eligibility is not authorization. Core reports <code>execution_performed=false</code> and <code>semantic_correctness_verified=false</code>.</div>
@@ -4187,6 +4210,50 @@ el("ux15-refresh").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-
     show("ux17-verdict",{status:"No policy evaluation requested."});table([]);conflicts([]);
     status("Inputs reset. No policy was saved or changed.");
   });
+
+  // UX-18: sequential client-side scenario runner over Core policy/evaluate.
+  (() => {
+    const el=id=>document.getElementById(id), initial=el("ux18-suite").value;let records=[],busy=false;
+    const status=m=>el("ux18-status").textContent=m, pretty=v=>JSON.stringify(v,null,2);
+    const parse=()=>{
+      let a;try{a=JSON.parse(el("ux18-suite").value)}catch(e){throw Error("Invalid JSON: "+e.message)}
+      if(!Array.isArray(a)||a.length<1||a.length>100)throw Error("Suite must contain 1–100 scenarios.");
+      const names=new Set();a.forEach((x,i)=>{
+        if(!x||typeof x!=="object"||Array.isArray(x))throw Error("Scenario "+(i+1)+" must be an object.");
+        if(typeof x.name!=="string"||!x.name.trim()||x.name.length>160||names.has(x.name))throw Error("Scenario "+(i+1)+" needs a unique non-empty name (max 160 chars).");names.add(x.name);
+        if(!x.subject||typeof x.subject!=="object"||Array.isArray(x.subject)||typeof x.subject.kind!=="string"||!x.subject.kind.trim())throw Error(x.name+": subject.kind is required.");
+        if(!x.facts||typeof x.facts!=="object"||Array.isArray(x.facts))throw Error(x.name+": facts must be an object.");
+        if(!["allow","deny","needs_review"].includes(x.expected_decision))throw Error(x.name+": expected_decision must be allow, deny or needs_review.");
+      });return a;
+    };
+    const show=i=>{const r=records[i];el("ux18-trace").textContent=r?.response?pretty(r.response.fired_rules||[]):r?"Request error: "+r.error:"No rule trace.";el("ux18-raw").textContent=r?.response?pretty(r.response):r?"Request error: "+r.error:"No Core response.";};
+    const render=()=>{
+      const body=el("ux18-results");body.replaceChildren();
+      if(!records.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=6;td.textContent="No suite has been run.";tr.append(td);body.append(tr);return;}
+      records.forEach((r,i)=>{const tr=document.createElement("tr");[r.name,r.expected,r.actual,r.assertion,r.ruleCount].forEach(v=>{const td=document.createElement("td");td.textContent=String(v);tr.append(td)});const td=document.createElement("td"),b=document.createElement("button");b.type="button";b.className="secondary";b.textContent="Inspect";b.addEventListener("click",()=>{el("ux18-selected").value=String(i);show(i)});td.append(b);tr.append(td);body.append(tr)});
+      const ok=records.filter(r=>r.response),ids=new Set(ok.flatMap(r=>(r.response.fired_rules||[]).map(x=>x.rule_id).filter(x=>typeof x==="string")));
+      el("ux18-ran").textContent=records.length;el("ux18-passed").textContent=records.filter(r=>r.assertion==="MATCH").length;el("ux18-failed").textContent=records.filter(r=>r.assertion==="MISMATCH").length;el("ux18-errors").textContent=records.filter(r=>r.assertion==="ERROR").length;el("ux18-rule-count").textContent=ids.size;
+      const sel=el("ux18-selected");sel.replaceChildren();records.forEach((r,i)=>{const o=document.createElement("option");o.value=i;o.textContent=r.name;sel.append(o)});sel.value="0";show(0);
+    };
+    el("ux18-selected").addEventListener("change",()=>show(Number(el("ux18-selected").value)));
+    el("ux18-validate").addEventListener("click",()=>{try{const a=parse();status("Suite valid: "+a.length+" scenarios. No requests sent.");el("ux18-run-state").textContent="Validated · not run"}catch(e){status("Validation failed: "+e.message);el("ux18-run-state").textContent="Invalid suite"}});
+    el("ux18-reset").addEventListener("click",()=>{if(busy)return;el("ux18-suite").value=initial;records=[];render();["ux18-ran","ux18-passed","ux18-failed","ux18-errors","ux18-rule-count"].forEach(id=>el(id).textContent="—");el("ux18-run-state").textContent="Not run";status("Example scenarios restored. No Core requests sent.")});
+    el("ux18-run").addEventListener("click",async()=>{
+      if(busy)return;let suite;try{suite=parse()}catch(e){status("Suite rejected before requests: "+e.message);el("ux18-run-state").textContent="Invalid suite";return}
+      const token=el("token")?.value?.trim();if(!token){status("Connect to TaaS Studio and provide an API token before running.");return}
+      busy=true;el("ux18-run").disabled=true;el("ux18-validate").disabled=true;el("ux18-run-state").textContent="Running";records=[];render();
+      try{for(let i=0;i<suite.length;i++){const x=suite[i];try{
+        const res=await fetch("/api/v1/policy/evaluate",{method:"POST",headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json","Cache-Control":"no-cache"},cache:"no-store",body:JSON.stringify({subject:x.subject,facts:x.facts})});
+        const data=await res.json().catch(()=>({detail:"Core returned non-JSON response"}));if(!res.ok)throw Error("HTTP "+res.status+": "+(data.detail||data.message||"evaluation failed"));
+        if(data.schema!=="taas.policy-verdict/v1"||!["allow","deny","needs_review"].includes(data.decision)||!Array.isArray(data.fired_rules))throw Error("Response does not match taas.policy-verdict/v1.");
+        records.push({name:x.name,expected:x.expected_decision,actual:data.decision,assertion:data.decision===x.expected_decision?"MATCH":"MISMATCH",ruleCount:data.fired_rules.length,response:data});
+      }catch(e){records.push({name:x.name,expected:x.expected_decision,actual:"No verdict",assertion:"ERROR",ruleCount:"—",error:e.message})}
+      render();status("Processed "+(i+1)+" of "+suite.length+". Results remain in this browser session.");}
+      status("Finished: "+records.filter(r=>r.assertion==="MATCH").length+" matches, "+records.filter(r=>r.assertion==="MISMATCH").length+" mismatches, "+records.filter(r=>r.assertion==="ERROR").length+" request errors. Nothing persisted.");
+      }finally{busy=false;el("ux18-run").disabled=false;el("ux18-validate").disabled=false}
+    });
+  })();
+
 })();
 })();
 </script>
