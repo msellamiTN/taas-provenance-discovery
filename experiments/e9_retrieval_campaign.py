@@ -281,6 +281,11 @@ def load_contracts(path: Path, tools: list[dict[str, Any]]) -> tuple[list[Capabi
     rows = bundle.get("contracts")
     if not isinstance(rows, list) or not rows:
         raise ValueError("Contract bundle contains no contracts")
+    sources = bundle.get("source_artifacts") or {}
+    for experiment in ("E2", "E3"):
+        source = sources.get(experiment) or {}
+        if source.get("status") != "accepted" or not source.get("sha256"):
+            raise ValueError(f"Contract bundle must cite accepted, hash-bound {experiment} inputs")
     tool_by_id = {str(row["tool_id"]): row for row in tools}
     contracts: list[CapabilityContract] = []
     seen: set[str] = set()
@@ -351,7 +356,11 @@ def load_accepted_profile(path: Path) -> tuple[ModelProfile, dict]:
     profile_data = bundle.get("model_profile")
     if not isinstance(profile_data, dict):
         raise ValueError("E12 profile bundle does not contain model_profile")
+    if not bundle.get("model_id") or not bundle.get("model_revision"):
+        raise ValueError("E12 profile bundle must identify the calibrated model and immutable revision")
     profile = ModelProfile.from_json(profile_data)
+    if profile.model_id != bundle.get("model_id"):
+        raise ValueError("E12 profile model_id does not match the bundle metadata")
     if not profile.classes:
         raise ValueError("E12 model profile has no measured class curves")
     return profile, {
@@ -372,9 +381,13 @@ class LocalSentenceTransformerEncoder:
 
     def fit(self, documents: Sequence[str]):
         try:
+            from importlib.metadata import version
             from sentence_transformers import SentenceTransformer
         except ImportError as exc:
             raise RuntimeError("Install the pinned sentence-transformers runtime to execute E9") from exc
+        expected_version = getattr(self, "expected_package_version", None)
+        if expected_version and version("sentence-transformers") != expected_version:
+            raise RuntimeError("sentence-transformers package version differs from the encoder bundle")
         if not self.model_path.exists():
             raise FileNotFoundError(self.model_path)
         # model_path must be a verified local snapshot; this call cannot fall back to Hub.
@@ -399,6 +412,8 @@ def load_encoder(path: Path, device: str):
         raise ValueError("Encoder bundle must be accepted and schema_version=1.0.0")
     if bundle.get("provider") != "sentence-transformers-local":
         raise ValueError("Only a verified local sentence-transformers encoder is supported")
+    if not bundle.get("model_id") or not bundle.get("model_revision") or not bundle.get("package_version"):
+        raise ValueError("Encoder bundle must pin model ID, model revision and package version")
     model_path = Path(bundle.get("model_path") or "")
     if not model_path.is_absolute():
         model_path = (path.parent / model_path).resolve()
@@ -415,11 +430,13 @@ def load_encoder(path: Path, device: str):
             raise ValueError(f"Encoder file hash mismatch: {relative}")
         actual_files[relative] = actual_hash
     encoder = LocalSentenceTransformerEncoder(model_path, device)
+    encoder.expected_package_version = str(bundle["package_version"])
     return encoder, {
         "bundle_sha256": sha256_file(path),
         "model_path": str(model_path),
         "model_id": bundle.get("model_id"),
         "model_revision": bundle.get("model_revision"),
+        "package_version": bundle.get("package_version"),
         "files_verified": len(actual_files),
         "file_hashes": actual_files,
     }
@@ -612,14 +629,15 @@ def run_campaign(args: argparse.Namespace) -> dict:
     start_time = time.perf_counter()
 
     # Prepare engines with identical accepted contracts, model profile and policy.
-    engines: dict[int, DiscoveryEngine] = {}
-    for k in RANKING_CUTOFFS:
-        engines[k] = DiscoveryEngine(
-            contracts,
-            profile,
-            cfg=EngineConfig(composer=ComposerConfig(K=k), refine_k=args.refine_k),
-            encoder=encoder,
-        )
+    engine = DiscoveryEngine(
+        contracts,
+        profile,
+        cfg=EngineConfig(composer=ComposerConfig(K=20), refine_k=args.refine_k),
+        encoder=encoder,
+    )
+    method_counts: dict[str, dict[str, Any]] = defaultdict(
+        lambda: {"completed_task_runs": 0, "blocked_task_runs": 0, "status_counts": defaultdict(int)}
+    )
 
     for decomposition in DECOMPOSITIONS:
         for task in tasks:
@@ -629,47 +647,46 @@ def run_campaign(args: argparse.Namespace) -> dict:
             visible = [str(tool_id) for tool_id in visible_row["visible_tool_ids"]]
             spec = goal_specs[(task_id, decomposition)]
 
-            # Full PaMCP is an explicit primary configuration. Run the configured
-            # composition budget once per preregistered K, then preserve its toolkit order.
-            for k in RANKING_CUTOFFS:
-                result = engines[k].discover(spec, policy)
-                selected = result.toolkit or []
-                if result.toolkit is not None and (result.certificate is None or not result.certificate.valid):
-                    raise RuntimeError(f"{task_id}/{decomposition}/Full_PaMCP: invalid certificate selected")
-                if len(selected) != len(set(selected)) or not set(selected).issubset(set(visible)):
-                    raise RuntimeError(f"{task_id}/{decomposition}/Full_PaMCP: invalid selected toolkit")
-                ranking_rows.append({
-                    "task_id": task_id,
-                    "benchmark": "live_mcpbench",
-                    "baseline": PRIMARY_CONFIGURATION_ID,
-                    "decomposition": decomposition,
-                    "task_group": str(task.get("task_group") or "unspecified"),
-                    "ranking_k": k,
-                    "ranked_tool_ids": selected[:20],
-                    "visible_tool_ids": visible,
-                    "method_status": "completed" if result.toolkit is not None else "abstained",
-                    "certificate_valid": bool(result.certificate and result.certificate.valid),
-                    "discovery_time_seconds": result.time_s,
-                    "gap_goal_ids": [goal.id for goal in result.gap.gap],
-                    "model_profile_id": profile.model_id,
-                    "model_profile_sha256": profile_info["profile_sha256"],
-                })
-                primary_rows += 1
+            # One frozen top-20 result per task/decomposition. The exporter derives
+            # the protocol cutoffs k={5,10,20} from this single ranking, avoiding
+            # duplicate task/method rows or repeated look at evaluator references.
+            result = engine.discover(spec, policy)
+            selected = result.toolkit or []
+            if result.toolkit is not None and (result.certificate is None or not result.certificate.valid):
+                raise RuntimeError(f"{task_id}/{decomposition}/Full_PaMCP: invalid certificate selected")
+            if len(selected) != len(set(selected)) or not set(selected).issubset(set(visible)):
+                raise RuntimeError(f"{task_id}/{decomposition}/Full_PaMCP: invalid selected toolkit")
+            ranking_rows.append({
+                "task_id": task_id,
+                "benchmark": "live_mcpbench",
+                "baseline": PRIMARY_CONFIGURATION_ID,
+                "decomposition": decomposition,
+                "task_group": str(task.get("task_group") or "unspecified"),
+                "ranked_tool_ids": selected[:20],
+                "visible_tool_ids": visible,
+                "method_status": "completed" if result.toolkit is not None else "abstained",
+                "certificate_valid": bool(result.certificate and result.certificate.valid),
+                "discovery_time_seconds": result.time_s,
+                "gap_goal_ids": [goal.id for goal in result.gap.gap],
+                "model_profile_id": profile.model_id,
+                "model_profile_sha256": profile_info["profile_sha256"],
+            })
+            primary_rows += 1
+            method_counts[PRIMARY_CONFIGURATION_ID]["completed_task_runs"] += 1
+            method_counts[PRIMARY_CONFIGURATION_ID]["status_counts"][
+                "abstained" if result.toolkit is None else "completed"
+            ] += 1
 
             # Registered comparison methods are run once per task/decomposition to
             # produce one frozen ordered top-20 list. Unsupported adapters are blocked.
             for baseline_id in baseline_ids:
                 if baseline_id == "toolscope_adapted" and equivalence_oracle is None:
-                    method_status[baseline_id] = {
-                        "status": "blocked_missing_independent_equivalence_oracle",
-                        **baseline_fidelity[baseline_id],
-                    }
+                    method_counts[baseline_id]["blocked_task_runs"] += 1
+                    method_counts[baseline_id]["status_counts"]["blocked_missing_independent_equivalence_oracle"] += 1
                     continue
                 if baseline_id == "colt_adapted" and not train_scenes:
-                    method_status[baseline_id] = {
-                        "status": "blocked_missing_training_scenes",
-                        **baseline_fidelity[baseline_id],
-                    }
+                    method_counts[baseline_id]["blocked_task_runs"] += 1
+                    method_counts[baseline_id]["status_counts"]["blocked_missing_training_scenes"] += 1
                     continue
                 if baseline_id == PRIMARY_CONFIGURATION_ID:
                     continue
@@ -684,13 +701,12 @@ def run_campaign(args: argparse.Namespace) -> dict:
                     training_scenes=train_scenes,
                     parameters={"top_k": 20},
                 )
-                if baseline_id not in method_status:
-                    method_status[baseline_id] = {
-                        "status": "completed" if result.status == "completed" else result.status,
-                        **baseline_fidelity[baseline_id],
-                    }
                 if result.status != "completed":
+                    method_counts[baseline_id]["blocked_task_runs"] += 1
+                    method_counts[baseline_id]["status_counts"][result.status] += 1
                     continue
+                method_counts[baseline_id]["completed_task_runs"] += 1
+                method_counts[baseline_id]["status_counts"]["completed"] += 1
                 ranked = _result_ranking(result, 20)
                 if not set(ranked).issubset(set(visible)):
                     raise RuntimeError(f"{task_id}/{decomposition}/{baseline_id}: out-of-visibility output")
@@ -732,15 +748,33 @@ def run_campaign(args: argparse.Namespace) -> dict:
         row["baseline"] for row in ranking_rows
         if row["baseline"] in baseline_ids
     })
-    statuses = dict(method_status)
+    statuses = {}
+    expected_runs = len(tasks) * len(DECOMPOSITIONS)
+    for method in baseline_ids:
+        counts = method_counts[method]
+        if counts["completed_task_runs"] == expected_runs:
+            status = "completed"
+        elif counts["completed_task_runs"] > 0:
+            status = "partial"
+        elif counts["blocked_task_runs"] > 0:
+            status = "blocked"
+        else:
+            status = "not_executed"
+        statuses[method] = {
+            "status": status,
+            "completed_task_runs": counts["completed_task_runs"],
+            "blocked_task_runs": counts["blocked_task_runs"],
+            "status_counts": dict(counts["status_counts"]),
+            **baseline_fidelity[method],
+        }
     statuses[PRIMARY_CONFIGURATION_ID] = {
-        "status": "completed",
+        "status": "completed" if primary_rows == expected_runs else "partial",
         "rows": primary_rows,
+        "expected_rows": expected_runs,
         "variant": "Full PaMCP with backward closure and certification",
+        "status_counts": dict(method_counts[PRIMARY_CONFIGURATION_ID]["status_counts"]),
     }
     expected_methods = set(baseline_ids) | {PRIMARY_CONFIGURATION_ID}
-    for method in expected_methods:
-        statuses.setdefault(method, {"status": "not_executed"})
     complete = all(statuses.get(method, {}).get("status") == "completed" for method in expected_methods)
     manifest = {
         "schema_version": "1.0.0",
@@ -766,6 +800,7 @@ def run_campaign(args: argparse.Namespace) -> dict:
         "primary_configuration_id": PRIMARY_CONFIGURATION_ID,
         "primary_configuration_executed": True,
         "primary_configuration_rows": primary_rows,
+        "expected_task_decomposition_runs_per_method": expected_runs,
         "method_status": statuses,
         "fidelity": baseline_fidelity,
         "inputs": {
