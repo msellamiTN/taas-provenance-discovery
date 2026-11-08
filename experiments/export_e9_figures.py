@@ -15,6 +15,9 @@ import csv
 import hashlib
 import json
 import random
+
+import numpy as np
+
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
