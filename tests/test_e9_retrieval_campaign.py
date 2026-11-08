@@ -537,3 +537,13 @@ def test_e9_dataset_snapshot_requires_pinned_revision_and_exact_denominators():
     wrong_pool = dict(manifest, candidate_registry_view="merged registry")
     with pytest.raises(ValueError, match="LiveMCPTool-only"):
         validate_e9_dataset_snapshot(tools, tasks, wrong_pool)
+
+    wrong_servers = [dict(row) for row in tools]
+    wrong_servers[-1]["server_id"] = ""
+    with pytest.raises(ValueError, match="valid server IDs"):
+        validate_e9_dataset_snapshot(wrong_servers, tasks, manifest)
+
+    wrong_task_split = [dict(row) for row in tasks]
+    wrong_task_split[-1]["split"] = "train"
+    with pytest.raises(ValueError, match="benchmark_evaluation split"):
+        validate_e9_dataset_snapshot(tools, wrong_task_split, manifest)
