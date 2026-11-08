@@ -177,3 +177,137 @@ def test_registry_migrates_existing_agent_tables_to_snapshot_binding(monkeypatch
         ).fetchone() is not None
     finally:
         connection.close()
+
+
+def test_lifecycle_columns_reject_direct_sql_mutation(monkeypatch, tmp_path):
+    """Direct SQL cannot bypass transition rules, event recording, or updated_at."""
+    database = tmp_path / "agents.sqlite3"
+    monkeypatch.setenv("TAAS_AGENT_REGISTRY_PATH", str(database))
+    agent_registry.create_draft(_manifest())
+
+    connection = agent_registry._connect()
+    try:
+        # Invalid transition (draft -> published) is rejected at the engine level.
+        with pytest.raises(sqlite3.IntegrityError, match="Invalid Agent lifecycle transition"):
+            connection.execute(
+                "UPDATE agent_versions SET lifecycle_state = 'published', "
+                "updated_at = 'x' WHERE agent_id = 'audit-agent' AND version = '1.0.0'"
+            )
+        # A valid-looking transition without a recorded event is rejected too.
+        with pytest.raises(sqlite3.IntegrityError, match="requires a recorded event"):
+            connection.execute(
+                "UPDATE agent_versions SET lifecycle_state = 'validated', "
+                "updated_at = 'x' WHERE agent_id = 'audit-agent' AND version = '1.0.0'"
+            )
+        # updated_at cannot move without a lifecycle transition.
+        with pytest.raises(sqlite3.IntegrityError, match="updated_at may only change"):
+            connection.execute(
+                "UPDATE agent_versions SET updated_at = '2999-01-01T00:00:00.000+00:00' "
+                "WHERE agent_id = 'audit-agent' AND version = '1.0.0'"
+            )
+        # State and history are unchanged after all three failed statements.
+        row = connection.execute(
+            "SELECT lifecycle_state, updated_at FROM agent_versions "
+            "WHERE agent_id = 'audit-agent' AND version = '1.0.0'"
+        ).fetchone()
+        assert row["lifecycle_state"] == "draft"
+        events = connection.execute(
+            "SELECT to_state FROM agent_events "
+            "WHERE agent_id = 'audit-agent' AND version = '1.0.0'"
+        ).fetchall()
+        assert [e["to_state"] for e in events] == ["draft"]
+    finally:
+        connection.close()
+
+
+def test_transition_rolls_back_atomically_and_state_matches_last_event(monkeypatch, tmp_path):
+    database = tmp_path / "agents.sqlite3"
+    monkeypatch.setenv("TAAS_AGENT_REGISTRY_PATH", str(database))
+    agent_registry.create_draft(_manifest())
+
+    validated = agent_registry.transition("audit-agent", "1.0.0", "validated")
+    assert validated["lifecycle_state"] == "validated"
+    published = agent_registry.transition("audit-agent", "1.0.0", "published")
+    assert published["lifecycle_state"] == "published"
+
+    # A stale transition attempt (published -> validated is unsupported) fails
+    # and must not append an event or touch updated_at.
+    with pytest.raises(agent_registry.AgentRegistryConflict):
+        agent_registry.transition("audit-agent", "1.0.0", "validated")
+    after = agent_registry.get_version("audit-agent", "1.0.0")
+    assert after["lifecycle_state"] == "published"
+    assert after["updated_at"] == published["updated_at"]
+
+    events = agent_registry.list_events("audit-agent")["events"]
+    assert [e["to_state"] for e in events] == ["published", "validated", "draft"]
+    # Stored state equals the latest recorded event's to_state.
+    assert after["lifecycle_state"] == events[0]["to_state"]
+
+
+def test_skill_lifecycle_columns_reject_direct_sql_mutation(monkeypatch, tmp_path):
+    from taas.studio import skill_registry
+
+    database = tmp_path / "skills.sqlite3"
+    monkeypatch.setenv("TAAS_SKILL_REGISTRY_PATH", str(database))
+    skill_registry.create_draft({
+        "apiVersion": "taas.ai/v1alpha1", "kind": "Skill",
+        "metadata": {"id": "sk-audit", "name": "Audit", "version": "1.0.0"},
+        "spec": {"instructions": "i"},
+    })
+
+    connection = skill_registry._connect()
+    try:
+        with pytest.raises(sqlite3.IntegrityError, match="Invalid Skill lifecycle transition"):
+            connection.execute(
+                "UPDATE skill_versions SET lifecycle_state = 'published', "
+                "updated_at = 'x' WHERE skill_id = 'sk-audit' AND version = '1.0.0'"
+            )
+        with pytest.raises(sqlite3.IntegrityError, match="requires a recorded event"):
+            connection.execute(
+                "UPDATE skill_versions SET lifecycle_state = 'validated', "
+                "updated_at = 'x' WHERE skill_id = 'sk-audit' AND version = '1.0.0'"
+            )
+        with pytest.raises(sqlite3.IntegrityError, match="updated_at may only change"):
+            connection.execute(
+                "UPDATE skill_versions SET updated_at = '2999-01-01T00:00:00.000+00:00' "
+                "WHERE skill_id = 'sk-audit' AND version = '1.0.0'"
+            )
+    finally:
+        connection.close()
+
+    # The legitimate path still works end-to-end through the service.
+    validated = skill_registry.transition("sk-audit", "1.0.0", "validated")
+    assert validated["lifecycle_state"] == "validated"
+
+
+def test_concurrent_lifecycle_transitions_serialize_fail_closed(monkeypatch, tmp_path):
+    """Two racing transitions cannot both win; BEGIN IMMEDIATE serializes the
+    write and the loser re-reads committed state, failing with a conflict."""
+    import threading
+
+    database = tmp_path / "agents.sqlite3"
+    monkeypatch.setenv("TAAS_AGENT_REGISTRY_PATH", str(database))
+    agent_registry.create_draft(_manifest())
+
+    results: dict[str, str] = {}
+
+    def race(name: str) -> None:
+        try:
+            agent_registry.transition("audit-agent", "1.0.0", "validated")
+            results[name] = "ok"
+        except agent_registry.AgentRegistryConflict:
+            results[name] = "conflict"
+
+    threads = [threading.Thread(target=race, args=(f"t{i}",)) for i in range(4)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join(timeout=30)
+
+    # Exactly one transition wins; the rest fail closed on committed state.
+    assert list(results.values()).count("ok") == 1
+    assert list(results.values()).count("conflict") == 3
+    assert agent_registry.get_version("audit-agent", "1.0.0")["lifecycle_state"] == "validated"
+    # Exactly one validated event recorded — no divergence between state and log.
+    events = agent_registry.list_events("audit-agent")["events"]
+    assert [e["to_state"] for e in events] == ["validated", "draft"]

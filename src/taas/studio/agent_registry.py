@@ -132,6 +132,51 @@ def _connect() -> sqlite3.Connection:
         END
         """
     )
+    # Lifecycle columns are protected at the engine level, not only by the
+    # transition_state() application path: direct SQL cannot bypass transition
+    # rules, skip the append-only event record, or silently move updated_at.
+    connection.execute(
+        """
+        CREATE TRIGGER IF NOT EXISTS agent_versions_valid_transition
+        BEFORE UPDATE OF lifecycle_state ON agent_versions
+        WHEN NOT (
+            OLD.lifecycle_state = NEW.lifecycle_state
+            OR (OLD.lifecycle_state = 'draft' AND NEW.lifecycle_state = 'validated')
+            OR (OLD.lifecycle_state = 'validated' AND NEW.lifecycle_state = 'published')
+        )
+        BEGIN
+            SELECT RAISE(ABORT, 'Invalid Agent lifecycle transition');
+        END
+        """
+    )
+    connection.execute(
+        """
+        CREATE TRIGGER IF NOT EXISTS agent_versions_state_requires_event
+        AFTER UPDATE OF lifecycle_state ON agent_versions
+        WHEN OLD.lifecycle_state <> NEW.lifecycle_state
+        BEGIN
+            SELECT RAISE(ABORT, 'Agent lifecycle change requires a recorded event')
+            WHERE NOT EXISTS (
+                SELECT 1 FROM agent_events
+                WHERE agent_id = NEW.agent_id AND version = NEW.version
+                  AND from_state = OLD.lifecycle_state
+                  AND to_state = NEW.lifecycle_state
+                  AND manifest_sha256 = NEW.manifest_sha256
+                  AND occurred_at = NEW.updated_at
+            );
+        END
+        """
+    )
+    connection.execute(
+        """
+        CREATE TRIGGER IF NOT EXISTS agent_versions_updated_at_guard
+        BEFORE UPDATE OF updated_at ON agent_versions
+        WHEN OLD.lifecycle_state = NEW.lifecycle_state
+        BEGIN
+            SELECT RAISE(ABORT, 'Agent updated_at may only change with a lifecycle transition');
+        END
+        """
+    )
     connection.execute(
         """
         CREATE TRIGGER IF NOT EXISTS agent_versions_no_delete
@@ -367,17 +412,21 @@ def transition(
                 "UPDATE agent_versions SET registry_snapshot_id = ? WHERE agent_id = ? AND version = ?",
                 (registry_snapshot_id, agent_id, version),
             )
-        connection.execute(
-            "UPDATE agent_versions SET lifecycle_state = ?, updated_at = ? "
-            "WHERE agent_id = ? AND version = ?",
-            (target_state, now, agent_id, version),
-        )
+        # The event is recorded before the state update: the
+        # agent_versions_state_requires_event AFTER-trigger verifies a matching
+        # event exists inside this same transaction. If the UPDATE is aborted,
+        # the whole transaction rolls back — state and history stay atomic.
         _record_event(
             connection, agent_id=agent_id, version=version,
             event_type=f"agent.{target_state}", from_state=current,
             to_state=target_state, manifest_sha256=row["manifest_sha256"],
             actor=actor, occurred_at=now,
             registry_snapshot_id=registry_snapshot_id or existing_snapshot,
+        )
+        connection.execute(
+            "UPDATE agent_versions SET lifecycle_state = ?, updated_at = ? "
+            "WHERE agent_id = ? AND version = ?",
+            (target_state, now, agent_id, version),
         )
         connection.commit()
     finally:
