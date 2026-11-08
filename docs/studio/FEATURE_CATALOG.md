@@ -70,7 +70,7 @@ Frontend: `src/taas/studio/static/index.html` (single HTML document, inline CSS 
 | Experiments/evaluation | Research scripts and tests exist outside the Studio workflow | No integrated evaluator, run history, comparison dashboard or gold-label isolation UX |
 | Settings | Token/API connection is represented in the page | No complete connection manager, profile management, audit settings or durable preferences |
 
-Delivered Studio workspaces (all read-only / analysis-only, wired to real Core routes): UX-2 Objective Engineering, UX-3 Tool Registry, UX-5 GoalSpec designer, UX-7 runtime observability, UX-8 governance actions, UX-9 model-assisted objective preparation, UX-10 Release Center, UX-11 Operations Command Center, UX-12 Evidence & Provenance Inspector, UX-13/14 Agent & Skill Lifecycle centers, UX-15 Tool Registry & MCP Governance, UX-16 Tool Selection & Eligibility, UX-17 Policy Designer, UX-18 Policy Testing & Simulation, UX-19 Governance Audit Timeline, UX-20 Compliance & Assurance Dashboard, UX-21 Risk & Remediation, UX-22 Agent Observability, UX-23 Discovery Composition (all demo/live separated), UX-24 Agent Governance & Trust Center, UX-25 Discovery Review & Confirmation gate. Boundary invariants preserved throughout: no tool invocation, approval != authorization != execution, diagnostics are observations not proof.
+Delivered Studio workspaces (all read-only / analysis-only, wired to real Core routes): UX-2 Objective Engineering, UX-3 Tool Registry, UX-5 GoalSpec designer, UX-7 runtime observability, UX-8 governance actions, UX-9 model-assisted objective preparation, UX-10 Release Center, UX-11 Operations Command Center, UX-12 Evidence & Provenance Inspector, UX-13/14 Agent & Skill Lifecycle centers, UX-15 Tool Registry & MCP Governance, UX-16 Tool Selection & Eligibility, UX-17 Policy Designer, UX-18 Policy Testing & Simulation, UX-19 Governance Audit Timeline, UX-20 Compliance & Assurance Dashboard, UX-21 Risk & Remediation, UX-22 Agent Observability, UX-23 Discovery Composition (all demo/live separated), UX-24 Agent Governance & Trust Center, UX-25 Discovery Review & Confirmation gate, UX-26 Workspace Revision History. Boundary invariants preserved throughout: no tool invocation, approval != authorization != execution, diagnostics are observations not proof.
 
 The page contains responsive CSS breakpoints and a grouped left-rail navigation. It is not yet the full persistent shell described in `PRODUCT_UX_BLUEPRINT.md`.
 
@@ -168,3 +168,15 @@ The page contains responsive CSS breakpoints and a grouped left-rail navigation.
 - Discovery certificate gate: `tests/test_engine_certificate_gate.py`
 - Product/UX target architecture: `docs/studio/PRODUCT_UX_BLUEPRINT.md`
 - API usage: `docs/studio/API_QUICKSTART.md`
+
+
+## UX-26 — Workspace Revision History
+
+- Status: implemented in the Studio browser as a read-only OPERATE surface.
+- Core source: `GET /api/v1/workspaces/{workspace_id}/revisions` (`taas.workspace-revision-history/v1`).
+- Displays only returned revision identity, actor, timestamp, digest, change kind, changed paths, and record semantics. Missing fields remain explicitly unavailable.
+- `changed_paths` entries are rendered as `{path,a,b}`; the UI checks key presence so a missing `a`/`b` differs from an explicit `null`.
+- `changes.kind` is displayed only when present (`created` or `updated`); no synthetic before-value is created for a creation record.
+- `truncated=true` shows an incomplete-record warning; `false` shows source-reported completeness; missing or non-boolean values remain unknown.
+- The surface is read-only: no restore, replay, rollback, mutation, approval, authorization, or execution action.
+- Empty history, API errors, 404/deleted workspace, missing `changed_paths`, and incomplete metadata are represented without inventing values.
