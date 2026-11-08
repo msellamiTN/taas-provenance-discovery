@@ -43,7 +43,17 @@ The previous E3 result is preserved byte-for-byte at:
 
 `results/history/E3_effects_pre_tristate_20261108.json`
 
-Its original Git blob SHA is `92308ad9b3df104bec91af8944189aced903cc9e`. The existing `results/final/E3_effects.json` is not silently rewritten by this patch. The corrected standalone runner uses only the already committed merged registry and label files, and does not require the absent raw MCPToolBench++ JSON package:
+Its original Git blob SHA is `92308ad9b3df104bec91af8944189aced903cc9e`.
+
+The latest base branch also contains a later `results/final/E3_effects.json` run
+(`E3_effects-2026-11-08T06:43:50Z-12b5336ee5`). That result already applies the essential
+missingness rule: TP=0, FP=0, FN=1, TN=43, 525 unknown hints, and 119 unknown tools unsafe under
+labels B. Its manifest, however, records dirty code files and its older schema does not explicitly
+report total/evaluated counts, overall coverage, unknown-safe composition, unsafe-reference coverage,
+or unsafe capture over the full reference-unsafe population. This patch leaves that file unchanged
+and writes the expanded, hash-pinned output separately as `E3_effects_tristate.json`.
+
+The corrected standalone runner uses only the already committed merged registry and label files, and does not require the absent raw MCPToolBench++ JSON package:
 
 ```bash
 python experiments/final/run_e3_tristate_only.py
