@@ -82,7 +82,7 @@ The E9 comparator set follows the original Experimental Protocol: COLT, MCP-Zero
 1. Use the preserved 94-task LiveMCPBench dataset artifact from CI run 42422126446 (artifact 13593902899), or regenerate it from the pinned source.
 2. Complete and accept E1, E2, E3 and E12; update the release gate with accepted artifact paths, SHA-256 values and acceptance IDs.
 3. Approve a comparator map that resolves the original DOCX versus machine-readable E9 baseline mismatch without silently changing the preregistration.
-4. Freeze all 282 GoalSpecs (94 tasks × three decomposition conditions), including raw LLM-analyst and clause-splitter artifact hashes.
+4. Freeze all 282 GoalSpecs (94 tasks × three decomposition conditions), including raw LLM-analyst and clause-splitter artifact hashes. The `llm_analyst` rows must also freeze a prompt version, non-empty decoding-settings object and usage record alongside the pinned model ID/revision and hash-verified prompt/response files.
 5. Supply accepted hash-bound contracts for all 525 candidate definitions, a calibrated E12 model profile, accepted policy, composer configuration and local model encoder snapshot.
 6. Supply training-only COLT scenes and an independently adjudicated ToolScope equivalence oracle; otherwise those baselines are marked blocked and the run remains partial.
 7. Execute experiments/e9_retrieval_campaign.py; then run the E9 exporter and retain per-task metric rows for paired analyses.
