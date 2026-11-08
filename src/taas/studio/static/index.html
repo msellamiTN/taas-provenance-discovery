@@ -1355,6 +1355,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 #ux22-agent-observability .u22-raw{max-height:300px;min-height:110px}
 @media(max-width:900px){#ux22-agent-observability .u22-layout{grid-template-columns:1fr}#ux22-agent-observability .u22-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){#ux22-agent-observability .u22-kpis{grid-template-columns:1fr 1fr}#ux22-agent-observability .u22-lifecycle{grid-template-columns:repeat(3,minmax(0,1fr))}}
+#ux22-agent-observability.u22-live-mode .u22-chart,#ux22-agent-observability.u22-live-mode .u22-bars,#ux22-agent-observability.u22-live-mode .u22-lifecycle,#ux22-agent-observability.u22-live-mode .u22-legend{display:none!important}
 </style>
 <div class="panel-head"><div><div class="eyebrow">OPERATE · OBSERVE · UX-22</div><h2 id="ux22-title" style="margin:4px 0">Agent Performance &amp; Lifecycle Observability</h2><p class="subtle">Monitor Agent registry health, lifecycle signals, runtime capacity and operational indicators.</p></div><span class="pill" id="ux22-mode-pill">DEMO DATA · ILLUSTRATIVE</span></div>
 <div class="u22-toolbar"><div><strong>Observability data mode</strong><p class="subtle" style="margin:3px 0">Switch between isolated sample visualizations and authenticated read-only Core responses.</p></div><div class="inline-actions" style="margin:0"><button id="ux22-demo-mode" class="secondary" type="button">Demo dashboard</button><button id="ux22-live-mode" type="button">Load live Core data</button></div></div>
@@ -4406,7 +4407,7 @@ el("ux15-refresh").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-
     const set=(id,v)=>{const n=el(id);if(n)n.textContent=String(v)};
     const unavailable="Unavailable";
     const demo=()=>{
-      el("ux22-demo-banner").hidden=false;set("ux22-mode-pill","DEMO DATA · ILLUSTRATIVE");set("ux22-status","Demo mode active. All dashboard metrics and chart series are fictional.");set("ux22-live-state","DEMO ONLY");
+      el("ux22-agent-observability").classList.remove("u22-live-mode");el("ux22-demo-banner").hidden=false;set("ux22-mode-pill","DEMO DATA · ILLUSTRATIVE");set("ux22-status","Demo mode active. All dashboard metrics and chart series are fictional.");set("ux22-live-state","DEMO ONLY");
       [["ux22-agents","18"],["ux22-runs","12,846"],["ux22-success","96.1%"],["ux22-latency","842 ms"]].forEach(([i,v])=>set(i,v));
       [["ux22-agents-note","Illustrative registry inventory"],["ux22-runs-note","Sample operational volume"],["ux22-success-note","Fictional performance metric"],["ux22-latency-note","Fictional response-time metric"]].forEach(([i,v])=>set(i,v));
       ["trend","health","registry","lifecycle","cost","runtime","usage"].forEach(k=>set("ux22-"+k+"-state","DEMO"));
@@ -4419,7 +4420,7 @@ el("ux15-refresh").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-
     };
     const live=async()=>{
       const token=el("token")?.value?.trim();if(!token){set("ux22-status","Connect to TaaS Studio and provide an API token before loading live data.");return}
-      el("ux22-live-mode").disabled=true;el("ux22-demo-banner").hidden=true;set("ux22-mode-pill","LIVE CORE OBSERVATIONS · LIMITED");set("ux22-status","Requesting read-only Agent, lifecycle and runtime observations…");
+      el("ux22-agent-observability").classList.add("u22-live-mode");el("ux22-live-mode").disabled=true;el("ux22-demo-banner").hidden=true;set("ux22-mode-pill","LIVE CORE OBSERVATIONS · LIMITED");set("ux22-status","Requesting read-only Agent, lifecycle and runtime observations…");
       const get=async path=>{const r=await fetch(path,{headers:{"Authorization":"Bearer "+token,"Accept":"application/json","Cache-Control":"no-cache"},cache:"no-store"});const d=await r.json().catch(()=>({detail:"Non-JSON response"}));if(!r.ok)throw Error("HTTP "+r.status+": "+(d.detail||"request failed"));return d};
       const paths=["/api/v1/agents?limit=500","/api/v1/agents/events?limit=1000","/api/v1/discovery/runs?limit=100","/api/v1/runtime/status","/api/v1/runtime/hardware","/api/v1/models/runtime"];
       const results=await Promise.allSettled(paths.map(get)),names=["agent_registry","agent_lifecycle_events","discovery_runs","runtime_status","runtime_hardware","model_runtime"];
@@ -4437,7 +4438,7 @@ el("ux15-refresh").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-
       set("ux22-registry-state",versions?"CORE REGISTRY":"UNAVAILABLE");set("ux22-lifecycle-state",versions?"CORE LIFECYCLE STATES":"UNAVAILABLE");
       const counts=validVersions.reduce((m,v)=>(m[v.lifecycle_state||"unknown"]=(m[v.lifecycle_state||"unknown"]||0)+1,m),{});
       const tbody=el("ux22-agent-body");tbody.replaceChildren();
-      if(versions&&versions.length){validVersions.slice(0,12).forEach(v=>{const tr=document.createElement("tr");[v.agent_id,v.lifecycle_state,v.version,v.manifest_sha256,v.created_at].forEach(x=>{const td=document.createElement("td");td.textContent=x==null?"Not reported":String(x);tr.append(td)});tbody.append(tr)});set("ux22-registry-note","Core registry versions are shown. Operational runs, success and latency columns are not returned by this registry.");}
+      if(versions&&versions.length){validVersions.slice(0,12).forEach(v=>{const tr=document.createElement("tr");[v.agent_id,v.lifecycle_state,"Not reported","Not reported","Not reported","Not reported"].forEach(x=>{const td=document.createElement("td");td.textContent=x==null?"Not reported":String(x);tr.append(td)});tbody.append(tr)});set("ux22-registry-note","Core registry versions are shown. Operational runs, success and latency columns are not returned by this registry.");}
       else{const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=6;td.textContent="No validated Agent registry version array returned; no inventory inferred.";tr.append(td);tbody.append(tr);set("ux22-registry-note","Registry inventory unavailable.");}
       set("ux22-lifecycle-note",versions?"Counts derived only from lifecycle_state values in the returned version records. These are configuration lifecycle states, not runtime health.":"Lifecycle distribution unavailable.");
       const stage=el("ux22-lifecycle-state");if(versions)stage.textContent="CORE REGISTRY";
