@@ -326,6 +326,20 @@ def load_contracts(path: Path, tools: list[dict[str, Any]]) -> tuple[list[Capabi
     }
 
 
+def make_no_backward_closure_config(base: ComposerConfig) -> ComposerConfig:
+    """Return the same frozen PaMCP config with only backward-closure depth set to zero."""
+    if base.depth < 1:
+        raise ValueError("Full_PaMCP must use positive backward-closure depth")
+    ablated = replace(base, depth=0)
+    base_values = asdict(base)
+    ablated_values = asdict(ablated)
+    base_values.pop("depth")
+    ablated_values.pop("depth")
+    if base_values != ablated_values:
+        raise RuntimeError("NoBackwardClosure config changed parameters beyond closure depth")
+    return ablated
+
+
 def load_composer_config(path: Path) -> tuple[ComposerConfig, int, dict]:
     bundle = read_json(path)
     if bundle.get("schema_version") != "1.0.0" or bundle.get("status") != "accepted":
@@ -679,7 +693,7 @@ def run_campaign(args: argparse.Namespace) -> dict:
 
     # Paired engines differ in exactly one factor: backward-closure depth.
     full_config = replace(composer_config, K=20)
-    no_backward_config = replace(composer_config, K=20, depth=0)
+    no_backward_config = make_no_backward_closure_config(replace(composer_config, K=20))
     full_engine = DiscoveryEngine(
         contracts,
         profile,
@@ -935,6 +949,11 @@ def run_campaign(args: argparse.Namespace) -> dict:
             "model_profile": profile_info,
             "policy_sha256": policy_sha,
             "composer_config": composer_info,
+            "no_backward_composer_config": {
+                "composer": asdict(no_backward_config),
+                "changed_factor": "depth",
+                "base_composer_sha256": composer_info["bundle_sha256"],
+            },
             "encoder": encoder_info,
             "goal_specs_sha256": sha256_file(args.goal_specs),
             "training_scenes_sha256": sha256_file(args.training_scenes) if args.training_scenes else None,
