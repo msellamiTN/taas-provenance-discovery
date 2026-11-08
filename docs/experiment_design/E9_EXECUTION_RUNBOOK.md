@@ -152,7 +152,7 @@ The current repository implementation maturity is disclosed in each run manifest
 
 ## Executable E9 runner and accepted inputs
 
-The campaign runner is \`experiments/e9_retrieval_campaign.py\`. It does not open evaluator/task references until the discovery rankings have been written and hashed. It refuses to start unless the E1, E2, E3 and E12 prerequisites are accepted, SHA-256 verified, and the comparator-map approval is in place.
+The campaign runner is \`experiments/e9_retrieval_campaign.py\`. Before loading discovery inputs, it verifies \`SHA256SUMS.json\` against the exact extracted package inventory and all discovery-side files. It confirms the evaluator-reference path is present and captures its expected digest without reading its bytes; only after discovery rankings are written and hashed does it hash and parse the evaluator references. It refuses to start unless the E1, E2, E3 and E12 prerequisites are accepted, SHA-256 verified, and the comparator-map approval is in place.
 
 Required input package:
 
