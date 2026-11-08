@@ -70,4 +70,4 @@ On each assessment, UX-24 clears prior subject data before requesting the newly 
 
 Initial frontend implementation commit: `99d060633de7de249c98f19e792c9e77c9589034`. Current implementation and validation state are tracked by the head commit and checks on [PR #88](https://github.com/msellamiTN/taas-provenance-discovery/pull/88).
 
-The commit records frontend implementation only. Automated CI, full regression, browser interaction and live Colab acceptance are not yet claimed.
+Current automated validation was run on commit `1e69553aff3614d1aa934ca1f67927caf68c8170`: GitHub Actions run `42455120612` completed successfully with 666 tests passed and one existing Starlette/httpx deprecation warning. The inline Studio JavaScript syntax gate, benchmark hypergraph build and artifact upload also passed. Browser/keyboard acceptance and live Colab validation remain pending; this draft PR has not been merged or deployed.
