@@ -19,6 +19,13 @@ from taas.types import parse_type
 
 STATE_CLASSES = {"write", "delete", "exec", "money"}
 
+LABEL_INPUTS = [
+    "data/llm_records/silver_labels.json",
+    "data/llm_records/reference_labels_opus_part0.jsonl",
+    "data/llm_records/reference_labels_opus_part1.jsonl",
+    "data/llm_records/reference_labels_opus_part2.jsonl",
+]
+
 
 def view_stats(tools: list[dict], name: str) -> dict:
     A, B = fe.labels_A(), fe.labels_B()
@@ -172,16 +179,20 @@ def e3() -> dict:
 def main(raw_dir: str) -> None:
     r1 = e1(Path(raw_dir))
     fe.save("E1_registry", {"results": r1}, "MEASURED (counts); LABELLED (non-read-only share, labels B)",
+            inputs=LABEL_INPUTS,
             notes="Three views; categories are source-qualified (LiveMCPTool server categories and "
                   "MCPToolBench++ request categories are different taxonomies).")
     r2 = e2()
     sheet = human_sheet()
     fe.save("E2_typing", {"results": r2, "human_sheet": str(sheet.relative_to(fe.ROOT))},
             "LABELLED (agreement with independent LLM labels B); human study BLOCKED (sheet prepared)",
+            inputs=LABEL_INPUTS,
             notes="Agreement, not accuracy: neither labelling is human ground truth.")
     r3 = e3()
-    fe.save("E3_effects", {"results": r3}, "LABELLED; observed effects BLOCKED",
-            notes="Declared = MCP readOnlyHint (missing = unknown); lexical = engine's lexical cues.")
+    fe.save("E3_effects_tristate", {"results": r3}, "LABELLED (LLM labels A/B); observed effects BLOCKED",
+            inputs=LABEL_INPUTS,
+            notes="Missing readOnlyHint values remain unknown. Confusion metrics are conditional on hint coverage; "
+                  "unknown unsafe/safe counts and full-reference unsafe capture are explicit.")
     print({k: (v["tools"], v["servers"], v["annotated"], v["non_read_only_B"]) for k, v in r1.items()
            if isinstance(v, dict) and "tools" in v})
     print("E2", {m: (round(r2[m]["kind_agreement"], 3), round(r2[m]["kind_kappa"], 3), round(r2[m]["macro_f1"], 3))
