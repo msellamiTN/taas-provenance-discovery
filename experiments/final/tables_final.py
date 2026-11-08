@@ -69,7 +69,7 @@ def main() -> None:
             # Legacy declared results double-counted missing hints as negatives. Hide that
             # confusion row until E3 has been rerun with the tri-state scorer.
             if k == "declared_vs_B" and not tri_state:
-                rows.append([k, "—", "—", "—", "—", "—", v.get("unknown", "—"), "—", "—", "—", "—"])
+                rows.append([k, "—", "—", "—", "—", "—", "—", v.get("unknown", "—"), "—", "—", "—", "—"])
                 continue
             total = v.get("n_total", R.get("n", 0))
             known = v.get("n_evaluated", total - v.get("unknown", 0))
