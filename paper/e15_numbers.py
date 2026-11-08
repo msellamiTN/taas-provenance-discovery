@@ -28,7 +28,6 @@ for n in sorted({r["n"] for r in rows}):
           "max total ms", round(1000 * max(r["total_s"] for r in sel), 1))
 errs = [r for r in raw if "error" in r]
 print("errors", len(errs), errs[:2])
-for g, v in R["optimality_gap"].items():
-    print("gap", g, {k: round(x, 3) if isinstance(x, float) else x for k, x in v.items()})
-gaps = [r["optimality"] for r in raw if "optimality" in r]
-print("exact regimes", Counter((g["goals"], g["exact_regime"]) for g in gaps))
+G = json.load(open(ROOT / "results" / "final" / "E15_optimality_gap.json"))
+for g, v in G["results"].items():
+    print("gap", g, {k: round(x, 4) if isinstance(x, float) else x for k, x in v.items()})

@@ -22,7 +22,7 @@ import numpy as np
 import fe
 import methods as M
 from taas.bitmap_index import BitmapIndex
-from taas.composer import ComposerConfig, eligible_set
+from taas.composer import ComposerConfig, CostModel, eligible_set
 from taas.contracts import QoS, make_contract
 from taas.engine import DiscoveryEngine, EngineConfig
 from taas.maintenance import CachedToolkit, Maintainer
@@ -142,10 +142,12 @@ def e15() -> dict:
 
 def optimality_gap() -> dict:
     """Greedy vs exact on generated registries: |Γ| goals, each served by 3 tools that need one of m shared
-    intermediate types; each intermediate type has 2 producers of different cost."""
+    intermediate types; each intermediate type has 2 producers of different cost. The gap is measured with the
+    engine's own objective (Eq. (6), every term min-max normalised over the candidate set, as minimised by the
+    exact search); the sum of declared price + latency + 1 per tool is reported alongside."""
     out = {}
     for ng in (1, 3, 5, 8, 12):
-        ratios, exact_ms, greedy_ms = [], [], []
+        ratios, qratios, exact_ms, greedy_ms = [], [], [], []
         for seed in range(10):
             rng = random.Random(100 * ng + seed)
             m = max(2, ng // 2 + 1)
@@ -167,33 +169,44 @@ def optimality_gap() -> dict:
                               "out": f"document:out{g}", "eff": [], "sigma": "data", "n": 1})
             spec = {"id": "x", "prompt_inputs": ["query"], "goals": goals}
             pol = Policy.make("p", required=(), allowed=("read(*)",), lmin=0.0, forbidden_pairs=())
-            res = {}
-            t_inst = time.perf_counter()
+            res, engines = {}, {}
             for regime, nmax in (("exact", 10 ** 6), ("greedy", 0)):
-                eng = DiscoveryEngine(cs, fe.profile("sonnet"),
-                                      cfg=EngineConfig(ComposerConfig(n_max=nmax, relevance=0.0, K=10,
-                                                                      node_budget=NODE_BUDGET), refine_k=0),
-                                      pair_policy=pol)
+                ccfg = ComposerConfig(n_max=nmax, relevance=0.0, K=10, node_budget=NODE_BUDGET)
+                eng = DiscoveryEngine(cs, fe.profile("sonnet"), cfg=EngineConfig(ccfg, refine_k=0), pair_policy=pol)
                 t0 = time.perf_counter()
                 r = eng.discover(copy.deepcopy(spec), pol)
                 dt = time.perf_counter() - t0
-                cost = None
-                if r.toolkit is not None:
-                    cost = sum(eng.H.contracts[t].qos.price + eng.H.contracts[t].qos.latency + 1.0 for t in r.toolkit)
-                res[regime] = (cost, dt, r.compose.regime)
-            RAW_GAP.append({"goals": ng, "seed": seed, "exact_cost": res["exact"][0], "greedy_cost": res["greedy"][0],
-                            "exact_ms": 1000 * res["exact"][1], "greedy_ms": 1000 * res["greedy"][1],
-                            "exact_regime": res["exact"][2], "greedy_regime": res["greedy"][2]})
-            if res["exact"][0] and res["greedy"][0] and "budget" not in str(res["exact"][2]):
-                ratios.append(res["greedy"][0] / res["exact"][0])   # only where the exact search completed
-            exact_ms.append(1000 * res["exact"][1])
-            greedy_ms.append(1000 * res["greedy"][1])
-        out[str(ng)] = {"abstained_exact": sum(1 for x in RAW_GAP if x["goals"] == ng and x["exact_cost"] is None),
-                        "abstained_greedy": sum(1 for x in RAW_GAP if x["goals"] == ng and x["greedy_cost"] is None),
+                res[regime] = {"toolkit": sorted(r.toolkit) if r.toolkit is not None else None, "ms": 1000 * dt,
+                               "regime": r.compose.regime, "candidates": sorted(r.compose.candidates)}
+                engines[regime] = (eng, ccfg)
+            eng, ccfg = engines["exact"]
+            cm = CostModel(eng.H, res["exact"]["candidates"], ccfg)     # same candidate set for both regimes
+            for regime in ("exact", "greedy"):
+                K = res[regime]["toolkit"]
+                res[regime]["cost"] = cm.total(K) if K is not None else None
+                res[regime]["qos_cost"] = sum(eng.H.contracts[t].qos.price + eng.H.contracts[t].qos.latency + 1.0
+                                              for t in K) if K is not None else None
+            same_candidates = res["exact"]["candidates"] == res["greedy"]["candidates"]
+            RAW_GAP.append({"goals": ng, "seed": seed, "exact_cost": res["exact"]["cost"],
+                            "greedy_cost": res["greedy"]["cost"], "exact_qos_cost": res["exact"]["qos_cost"],
+                            "greedy_qos_cost": res["greedy"]["qos_cost"], "exact_toolkit": res["exact"]["toolkit"],
+                            "greedy_toolkit": res["greedy"]["toolkit"], "same_candidates": same_candidates,
+                            "exact_ms": res["exact"]["ms"], "greedy_ms": res["greedy"]["ms"],
+                            "exact_regime": res["exact"]["regime"], "greedy_regime": res["greedy"]["regime"]})
+            if res["exact"]["cost"] and res["greedy"]["cost"] and "budget" not in str(res["exact"]["regime"]):
+                ratios.append(res["greedy"]["cost"] / res["exact"]["cost"])   # only where the exact search completed
+                qratios.append(res["greedy"]["qos_cost"] / res["exact"]["qos_cost"])
+            exact_ms.append(res["exact"]["ms"])
+            greedy_ms.append(res["greedy"]["ms"])
+        rows = [x for x in RAW_GAP if x["goals"] == ng]
+        out[str(ng)] = {"abstained_exact": sum(1 for x in rows if x["exact_cost"] is None),
+                        "abstained_greedy": sum(1 for x in rows if x["greedy_cost"] is None),
                         "greedy_over_exact_mean": float(np.mean(ratios)) if ratios else None,
                         "greedy_over_exact_max": float(np.max(ratios)) if ratios else None,
-                        "exact_budget_exhausted": sum(1 for x in RAW_GAP if x["goals"] == ng
-                                                      and "budget" in str(x["exact_regime"])),
+                        "greedy_optimal_share": float(np.mean([r <= 1 + 1e-12 for r in ratios])) if ratios else None,
+                        "qos_cost_ratio_mean": float(np.mean(qratios)) if qratios else None,
+                        "exact_budget_exhausted": sum(1 for x in rows if "budget" in str(x["exact_regime"])),
+                        "same_candidates": sum(1 for x in rows if x["same_candidates"]),
                         "n": len(ratios), "exact_ms_p50": pctl(exact_ms, 50), "greedy_ms_p50": pctl(greedy_ms, 50),
                         "exact_ms_max": max(exact_ms), "greedy_ms_max": max(greedy_ms)}
         print("gap", ng, out[str(ng)])
@@ -279,13 +292,14 @@ def e16() -> dict:
 
 
 def main() -> None:
-    """Default: E16, then E15. Flags: --e16-only, --e15-only, --e15-max-n N (largest cloned registry; the
+    """Default: E16, then E15. Flags: --e16-only, --e15-only, --gap-only (E15 optimality gap only),
+    --e15-max-n N (largest cloned registry; the
     paper's run uses 100000, whose engine build takes about 35 minutes and 3 GB on two vCPUs)."""
     global E15_SIZES
     if "--e15-max-n" in sys.argv:
         cap = int(sys.argv[sys.argv.index("--e15-max-n") + 1])
         E15_SIZES = tuple(n for n in E15_SIZES if n <= cap)
-    if "--e15-only" not in sys.argv:
+    if "--e15-only" not in sys.argv and "--gap-only" not in sys.argv:
         r16 = e16()
         ev = r16.pop("event_log")
         fe.save("E16_evolution", {"results": r16}, "MEASURED (real registry, simulated evidence for the rug-pull check)",
@@ -295,13 +309,18 @@ def main() -> None:
         if "--e16-only" in sys.argv:
             return
     gap = optimality_gap()
+    fe.save("E15_optimality_gap", {"results": gap},
+            "SYNTHETIC (generated cover instances); cost = the engine's Eq. (6) objective; MEASURED latencies",
+            config={"gap_goals": [1, 3, 5, 8, 12], "gap_seeds": 10, "node_budget": NODE_BUDGET, "n_max_exact": 10 ** 6},
+            raw=fe.save_raw("E15_optimality_gap", RAW_GAP))
+    if "--gap-only" in sys.argv:
+        return
     r15 = e15()
-    fe.save("E15_scalability", {"results": r15, "optimality_gap": gap},
-            "SYNTHETIC (clones; generated cover instances); MEASURED latencies on 2 vCPUs",
+    fe.save("E15_scalability", {"results": r15},
+            "SYNTHETIC (clones of the real registry); MEASURED latencies on 2 vCPUs",
             config={"n": list(E15_SIZES), "tasks": 30,
-                    "eligibility_only_n": 1000000 if E15_SIZES and max(E15_SIZES) >= 100000 else None,
-                    "gap_goals": [1, 3, 5, 8, 12], "gap_seeds": 10, "node_budget": NODE_BUDGET},
-            raw=fe.save_raw("E15_scalability", RAW15 + [{"optimality": x} for x in RAW_GAP]))
+                    "eligibility_only_n": 1000000 if E15_SIZES and max(E15_SIZES) >= 100000 else None},
+            raw=fe.save_raw("E15_scalability", RAW15))
 
 
 if __name__ == "__main__":

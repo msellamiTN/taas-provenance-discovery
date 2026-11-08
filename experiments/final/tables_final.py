@@ -215,11 +215,20 @@ def main() -> None:
                        f"{num(v['compose_p50_ms'], 1)} / {num(v['compose_p95_ms'], 1)}",
                        f"{num(v['total_p50_ms'], 1)} / {num(v['total_p95_ms'], 1)}", num(v["index_build_s"], 1),
                        num(v["peak_rss_mb"], 0), num(v["rag_mcp_ms"], 1)] for n, v in R.items() if "total_p50_ms" in v]),
-               "", f"10^6 tools, eligibility only: {num(R['1000000_eligibility_only']['eligibility_ms'], 2)} ms per query "
-               f"(index build {num(R['1000000_eligibility_only']['index_build_s'], 0)} s).", "",
-               table(["|Γ|", "Greedy / exact cost (mean)", "max", "n", "Exact ms (p50)", "Greedy ms (p50)"],
-                     [[k, num(v["greedy_over_exact_mean"]), num(v["greedy_over_exact_max"]), v["n"],
-                       num(v["exact_ms_p50"], 1), num(v["greedy_ms_p50"], 1)] for k, v in r["optimality_gap"].items()]), ""]
+               ""]
+        if "1000000_eligibility_only" in R:
+            e6 = R["1000000_eligibility_only"]
+            md += [f"10^6 tools, eligibility only: {num(e6['eligibility_ms'], 3)} ms per query "
+                   f"(index build {num(e6['index_build_s'], 0)} s).", ""]
+    g = load("E15_optimality_gap")
+    if g:
+        md += ["## E15 Optimality gap (generated cover instances; cost = the engine's Eq. (6) objective)", "",
+               table(["|Γ|", "Greedy / exact (mean)", "max", "greedy optimal", "exact budget exhausted", "n",
+                      "Exact ms (p50)", "Greedy ms (p50)"],
+                     [[k, num(v["greedy_over_exact_mean"]), num(v["greedy_over_exact_max"]),
+                       pct(v["greedy_optimal_share"]) if v["greedy_optimal_share"] is not None else "--",
+                       f"{v['exact_budget_exhausted']}/10", v["n"], num(v["exact_ms_p50"], 1),
+                       num(v["greedy_ms_p50"], 1)] for k, v in g["results"].items()]), ""]
     r = load("E16_evolution")
     if r:
         v = r["results"]

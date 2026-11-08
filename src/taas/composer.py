@@ -185,7 +185,7 @@ class Composer:
                     if self.H.tail_satisfied(th, R0, self.profile, cfg.n_bridge) is None}
         for _ in range(cfg.depth):
             Tn: list[str] = []
-            for th in frontier:
+            for th in sorted(frontier, key=str):   # deterministic candidate order (ties)
                 derived.add(th)
                 got = self.ret.retrieve(f"{th.kind} {th.domain or ''}", th, elig, R0, cfg.K, True, cfg.components)
                 top = max((v for _, v in got), default=0.0) or 1.0
