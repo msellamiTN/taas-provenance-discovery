@@ -13,10 +13,18 @@ from collections import Counter
 from pathlib import Path
 
 import fe
+from effect_metrics import confusion_with_unknown
 from taas.data.registries import load_mcptoolbenchpp
 from taas.types import parse_type
 
 STATE_CLASSES = {"write", "delete", "exec", "money"}
+
+LABEL_INPUTS = [
+    "data/llm_records/silver_labels.json",
+    "data/llm_records/reference_labels_opus_part0.jsonl",
+    "data/llm_records/reference_labels_opus_part1.jsonl",
+    "data/llm_records/reference_labels_opus_part2.jsonl",
+]
 
 
 def view_stats(tools: list[dict], name: str) -> dict:
@@ -146,20 +154,6 @@ def e3() -> dict:
     ids = sorted(R)
     ref = [B[t].unsafe_read_only for t in ids]
 
-    def conf(pred):
-        """Positive = 'not read-only'. Tools without a prediction (no declaration) are counted separately and
-        excluded from TP/FP/FN/TN; discrepancy is over the tools with a prediction."""
-        tp = sum(1 for p, r in zip(pred, ref) if p is True and r)
-        fp = sum(1 for p, r in zip(pred, ref) if p is True and not r)
-        fn = sum(1 for p, r in zip(pred, ref) if p is False and r)
-        tn = sum(1 for p, r in zip(pred, ref) if p is False and not r)
-        unk = sum(1 for p in pred if p is None)
-        unk_unsafe = sum(1 for p, r in zip(pred, ref) if p is None and r)
-        known = tp + fp + fn + tn
-        return {"tp": tp, "fp": fp, "fn": fn, "tn": tn, "unknown": unk, "unknown_but_unsafe": unk_unsafe,
-                "precision": tp / (tp + fp) if tp + fp else None, "recall": tp / (tp + fn) if tp + fn else None,
-                "recall_incl_unknown": tp / (tp + fn + unk_unsafe) if tp + fn + unk_unsafe else None,
-                "discrepancy_rate": (fp + fn) / known if known else None, "with_prediction": known}
     declared = []
     for t in ids:
         an = R[t].get("annotations") or {}
@@ -167,7 +161,9 @@ def e3() -> dict:
     lexical = [any(cs[t].strength(p) >= 0.25 for p in ("writes", "deletes", "execs", "pays")) for t in ids]
     silverA = [A[t].unsafe_read_only for t in ids]
     out = {"n": len(ids), "reference_unsafe_B": sum(ref),
-           "declared_vs_B": conf(declared), "lexical_vs_B": conf(lexical), "labelsA_vs_B": conf(silverA),
+           "declared_vs_B": confusion_with_unknown(declared, ref),
+           "lexical_vs_B": confusion_with_unknown(lexical, ref),
+           "labelsA_vs_B": confusion_with_unknown(silverA, ref),
            "kappa_A_B_state": fe.kappa(silverA, ref),
            "kappa_A_B_private": fe.kappa([A[t].private_source for t in ids], [B[t].private_source for t in ids]),
            "class_agreement": {}}
@@ -182,7 +178,7 @@ def e3() -> dict:
 def main(raw_dir: str) -> None:
     r1 = e1(Path(raw_dir))
     fe.save("E1_registry", {"results": r1}, "MEASURED (counts); LABELLED (non-read-only share, labels B)",
-            config={"views": ["LiveMCPTool", "MCPToolBench++ (original 87)", "merged"]},
+            inputs=LABEL_INPUTS, config={"views": ["LiveMCPTool", "MCPToolBench++ (original 87)", "merged"]},
             notes="Three views; categories are source-qualified (LiveMCPTool server categories and "
                   "MCPToolBench++ request categories are different taxonomies).")
     r2 = e2()
@@ -191,12 +187,12 @@ def main(raw_dir: str) -> None:
     fe.save("E2_typing", {"results": r2, "human_sheet": str(sheet.relative_to(fe.ROOT)),
                           "human_sheet_sha256": fe.sha256(sheet)},
             "LABELLED (agreement with independent LLM labels B); human study BLOCKED (sheet prepared)",
-            notes="Agreement, not accuracy: neither labelling is human ground truth.",
+            inputs=LABEL_INPUTS, notes="Agreement, not accuracy: neither labelling is human ground truth.",
             config={"thresholds": [0.5, 0.7, 0.9], "sheet_items": 150, "sheet_seed": 11},
             raw=fe.save_raw("E2_typing", rows2))
     r3 = e3()
-    fe.save("E3_effects", {"results": r3}, "LABELLED; observed effects BLOCKED",
-            notes="Declared = MCP readOnlyHint (missing = unknown); lexical = engine's lexical cues.")
+    fe.save("E3_effects_tristate", {"results": r3}, "LABELLED (LLM labels A/B); observed effects BLOCKED",
+            inputs=LABEL_INPUTS, notes="Declared = MCP readOnlyHint (missing = unknown); lexical = engine's lexical cues.")
     print({k: (v["tools"], v["servers"], v["annotated"], v["non_read_only_B"]) for k, v in r1.items()
            if isinstance(v, dict) and "tools" in v})
     print("E2", {m: (round(r2[m]["kind_agreement"], 3), round(r2[m]["kind_kappa"], 3), round(r2[m]["macro_f1"], 3))

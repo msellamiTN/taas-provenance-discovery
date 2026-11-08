@@ -58,17 +58,60 @@ def main() -> None:
                "Structural typer certainty thresholds: " + "; ".join(
                    f"≥{k}: {pct(v['certain_share'])} certain, kind agreement {pct(v['kind_agreement_certain'])}"
                    for k, v in R["struct_thresholds"].items()), "", f"Human annotation sheet: `{r['human_sheet']}`.", ""]
-    r = load("E3_effects")
+    r = load("E3_effects_tristate") or load("E3_effects")
     if r:
         R = r["results"]
-        md += ["## E3 Declared and lexical effects vs labels B (observed effects blocked)", "", table(
-            ["Source", "With prediction", "TP", "FP", "FN", "TN", "No prediction (of which unsafe)", "Precision",
-             "Recall", "Discrepancy (predicted tools)"],
-            [[k, v["with_prediction"], v["tp"], v["fp"], v["fn"], v["tn"],
-              f"{v['unknown']} ({v['unknown_but_unsafe']})", num(v["precision"]), num(v["recall"]),
-              pct(v["discrepancy_rate"])] for k, v in ((x, R[x]) for x in ("declared_vs_B", "lexical_vs_B",
-                                                                           "labelsA_vs_B"))]), "",
-               f"Agreement of labels A and B: κ = {R['kappa_A_B_state']:.3f} (state modification), "
+        sources = ("declared_vs_B", "lexical_vs_B", "labelsA_vs_B")
+        rows = []
+        for k in sources:
+            v = R[k]
+            # The immediately preceding E3 run already excluded None predictions from
+            # TP/FP/FN/TN, but used the older with_prediction/unknown_but_unsafe schema.
+            legacy_tri_state = (k == "declared_vs_B" and "with_prediction" in v
+                                and "unknown_but_unsafe" in v)
+            tri_state = v.get("evaluation_scope") == "covered_only" or legacy_tri_state
+            if k == "declared_vs_B" and not tri_state:
+                rows.append([k, "—", "—", "—", "—", "—", "—", v.get("unknown", "—"),
+                             "—", "—", "—", "—"])
+                continue
+            total = v.get("n_total", R.get("n", 0))
+            known = v.get("n_evaluated", v.get("with_prediction", total - v.get("unknown", 0)))
+            coverage = v.get("coverage", known / total if total else 0.0)
+            if "unknown_unsafe" in v:
+                unknown_unsafe = v["unknown_unsafe"]
+                unknown_safe = v["unknown_safe"]
+            elif legacy_tri_state:
+                unknown_unsafe = v["unknown_but_unsafe"]
+                unknown_safe = v["unknown"] - unknown_unsafe
+            else:
+                unknown_unsafe = unknown_safe = 0
+            unknown_comp = f"{unknown_unsafe}/{unknown_safe}" if tri_state else "0/0"
+            rows.append([k, known, pct(coverage), v["tp"], v["fp"], v["fn"], v["tn"],
+                         v["unknown"], unknown_comp, num(v["precision"]), num(v["recall"]),
+                         pct(v["discrepancy_rate"])])
+        md += ["## E3 Declared and lexical effects vs labels B (observed effects blocked)", "",
+               table(["Source", "Known n", "Coverage", "TP", "FP", "FN", "TN", "Unknown n",
+                      "Unknown unsafe/safe", "Precision", "Recall (known)", "Mismatch (known)"], rows), ""]
+        declared = R["declared_vs_B"]
+        if declared.get("evaluation_scope") == "covered_only" or (
+                "with_prediction" in declared and "unknown_but_unsafe" in declared):
+            known = declared.get("n_evaluated", declared.get("with_prediction"))
+            total = declared.get("n_total", R.get("n", 0))
+            coverage = declared.get("coverage", known / total if total else 0.0)
+            unknown_unsafe = declared.get("unknown_unsafe", declared.get("unknown_but_unsafe"))
+            unknown_safe = declared.get("unknown_safe", declared.get("unknown", 0) - unknown_unsafe)
+            unsafe_capture = declared.get("unsafe_capture_rate_all")
+            if unsafe_capture is None:
+                unsafe_capture = (declared["tp"] / R["reference_unsafe_B"]
+                                  if R.get("reference_unsafe_B", 0) else None)
+            md += [f"Declared-hint coverage: {known}/{total} ({pct(coverage)}); "
+                   f"{unknown_unsafe} reference-unsafe and {unknown_safe} reference-safe tools have no hint. "
+                   f"Only covered tools enter the confusion metrics; unsafe capture over all "
+                   f"reference-unsafe tools is {pct(unsafe_capture)}.", ""]
+        else:
+            md += ["WARNING: the checked-in E3 declared-hint confusion row predates the tri-state correction. "
+                   "Rerun E3 before interpreting declared-hint precision, recall or discrepancy.", ""]
+        md += [f"Agreement of labels A and B: κ = {R['kappa_A_B_state']:.3f} (state modification), "
                f"{R['kappa_A_B_private']:.3f} (private output); per class: " +
                ", ".join(f"{c} {v['A']}/{v['B']} (κ {v['kappa']:.2f})" for c, v in R["class_agreement"].items()), ""]
     r = load("E4_exposure")

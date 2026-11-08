@@ -1,0 +1,77 @@
+{
+ "experiment": "E3_effects",
+ "evidence": "LABELLED; observed effects BLOCKED",
+ "notes": "Declared = MCP readOnlyHint (missing = unknown); lexical = engine's lexical cues.",
+ "manifest": {
+  "commit": "d54706adb32d335a4e366b1a0a5fe01256574951",
+  "created": "2026-11-08T05:58:57Z",
+  "python": "3.13.18",
+  "inputs": {
+   "data/processed/registry_merged.json": "a24bb9c5c788f8856288993c8f3c21b7fcd84b6491cc1a2b778b3b5d5a787045"
+  }
+ },
+ "results": {
+  "n": 569,
+  "reference_unsafe_B": 120,
+  "declared_vs_B": {
+   "tp": 0,
+   "fp": 0,
+   "fn": 120,
+   "tn": 449,
+   "unknown": 525,
+   "precision": null,
+   "recall": 0.0,
+   "discrepancy_rate": 0.210896309314587
+  },
+  "lexical_vs_B": {
+   "tp": 99,
+   "fp": 84,
+   "fn": 21,
+   "tn": 365,
+   "unknown": 0,
+   "precision": 0.5409836065573771,
+   "recall": 0.825,
+   "discrepancy_rate": 0.18453427065026362
+  },
+  "labelsA_vs_B": {
+   "tp": 120,
+   "fp": 11,
+   "fn": 0,
+   "tn": 438,
+   "unknown": 0,
+   "precision": 0.916030534351145,
+   "recall": 1.0,
+   "discrepancy_rate": 0.019332161687170474
+  },
+  "kappa_A_B_state": 0.9438044873809247,
+  "kappa_A_B_private": 0.892569116655428,
+  "class_agreement": {
+   "write": {
+    "A": 120,
+    "B": 107,
+    "kappa": 0.9285196602340483
+   },
+   "delete": {
+    "A": 11,
+    "B": 10,
+    "kappa": 0.8544632961036751
+   },
+   "exec": {
+    "A": 8,
+    "B": 9,
+    "kappa": 0.940287543288908
+   },
+   "money": {
+    "A": 3,
+    "B": 3,
+    "kappa": 1.0
+   },
+   "egress": {
+    "A": 303,
+    "B": 300,
+    "kappa": 0.9470884710520932
+   }
+  },
+  "observed": "BLOCKED: requires runnable credential-free MCP servers and probe traces"
+ }
+}

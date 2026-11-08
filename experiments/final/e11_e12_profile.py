@@ -77,9 +77,10 @@ def e12() -> tuple[dict, dict]:
 
 def e11(recs_by: dict) -> dict:
     from taas.scenarios import reviews_policy, reviews_registry, reviews_spec
-    base = reviews_spec()                       # running review scenario (Fig. 1); its registry, plus the
-    cs = list(reviews_registry())    # the scenario's own registry (with the 569 public tools added, the K=5
-    # shortlist of g5 fills with public document tools and the engine abstains with chi1; reported in notes)
+    base = reviews_spec()                       # running review scenario (Fig. 1)
+    # E11 is scoped to the review scenario 11-tool registry. The 569-tool public
+    # registry is not appended in this experiment; task success remains blocked under E13.
+    cs = list(reviews_registry())
     pol = reviews_policy()
     out = {}
     for model, recs in recs_by.items():
