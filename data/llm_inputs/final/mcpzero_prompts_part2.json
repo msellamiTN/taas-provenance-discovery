@@ -1,0 +1,458 @@
+[
+ {
+  "id": "dda8ea55-629c-4ae8-ab87-0c81477ae615",
+  "query": "I'm planning a trip to the Forbidden City in Beijing, show me where to park and what's interesting to do within 1km distance?"
+ },
+ {
+  "id": "e9df60b1-37a6-4b10-aff0-d432fa79d400",
+  "query": "Please help me find the latest articles about 'MCP' on arXiv. Identify the potentially most influential papers among them and analyze the current trends in this field."
+ },
+ {
+  "id": "6b7fc66e-fe96-4403-9a52-df5afa53ab68",
+  "query": "Generate a research summary for NCT04280705 and save it as Markdown to /root/markdown/NCT04280705.md."
+ },
+ {
+  "id": "567c79c3-3afb-4979-90cf-88ca49cb701d",
+  "query": "Help me write a quick start tutorial for Ant Design in markdown at /root/markdown/antd_tutorial.md."
+ },
+ {
+  "id": "f2a9eb67-efec-4c86-abad-efa55a72f86d",
+  "query": "Generate a deep report of bitcoin and save it in /root/markdown/bitcoin.md"
+ },
+ {
+  "id": "860f7b99-23fe-41fe-9608-59717bad2a9a",
+  "query": "Get deepwiki for vercel/ai and convert its structure to mindmap"
+ },
+ {
+  "id": "7bda47e8-1b8b-4f1f-b67c-573a81417d36",
+  "query": "Introduce me to the article on arxiv 2203.12277"
+ },
+ {
+  "id": "10b5dbf7-0bac-4b25-835f-e806967ad340",
+  "query": "Help me arrange a three-day trip from Beijing to Tianjin tomorrow, round-trip by rail, give me a detailed timetable and include an approximate total budget."
+ },
+ {
+  "id": "f2b074b5-860e-4ecf-afac-16874155dc59",
+  "query": "Help me find homestays in Paris, France, I want to stay tomorrow, about 3 days, one adult."
+ },
+ {
+  "id": "fa451c3f-23c2-4b03-bcb6-60b49e3a142f",
+  "query": "Read the paper in /root/pdf/WebArena.pdf, and find the latest papers in this area"
+ },
+ {
+  "id": "b276e772-28b5-42fd-bb85-fd73e017fe25",
+  "query": "I have 9.5g gold, please estimate its value based on the current price of gold"
+ },
+ {
+  "id": "83da9f72-640f-439d-861e-97b449e02da7",
+  "query": "Analyze the visual marketing strategy from the iPhone 16 page at https://www.apple.com/iphone-16/ and save the summary as a Markdown report to /root/markdown/iphone16_visual_strategy.md"
+ },
+ {
+  "id": "1ef11556-37d6-4585-b4b2-cf2f782141e6",
+  "query": "Read all the articles in the /root/pdf/embodied_ai_papers directory. Compare their similarities and differences, then write a report summarizing your analysis. Save the final report as a Markdown file at /root/markdown/embodied_ai_report.md."
+ },
+ {
+  "id": "29fa007d-5caf-41a0-b107-e9388305c6c5",
+  "query": "I just pulled Jiyan and want to build a team around him as my main DPS. Can you recommend a good starter team for me? I need a sub-DPS/buffer and a healer/survivor. Also, what's his best Echo set and main Echo, and please explain why."
+ },
+ {
+  "id": "5c19a347-7423-47e1-b8e1-dba01860bc1a",
+  "query": "Find the latest research paper in the web agents. Identify the best one, read the full text, and then tell me its main motivation, the methodology it employs, and its key results."
+ },
+ {
+  "id": "086e2393-dc1a-4c55-bf54-1e9a94951db7",
+  "query": "Read the file /root/word/exchange.docx, tell me who did not give a gift"
+ },
+ {
+  "id": "71a7a42a-54af-4552-ad9b-d36f4912cc1c",
+  "query": "Convert the reference list in /root/txt/paper_list.bib into a Word document. Please use APA formatting and save the final file at /root/word/paper_list.docx."
+ },
+ {
+  "id": "41899b5b-b6db-48b1-9899-334452904a12",
+  "query": " I'm considering doing some initial research on a potential investment in the Korean market. Could you help me gather comprehensive data for Hyundai Motor Company."
+ },
+ {
+  "id": "1f6a6db5-05b5-4a8d-a6ef-fbb5d823ad1d",
+  "query": "I plan to go to Shinjuku Gyoen from Tokyo Tower and then find a highly rated Japanese restaurant nearby for lunch. Give me restaurant recommendations and tell me how to get there."
+ },
+ {
+  "id": "2293b5eb-3af1-4f5f-9eaf-138c27885544",
+  "query": "Give me a two-day tour of Beijing based on the recent weather, and my hotel is in the Haidian District"
+ },
+ {
+  "id": "665e1166-1062-444f-81e3-df207d0f975b",
+  "query": "Read the Wikipedia article on Llullaillaco, which briefly describes the content of this article, saved to /root/markdown/Llullaillaco.md"
+ },
+ {
+  "id": "2e190c2a-8aab-44e1-896d-671cb3fcc495",
+  "query": "What are the changes in my log files /root/txt/log_today.txt and /root/txt/log_yesterday.txt, help me to find out all the different lines which contain 'ERROR' ?"
+ },
+ {
+  "id": "0dafdf66-af3a-4110-ab79-d9c037f7bc62",
+  "query": "Find the earliest available high-speed train from Beijing South to Shanghai South for tomorrow. What's the departure time and ticket price?"
+ },
+ {
+  "id": "38c156c5-ff2c-4cf4-9a23-984d761b8bcb",
+  "query": "Help me do a full investment analysis on Nvidia's stock"
+ },
+ {
+  "id": "7315917c-2c98-47c9-80a4-98626a4e9e04",
+  "query": "Please click the element with the selector #subscribe-now on the webpage."
+ },
+ {
+  "id": "7d31f202-029c-40b9-b537-4b2ee79adfc2",
+  "query": "How can I drag an element from one location to another on a webpage?"
+ },
+ {
+  "id": "45abac06-0cc9-4d44-b1bd-384be23cf335",
+  "query": "List all files and directories in the path ./test_project_root/src, clearly distinguishing between files and directories."
+ },
+ {
+  "id": "e1ebe891-9bad-4697-87c9-ce5193a4417e",
+  "query": "Edit the file located at ./test_project_root/src/main.py by changing the text 'def main' to 'def start'."
+ },
+ {
+  "id": "4e04f1cf-e709-4d65-82c7-9eec8d8df286",
+  "query": "Ensure the directory structure exists at the path ./test_project_root/data."
+ },
+ {
+  "id": "85593c28-b2b9-4ebb-ada5-6db0d9e30c74",
+  "query": "What is the current share price of Meta?"
+ },
+ {
+  "id": "b37cd2e4-8d8d-4d66-a798-35ffc004267c",
+  "query": "What is the current share price of Thermo Fisher Scientific?"
+ },
+ {
+  "id": "4e6bd7f5-8739-49d8-a28c-2140b25273f2",
+  "query": "请告诉我IP地址172.16.254.1的具体位置信息和城市名称。"
+ },
+ {
+  "id": "30071abb-b346-4c05-b485-5ff0059cb687",
+  "query": "Quels sont les points d'intérêt autour de la tour Eiffel à Paris?"
+ },
+ {
+  "id": "e249b5d8-ffaa-49d6-afcf-de9684c36c31",
+  "query": "What is the administrative address for the coordinates 116.407526, 39.90403?"
+ },
+ {
+  "id": "e64b0500-0997-4dc7-b928-0923c2416404",
+  "query": "Create a subscription plan for the product with the name Student Plan and billing cycle details."
+ },
+ {
+  "id": "01235d16-2c71-4052-90c1-ed36be8687da",
+  "query": "Create a PayPal order for USB-C Adapter with a quantity of 5 and a cost of 9.99 USD each, shipping to 321 Maple Lane, Austin, Texas, 73301, US."
+ },
+ {
+  "id": "69f2dfac-8a18-445a-a50c-f3aacc174de5",
+  "query": "Extract web content from the BBC News website with basic depth and in markdown format, including images."
+ },
+ {
+  "id": "48b27300-93f2-4596-901b-877ab5cca0df",
+  "query": "Find the latest news on technology advancements in Japan."
+ },
+ {
+  "id": "8edc1141-22ab-4e92-9d20-442e93180e5f",
+  "query": "Find information about global warming."
+ },
+ {
+  "id": "fa5817ce-c273-4f77-8b68-bda1e6b8e095",
+  "query": "Drag the element from the drag source to the drop target."
+ },
+ {
+  "id": "30b7b39d-3bcc-4cd1-9256-f3278ff78e63",
+  "query": "Can you move the element from .card to #deck?"
+ },
+ {
+  "id": "ceba0ffd-b3c4-40f1-8a73-ba71a2f1242b",
+  "query": "Take a screenshot of the element with the selector '.product-item img' on the page and save it as 'product_image_screenshot'."
+ },
+ {
+  "id": "b313f530-41fd-45cf-8a88-63e66207fe8c",
+  "query": "How can I simulate pressing the Escape key on a webpage?"
+ },
+ {
+  "id": "2ff9fa32-a50d-4277-b8f1-1c36e7cf588e",
+  "query": "Start waiting for an HTTP response from the URL https://www.taobao.com with the identifier response2."
+ },
+ {
+  "id": "e1f1ad73-a9c5-4968-9c0c-88cee2c4a97c",
+  "query": "Start waiting for an HTTP response from https://www.baidu.com with identifier response1."
+ },
+ {
+  "id": "fe6da312-6b10-49cf-9d44-9bec31d9de22",
+  "query": "Take a screenshot of the element with the selector .content on the page and name it content_screenshot."
+ },
+ {
+  "id": "3e412bf1-612f-49de-b7ed-5604ee2a7724",
+  "query": "Perform an HTTP PUT request to https://www.sample.com/submit with the data example@example.com."
+ },
+ {
+  "id": "394a745e-4f97-4247-9474-4643108f7894",
+  "query": "Select 'United States' from the dropdown menu with the selector #countryDropdown."
+ },
+ {
+  "id": "50194534-2d07-4147-9c7e-830a54d35482",
+  "query": "Can you hover over the element with the selector #footer-links on the webpage?"
+ },
+ {
+  "id": "e32001ec-8d37-4855-a135-cf9e679de5c0",
+  "query": "Press the Tab key on the element identified by .login-input."
+ },
+ {
+  "id": "77c362d6-e05b-4425-9b42-58460de74b83",
+  "query": "Select 'USA' from the dropdown menu with the selector #countryDropdown."
+ },
+ {
+  "id": "93838865-7737-422e-9467-00c485a30838",
+  "query": "List all files and directories in the path ./test_project_root/data with their types."
+ },
+ {
+  "id": "62296869-f2f3-4273-b117-278458df5cf2",
+  "query": "Create or overwrite the file at ./test_project_root/src/utils/file_utils.py with the following content: def sample_function():\n    pass"
+ },
+ {
+  "id": "db7abafa-2f2d-4d17-93d8-d0c464e0f817",
+  "query": "Can you provide detailed metadata about the file or directory located at ./test_project_root/docs/README.md?"
+ },
+ {
+  "id": "bd8509d8-d3a9-4024-98d1-f6178cf3a63e",
+  "query": "Read the contents of the files located at ./test_project_root/data/test_file_json_1.json and ./test_project_root/data/test_file_json_2.json simultaneously."
+ },
+ {
+  "id": "6d19d842-5c9f-4e7a-9082-8d32e504780d",
+  "query": "Edit the file located at ./test_project_root/data/test_file_txt_1.txt by replacing 'Sample text' with 'Example text'. Show a preview of the changes."
+ },
+ {
+  "id": "c4f3c06e-31a8-40b6-9384-0fcce2749a6e",
+  "query": "Provide a detailed listing of all files and directories in the path ./test_project_root/tests/unit, sorted by name, including sizes."
+ },
+ {
+  "id": "82b991e2-8923-4ca9-8331-197e32b15001",
+  "query": "Ensure the directory ./test_project_root/src/utils exists or create it if it does not."
+ },
+ {
+  "id": "a5cc3bc6-11e5-4698-b067-6521bf004b07",
+  "query": "What files and directories, along with their types, are present in the path ./test_project_root/docs?"
+ },
+ {
+  "id": "14ced88d-4ea6-4e33-980c-3152911dfbbd",
+  "query": "Ensure the directory ./test_project_root/tests/unit exists, creating it if necessary."
+ },
+ {
+  "id": "e6ef9ddb-f182-4b83-b4a6-50bdc6ae1861",
+  "query": "List all files and directories in the path ./test_project_root/tests, distinguishing between files and directories."
+ },
+ {
+  "id": "a7a60b7d-5240-4748-97fe-d596d23ac132",
+  "query": "Ensure the directory structure ./test_project_root/config exists."
+ },
+ {
+  "id": "1e640507-80ad-4744-8061-be8a55b16692",
+  "query": "What are the detailed metadata of the file or directory at the path ./test_project_root/src/main.py?"
+ },
+ {
+  "id": "0d99bb9b-b121-4e67-a1f2-41ae95c4c94e",
+  "query": "What files and directories, along with their types, are present in the path ./test_project_root/tests?"
+ },
+ {
+  "id": "89bfb7f7-f884-4586-9cbc-858b8904ea82",
+  "query": "What is the current share price of Berkshire Hathaway?"
+ },
+ {
+  "id": "c4836e49-4d18-4979-93dc-e81e9b7f971b",
+  "query": "What is the current stock price of Apple?"
+ },
+ {
+  "id": "dd3a6b02-eece-4589-9579-048c237aabd3",
+  "query": "What is the current share price of Sany Heavy Industry?"
+ },
+ {
+  "id": "4b3329da-aade-4e93-ac47-8f76ff34b755",
+  "query": "What is the current share price of Tongcheng Travel Holdings?"
+ },
+ {
+  "id": "5611c1a0-0e05-4aac-a263-b38549140973",
+  "query": "What is the current share price of Procter & Gamble?"
+ },
+ {
+  "id": "2f318b3c-420c-4647-9bee-1b040bea5321",
+  "query": "What is the current share price of SAIC Motor Corporation Limited?"
+ },
+ {
+  "id": "44c54212-acb9-4bb6-bcdf-a8a899bcb5dd",
+  "query": "What is the current share price of Nvidia?"
+ },
+ {
+  "id": "a8008cf0-dad1-4568-acbf-591a936efc18",
+  "query": "What is the current share price of Visa?"
+ },
+ {
+  "id": "e79584fe-ec53-4471-9f65-b0f1a132009e",
+  "query": "What is the current share price of Gree Electric?"
+ },
+ {
+  "id": "fe88446a-1efd-4d07-a1cb-17e33c3026de",
+  "query": "What is the current share price of Tesla?"
+ },
+ {
+  "id": "b73a183e-d12d-4f44-a7a5-67db1a894f23",
+  "query": "What is the current share price of Taiwan Semiconductor Manufacturing Company in the US market?"
+ },
+ {
+  "id": "7d3456db-a39c-4053-9e31-0467a7963049",
+  "query": "What is the current share price of China State Construction Engineering Corporation?"
+ },
+ {
+  "id": "5a3c904a-425e-4fd3-9cc4-ec747a4be0c8",
+  "query": "What is the driving route from Beijing to Moscow?"
+ },
+ {
+  "id": "1b6189f6-16f4-45b5-adf8-19a84a86feda",
+  "query": "What is the administrative address information for the location with coordinates 34.0522,-118.2437?"
+ },
+ {
+  "id": "a65984fe-b330-42c0-9d82-762f1520a744",
+  "query": "What is the address for the coordinates 35.6895, 139.6917?"
+ },
+ {
+  "id": "09752559-fc2f-46e9-a6e4-590d1c04e5c6",
+  "query": "Quelle est la distance et le temps de trajet de Nantes à Toulouse en mode voiture?"
+ },
+ {
+  "id": "cc5c4eaf-07d6-4dd2-98b8-445853dc81a3",
+  "query": "Measure the driving distance from Los Angeles to San Francisco."
+ },
+ {
+  "id": "944a531c-11ed-4eb0-8bb6-dedd60ce73ab",
+  "query": "Find museums within a 2000-meter radius around Beijing."
+ },
+ {
+  "id": "61aaa6a4-6122-4d56-a3c7-67e7f942bd7a",
+  "query": "I have planned a trip to Tokyo, can you generate a map for it?"
+ },
+ {
+  "id": "63fbeec2-5a2c-49b6-9839-f711c1ee1adc",
+  "query": "Каковы координаты Большого театра в Москве?"
+ },
+ {
+  "id": "2f128786-5afc-4a15-8d9d-b84b9b3728ac",
+  "query": "What is the driving distance from New York, NY to Boston, MA?"
+ },
+ {
+  "id": "54e33e71-d22d-46bc-b134-0d740a628641",
+  "query": "Find the best Chinese restaurants in Phoenix."
+ },
+ {
+  "id": "0014460b-8215-4c7b-b8ed-1890fd94b377",
+  "query": "What are the driving directions from Chicago, IL to Atlanta, GA?"
+ },
+ {
+  "id": "14996064-b660-4027-bb17-7257062dbcc4",
+  "query": "What is the current weather and 5-day forecast for New York City?"
+ },
+ {
+  "id": "0e56fcab-90b5-425e-bf98-61e0c45e1d66",
+  "query": "Create a travel itinerary map for Cape Town with detailed plans."
+ },
+ {
+  "id": "78a20052-af37-4afc-b3cd-bce65cdf90bf",
+  "query": "Create a shipment tracking for the transaction with ID 9XJ12345ABC67890 and tracking number 1234567890."
+ },
+ {
+  "id": "3a3a7b10-ba25-4996-b1f4-ec3b0ec116b0",
+  "query": "Initiate a refund for the payment capture with ID CAPTURE12345. If it's a partial refund, refund 50.00 USD with the note: Thank you for your purchase."
+ },
+ {
+  "id": "ce30a7f3-fdc5-4a2c-a76a-c5e35f1c4a04",
+  "query": "Create a new product named Premium Music Streaming with the type SERVICE."
+ },
+ {
+  "id": "46b8398d-6cfd-43d0-8339-41dc282a9996",
+  "query": "Please initiate a refund for the capture with ID CAPTURE54321. Include a note: We apologize for any inconvenience."
+ },
+ {
+  "id": "4df0fc45-57f8-4188-81c7-a01fa49bde05",
+  "query": "Create a shipment tracking for transaction ID 8YH67890DEF12345 with tracking number 9876543210."
+ },
+ {
+  "id": "e4ca7cff-74ef-40b6-9d35-5261e07e9858",
+  "query": "Please initiate a refund for the transaction with ID CAPTURE12345 and include a note saying: Thank you for your patience."
+ },
+ {
+  "id": "0ba0675b-2bec-4d3f-91d3-c63f6e3aa3e0",
+  "query": "Initiate a refund for the payment capture with ID CAPTURE67890. If it's a partial refund, refund 30.00 EUR with the note: Partial refund for your order."
+ },
+ {
+  "id": "e3487e63-6a9f-4672-aaad-8168d5f267d6",
+  "query": "Create a shipment with tracking number 0987654321 for transaction 1AB23456DEF78901."
+ },
+ {
+  "id": "6f1c2782-5e01-4136-a256-7bf43b711102",
+  "query": "Initiate a refund for the capture with ID CAPTUREKLMNO."
+ },
+ {
+  "id": "98d20334-1add-4f09-9b34-f2a0f25e995f",
+  "query": "Create a shipment tracking for the transaction with tracking number 5678901234."
+ },
+ {
+  "id": "702c896d-74e9-411f-bfa1-4b2af9acdbf1",
+  "query": "Create a PayPal order for Bluetooth Headphones with a quantity of 1 and a total item cost of 89.99 USD."
+ },
+ {
+  "id": "8121d946-6200-4858-925b-cea1a5db4f59",
+  "query": "Can you process a refund for the transaction with capture ID CAPTURE09876?"
+ },
+ {
+  "id": "e17f23a2-6066-41a8-8cb2-05a806cccac6",
+  "query": "Find recent news articles about climate change in the United States."
+ },
+ {
+  "id": "7fdc932d-7132-469b-95e5-e897c7199614",
+  "query": "Find recent news articles about sports events from Brazil."
+ },
+ {
+  "id": "5612a5ba-9204-46fa-8bc9-2604a092c093",
+  "query": "Start a web crawl from https://mydomain.com and concentrate on the Pricing category."
+ },
+ {
+  "id": "47ab7e73-d60a-450b-846f-9655050be0a4",
+  "query": "Find information about the global economic outlook."
+ },
+ {
+  "id": "f1e0c476-6da2-450a-b239-085bb6b5b56e",
+  "query": "Extract content from https://www.bbc.com/news with basic depth and format it in markdown."
+ },
+ {
+  "id": "45075d91-a19d-4975-979b-e191bd596e45",
+  "query": "Find the latest news about global warming in the United Kingdom."
+ },
+ {
+  "id": "70a1a965-420a-4934-b697-0a0bc17fb760",
+  "query": "Can you extract content from the following URLs: https://www.wikipedia.org, https://www.nytimes.com?"
+ },
+ {
+  "id": "8a44c88f-6ff9-4005-adf9-f4c75c820d52",
+  "query": "Find the latest news on global politics from France"
+ },
+ {
+  "id": "2ae2b338-df4d-4b70-9275-bfbdce10a937",
+  "query": "Can you start a web crawl on GitHub and focus on Developers?"
+ },
+ {
+  "id": "33eda8dc-295a-496e-a561-0b9fe59ec193",
+  "query": "Find the best restaurants in San Francisco"
+ },
+ {
+  "id": "2db12b3f-c190-4c7a-81b0-38c38495e20c",
+  "query": "Can you extract and analyze the content from the New York Times article published on October 1, 2023, about global market analysis?"
+ },
+ {
+  "id": "b0e3a130-c5cc-4fe6-ac16-c18b4fc8ae0d",
+  "query": "Start a web crawl from Stack Overflow and extract content in markdown format."
+ },
+ {
+  "id": "5dbc22f1-93aa-4bf8-991e-1f85b5aa1d14",
+  "query": "Search for the latest news about the global economic outlook in China."
+ }
+]

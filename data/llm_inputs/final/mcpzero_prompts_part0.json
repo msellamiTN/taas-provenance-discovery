@@ -1,0 +1,458 @@
+[
+ {
+  "id": "0e3287cb-c0ff-4d2a-8c3d-d8833014a7b0",
+  "query": "Generate a well-formatted PDF report titled wechat_reading_report.pdf in /root/pdf, summarizing current WeChat Reading trends and including a word cloud."
+ },
+ {
+  "id": "5a2720cd-20f1-49e7-a3fc-8e74af2217f6",
+  "query": "There are three of us. One person is in Haidian Huangzhuang, another is at Chaoyang Joy City, and the third is at Shijingshan Hospital. Could you please recommend a fair meeting point for us, and then suggest some places for entertainment nearby?"
+ },
+ {
+  "id": "afd60e13-2448-4c0f-9aae-2054b91f1ac1",
+  "query": "I'm driving an EV with a 300km range from Beijing to Chengdu. Can you map out a route with all the charging stations I'll need?"
+ },
+ {
+  "id": "0b21b741-440b-460e-8bad-fa70f99dd01c",
+  "query": "What are the 八字 of a boy born on August 8, 2008 at 11:00 am?"
+ },
+ {
+  "id": "56d7fbdb-ebd6-41fe-a5d6-cd21dbc59fd8",
+  "query": "Find the trending GitHub repositories. For the top one, read its Deepwiki. Then, draft a Markdown intro document for it in /root/markdown/github_trends.md."
+ },
+ {
+  "id": "8aaa7e7f-aff7-4735-9dc8-8bb5f474506c",
+  "query": "Find today's top LLM-related news."
+ },
+ {
+  "id": "a984d31b-f3e9-47d4-8726-19a06e6babc5",
+  "query": "Help me make a STEINS;GATE introduction PPT and help me save it to /root/ppt/STEINS_GATE.pptx."
+ },
+ {
+  "id": "1a3ffa81-d1fe-4b97-9308-3d2ae2d0d9b1",
+  "query": "Extract the key points of this TED talk in https://www.youtube.com/watch?v=arj7oStGLkU, organize them into a mind map, and tell me what the main content of the lecture is."
+ },
+ {
+  "id": "e8f13600-c0c8-427e-98d3-0762ad510805",
+  "query": "There are three people eating in the house this week, I'm allergic to shrimp and my son doesn't eat scallions, so please help me recommend a meal plan and a rough shopping list for next week."
+ },
+ {
+  "id": "00e13e2e-07fa-4d0b-9863-e966190cffd6",
+  "query": "find the painting \"Corridor in the Asylum\" and give me some background information,"
+ },
+ {
+  "id": "e023dd0e-1212-47e0-a73c-97739c78b849",
+  "query": "Generate a presentation on the latest Apple product information. Save it to /root/ppt/apple_news.pptx."
+ },
+ {
+  "id": "ec6f4fe5-e650-48b1-8805-285d8f52eb10",
+  "query": "Create a Next.js middleware that checks for a valid JWT in cookies and redirects unauthenticated users to `/login` in /root/code/middleware.ts. use context7"
+ },
+ {
+  "id": "de75630e-b91e-4cc7-85b1-5d02c2455392",
+  "query": " I'm looking at a PR and need to know if these libs are outdated. com.fasterxml.jackson.core:jackson-databind:2.13.4, org.apache.poi:poi-ooxml:5.2.0, and com.google.guava:guava:30.1-jre. What are the latest versions for each?"
+ },
+ {
+  "id": "470f7ac1-f573-4fec-8990-97f578749f78",
+  "query": "How are Samsung Electronics and SK Hynix doing today? I need their current stock prices, the daily percentage change for each, and can you also calculate their current market capitalization?"
+ },
+ {
+  "id": "17a4aef0-bb60-47b1-9b47-3686bca29db3",
+  "query": "Generate a well-formatted PDF report  in /root/pdf/douban_report.pdf, summarizing current douban trends."
+ },
+ {
+  "id": "3a5cfe49-72e3-48ec-885a-39d62f8f1904",
+  "query": "What does this base64 image mean?\n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"
+ },
+ {
+  "id": "b6281fad-0da4-4fd4-b669-7e4ff9083a82",
+  "query": "I have 18.9g silver, please estimate its value based on the current price"
+ },
+ {
+  "id": "8f26fc1a-fdaa-4e7a-ae53-7b4cacb15334",
+  "query": "My office is located at Jin Mao Tower, 88 Century Avenue, Pudong New Area, Shanghai.\nI'm looking at a potential apartment in the Nanjing West Road area, specifically let's say near 'Nanjing West Road 2-68, Huangpu District, Shanghai'.\nCould you please run a detailed commute analysis for me? I need to compare three different transportation modes: driving, walking, and biking. It's crucial to get an idea of the morning rush hour, so let's set the departure time for 8:00 AM."
+ },
+ {
+  "id": "c4d6c051-e2d4-4f52-b897-e945f402b858",
+  "query": "Based on the current Fear & Greed Index and recent news, do you think it's a good time to take the plunge?"
+ },
+ {
+  "id": "31086c2d-e183-42c3-9ee7-7c1278c4317f",
+  "query": "What files are in my /root/music folder?"
+ },
+ {
+  "id": "d1ea5598-27d2-4a21-ae9d-be30ec099ee3",
+  "query": "Get today's bbc news, reserved for finance related content."
+ },
+ {
+  "id": "423f89ba-be77-4f93-99d7-936548513eef",
+  "query": "Help me create an example word that needs to have headings, tables, body, footnotes and insert clock.png under /root/picture and save it in /root/word/example.docx"
+ },
+ {
+  "id": "39c4c9fc-9074-474a-850f-4b088d499d8c",
+  "query": "Tell me the price of nvidia's stock right now."
+ },
+ {
+  "id": "ffd5f6fb-051c-4c0f-9b82-90038b4cdb84",
+  "query": "I need you to pull up the Chinese almanac and find me the best dates to get married in the near future. Give me a list of the most auspicious Gregorian dates for a wedding in the next months."
+ },
+ {
+  "id": "a75e3a7c-99b6-4c6c-ba92-f02909028d50",
+  "query": "Execute JavaScript code alert('test') in the browser console."
+ },
+ {
+  "id": "bbabb454-902f-4266-a7a1-fd2ff2af570d",
+  "query": "How can I drag the element with selector #item1 to the target with selector #container?"
+ },
+ {
+  "id": "91ab09b8-9ad1-49ae-b140-1c72c7e13c0c",
+  "query": "Execute JavaScript code to scroll to the bottom of the page in the browser console."
+ },
+ {
+  "id": "2c411662-2f2b-4451-8086-20a67e9a2f72",
+  "query": "Ensure the directory structure test_project_root/src/config exists in the project."
+ },
+ {
+  "id": "c20bdb8a-1dac-4bfd-8da3-56a5bb6c9a40",
+  "query": "What are the files and directories in the path ./test_project_root/docs with detailed prefixes?"
+ },
+ {
+  "id": "ed0cae47-7ca6-4d6e-b2a1-ff5d800d51e1",
+  "query": "What is the current share price of Tianjin Development Holdings Limited?"
+ },
+ {
+  "id": "28a98d3e-eba6-4d5a-a88d-5bea72386913",
+  "query": "What is the current share price of Amazon?"
+ },
+ {
+  "id": "9211d913-b23c-49a7-83fd-1bffe3cfb9f0",
+  "query": "What is the current share price of Xiaomi Corporation?"
+ },
+ {
+  "id": "aa8a187f-4785-4eef-bc00-5f82fd360bc5",
+  "query": "広島駅から平和記念公園までの徒歩ルートと、福岡駅から太宰府天満宮までの自転車ルートを教えてください。"
+ },
+ {
+  "id": "78098d05-4c1f-458c-8948-b6550918fedf",
+  "query": "What is the address and administrative division for the coordinates at latitude 48.8566 and longitude -0.1278?"
+ },
+ {
+  "id": "767e0e87-476b-4947-9c25-9af00cb1687d",
+  "query": "Create an order for 3 Headphones with a total cost of 300.0 USD."
+ },
+ {
+  "id": "2405193e-3b4b-4f02-97d7-822b3f9fe293",
+  "query": "Initiate a refund for the capture ID CAPTURE54321 with a partial amount of 20.00 GBP and note Refund for late delivery."
+ },
+ {
+  "id": "94d38b3c-6fa4-45ea-8409-53b28d194bc4",
+  "query": "Create a shipment tracking for transaction ID 7GH23456JKL78901 with tracking number 4567890123."
+ },
+ {
+  "id": "3ec01417-4ad2-404f-ab17-7fa7ee01e90f",
+  "query": "Can you extract the content from the URL https://www.wikipedia.org with basic depth and markdown format?"
+ },
+ {
+  "id": "2f575ea9-10bd-476a-bee6-be1265da9382",
+  "query": "Find the latest sports news in Brazil."
+ },
+ {
+  "id": "40b7428b-f571-41e2-81d1-3a2f80e5cacf",
+  "query": "Fill the input field labeled as username with the value testuser."
+ },
+ {
+  "id": "20759686-4038-4906-a0bd-3a65d609d086",
+  "query": "Select the option with the value 'English' from the dropdown menu identified by #languageSelect."
+ },
+ {
+  "id": "ea38b434-1a6d-4079-b9d2-614e6dbf889b",
+  "query": "Navigate to the website https://www.jd.com using the browser webkit."
+ },
+ {
+  "id": "0d85a8cb-c8f9-4a08-8866-55053aece7dc",
+  "query": "Please click on the submit button on the page."
+ },
+ {
+  "id": "2007c9fc-358f-4370-bebe-047970a426d8",
+  "query": "Please end the code generation session with session ID testSession42."
+ },
+ {
+  "id": "ac9cf055-c334-4089-96a2-df9a7aa26216",
+  "query": "Execute the script window.scrollTo(0, document.body.scrollHeight) in the browser console."
+ },
+ {
+  "id": "65c60186-51e5-49ab-be43-0322139c3280",
+  "query": "Capture a screenshot of the element identified by the class 'login-btn' on the page and name it 'login_button_capture'."
+ },
+ {
+  "id": "65bad570-2257-45ef-a2dd-85112365cff5",
+  "query": "Capture a screenshot of the element identified by #main-banner on the webpage and save it as homepage_screenshot."
+ },
+ {
+  "id": "eeff8b1d-99ef-4cca-8ae4-3c666045b375",
+  "query": "Can you hover over the element with the selector .login-btn on the webpage?"
+ },
+ {
+  "id": "499fa277-24fe-4660-9ff6-d76462dc9a7c",
+  "query": "Start waiting for an HTTP response from https://www.qq.com with identifier response4."
+ },
+ {
+  "id": "f75b0e53-25a3-4aed-b0fc-0efedb4a1055",
+  "query": "Capture a screenshot of the element identified by the class 'product-image' on the page and name it product_image_snap."
+ },
+ {
+  "id": "71e3928b-7bdc-4e7d-b8d2-a289e01b408e",
+  "query": "Select the GMT option from the dropdown menu identified by #timeZoneSelect."
+ },
+ {
+  "id": "a4272bd5-9795-4bb0-a1fb-98745db6ebc7",
+  "query": "How can I drag an element from the source box to the target box on the webpage?"
+ },
+ {
+  "id": "9074d5a4-093c-4317-9c75-392a081a0922",
+  "query": "Read the contents of the files located at ./test_project_root/tests/unit/test_calculations.py and ./test_project_root/requirements.txt simultaneously."
+ },
+ {
+  "id": "f5ed8fe9-dd1c-42c9-8224-c6a5ecb0e56a",
+  "query": "Edit the file located at './test_project_root/src/utils/file_utils.py' by replacing the text 'import os' with 'import sys'."
+ },
+ {
+  "id": "4cb7bc4d-9123-4174-bb12-9e93f6af49eb",
+  "query": "Read the contents of the files test_file_json_1.json and test_file_json_2.json located in the test_project_root/data directory simultaneously."
+ },
+ {
+  "id": "af4db845-7a02-462f-b27b-235fbdd485ac",
+  "query": "Ensure the directory ./test_project_root/src/config exists or create it if it does not."
+ },
+ {
+  "id": "8cac45c6-a9ef-4881-b0e0-4b444900bdfe",
+  "query": "Provide a recursive tree view of the files and directories located at ./test_project_root/src."
+ },
+ {
+  "id": "26f9b4ea-6890-4de4-b90a-8e03cd48dd23",
+  "query": "What are the files and directories, along with their types, in the path ./test_project_root/docs?"
+ },
+ {
+  "id": "f4515ccc-9a4d-43e0-899d-5745b063d4ca",
+  "query": "Provide a detailed listing of all files and directories in the path ./test_project_root/data, sorted by size, including their sizes."
+ },
+ {
+  "id": "06e06509-6a90-4d36-b0f8-6aafe61f1f0b",
+  "query": "Provide a detailed listing of all files and directories in the path ./test_project_root/docs, including their sizes, sorted by size."
+ },
+ {
+  "id": "bd57b84c-a238-4fde-b8e9-eb62a5178837",
+  "query": "What are the files and directories in the path ./test_project_root, and distinguish them with [FILE] and [DIR]?"
+ },
+ {
+  "id": "6d603172-74f2-4069-873e-299f921bb95b",
+  "query": "Can you provide detailed metadata about the file or directory located at ./test_project_root/data/test_file_csv_1.csv?"
+ },
+ {
+  "id": "fd0778b7-a64e-45fb-990f-586d82058609",
+  "query": "Can you provide detailed metadata for the file located at ./test_project_root/data/test_file_json_1.json?"
+ },
+ {
+  "id": "985f23ed-ff13-487f-bbea-df5d855103b8",
+  "query": "Read the contents of the files located at ./test_project_root/src/config/settings.yaml and ./test_project_root/tests/unit/test_calculations.py simultaneously."
+ },
+ {
+  "id": "f7c9dc0a-82da-46f4-8fec-267a15667700",
+  "query": "What is the current share price of Toyota Motor Corporation?"
+ },
+ {
+  "id": "9c119ade-acd1-4d46-9602-78effdaba6f4",
+  "query": "What is the current share price of Procter & Gamble in the US market?"
+ },
+ {
+  "id": "524d99f9-92ca-4ffc-a304-4afe2bbf600a",
+  "query": "What is the current share price of UnitedHealth Group?"
+ },
+ {
+  "id": "3e55b07f-7c07-4d5a-872a-e21992374779",
+  "query": "What is the current share price of China Merchants Bank?"
+ },
+ {
+  "id": "a387d26e-b0a6-4f36-9e69-4bf09e152710",
+  "query": "What is the current share price of UnitedHealth Group in the US market?"
+ },
+ {
+  "id": "75720aba-da01-42ef-adac-60fb706575de",
+  "query": "What is the current share price of East Money Information Co., Ltd.?"
+ },
+ {
+  "id": "b80fd290-d4a0-4e67-8611-2527eb5ed0b7",
+  "query": "What is the current share price of the company with the stock code SZ000725?"
+ },
+ {
+  "id": "5c481342-9ff4-4bb8-a618-1ac7d922b849",
+  "query": "What is the current share price of Google in the US market?"
+ },
+ {
+  "id": "532be0ed-95f3-4b41-81eb-8e0c67a03c82",
+  "query": "What is the current share price of PepsiCo?"
+ },
+ {
+  "id": "b297994f-25ea-4658-91f4-ad78015f33ec",
+  "query": "What is the current share price of Wuliangye Yibin Co., Ltd?"
+ },
+ {
+  "id": "ecceaec8-36db-4850-8bdb-2ff9b5a77cbb",
+  "query": "What is the current share price of Shanghai Pudong Development Bank?"
+ },
+ {
+  "id": "be4a62ad-da86-4821-89e6-246943205480",
+  "query": "What is the current share price of China Merchants Bank in the CN_MAINLAND market?"
+ },
+ {
+  "id": "d8904635-6644-4c95-9512-e010942f8ace",
+  "query": "What is the current share price of Reliance on the NSE India?"
+ },
+ {
+  "id": "9659ccde-3b5e-46db-906e-7833683e0398",
+  "query": "What is the current weather and the 5-day forecast for London?"
+ },
+ {
+  "id": "e3c7da63-a5aa-48bd-a10e-1ba0a66eaa1a",
+  "query": "Quels sont les points d'intérêt autour du musée du Louvre à Paris?"
+ },
+ {
+  "id": "b3eb9a0c-8e78-488d-a1ce-da8821b25f07",
+  "query": "请帮我规划从当前位置到兵马俑博物馆的导航路线。"
+ },
+ {
+  "id": "f51bec22-4248-4abf-af58-b0bd8922ec8b",
+  "query": "What is the current weather in Shanghai?"
+ },
+ {
+  "id": "b4854891-af6b-4fa6-9988-d194ed9377a2",
+  "query": "获取西安兵马俑的评分和营业时间等详细信息。"
+ },
+ {
+  "id": "62a2c47c-ab84-4e31-b062-6b1149a88f84",
+  "query": "Find parks within a 1500-meter radius around Beijing using the keyword 'park'."
+ },
+ {
+  "id": "7a8bc174-93df-4c29-8c77-d5452180ad5a",
+  "query": "What is the driving route from Berlin to Moscow?"
+ },
+ {
+  "id": "2c57e8a1-5bba-42f8-8c2f-050b80ff8363",
+  "query": "What is the address for the location with latitude 51.5074 and longitude 2.3522?"
+ },
+ {
+  "id": "286c5c0d-b2e5-4feb-8f8d-d7a6cca6faa4",
+  "query": "Find popular restaurants within a 1000 meter radius around the Empire State Building."
+ },
+ {
+  "id": "093e44b8-eba5-4ae1-855d-8765f6d75252",
+  "query": "What are the geographic coordinates of the Taj Mahal in Agra?"
+ },
+ {
+  "id": "20ea566d-42c8-40a6-bc3d-cba1a33c5f20",
+  "query": "札幌時計台の緯度と経度を教えてください。"
+ },
+ {
+  "id": "a57ddc87-fc4b-462e-ba74-520533162f25",
+  "query": "What is the walking route from the coordinates 116.407526,39.90403 to 116.397451,39.909187?"
+ },
+ {
+  "id": "aacc25db-551c-457d-a4a6-aa59a6c40c29",
+  "query": "Initiate a refund for the capture with ID CAPTUREABCDE."
+ },
+ {
+  "id": "a8a4db6d-3c05-46f2-9228-f2b0c892602d",
+  "query": "Create an invoice for Healthy Eats for a Meal Prep Service costing 50.00 CAD."
+ },
+ {
+  "id": "d1ea71cb-6bb5-4731-a670-53b88651ff46",
+  "query": "Create a shipment tracking for transaction ID 5XH56789MNO01234 with tracking number 1Z555EE50567890123."
+ },
+ {
+  "id": "8fdfc65c-a517-4be3-89a3-7387b7cd8648",
+  "query": "Create an order to purchase a Tablet with a quantity of 1 at a cost of 250.0 each, totaling 250.0 USD."
+ },
+ {
+  "id": "a14c1def-87dd-459a-8a66-3a484f2be55b",
+  "query": "Create an invoice for Tech Solutions Inc. with an item, a Laptop, costing 1200.00 USD."
+ },
+ {
+  "id": "0ae9d22e-8711-42b7-a647-7191bb335752",
+  "query": "Create a subscription plan for the product with ID PROD-12345, named Basic Plan, and include the billing cycle details."
+ },
+ {
+  "id": "485f4615-b86c-4e85-a642-3a3e9a285f80",
+  "query": "Create a new digital product named E-Book Reader."
+ },
+ {
+  "id": "29294319-ba4f-41f2-8ca9-9fd104902f46",
+  "query": "Create a subscription plan for online courses with a weekly billing cycle and a fixed price of 19.99 USD."
+ },
+ {
+  "id": "4f944c55-11cd-4679-9dba-1ed5a5695d07",
+  "query": "Create a new product named Yoga Mat as a physical item in PayPal."
+ },
+ {
+  "id": "ed3e7696-4458-43e2-b042-ff37523c29db",
+  "query": "Initiate a refund for the transaction with ID CAPTURE54321 with a note saying 'Refund for overcharge'."
+ },
+ {
+  "id": "737955ce-6b25-4d05-b2f7-1e93974fc5e4",
+  "query": "Create a shipment tracking for the transaction with tracking number 1Z888BB20234567890."
+ },
+ {
+  "id": "d51a4d18-edc7-42c9-b854-74dfaa40f6c0",
+  "query": "Create a shipment tracking for the transaction with ID 4UJ12345DEF67891 using the tracking number 9400110200883644329831."
+ },
+ {
+  "id": "79a74e27-3126-430c-9087-7cbb421fed2c",
+  "query": "Create an invoice for Bob Brown with the item Monitor priced at 300.00 GBP."
+ },
+ {
+  "id": "a5d66325-2a65-4486-8a80-f9d01b63a5a4",
+  "query": "Find the latest news about artificial intelligence in China."
+ },
+ {
+  "id": "514cd468-f4cb-4246-a39e-b14c6d68988e",
+  "query": "Start a web crawl from https://www.educationportal.edu with a maximum depth of 3 and extract the content in markdown format."
+ },
+ {
+  "id": "447bc618-7743-4608-a4c4-2d0af1c50879",
+  "query": "Find the latest news on climate change in the United States with images included."
+ },
+ {
+  "id": "0021b3ca-4a44-4c91-863a-d6cbf514a513",
+  "query": "Find recent news articles about healthcare innovations in India."
+ },
+ {
+  "id": "28082564-8291-4187-87e9-2454c5b78cfd",
+  "query": "Can you extract content from these URLs: https://www.ted.com and https://www.nationalgeographic.com?"
+ },
+ {
+  "id": "3e785406-21bf-42a0-b124-2272905e9f0d",
+  "query": "Find the latest news about economic growth in China."
+ },
+ {
+  "id": "8a3b5d95-d49b-4bce-9d21-63aa6b81e369",
+  "query": "Find the latest news on healthcare innovations in India"
+ },
+ {
+  "id": "389c36d0-a89f-4627-9e85-9e322a873213",
+  "query": "Find the latest news about space exploration."
+ },
+ {
+  "id": "367548f5-7cbf-471c-8cd1-89ec98a02574",
+  "query": "Find the latest news about cryptocurrency trends."
+ },
+ {
+  "id": "ee793dad-2fc5-43fe-861f-5402f5ae184d",
+  "query": "Extract content from https://github.com/trending with basic depth including images in text format."
+ },
+ {
+  "id": "00d3a0e9-27da-43bb-aad0-07bef1f67b96",
+  "query": "Can you perform a web crawl starting from Medium's homepage focusing on blogs and retrieve the data in markdown format?"
+ },
+ {
+  "id": "6f6f3685-e6b8-4c35-b4ac-268a883e1cbb",
+  "query": "Find the latest news about space exploration in India."
+ }
+]

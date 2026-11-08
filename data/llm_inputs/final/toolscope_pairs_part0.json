@@ -1,0 +1,4468 @@
+[
+ {
+  "pair": "P0000",
+  "a": {
+   "id": "12306-mcp::get-current-date",
+   "description": "获取当前日期，以上海时区（Asia/Shanghai, UTC+8）为准，返回格式为 \"yyyy-MM-dd\"。主要用于解析用户提到的相对日期（如“明天”、“下周三”），为其他需要日期的接口提供准确的日期输入。",
+   "args": ""
+  },
+  "b": {
+   "id": "Bazi::getSolarTimes",
+   "description": "根据八字获取公历时间列表。返回的时间格式为：YYYY-MM-DD hh:mm:ss。例如时间1998年7月31日下午2点整表示为：1998-07-31 14:00:00",
+   "args": "bazi"
+  },
+  "cos": 0.749
+ },
+ {
+  "pair": "P0002",
+  "a": {
+   "id": "12306-mcp::get-station-by-telecode",
+   "description": "通过车站的 `station_telecode` 查询车站的详细信息，包括名称、拼音、所属城市等。此接口主要用于在已知 `telecode` 的情况下获取更完整的车站数据，或用于特殊查询及调试目的。一般用户对话流程中较少直接触发。",
+   "args": "stationTelecode"
+  },
+  "b": {
+   "id": "12306-mcp::get-station-code-by-names",
+   "description": "通过具体的中文车站名查询其 `station_code` 和车站名。此接口主要用于在用户提供**具体车站名**作为出发地或到达地时，为接口准备 `station_code` 参数。",
+   "args": "stationNames"
+  },
+  "cos": 0.88
+ },
+ {
+  "pair": "P0004",
+  "a": {
+   "id": "12306-mcp::get-station-by-telecode",
+   "description": "通过车站的 `station_telecode` 查询车站的详细信息，包括名称、拼音、所属城市等。此接口主要用于在已知 `telecode` 的情况下获取更完整的车站数据，或用于特殊查询及调试目的。一般用户对话流程中较少直接触发。",
+   "args": "stationTelecode"
+  },
+  "b": {
+   "id": "12306-mcp::get-stations-code-in-city",
+   "description": "通过中文城市名查询该城市 **所有** 火车站的名称及其对应的 `station_code`，结果是一个包含多个车站信息的列表。",
+   "args": "city"
+  },
+  "cos": 0.876
+ },
+ {
+  "pair": "P0006",
+  "a": {
+   "id": "12306-mcp::get-station-code-by-names",
+   "description": "通过具体的中文车站名查询其 `station_code` 和车站名。此接口主要用于在用户提供**具体车站名**作为出发地或到达地时，为接口准备 `station_code` 参数。",
+   "args": "stationNames"
+  },
+  "b": {
+   "id": "12306-mcp::get-station-code-of-citys",
+   "description": "通过中文城市名查询代表该城市的 `station_code`。此接口主要用于在用户提供**城市名**作为出发地或到达地时，为接口准备 `station_code` 参数。",
+   "args": "citys"
+  },
+  "cos": 0.994
+ },
+ {
+  "pair": "P0008",
+  "a": {
+   "id": "12306-mcp::get-station-code-of-citys",
+   "description": "通过中文城市名查询代表该城市的 `station_code`。此接口主要用于在用户提供**城市名**作为出发地或到达地时，为接口准备 `station_code` 参数。",
+   "args": "citys"
+  },
+  "b": {
+   "id": "12306-mcp::get-stations-code-in-city",
+   "description": "通过中文城市名查询该城市 **所有** 火车站的名称及其对应的 `station_code`，结果是一个包含多个车站信息的列表。",
+   "args": "city"
+  },
+  "cos": 0.929
+ },
+ {
+  "pair": "P0010",
+  "a": {
+   "id": "Ant Design Components::get-component-changelog",
+   "description": "列出 Ant Design 特定组件的更新日志\n适用场景：\n1. 用户询问特定组件的更新日志\n2. 在知道用户 antd 版本的情况下，当用户需要实现相关组件功能时判断是否在后续版本中才实现，来决定是否需要升级依赖",
+   "args": "componentName"
+  },
+  "b": {
+   "id": "Ant Design Components::list-component-examples",
+   "description": "获取 Ant Design 特定组件的代码示例\n适用场景：\n1. 用户询问特定组件的示例时\n2. 用户想要实现某个功能时直接告知可使用的例子\n3. 生成页面前需要获取组件的示例代码",
+   "args": "componentName"
+  },
+  "cos": 0.976
+ },
+ {
+  "pair": "P0012",
+  "a": {
+   "id": "Ant Design Components::get-component-docs",
+   "description": "获取 Ant Design 特定组件的详细文档\n适用场景：\n1. 用户询问如何使用特定组件\n2. 用户需要查看该组件的 api 属性",
+   "args": "componentName"
+  },
+  "b": {
+   "id": "Ant Design Components::list-component-examples",
+   "description": "获取 Ant Design 特定组件的代码示例\n适用场景：\n1. 用户询问特定组件的示例时\n2. 用户想要实现某个功能时直接告知可使用的例子\n3. 生成页面前需要获取组件的示例代码",
+   "args": "componentName"
+  },
+  "cos": 0.988
+ },
+ {
+  "pair": "P0014",
+  "a": {
+   "id": "Ant Design Components::list-component-examples",
+   "description": "获取 Ant Design 特定组件的代码示例\n适用场景：\n1. 用户询问特定组件的示例时\n2. 用户想要实现某个功能时直接告知可使用的例子\n3. 生成页面前需要获取组件的示例代码",
+   "args": "componentName"
+  },
+  "b": {
+   "id": "Ant Design Components::list-components",
+   "description": "当用户请求一个新的用户界面（UI）使用 Ant Design 组件时使用此工具。\n此工具仅返回可用的组件列表。\n调用此工具后，你必须编辑或添加文件，以便将代码片段集成到代码库中",
+   "args": ""
+  },
+  "cos": 0.785
+ },
+ {
+  "pair": "P0016",
+  "a": {
+   "id": "Bazi::buildBaziFromLunarDatetime",
+   "description": "根据农历时间、性别来获取八字信息。",
+   "args": "lunarDatetime, gender, eightCharProviderSect"
+  },
+  "b": {
+   "id": "Bazi::buildBaziFromSolarDatetime",
+   "description": "根据阳历时间、性别来获取八字信息。",
+   "args": "solarDatetime, gender, eightCharProviderSect"
+  },
+  "cos": 0.999
+ },
+ {
+  "pair": "P0018",
+  "a": {
+   "id": "Bazi::buildBaziFromLunarDatetime",
+   "description": "根据农历时间、性别来获取八字信息。",
+   "args": "lunarDatetime, gender, eightCharProviderSect"
+  },
+  "b": {
+   "id": "Bazi::getChineseCalendar",
+   "description": "获取指定公历时间（默认今天）的黄历信息。",
+   "args": "solarDatetime"
+  },
+  "cos": 0.871
+ },
+ {
+  "pair": "P0020",
+  "a": {
+   "id": "Bazi::buildBaziFromSolarDatetime",
+   "description": "根据阳历时间、性别来获取八字信息。",
+   "args": "solarDatetime, gender, eightCharProviderSect"
+  },
+  "b": {
+   "id": "Bazi::getChineseCalendar",
+   "description": "获取指定公历时间（默认今天）的黄历信息。",
+   "args": "solarDatetime"
+  },
+  "cos": 0.884
+ },
+ {
+  "pair": "P0022",
+  "a": {
+   "id": "Context7::get-library-docs",
+   "description": "Fetches up-to-date documentation for a library. You must call 'resolve-library-id' first to obtain the exact Context7-compatible library ID required to use this tool, UNLESS the user explicitly provides a library ID in the format '/org/project' or '/org/project/version' in their query.",
+   "args": "context7CompatibleLibraryID, topic, tokens"
+  },
+  "b": {
+   "id": "Context7::resolve-library-id",
+   "description": "Resolves a package/product name to a Context7-compatible library ID and returns a list of matching libraries.\n\nYou MUST call this function before 'get-library-docs' to obtain a valid Context7-compatible library ID UNLESS the user explicitly provides a library ID in the format '/org/project' or '/org/project/version' in their query.\n\nSelection Process:\n1. Analyze the query to understand what librar",
+   "args": "libraryName"
+  },
+  "cos": 0.941
+ },
+ {
+  "pair": "P0024",
+  "a": {
+   "id": "amap-amap-sse::maps_around_search",
+   "description": "周边搜，根据用户传入关键词以及坐标location，搜索出radius半径范围的POI",
+   "args": "keywords, location, radius"
+  },
+  "b": {
+   "id": "amap-amap-sse::maps_search_detail",
+   "description": "查询关键词搜或者周边搜获取到的POI ID的详细信息",
+   "args": "id"
+  },
+  "cos": 0.742
+ },
+ {
+  "pair": "P0026",
+  "a": {
+   "id": "amap-amap-sse::maps_direction_bicycling",
+   "description": "骑行路径规划用于规划骑行通勤方案，规划时会考虑天桥、单行线、封路等情况。最大支持 500km 的骑行路线规划",
+   "args": "origin, destination"
+  },
+  "b": {
+   "id": "amap-amap-sse::maps_direction_driving",
+   "description": "驾车路径规划 API 可以根据用户起终点经纬度坐标规划以小客车、轿车通勤出行的方案，并且返回通勤方案的数据。",
+   "args": "origin, destination"
+  },
+  "cos": 0.823
+ },
+ {
+  "pair": "P0028",
+  "a": {
+   "id": "amap-amap-sse::maps_direction_bicycling",
+   "description": "骑行路径规划用于规划骑行通勤方案，规划时会考虑天桥、单行线、封路等情况。最大支持 500km 的骑行路线规划",
+   "args": "origin, destination"
+  },
+  "b": {
+   "id": "amap-amap-sse::maps_direction_walking",
+   "description": "根据输入起点终点经纬度坐标规划100km 以内的步行通勤方案，并且返回通勤方案的数据",
+   "args": "origin, destination"
+  },
+  "cos": 0.812
+ },
+ {
+  "pair": "P0030",
+  "a": {
+   "id": "amap-amap-sse::maps_direction_driving",
+   "description": "驾车路径规划 API 可以根据用户起终点经纬度坐标规划以小客车、轿车通勤出行的方案，并且返回通勤方案的数据。",
+   "args": "origin, destination"
+  },
+  "b": {
+   "id": "amap-amap-sse::maps_direction_transit_integrated",
+   "description": "根据用户起终点经纬度坐标规划综合各类公共（火车、公交、地铁）交通方式的通勤方案，并且返回通勤方案的数据，跨城场景下必须传起点城市与终点城市",
+   "args": "origin, destination, city, cityd"
+  },
+  "cos": 0.976
+ },
+ {
+  "pair": "P0032",
+  "a": {
+   "id": "amap-amap-sse::maps_direction_transit_integrated",
+   "description": "根据用户起终点经纬度坐标规划综合各类公共（火车、公交、地铁）交通方式的通勤方案，并且返回通勤方案的数据，跨城场景下必须传起点城市与终点城市",
+   "args": "origin, destination, city, cityd"
+  },
+  "b": {
+   "id": "amap-amap-sse::maps_direction_walking",
+   "description": "根据输入起点终点经纬度坐标规划100km 以内的步行通勤方案，并且返回通勤方案的数据",
+   "args": "origin, destination"
+  },
+  "cos": 0.975
+ },
+ {
+  "pair": "P0034",
+  "a": {
+   "id": "amap-amap-sse::maps_distance",
+   "description": "测量两个经纬度坐标之间的距离,支持驾车、步行以及球面距离测量",
+   "args": "origins, destination, type"
+  },
+  "b": {
+   "id": "google-maps::maps_distance_matrix",
+   "description": "Calculate travel distance and time for multiple origins and destinations",
+   "args": "origins, destinations, mode"
+  },
+  "cos": 0.754
+ },
+ {
+  "pair": "P0036",
+  "a": {
+   "id": "amap-amap-sse::maps_geo",
+   "description": "将详细的结构化地址转换为经纬度坐标。支持对地标性名胜景区、建筑物名称解析为经纬度坐标",
+   "args": "address, city"
+  },
+  "b": {
+   "id": "baidu-maps-sse::map_geocode",
+   "description": "地理编码服务: 将地址解析为对应的位置坐标.地址结构越完整, 地址内容越准确, 解析的坐标精度越高.",
+   "args": "address"
+  },
+  "cos": 0.768
+ },
+ {
+  "pair": "P0038",
+  "a": {
+   "id": "amap-amap-sse::maps_regeocode",
+   "description": "将一个高德经纬度坐标转换为行政区划地址信息",
+   "args": "location"
+  },
+  "b": {
+   "id": "baidu-maps-sse::map_geocode",
+   "description": "地理编码服务: 将地址解析为对应的位置坐标.地址结构越完整, 地址内容越准确, 解析的坐标精度越高.",
+   "args": "address"
+  },
+  "cos": 0.706
+ },
+ {
+  "pair": "P0040",
+  "a": {
+   "id": "amap-amap-sse::maps_schema_navi",
+   "description": "Schema唤醒客户端-导航页面，用于根据用户输入终点信息，返回一个拼装好的客户端唤醒URI，用户点击该URI即可唤起对应的客户端APP。唤起客户端后，会自动跳转到导航页面。",
+   "args": "lon, lat"
+  },
+  "b": {
+   "id": "amap-amap-sse::maps_schema_personal_map",
+   "description": "用于行程规划结果在高德地图展示。将行程规划位置点按照行程顺序填入lineList，返回结果为高德地图打开的URI链接，该结果不需总结，直接返回！",
+   "args": "orgName, lineList"
+  },
+  "cos": 0.707
+ },
+ {
+  "pair": "P0042",
+  "a": {
+   "id": "amap-amap-sse::maps_schema_personal_map",
+   "description": "用于行程规划结果在高德地图展示。将行程规划位置点按照行程顺序填入lineList，返回结果为高德地图打开的URI链接，该结果不需总结，直接返回！",
+   "args": "orgName, lineList"
+  },
+  "b": {
+   "id": "amap-amap-sse::maps_schema_take_taxi",
+   "description": "根据用户输入的起点和终点信息，返回一个拼装好的客户端唤醒URI，直接唤起高德地图进行打车。直接展示生成的链接，不需要总结",
+   "args": "slon, slat, sname, dlon, dlat, dname"
+  },
+  "cos": 0.792
+ },
+ {
+  "pair": "P0044",
+  "a": {
+   "id": "arxiv-mcp-server::list_papers",
+   "description": "List all existing papers available as resources",
+   "args": ""
+  },
+  "b": {
+   "id": "web3-research-mcp::list-resources",
+   "description": "",
+   "args": ""
+  },
+  "cos": 0.725
+ },
+ {
+  "pair": "P0046",
+  "a": {
+   "id": "baidu-maps-sse::map_directions",
+   "description": "路线规划服务: 根据起终点`位置名称`或`纬经度坐标`规划出行路线.\n驾车路线规划: 根据起终点`位置名称`或`纬经度坐标`规划驾车出行路线.\n骑行路线规划: 根据起终点`位置名称`或`纬经度坐标`规划骑行出行路线.\n步行路线规划: 根据起终点`位置名称`或`纬经度坐标`规划步行出行路线.\n公交路线规划: 根据起终点`位置名称`或`纬经度坐标`规划公共交通出行路线.",
+   "args": "model, origin, destination"
+  },
+  "b": {
+   "id": "baidu-maps-sse::map_directions_matrix",
+   "description": "批量算路服务: 根据起点和终点坐标计算路线规划距离和行驶时间.\n批量算路目前支持驾车、骑行、步行.\n步行时任意起终点之间的距离不得超过200KM, 超过此限制会返回参数错误.\n驾车批量算路一次最多计算100条路线, 起终点个数之积不能超过100.",
+   "args": "origins, destinations, model"
+  },
+  "cos": 0.745
+ },
+ {
+  "pair": "P0048",
+  "a": {
+   "id": "baidu-maps-sse::map_place_details",
+   "description": "地点详情检索服务: 地点详情检索针对指定POI, 检索其相关的详情信息.\n通过地点检索服务获取POI uid.使用地点详情检索功能, 传入uid, 即可检索POI详情信息, 如评分、营业时间等(不同类型POI对应不同类别详情数据).",
+   "args": "uid"
+  },
+  "b": {
+   "id": "baidu-maps-sse::map_search_places",
+   "description": "地点检索服务: 支持检索城市内的地点信息(最小到city级别), 也可支持圆形区域内的周边地点信息检索.\n城市内检索: 检索某一城市内（目前最细到城市级别）的地点信息.\n周边检索: 设置圆心和半径, 检索圆形区域内的地点信息（常用于周边检索场景）.",
+   "args": "query, tag, region, location, radius, language"
+  },
+  "cos": 0.779
+ },
+ {
+  "pair": "P0050",
+  "a": {
+   "id": "basic-memory::create_memory_project",
+   "description": "Create a new Basic Memory project.\n\nCreates a new project with the specified name and path. The project directory\nwill be created if it doesn't exist. Optionally sets the new project as default.\n\nArgs:\n    project_name: Name for the new project (must be unique)\n    project_path: File system path where the project will be stored\n    set_default: Whether to set this project as the default (optional,",
+   "args": "project_name, project_path, set_default"
+  },
+  "b": {
+   "id": "basic-memory::delete_project",
+   "description": "Delete a Basic Memory project.\n\nRemoves a project from the configuration and database. This does NOT delete\nthe actual files on disk - only removes the project from Basic Memory's\nconfiguration and database records.\n\nArgs:\n    project_name: Name of the project to delete\n\nReturns:\n    Confirmation message about project deletion\n\nExample:\n    delete_project(\"old-project\")\n\nWarning:\n    This action c",
+   "args": "project_name"
+  },
+  "cos": 0.75
+ },
+ {
+  "pair": "P0052",
+  "a": {
+   "id": "basic-memory::delete_note",
+   "description": "Delete a note by title or permalink",
+   "args": "identifier, project"
+  },
+  "b": {
+   "id": "basic-memory::read_note",
+   "description": "Read a markdown note by title or permalink.",
+   "args": "identifier, page, page_size, project"
+  },
+  "cos": 0.803
+ },
+ {
+  "pair": "P0054",
+  "a": {
+   "id": "basic-memory::read_note",
+   "description": "Read a markdown note by title or permalink.",
+   "args": "identifier, page, page_size, project"
+  },
+  "b": {
+   "id": "basic-memory::view_note",
+   "description": "View a note as a formatted artifact for better readability.",
+   "args": "identifier, page, page_size, project"
+  },
+  "cos": 0.844
+ },
+ {
+  "pair": "P0056",
+  "a": {
+   "id": "biomcp::alphagenome_predictor",
+   "description": "Predict variant effects on gene regulation using Google DeepMind's AlphaGenome.\n\n    ⚠️ PREREQUISITE: Use the 'think' tool FIRST to plan your analysis strategy!\n\n    AlphaGenome provides state-of-the-art predictions for how genetic variants\n    affect gene regulation, including:\n    - Gene expression changes (RNA-seq)\n    - Chromatin accessibility impacts (ATAC-seq, DNase-seq)\n    - Splicing alter",
+   "args": "chromosome, position, reference, alternate, interval_size, tissue_types, significance_threshold, api_key"
+  },
+  "b": {
+   "id": "biomcp::variant_searcher",
+   "description": "Search MyVariant.info for genetic variant DATABASE RECORDS.\n\n    ⚠️ PREREQUISITE: Use the 'think' tool FIRST to plan your research strategy!\n\n    Important: This searches for variant DATABASE RECORDS (frequency, significance, etc.),\n    NOT articles about variants. For articles about variants, use article_searcher.\n\n    Searches the comprehensive variant database including:\n    - Population freque",
+   "args": "gene, hgvs, hgvsp, hgvsc, rsid, region, significance, frequency_min, frequency_max, consequence, cadd_score_min, sift_prediction, polyphen_prediction, include_cbioportal, page, page_size"
+  },
+  "cos": 0.706
+ },
+ {
+  "pair": "P0058",
+  "a": {
+   "id": "biomcp::article_searcher",
+   "description": "Search PubMed/PubTator3 for research articles and preprints.\n\n    ⚠️ PREREQUISITE: Use the 'think' tool FIRST to plan your research strategy!\n\n    Use this tool to find scientific literature ABOUT genes, variants, diseases, or chemicals.\n    Results include articles from PubMed and optionally preprints from bioRxiv/medRxiv.\n\n    Important: This searches for ARTICLES ABOUT these topics, not databas",
+   "args": "chemicals, diseases, genes, keywords, variants, include_preprints, include_cbioportal, page, page_size"
+  },
+  "b": {
+   "id": "biomcp::search",
+   "description": "Search biomedical literature, clinical trials, and genetic variants.\n\n    ⚠️ IMPORTANT: Have you used the 'think' tool first? If not, STOP and use it NOW!\n    The 'think' tool is REQUIRED for proper research planning and should be your FIRST step.\n\n    This tool provides access to biomedical data from PubMed/PubTator3, ClinicalTrials.gov,\n    and MyVariant.info. It supports two search modes:\n\n    ",
+   "args": "query, call_benefit, domain, genes, diseases, variants, chemicals, keywords, conditions, interventions, recruiting_status, phase, significance, lat, long, distance, page, page_size, max_results_per_domain, explain_query, get_schema"
+  },
+  "cos": 0.903
+ },
+ {
+  "pair": "P0060",
+  "a": {
+   "id": "biomcp::fetch",
+   "description": "Fetch comprehensive details for a specific biomedical record.\n\n    This tool retrieves full information for articles, clinical trials, or genetic variants\n    using their unique identifiers. It returns data in a standardized format suitable for\n    detailed analysis and research.\n\n    ## IDENTIFIER FORMATS:\n    - Articles: PMID (PubMed ID) - e.g., \"35271234\" OR DOI - e.g., \"10.1101/2024.01.20.2328",
+   "args": "id, domain, call_benefit, detail"
+  },
+  "b": {
+   "id": "biomcp::search",
+   "description": "Search biomedical literature, clinical trials, and genetic variants.\n\n    ⚠️ IMPORTANT: Have you used the 'think' tool first? If not, STOP and use it NOW!\n    The 'think' tool is REQUIRED for proper research planning and should be your FIRST step.\n\n    This tool provides access to biomedical data from PubMed/PubTator3, ClinicalTrials.gov,\n    and MyVariant.info. It supports two search modes:\n\n    ",
+   "args": "query, call_benefit, domain, genes, diseases, variants, chemicals, keywords, conditions, interventions, recruiting_status, phase, significance, lat, long, distance, page, page_size, max_results_per_domain, explain_query, get_schema"
+  },
+  "cos": 0.758
+ },
+ {
+  "pair": "P0062",
+  "a": {
+   "id": "biomcp::think",
+   "description": "REQUIRED FIRST STEP: Perform structured sequential thinking for ANY biomedical research task.\n\n    🚨 IMPORTANT: You MUST use this tool BEFORE any search or fetch operations when:\n    - Researching ANY biomedical topic (genes, diseases, variants, trials)\n    - Planning to use multiple BioMCP tools\n    - Answering questions that require analysis or synthesis\n    - Comparing information from differen",
+   "args": "thought, thoughtNumber, totalThoughts, nextThoughtNeeded"
+  },
+  "b": {
+   "id": "sequential-thinking::sequentialthinking",
+   "description": "A detailed tool for dynamic and reflective problem-solving through thoughts.\nThis tool helps analyze problems through a flexible thinking process that can adapt and evolve.\nEach thought can build on, question, or revise previous insights as understanding deepens.\n\nWhen to use this tool:\n- Breaking down complex problems into steps\n- Planning and design with room for revision\n- Analysis that might n",
+   "args": "thought, nextThoughtNeeded, thoughtNumber, totalThoughts, isRevision, revisesThought, branchFromThought, branchId, needsMoreThoughts"
+  },
+  "cos": 0.814
+ },
+ {
+  "pair": "P0064",
+  "a": {
+   "id": "biomcp::trial_getter",
+   "description": "Fetch comprehensive details for a specific clinical trial.\n\n    Retrieves all available information for a clinical trial by its NCT ID.\n    This includes protocol details, locations, outcomes, and references.\n\n    For specific sections only, use the specialized getter tools:\n    - trial_protocol_getter: Core protocol information\n    - trial_locations_getter: Site locations and contacts\n    - trial",
+   "args": "nct_id"
+  },
+  "b": {
+   "id": "biomcp::trial_outcomes_getter",
+   "description": "Fetch outcome measures and results for a clinical trial.\n\n    Retrieves detailed outcome information including:\n    - Primary outcome measures\n    - Secondary outcome measures\n    - Results data (if available)\n    - Adverse events (if reported)\n\n    Note: Results are only available for completed trials that have posted data.\n    ",
+   "args": "nct_id"
+  },
+  "cos": 0.893
+ },
+ {
+  "pair": "P0066",
+  "a": {
+   "id": "biomcp::trial_getter",
+   "description": "Fetch comprehensive details for a specific clinical trial.\n\n    Retrieves all available information for a clinical trial by its NCT ID.\n    This includes protocol details, locations, outcomes, and references.\n\n    For specific sections only, use the specialized getter tools:\n    - trial_protocol_getter: Core protocol information\n    - trial_locations_getter: Site locations and contacts\n    - trial",
+   "args": "nct_id"
+  },
+  "b": {
+   "id": "biomcp::trial_references_getter",
+   "description": "Fetch publications and references for a clinical trial.\n\n    Retrieves all linked publications including:\n    - Published results papers\n    - Background literature\n    - Protocol publications\n    - Related analyses\n\n    Includes PubMed IDs when available for easy cross-referencing.\n    ",
+   "args": "nct_id"
+  },
+  "cos": 0.898
+ },
+ {
+  "pair": "P0068",
+  "a": {
+   "id": "biomcp::trial_locations_getter",
+   "description": "Fetch contact and location details for a clinical trial.\n\n    Retrieves all study locations including:\n    - Facility names and addresses\n    - Principal investigator information\n    - Contact details (when recruiting)\n    - Recruitment status by site\n\n    Useful for finding trials near specific locations or contacting study teams.\n    ",
+   "args": "nct_id"
+  },
+  "b": {
+   "id": "biomcp::trial_protocol_getter",
+   "description": "Fetch core protocol information for a clinical trial.\n\n    Retrieves essential protocol details including:\n    - Official title and brief summary\n    - Study status and sponsor information\n    - Study design (type, phase, allocation, masking)\n    - Eligibility criteria\n    - Primary completion date\n    ",
+   "args": "nct_id"
+  },
+  "cos": 0.895
+ },
+ {
+  "pair": "P0070",
+  "a": {
+   "id": "biomcp::trial_outcomes_getter",
+   "description": "Fetch outcome measures and results for a clinical trial.\n\n    Retrieves detailed outcome information including:\n    - Primary outcome measures\n    - Secondary outcome measures\n    - Results data (if available)\n    - Adverse events (if reported)\n\n    Note: Results are only available for completed trials that have posted data.\n    ",
+   "args": "nct_id"
+  },
+  "b": {
+   "id": "biomcp::trial_protocol_getter",
+   "description": "Fetch core protocol information for a clinical trial.\n\n    Retrieves essential protocol details including:\n    - Official title and brief summary\n    - Study status and sponsor information\n    - Study design (type, phase, allocation, masking)\n    - Eligibility criteria\n    - Primary completion date\n    ",
+   "args": "nct_id"
+  },
+  "cos": 0.805
+ },
+ {
+  "pair": "P0072",
+  "a": {
+   "id": "biomcp::trial_protocol_getter",
+   "description": "Fetch core protocol information for a clinical trial.\n\n    Retrieves essential protocol details including:\n    - Official title and brief summary\n    - Study status and sponsor information\n    - Study design (type, phase, allocation, masking)\n    - Eligibility criteria\n    - Primary completion date\n    ",
+   "args": "nct_id"
+  },
+  "b": {
+   "id": "biomcp::trial_references_getter",
+   "description": "Fetch publications and references for a clinical trial.\n\n    Retrieves all linked publications including:\n    - Published results papers\n    - Background literature\n    - Protocol publications\n    - Related analyses\n\n    Includes PubMed IDs when available for easy cross-referencing.\n    ",
+   "args": "nct_id"
+  },
+  "cos": 0.766
+ },
+ {
+  "pair": "P0074",
+  "a": {
+   "id": "coin-flip::get-user-contest-ranking",
+   "description": "",
+   "args": "username"
+  },
+  "b": {
+   "id": "coin-flip::get-user-profile",
+   "description": "",
+   "args": "username"
+  },
+  "cos": 0.92
+ },
+ {
+  "pair": "P0076",
+  "a": {
+   "id": "coin-flip::get-user-profile",
+   "description": "",
+   "args": "username"
+  },
+  "b": {
+   "id": "coin-flip::get-user-submissions",
+   "description": "",
+   "args": "username, limit"
+  },
+  "cos": 0.902
+ },
+ {
+  "pair": "P0078",
+  "a": {
+   "id": "desktop-commander::create_directory",
+   "description": "\n                        Create a new directory or ensure a directory exists.\n                        \n                        Can create multiple nested directories in one operation.\n                        Only works within allowed directories.\n                        \n                        IMPORTANT: Always use absolute paths for reliability. Paths are automatically normalized regardless of s",
+   "args": "path"
+  },
+  "b": {
+   "id": "desktop-commander::get_file_info",
+   "description": "\n                        Retrieve detailed metadata about a file or directory including:\n                        - size\n                        - creation time\n                        - last modified time \n                        - permissions\n                        - type\n                        - lineCount (for text files)\n                        - lastLine (zero-indexed number of last line, fo",
+   "args": "path"
+  },
+  "cos": 0.908
+ },
+ {
+  "pair": "P0080",
+  "a": {
+   "id": "desktop-commander::create_directory",
+   "description": "\n                        Create a new directory or ensure a directory exists.\n                        \n                        Can create multiple nested directories in one operation.\n                        Only works within allowed directories.\n                        \n                        IMPORTANT: Always use absolute paths for reliability. Paths are automatically normalized regardless of s",
+   "args": "path"
+  },
+  "b": {
+   "id": "desktop-commander::move_file",
+   "description": "\n                        Move or rename files and directories.\n                        \n                        Can move files between directories and rename them in a single operation.\n                        Both source and destination must be within allowed directories.\n                        \n                        IMPORTANT: Always use absolute paths for reliability. Paths are automatically",
+   "args": "source, destination"
+  },
+  "cos": 0.908
+ },
+ {
+  "pair": "P0082",
+  "a": {
+   "id": "desktop-commander::create_directory",
+   "description": "\n                        Create a new directory or ensure a directory exists.\n                        \n                        Can create multiple nested directories in one operation.\n                        Only works within allowed directories.\n                        \n                        IMPORTANT: Always use absolute paths for reliability. Paths are automatically normalized regardless of s",
+   "args": "path"
+  },
+  "b": {
+   "id": "desktop-commander::search_code",
+   "description": "\n                        Search for text/code patterns within file contents using ripgrep.\n                        \n                        Use this instead of 'execute_command' with grep/find for searching code content.\n                        Fast and powerful search similar to VS Code search functionality.\n                        \n                        Supports regular expressions, file patte",
+   "args": "path, pattern, filePattern, ignoreCase, maxResults, includeHidden, contextLines, timeoutMs"
+  },
+  "cos": 0.884
+ },
+ {
+  "pair": "P0084",
+  "a": {
+   "id": "desktop-commander::create_directory",
+   "description": "\n                        Create a new directory or ensure a directory exists.\n                        \n                        Can create multiple nested directories in one operation.\n                        Only works within allowed directories.\n                        \n                        IMPORTANT: Always use absolute paths for reliability. Paths are automatically normalized regardless of s",
+   "args": "path"
+  },
+  "b": {
+   "id": "desktop-commander::write_file",
+   "description": "\n                        Write or append to file contents. \n\n                        CHUNKING IS STANDARD PRACTICE: Always write files in chunks of 25-30 lines maximum.\n                        This is the normal, recommended way to write files - not an emergency measure.\n\n                        STANDARD PROCESS FOR ANY FILE:\n                        1. FIRST → write_file(filePath, firstChunk, {mod",
+   "args": "path, content, mode"
+  },
+  "cos": 0.832
+ },
+ {
+  "pair": "P0086",
+  "a": {
+   "id": "desktop-commander::edit_block",
+   "description": "\n                        Apply surgical text replacements to files.\n                        \n                        BEST PRACTICE: Make multiple small, focused edits rather than one large edit.\n                        Each edit_block call should change only what needs to be changed - include just enough \n                        context to uniquely identify the text being modified.\n               ",
+   "args": "file_path, old_string, new_string, expected_replacements"
+  },
+  "b": {
+   "id": "desktop-commander::read_file",
+   "description": "\n                        Read the contents of a file from the file system or a URL with optional offset and length parameters.\n                        \n                        Prefer this over 'execute_command' with cat/type for viewing files.\n                        \n                        Supports partial file reading with:\n                        - 'offset' (start line, default: 0)\n           ",
+   "args": "path, isUrl, offset, length"
+  },
+  "cos": 0.737
+ },
+ {
+  "pair": "P0088",
+  "a": {
+   "id": "desktop-commander::edit_block",
+   "description": "\n                        Apply surgical text replacements to files.\n                        \n                        BEST PRACTICE: Make multiple small, focused edits rather than one large edit.\n                        Each edit_block call should change only what needs to be changed - include just enough \n                        context to uniquely identify the text being modified.\n               ",
+   "args": "file_path, old_string, new_string, expected_replacements"
+  },
+  "b": {
+   "id": "desktop-commander::search_files",
+   "description": "\n                        Finds files by name using a case-insensitive substring matching.\n                        \n                        Use this instead of 'execute_command' with find/dir/ls for locating files.\n                        Searches through all subdirectories from the starting path.\n                        \n                        Has a default timeout of 30 seconds which can be cust",
+   "args": "path, pattern, timeoutMs"
+  },
+  "cos": 0.725
+ },
+ {
+  "pair": "P0090",
+  "a": {
+   "id": "desktop-commander::force_terminate",
+   "description": "\n                        Force terminate a running terminal session.\n                        \n                        This command can be referenced as \"DC: ...\" or \"use Desktop Commander to ...\" in your instructions.",
+   "args": "pid"
+  },
+  "b": {
+   "id": "desktop-commander::get_usage_stats",
+   "description": "\n                        Get usage statistics for debugging and analysis.\n                        \n                        Returns summary of tool usage, success/failure rates, and performance metrics.\n                        \n                        This command can be referenced as \"DC: ...\" or \"use Desktop Commander to ...\" in your instructions.",
+   "args": ""
+  },
+  "cos": 0.764
+ },
+ {
+  "pair": "P0092",
+  "a": {
+   "id": "desktop-commander::force_terminate",
+   "description": "\n                        Force terminate a running terminal session.\n                        \n                        This command can be referenced as \"DC: ...\" or \"use Desktop Commander to ...\" in your instructions.",
+   "args": "pid"
+  },
+  "b": {
+   "id": "desktop-commander::list_processes",
+   "description": "\n                        List all running processes.\n                        \n                        Returns process information including PID, command name, CPU usage, and memory usage.\n                        \n                        This command can be referenced as \"DC: ...\" or \"use Desktop Commander to ...\" in your instructions.",
+   "args": ""
+  },
+  "cos": 0.902
+ },
+ {
+  "pair": "P0094",
+  "a": {
+   "id": "desktop-commander::get_config",
+   "description": "\n                        Get the complete server configuration as JSON. Config includes fields for:\n                        - blockedCommands (array of blocked shell commands)\n                        - defaultShell (shell to use for commands)\n                        - allowedDirectories (paths the server can access)\n                        - fileReadLineLimit (max lines for read_file, default 1000",
+   "args": ""
+  },
+  "b": {
+   "id": "desktop-commander::set_config_value",
+   "description": "\n                        Set a specific configuration value by key.\n                        \n                        WARNING: Should be used in a separate chat from file operations and \n                        command execution to prevent security issues.\n                        \n                        Config keys include:\n                        - blockedCommands (array)\n                        ",
+   "args": "key, value"
+  },
+  "cos": 0.923
+ },
+ {
+  "pair": "P0096",
+  "a": {
+   "id": "desktop-commander::get_file_info",
+   "description": "\n                        Retrieve detailed metadata about a file or directory including:\n                        - size\n                        - creation time\n                        - last modified time \n                        - permissions\n                        - type\n                        - lineCount (for text files)\n                        - lastLine (zero-indexed number of last line, fo",
+   "args": "path"
+  },
+  "b": {
+   "id": "desktop-commander::move_file",
+   "description": "\n                        Move or rename files and directories.\n                        \n                        Can move files between directories and rename them in a single operation.\n                        Both source and destination must be within allowed directories.\n                        \n                        IMPORTANT: Always use absolute paths for reliability. Paths are automatically",
+   "args": "source, destination"
+  },
+  "cos": 0.871
+ },
+ {
+  "pair": "P0098",
+  "a": {
+   "id": "desktop-commander::get_file_info",
+   "description": "\n                        Retrieve detailed metadata about a file or directory including:\n                        - size\n                        - creation time\n                        - last modified time \n                        - permissions\n                        - type\n                        - lineCount (for text files)\n                        - lastLine (zero-indexed number of last line, fo",
+   "args": "path"
+  },
+  "b": {
+   "id": "desktop-commander::read_multiple_files",
+   "description": "\n                        Read the contents of multiple files simultaneously.\n                        \n                        Each file's content is returned with its path as a reference.\n                        Handles text files normally and renders images as viewable content.\n                        Recognized image types: PNG, JPEG, GIF, WebP.\n                        \n                        F",
+   "args": "paths"
+  },
+  "cos": 0.873
+ },
+ {
+  "pair": "P0100",
+  "a": {
+   "id": "desktop-commander::get_file_info",
+   "description": "\n                        Retrieve detailed metadata about a file or directory including:\n                        - size\n                        - creation time\n                        - last modified time \n                        - permissions\n                        - type\n                        - lineCount (for text files)\n                        - lastLine (zero-indexed number of last line, fo",
+   "args": "path"
+  },
+  "b": {
+   "id": "desktop-commander::search_files",
+   "description": "\n                        Finds files by name using a case-insensitive substring matching.\n                        \n                        Use this instead of 'execute_command' with find/dir/ls for locating files.\n                        Searches through all subdirectories from the starting path.\n                        \n                        Has a default timeout of 30 seconds which can be cust",
+   "args": "path, pattern, timeoutMs"
+  },
+  "cos": 0.907
+ },
+ {
+  "pair": "P0102",
+  "a": {
+   "id": "desktop-commander::get_usage_stats",
+   "description": "\n                        Get usage statistics for debugging and analysis.\n                        \n                        Returns summary of tool usage, success/failure rates, and performance metrics.\n                        \n                        This command can be referenced as \"DC: ...\" or \"use Desktop Commander to ...\" in your instructions.",
+   "args": ""
+  },
+  "b": {
+   "id": "desktop-commander::kill_process",
+   "description": "\n                        Terminate a running process by PID.\n                        \n                        Use with caution as this will forcefully terminate the specified process.\n                        \n                        This command can be referenced as \"DC: ...\" or \"use Desktop Commander to ...\" in your instructions.",
+   "args": "pid"
+  },
+  "cos": 0.731
+ },
+ {
+  "pair": "P0104",
+  "a": {
+   "id": "desktop-commander::interact_with_process",
+   "description": "\n                        Send input to a running process and automatically receive the response.\n                        \n                        CRITICAL: THIS IS THE PRIMARY TOOL FOR ALL LOCAL FILE ANALYSIS\n                        For ANY local file analysis (CSV, JSON, data processing), ALWAYS use this instead of the analysis tool.\n                        The analysis tool CANNOT access local f",
+   "args": "pid, input, timeout_ms, wait_for_prompt"
+  },
+  "b": {
+   "id": "desktop-commander::read_process_output",
+   "description": "\n                        Read output from a running process with intelligent completion detection.\n                        \n                        Automatically detects when process is ready for more input instead of timing out.\n                        \n                        SMART FEATURES:\n                        - Early exit when REPL shows prompt (>>>, >, etc.)\n                        - Dete",
+   "args": "pid, timeout_ms"
+  },
+  "cos": 0.876
+ },
+ {
+  "pair": "P0106",
+  "a": {
+   "id": "desktop-commander::kill_process",
+   "description": "\n                        Terminate a running process by PID.\n                        \n                        Use with caution as this will forcefully terminate the specified process.\n                        \n                        This command can be referenced as \"DC: ...\" or \"use Desktop Commander to ...\" in your instructions.",
+   "args": "pid"
+  },
+  "b": {
+   "id": "desktop-commander::list_processes",
+   "description": "\n                        List all running processes.\n                        \n                        Returns process information including PID, command name, CPU usage, and memory usage.\n                        \n                        This command can be referenced as \"DC: ...\" or \"use Desktop Commander to ...\" in your instructions.",
+   "args": ""
+  },
+  "cos": 0.911
+ },
+ {
+  "pair": "P0108",
+  "a": {
+   "id": "desktop-commander::list_directory",
+   "description": "\n                        Get a detailed listing of all files and directories in a specified path.\n                        \n                        Use this instead of 'execute_command' with ls/dir commands.\n                        Results distinguish between files and directories with [FILE] and [DIR] prefixes.\n                        Only works within allowed directories.\n                        ",
+   "args": "path"
+  },
+  "b": {
+   "id": "desktop-commander::move_file",
+   "description": "\n                        Move or rename files and directories.\n                        \n                        Can move files between directories and rename them in a single operation.\n                        Both source and destination must be within allowed directories.\n                        \n                        IMPORTANT: Always use absolute paths for reliability. Paths are automatically",
+   "args": "source, destination"
+  },
+  "cos": 0.897
+ },
+ {
+  "pair": "P0110",
+  "a": {
+   "id": "desktop-commander::list_directory",
+   "description": "\n                        Get a detailed listing of all files and directories in a specified path.\n                        \n                        Use this instead of 'execute_command' with ls/dir commands.\n                        Results distinguish between files and directories with [FILE] and [DIR] prefixes.\n                        Only works within allowed directories.\n                        ",
+   "args": "path"
+  },
+  "b": {
+   "id": "desktop-commander::search_files",
+   "description": "\n                        Finds files by name using a case-insensitive substring matching.\n                        \n                        Use this instead of 'execute_command' with find/dir/ls for locating files.\n                        Searches through all subdirectories from the starting path.\n                        \n                        Has a default timeout of 30 seconds which can be cust",
+   "args": "path, pattern, timeoutMs"
+  },
+  "cos": 0.915
+ },
+ {
+  "pair": "P0112",
+  "a": {
+   "id": "desktop-commander::list_sessions",
+   "description": "\n                        List all active terminal sessions.\n                        \n                        Shows session status including:\n                        - PID: Process identifier  \n                        - Blocked: Whether session is waiting for input\n                        - Runtime: How long the session has been running\n                        \n                        DEBUGGING REP",
+   "args": ""
+  },
+  "b": {
+   "id": "desktop-commander::read_process_output",
+   "description": "\n                        Read output from a running process with intelligent completion detection.\n                        \n                        Automatically detects when process is ready for more input instead of timing out.\n                        \n                        SMART FEATURES:\n                        - Early exit when REPL shows prompt (>>>, >, etc.)\n                        - Dete",
+   "args": "pid, timeout_ms"
+  },
+  "cos": 0.728
+ },
+ {
+  "pair": "P0114",
+  "a": {
+   "id": "desktop-commander::move_file",
+   "description": "\n                        Move or rename files and directories.\n                        \n                        Can move files between directories and rename them in a single operation.\n                        Both source and destination must be within allowed directories.\n                        \n                        IMPORTANT: Always use absolute paths for reliability. Paths are automatically",
+   "args": "source, destination"
+  },
+  "b": {
+   "id": "desktop-commander::search_files",
+   "description": "\n                        Finds files by name using a case-insensitive substring matching.\n                        \n                        Use this instead of 'execute_command' with find/dir/ls for locating files.\n                        Searches through all subdirectories from the starting path.\n                        \n                        Has a default timeout of 30 seconds which can be cust",
+   "args": "path, pattern, timeoutMs"
+  },
+  "cos": 0.882
+ },
+ {
+  "pair": "P0116",
+  "a": {
+   "id": "desktop-commander::read_file",
+   "description": "\n                        Read the contents of a file from the file system or a URL with optional offset and length parameters.\n                        \n                        Prefer this over 'execute_command' with cat/type for viewing files.\n                        \n                        Supports partial file reading with:\n                        - 'offset' (start line, default: 0)\n           ",
+   "args": "path, isUrl, offset, length"
+  },
+  "b": {
+   "id": "desktop-commander::search_code",
+   "description": "\n                        Search for text/code patterns within file contents using ripgrep.\n                        \n                        Use this instead of 'execute_command' with grep/find for searching code content.\n                        Fast and powerful search similar to VS Code search functionality.\n                        \n                        Supports regular expressions, file patte",
+   "args": "path, pattern, filePattern, ignoreCase, maxResults, includeHidden, contextLines, timeoutMs"
+  },
+  "cos": 0.832
+ },
+ {
+  "pair": "P0118",
+  "a": {
+   "id": "desktop-commander::read_file",
+   "description": "\n                        Read the contents of a file from the file system or a URL with optional offset and length parameters.\n                        \n                        Prefer this over 'execute_command' with cat/type for viewing files.\n                        \n                        Supports partial file reading with:\n                        - 'offset' (start line, default: 0)\n           ",
+   "args": "path, isUrl, offset, length"
+  },
+  "b": {
+   "id": "desktop-commander::write_file",
+   "description": "\n                        Write or append to file contents. \n\n                        CHUNKING IS STANDARD PRACTICE: Always write files in chunks of 25-30 lines maximum.\n                        This is the normal, recommended way to write files - not an emergency measure.\n\n                        STANDARD PROCESS FOR ANY FILE:\n                        1. FIRST → write_file(filePath, firstChunk, {mod",
+   "args": "path, content, mode"
+  },
+  "cos": 0.854
+ },
+ {
+  "pair": "P0120",
+  "a": {
+   "id": "desktop-commander::read_multiple_files",
+   "description": "\n                        Read the contents of multiple files simultaneously.\n                        \n                        Each file's content is returned with its path as a reference.\n                        Handles text files normally and renders images as viewable content.\n                        Recognized image types: PNG, JPEG, GIF, WebP.\n                        \n                        F",
+   "args": "paths"
+  },
+  "b": {
+   "id": "desktop-commander::write_file",
+   "description": "\n                        Write or append to file contents. \n\n                        CHUNKING IS STANDARD PRACTICE: Always write files in chunks of 25-30 lines maximum.\n                        This is the normal, recommended way to write files - not an emergency measure.\n\n                        STANDARD PROCESS FOR ANY FILE:\n                        1. FIRST → write_file(filePath, firstChunk, {mod",
+   "args": "path, content, mode"
+  },
+  "cos": 0.862
+ },
+ {
+  "pair": "P0122",
+  "a": {
+   "id": "desktop-commander::search_code",
+   "description": "\n                        Search for text/code patterns within file contents using ripgrep.\n                        \n                        Use this instead of 'execute_command' with grep/find for searching code content.\n                        Fast and powerful search similar to VS Code search functionality.\n                        \n                        Supports regular expressions, file patte",
+   "args": "path, pattern, filePattern, ignoreCase, maxResults, includeHidden, contextLines, timeoutMs"
+  },
+  "b": {
+   "id": "desktop-commander::search_files",
+   "description": "\n                        Finds files by name using a case-insensitive substring matching.\n                        \n                        Use this instead of 'execute_command' with find/dir/ls for locating files.\n                        Searches through all subdirectories from the starting path.\n                        \n                        Has a default timeout of 30 seconds which can be cust",
+   "args": "path, pattern, timeoutMs"
+  },
+  "cos": 0.974
+ },
+ {
+  "pair": "P0124",
+  "a": {
+   "id": "docker-mcp::create-container",
+   "description": "Create a new standalone Docker container",
+   "args": "image, name, ports, environment"
+  },
+  "b": {
+   "id": "docker-mcp::get-logs",
+   "description": "Retrieve the latest logs for a specified Docker container",
+   "args": "container_name"
+  },
+  "cos": 0.764
+ },
+ {
+  "pair": "P0126",
+  "a": {
+   "id": "excel::excel_copy_sheet",
+   "description": "Copy existing sheet to a new sheet",
+   "args": "dstSheetName, fileAbsolutePath, srcSheetName"
+  },
+  "b": {
+   "id": "excel::excel_create_table",
+   "description": "Create a table in the Excel sheet",
+   "args": "fileAbsolutePath, range, sheetName, tableName"
+  },
+  "cos": 0.883
+ },
+ {
+  "pair": "P0128",
+  "a": {
+   "id": "excel::excel_copy_sheet",
+   "description": "Copy existing sheet to a new sheet",
+   "args": "dstSheetName, fileAbsolutePath, srcSheetName"
+  },
+  "b": {
+   "id": "excel::excel_read_sheet",
+   "description": "Read values from Excel sheet with pagination.",
+   "args": "fileAbsolutePath, range, sheetName, showFormula, showStyle"
+  },
+  "cos": 0.899
+ },
+ {
+  "pair": "P0130",
+  "a": {
+   "id": "excel::excel_create_table",
+   "description": "Create a table in the Excel sheet",
+   "args": "fileAbsolutePath, range, sheetName, tableName"
+  },
+  "b": {
+   "id": "excel::excel_describe_sheets",
+   "description": "List all sheet information of specified Excel file",
+   "args": "fileAbsolutePath"
+  },
+  "cos": 0.788
+ },
+ {
+  "pair": "P0132",
+  "a": {
+   "id": "excel::excel_create_table",
+   "description": "Create a table in the Excel sheet",
+   "args": "fileAbsolutePath, range, sheetName, tableName"
+  },
+  "b": {
+   "id": "excel::excel_write_to_sheet",
+   "description": "Write values to the Excel sheet",
+   "args": "fileAbsolutePath, newSheet, range, sheetName, values"
+  },
+  "cos": 0.896
+ },
+ {
+  "pair": "P0134",
+  "a": {
+   "id": "excel::excel_describe_sheets",
+   "description": "List all sheet information of specified Excel file",
+   "args": "fileAbsolutePath"
+  },
+  "b": {
+   "id": "excel::excel_write_to_sheet",
+   "description": "Write values to the Excel sheet",
+   "args": "fileAbsolutePath, newSheet, range, sheetName, values"
+  },
+  "cos": 0.877
+ },
+ {
+  "pair": "P0136",
+  "a": {
+   "id": "filesystem::edit_file",
+   "description": "Make line-based edits to a text file. Each edit replaces exact line sequences with new content. Returns a git-style diff showing the changes made. Only works within allowed directories.",
+   "args": "path, edits, dryRun"
+  },
+  "b": {
+   "id": "filesystem::write_file",
+   "description": "Create a new file or completely overwrite an existing file with new content. Use with caution as it will overwrite existing files without warning. Handles text content with proper encoding. Only works within allowed directories.",
+   "args": "path, content"
+  },
+  "cos": 0.712
+ },
+ {
+  "pair": "P0138",
+  "a": {
+   "id": "git::git_add",
+   "description": "Adds file contents to the staging area",
+   "args": "repo_path, files"
+  },
+  "b": {
+   "id": "git::git_show",
+   "description": "Shows the contents of a commit",
+   "args": "repo_path, revision"
+  },
+  "cos": 0.717
+ },
+ {
+  "pair": "P0140",
+  "a": {
+   "id": "git::git_branch",
+   "description": "List Git branches",
+   "args": "repo_path, branch_type, contains, not_contains"
+  },
+  "b": {
+   "id": "git::git_create_branch",
+   "description": "Creates a new branch from an optional base branch",
+   "args": "repo_path, branch_name, base_branch"
+  },
+  "cos": 0.871
+ },
+ {
+  "pair": "P0142",
+  "a": {
+   "id": "git::git_commit",
+   "description": "Records changes to the repository",
+   "args": "repo_path, message"
+  },
+  "b": {
+   "id": "git::git_init",
+   "description": "Initialize a new Git repository",
+   "args": "repo_path"
+  },
+  "cos": 0.901
+ },
+ {
+  "pair": "P0144",
+  "a": {
+   "id": "git::git_commit",
+   "description": "Records changes to the repository",
+   "args": "repo_path, message"
+  },
+  "b": {
+   "id": "git::git_reset",
+   "description": "Unstages all staged changes",
+   "args": "repo_path"
+  },
+  "cos": 0.714
+ },
+ {
+  "pair": "P0146",
+  "a": {
+   "id": "git::git_diff",
+   "description": "Shows differences between branches or commits",
+   "args": "repo_path, target, context_lines"
+  },
+  "b": {
+   "id": "git::git_diff_staged",
+   "description": "Shows changes that are staged for commit",
+   "args": "repo_path, context_lines"
+  },
+  "cos": 0.754
+ },
+ {
+  "pair": "P0148",
+  "a": {
+   "id": "git::git_diff_staged",
+   "description": "Shows changes that are staged for commit",
+   "args": "repo_path, context_lines"
+  },
+  "b": {
+   "id": "git::git_diff_unstaged",
+   "description": "Shows changes in the working directory that are not yet staged",
+   "args": "repo_path, context_lines"
+  },
+  "cos": 0.967
+ },
+ {
+  "pair": "P0150",
+  "a": {
+   "id": "git::git_diff_unstaged",
+   "description": "Shows changes in the working directory that are not yet staged",
+   "args": "repo_path, context_lines"
+  },
+  "b": {
+   "id": "git::git_reset",
+   "description": "Unstages all staged changes",
+   "args": "repo_path"
+  },
+  "cos": 0.837
+ },
+ {
+  "pair": "P0152",
+  "a": {
+   "id": "git::git_log",
+   "description": "Shows the commit logs",
+   "args": "repo_path, max_count"
+  },
+  "b": {
+   "id": "git::git_status",
+   "description": "Shows the working tree status",
+   "args": "repo_path"
+  },
+  "cos": 0.719
+ },
+ {
+  "pair": "P0154",
+  "a": {
+   "id": "google-maps::maps_geocode",
+   "description": "Convert an address into geographic coordinates",
+   "args": "address"
+  },
+  "b": {
+   "id": "google-maps::maps_reverse_geocode",
+   "description": "Convert coordinates into an address",
+   "args": "latitude, longitude"
+  },
+  "cos": 0.943
+ },
+ {
+  "pair": "P0156",
+  "a": {
+   "id": "google-maps::maps_reverse_geocode",
+   "description": "Convert coordinates into an address",
+   "args": "latitude, longitude"
+  },
+  "b": {
+   "id": "osm-mcp-server::geocode_address",
+   "description": "\nConvert an address or place name to geographic coordinates with detailed location information.\n\nThis tool takes a text description of a location (such as an address, landmark name, or\nplace of interest) and returns its precise geographic coordinates along with rich metadata.\nThe results can be used for mapping, navigation, location-based analysis, and as input to\nother geospatial tools.\n\nArgs:\n  ",
+   "args": "address"
+  },
+  "cos": 0.752
+ },
+ {
+  "pair": "P0158",
+  "a": {
+   "id": "google-search::search",
+   "description": "Perform a web search query",
+   "args": "query, num"
+  },
+  "b": {
+   "id": "web3-research-mcp::search",
+   "description": "",
+   "args": "query, searchType"
+  },
+  "cos": 0.931
+ },
+ {
+  "pair": "P0160",
+  "a": {
+   "id": "hackernews::getComment",
+   "description": "Get a single comment by ID",
+   "args": "id"
+  },
+  "b": {
+   "id": "hackernews::getStory",
+   "description": "Get a single story by ID",
+   "args": "id"
+  },
+  "cos": 0.901
+ },
+ {
+  "pair": "P0162",
+  "a": {
+   "id": "hackernews::getCommentTree",
+   "description": "Get a comment tree for a story",
+   "args": "storyId"
+  },
+  "b": {
+   "id": "hackernews::getComments",
+   "description": "Get comments for a story",
+   "args": "storyId, limit"
+  },
+  "cos": 0.944
+ },
+ {
+  "pair": "P0164",
+  "a": {
+   "id": "hackernews::getComments",
+   "description": "Get comments for a story",
+   "args": "storyId, limit"
+  },
+  "b": {
+   "id": "hackernews::getStoryWithComments",
+   "description": "Get a story with its comments",
+   "args": "id"
+  },
+  "cos": 0.89
+ },
+ {
+  "pair": "P0166",
+  "a": {
+   "id": "hackernews::getUser",
+   "description": "Get a user profile by ID",
+   "args": "id"
+  },
+  "b": {
+   "id": "hackernews::getUserSubmissions",
+   "description": "Get a user's submissions",
+   "args": "id"
+  },
+  "cos": 0.77
+ },
+ {
+  "pair": "P0168",
+  "a": {
+   "id": "howtocook-mcp::mcp_howtocook_getAllRecipes",
+   "description": "获取所有菜谱",
+   "args": "no_param"
+  },
+  "b": {
+   "id": "howtocook-mcp::mcp_howtocook_getRecipeById",
+   "description": "根据菜谱名称或ID查询指定菜谱的完整详情，包括食材、步骤等",
+   "args": "query"
+  },
+  "cos": 0.941
+ },
+ {
+  "pair": "P0170",
+  "a": {
+   "id": "howtocook-mcp::mcp_howtocook_getAllRecipes",
+   "description": "获取所有菜谱",
+   "args": "no_param"
+  },
+  "b": {
+   "id": "howtocook-mcp::mcp_howtocook_recommendMeals",
+   "description": "根据用户的忌口、过敏原、人数智能推荐菜谱，创建一周的膳食计划以及大致的购物清单",
+   "args": "allergies, avoidItems, peopleCount"
+  },
+  "cos": 0.81
+ },
+ {
+  "pair": "P0172",
+  "a": {
+   "id": "howtocook-mcp::mcp_howtocook_getRecipeById",
+   "description": "根据菜谱名称或ID查询指定菜谱的完整详情，包括食材、步骤等",
+   "args": "query"
+  },
+  "b": {
+   "id": "howtocook-mcp::mcp_howtocook_getRecipesByCategory",
+   "description": "根据分类查询菜谱，可选分类有: 水产, 早餐, 调料, 甜品, 饮品, 荤菜, 半成品加工, 汤, 主食, 素菜",
+   "args": "category"
+  },
+  "cos": 0.883
+ },
+ {
+  "pair": "P0174",
+  "a": {
+   "id": "howtocook-mcp::mcp_howtocook_getRecipeById",
+   "description": "根据菜谱名称或ID查询指定菜谱的完整详情，包括食材、步骤等",
+   "args": "query"
+  },
+  "b": {
+   "id": "howtocook-mcp::mcp_howtocook_whatToEat",
+   "description": "不知道吃什么？根据人数直接推荐适合的菜品组合",
+   "args": "peopleCount"
+  },
+  "cos": 0.83
+ },
+ {
+  "pair": "P0176",
+  "a": {
+   "id": "howtocook-mcp::mcp_howtocook_getRecipesByCategory",
+   "description": "根据分类查询菜谱，可选分类有: 水产, 早餐, 调料, 甜品, 饮品, 荤菜, 半成品加工, 汤, 主食, 素菜",
+   "args": "category"
+  },
+  "b": {
+   "id": "howtocook-mcp::mcp_howtocook_whatToEat",
+   "description": "不知道吃什么？根据人数直接推荐适合的菜品组合",
+   "args": "peopleCount"
+  },
+  "cos": 0.817
+ },
+ {
+  "pair": "P0178",
+  "a": {
+   "id": "image-extractor::extract_image_from_base64",
+   "description": "Extract and analyze images from base64-encoded data. Ideal for processing screenshots from clipboard, dynamically generated images, or images embedded in applications without requiring file system access.",
+   "args": "base64, mime_type, resize, max_width, max_height"
+  },
+  "b": {
+   "id": "image-extractor::extract_image_from_file",
+   "description": "Extract and analyze images from local file paths. Supports visual content understanding, OCR text extraction, and object recognition for screenshots, photos, diagrams, and documents.",
+   "args": "file_path, resize, max_width, max_height"
+  },
+  "cos": 0.908
+ },
+ {
+  "pair": "P0180",
+  "a": {
+   "id": "image-extractor::extract_image_from_file",
+   "description": "Extract and analyze images from local file paths. Supports visual content understanding, OCR text extraction, and object recognition for screenshots, photos, diagrams, and documents.",
+   "args": "file_path, resize, max_width, max_height"
+  },
+  "b": {
+   "id": "image-extractor::extract_image_from_url",
+   "description": "Extract and analyze images from web URLs. Perfect for analyzing web screenshots, online photos, diagrams, or any image accessible via HTTP/HTTPS for visual content analysis and text extraction.",
+   "args": "url, resize, max_width, max_height"
+  },
+  "cos": 0.933
+ },
+ {
+  "pair": "P0182",
+  "a": {
+   "id": "investor::get_earnings_history",
+   "description": "",
+   "args": "ticker, max_entries"
+  },
+  "b": {
+   "id": "investor::get_insider_trades",
+   "description": "",
+   "args": "ticker, max_trades"
+  },
+  "cos": 0.844
+ },
+ {
+  "pair": "P0184",
+  "a": {
+   "id": "kospi-kosdaq::get_stock_fundamental",
+   "description": "Retrieves fundamental data (PER/PBR/Dividend Yield) for a specific stock.\n\nArgs:\n    fromdate (str): Start date for retrieval (YYYYMMDD)\n    todate   (str): End date for retrieval (YYYYMMDD)\n    ticker   (str): Stock ticker symbol\n\nReturns:\n    DataFrame:\n        >> get_stock_fundamental(\"20210104\", \"20210108\", \"005930\")\n                          BPS        PER       PBR   EPS       DIV   DPS\n    ",
+   "args": "fromdate, todate, ticker"
+  },
+  "b": {
+   "id": "kospi-kosdaq::get_stock_market_cap",
+   "description": "Retrieves market capitalization data for a specific stock.\n\nArgs:\n    fromdate (str): Start date for retrieval (YYYYMMDD)\n    todate   (str): End date for retrieval (YYYYMMDD)\n    ticker   (str): Stock ticker symbol\n\nReturns:\n    DataFrame:\n        >> get_stock_market_cap(\"20150720\", \"20150724\", \"005930\")\n                          Market Cap  Volume      Trading Value  Listed Shares\n        Date\n ",
+   "args": "fromdate, todate, ticker"
+  },
+  "cos": 0.967
+ },
+ {
+  "pair": "P0186",
+  "a": {
+   "id": "kospi-kosdaq::get_stock_fundamental",
+   "description": "Retrieves fundamental data (PER/PBR/Dividend Yield) for a specific stock.\n\nArgs:\n    fromdate (str): Start date for retrieval (YYYYMMDD)\n    todate   (str): End date for retrieval (YYYYMMDD)\n    ticker   (str): Stock ticker symbol\n\nReturns:\n    DataFrame:\n        >> get_stock_fundamental(\"20210104\", \"20210108\", \"005930\")\n                          BPS        PER       PBR   EPS       DIV   DPS\n    ",
+   "args": "fromdate, todate, ticker"
+  },
+  "b": {
+   "id": "kospi-kosdaq::get_stock_trading_volume",
+   "description": "Retrieves trading volume by investor type for a specific stock.\n\nArgs:\n    fromdate (str): Start date for retrieval (YYYYMMDD)\n    todate   (str): End date for retrieval (YYYYMMDD)\n    ticker   (str): Stock ticker symbol\n\nReturns:\n    DataFrame with columns:\n    - Volume (Sell/Buy/Net Buy)\n    - Trading Value (Sell/Buy/Net Buy)\n    Broken down by investor types (Financial Investment, Insurance, Tr",
+   "args": "fromdate, todate, ticker"
+  },
+  "cos": 0.95
+ },
+ {
+  "pair": "P0188",
+  "a": {
+   "id": "kospi-kosdaq::get_stock_market_cap",
+   "description": "Retrieves market capitalization data for a specific stock.\n\nArgs:\n    fromdate (str): Start date for retrieval (YYYYMMDD)\n    todate   (str): End date for retrieval (YYYYMMDD)\n    ticker   (str): Stock ticker symbol\n\nReturns:\n    DataFrame:\n        >> get_stock_market_cap(\"20150720\", \"20150724\", \"005930\")\n                          Market Cap  Volume      Trading Value  Listed Shares\n        Date\n ",
+   "args": "fromdate, todate, ticker"
+  },
+  "b": {
+   "id": "kospi-kosdaq::get_stock_trading_volume",
+   "description": "Retrieves trading volume by investor type for a specific stock.\n\nArgs:\n    fromdate (str): Start date for retrieval (YYYYMMDD)\n    todate   (str): End date for retrieval (YYYYMMDD)\n    ticker   (str): Stock ticker symbol\n\nReturns:\n    DataFrame with columns:\n    - Volume (Sell/Buy/Net Buy)\n    - Trading Value (Sell/Buy/Net Buy)\n    Broken down by investor types (Financial Investment, Insurance, Tr",
+   "args": "fromdate, todate, ticker"
+  },
+  "cos": 0.968
+ },
+ {
+  "pair": "P0190",
+  "a": {
+   "id": "magicuidesign_mcp::getAnimations",
+   "description": "Provides implementation details for blur-fade components.",
+   "args": ""
+  },
+  "b": {
+   "id": "magicuidesign_mcp::getBackgrounds",
+   "description": "Provides implementation details for warp-background, flickering-grid, animated-grid-pattern, retro-grid, ripple, dot-pattern, grid-pattern, interactive-grid-pattern components.",
+   "args": ""
+  },
+  "cos": 0.817
+ },
+ {
+  "pair": "P0192",
+  "a": {
+   "id": "magicuidesign_mcp::getAnimations",
+   "description": "Provides implementation details for blur-fade components.",
+   "args": ""
+  },
+  "b": {
+   "id": "magicuidesign_mcp::getComponents",
+   "description": "Provides implementation details for marquee, terminal, hero-video-dialog, bento-grid, animated-list, dock, globe, tweet-card, client-tweet-card, orbiting-circles, avatar-circles, icon-cloud, animated-circular-progress-bar, file-tree, code-comparison, script-copy-btn, scroll-progress, lens, pointer components.",
+   "args": ""
+  },
+  "cos": 0.823
+ },
+ {
+  "pair": "P0194",
+  "a": {
+   "id": "magicuidesign_mcp::getAnimations",
+   "description": "Provides implementation details for blur-fade components.",
+   "args": ""
+  },
+  "b": {
+   "id": "magicuidesign_mcp::getSpecialEffects",
+   "description": "Provides implementation details for animated-beam, border-beam, shine-border, magic-card, meteors, neon-gradient-card, confetti, particles, cool-mode, scratch-to-reveal components.",
+   "args": ""
+  },
+  "cos": 0.866
+ },
+ {
+  "pair": "P0196",
+  "a": {
+   "id": "magicuidesign_mcp::getBackgrounds",
+   "description": "Provides implementation details for warp-background, flickering-grid, animated-grid-pattern, retro-grid, ripple, dot-pattern, grid-pattern, interactive-grid-pattern components.",
+   "args": ""
+  },
+  "b": {
+   "id": "magicuidesign_mcp::getButtons",
+   "description": "Provides implementation details for rainbow-button, shimmer-button, shiny-button, interactive-hover-button, animated-subscribe-button, pulsating-button, ripple-button components.",
+   "args": ""
+  },
+  "cos": 0.82
+ },
+ {
+  "pair": "P0198",
+  "a": {
+   "id": "magicuidesign_mcp::getBackgrounds",
+   "description": "Provides implementation details for warp-background, flickering-grid, animated-grid-pattern, retro-grid, ripple, dot-pattern, grid-pattern, interactive-grid-pattern components.",
+   "args": ""
+  },
+  "b": {
+   "id": "magicuidesign_mcp::getDeviceMocks",
+   "description": "Provides implementation details for safari, iphone-15-pro, android components.",
+   "args": ""
+  },
+  "cos": 0.76
+ },
+ {
+  "pair": "P0200",
+  "a": {
+   "id": "magicuidesign_mcp::getBackgrounds",
+   "description": "Provides implementation details for warp-background, flickering-grid, animated-grid-pattern, retro-grid, ripple, dot-pattern, grid-pattern, interactive-grid-pattern components.",
+   "args": ""
+  },
+  "b": {
+   "id": "magicuidesign_mcp::getTextAnimations",
+   "description": "Provides implementation details for text-animate, line-shadow-text, aurora-text, number-ticker, animated-shiny-text, animated-gradient-text, text-reveal, hyper-text, word-rotate, typing-animation, scroll-based-velocity, flip-text, box-reveal, sparkles-text, morphing-text, spinning-text components.",
+   "args": ""
+  },
+  "cos": 0.752
+ },
+ {
+  "pair": "P0202",
+  "a": {
+   "id": "magicuidesign_mcp::getButtons",
+   "description": "Provides implementation details for rainbow-button, shimmer-button, shiny-button, interactive-hover-button, animated-subscribe-button, pulsating-button, ripple-button components.",
+   "args": ""
+  },
+  "b": {
+   "id": "magicuidesign_mcp::getDeviceMocks",
+   "description": "Provides implementation details for safari, iphone-15-pro, android components.",
+   "args": ""
+  },
+  "cos": 0.835
+ },
+ {
+  "pair": "P0204",
+  "a": {
+   "id": "magicuidesign_mcp::getButtons",
+   "description": "Provides implementation details for rainbow-button, shimmer-button, shiny-button, interactive-hover-button, animated-subscribe-button, pulsating-button, ripple-button components.",
+   "args": ""
+  },
+  "b": {
+   "id": "magicuidesign_mcp::getTextAnimations",
+   "description": "Provides implementation details for text-animate, line-shadow-text, aurora-text, number-ticker, animated-shiny-text, animated-gradient-text, text-reveal, hyper-text, word-rotate, typing-animation, scroll-based-velocity, flip-text, box-reveal, sparkles-text, morphing-text, spinning-text components.",
+   "args": ""
+  },
+  "cos": 0.818
+ },
+ {
+  "pair": "P0206",
+  "a": {
+   "id": "magicuidesign_mcp::getComponents",
+   "description": "Provides implementation details for marquee, terminal, hero-video-dialog, bento-grid, animated-list, dock, globe, tweet-card, client-tweet-card, orbiting-circles, avatar-circles, icon-cloud, animated-circular-progress-bar, file-tree, code-comparison, script-copy-btn, scroll-progress, lens, pointer components.",
+   "args": ""
+  },
+  "b": {
+   "id": "magicuidesign_mcp::getSpecialEffects",
+   "description": "Provides implementation details for animated-beam, border-beam, shine-border, magic-card, meteors, neon-gradient-card, confetti, particles, cool-mode, scratch-to-reveal components.",
+   "args": ""
+  },
+  "cos": 0.853
+ },
+ {
+  "pair": "P0208",
+  "a": {
+   "id": "magicuidesign_mcp::getDeviceMocks",
+   "description": "Provides implementation details for safari, iphone-15-pro, android components.",
+   "args": ""
+  },
+  "b": {
+   "id": "magicuidesign_mcp::getSpecialEffects",
+   "description": "Provides implementation details for animated-beam, border-beam, shine-border, magic-card, meteors, neon-gradient-card, confetti, particles, cool-mode, scratch-to-reveal components.",
+   "args": ""
+  },
+  "cos": 0.822
+ },
+ {
+  "pair": "P0210",
+  "a": {
+   "id": "magicuidesign_mcp::getUIComponents",
+   "description": "Provides a comprehensive list of all Magic UI components.",
+   "args": ""
+  },
+  "b": {
+   "id": "shadcn-ui-server::list_shadcn_components",
+   "description": "Get a list of all available shadcn/ui components",
+   "args": ""
+  },
+  "cos": 0.798
+ },
+ {
+  "pair": "P0212",
+  "a": {
+   "id": "maven-deps-server::check_maven_version_exists",
+   "description": "Check if a specific version of a Maven dependency exists",
+   "args": "dependency, version"
+  },
+  "b": {
+   "id": "maven-deps-server::list_maven_versions",
+   "description": "List Maven dependency versions sorted by last updated date (most recent first)",
+   "args": "dependency, depth, excludePreReleases"
+  },
+  "cos": 0.876
+ },
+ {
+  "pair": "P0214",
+  "a": {
+   "id": "mcp-crypto-price::get-crypto-price",
+   "description": "Get current price and 24h stats for a cryptocurrency",
+   "args": "symbol"
+  },
+  "b": {
+   "id": "yahoo-finance::get_current_stock_price",
+   "description": "Get the current stock price based on stock symbol.",
+   "args": "symbol"
+  },
+  "cos": 0.751
+ },
+ {
+  "pair": "P0216",
+  "a": {
+   "id": "mcp-deepwiki::deepwiki_fetch",
+   "description": "Fetch a deepwiki.com repo and return Markdown",
+   "args": "url, maxDepth, mode, verbose"
+  },
+  "b": {
+   "id": "npx_fetch::fetch_markdown",
+   "description": "Fetch a website and return the content as Markdown",
+   "args": "url, headers"
+  },
+  "cos": 0.816
+ },
+ {
+  "pair": "P0218",
+  "a": {
+   "id": "mcp-server-chart::generate_area_chart",
+   "description": "Generate a area chart to show data trends under continuous independent variables and observe the overall data trend, such as, displacement = velocity (average or instantaneous) × time: s = v × t. If the x-axis is time (t) and the y-axis is velocity (v) at each moment, an area chart allows you to observe the trend of velocity over time and infer the distance traveled by the area's size.",
+   "args": "data, stack, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_bar_chart",
+   "description": "Generate a bar chart to show data for numerical comparisons among different categories, such as, comparing categorical data and for horizontal comparisons.",
+   "args": "data, group, stack, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "cos": 0.707
+ },
+ {
+  "pair": "P0220",
+  "a": {
+   "id": "mcp-server-chart::generate_area_chart",
+   "description": "Generate a area chart to show data trends under continuous independent variables and observe the overall data trend, such as, displacement = velocity (average or instantaneous) × time: s = v × t. If the x-axis is time (t) and the y-axis is velocity (v) at each moment, an area chart allows you to observe the trend of velocity over time and infer the distance traveled by the area's size.",
+   "args": "data, stack, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_dual_axes_chart",
+   "description": "Generate a dual axes chart which is a combination chart that integrates two different chart types, typically combining a bar chart with a line chart to display both the trend and comparison of data, such as, the trend of sales and profit over time.",
+   "args": "categories, series, theme, width, height, title, axisXTitle"
+  },
+  "cos": 0.788
+ },
+ {
+  "pair": "P0222",
+  "a": {
+   "id": "mcp-server-chart::generate_area_chart",
+   "description": "Generate a area chart to show data trends under continuous independent variables and observe the overall data trend, such as, displacement = velocity (average or instantaneous) × time: s = v × t. If the x-axis is time (t) and the y-axis is velocity (v) at each moment, an area chart allows you to observe the trend of velocity over time and infer the distance traveled by the area's size.",
+   "args": "data, stack, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_line_chart",
+   "description": "Generate a line chart to show trends over time, such as, the ratio of Apple computer sales to Apple's profits changed from 2000 to 2016.",
+   "args": "data, stack, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "cos": 0.868
+ },
+ {
+  "pair": "P0224",
+  "a": {
+   "id": "mcp-server-chart::generate_bar_chart",
+   "description": "Generate a bar chart to show data for numerical comparisons among different categories, such as, comparing categorical data and for horizontal comparisons.",
+   "args": "data, group, stack, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_column_chart",
+   "description": "Generate a column chart, which are best for comparing categorical data, such as, when values are close, column charts are preferable because our eyes are better at judging height than other visual elements like area or angles.",
+   "args": "data, group, stack, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "cos": 0.898
+ },
+ {
+  "pair": "P0226",
+  "a": {
+   "id": "mcp-server-chart::generate_bar_chart",
+   "description": "Generate a bar chart to show data for numerical comparisons among different categories, such as, comparing categorical data and for horizontal comparisons.",
+   "args": "data, group, stack, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_line_chart",
+   "description": "Generate a line chart to show trends over time, such as, the ratio of Apple computer sales to Apple's profits changed from 2000 to 2016.",
+   "args": "data, stack, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "cos": 0.793
+ },
+ {
+  "pair": "P0228",
+  "a": {
+   "id": "mcp-server-chart::generate_boxplot_chart",
+   "description": "Generate a boxplot chart to show data for statistical summaries among different categories, such as, comparing the distribution of data points across categories.",
+   "args": "data, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_column_chart",
+   "description": "Generate a column chart, which are best for comparing categorical data, such as, when values are close, column charts are preferable because our eyes are better at judging height than other visual elements like area or angles.",
+   "args": "data, group, stack, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "cos": 0.795
+ },
+ {
+  "pair": "P0230",
+  "a": {
+   "id": "mcp-server-chart::generate_boxplot_chart",
+   "description": "Generate a boxplot chart to show data for statistical summaries among different categories, such as, comparing the distribution of data points across categories.",
+   "args": "data, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_scatter_chart",
+   "description": "Generate a scatter chart to show the relationship between two variables, helps discover their relationship or trends, such as, the strength of correlation, data distribution patterns.",
+   "args": "data, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "cos": 0.756
+ },
+ {
+  "pair": "P0232",
+  "a": {
+   "id": "mcp-server-chart::generate_column_chart",
+   "description": "Generate a column chart, which are best for comparing categorical data, such as, when values are close, column charts are preferable because our eyes are better at judging height than other visual elements like area or angles.",
+   "args": "data, group, stack, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_dual_axes_chart",
+   "description": "Generate a dual axes chart which is a combination chart that integrates two different chart types, typically combining a bar chart with a line chart to display both the trend and comparison of data, such as, the trend of sales and profit over time.",
+   "args": "categories, series, theme, width, height, title, axisXTitle"
+  },
+  "cos": 0.833
+ },
+ {
+  "pair": "P0234",
+  "a": {
+   "id": "mcp-server-chart::generate_column_chart",
+   "description": "Generate a column chart, which are best for comparing categorical data, such as, when values are close, column charts are preferable because our eyes are better at judging height than other visual elements like area or angles.",
+   "args": "data, group, stack, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_violin_chart",
+   "description": "Generate a violin chart to show data for statistical summaries among different categories, such as, comparing the distribution of data points across categories.",
+   "args": "data, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "cos": 0.797
+ },
+ {
+  "pair": "P0236",
+  "a": {
+   "id": "mcp-server-chart::generate_dual_axes_chart",
+   "description": "Generate a dual axes chart which is a combination chart that integrates two different chart types, typically combining a bar chart with a line chart to display both the trend and comparison of data, such as, the trend of sales and profit over time.",
+   "args": "categories, series, theme, width, height, title, axisXTitle"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_line_chart",
+   "description": "Generate a line chart to show trends over time, such as, the ratio of Apple computer sales to Apple's profits changed from 2000 to 2016.",
+   "args": "data, stack, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "cos": 0.899
+ },
+ {
+  "pair": "P0238",
+  "a": {
+   "id": "mcp-server-chart::generate_dual_axes_chart",
+   "description": "Generate a dual axes chart which is a combination chart that integrates two different chart types, typically combining a bar chart with a line chart to display both the trend and comparison of data, such as, the trend of sales and profit over time.",
+   "args": "categories, series, theme, width, height, title, axisXTitle"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_scatter_chart",
+   "description": "Generate a scatter chart to show the relationship between two variables, helps discover their relationship or trends, such as, the strength of correlation, data distribution patterns.",
+   "args": "data, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "cos": 0.754
+ },
+ {
+  "pair": "P0240",
+  "a": {
+   "id": "mcp-server-chart::generate_flow_diagram",
+   "description": "Generate a flow diagram chart to show the steps and decision points of a process or system, such as, scenarios requiring linear process presentation.",
+   "args": "data, theme, width, height"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_mind_map",
+   "description": "Generate a mind map chart to organizes and presents information in a hierarchical structure with branches radiating from a central topic, such as, a diagram showing the relationship between a main topic and its subtopics.",
+   "args": "data, theme, width, height"
+  },
+  "cos": 0.721
+ },
+ {
+  "pair": "P0242",
+  "a": {
+   "id": "mcp-server-chart::generate_flow_diagram",
+   "description": "Generate a flow diagram chart to show the steps and decision points of a process or system, such as, scenarios requiring linear process presentation.",
+   "args": "data, theme, width, height"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_pie_chart",
+   "description": "Generate a pie chart to show the proportion of parts, such as, market share and budget allocation.",
+   "args": "data, innerRadius, theme, width, height, title"
+  },
+  "cos": 0.749
+ },
+ {
+  "pair": "P0244",
+  "a": {
+   "id": "mcp-server-chart::generate_funnel_chart",
+   "description": "Generate a funnel chart to visualize the progressive reduction of data as it passes through stages, such as, the conversion rates of users from visiting a website to completing a purchase.",
+   "args": "data, theme, width, height, title"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_pie_chart",
+   "description": "Generate a pie chart to show the proportion of parts, such as, market share and budget allocation.",
+   "args": "data, innerRadius, theme, width, height, title"
+  },
+  "cos": 0.724
+ },
+ {
+  "pair": "P0246",
+  "a": {
+   "id": "mcp-server-chart::generate_funnel_chart",
+   "description": "Generate a funnel chart to visualize the progressive reduction of data as it passes through stages, such as, the conversion rates of users from visiting a website to completing a purchase.",
+   "args": "data, theme, width, height, title"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_word_cloud_chart",
+   "description": "Generate a word cloud chart to show word frequency or weight through text size variation, such as, analyzing common words in social media, reviews, or feedback.",
+   "args": "data, theme, width, height, title"
+  },
+  "cos": 0.735
+ },
+ {
+  "pair": "P0248",
+  "a": {
+   "id": "mcp-server-chart::generate_histogram_chart",
+   "description": "Generate a histogram chart to show the frequency of data points within a certain range. It can observe data distribution, such as, normal and skewed distributions, and identify data concentration areas and extreme points.",
+   "args": "data, binNumber, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_pie_chart",
+   "description": "Generate a pie chart to show the proportion of parts, such as, market share and budget allocation.",
+   "args": "data, innerRadius, theme, width, height, title"
+  },
+  "cos": 0.769
+ },
+ {
+  "pair": "P0250",
+  "a": {
+   "id": "mcp-server-chart::generate_histogram_chart",
+   "description": "Generate a histogram chart to show the frequency of data points within a certain range. It can observe data distribution, such as, normal and skewed distributions, and identify data concentration areas and extreme points.",
+   "args": "data, binNumber, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_violin_chart",
+   "description": "Generate a violin chart to show data for statistical summaries among different categories, such as, comparing the distribution of data points across categories.",
+   "args": "data, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "cos": 0.814
+ },
+ {
+  "pair": "P0252",
+  "a": {
+   "id": "mcp-server-chart::generate_line_chart",
+   "description": "Generate a line chart to show trends over time, such as, the ratio of Apple computer sales to Apple's profits changed from 2000 to 2016.",
+   "args": "data, stack, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_radar_chart",
+   "description": "Generate a radar chart to display multidimensional data (four dimensions or more), such as, evaluate Huawei and Apple phones in terms of five dimensions: ease of use, functionality, camera, benchmark scores, and battery life.",
+   "args": "data, theme, width, height, title"
+  },
+  "cos": 0.74
+ },
+ {
+  "pair": "P0254",
+  "a": {
+   "id": "mcp-server-chart::generate_liquid_chart",
+   "description": "Generate a liquid chart to visualize a single value as a percentage, such as, the current occupancy rate of a reservoir or the completion percentage of a project.",
+   "args": "percent, shape, theme, width, height, title"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_pie_chart",
+   "description": "Generate a pie chart to show the proportion of parts, such as, market share and budget allocation.",
+   "args": "data, innerRadius, theme, width, height, title"
+  },
+  "cos": 0.772
+ },
+ {
+  "pair": "P0256",
+  "a": {
+   "id": "mcp-server-chart::generate_liquid_chart",
+   "description": "Generate a liquid chart to visualize a single value as a percentage, such as, the current occupancy rate of a reservoir or the completion percentage of a project.",
+   "args": "percent, shape, theme, width, height, title"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_sankey_chart",
+   "description": "Generate a sankey chart to visualize the flow of data between different stages or categories, such as, the user journey from landing on a page to completing a purchase.",
+   "args": "data, nodeAlign, theme, width, height, title"
+  },
+  "cos": 0.75
+ },
+ {
+  "pair": "P0258",
+  "a": {
+   "id": "mcp-server-chart::generate_mind_map",
+   "description": "Generate a mind map chart to organizes and presents information in a hierarchical structure with branches radiating from a central topic, such as, a diagram showing the relationship between a main topic and its subtopics.",
+   "args": "data, theme, width, height"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_organization_chart",
+   "description": "Generate an organization chart to visualize the hierarchical structure of an organization, such as, a diagram showing the relationship between a CEO and their direct reports.",
+   "args": "data, orient, theme, width, height"
+  },
+  "cos": 0.883
+ },
+ {
+  "pair": "P0260",
+  "a": {
+   "id": "mcp-server-chart::generate_mind_map",
+   "description": "Generate a mind map chart to organizes and presents information in a hierarchical structure with branches radiating from a central topic, such as, a diagram showing the relationship between a main topic and its subtopics.",
+   "args": "data, theme, width, height"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_venn_chart",
+   "description": "Generate a Venn diagram to visualize the relationships between different sets, showing how they intersect and overlap, such as the commonalities and differences between various groups.",
+   "args": "data, theme, width, height, title"
+  },
+  "cos": 0.714
+ },
+ {
+  "pair": "P0262",
+  "a": {
+   "id": "mcp-server-chart::generate_network_graph",
+   "description": "Generate a network graph chart to show relationships (edges) between entities (nodes), such as, relationships between people in social networks.",
+   "args": "data, theme, width, height"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_venn_chart",
+   "description": "Generate a Venn diagram to visualize the relationships between different sets, showing how they intersect and overlap, such as the commonalities and differences between various groups.",
+   "args": "data, theme, width, height, title"
+  },
+  "cos": 0.827
+ },
+ {
+  "pair": "P0264",
+  "a": {
+   "id": "mcp-server-chart::generate_organization_chart",
+   "description": "Generate an organization chart to visualize the hierarchical structure of an organization, such as, a diagram showing the relationship between a CEO and their direct reports.",
+   "args": "data, orient, theme, width, height"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_venn_chart",
+   "description": "Generate a Venn diagram to visualize the relationships between different sets, showing how they intersect and overlap, such as the commonalities and differences between various groups.",
+   "args": "data, theme, width, height, title"
+  },
+  "cos": 0.795
+ },
+ {
+  "pair": "P0266",
+  "a": {
+   "id": "mcp-server-chart::generate_pie_chart",
+   "description": "Generate a pie chart to show the proportion of parts, such as, market share and budget allocation.",
+   "args": "data, innerRadius, theme, width, height, title"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_radar_chart",
+   "description": "Generate a radar chart to display multidimensional data (four dimensions or more), such as, evaluate Huawei and Apple phones in terms of five dimensions: ease of use, functionality, camera, benchmark scores, and battery life.",
+   "args": "data, theme, width, height, title"
+  },
+  "cos": 0.803
+ },
+ {
+  "pair": "P0268",
+  "a": {
+   "id": "mcp-server-chart::generate_pie_chart",
+   "description": "Generate a pie chart to show the proportion of parts, such as, market share and budget allocation.",
+   "args": "data, innerRadius, theme, width, height, title"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_treemap_chart",
+   "description": "Generate a treemap chart to display hierarchical data and can intuitively show comparisons between items at the same level, such as, show disk space usage with treemap.",
+   "args": "data, theme, width, height, title"
+  },
+  "cos": 0.772
+ },
+ {
+  "pair": "P0270",
+  "a": {
+   "id": "mcp-server-chart::generate_radar_chart",
+   "description": "Generate a radar chart to display multidimensional data (four dimensions or more), such as, evaluate Huawei and Apple phones in terms of five dimensions: ease of use, functionality, camera, benchmark scores, and battery life.",
+   "args": "data, theme, width, height, title"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_treemap_chart",
+   "description": "Generate a treemap chart to display hierarchical data and can intuitively show comparisons between items at the same level, such as, show disk space usage with treemap.",
+   "args": "data, theme, width, height, title"
+  },
+  "cos": 0.724
+ },
+ {
+  "pair": "P0272",
+  "a": {
+   "id": "mcp-server-chart::generate_sankey_chart",
+   "description": "Generate a sankey chart to visualize the flow of data between different stages or categories, such as, the user journey from landing on a page to completing a purchase.",
+   "args": "data, nodeAlign, theme, width, height, title"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_venn_chart",
+   "description": "Generate a Venn diagram to visualize the relationships between different sets, showing how they intersect and overlap, such as the commonalities and differences between various groups.",
+   "args": "data, theme, width, height, title"
+  },
+  "cos": 0.764
+ },
+ {
+  "pair": "P0274",
+  "a": {
+   "id": "mcp-server-chart::generate_scatter_chart",
+   "description": "Generate a scatter chart to show the relationship between two variables, helps discover their relationship or trends, such as, the strength of correlation, data distribution patterns.",
+   "args": "data, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "b": {
+   "id": "mcp-server-chart::generate_violin_chart",
+   "description": "Generate a violin chart to show data for statistical summaries among different categories, such as, comparing the distribution of data points across categories.",
+   "args": "data, theme, width, height, title, axisXTitle, axisYTitle"
+  },
+  "cos": 0.761
+ },
+ {
+  "pair": "P0276",
+  "a": {
+   "id": "memory::add_observations",
+   "description": "Add new observations to existing entities in the knowledge graph",
+   "args": "observations"
+  },
+  "b": {
+   "id": "memory::create_entities",
+   "description": "Create multiple new entities in the knowledge graph",
+   "args": "entities"
+  },
+  "cos": 0.714
+ },
+ {
+  "pair": "P0278",
+  "a": {
+   "id": "memory::create_entities",
+   "description": "Create multiple new entities in the knowledge graph",
+   "args": "entities"
+  },
+  "b": {
+   "id": "memory::create_relations",
+   "description": "Create multiple new relations between entities in the knowledge graph. Relations should be in active voice",
+   "args": "relations"
+  },
+  "cos": 0.906
+ },
+ {
+  "pair": "P0280",
+  "a": {
+   "id": "memory::create_relations",
+   "description": "Create multiple new relations between entities in the knowledge graph. Relations should be in active voice",
+   "args": "relations"
+  },
+  "b": {
+   "id": "memory::delete_entities",
+   "description": "Delete multiple entities and their associated relations from the knowledge graph",
+   "args": "entityNames"
+  },
+  "cos": 0.786
+ },
+ {
+  "pair": "P0282",
+  "a": {
+   "id": "memory::delete_entities",
+   "description": "Delete multiple entities and their associated relations from the knowledge graph",
+   "args": "entityNames"
+  },
+  "b": {
+   "id": "memory::delete_observations",
+   "description": "Delete specific observations from entities in the knowledge graph",
+   "args": "deletions"
+  },
+  "cos": 0.839
+ },
+ {
+  "pair": "P0284",
+  "a": {
+   "id": "memory::delete_observations",
+   "description": "Delete specific observations from entities in the knowledge graph",
+   "args": "deletions"
+  },
+  "b": {
+   "id": "memory::delete_relations",
+   "description": "Delete multiple relations from the knowledge graph",
+   "args": "relations"
+  },
+  "cos": 0.792
+ },
+ {
+  "pair": "P0286",
+  "a": {
+   "id": "met-museum::get-museum-object",
+   "description": "Get a museum object by its ID, from the Metropolitan Museum of Art Collection",
+   "args": "objectId, returnImage"
+  },
+  "b": {
+   "id": "met-museum::list-departments",
+   "description": "List all departments in the Metropolitan Museum of Art (Met Museum)",
+   "args": ""
+  },
+  "cos": 0.894
+ },
+ {
+  "pair": "P0288",
+  "a": {
+   "id": "met-museum::list-departments",
+   "description": "List all departments in the Metropolitan Museum of Art (Met Museum)",
+   "args": ""
+  },
+  "b": {
+   "id": "met-museum::search-museum-objects",
+   "description": "Search for objects in the Metropolitan Museum of Art (Met Museum). Will return Total objects found, followed by a list of Object Ids.The parameter title should be set to true if you want to search for objects by title.The parameter hasImages is false by default, but can be set to true to return objects without images.If the parameter hasImages is true, the parameter title should be false.",
+   "args": "q, hasImages, title, departmentId"
+  },
+  "cos": 0.857
+ },
+ {
+  "pair": "P0290",
+  "a": {
+   "id": "music-analysis::beat_track",
+   "description": "\nComputes the beat track of the given audio time series using librosa.\nThe beat track is a representation of the audio signal in terms of its\nrhythmic content, which is useful for music analysis.\nThe beat track is computed using the following parameters:\n- hop_length: The number of samples between frames.\n- start_bpm: The initial estimate of the tempo (in BPM).\n- tightness: The tightness of the be",
+   "args": "path_audio_time_series_y, hop_length, start_bpm, tightness, units"
+  },
+  "b": {
+   "id": "music-analysis::get_duration",
+   "description": "\nReturns the total duration (in seconds) of the given audio time series.\n",
+   "args": "path_audio_time_series_y"
+  },
+  "cos": 0.813
+ },
+ {
+  "pair": "P0292",
+  "a": {
+   "id": "music-analysis::beat_track",
+   "description": "\nComputes the beat track of the given audio time series using librosa.\nThe beat track is a representation of the audio signal in terms of its\nrhythmic content, which is useful for music analysis.\nThe beat track is computed using the following parameters:\n- hop_length: The number of samples between frames.\n- start_bpm: The initial estimate of the tempo (in BPM).\n- tightness: The tightness of the be",
+   "args": "path_audio_time_series_y, hop_length, start_bpm, tightness, units"
+  },
+  "b": {
+   "id": "music-analysis::tempo",
+   "description": "\nEstimates the tempo (in BPM) of the given audio time series using librosa.\nOffset and duration are optional, in seconds.\n",
+   "args": "path_audio_time_series_y, hop_length, start_bpm, std_bpm, ac_size, max_tempo"
+  },
+  "cos": 0.877
+ },
+ {
+  "pair": "P0294",
+  "a": {
+   "id": "music-analysis::chroma_cqt",
+   "description": "\nComputes the chroma CQT of the given audio time series using librosa.\nThe chroma CQT is a representation of the audio signal in terms of its\nchromatic content, which is useful for music analysis.\nThe chroma CQT is computed using the following parameters:\n- path_audio_time_series_y: The path to the audio time series (CSV file).\n    It's sometimes better to take harmonics only\n- hop_length: The num",
+   "args": "path_audio_time_series_y, hop_length, fmin, n_chroma, n_octaves"
+  },
+  "b": {
+   "id": "music-analysis::mfcc",
+   "description": "\nComputes the MFCC of the given audio time series using librosa.\nThe MFCC is a representation of the audio signal in terms of its\nspectral content, which is useful for music analysis.\nThe MFCC is computed using the following parameters:\n- path_audio_time_series_y: The path to the audio time series (CSV file).\n    It's sometimes better to take harmonics only\n",
+   "args": "path_audio_time_series_y"
+  },
+  "cos": 0.977
+ },
+ {
+  "pair": "P0296",
+  "a": {
+   "id": "music-analysis::download_from_url",
+   "description": "\nDownloads a file from a given URL and returns the path to the downloaded file.\nBe careful, you will never know the name of the song.\n",
+   "args": "url"
+  },
+  "b": {
+   "id": "music-analysis::download_from_youtube",
+   "description": "\nDownloads a file from a given youtube URL and returns the path to the downloaded file.\nBe careful, you will never know the name of the song.\n",
+   "args": "youtube_url"
+  },
+  "cos": 0.997
+ },
+ {
+  "pair": "P0298",
+  "a": {
+   "id": "music-analysis::download_from_youtube",
+   "description": "\nDownloads a file from a given youtube URL and returns the path to the downloaded file.\nBe careful, you will never know the name of the song.\n",
+   "args": "youtube_url"
+  },
+  "b": {
+   "id": "music-analysis::load",
+   "description": "\nLoads an audio file and returns the path to the audio time series\nOffset and duration are optional, in seconds.\nBe careful, you will never know the name of the song.\n",
+   "args": "file_path, offset, duration"
+  },
+  "cos": 0.735
+ },
+ {
+  "pair": "P0300",
+  "a": {
+   "id": "music-analysis::get_duration",
+   "description": "\nReturns the total duration (in seconds) of the given audio time series.\n",
+   "args": "path_audio_time_series_y"
+  },
+  "b": {
+   "id": "music-analysis::tempo",
+   "description": "\nEstimates the tempo (in BPM) of the given audio time series using librosa.\nOffset and duration are optional, in seconds.\n",
+   "args": "path_audio_time_series_y, hop_length, start_bpm, std_bpm, ac_size, max_tempo"
+  },
+  "cos": 0.941
+ },
+ {
+  "pair": "P0302",
+  "a": {
+   "id": "npm-sentinel-mcp::npmAlternatives",
+   "description": "Find alternative packages with similar functionality",
+   "args": "packages"
+  },
+  "b": {
+   "id": "npm-sentinel-mcp::npmDeprecated",
+   "description": "Check if packages are deprecated",
+   "args": "packages"
+  },
+  "cos": 0.76
+ },
+ {
+  "pair": "P0304",
+  "a": {
+   "id": "npm-sentinel-mcp::npmAlternatives",
+   "description": "Find alternative packages with similar functionality",
+   "args": "packages"
+  },
+  "b": {
+   "id": "npm-sentinel-mcp::npmVulnerabilities",
+   "description": "Check for known vulnerabilities in packages",
+   "args": "packages"
+  },
+  "cos": 0.711
+ },
+ {
+  "pair": "P0306",
+  "a": {
+   "id": "npm-sentinel-mcp::npmCompare",
+   "description": "Compare multiple NPM packages based on various metrics",
+   "args": "packages"
+  },
+  "b": {
+   "id": "npm-sentinel-mcp::npmMaintenance",
+   "description": "Analyze package maintenance metrics",
+   "args": "packages"
+  },
+  "cos": 0.722
+ },
+ {
+  "pair": "P0308",
+  "a": {
+   "id": "npm-sentinel-mcp::npmDeprecated",
+   "description": "Check if packages are deprecated",
+   "args": "packages"
+  },
+  "b": {
+   "id": "npm-sentinel-mcp::npmLicenseCompatibility",
+   "description": "Check license compatibility between multiple packages",
+   "args": "packages"
+  },
+  "cos": 0.803
+ },
+ {
+  "pair": "P0310",
+  "a": {
+   "id": "npm-sentinel-mcp::npmDeprecated",
+   "description": "Check if packages are deprecated",
+   "args": "packages"
+  },
+  "b": {
+   "id": "npm-sentinel-mcp::npmVulnerabilities",
+   "description": "Check for known vulnerabilities in packages",
+   "args": "packages"
+  },
+  "cos": 0.914
+ },
+ {
+  "pair": "P0312",
+  "a": {
+   "id": "npm-sentinel-mcp::npmDeps",
+   "description": "Analyze dependencies and devDependencies of an NPM package",
+   "args": "packages"
+  },
+  "b": {
+   "id": "npm-sentinel-mcp::npmSize",
+   "description": "Get package size information including dependencies and bundle size",
+   "args": "packages"
+  },
+  "cos": 0.833
+ },
+ {
+  "pair": "P0314",
+  "a": {
+   "id": "npm-sentinel-mcp::npmLatest",
+   "description": "Get the latest version and changelog of an NPM package",
+   "args": "packages"
+  },
+  "b": {
+   "id": "npm-sentinel-mcp::npmVersions",
+   "description": "Get all available versions of an NPM package",
+   "args": "packages"
+  },
+  "cos": 0.853
+ },
+ {
+  "pair": "P0316",
+  "a": {
+   "id": "npm-sentinel-mcp::npmMaintainers",
+   "description": "Get maintainers information for NPM packages",
+   "args": "packages"
+  },
+  "b": {
+   "id": "npm-sentinel-mcp::npmPackageReadme",
+   "description": "Get the README content for NPM packages",
+   "args": "packages"
+  },
+  "cos": 0.869
+ },
+ {
+  "pair": "P0318",
+  "a": {
+   "id": "npm-sentinel-mcp::npmMaintenance",
+   "description": "Analyze package maintenance metrics",
+   "args": "packages"
+  },
+  "b": {
+   "id": "npm-sentinel-mcp::npmQuality",
+   "description": "Analyze package quality metrics",
+   "args": "packages"
+  },
+  "cos": 0.983
+ },
+ {
+  "pair": "P0320",
+  "a": {
+   "id": "npm-sentinel-mcp::npmMaintenance",
+   "description": "Analyze package maintenance metrics",
+   "args": "packages"
+  },
+  "b": {
+   "id": "npm-sentinel-mcp::npmTrends",
+   "description": "Get download trends and popularity metrics for packages",
+   "args": "packages, period"
+  },
+  "cos": 0.724
+ },
+ {
+  "pair": "P0322",
+  "a": {
+   "id": "npm-sentinel-mcp::npmPackageReadme",
+   "description": "Get the README content for NPM packages",
+   "args": "packages"
+  },
+  "b": {
+   "id": "npm-sentinel-mcp::npmVulnerabilities",
+   "description": "Check for known vulnerabilities in packages",
+   "args": "packages"
+  },
+  "cos": 0.715
+ },
+ {
+  "pair": "P0324",
+  "a": {
+   "id": "npm-sentinel-mcp::npmQuality",
+   "description": "Analyze package quality metrics",
+   "args": "packages"
+  },
+  "b": {
+   "id": "npm-sentinel-mcp::npmTrends",
+   "description": "Get download trends and popularity metrics for packages",
+   "args": "packages, period"
+  },
+  "cos": 0.732
+ },
+ {
+  "pair": "P0326",
+  "a": {
+   "id": "npm-sentinel-mcp::npmTypes",
+   "description": "Check TypeScript types availability and version for a package",
+   "args": "packages"
+  },
+  "b": {
+   "id": "npm-sentinel-mcp::npmVersions",
+   "description": "Get all available versions of an NPM package",
+   "args": "packages"
+  },
+  "cos": 0.751
+ },
+ {
+  "pair": "P0328",
+  "a": {
+   "id": "npx_fetch::fetch_html",
+   "description": "Fetch a website and return the content as HTML",
+   "args": "url, headers"
+  },
+  "b": {
+   "id": "npx_fetch::fetch_markdown",
+   "description": "Fetch a website and return the content as Markdown",
+   "args": "url, headers"
+  },
+  "cos": 0.915
+ },
+ {
+  "pair": "P0330",
+  "a": {
+   "id": "npx_fetch::fetch_json",
+   "description": "Fetch a JSON file from a URL",
+   "args": "url, headers"
+  },
+  "b": {
+   "id": "npx_fetch::fetch_markdown",
+   "description": "Fetch a website and return the content as Markdown",
+   "args": "url, headers"
+  },
+  "cos": 0.708
+ },
+ {
+  "pair": "P0332",
+  "a": {
+   "id": "npx_fetch::fetch_markdown",
+   "description": "Fetch a website and return the content as Markdown",
+   "args": "url, headers"
+  },
+  "b": {
+   "id": "npx_fetch::fetch_txt",
+   "description": "Fetch a website, return the content as plain text (no HTML)",
+   "args": "url, headers"
+  },
+  "cos": 0.888
+ },
+ {
+  "pair": "P0334",
+  "a": {
+   "id": "okppt::add_slide_with_layout",
+   "description": "Inserts a new slide with a specified layout into a presentation and returns a JSON string of the result.",
+   "args": "prs_path, layout_name, output_path, slide_title"
+  },
+  "b": {
+   "id": "okppt::clear_placeholders_from_slides",
+   "description": "Clears content from placeholders in specified slides of a presentation and returns a JSON string of the result.",
+   "args": "prs_path, output_path, slide_indices"
+  },
+  "cos": 0.828
+ },
+ {
+  "pair": "P0336",
+  "a": {
+   "id": "okppt::convert_svg_to_png",
+   "description": "\n将SVG文件转换为PNG图像。\n\nArgs:\n    svg_path: SVG文件路径\n    output_path: 输出PNG文件路径，如果未指定则使用相同文件名但扩展名为.png\n    \nReturns:\n    操作结果消息\n",
+   "args": "svg_path, output_path"
+  },
+  "b": {
+   "id": "okppt::copy_svg_slide",
+   "description": "\n专门用于复制包含SVG图像的幻灯片，确保SVG和相关引用都被正确复制。\n\n此函数使用直接操作PPTX内部XML文件的方式，确保SVG图像及其引用在复制过程中完全保留。\n与普通的copy_slide函数相比，此函数特别关注SVG图像的复制，保证SVG的矢量属性在复制后依然可用。\n\nArgs:\n    source_pptx_path: 源PPTX文件路径\n    target_pptx_path: 目标PPTX文件路径，如果为空则创建新文件\n    source_slide_number: 要复制的源幻灯片页码（从1开始）\n    target_slide_number: 要插入到目标文件的位置（从1开始），如果为None则添加到末尾\n    output_path: 输出文件路径，如果未指定则使用标准输出目录\n    create_if_not_exists: 如果为True且目标PPT",
+   "args": "source_pptx_path, target_pptx_path, source_slide_number, target_slide_number, output_path, create_if_not_exists"
+  },
+  "cos": 0.812
+ },
+ {
+  "pair": "P0338",
+  "a": {
+   "id": "okppt::convert_svg_to_png",
+   "description": "\n将SVG文件转换为PNG图像。\n\nArgs:\n    svg_path: SVG文件路径\n    output_path: 输出PNG文件路径，如果未指定则使用相同文件名但扩展名为.png\n    \nReturns:\n    操作结果消息\n",
+   "args": "svg_path, output_path"
+  },
+  "b": {
+   "id": "okppt::insert_svg",
+   "description": "\n将SVG图像插入到PPTX文件的指定位置。(如果需要替换已有的幻灯片，请组合使用`delete_slide`和`insert_blank_slide`功能)\n如果未提供PPTX路径，将自动创建一个临时文件，位于服务器同级目录的tmp目录。\n如果未提供输出路径，将使用标准输出目录，位于服务器同级目录的output目录。\n如果未提供坐标，默认对齐幻灯片左上角。\n如果未提供宽度和高度，默认覆盖整个幻灯片（16:9）。\n\n支持批量处理：\n- 如果svg_path是单个字符串数组，则将SVG添加到slide_number指定的页面\n- 如果svg_path是列表，则从slide_number开始顺序添加每个SVG，即第一个SVG添加到\n  slide_number页，第二个添加到slide_number+1页，依此类推\n\nArgs:\n    pptx_path: PPTX文件路径，如果未提供则自动",
+   "args": "pptx_path, svg_path, slide_number, x_inches, y_inches, width_inches, height_inches, output_path, create_if_not_exists"
+  },
+  "cos": 0.813
+ },
+ {
+  "pair": "P0340",
+  "a": {
+   "id": "okppt::copy_svg_slide",
+   "description": "\n专门用于复制包含SVG图像的幻灯片，确保SVG和相关引用都被正确复制。\n\n此函数使用直接操作PPTX内部XML文件的方式，确保SVG图像及其引用在复制过程中完全保留。\n与普通的copy_slide函数相比，此函数特别关注SVG图像的复制，保证SVG的矢量属性在复制后依然可用。\n\nArgs:\n    source_pptx_path: 源PPTX文件路径\n    target_pptx_path: 目标PPTX文件路径，如果为空则创建新文件\n    source_slide_number: 要复制的源幻灯片页码（从1开始）\n    target_slide_number: 要插入到目标文件的位置（从1开始），如果为None则添加到末尾\n    output_path: 输出文件路径，如果未指定则使用标准输出目录\n    create_if_not_exists: 如果为True且目标PPT",
+   "args": "source_pptx_path, target_pptx_path, source_slide_number, target_slide_number, output_path, create_if_not_exists"
+  },
+  "b": {
+   "id": "okppt::delete_slide",
+   "description": "\n从PPTX文件中删除指定编号的幻灯片。\n\n!!!注意：\n\n在使用SVG替换PPT幻灯片内容时，我们发现了一些关键点，以下是正确替换PPT内容的方法总结：\n\n### 正确替换PPT内容的方法\n\n1. **完全替换法**（最可靠）：\n- 删除需要替换的幻灯片（使用`delete_slide`功能）\n- 在同一位置插入空白幻灯片（使用`insert_blank_slide`功能）\n- 将新的SVG内容插入到空白幻灯片（使用`insert_svg`功能）\n\n2. **新文件法**（适合多页修改）：\n- 创建全新的PPT文件\n- 将所有需要的SVG（包括已修改的）按顺序插入到新文件中\n- 这样可以避免在旧文件上操作导致的混淆和叠加问题\n\n3. **注意事项**：\n- 直接对现有幻灯片插入SVG会导致新内容叠加在原内容上，而非替换\n- 文件名可能会随着多次操作变得过长，影响可读性\n- 批量插入SVG",
+   "args": "pptx_path, slide_number, output_path"
+  },
+  "cos": 0.724
+ },
+ {
+  "pair": "P0342",
+  "a": {
+   "id": "okppt::copy_svg_slide",
+   "description": "\n专门用于复制包含SVG图像的幻灯片，确保SVG和相关引用都被正确复制。\n\n此函数使用直接操作PPTX内部XML文件的方式，确保SVG图像及其引用在复制过程中完全保留。\n与普通的copy_slide函数相比，此函数特别关注SVG图像的复制，保证SVG的矢量属性在复制后依然可用。\n\nArgs:\n    source_pptx_path: 源PPTX文件路径\n    target_pptx_path: 目标PPTX文件路径，如果为空则创建新文件\n    source_slide_number: 要复制的源幻灯片页码（从1开始）\n    target_slide_number: 要插入到目标文件的位置（从1开始），如果为None则添加到末尾\n    output_path: 输出文件路径，如果未指定则使用标准输出目录\n    create_if_not_exists: 如果为True且目标PPT",
+   "args": "source_pptx_path, target_pptx_path, source_slide_number, target_slide_number, output_path, create_if_not_exists"
+  },
+  "b": {
+   "id": "okppt::insert_blank_slide",
+   "description": "\n在PPTX文件的指定位置插入一个空白幻灯片。\n\n!!!注意：\n\n在使用SVG替换PPT幻灯片内容时，我们发现了一些关键点，以下是正确替换PPT内容的方法总结：\n\n### 正确替换PPT内容的方法\n\n1. **完全替换法**（最可靠）：\n- 删除需要替换的幻灯片（使用`delete_slide`功能）\n- 在同一位置插入空白幻灯片（使用`insert_blank_slide`功能）\n- 将新的SVG内容插入到空白幻灯片（使用`insert_svg`功能）\n\n2. **新文件法**（适合多页修改）：\n- 创建全新的PPT文件\n- 将所有需要的SVG（包括已修改的）按顺序插入到新文件中\n- 这样可以避免在旧文件上操作导致的混淆和叠加问题\n\n3. **注意事项**：\n- 直接对现有幻灯片插入SVG会导致新内容叠加在原内容上，而非替换\n- 文件名可能会随着多次操作变得过长，影响可读性\n- 批量插入",
+   "args": "pptx_path, slide_number, layout_index, output_path, create_if_not_exists"
+  },
+  "cos": 0.751
+ },
+ {
+  "pair": "P0344",
+  "a": {
+   "id": "okppt::delete_slide",
+   "description": "\n从PPTX文件中删除指定编号的幻灯片。\n\n!!!注意：\n\n在使用SVG替换PPT幻灯片内容时，我们发现了一些关键点，以下是正确替换PPT内容的方法总结：\n\n### 正确替换PPT内容的方法\n\n1. **完全替换法**（最可靠）：\n- 删除需要替换的幻灯片（使用`delete_slide`功能）\n- 在同一位置插入空白幻灯片（使用`insert_blank_slide`功能）\n- 将新的SVG内容插入到空白幻灯片（使用`insert_svg`功能）\n\n2. **新文件法**（适合多页修改）：\n- 创建全新的PPT文件\n- 将所有需要的SVG（包括已修改的）按顺序插入到新文件中\n- 这样可以避免在旧文件上操作导致的混淆和叠加问题\n\n3. **注意事项**：\n- 直接对现有幻灯片插入SVG会导致新内容叠加在原内容上，而非替换\n- 文件名可能会随着多次操作变得过长，影响可读性\n- 批量插入SVG",
+   "args": "pptx_path, slide_number, output_path"
+  },
+  "b": {
+   "id": "okppt::insert_blank_slide",
+   "description": "\n在PPTX文件的指定位置插入一个空白幻灯片。\n\n!!!注意：\n\n在使用SVG替换PPT幻灯片内容时，我们发现了一些关键点，以下是正确替换PPT内容的方法总结：\n\n### 正确替换PPT内容的方法\n\n1. **完全替换法**（最可靠）：\n- 删除需要替换的幻灯片（使用`delete_slide`功能）\n- 在同一位置插入空白幻灯片（使用`insert_blank_slide`功能）\n- 将新的SVG内容插入到空白幻灯片（使用`insert_svg`功能）\n\n2. **新文件法**（适合多页修改）：\n- 创建全新的PPT文件\n- 将所有需要的SVG（包括已修改的）按顺序插入到新文件中\n- 这样可以避免在旧文件上操作导致的混淆和叠加问题\n\n3. **注意事项**：\n- 直接对现有幻灯片插入SVG会导致新内容叠加在原内容上，而非替换\n- 文件名可能会随着多次操作变得过长，影响可读性\n- 批量插入",
+   "args": "pptx_path, slide_number, layout_index, output_path, create_if_not_exists"
+  },
+  "cos": 0.996
+ },
+ {
+  "pair": "P0346",
+  "a": {
+   "id": "okppt::get_file_info",
+   "description": "\n获取文件信息，如存在状态、大小等。\n\nArgs:\n    file_path: 要查询的文件路径\n    \nReturns:\n    文件信息\n",
+   "args": "file_path"
+  },
+  "b": {
+   "id": "okppt::get_pptx_info",
+   "description": "\n获取PPTX文件的基本信息，包括幻灯片数量。\n\nArgs:\n    pptx_path: PPTX文件路径\n    \nReturns:\n    包含文件信息和幻灯片数量的字符串\n",
+   "args": "pptx_path"
+  },
+  "cos": 0.803
+ },
+ {
+  "pair": "P0348",
+  "a": {
+   "id": "okppt::insert_blank_slide",
+   "description": "\n在PPTX文件的指定位置插入一个空白幻灯片。\n\n!!!注意：\n\n在使用SVG替换PPT幻灯片内容时，我们发现了一些关键点，以下是正确替换PPT内容的方法总结：\n\n### 正确替换PPT内容的方法\n\n1. **完全替换法**（最可靠）：\n- 删除需要替换的幻灯片（使用`delete_slide`功能）\n- 在同一位置插入空白幻灯片（使用`insert_blank_slide`功能）\n- 将新的SVG内容插入到空白幻灯片（使用`insert_svg`功能）\n\n2. **新文件法**（适合多页修改）：\n- 创建全新的PPT文件\n- 将所有需要的SVG（包括已修改的）按顺序插入到新文件中\n- 这样可以避免在旧文件上操作导致的混淆和叠加问题\n\n3. **注意事项**：\n- 直接对现有幻灯片插入SVG会导致新内容叠加在原内容上，而非替换\n- 文件名可能会随着多次操作变得过长，影响可读性\n- 批量插入",
+   "args": "pptx_path, slide_number, layout_index, output_path, create_if_not_exists"
+  },
+  "b": {
+   "id": "okppt::insert_svg",
+   "description": "\n将SVG图像插入到PPTX文件的指定位置。(如果需要替换已有的幻灯片，请组合使用`delete_slide`和`insert_blank_slide`功能)\n如果未提供PPTX路径，将自动创建一个临时文件，位于服务器同级目录的tmp目录。\n如果未提供输出路径，将使用标准输出目录，位于服务器同级目录的output目录。\n如果未提供坐标，默认对齐幻灯片左上角。\n如果未提供宽度和高度，默认覆盖整个幻灯片（16:9）。\n\n支持批量处理：\n- 如果svg_path是单个字符串数组，则将SVG添加到slide_number指定的页面\n- 如果svg_path是列表，则从slide_number开始顺序添加每个SVG，即第一个SVG添加到\n  slide_number页，第二个添加到slide_number+1页，依此类推\n\nArgs:\n    pptx_path: PPTX文件路径，如果未提供则自动",
+   "args": "pptx_path, svg_path, slide_number, x_inches, y_inches, width_inches, height_inches, output_path, create_if_not_exists"
+  },
+  "cos": 0.787
+ },
+ {
+  "pair": "P0350",
+  "a": {
+   "id": "opgg-mcp::esports-lol-schedules",
+   "description": "Get upcoming LoL match schedules.",
+   "args": ""
+  },
+  "b": {
+   "id": "opgg-mcp::esports-lol-team-standings",
+   "description": "Get team standings for a LoL league.",
+   "args": "shortName"
+  },
+  "cos": 0.935
+ },
+ {
+  "pair": "P0352",
+  "a": {
+   "id": "opgg-mcp::lol-brawl-champion-tier-rank",
+   "description": "Retrieves champion tier ranking list in brawl mode.",
+   "args": "lang"
+  },
+  "b": {
+   "id": "opgg-mcp::lol-champion-meta-data",
+   "description": "Retrieves meta data for a specific champion, including statistics and performance metrics.",
+   "args": "champion, lang"
+  },
+  "cos": 0.78
+ },
+ {
+  "pair": "P0354",
+  "a": {
+   "id": "opgg-mcp::lol-brawl-champion-tier-rank",
+   "description": "Retrieves champion tier ranking list in brawl mode.",
+   "args": "lang"
+  },
+  "b": {
+   "id": "opgg-mcp::lol-champion-skin-sale",
+   "description": "Retrieves information about champion skins that are currently on sale.",
+   "args": "lang"
+  },
+  "cos": 0.843
+ },
+ {
+  "pair": "P0356",
+  "a": {
+   "id": "opgg-mcp::lol-champion-leader-board",
+   "description": "Retrieves the leaderboard of master players who play a specific champion well. You can also look up the high ranked players, like the high winrate 5 players in #1-#30, to retrieve their champion performance or recent match history to teach how to play the champions.",
+   "args": "region, champion"
+  },
+  "b": {
+   "id": "opgg-mcp::lol-champion-positions-data",
+   "description": "Retrieves the analytics of champions by each positions. You can also look up the winrate, banrate, plays, wins, kills, kda and etc. `tier_data` is champion tier which tells which champion is powerful (OP) or not, for example `tier 1` champion is easy to play and powerful champion. (You can recommend this champion to the user if they want recommandation)",
+   "args": "lang, format"
+  },
+  "cos": 0.794
+ },
+ {
+  "pair": "P0358",
+  "a": {
+   "id": "opgg-mcp::lol-champion-meta-data",
+   "description": "Retrieves meta data for a specific champion, including statistics and performance metrics.",
+   "args": "champion, lang"
+  },
+  "b": {
+   "id": "opgg-mcp::lol-champion-skin-sale",
+   "description": "Retrieves information about champion skins that are currently on sale.",
+   "args": "lang"
+  },
+  "cos": 0.759
+ },
+ {
+  "pair": "P0360",
+  "a": {
+   "id": "opgg-mcp::lol-summoner-game-history",
+   "description": "Retrieves the recent match history of a specific summoner. If a user mentions a specific summoner, wants to know about their recent matches, wants to know how to improve or wants to get an advice, you *must* always call this function.",
+   "args": "game_name, tag_line, region, lang"
+  },
+  "b": {
+   "id": "opgg-mcp::lol-summoner-renewal",
+   "description": "Renew the summoner's data of OP.GG through RiotAPI. When you retrieve summoner data, you *must* always call this function first, and then call the next functions.",
+   "args": "game_name, tag_line, region"
+  },
+  "cos": 0.907
+ },
+ {
+  "pair": "P0362",
+  "a": {
+   "id": "opgg-mcp::lol-summoner-renewal",
+   "description": "Renew the summoner's data of OP.GG through RiotAPI. When you retrieve summoner data, you *must* always call this function first, and then call the next functions.",
+   "args": "game_name, tag_line, region"
+  },
+  "b": {
+   "id": "opgg-mcp::lol-summoner-search",
+   "description": "Retrieves information about a specific summoner, such as their rank, win rate, and recent match history. If a user mentions a specific summoner or wants to know about themselves, you *must* always call this function. If you can't find the summoner, ask to the user which region do they play.",
+   "args": "game_name, tag_line, region, lang"
+  },
+  "cos": 0.907
+ },
+ {
+  "pair": "P0364",
+  "a": {
+   "id": "opgg-mcp::tft-champion-item-build",
+   "description": "TFT tool for retrieving champion item build information.",
+   "args": "championId"
+  },
+  "b": {
+   "id": "opgg-mcp::tft-recommend-champion-for-item",
+   "description": "TFT tool for retrieving champion recommendations for a specific item.",
+   "args": "itemId"
+  },
+  "cos": 0.919
+ },
+ {
+  "pair": "P0366",
+  "a": {
+   "id": "opgg-mcp::tft-meta-item-combinations",
+   "description": "TFT tool for retrieving information about item combinations and recipes.",
+   "args": "language"
+  },
+  "b": {
+   "id": "opgg-mcp::tft-recommend-champion-for-item",
+   "description": "TFT tool for retrieving champion recommendations for a specific item.",
+   "args": "itemId"
+  },
+  "cos": 0.73
+ },
+ {
+  "pair": "P0368",
+  "a": {
+   "id": "opgg-mcp::valorant-agents-composition-with-map",
+   "description": "Retrieve agent composition data for a Valorant map.",
+   "args": "mapId"
+  },
+  "b": {
+   "id": "opgg-mcp::valorant-meta-characters",
+   "description": "Valorant character meta data",
+   "args": ""
+  },
+  "cos": 0.796
+ },
+ {
+  "pair": "P0370",
+  "a": {
+   "id": "opgg-mcp::valorant-characters-statistics",
+   "description": "Retrieve character statistics data for Valorant, optionally filtered by map.",
+   "args": "mapId"
+  },
+  "b": {
+   "id": "opgg-mcp::valorant-meta-characters",
+   "description": "Valorant character meta data",
+   "args": ""
+  },
+  "cos": 0.875
+ },
+ {
+  "pair": "P0372",
+  "a": {
+   "id": "opgg-mcp::valorant-meta-characters",
+   "description": "Valorant character meta data",
+   "args": ""
+  },
+  "b": {
+   "id": "opgg-mcp::valorant-meta-maps",
+   "description": "Valorant map meta data",
+   "args": ""
+  },
+  "cos": 0.961
+ },
+ {
+  "pair": "P0374",
+  "a": {
+   "id": "osm-mcp-server::analyze_neighborhood",
+   "description": "\nGenerate a comprehensive neighborhood analysis focused on livability factors.\n\nThis advanced analysis tool evaluates a neighborhood based on multiple livability factors,\nincluding amenities, transportation options, green spaces, and services. Results include\ncounts and proximity scores for various categories, helping to assess the overall quality\nand convenience of a residential area. Invaluable ",
+   "args": "latitude, longitude, radius"
+  },
+  "b": {
+   "id": "osm-mcp-server::explore_area",
+   "description": "\nGenerate a comprehensive profile of an area including all amenities and features.\n\nThis powerful analysis tool creates a detailed overview of a neighborhood or area by\nidentifying and categorizing all geographic features, amenities, and points of interest.\nResults are organized by category for easy analysis. Excellent for neighborhood research,\narea comparisons, and location-based decision making",
+   "args": "latitude, longitude, radius"
+  },
+  "cos": 0.896
+ },
+ {
+  "pair": "P0376",
+  "a": {
+   "id": "osm-mcp-server::analyze_neighborhood",
+   "description": "\nGenerate a comprehensive neighborhood analysis focused on livability factors.\n\nThis advanced analysis tool evaluates a neighborhood based on multiple livability factors,\nincluding amenities, transportation options, green spaces, and services. Results include\ncounts and proximity scores for various categories, helping to assess the overall quality\nand convenience of a residential area. Invaluable ",
+   "args": "latitude, longitude, radius"
+  },
+  "b": {
+   "id": "osm-mcp-server::find_parking_facilities",
+   "description": "\nLocate parking facilities near a specific location.\n\nThis tool finds parking options (lots, garages, street parking) near a specified location.\nResults can be filtered by parking type and include capacity information where available.\nUseful for trip planning, city navigation, and evaluating parking availability in urban areas.\n\nArgs:\n    latitude: Center point latitude (decimal degrees)\n    longi",
+   "args": "latitude, longitude, radius, parking_type"
+  },
+  "cos": 0.739
+ },
+ {
+  "pair": "P0378",
+  "a": {
+   "id": "osm-mcp-server::explore_area",
+   "description": "\nGenerate a comprehensive profile of an area including all amenities and features.\n\nThis powerful analysis tool creates a detailed overview of a neighborhood or area by\nidentifying and categorizing all geographic features, amenities, and points of interest.\nResults are organized by category for easy analysis. Excellent for neighborhood research,\narea comparisons, and location-based decision making",
+   "args": "latitude, longitude, radius"
+  },
+  "b": {
+   "id": "osm-mcp-server::find_nearby_places",
+   "description": "\nDiscover points of interest and amenities near a specific location.\n\nThis tool performs a comprehensive search around a geographic point to identify\nnearby establishments, amenities, and points of interest. Results are organized by\ncategory and subcategory, making it easy to find specific types of places. Essential\nfor location-based recommendations, neighborhood analysis, and proximity-based dec",
+   "args": "latitude, longitude, radius, categories, limit"
+  },
+  "cos": 0.915
+ },
+ {
+  "pair": "P0380",
+  "a": {
+   "id": "osm-mcp-server::explore_area",
+   "description": "\nGenerate a comprehensive profile of an area including all amenities and features.\n\nThis powerful analysis tool creates a detailed overview of a neighborhood or area by\nidentifying and categorizing all geographic features, amenities, and points of interest.\nResults are organized by category for easy analysis. Excellent for neighborhood research,\narea comparisons, and location-based decision making",
+   "args": "latitude, longitude, radius"
+  },
+  "b": {
+   "id": "osm-mcp-server::find_schools_nearby",
+   "description": "\nLocate educational institutions near a specific location, filtered by education level.\n\nThis specialized search tool identifies schools, colleges, and other educational institutions\nwithin a specified distance from a location. Results can be filtered by education level\n(elementary, middle, high school, university, etc.). Essential for families evaluating\nneighborhoods or real estate purchases wit",
+   "args": "latitude, longitude, radius, education_levels"
+  },
+  "cos": 0.732
+ },
+ {
+  "pair": "P0382",
+  "a": {
+   "id": "osm-mcp-server::find_ev_charging_stations",
+   "description": "\nLocate electric vehicle charging stations near a specific location.\n\nThis specialized search tool identifies EV charging infrastructure within a specified\ndistance from a location. Results can be filtered by connector type (Tesla, CCS, CHAdeMO, etc.)\nand minimum power delivery. Essential for EV owners planning trips or evaluating potential\ncharging stops.\n\nArgs:\n    latitude: Center point latitud",
+   "args": "latitude, longitude, radius, connector_types, min_power"
+  },
+  "b": {
+   "id": "osm-mcp-server::find_nearby_places",
+   "description": "\nDiscover points of interest and amenities near a specific location.\n\nThis tool performs a comprehensive search around a geographic point to identify\nnearby establishments, amenities, and points of interest. Results are organized by\ncategory and subcategory, making it easy to find specific types of places. Essential\nfor location-based recommendations, neighborhood analysis, and proximity-based dec",
+   "args": "latitude, longitude, radius, categories, limit"
+  },
+  "cos": 0.776
+ },
+ {
+  "pair": "P0384",
+  "a": {
+   "id": "osm-mcp-server::find_ev_charging_stations",
+   "description": "\nLocate electric vehicle charging stations near a specific location.\n\nThis specialized search tool identifies EV charging infrastructure within a specified\ndistance from a location. Results can be filtered by connector type (Tesla, CCS, CHAdeMO, etc.)\nand minimum power delivery. Essential for EV owners planning trips or evaluating potential\ncharging stops.\n\nArgs:\n    latitude: Center point latitud",
+   "args": "latitude, longitude, radius, connector_types, min_power"
+  },
+  "b": {
+   "id": "osm-mcp-server::find_schools_nearby",
+   "description": "\nLocate educational institutions near a specific location, filtered by education level.\n\nThis specialized search tool identifies schools, colleges, and other educational institutions\nwithin a specified distance from a location. Results can be filtered by education level\n(elementary, middle, high school, university, etc.). Essential for families evaluating\nneighborhoods or real estate purchases wit",
+   "args": "latitude, longitude, radius, education_levels"
+  },
+  "cos": 0.973
+ },
+ {
+  "pair": "P0386",
+  "a": {
+   "id": "osm-mcp-server::find_nearby_places",
+   "description": "\nDiscover points of interest and amenities near a specific location.\n\nThis tool performs a comprehensive search around a geographic point to identify\nnearby establishments, amenities, and points of interest. Results are organized by\ncategory and subcategory, making it easy to find specific types of places. Essential\nfor location-based recommendations, neighborhood analysis, and proximity-based dec",
+   "args": "latitude, longitude, radius, categories, limit"
+  },
+  "b": {
+   "id": "osm-mcp-server::find_parking_facilities",
+   "description": "\nLocate parking facilities near a specific location.\n\nThis tool finds parking options (lots, garages, street parking) near a specified location.\nResults can be filtered by parking type and include capacity information where available.\nUseful for trip planning, city navigation, and evaluating parking availability in urban areas.\n\nArgs:\n    latitude: Center point latitude (decimal degrees)\n    longi",
+   "args": "latitude, longitude, radius, parking_type"
+  },
+  "cos": 0.779
+ },
+ {
+  "pair": "P0388",
+  "a": {
+   "id": "osm-mcp-server::find_nearby_places",
+   "description": "\nDiscover points of interest and amenities near a specific location.\n\nThis tool performs a comprehensive search around a geographic point to identify\nnearby establishments, amenities, and points of interest. Results are organized by\ncategory and subcategory, making it easy to find specific types of places. Essential\nfor location-based recommendations, neighborhood analysis, and proximity-based dec",
+   "args": "latitude, longitude, radius, categories, limit"
+  },
+  "b": {
+   "id": "osm-mcp-server::search_category",
+   "description": "\nSearch for specific types of places within a defined geographic area.\n\nThis tool allows targeted searches for places matching specific categories within\na rectangular geographic region. It's particularly useful for filtering places by type\n(restaurants, schools, parks, etc.) within a neighborhood or city district. Results include\ncomplete location details and metadata about each matching place.\n\n",
+   "args": "category, min_latitude, min_longitude, max_latitude, max_longitude, subcategories"
+  },
+  "cos": 0.89
+ },
+ {
+  "pair": "P0390",
+  "a": {
+   "id": "osm-mcp-server::find_schools_nearby",
+   "description": "\nLocate educational institutions near a specific location, filtered by education level.\n\nThis specialized search tool identifies schools, colleges, and other educational institutions\nwithin a specified distance from a location. Results can be filtered by education level\n(elementary, middle, high school, university, etc.). Essential for families evaluating\nneighborhoods or real estate purchases wit",
+   "args": "latitude, longitude, radius, education_levels"
+  },
+  "b": {
+   "id": "osm-mcp-server::search_category",
+   "description": "\nSearch for specific types of places within a defined geographic area.\n\nThis tool allows targeted searches for places matching specific categories within\na rectangular geographic region. It's particularly useful for filtering places by type\n(restaurants, schools, parks, etc.) within a neighborhood or city district. Results include\ncomplete location details and metadata about each matching place.\n\n",
+   "args": "category, min_latitude, min_longitude, max_latitude, max_longitude, subcategories"
+  },
+  "cos": 0.726
+ },
+ {
+  "pair": "P0392",
+  "a": {
+   "id": "painter::drawing_fillRectangle",
+   "description": "Fill a rectangle on the drawing canvas with a specified color and coordinates.",
+   "args": "x, y, width, height, color"
+  },
+  "b": {
+   "id": "painter::drawing_generateCanvas",
+   "description": "Generate a new drawing canvas with specified width and height.",
+   "args": "width, height"
+  },
+  "cos": 0.892
+ },
+ {
+  "pair": "P0394",
+  "a": {
+   "id": "painter::drawing_fillRectangle",
+   "description": "Fill a rectangle on the drawing canvas with a specified color and coordinates.",
+   "args": "x, y, width, height, color"
+  },
+  "b": {
+   "id": "painter::drawing_getCanvasPng",
+   "description": "Get the current drawing canvas as a PNG image (base64 encoded).",
+   "args": ""
+  },
+  "cos": 0.766
+ },
+ {
+  "pair": "P0396",
+  "a": {
+   "id": "painter::drawing_generateCanvas",
+   "description": "Generate a new drawing canvas with specified width and height.",
+   "args": "width, height"
+  },
+  "b": {
+   "id": "painter::drawing_getCanvasPng",
+   "description": "Get the current drawing canvas as a PNG image (base64 encoded).",
+   "args": ""
+  },
+  "cos": 0.795
+ },
+ {
+  "pair": "P0398",
+  "a": {
+   "id": "paypal::create_invoice",
+   "description": "Create Invoices on PayPal.\n\nThis function is used to create an invoice in the PayPal system. It allows you to generate a new invoice, specifying details such as customer information, items, quantities, pricing, and tax information. Once created, an invoice can be sent to the customer for payment.",
+   "args": "detail, invoicer, primary_recipients, items"
+  },
+  "b": {
+   "id": "paypal::create_order",
+   "description": "Create an order in PayPal.\n\nThis tool is used to create a new order in PayPal. This is typically the first step in initiating a payment flow. It sets up an order with specified details such as item(s) to be purchased, quantity, amount, currency, and other details.",
+   "args": "currencyCode, items, discount, shippingCost, shippingAddress, notes, returnUrl, cancelUrl"
+  },
+  "cos": 0.853
+ },
+ {
+  "pair": "P0400",
+  "a": {
+   "id": "paypal::create_product",
+   "description": "Create a product in PayPal using product catalog - create products API.\nThis function creates a new product that will be used in subscription plans, subscriptions.\nRequired parameters are: name (product name), type (product type).\nHigh level: \n    - id: (auto-generated or specify SKU of the product) The ID of the product\n    - name: {product_name} (required) \n    - description: {product_descriptio",
+   "args": "name, type, description, category, image_url, home_url"
+  },
+  "b": {
+   "id": "paypal::create_subscription_plan",
+   "description": "Create a subsctiption plan in PayPal using subscription - create plan API.\nThis function creates a new subscription plan that defines pricing and billing cycle details for subscriptions.\nRequired parameters are: product_id (the ID of the product for which to create the plan), name (subscription plan name), billing_cycles (billing cycle details).\nHigh level: product_id, name, description, taxes, st",
+   "args": "product_id, name, description, billing_cycles, payment_preferences, taxes"
+  },
+  "cos": 0.884
+ },
+ {
+  "pair": "P0402",
+  "a": {
+   "id": "paypal::create_shipment_tracking",
+   "description": "Create a shipment for a transaction in PayPal.\nThis function creates a shipment record for a specific transaction, allowing you to track the shipment status and details.\nThe transaction_id can fetch from the captured payment details in the order information.\nRequired parameters are: tracking_number (the tracking number for the shipment), transaction_id (the transaction ID associated with the shipm",
+   "args": "order_id, tracking_number, transaction_id, status, carrier"
+  },
+  "b": {
+   "id": "paypal::create_subscription_plan",
+   "description": "Create a subsctiption plan in PayPal using subscription - create plan API.\nThis function creates a new subscription plan that defines pricing and billing cycle details for subscriptions.\nRequired parameters are: product_id (the ID of the product for which to create the plan), name (subscription plan name), billing_cycles (billing cycle details).\nHigh level: product_id, name, description, taxes, st",
+   "args": "product_id, name, description, billing_cycles, payment_preferences, taxes"
+  },
+  "cos": 0.742
+ },
+ {
+  "pair": "P0404",
+  "a": {
+   "id": "playwright::clear_codegen_session",
+   "description": "Clear a code generation session without generating a test",
+   "args": "sessionId"
+  },
+  "b": {
+   "id": "playwright::get_codegen_session",
+   "description": "Get information about a code generation session",
+   "args": "sessionId"
+  },
+  "cos": 0.924
+ },
+ {
+  "pair": "P0406",
+  "a": {
+   "id": "playwright::end_codegen_session",
+   "description": "End a code generation session and generate the test file",
+   "args": "sessionId"
+  },
+  "b": {
+   "id": "playwright::get_codegen_session",
+   "description": "Get information about a code generation session",
+   "args": "sessionId"
+  },
+  "cos": 0.917
+ },
+ {
+  "pair": "P0408",
+  "a": {
+   "id": "playwright::get_codegen_session",
+   "description": "Get information about a code generation session",
+   "args": "sessionId"
+  },
+  "b": {
+   "id": "playwright::start_codegen_session",
+   "description": "Start a new code generation session to record Playwright actions",
+   "args": "options"
+  },
+  "cos": 0.85
+ },
+ {
+  "pair": "P0410",
+  "a": {
+   "id": "playwright::playwright_click",
+   "description": "Click an element on the page",
+   "args": "selector"
+  },
+  "b": {
+   "id": "playwright::playwright_hover",
+   "description": "Hover an element on the page",
+   "args": "selector"
+  },
+  "cos": 0.82
+ },
+ {
+  "pair": "P0412",
+  "a": {
+   "id": "playwright::playwright_click",
+   "description": "Click an element on the page",
+   "args": "selector"
+  },
+  "b": {
+   "id": "playwright::playwright_iframe_fill",
+   "description": "Fill an element in an iframe on the page",
+   "args": "iframeSelector, selector, value"
+  },
+  "cos": 0.713
+ },
+ {
+  "pair": "P0414",
+  "a": {
+   "id": "playwright::playwright_delete",
+   "description": "Perform an HTTP DELETE request",
+   "args": "url"
+  },
+  "b": {
+   "id": "playwright::playwright_get",
+   "description": "Perform an HTTP GET request",
+   "args": "url"
+  },
+  "cos": 0.879
+ },
+ {
+  "pair": "P0416",
+  "a": {
+   "id": "playwright::playwright_delete",
+   "description": "Perform an HTTP DELETE request",
+   "args": "url"
+  },
+  "b": {
+   "id": "playwright::playwright_post",
+   "description": "Perform an HTTP POST request",
+   "args": "url, value, token, headers"
+  },
+  "cos": 0.837
+ },
+ {
+  "pair": "P0418",
+  "a": {
+   "id": "playwright::playwright_evaluate",
+   "description": "Execute JavaScript in the browser console",
+   "args": "script"
+  },
+  "b": {
+   "id": "puppeteer::puppeteer_evaluate",
+   "description": "Execute JavaScript in the browser console",
+   "args": "script"
+  },
+  "cos": 0.955
+ },
+ {
+  "pair": "P0420",
+  "a": {
+   "id": "playwright::playwright_fill",
+   "description": "fill out an input field",
+   "args": "selector, value"
+  },
+  "b": {
+   "id": "puppeteer::puppeteer_fill",
+   "description": "Fill out an input field",
+   "args": "selector, value"
+  },
+  "cos": 0.925
+ },
+ {
+  "pair": "P0422",
+  "a": {
+   "id": "playwright::playwright_get",
+   "description": "Perform an HTTP GET request",
+   "args": "url"
+  },
+  "b": {
+   "id": "playwright::playwright_post",
+   "description": "Perform an HTTP POST request",
+   "args": "url, value, token, headers"
+  },
+  "cos": 0.924
+ },
+ {
+  "pair": "P0424",
+  "a": {
+   "id": "playwright::playwright_get_visible_html",
+   "description": "Get the HTML content of the current page. By default, all <script> tags are removed from the output unless removeScripts is explicitly set to false.",
+   "args": "selector, removeScripts, removeComments, removeStyles, removeMeta, cleanHtml, minify, maxLength"
+  },
+  "b": {
+   "id": "playwright::playwright_get_visible_text",
+   "description": "Get the visible text content of the current page",
+   "args": ""
+  },
+  "cos": 0.738
+ },
+ {
+  "pair": "P0426",
+  "a": {
+   "id": "playwright::playwright_go_back",
+   "description": "Navigate back in browser history",
+   "args": ""
+  },
+  "b": {
+   "id": "playwright::playwright_navigate",
+   "description": "Navigate to a URL",
+   "args": "url, browserType, width, height, timeout, waitUntil, headless"
+  },
+  "cos": 0.703
+ },
+ {
+  "pair": "P0428",
+  "a": {
+   "id": "playwright::playwright_hover",
+   "description": "Hover an element on the page",
+   "args": "selector"
+  },
+  "b": {
+   "id": "playwright::playwright_upload_file",
+   "description": "Upload a file to an input[type='file'] element on the page",
+   "args": "selector, filePath"
+  },
+  "cos": 0.791
+ },
+ {
+  "pair": "P0430",
+  "a": {
+   "id": "playwright::playwright_hover",
+   "description": "Hover an element on the page",
+   "args": "selector"
+  },
+  "b": {
+   "id": "puppeteer::puppeteer_hover",
+   "description": "Hover an element on the page",
+   "args": "selector"
+  },
+  "cos": 0.902
+ },
+ {
+  "pair": "P0432",
+  "a": {
+   "id": "playwright::playwright_iframe_click",
+   "description": "Click an element in an iframe on the page",
+   "args": "iframeSelector, selector"
+  },
+  "b": {
+   "id": "playwright::playwright_iframe_fill",
+   "description": "Fill an element in an iframe on the page",
+   "args": "iframeSelector, selector, value"
+  },
+  "cos": 0.873
+ },
+ {
+  "pair": "P0434",
+  "a": {
+   "id": "playwright::playwright_navigate",
+   "description": "Navigate to a URL",
+   "args": "url, browserType, width, height, timeout, waitUntil, headless"
+  },
+  "b": {
+   "id": "puppeteer::puppeteer_navigate",
+   "description": "Navigate to a URL",
+   "args": "url, launchOptions, allowDangerous"
+  },
+  "cos": 0.839
+ },
+ {
+  "pair": "P0436",
+  "a": {
+   "id": "playwright::playwright_patch",
+   "description": "Perform an HTTP PATCH request",
+   "args": "url, value"
+  },
+  "b": {
+   "id": "playwright::playwright_put",
+   "description": "Perform an HTTP PUT request",
+   "args": "url, value"
+  },
+  "cos": 0.996
+ },
+ {
+  "pair": "P0438",
+  "a": {
+   "id": "playwright::playwright_screenshot",
+   "description": "Take a screenshot of the current page or a specific element",
+   "args": "name, selector, width, height, storeBase64, fullPage, savePng, downloadsDir"
+  },
+  "b": {
+   "id": "puppeteer::puppeteer_screenshot",
+   "description": "Take a screenshot of the current page or a specific element",
+   "args": "name, selector, width, height, encoded"
+  },
+  "cos": 0.946
+ },
+ {
+  "pair": "P0440",
+  "a": {
+   "id": "playwright::playwright_select",
+   "description": "Select an element on the page with Select tag",
+   "args": "selector, value"
+  },
+  "b": {
+   "id": "puppeteer::puppeteer_select",
+   "description": "Select an element on the page with Select tag",
+   "args": "selector, value"
+  },
+  "cos": 0.931
+ },
+ {
+  "pair": "P0442",
+  "a": {
+   "id": "ppt::add_chart",
+   "description": "Add a chart to a slide with comprehensive formatting options.",
+   "args": "slide_index, chart_type, left, top, width, height, categories, series_names, series_values, has_legend, legend_position, has_data_labels, title, x_axis_title, y_axis_title, color_scheme, presentation_id"
+  },
+  "b": {
+   "id": "ppt::add_shape",
+   "description": "Add an auto shape to a slide with enhanced options.",
+   "args": "slide_index, shape_type, left, top, width, height, fill_color, line_color, line_width, text, font_size, font_color, presentation_id"
+  },
+  "cos": 0.716
+ },
+ {
+  "pair": "P0444",
+  "a": {
+   "id": "ppt::add_connector",
+   "description": "\nAdd connector lines/arrows between points on a slide.\n\nArgs:\n    slide_index: Index of the slide (0-based)\n    connector_type: Type of connector (\"straight\", \"elbow\", \"curved\")\n    start_x: Starting X coordinate in inches\n    start_y: Starting Y coordinate in inches\n    end_x: Ending X coordinate in inches  \n    end_y: Ending Y coordinate in inches\n    line_width: Width of the connector line in p",
+   "args": "slide_index, connector_type, start_x, start_y, end_x, end_y, line_width, color, presentation_id"
+  },
+  "b": {
+   "id": "ppt::manage_slide_masters",
+   "description": "\nAccess and manage slide master properties and layouts.\n\nArgs:\n    operation: Operation type (\"list\", \"get_layouts\", \"get_info\")\n    master_index: Index of the slide master (0-based)\n    layout_index: Index of specific layout within master (0-based)\n    presentation_id: Optional presentation ID (uses current if not provided)\n    \nReturns:\n    Dictionary with slide master information\n",
+   "args": "operation, master_index, layout_index, presentation_id"
+  },
+  "cos": 0.723
+ },
+ {
+  "pair": "P0446",
+  "a": {
+   "id": "ppt::add_connector",
+   "description": "\nAdd connector lines/arrows between points on a slide.\n\nArgs:\n    slide_index: Index of the slide (0-based)\n    connector_type: Type of connector (\"straight\", \"elbow\", \"curved\")\n    start_x: Starting X coordinate in inches\n    start_y: Starting Y coordinate in inches\n    end_x: Ending X coordinate in inches  \n    end_y: Ending Y coordinate in inches\n    line_width: Width of the connector line in p",
+   "args": "slide_index, connector_type, start_x, start_y, end_x, end_y, line_width, color, presentation_id"
+  },
+  "b": {
+   "id": "ppt::update_chart_data",
+   "description": "\nReplace existing chart data with new categories and series.\n\nArgs:\n    slide_index: Index of the slide (0-based)\n    shape_index: Index of the chart shape (0-based)\n    categories: List of category names\n    series_data: List of dictionaries with 'name' and 'values' keys\n    presentation_id: Optional presentation ID (uses current if not provided)\n    \nReturns:\n    Dictionary with operation result",
+   "args": "slide_index, shape_index, categories, series_data, presentation_id"
+  },
+  "cos": 0.741
+ },
+ {
+  "pair": "P0448",
+  "a": {
+   "id": "ppt::add_shape",
+   "description": "Add an auto shape to a slide with enhanced options.",
+   "args": "slide_index, shape_type, left, top, width, height, fill_color, line_color, line_width, text, font_size, font_color, presentation_id"
+  },
+  "b": {
+   "id": "ppt::manage_text",
+   "description": "Unified text management tool for adding, formatting, validating text, and formatting multiple text runs.",
+   "args": "slide_index, operation, left, top, width, height, text, shape_index, text_runs, font_size, font_name, bold, italic, underline, color, bg_color, alignment, vertical_alignment, auto_fit, validation_only, min_font_size, max_font_size, presentation_id"
+  },
+  "cos": 0.761
+ },
+ {
+  "pair": "P0450",
+  "a": {
+   "id": "ppt::apply_slide_template",
+   "description": "\nApply a structured layout template to an existing slide.\nThis modifies slide layout and content structure using predefined templates.\n\nArgs:\n    slide_index: Index of the slide to apply template to\n    template_id: ID of the template to apply (e.g., 'title_slide', 'text_with_image')\n    color_scheme: Color scheme to use ('modern_blue', 'corporate_gray', 'elegant_green', 'warm_red')\n    content_ma",
+   "args": "slide_index, template_id, color_scheme, content_mapping, image_paths, presentation_id"
+  },
+  "b": {
+   "id": "ppt::create_presentation_from_templates",
+   "description": "\nCreate a complete presentation from a sequence of templates.\n\nArgs:\n    template_sequence: List of template configurations, each containing:\n        - template_id: Template to use\n        - content: Content mapping for the template\n        - images: Image path mapping for the template\n    color_scheme: Color scheme to apply to all slides\n    presentation_title: Optional title for the presentation",
+   "args": "template_sequence, color_scheme, presentation_title, presentation_id"
+  },
+  "cos": 0.866
+ },
+ {
+  "pair": "P0452",
+  "a": {
+   "id": "ppt::create_presentation",
+   "description": "Create a new PowerPoint presentation.",
+   "args": "id"
+  },
+  "b": {
+   "id": "ppt::create_presentation_from_template",
+   "description": "Create a new PowerPoint presentation from a template file.",
+   "args": "template_path, id"
+  },
+  "cos": 0.811
+ },
+ {
+  "pair": "P0454",
+  "a": {
+   "id": "ppt::create_presentation_from_templates",
+   "description": "\nCreate a complete presentation from a sequence of templates.\n\nArgs:\n    template_sequence: List of template configurations, each containing:\n        - template_id: Template to use\n        - content: Content mapping for the template\n        - images: Image path mapping for the template\n    color_scheme: Color scheme to apply to all slides\n    presentation_title: Optional title for the presentation",
+   "args": "template_sequence, color_scheme, presentation_title, presentation_id"
+  },
+  "b": {
+   "id": "ppt::create_slide_from_template",
+   "description": "\nCreate a new slide using a layout template.\n\nArgs:\n    template_id: ID of the template to use (e.g., 'title_slide', 'text_with_image')\n    color_scheme: Color scheme to use ('modern_blue', 'corporate_gray', 'elegant_green', 'warm_red')\n    content_mapping: Dictionary mapping element roles to custom content\n    image_paths: Dictionary mapping image element roles to file paths\n    layout_index: Pow",
+   "args": "template_id, color_scheme, content_mapping, image_paths, layout_index, presentation_id"
+  },
+  "cos": 0.903
+ },
+ {
+  "pair": "P0456",
+  "a": {
+   "id": "ppt::get_presentation_info",
+   "description": "Get information about a presentation.",
+   "args": "presentation_id"
+  },
+  "b": {
+   "id": "ppt::get_slide_info",
+   "description": "Get information about a specific slide.",
+   "args": "slide_index, presentation_id"
+  },
+  "cos": 0.8
+ },
+ {
+  "pair": "P0458",
+  "a": {
+   "id": "ppt::manage_hyperlinks",
+   "description": "\nManage hyperlinks in text shapes and runs.\n\nArgs:\n    operation: Operation type (\"add\", \"remove\", \"list\", \"update\")\n    slide_index: Index of the slide (0-based)\n    shape_index: Index of the shape on the slide (0-based)\n    text: Text to make into hyperlink (for \"add\" operation)\n    url: URL for the hyperlink\n    run_index: Index of text run within the shape (0-based)\n    presentation_id: Option",
+   "args": "operation, slide_index, shape_index, text, url, run_index, presentation_id"
+  },
+  "b": {
+   "id": "ppt::manage_slide_masters",
+   "description": "\nAccess and manage slide master properties and layouts.\n\nArgs:\n    operation: Operation type (\"list\", \"get_layouts\", \"get_info\")\n    master_index: Index of the slide master (0-based)\n    layout_index: Index of specific layout within master (0-based)\n    presentation_id: Optional presentation ID (uses current if not provided)\n    \nReturns:\n    Dictionary with slide master information\n",
+   "args": "operation, master_index, layout_index, presentation_id"
+  },
+  "cos": 0.911
+ },
+ {
+  "pair": "P0460",
+  "a": {
+   "id": "ppt::manage_hyperlinks",
+   "description": "\nManage hyperlinks in text shapes and runs.\n\nArgs:\n    operation: Operation type (\"add\", \"remove\", \"list\", \"update\")\n    slide_index: Index of the slide (0-based)\n    shape_index: Index of the shape on the slide (0-based)\n    text: Text to make into hyperlink (for \"add\" operation)\n    url: URL for the hyperlink\n    run_index: Index of text run within the shape (0-based)\n    presentation_id: Option",
+   "args": "operation, slide_index, shape_index, text, url, run_index, presentation_id"
+  },
+  "b": {
+   "id": "ppt::update_chart_data",
+   "description": "\nReplace existing chart data with new categories and series.\n\nArgs:\n    slide_index: Index of the slide (0-based)\n    shape_index: Index of the chart shape (0-based)\n    categories: List of category names\n    series_data: List of dictionaries with 'name' and 'values' keys\n    presentation_id: Optional presentation ID (uses current if not provided)\n    \nReturns:\n    Dictionary with operation result",
+   "args": "slide_index, shape_index, categories, series_data, presentation_id"
+  },
+  "cos": 0.879
+ },
+ {
+  "pair": "P0462",
+  "a": {
+   "id": "ppt::manage_slide_masters",
+   "description": "\nAccess and manage slide master properties and layouts.\n\nArgs:\n    operation: Operation type (\"list\", \"get_layouts\", \"get_info\")\n    master_index: Index of the slide master (0-based)\n    layout_index: Index of specific layout within master (0-based)\n    presentation_id: Optional presentation ID (uses current if not provided)\n    \nReturns:\n    Dictionary with slide master information\n",
+   "args": "operation, master_index, layout_index, presentation_id"
+  },
+  "b": {
+   "id": "ppt::update_chart_data",
+   "description": "\nReplace existing chart data with new categories and series.\n\nArgs:\n    slide_index: Index of the slide (0-based)\n    shape_index: Index of the chart shape (0-based)\n    categories: List of category names\n    series_data: List of dictionaries with 'name' and 'values' keys\n    presentation_id: Optional presentation ID (uses current if not provided)\n    \nReturns:\n    Dictionary with operation result",
+   "args": "slide_index, shape_index, categories, series_data, presentation_id"
+  },
+  "cos": 0.814
+ },
+ {
+  "pair": "P0464",
+  "a": {
+   "id": "ppt::manage_text",
+   "description": "Unified text management tool for adding, formatting, validating text, and formatting multiple text runs.",
+   "args": "slide_index, operation, left, top, width, height, text, shape_index, text_runs, font_size, font_name, bold, italic, underline, color, bg_color, alignment, vertical_alignment, auto_fit, validation_only, min_font_size, max_font_size, presentation_id"
+  },
+  "b": {
+   "id": "ppt::optimize_slide_text",
+   "description": "\nOptimize text elements on a slide for better readability and fit.\n\nArgs:\n    slide_index: Index of the slide to optimize\n    auto_resize: Whether to automatically resize fonts to fit containers\n    auto_wrap: Whether to apply intelligent text wrapping\n    optimize_spacing: Whether to optimize line spacing\n    min_font_size: Minimum allowed font size\n    max_font_size: Maximum allowed font size\n  ",
+   "args": "slide_index, auto_resize, auto_wrap, optimize_spacing, min_font_size, max_font_size, presentation_id"
+  },
+  "cos": 0.735
+ },
+ {
+  "pair": "P0466",
+  "a": {
+   "id": "puppeteer::puppeteer_click",
+   "description": "Click an element on the page",
+   "args": "selector"
+  },
+  "b": {
+   "id": "puppeteer::puppeteer_hover",
+   "description": "Hover an element on the page",
+   "args": "selector"
+  },
+  "cos": 0.844
+ },
+ {
+  "pair": "P0468",
+  "a": {
+   "id": "puppeteer::puppeteer_hover",
+   "description": "Hover an element on the page",
+   "args": "selector"
+  },
+  "b": {
+   "id": "puppeteer::puppeteer_select",
+   "description": "Select an element on the page with Select tag",
+   "args": "selector, value"
+  },
+  "cos": 0.831
+ },
+ {
+  "pair": "P0470",
+  "a": {
+   "id": "random-number::random_choices",
+   "description": "Choose k items from population with replacement, optionally weighted.\n\nArgs:\n    population: List of items to choose from\n    k: Number of items to choose (default 1)\n    weights: Optional weights for each item (default None for equal weights)\n\nReturns:\n    List of k chosen items",
+   "args": "population, k, weights"
+  },
+  "b": {
+   "id": "random-number::random_shuffle",
+   "description": "Return a new list with items in random order.\n\nArgs:\n    items: List of items to shuffle\n\nReturns:\n    New list with items in random order",
+   "args": "items"
+  },
+  "cos": 0.752
+ },
+ {
+  "pair": "P0472",
+  "a": {
+   "id": "random-number::random_float",
+   "description": "Generate a random float between low and high.\n\nArgs:\n    low: Lower bound (default 0.0)\n    high: Upper bound (default 1.0)\n\nReturns:\n    Random float between low and high",
+   "args": "low, high"
+  },
+  "b": {
+   "id": "random-number::secure_random_int",
+   "description": "Generate a secure random integer below upper_bound.\n\nArgs:\n    upper_bound: Upper bound (exclusive)\n\nReturns:\n    Random integer in range [0, upper_bound)",
+   "args": "upper_bound"
+  },
+  "cos": 0.931
+ },
+ {
+  "pair": "P0474",
+  "a": {
+   "id": "random-number::random_sample",
+   "description": "Choose k unique items from population without replacement.\n\nArgs:\n    population: List of items to choose from\n    k: Number of items to choose\n\nReturns:\n    List of k unique chosen items",
+   "args": "population, k"
+  },
+  "b": {
+   "id": "random-number::random_shuffle",
+   "description": "Return a new list with items in random order.\n\nArgs:\n    items: List of items to shuffle\n\nReturns:\n    New list with items in random order",
+   "args": "items"
+  },
+  "cos": 0.764
+ },
+ {
+  "pair": "P0476",
+  "a": {
+   "id": "searxng::docx_to_html",
+   "description": "Convert DOCX to HTML while preserving formatting",
+   "args": "inputPath, outputDir"
+  },
+  "b": {
+   "id": "searxng::docx_to_pdf",
+   "description": "Convert DOCX files to PDF format",
+   "args": "inputPath, outputPath"
+  },
+  "cos": 0.704
+ },
+ {
+  "pair": "P0478",
+  "a": {
+   "id": "searxng::docx_to_html",
+   "description": "Convert DOCX to HTML while preserving formatting",
+   "args": "inputPath, outputDir"
+  },
+  "b": {
+   "id": "searxng::html_to_markdown",
+   "description": "Convert HTML to Markdown format",
+   "args": "inputPath, outputDir"
+  },
+  "cos": 0.819
+ },
+ {
+  "pair": "P0480",
+  "a": {
+   "id": "searxng::docx_to_pdf",
+   "description": "Convert DOCX files to PDF format",
+   "args": "inputPath, outputPath"
+  },
+  "b": {
+   "id": "word-document-server::convert_to_pdf",
+   "description": "Convert a Word document to PDF format.",
+   "args": "filename, output_filename"
+  },
+  "cos": 0.786
+ },
+ {
+  "pair": "P0482",
+  "a": {
+   "id": "searxng::html_cleaner",
+   "description": "Clean HTML by removing unnecessary tags and attributes",
+   "args": "inputPath, outputDir"
+  },
+  "b": {
+   "id": "searxng::html_to_text",
+   "description": "Convert HTML to plain text while preserving structure",
+   "args": "inputPath, outputDir"
+  },
+  "cos": 0.701
+ },
+ {
+  "pair": "P0484",
+  "a": {
+   "id": "searxng::html_formatter",
+   "description": "Format and beautify HTML code",
+   "args": "inputPath, outputDir"
+  },
+  "b": {
+   "id": "searxng::html_to_text",
+   "description": "Convert HTML to plain text while preserving structure",
+   "args": "inputPath, outputDir"
+  },
+  "cos": 0.754
+ },
+ {
+  "pair": "P0486",
+  "a": {
+   "id": "searxng::html_to_markdown",
+   "description": "Convert HTML to Markdown format",
+   "args": "inputPath, outputDir"
+  },
+  "b": {
+   "id": "searxng::html_to_text",
+   "description": "Convert HTML to plain text while preserving structure",
+   "args": "inputPath, outputDir"
+  },
+  "cos": 0.8
+ },
+ {
+  "pair": "P0488",
+  "a": {
+   "id": "searxng::pdf_splitter",
+   "description": "Split a PDF file into multiple files",
+   "args": "inputPath, outputDir, pageRanges"
+  },
+  "b": {
+   "id": "searxng::text_splitter",
+   "description": "Split text file by specified delimiter or line count",
+   "args": "inputPath, outputDir, splitBy, value"
+  },
+  "cos": 0.727
+ },
+ {
+  "pair": "P0490",
+  "a": {
+   "id": "shadcn-ui-server::get_component_details",
+   "description": "Get detailed information about a specific shadcn/ui component",
+   "args": "componentName"
+  },
+  "b": {
+   "id": "shadcn-ui-server::get_component_examples",
+   "description": "Get usage examples for a specific shadcn/ui component",
+   "args": "componentName"
+  },
+  "cos": 0.899
+ },
+ {
+  "pair": "P0492",
+  "a": {
+   "id": "shadcn-ui-server::get_component_examples",
+   "description": "Get usage examples for a specific shadcn/ui component",
+   "args": "componentName"
+  },
+  "b": {
+   "id": "shadcn-ui-server::search_components",
+   "description": "Search for shadcn/ui components by keyword",
+   "args": "query"
+  },
+  "cos": 0.737
+ },
+ {
+  "pair": "P0494",
+  "a": {
+   "id": "sitemap::get_sitemap_pages",
+   "description": "Get all pages from a website's sitemap with optional limits and filtering options. Supports cursor-based pagination.",
+   "args": "url, limit, include_metadata, route, sitemap_url, cursor"
+  },
+  "b": {
+   "id": "sitemap::get_sitemap_stats",
+   "description": "Get comprehensive statistics about a website's sitemap structure",
+   "args": "url"
+  },
+  "cos": 0.751
+ },
+ {
+  "pair": "P0496",
+  "a": {
+   "id": "sitemap::get_sitemap_pages",
+   "description": "Get all pages from a website's sitemap with optional limits and filtering options. Supports cursor-based pagination.",
+   "args": "url, limit, include_metadata, route, sitemap_url, cursor"
+  },
+  "b": {
+   "id": "sitemap::parse_sitemap_content",
+   "description": "Parse a sitemap directly from its XML or text content",
+   "args": "content, include_pages"
+  },
+  "cos": 0.718
+ },
+ {
+  "pair": "P0498",
+  "a": {
+   "id": "sitemap::get_sitemap_tree",
+   "description": "Fetch and parse the sitemap tree from a website URL",
+   "args": "url, include_pages"
+  },
+  "b": {
+   "id": "sitemap::parse_sitemap_content",
+   "description": "Parse a sitemap directly from its XML or text content",
+   "args": "content, include_pages"
+  },
+  "cos": 0.792
+ },
+ {
+  "pair": "P0500",
+  "a": {
+   "id": "taskmanager::add_tasks_to_request",
+   "description": "Add new tasks to an existing request. This allows extending a request with additional tasks.\n\nA progress table will be displayed showing all tasks including the newly added ones.",
+   "args": "requestId, tasks"
+  },
+  "b": {
+   "id": "taskmanager::delete_task",
+   "description": "Delete a specific task from a request. Only uncompleted tasks can be deleted.\n\nA progress table will be displayed showing the remaining tasks after deletion.",
+   "args": "requestId, taskId"
+  },
+  "cos": 0.732
+ },
+ {
+  "pair": "P0502",
+  "a": {
+   "id": "taskmanager::approve_request_completion",
+   "description": "After all tasks are done and approved, this tool finalizes the entire request. The user must call this to confirm that the request is fully completed.\n\nA progress table showing the final status of all tasks will be displayed before requesting final approval.\n\nIf not approved, the user can add new tasks using 'request_planning' and continue the process.",
+   "args": "requestId"
+  },
+  "b": {
+   "id": "taskmanager::approve_task_completion",
+   "description": "Once the assistant has marked a task as done using 'mark_task_done', the user must call this tool to approve that the task is genuinely completed. Only after this approval can you proceed to 'get_next_task' to move on.\n\nA progress table will be displayed before requesting approval, showing the current status of all tasks.\n\nIf the user does not approve, do not call 'get_next_task'. Instead, the use",
+   "args": "requestId, taskId"
+  },
+  "cos": 0.955
+ },
+ {
+  "pair": "P0504",
+  "a": {
+   "id": "taskmanager::approve_request_completion",
+   "description": "After all tasks are done and approved, this tool finalizes the entire request. The user must call this to confirm that the request is fully completed.\n\nA progress table showing the final status of all tasks will be displayed before requesting final approval.\n\nIf not approved, the user can add new tasks using 'request_planning' and continue the process.",
+   "args": "requestId"
+  },
+  "b": {
+   "id": "taskmanager::mark_task_done",
+   "description": "Mark a given task as done after you've completed it. Provide 'requestId' and 'taskId', and optionally 'completedDetails'.\n\nAfter marking a task as done, a progress table will be displayed showing the updated status of all tasks.\n\nAfter this, DO NOT proceed to 'get_next_task' again until the user has explicitly approved this completed task using 'approve_task_completion'.",
+   "args": "requestId, taskId, completedDetails"
+  },
+  "cos": 0.906
+ },
+ {
+  "pair": "P0506",
+  "a": {
+   "id": "taskmanager::approve_task_completion",
+   "description": "Once the assistant has marked a task as done using 'mark_task_done', the user must call this tool to approve that the task is genuinely completed. Only after this approval can you proceed to 'get_next_task' to move on.\n\nA progress table will be displayed before requesting approval, showing the current status of all tasks.\n\nIf the user does not approve, do not call 'get_next_task'. Instead, the use",
+   "args": "requestId, taskId"
+  },
+  "b": {
+   "id": "taskmanager::get_next_task",
+   "description": "Given a 'requestId', return the next pending task (not done yet). If all tasks are completed, it will indicate that no more tasks are left and that you must wait for the request completion approval.\n\nA progress table showing the current status of all tasks will be displayed with each response.\n\nIf the same task is returned again or if no new task is provided after a task was marked as done but not",
+   "args": "requestId"
+  },
+  "cos": 0.972
+ },
+ {
+  "pair": "P0508",
+  "a": {
+   "id": "taskmanager::approve_task_completion",
+   "description": "Once the assistant has marked a task as done using 'mark_task_done', the user must call this tool to approve that the task is genuinely completed. Only after this approval can you proceed to 'get_next_task' to move on.\n\nA progress table will be displayed before requesting approval, showing the current status of all tasks.\n\nIf the user does not approve, do not call 'get_next_task'. Instead, the use",
+   "args": "requestId, taskId"
+  },
+  "b": {
+   "id": "taskmanager::request_planning",
+   "description": "Register a new user request and plan its associated tasks. You must provide 'originalRequest' and 'tasks', and optionally 'splitDetails'.\n\nThis tool initiates a new workflow for handling a user's request. The workflow is as follows:\n1. Use 'request_planning' to register a request and its tasks.\n2. After adding tasks, you MUST use 'get_next_task' to retrieve the first task. A progress table will be",
+   "args": "originalRequest, splitDetails, tasks"
+  },
+  "cos": 0.961
+ },
+ {
+  "pair": "P0510",
+  "a": {
+   "id": "taskmanager::delete_task",
+   "description": "Delete a specific task from a request. Only uncompleted tasks can be deleted.\n\nA progress table will be displayed showing the remaining tasks after deletion.",
+   "args": "requestId, taskId"
+  },
+  "b": {
+   "id": "taskmanager::update_task",
+   "description": "Update an existing task's title and/or description. Only uncompleted tasks can be updated.\n\nA progress table will be displayed showing the updated task information.",
+   "args": "requestId, taskId, title, description"
+  },
+  "cos": 0.838
+ },
+ {
+  "pair": "P0512",
+  "a": {
+   "id": "taskmanager::get_next_task",
+   "description": "Given a 'requestId', return the next pending task (not done yet). If all tasks are completed, it will indicate that no more tasks are left and that you must wait for the request completion approval.\n\nA progress table showing the current status of all tasks will be displayed with each response.\n\nIf the same task is returned again or if no new task is provided after a task was marked as done but not",
+   "args": "requestId"
+  },
+  "b": {
+   "id": "taskmanager::request_planning",
+   "description": "Register a new user request and plan its associated tasks. You must provide 'originalRequest' and 'tasks', and optionally 'splitDetails'.\n\nThis tool initiates a new workflow for handling a user's request. The workflow is as follows:\n1. Use 'request_planning' to register a request and its tasks.\n2. After adding tasks, you MUST use 'get_next_task' to retrieve the first task. A progress table will be",
+   "args": "originalRequest, splitDetails, tasks"
+  },
+  "cos": 0.98
+ },
+ {
+  "pair": "P0514",
+  "a": {
+   "id": "tavily-mcp::tavily-crawl",
+   "description": "A powerful web crawler that initiates a structured web crawl starting from a specified base URL. The crawler expands from that point like a tree, following internal links across pages. You can control how deep and wide it goes, and guide it to focus on specific sections of the site.",
+   "args": "url, max_depth, max_breadth, limit, instructions, select_paths, select_domains, allow_external, categories, extract_depth, format"
+  },
+  "b": {
+   "id": "tavily-mcp::tavily-map",
+   "description": "A powerful web mapping tool that creates a structured map of website URLs, allowing you to discover and analyze site structure, content organization, and navigation paths. Perfect for site audits, content discovery, and understanding website architecture.",
+   "args": "url, max_depth, max_breadth, limit, instructions, select_paths, select_domains, allow_external, categories"
+  },
+  "cos": 0.881
+ },
+ {
+  "pair": "P0516",
+  "a": {
+   "id": "text-editor::edit_text_file_contents",
+   "description": "A line editor that supports editing text file contents by specifying line ranges and content. It handles multiple patches in a single operation with hash-based conflict detection. File paths must be absolute. IMPORTANT: (1) Before using this tool, you must first get the file's current hash and range hashes and line numbers using get_text_file_contents. (2) To avoid line number shifts affecting you",
+   "args": "files, encoding"
+  },
+  "b": {
+   "id": "text-editor::get_text_file_contents",
+   "description": "Read text file contents from multiple files and line ranges. Returns file contents with hashes for concurrency control and line numbers for reference. The hashes are used to detect conflicts when editing the files. File paths must be absolute.",
+   "args": "files, encoding"
+  },
+  "cos": 0.913
+ },
+ {
+  "pair": "P0518",
+  "a": {
+   "id": "trends-hub::get-9to5mac-news",
+   "description": "获取 9to5Mac 苹果相关新闻，包含苹果产品发布、iOS 更新、Mac 硬件、应用推荐及苹果公司动态的英文资讯",
+   "args": ""
+  },
+  "b": {
+   "id": "trends-hub::get-ifanr-news",
+   "description": "获取爱范儿科技快讯，包含最新的科技产品、数码设备、互联网动态等前沿科技资讯",
+   "args": "limit, offset"
+  },
+  "cos": 0.706
+ },
+ {
+  "pair": "P0520",
+  "a": {
+   "id": "trends-hub::get-bbc-news",
+   "description": "获取 BBC 新闻，提供全球新闻、英国新闻、商业、政治、健康、教育、科技、娱乐等资讯",
+   "args": "category, edition"
+  },
+  "b": {
+   "id": "trends-hub::get-nytimes-news",
+   "description": "获取纽约时报新闻，包含国际政治、经济金融、社会文化、科学技术及艺术评论的高质量英文或中文国际新闻资讯",
+   "args": "region, section"
+  },
+  "cos": 0.804
+ },
+ {
+  "pair": "P0522",
+  "a": {
+   "id": "trends-hub::get-bilibili-rank",
+   "description": "获取哔哩哔哩视频排行榜，包含全站、动画、音乐、游戏等多个分区的热门视频，反映当下年轻人的内容消费趋势",
+   "args": "type"
+  },
+  "b": {
+   "id": "trends-hub::get-smzdm-rank",
+   "description": "获取什么值得买热门，包含商品推荐、优惠信息、购物攻略、产品评测及消费经验分享的实用中文消费类资讯",
+   "args": "unit"
+  },
+  "cos": 0.742
+ },
+ {
+  "pair": "P0524",
+  "a": {
+   "id": "trends-hub::get-douyin-trending",
+   "description": "获取抖音热搜榜单，展示当下最热门的社会话题、娱乐事件、网络热点和流行趋势",
+   "args": ""
+  },
+  "b": {
+   "id": "trends-hub::get-toutiao-trending",
+   "description": "获取今日头条热榜，包含时政要闻、社会事件、国际新闻、科技发展及娱乐八卦等多领域的热门中文资讯",
+   "args": ""
+  },
+  "cos": 0.704
+ },
+ {
+  "pair": "P0526",
+  "a": {
+   "id": "trends-hub::get-douyin-trending",
+   "description": "获取抖音热搜榜单，展示当下最热门的社会话题、娱乐事件、网络热点和流行趋势",
+   "args": ""
+  },
+  "b": {
+   "id": "trends-hub::get-zhihu-trending",
+   "description": "获取知乎热榜，包含时事热点、社会话题、科技动态、娱乐八卦等多领域的热门问答和讨论的中文资讯",
+   "args": "limit"
+  },
+  "cos": 0.807
+ },
+ {
+  "pair": "P0528",
+  "a": {
+   "id": "trends-hub::get-ifanr-news",
+   "description": "获取爱范儿科技快讯，包含最新的科技产品、数码设备、互联网动态等前沿科技资讯",
+   "args": "limit, offset"
+  },
+  "b": {
+   "id": "trends-hub::get-theverge-news",
+   "description": "获取 The Verge 新闻，包含科技创新、数码产品评测、互联网趋势及科技公司动态的英文科技资讯",
+   "args": ""
+  },
+  "cos": 0.869
+ },
+ {
+  "pair": "P0530",
+  "a": {
+   "id": "trends-hub::get-infoq-news",
+   "description": "获取 InfoQ 技术资讯，包含软件开发、架构设计、云计算、AI等企业级技术内容和前沿开发者动态",
+   "args": "region"
+  },
+  "b": {
+   "id": "trends-hub::get-theverge-news",
+   "description": "获取 The Verge 新闻，包含科技创新、数码产品评测、互联网趋势及科技公司动态的英文科技资讯",
+   "args": ""
+  },
+  "cos": 0.751
+ },
+ {
+  "pair": "P0532",
+  "a": {
+   "id": "trends-hub::get-netease-news-trending",
+   "description": "获取网易新闻热点榜，包含时政要闻、社会事件、财经资讯、科技动态及娱乐体育的全方位中文新闻资讯",
+   "args": ""
+  },
+  "b": {
+   "id": "trends-hub::get-thepaper-trending",
+   "description": "获取澎湃新闻热榜，包含时政要闻、财经动态、社会事件、文化教育及深度报道的高质量中文新闻资讯",
+   "args": ""
+  },
+  "cos": 0.966
+ },
+ {
+  "pair": "P0534",
+  "a": {
+   "id": "trends-hub::get-netease-news-trending",
+   "description": "获取网易新闻热点榜，包含时政要闻、社会事件、财经资讯、科技动态及娱乐体育的全方位中文新闻资讯",
+   "args": ""
+  },
+  "b": {
+   "id": "trends-hub::get-weibo-trending",
+   "description": "获取微博热搜榜，包含时事热点、社会现象、娱乐新闻、明星动态及网络热议话题的实时热门中文资讯",
+   "args": ""
+  },
+  "cos": 0.774
+ },
+ {
+  "pair": "P0536",
+  "a": {
+   "id": "trends-hub::get-nytimes-news",
+   "description": "获取纽约时报新闻，包含国际政治、经济金融、社会文化、科学技术及艺术评论的高质量英文或中文国际新闻资讯",
+   "args": "region, section"
+  },
+  "b": {
+   "id": "trends-hub::get-thepaper-trending",
+   "description": "获取澎湃新闻热榜，包含时政要闻、财经动态、社会事件、文化教育及深度报道的高质量中文新闻资讯",
+   "args": ""
+  },
+  "cos": 0.702
+ },
+ {
+  "pair": "P0538",
+  "a": {
+   "id": "trends-hub::get-smzdm-rank",
+   "description": "获取什么值得买热门，包含商品推荐、优惠信息、购物攻略、产品评测及消费经验分享的实用中文消费类资讯",
+   "args": "unit"
+  },
+  "b": {
+   "id": "trends-hub::get-weread-rank",
+   "description": "获取微信读书排行榜，包含热门小说、畅销书籍、新书推荐及各类文学作品的阅读数据和排名信息",
+   "args": "category"
+  },
+  "cos": 0.741
+ },
+ {
+  "pair": "P0540",
+  "a": {
+   "id": "trends-hub::get-tencent-news-trending",
+   "description": "获取腾讯新闻热点榜，包含国内外时事、社会热点、财经资讯、娱乐动态及体育赛事的综合性中文新闻资讯",
+   "args": "page_size"
+  },
+  "b": {
+   "id": "trends-hub::get-toutiao-trending",
+   "description": "获取今日头条热榜，包含时政要闻、社会事件、国际新闻、科技发展及娱乐八卦等多领域的热门中文资讯",
+   "args": ""
+  },
+  "cos": 0.869
+ },
+ {
+  "pair": "P0542",
+  "a": {
+   "id": "trends-hub::get-tencent-news-trending",
+   "description": "获取腾讯新闻热点榜，包含国内外时事、社会热点、财经资讯、娱乐动态及体育赛事的综合性中文新闻资讯",
+   "args": "page_size"
+  },
+  "b": {
+   "id": "trends-hub::get-zhihu-trending",
+   "description": "获取知乎热榜，包含时事热点、社会话题、科技动态、娱乐八卦等多领域的热门问答和讨论的中文资讯",
+   "args": "limit"
+  },
+  "cos": 0.724
+ },
+ {
+  "pair": "P0544",
+  "a": {
+   "id": "trends-hub::get-thepaper-trending",
+   "description": "获取澎湃新闻热榜，包含时政要闻、财经动态、社会事件、文化教育及深度报道的高质量中文新闻资讯",
+   "args": ""
+  },
+  "b": {
+   "id": "trends-hub::get-weibo-trending",
+   "description": "获取微博热搜榜，包含时事热点、社会现象、娱乐新闻、明星动态及网络热议话题的实时热门中文资讯",
+   "args": ""
+  },
+  "cos": 0.736
+ },
+ {
+  "pair": "P0546",
+  "a": {
+   "id": "trends-hub::get-toutiao-trending",
+   "description": "获取今日头条热榜，包含时政要闻、社会事件、国际新闻、科技发展及娱乐八卦等多领域的热门中文资讯",
+   "args": ""
+  },
+  "b": {
+   "id": "trends-hub::get-weibo-trending",
+   "description": "获取微博热搜榜，包含时事热点、社会现象、娱乐新闻、明星动态及网络热议话题的实时热门中文资讯",
+   "args": ""
+  },
+  "cos": 0.923
+ },
+ {
+  "pair": "P0548",
+  "a": {
+   "id": "trends-hub::get-weibo-trending",
+   "description": "获取微博热搜榜，包含时事热点、社会现象、娱乐新闻、明星动态及网络热议话题的实时热门中文资讯",
+   "args": ""
+  },
+  "b": {
+   "id": "trends-hub::get-zhihu-trending",
+   "description": "获取知乎热榜，包含时事热点、社会话题、科技动态、娱乐八卦等多领域的热门问答和讨论的中文资讯",
+   "args": "limit"
+  },
+  "cos": 0.949
+ },
+ {
+  "pair": "P0550",
+  "a": {
+   "id": "web3-research-mcp::create-research-plan",
+   "description": "",
+   "args": "tokenName, tokenTicker"
+  },
+  "b": {
+   "id": "web3-research-mcp::research-source",
+   "description": "",
+   "args": "tokenName, tokenTicker, source"
+  },
+  "cos": 0.903
+ },
+ {
+  "pair": "P0552",
+  "a": {
+   "id": "web3-research-mcp::create-research-plan",
+   "description": "",
+   "args": "tokenName, tokenTicker"
+  },
+  "b": {
+   "id": "web3-research-mcp::research-with-keywords",
+   "description": "",
+   "args": "tokenName, tokenTicker, keywords"
+  },
+  "cos": 0.896
+ },
+ {
+  "pair": "P0554",
+  "a": {
+   "id": "web3-research-mcp::research-source",
+   "description": "",
+   "args": "tokenName, tokenTicker, source"
+  },
+  "b": {
+   "id": "web3-research-mcp::research-token",
+   "description": "",
+   "args": "tokenName, tokenTicker, source"
+  },
+  "cos": 0.993
+ },
+ {
+  "pair": "P0556",
+  "a": {
+   "id": "web3-research-mcp::research-source",
+   "description": "",
+   "args": "tokenName, tokenTicker, source"
+  },
+  "b": {
+   "id": "web3-research-mcp::search-source",
+   "description": "",
+   "args": "tokenName, tokenTicker, source"
+  },
+  "cos": 0.995
+ },
+ {
+  "pair": "P0558",
+  "a": {
+   "id": "web3-research-mcp::research-token",
+   "description": "",
+   "args": "tokenName, tokenTicker, source"
+  },
+  "b": {
+   "id": "web3-research-mcp::search-source",
+   "description": "",
+   "args": "tokenName, tokenTicker, source"
+  },
+  "cos": 0.985
+ },
+ {
+  "pair": "P0560",
+  "a": {
+   "id": "whois::whois_as",
+   "description": "Looksup whois information about the Autonomous System Number (ASN)",
+   "args": "asn"
+  },
+  "b": {
+   "id": "whois::whois_domain",
+   "description": "Looksup whois information about the domain",
+   "args": "domain"
+  },
+  "cos": 0.968
+ },
+ {
+  "pair": "P0562",
+  "a": {
+   "id": "whois::whois_as",
+   "description": "Looksup whois information about the Autonomous System Number (ASN)",
+   "args": "asn"
+  },
+  "b": {
+   "id": "whois::whois_tld",
+   "description": "Looksup whois information about the Top Level Domain (TLD)",
+   "args": "tld"
+  },
+  "cos": 0.972
+ },
+ {
+  "pair": "P0564",
+  "a": {
+   "id": "whois::whois_domain",
+   "description": "Looksup whois information about the domain",
+   "args": "domain"
+  },
+  "b": {
+   "id": "whois::whois_tld",
+   "description": "Looksup whois information about the Top Level Domain (TLD)",
+   "args": "tld"
+  },
+  "cos": 0.993
+ },
+ {
+  "pair": "P0566",
+  "a": {
+   "id": "wikipedia::get_article",
+   "description": "Get the full content of a Wikipedia article.",
+   "args": "title"
+  },
+  "b": {
+   "id": "wikipedia::get_links",
+   "description": "Get the links contained within a Wikipedia article.",
+   "args": "title"
+  },
+  "cos": 0.906
+ },
+ {
+  "pair": "P0568",
+  "a": {
+   "id": "wikipedia::get_article",
+   "description": "Get the full content of a Wikipedia article.",
+   "args": "title"
+  },
+  "b": {
+   "id": "wikipedia::get_summary",
+   "description": "Get a summary of a Wikipedia article.",
+   "args": "title"
+  },
+  "cos": 0.874
+ },
+ {
+  "pair": "P0570",
+  "a": {
+   "id": "wikipedia::get_links",
+   "description": "Get the links contained within a Wikipedia article.",
+   "args": "title"
+  },
+  "b": {
+   "id": "wikipedia::get_related_topics",
+   "description": "Get topics related to a Wikipedia article based on links and categories.",
+   "args": "title, limit"
+  },
+  "cos": 0.758
+ },
+ {
+  "pair": "P0572",
+  "a": {
+   "id": "wikipedia::get_links",
+   "description": "Get the links contained within a Wikipedia article.",
+   "args": "title"
+  },
+  "b": {
+   "id": "wikipedia::get_summary",
+   "description": "Get a summary of a Wikipedia article.",
+   "args": "title"
+  },
+  "cos": 0.8
+ },
+ {
+  "pair": "P0574",
+  "a": {
+   "id": "wikipedia::get_sections",
+   "description": "Get the sections of a Wikipedia article.",
+   "args": "title"
+  },
+  "b": {
+   "id": "wikipedia::summarize_article_for_query",
+   "description": "Get a summary of a Wikipedia article tailored to a specific query.",
+   "args": "title, query, max_length"
+  },
+  "cos": 0.704
+ },
+ {
+  "pair": "P0576",
+  "a": {
+   "id": "wikipedia::get_summary",
+   "description": "Get a summary of a Wikipedia article.",
+   "args": "title"
+  },
+  "b": {
+   "id": "wikipedia::summarize_article_for_query",
+   "description": "Get a summary of a Wikipedia article tailored to a specific query.",
+   "args": "title, query, max_length"
+  },
+  "cos": 0.889
+ },
+ {
+  "pair": "P0578",
+  "a": {
+   "id": "wikipedia::summarize_article_for_query",
+   "description": "Get a summary of a Wikipedia article tailored to a specific query.",
+   "args": "title, query, max_length"
+  },
+  "b": {
+   "id": "wikipedia::summarize_article_section",
+   "description": "Get a summary of a specific section of a Wikipedia article.",
+   "args": "title, section_title, max_length"
+  },
+  "cos": 0.93
+ },
+ {
+  "pair": "P0580",
+  "a": {
+   "id": "word-document-server::add_endnote_to_document",
+   "description": "Add an endnote to a specific paragraph in a Word document.",
+   "args": "filename, paragraph_index, endnote_text"
+  },
+  "b": {
+   "id": "word-document-server::add_paragraph",
+   "description": "Add a paragraph to a Word document.",
+   "args": "filename, text, style"
+  },
+  "cos": 0.929
+ },
+ {
+  "pair": "P0582",
+  "a": {
+   "id": "word-document-server::add_endnote_to_document",
+   "description": "Add an endnote to a specific paragraph in a Word document.",
+   "args": "filename, paragraph_index, endnote_text"
+  },
+  "b": {
+   "id": "word-document-server::get_paragraph_text_from_document",
+   "description": "Get text from a specific paragraph in a Word document.",
+   "args": "filename, paragraph_index"
+  },
+  "cos": 0.92
+ },
+ {
+  "pair": "P0584",
+  "a": {
+   "id": "word-document-server::add_footnote_to_document",
+   "description": "Add a footnote to a specific paragraph in a Word document.",
+   "args": "filename, paragraph_index, footnote_text"
+  },
+  "b": {
+   "id": "word-document-server::delete_paragraph",
+   "description": "Delete a paragraph from a document.",
+   "args": "filename, paragraph_index"
+  },
+  "cos": 0.771
+ },
+ {
+  "pair": "P0586",
+  "a": {
+   "id": "word-document-server::add_heading",
+   "description": "Add a heading to a Word document.",
+   "args": "filename, text, level"
+  },
+  "b": {
+   "id": "word-document-server::add_page_break",
+   "description": "Add a page break to the document.",
+   "args": "filename"
+  },
+  "cos": 0.785
+ },
+ {
+  "pair": "P0588",
+  "a": {
+   "id": "word-document-server::add_heading",
+   "description": "Add a heading to a Word document.",
+   "args": "filename, text, level"
+  },
+  "b": {
+   "id": "word-document-server::add_picture",
+   "description": "Add an image to a Word document.",
+   "args": "filename, image_path, width"
+  },
+  "cos": 0.822
+ },
+ {
+  "pair": "P0590",
+  "a": {
+   "id": "word-document-server::add_page_break",
+   "description": "Add a page break to the document.",
+   "args": "filename"
+  },
+  "b": {
+   "id": "word-document-server::add_picture",
+   "description": "Add an image to a Word document.",
+   "args": "filename, image_path, width"
+  },
+  "cos": 0.769
+ },
+ {
+  "pair": "P0592",
+  "a": {
+   "id": "word-document-server::add_paragraph",
+   "description": "Add a paragraph to a Word document.",
+   "args": "filename, text, style"
+  },
+  "b": {
+   "id": "word-document-server::delete_paragraph",
+   "description": "Delete a paragraph from a document.",
+   "args": "filename, paragraph_index"
+  },
+  "cos": 0.739
+ },
+ {
+  "pair": "P0594",
+  "a": {
+   "id": "word-document-server::add_picture",
+   "description": "Add an image to a Word document.",
+   "args": "filename, image_path, width"
+  },
+  "b": {
+   "id": "word-document-server::add_table",
+   "description": "Add a table to a Word document.",
+   "args": "filename, rows, cols, data"
+  },
+  "cos": 0.754
+ },
+ {
+  "pair": "P0596",
+  "a": {
+   "id": "word-document-server::copy_document",
+   "description": "Create a copy of a Word document.",
+   "args": "source_filename, destination_filename"
+  },
+  "b": {
+   "id": "word-document-server::get_document_outline",
+   "description": "Get the structure of a Word document.",
+   "args": "filename"
+  },
+  "cos": 0.766
+ },
+ {
+  "pair": "P0598",
+  "a": {
+   "id": "word-document-server::create_custom_style",
+   "description": "Create a custom style in the document.",
+   "args": "filename, style_name, bold, italic, font_size, font_name, color, base_style"
+  },
+  "b": {
+   "id": "word-document-server::customize_footnote_style",
+   "description": "Customize footnote numbering and formatting in a Word document.",
+   "args": "filename, numbering_format, start_number, font_name, font_size"
+  },
+  "cos": 0.799
+ },
+ {
+  "pair": "P0600",
+  "a": {
+   "id": "word-document-server::find_text_in_document",
+   "description": "Find occurrences of specific text in a Word document.",
+   "args": "filename, text_to_find, match_case, whole_word"
+  },
+  "b": {
+   "id": "word-document-server::get_document_text",
+   "description": "Extract all text from a Word document.",
+   "args": "filename"
+  },
+  "cos": 0.792
+ },
+ {
+  "pair": "P0602",
+  "a": {
+   "id": "word-document-server::get_document_info",
+   "description": "Get information about a Word document.",
+   "args": "filename"
+  },
+  "b": {
+   "id": "word-document-server::get_document_text",
+   "description": "Extract all text from a Word document.",
+   "args": "filename"
+  },
+  "cos": 0.739
+ },
+ {
+  "pair": "P0604",
+  "a": {
+   "id": "word-document-server::get_document_outline",
+   "description": "Get the structure of a Word document.",
+   "args": "filename"
+  },
+  "b": {
+   "id": "word-document-server::protect_document",
+   "description": "Add password protection to a Word document.",
+   "args": "filename, password"
+  },
+  "cos": 0.752
+ },
+ {
+  "pair": "P0606",
+  "a": {
+   "id": "word-document-server::get_document_text",
+   "description": "Extract all text from a Word document.",
+   "args": "filename"
+  },
+  "b": {
+   "id": "word-document-server::unprotect_document",
+   "description": "Remove password protection from a Word document.",
+   "args": "filename, password"
+  },
+  "cos": 0.71
+ },
+ {
+  "pair": "P0608",
+  "a": {
+   "id": "wuwa-mcp::get_artifact_info",
+   "description": "获取库街区上的声骸详细信息并以 Markdown 格式返回。\n\nArgs:\n    artifact_name: 要查询的声骸套装的中文名称。\n\nReturns:\n    包含声骸信息的 Markdown 字符串，\n    或者在找不到声骸或获取数据失败时返回错误消息。\n",
+   "args": "artifact_name"
+  },
+  "b": {
+   "id": "wuwa-mcp::get_character_info",
+   "description": "获取库街区上的角色详细信息包括角色技能，养成攻略等，并以 Markdown 格式返回。\n\nArgs:\n    character_name: 要查询的角色的中文名称。\n\nReturns:\n    包含角色信息的 Markdown 字符串，\n    或者在找不到角色或获取数据失败时返回错误消息。\n",
+   "args": "character_name"
+  },
+  "cos": 0.981
+ },
+ {
+  "pair": "P0610",
+  "a": {
+   "id": "wuwa-mcp::get_character_info",
+   "description": "获取库街区上的角色详细信息包括角色技能，养成攻略等，并以 Markdown 格式返回。\n\nArgs:\n    character_name: 要查询的角色的中文名称。\n\nReturns:\n    包含角色信息的 Markdown 字符串，\n    或者在找不到角色或获取数据失败时返回错误消息。\n",
+   "args": "character_name"
+  },
+  "b": {
+   "id": "wuwa-mcp::get_character_profile",
+   "description": "获取库街区上的角色档案信息并以 Markdown 格式返回。\n\nArgs:\n    character_name: 要查询的角色的中文名称。\n\nReturns:\n    包含角色档案信息的 Markdown 字符串，\n    或者在找不到角色或获取数据失败时返回错误消息。\n",
+   "args": "character_name"
+  },
+  "cos": 0.997
+ },
+ {
+  "pair": "P0612",
+  "a": {
+   "id": "yahoo-finance::get_cashflow",
+   "description": "Get cashflow for a given stock symbol.",
+   "args": "symbol, freq"
+  },
+  "b": {
+   "id": "yahoo-finance::get_income_statement",
+   "description": "Get income statement for a given stock symbol.",
+   "args": "symbol, freq"
+  },
+  "cos": 0.948
+ },
+ {
+  "pair": "P0614",
+  "a": {
+   "id": "yahoo-finance::get_cashflow",
+   "description": "Get cashflow for a given stock symbol.",
+   "args": "symbol, freq"
+  },
+  "b": {
+   "id": "yahoo-finance::get_recommendations",
+   "description": "Get analyst recommendations for a given symbol.",
+   "args": "symbol"
+  },
+  "cos": 0.767
+ },
+ {
+  "pair": "P0616",
+  "a": {
+   "id": "yahoo-finance::get_cashflow",
+   "description": "Get cashflow for a given stock symbol.",
+   "args": "symbol, freq"
+  },
+  "b": {
+   "id": "yahoo-finance::get_stock_price_date_range",
+   "description": "Get the stock prices for a given date range for a given stock symbol.",
+   "args": "symbol, start_date, end_date"
+  },
+  "cos": 0.827
+ },
+ {
+  "pair": "P0618",
+  "a": {
+   "id": "yahoo-finance::get_current_stock_price",
+   "description": "Get the current stock price based on stock symbol.",
+   "args": "symbol"
+  },
+  "b": {
+   "id": "yahoo-finance::get_stock_price_date_range",
+   "description": "Get the stock prices for a given date range for a given stock symbol.",
+   "args": "symbol, start_date, end_date"
+  },
+  "cos": 0.82
+ },
+ {
+  "pair": "P0620",
+  "a": {
+   "id": "yahoo-finance::get_dividends",
+   "description": "Get dividends for a given stock symbol.",
+   "args": "symbol"
+  },
+  "b": {
+   "id": "yahoo-finance::get_income_statement",
+   "description": "Get income statement for a given stock symbol.",
+   "args": "symbol, freq"
+  },
+  "cos": 0.919
+ },
+ {
+  "pair": "P0622",
+  "a": {
+   "id": "yahoo-finance::get_dividends",
+   "description": "Get dividends for a given stock symbol.",
+   "args": "symbol"
+  },
+  "b": {
+   "id": "yahoo-finance::get_recommendations",
+   "description": "Get analyst recommendations for a given symbol.",
+   "args": "symbol"
+  },
+  "cos": 0.786
+ },
+ {
+  "pair": "P0624",
+  "a": {
+   "id": "yahoo-finance::get_dividends",
+   "description": "Get dividends for a given stock symbol.",
+   "args": "symbol"
+  },
+  "b": {
+   "id": "yahoo-finance::get_stock_price_date_range",
+   "description": "Get the stock prices for a given date range for a given stock symbol.",
+   "args": "symbol, start_date, end_date"
+  },
+  "cos": 0.844
+ },
+ {
+  "pair": "P0626",
+  "a": {
+   "id": "yahoo-finance::get_historical_stock_prices",
+   "description": "Get historical stock prices for a given stock symbol.",
+   "args": "symbol, period, interval"
+  },
+  "b": {
+   "id": "yahoo-finance::get_stock_price_date_range",
+   "description": "Get the stock prices for a given date range for a given stock symbol.",
+   "args": "symbol, start_date, end_date"
+  },
+  "cos": 0.766
+ },
+ {
+  "pair": "P0628",
+  "a": {
+   "id": "yahoo-finance::get_income_statement",
+   "description": "Get income statement for a given stock symbol.",
+   "args": "symbol, freq"
+  },
+  "b": {
+   "id": "yahoo-finance::get_news",
+   "description": "Get news for a given stock symbol.",
+   "args": "symbol"
+  },
+  "cos": 0.896
+ },
+ {
+  "pair": "P0630",
+  "a": {
+   "id": "yahoo-finance::get_income_statement",
+   "description": "Get income statement for a given stock symbol.",
+   "args": "symbol, freq"
+  },
+  "b": {
+   "id": "yahoo-finance::get_stock_price_date_range",
+   "description": "Get the stock prices for a given date range for a given stock symbol.",
+   "args": "symbol, start_date, end_date"
+  },
+  "cos": 0.766
+ },
+ {
+  "pair": "P0632",
+  "a": {
+   "id": "yahoo-finance::get_news",
+   "description": "Get news for a given stock symbol.",
+   "args": "symbol"
+  },
+  "b": {
+   "id": "yahoo-finance::get_stock_price_by_date",
+   "description": "Get the stock price for a given stock symbol on a specific date.",
+   "args": "symbol, date"
+  },
+  "cos": 0.791
+ },
+ {
+  "pair": "P0634",
+  "a": {
+   "id": "yahoo-finance::get_stock_price_by_date",
+   "description": "Get the stock price for a given stock symbol on a specific date.",
+   "args": "symbol, date"
+  },
+  "b": {
+   "id": "yahoo-finance::get_stock_price_date_range",
+   "description": "Get the stock prices for a given date range for a given stock symbol.",
+   "args": "symbol, start_date, end_date"
+  },
+  "cos": 0.956
+ },
+ {
+  "pair": "P0636",
+  "a": {
+   "id": "ygocdb::get_card_by_id",
+   "description": "通过卡牌ID获取单张游戏王卡牌的详细信息",
+   "args": "id"
+  },
+  "b": {
+   "id": "ygocdb::search_cards",
+   "description": "通过关键字搜索游戏王卡牌，可以搜索卡牌名称、效果文本等。",
+   "args": "query"
+  },
+  "cos": 0.768
+ }
+]

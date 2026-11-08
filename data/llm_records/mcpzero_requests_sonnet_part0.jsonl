@@ -1,0 +1,114 @@
+{"id": "0e3287cb-c0ff-4d2a-8c3d-d8833014a7b0", "requests": [{"server": "WeChat Reading", "tool": "get current trending books and reading rankings"}, {"server": "PDF generation", "tool": "create a formatted PDF report file with text and images"}, {"server": "word cloud generator", "tool": "generate a word cloud image from text"}]}
+{"id": "5a2720cd-20f1-49e7-a3fc-8e74af2217f6", "requests": [{"server": "map service", "tool": "compute a fair midpoint meeting location for multiple addresses"}, {"server": "map service", "tool": "search nearby entertainment places around a location"}]}
+{"id": "afd60e13-2448-4c0f-9aae-2054b91f1ac1", "requests": [{"server": "map service", "tool": "search charging stations along a driving route"}, {"server": "map service", "tool": "plan a driving route between two cities with waypoints"}]}
+{"id": "0b21b741-440b-460e-8bad-fa70f99dd01c", "requests": [{"server": "Chinese calendar", "tool": "calculate the Bazi (four pillars) for a given birth date and time"}]}
+{"id": "56d7fbdb-ebd6-41fe-a5d6-cd21dbc59fd8", "requests": [{"server": "GitHub", "tool": "get the list of trending repositories"}, {"server": "Deepwiki", "tool": "read the wiki documentation of a repository"}, {"server": "file system", "tool": "write a Markdown file to a given path"}]}
+{"id": "8aaa7e7f-aff7-4735-9dc8-8bb5f474506c", "requests": [{"server": "news service", "tool": "get today's top news about large language models"}]}
+{"id": "a984d31b-f3e9-47d4-8726-19a06e6babc5", "requests": [{"server": "PowerPoint generation", "tool": "create a PPTX presentation and save it to a path"}, {"server": "web search engine", "tool": "search for information about an anime to build slide content"}]}
+{"id": "1a3ffa81-d1fe-4b97-9308-3d2ae2d0d9b1", "requests": [{"server": "YouTube", "tool": "get the transcript of a video"}, {"server": "mind map generator", "tool": "create a mind map from structured key points"}]}
+{"id": "e8f13600-c0c8-427e-98d3-0762ad510805", "requests": [{"server": "recipe service", "tool": "search recipes and get meal plan suggestions with ingredient lists"}]}
+{"id": "00e13e2e-07fa-4d0b-9863-e966190cffd6", "requests": [{"server": "art database", "tool": "search for a painting by title and get its details and background"}]}
+{"id": "e023dd0e-1212-47e0-a73c-97739c78b849", "requests": [{"server": "Apple news", "tool": "get the latest Apple product information"}, {"server": "PowerPoint generation", "tool": "create a PPTX presentation and save it to a path"}]}
+{"id": "ec6f4fe5-e650-48b1-8805-285d8f52eb10", "requests": [{"server": "library documentation", "tool": "get up-to-date documentation for Next.js middleware"}, {"server": "file system", "tool": "write a code file to a given path"}]}
+{"id": "de75630e-b91e-4cc7-85b1-5d02c2455392", "requests": [{"server": "Maven repository", "tool": "get the latest version of a Java library from its coordinates"}]}
+{"id": "470f7ac1-f573-4fec-8990-97f578749f78", "requests": [{"server": "stock market data", "tool": "get real-time stock price and daily percentage change of a company"}, {"server": "stock market data", "tool": "get market capitalization or shares outstanding of a company"}]}
+{"id": "17a4aef0-bb60-47b1-9b47-3686bca29db3", "requests": [{"server": "Douban", "tool": "get current trending items on Douban"}, {"server": "PDF generation", "tool": "create a formatted PDF report file"}]}
+{"id": "3a5cfe49-72e3-48ec-885a-39d62f8f1904", "requests": [{"server": "image analysis", "tool": "decode and interpret the content of a base64 encoded image"}]}
+{"id": "b6281fad-0da4-4fd4-b669-7e4ff9083a82", "requests": [{"server": "precious metals market data", "tool": "get the current price of silver"}]}
+{"id": "8f26fc1a-fdaa-4e7a-ae53-7b4cacb15334", "requests": [{"server": "map service", "tool": "calculate driving route duration and distance between two addresses at a departure time"}, {"server": "map service", "tool": "calculate walking route between two addresses"}, {"server": "map service", "tool": "calculate bicycling route between two addresses"}]}
+{"id": "c4d6c051-e2d4-4f52-b897-e945f402b858", "requests": [{"server": "market sentiment data", "tool": "get the current Fear and Greed Index"}, {"server": "news service", "tool": "get recent financial market news"}]}
+{"id": "31086c2d-e183-42c3-9ee7-7c1278c4317f", "requests": [{"server": "file system", "tool": "list files and directories in a folder"}]}
+{"id": "d1ea5598-27d2-4a21-ae9d-be30ec099ee3", "requests": [{"server": "BBC news", "tool": "get today's news headlines filtered by finance topic"}]}
+{"id": "423f89ba-be77-4f93-99d7-936548513eef", "requests": [{"server": "Word document generation", "tool": "create a DOCX document with headings, tables, body text, footnotes and an inserted image, and save it"}]}
+{"id": "39c4c9fc-9074-474a-850f-4b088d499d8c", "requests": [{"server": "stock market data", "tool": "get the current stock price of a company"}]}
+{"id": "ffd5f6fb-051c-4c0f-9b82-90038b4cdb84", "requests": [{"server": "Chinese almanac", "tool": "get auspicious dates for weddings in upcoming months"}]}
+{"id": "a75e3a7c-99b6-4c6c-ba92-f02909028d50", "requests": [{"server": "web browser", "tool": "execute JavaScript code in the browser console"}]}
+{"id": "bbabb454-902f-4266-a7a1-fd2ff2af570d", "requests": [{"server": "web browser", "tool": "drag an element to a target element using CSS selectors"}]}
+{"id": "91ab09b8-9ad1-49ae-b140-1c72c7e13c0c", "requests": [{"server": "web browser", "tool": "execute JavaScript code in the browser console"}]}
+{"id": "2c411662-2f2b-4451-8086-20a67e9a2f72", "requests": [{"server": "file system", "tool": "create a directory structure recursively"}]}
+{"id": "c20bdb8a-1dac-4bfd-8da3-56a5bb6c9a40", "requests": [{"server": "file system", "tool": "list files and directories in a path with type prefixes"}]}
+{"id": "ed0cae47-7ca6-4d6e-b2a1-ff5d800d51e1", "requests": [{"server": "stock market data", "tool": "get the current share price of a company"}]}
+{"id": "28a98d3e-eba6-4d5a-a88d-5bea72386913", "requests": [{"server": "stock market data", "tool": "get the current share price of a company"}]}
+{"id": "9211d913-b23c-49a7-83fd-1bffe3cfb9f0", "requests": [{"server": "stock market data", "tool": "get the current share price of a company"}]}
+{"id": "aa8a187f-4785-4eef-bc00-5f82fd360bc5", "requests": [{"server": "map service", "tool": "search walking route between two places"}, {"server": "map service", "tool": "search bicycling route between two places"}]}
+{"id": "78098d05-4c1f-458c-8948-b6550918fedf", "requests": [{"server": "map service", "tool": "reverse geocode coordinates to an address and administrative division"}]}
+{"id": "767e0e87-476b-4947-9c25-9af00cb1687d", "requests": [{"server": "e-commerce payment platform", "tool": "create an order with item quantity and total amount"}]}
+{"id": "2405193e-3b4b-4f02-97d7-822b3f9fe293", "requests": [{"server": "payment platform", "tool": "refund a captured payment partially with amount and note"}]}
+{"id": "94d38b3c-6fa4-45ea-8409-53b28d194bc4", "requests": [{"server": "payment platform", "tool": "create shipment tracking for a transaction with a tracking number"}]}
+{"id": "3ec01417-4ad2-404f-ab17-7fa7ee01e90f", "requests": [{"server": "web content extraction", "tool": "extract the content of a web page URL in markdown format with a given depth"}]}
+{"id": "2f575ea9-10bd-476a-bee6-be1265da9382", "requests": [{"server": "news service", "tool": "get the latest sports news for a country"}]}
+{"id": "40b7428b-f571-41e2-81d1-3a2f80e5cacf", "requests": [{"server": "web browser", "tool": "fill an input field with a value"}]}
+{"id": "20759686-4038-4906-a0bd-3a65d609d086", "requests": [{"server": "web browser", "tool": "select an option in a dropdown menu by value"}]}
+{"id": "ea38b434-1a6d-4079-b9d2-614e6dbf889b", "requests": [{"server": "web browser", "tool": "navigate to a URL"}]}
+{"id": "0d85a8cb-c8f9-4a08-8866-55053aece7dc", "requests": [{"server": "web browser", "tool": "click a button on a page"}]}
+{"id": "2007c9fc-358f-4370-bebe-047970a426d8", "requests": [{"server": "code generation service", "tool": "end a code generation session by session ID"}]}
+{"id": "ac9cf055-c334-4089-96a2-df9a7aa26216", "requests": [{"server": "web browser", "tool": "execute JavaScript code in the browser console"}]}
+{"id": "65c60186-51e5-49ab-be43-0322139c3280", "requests": [{"server": "web browser", "tool": "capture a screenshot of a page element and save it with a name"}]}
+{"id": "65bad570-2257-45ef-a2dd-85112365cff5", "requests": [{"server": "web browser", "tool": "capture a screenshot of a page element and save it with a name"}]}
+{"id": "eeff8b1d-99ef-4cca-8ae4-3c666045b375", "requests": [{"server": "web browser", "tool": "hover over a page element"}]}
+{"id": "499fa277-24fe-4660-9ff6-d76462dc9a7c", "requests": [{"server": "web browser", "tool": "start waiting for an HTTP response from a URL with an identifier"}]}
+{"id": "f75b0e53-25a3-4aed-b0fc-0efedb4a1055", "requests": [{"server": "web browser", "tool": "capture a screenshot of a page element and save it with a name"}]}
+{"id": "71e3928b-7bdc-4e7d-b8d2-a289e01b408e", "requests": [{"server": "web browser", "tool": "select an option in a dropdown menu"}]}
+{"id": "a4272bd5-9795-4bb0-a1fb-98745db6ebc7", "requests": [{"server": "web browser", "tool": "drag an element to a target element"}]}
+{"id": "9074d5a4-093c-4317-9c75-392a081a0922", "requests": [{"server": "file system", "tool": "read the content of multiple files simultaneously"}]}
+{"id": "f5ed8fe9-dd1c-42c9-8224-c6a5ecb0e56a", "requests": [{"server": "file system", "tool": "edit a file by replacing text"}]}
+{"id": "4cb7bc4d-9123-4174-bb12-9e93f6af49eb", "requests": [{"server": "file system", "tool": "read the content of multiple files simultaneously"}]}
+{"id": "af4db845-7a02-462f-b27b-235fbdd485ac", "requests": [{"server": "file system", "tool": "create a directory if it does not exist"}]}
+{"id": "8cac45c6-a9ef-4881-b0e0-4b444900bdfe", "requests": [{"server": "file system", "tool": "get a recursive tree view of a directory"}]}
+{"id": "26f9b4ea-6890-4de4-b90a-8e03cd48dd23", "requests": [{"server": "file system", "tool": "list files and directories with their types"}]}
+{"id": "f4515ccc-9a4d-43e0-899d-5745b063d4ca", "requests": [{"server": "file system", "tool": "list files and directories with sizes sorted by size"}]}
+{"id": "06e06509-6a90-4d36-b0f8-6aafe61f1f0b", "requests": [{"server": "file system", "tool": "list files and directories with sizes sorted by size"}]}
+{"id": "bd57b84c-a238-4fde-b8e9-eb62a5178837", "requests": [{"server": "file system", "tool": "list files and directories marked as file or directory"}]}
+{"id": "6d603172-74f2-4069-873e-299f921bb95b", "requests": [{"server": "file system", "tool": "get detailed metadata of a file or directory"}]}
+{"id": "fd0778b7-a64e-45fb-990f-586d82058609", "requests": [{"server": "file system", "tool": "get detailed metadata of a file"}]}
+{"id": "985f23ed-ff13-487f-bbea-df5d855103b8", "requests": [{"server": "file system", "tool": "read the content of multiple files simultaneously"}]}
+{"id": "f7c9dc0a-82da-46f4-8fec-267a15667700", "requests": [{"server": "stock market data", "tool": "get the current share price of a company"}]}
+{"id": "9c119ade-acd1-4d46-9602-78effdaba6f4", "requests": [{"server": "stock market data", "tool": "get the current share price of a company"}]}
+{"id": "524d99f9-92ca-4ffc-a304-4afe2bbf600a", "requests": [{"server": "stock market data", "tool": "get the current share price of a company"}]}
+{"id": "3e55b07f-7c07-4d5a-872a-e21992374779", "requests": [{"server": "stock market data", "tool": "get the current share price of a company"}]}
+{"id": "a387d26e-b0a6-4f36-9e69-4bf09e152710", "requests": [{"server": "stock market data", "tool": "get the current share price of a company"}]}
+{"id": "75720aba-da01-42ef-adac-60fb706575de", "requests": [{"server": "stock market data", "tool": "get the current share price of a company"}]}
+{"id": "b80fd290-d4a0-4e67-8611-2527eb5ed0b7", "requests": [{"server": "stock market data", "tool": "get the current share price of a company"}]}
+{"id": "5c481342-9ff4-4bb8-a618-1ac7d922b849", "requests": [{"server": "stock market data", "tool": "get the current share price of a company"}]}
+{"id": "532be0ed-95f3-4b41-81eb-8e0c67a03c82", "requests": [{"server": "stock market data", "tool": "get the current share price of a company"}]}
+{"id": "b297994f-25ea-4658-91f4-ad78015f33ec", "requests": [{"server": "stock market data", "tool": "get the current share price of a company"}]}
+{"id": "ecceaec8-36db-4850-8bdb-2ff9b5a77cbb", "requests": [{"server": "stock market data", "tool": "get the current share price of a company"}]}
+{"id": "be4a62ad-da86-4821-89e6-246943205480", "requests": [{"server": "stock market data", "tool": "get the current share price of a company"}]}
+{"id": "d8904635-6644-4c95-9512-e010942f8ace", "requests": [{"server": "stock market data", "tool": "get the current share price of a company"}]}
+{"id": "9659ccde-3b5e-46db-906e-7833683e0398", "requests": [{"server": "weather service", "tool": "get current weather and multi-day forecast for a city"}]}
+{"id": "e3c7da63-a5aa-48bd-a10e-1ba0a66eaa1a", "requests": [{"server": "map service", "tool": "search points of interest around a place"}]}
+{"id": "b3eb9a0c-8e78-488d-a1ce-da8821b25f07", "requests": [{"server": "map service", "tool": "get the current location of the user"}, {"server": "map service", "tool": "plan a navigation route from one location to a destination"}]}
+{"id": "f51bec22-4248-4abf-af58-b0bd8922ec8b", "requests": [{"server": "weather service", "tool": "get current weather for a city"}]}
+{"id": "b4854891-af6b-4fa6-9988-d194ed9377a2", "requests": [{"server": "map service", "tool": "get detailed information of a place including rating and opening hours"}]}
+{"id": "62a2c47c-ab84-4e31-b062-6b1149a88f84", "requests": [{"server": "map service", "tool": "search nearby places by keyword within a radius around a city"}]}
+{"id": "7a8bc174-93df-4c29-8c77-d5452180ad5a", "requests": [{"server": "map service", "tool": "plan a driving route between two cities"}]}
+{"id": "2c57e8a1-5bba-42f8-8c2f-050b80ff8363", "requests": [{"server": "map service", "tool": "reverse geocode coordinates to an address"}]}
+{"id": "286c5c0d-b2e5-4feb-8f8d-d7a6cca6faa4", "requests": [{"server": "map service", "tool": "search nearby restaurants within a radius around a landmark"}]}
+{"id": "093e44b8-eba5-4ae1-855d-8765f6d75252", "requests": [{"server": "map service", "tool": "geocode a landmark name to geographic coordinates"}]}
+{"id": "20ea566d-42c8-40a6-bc3d-cba1a33c5f20", "requests": [{"server": "map service", "tool": "geocode a landmark name to latitude and longitude"}]}
+{"id": "a57ddc87-fc4b-462e-ba74-520533162f25", "requests": [{"server": "map service", "tool": "plan a walking route between two coordinates"}]}
+{"id": "aacc25db-551c-457d-a4a6-aa59a6c40c29", "requests": [{"server": "payment platform", "tool": "refund a captured payment"}]}
+{"id": "a8a4db6d-3c05-46f2-9228-f2b0c892602d", "requests": [{"server": "payment platform", "tool": "create an invoice with item and amount"}]}
+{"id": "d1ea71cb-6bb5-4731-a670-53b88651ff46", "requests": [{"server": "payment platform", "tool": "create shipment tracking for a transaction with a tracking number"}]}
+{"id": "8fdfc65c-a517-4be3-89a3-7387b7cd8648", "requests": [{"server": "payment platform", "tool": "create an order with item quantity and total amount"}]}
+{"id": "a14c1def-87dd-459a-8a66-3a484f2be55b", "requests": [{"server": "payment platform", "tool": "create an invoice with item and amount"}]}
+{"id": "0ae9d22e-8711-42b7-a647-7191bb335752", "requests": [{"server": "payment platform", "tool": "create a subscription plan for a product with billing cycle"}]}
+{"id": "485f4615-b86c-4e85-a642-3a3e9a285f80", "requests": [{"server": "payment platform", "tool": "create a new digital product"}]}
+{"id": "29294319-ba4f-41f2-8ca9-9fd104902f46", "requests": [{"server": "payment platform", "tool": "create a subscription plan with a weekly billing cycle and fixed price"}]}
+{"id": "4f944c55-11cd-4679-9dba-1ed5a5695d07", "requests": [{"server": "payment platform", "tool": "create a new physical product"}]}
+{"id": "ed3e7696-4458-43e2-b042-ff37523c29db", "requests": [{"server": "payment platform", "tool": "refund a captured payment with a note"}]}
+{"id": "737955ce-6b25-4d05-b2f7-1e93974fc5e4", "requests": [{"server": "payment platform", "tool": "create shipment tracking with a tracking number"}]}
+{"id": "d51a4d18-edc7-42c9-b854-74dfaa40f6c0", "requests": [{"server": "payment platform", "tool": "create shipment tracking for a transaction with a tracking number"}]}
+{"id": "79a74e27-3126-430c-9087-7cbb421fed2c", "requests": [{"server": "payment platform", "tool": "create an invoice with item and amount"}]}
+{"id": "a5d66325-2a65-4486-8a80-f9d01b63a5a4", "requests": [{"server": "news search service", "tool": "search the latest news on a topic"}]}
+{"id": "514cd468-f4cb-4246-a39e-b14c6d68988e", "requests": [{"server": "web crawler", "tool": "crawl a website from a starting URL with a maximum depth and extract content in markdown"}]}
+{"id": "447bc618-7743-4608-a4c4-2d0af1c50879", "requests": [{"server": "news search service", "tool": "search the latest news on a topic with images included"}]}
+{"id": "0021b3ca-4a44-4c91-863a-d6cbf514a513", "requests": [{"server": "news search service", "tool": "search the latest news on a topic"}]}
+{"id": "28082564-8291-4187-87e9-2454c5b78cfd", "requests": [{"server": "web content extraction", "tool": "extract the content of web page URLs"}]}
+{"id": "3e785406-21bf-42a0-b124-2272905e9f0d", "requests": [{"server": "news search service", "tool": "search the latest news on a topic"}]}
+{"id": "8a3b5d95-d49b-4bce-9d21-63aa6b81e369", "requests": [{"server": "news search service", "tool": "search the latest news on a topic"}]}
+{"id": "389c36d0-a89f-4627-9e85-9e322a873213", "requests": [{"server": "news search service", "tool": "search the latest news on a topic"}]}
+{"id": "367548f5-7cbf-471c-8cd1-89ec98a02574", "requests": [{"server": "news search service", "tool": "search the latest news on a topic"}]}
+{"id": "ee793dad-2fc5-43fe-861f-5402f5ae184d", "requests": [{"server": "web content extraction", "tool": "extract the content of web page URLs"}]}
+{"id": "00d3a0e9-27da-43bb-aad0-07bef1f67b96", "requests": [{"server": "web crawler", "tool": "crawl a website from its homepage focusing on blogs and return markdown data"}]}
+{"id": "6f6f3685-e6b8-4c35-b4ac-268a883e1cbb", "requests": [{"server": "news search service", "tool": "search the latest news on a topic"}]}

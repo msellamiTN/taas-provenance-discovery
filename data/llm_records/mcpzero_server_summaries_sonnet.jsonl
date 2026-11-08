@@ -1,0 +1,76 @@
+{"server": "12306-mcp", "summary": "China Railway 12306 train ticket service. Tools query remaining tickets and transfer tickets, look up station codes by station or city name, get station details, train stop schedules, and the current date in Shanghai time."}
+{"server": "Ant Design Components", "summary": "Ant Design (antd) React UI library helper. Tools list components, fetch component documentation and API props, retrieve code examples, and show component changelogs for version decisions."}
+{"server": "Asset_Price_MCP", "summary": "Market price service. Retrieves current prices of assets such as precious metals and cryptocurrencies."}
+{"server": "Bazi", "summary": "Chinese Bazi (Four Pillars) astrology and almanac service. Tools compute Bazi charts from solar or lunar birth datetimes and gender, convert Bazi to solar times, and return the Chinese calendar (huangli) for a date."}
+{"server": "Context7", "summary": "Context7 library documentation service. Resolves a package or product name to a Context7 library ID and fetches up-to-date documentation for that library."}
+{"server": "MetaTagGenie", "summary": "Image metadata tool. Writes metadata such as tags, description, people and location into an image file."}
+{"server": "airbnb", "summary": "Airbnb platform. Tools search Airbnb listings with filters and pagination and fetch detailed information about a specific listing."}
+{"server": "amap-amap-sse", "summary": "Amap (Gaode) maps platform for China. Tools perform geocoding and reverse geocoding, POI keyword and nearby search, route planning (driving, walking, cycling, transit), distance measurement, IP location, weather, and generate navigation, taxi or map links."}
+{"server": "arxiv-mcp-server", "summary": "arXiv paper platform. Tools search arXiv papers with filters, download papers, list stored papers, and read the full stored paper content in markdown."}
+{"server": "baidu-maps-sse", "summary": "Baidu Maps platform. Tools geocode and reverse geocode, search places and place details, plan routes and batch route matrices, query real-time road traffic, weather, IP location, and generate shareable trip map links."}
+{"server": "basic-memory", "summary": "Basic Memory markdown knowledge base (Obsidian-style). Tools write, read, edit, move, delete and search notes, build context from memory URIs, view recent activity, create canvases, and manage and switch projects."}
+{"server": "biomcp", "summary": "Biomedical research platform. Tools search and fetch PubMed articles, ClinicalTrials.gov trials (protocol, outcomes, locations, references) and genetic variants (MyVariant.info), predict variant effects with AlphaGenome, and provide a structured thinking step."}
+{"server": "calculator", "summary": "Calculator. Evaluates mathematical expressions."}
+{"server": "chess", "summary": "Chess game. Tools start a new game, report whose turn it is, list legal moves, make moves in algebraic notation, render the board as an image, and find positions in PGN."}
+{"server": "coin-flip", "summary": "Coding-problem platform (LeetCode-style). Tools get problems, search problems, fetch the daily challenge, contest details, and a user's profile, submissions and contest ranking."}
+{"server": "datagov", "summary": "Data.gov open data catalog. Tools search datasets (packages), show dataset details, and list groups and tags."}
+{"server": "desktop-commander", "summary": "Local computer control. Tools read, write, edit, move, search and inspect files and directories, run and interact with terminal processes and sessions, and view or change server configuration."}
+{"server": "docker-mcp", "summary": "Docker platform. Tools create standalone containers, deploy Docker Compose stacks, list containers, and retrieve container logs."}
+{"server": "duckduckgo-search", "summary": "DuckDuckGo web search. Performs web searches for general queries, news and articles."}
+{"server": "excel", "summary": "Microsoft Excel files. Tools describe sheets, read sheet values with pagination, write values to sheets, create tables, and copy sheets."}
+{"server": "exchange-rate-mcp", "summary": "Currency exchange service using Norges Bank's API. Retrieves exchange rates between currencies for a given date."}
+{"server": "fetch", "summary": "Web page fetcher. Fetches a URL from the internet and optionally extracts its content as markdown."}
+{"server": "filesystem", "summary": "Local filesystem access. Tools read, write, edit, move and search files, create directories, list directories with or without sizes, show directory trees, get file metadata, and list allowed directories."}
+{"server": "finance-agent-mcp-server", "summary": "Global stock market data. Retrieves stock prices for symbol lists from global marketplaces such as Hong Kong listings."}
+{"server": "git", "summary": "Git version control. Tools initialize repositories, stage and commit changes, show status, diffs, logs and commits, list and create branches, checkout, and reset."}
+{"server": "google-maps", "summary": "Google Maps platform. Tools geocode and reverse geocode, search places, get place details, compute directions and distance matrices, and retrieve elevation data."}
+{"server": "google-search", "summary": "Google web search. Performs web search queries."}
+{"server": "hackernews", "summary": "Hacker News platform. Tools get stories by type, single stories with comments and comment trees, individual comments, user profiles and submissions, and search stories and comments."}
+{"server": "howtocook-mcp", "summary": "Chinese cooking recipe service (HowToCook). Tools list recipes, look them up by name, ID or category, recommend meals and weekly meal plans with shopping lists based on diet and headcount."}
+{"server": "hugeicons", "summary": "Hugeicons icon library. Tools list and search icons by name or tags and provide platform-specific usage instructions."}
+{"server": "image-extractor", "summary": "Image analysis. Tools extract and analyze images from base64 data, local files or URLs for visual understanding, OCR and object recognition."}
+{"server": "investor", "summary": "Financial market data for investors. Tools provide ticker info, price history, financial statements, earnings history, options, insider trades, institutional holders, and CNN and crypto Fear and Greed indexes."}
+{"server": "kospi-kosdaq", "summary": "Korean stock market (KOSPI and KOSDAQ). Tools load ticker lists and retrieve stock OHLCV prices, market capitalization, fundamentals (PER/PBR/dividend yield) and trading volume by investor type."}
+{"server": "magicuidesign_mcp", "summary": "Magic UI component library. Tools provide implementation details for animations, backgrounds, buttons, special effects, text animations, device mocks and other UI components."}
+{"server": "maven-deps-server", "summary": "Maven dependency lookup. Tools check whether a Maven artifact version exists, get its latest release, and list available versions."}
+{"server": "mcp-crypto-price", "summary": "Cryptocurrency market data. Tools get current price and 24h stats, historical price analysis, and market analysis including top exchanges and volume."}
+{"server": "mcp-deepwiki", "summary": "DeepWiki platform. Fetches a deepwiki.com repository page and returns it as Markdown."}
+{"server": "mcp-github-trending", "summary": "GitHub trending. Retrieves trending repositories and trending developers on GitHub."}
+{"server": "mcp-server-chart", "summary": "Chart and diagram generation. Tools generate many chart types (line, bar, column, pie, area, scatter, radar, sankey, treemap, etc.), maps, and diagrams such as flow, fishbone, mind map, organization and network graphs."}
+{"server": "mcp-simple-arxiv", "summary": "arXiv paper platform. Tools search papers by title and abstract with advanced syntax, get paper details and formats, list arXiv categories, and update the category taxonomy."}
+{"server": "memory", "summary": "Knowledge graph memory. Tools create, read, search and open entities, relations and observations, and delete entities, relations or observations."}
+{"server": "mermaid-validator", "summary": "Mermaid diagrams. Validates a Mermaid diagram and returns the rendered SVG if valid."}
+{"server": "met-museum", "summary": "Metropolitan Museum of Art collection. Tools search museum objects, get an object by ID, and list museum departments."}
+{"server": "mindmap", "summary": "Mind map generation. Converts Markdown content into a mind map as HTML or a file."}
+{"server": "music-analysis", "summary": "Audio and music analysis with librosa. Tools download audio from URLs or YouTube, load audio, get duration, and compute tempo, beat tracking, chroma CQT and MFCC features."}
+{"server": "npm-sentinel-mcp", "summary": "NPM package analysis. Tools search packages and get versions, latest release, README, dependencies, size, trends, quality, maintenance and score metrics, vulnerabilities, deprecation, licenses, maintainers, alternatives and TypeScript types."}
+{"server": "npx_fetch", "summary": "Web content fetcher. Fetches a URL and returns the content as HTML, JSON, Markdown or plain text."}
+{"server": "okppt", "summary": "PowerPoint (PPTX) editing with SVG. Tools insert, copy and delete slides, add slides with layouts, set or clear placeholders, analyze layouts, insert SVG images, save SVG code, convert SVG to PNG, and list files."}
+{"server": "opgg-mcp", "summary": "OP.GG gaming statistics. Tools cover League of Legends (champion analysis, summoners, match history, esports), Teamfight Tactics (decks, items) and Valorant (agents, maps, leaderboards, player match history)."}
+{"server": "osm-mcp-server", "summary": "OpenStreetMap location services. Tools geocode and reverse geocode, find nearby places, schools, parking and EV charging, search by category, get route directions, and analyze neighborhoods, commutes and meeting points."}
+{"server": "painter", "summary": "Drawing canvas. Tools generate a canvas, fill rectangles with colors, and get the canvas pixel data as JSON or a PNG image."}
+{"server": "paypal", "summary": "PayPal payments platform. Tools create orders, invoices, products, subscription plans, refunds and shipment tracking."}
+{"server": "pdf-reader-mcp", "summary": "PDF reading. Reads content and metadata from one or more local or URL PDFs, with page selection."}
+{"server": "playwright", "summary": "Playwright browser automation. Tools navigate, click, fill, hover, drag, select, upload files, evaluate JavaScript, take screenshots, save PDFs, read page text/HTML and console logs, perform HTTP requests, and record codegen test sessions."}
+{"server": "ppt", "summary": "PowerPoint presentation creation and editing (python-pptx style). Tools create, open and save presentations, add slides, text, tables, charts, shapes, images, connectors, apply templates, designs, transitions and manage fonts and masters."}
+{"server": "puppeteer", "summary": "Puppeteer browser automation. Tools navigate to URLs, click, fill, hover and select elements, evaluate JavaScript, and take screenshots."}
+{"server": "random-number", "summary": "Random generation. Tools produce random integers, floats, choices, samples and shuffles, plus cryptographically secure random integers and hex tokens."}
+{"server": "searxng", "summary": "Document and text processing utilities. Tools read documents, convert DOCX to HTML or PDF, read Excel, convert formats, clean and convert HTML, merge and split PDFs, diff, split and reformat text."}
+{"server": "sequential-thinking", "summary": "Structured reasoning. Provides a sequential thinking tool for dynamic, reflective step-by-step problem solving."}
+{"server": "shadcn-ui-server", "summary": "shadcn/ui component library. Tools list and search components and get component details and usage examples."}
+{"server": "sitemap", "summary": "Website sitemap analysis. Tools fetch and parse sitemap trees, list sitemap pages with filtering and pagination, get sitemap statistics, and parse sitemap content."}
+{"server": "taskmanager", "summary": "Task and request management. Tools plan requests with tasks, add, update, delete and inspect tasks, get the next task, mark tasks done, and approve task or request completion."}
+{"server": "tavily-mcp", "summary": "Tavily web search platform. Tools perform web search, extract content from URLs, map website structure, and crawl websites."}
+{"server": "text-editor", "summary": "Text file editing. Reads text file contents by line ranges and edits files with line-range patches using hash-based concurrency control."}
+{"server": "time", "summary": "Time and timezone service. Gets the current time in a timezone and converts time between timezones."}
+{"server": "trends-hub", "summary": "Chinese and tech news trending hub. Tools fetch hot lists and news from Weibo, Zhihu, Douyin, Bilibili, Douban, Toutiao, 36Kr, Juejin, BBC, NYTimes, The Verge and similar sources."}
+{"server": "weather", "summary": "Weather service. Gets current weather and forecast by coordinates or by city name."}
+{"server": "web3-research-mcp", "summary": "Web3 and crypto research. Tools create research plans, research tokens, sources and keywords, search and fetch content, list resources, and update research status."}
+{"server": "whois", "summary": "WHOIS lookup. Tools look up registration information for domains, IP addresses, ASNs and top-level domains."}
+{"server": "wikipedia", "summary": "Wikipedia. Tools search articles, get full article content, summaries, sections and links, extract key facts, find related topics, and produce query-focused summaries of articles or sections."}
+{"server": "word-document-server", "summary": "Microsoft Word (.docx) documents. Tools create and copy documents, add headings, paragraphs, tables, pictures, footnotes and page breaks, format text and tables, search and replace, extract text, protect documents, and convert to PDF."}
+{"server": "wuwa-mcp", "summary": "Wuthering Waves game information from Kuro BBS (Kujiequ). Tools retrieve character details and guides, character profiles, and echo artifact set information."}
+{"server": "yahoo-finance", "summary": "Yahoo Finance stock data. Tools get current and historical stock prices, dividends, income statements, cashflow, earnings dates, analyst recommendations and news."}
+{"server": "yfmcp", "summary": "Yahoo Finance data. Tools fetch price history, ticker info, ticker news, top entities in a sector, and search results for quotes and news."}
+{"server": "ygocdb", "summary": "Yu-Gi-Oh card database (YGOCDB). Tools search cards by keyword, get card details by ID, and get card images."}
+{"server": "youtube-transcript", "summary": "YouTube transcripts. Extracts the transcript of a YouTube video from a URL or ID."}

@@ -1,0 +1,454 @@
+[
+ {
+  "id": "629106a5-9508-4ac9-97c3-f22f6069ee7f",
+  "query": "My goal is to reach Radiant in Valorant, what should I focus on to improve and start climbing?"
+ },
+ {
+  "id": "2b96c022-a2db-47a5-981a-03cc6ad8f95e",
+  "query": "Run a full reconnaissance on www.baidu.com. Give me a markdown report on /root/markdown/baidu_report.md with whois information and sitemap."
+ },
+ {
+  "id": "be3f2275-15a4-4e05-b3cb-b0eeb9109d3a",
+  "query": "Help me check the high-speed train tickets from Beijing to Shanghai on next Wednesday."
+ },
+ {
+  "id": "4de2e9f7-f3ea-4d02-8532-0a1b0b530609",
+  "query": "Read the sales data under /root/excel/Local_Electronic_Sales.xlsx, plot it as a bar chart by month and save it in /root/figs/sale.png"
+ },
+ {
+  "id": "9fc8b7f3-776c-4756-bb84-a7ae667521a9",
+  "query": "Help me find Mr. Lu Yaojie's resume in the Chinese Information Processing Laboratory of the Institute of Software and save it to /root/markdown/cv.md."
+ },
+ {
+  "id": "cda14e48-b067-48fc-94de-bb8ec090b952",
+  "query": "draw cowboy using canvas "
+ },
+ {
+  "id": "2bf318d4-754d-43f3-a1b5-cb2f50a7d144",
+  "query": "What are the emerging treatment strategies for head and neck cancer, write the report to /root/markdown/cancer.md?"
+ },
+ {
+  "id": "37d72d03-29ae-48d1-9a48-66c9294d82fa",
+  "query": "Analyze the last 24h of BTC and remind me if there is anything I need to pay special attention to"
+ },
+ {
+  "id": "5b2087e4-4c07-4e0d-9b2f-79514ce465f5",
+  "query": "I play mid lane in League of Legends and want to improve. Provide champion recommendations with optimal item builds, runes, and summoner spells."
+ },
+ {
+  "id": "4aa079dd-9d2d-440d-a654-9ba9cb3868b0",
+  "query": "Read the paper webarena, mind2web and mind2web2, then create a Comparison Report in /root/markdown/compare_webagent.md"
+ },
+ {
+  "id": "fab605cf-d337-4ac1-beba-b3f563eaffff",
+  "query": "What is the current effect text of 'Sky Striker Ace = Zero', and what are its ATK and DEF? Show me the picture."
+ },
+ {
+  "id": "9a18862e-22ce-46e7-b46a-72c6f5c79b23",
+  "query": "Get line 10 of /root/txt/Android.txt, please note that this file is very large"
+ },
+ {
+  "id": "fbe982c3-4142-40ec-8541-e06d7ab2e399",
+  "query": "I need a Word document summarizing NIO. Please title it 'NIO Company Overview' and include three headed sections: a brief introduction from Wikipedia, three major news updates from the last quarter as bullet points, and a list of their main vehicle models. Finally, save it in /root/word/nio.docx"
+ },
+ {
+  "id": "90098a9c-2a37-4655-82b1-6b58c5154660",
+  "query": "I'm using shadcn/ui to build a 'create post' page. I have two input fields, one for the title and one for the content. I want the 'Publish' button at the bottom to be disabled if either the title or content is empty. It should only become clickable when both fields are filled. How can I achieve this? Please provide a complete React/TypeScript example using the Input and Button components from shadcn/ui and save the code to /root/code/shadcn_ui.ts"
+ },
+ {
+  "id": "2f8db365-6b8b-4188-8812-4efcf91a40bd",
+  "query": "Recommend a gaming PC build for playing the latest Call of Duty, along with an approximate budget."
+ },
+ {
+  "id": "507f592a-f21f-45f6-bbde-dadb86441791",
+  "query": "Read the customer information in /root/csv/customers-100.csv and tell me Sheryl Meyers's email address"
+ },
+ {
+  "id": "9bc7feb8-2db9-4c5b-8ad9-44ff15748bf6",
+  "query": "Provide a foundational overview of Convolutional Neural Networks (CNNs), referencing Wikipedia. Generate a simple CNN example as a Python script and save it to /root/code/cnn_example.py."
+ },
+ {
+  "id": "e28e8dcb-3ccb-406d-a2c7-f5670d649979",
+  "query": "Help me view recent finance-related news, categorize financial news by sentiment, and extract key entities (companies, people, products) and important financial events."
+ },
+ {
+  "id": "cab818f4-ee48-440b-a37e-564c4edf401a",
+  "query": "What's the weather like in Beijing in the last few days? Give me some advice on what to wear!"
+ },
+ {
+  "id": "84326f9f-d4b7-4dc8-b9e0-3c8868a3f79f",
+  "query": "Read the comments on hacker news story 44490510 and help me summarize the views in the comments."
+ },
+ {
+  "id": "49cdaab7-39f0-4556-a3bb-7bd523916b32",
+  "query": "We have organized an online raffle with the following list of participants: [‘Alice’, ‘Bob’, ‘Charlie’, ‘David’, ‘Eve’]. Please choose one lucky winner at random from this list."
+ },
+ {
+  "id": "80bb6782-58c0-4d5e-9022-5173be685833",
+  "query": "My after-tax income last month was 15,000 CNY, and my main expenses were 3,000 CNY for rent, 2,500 CNY for meals, 500 CNY for transportation, and 1,200 CNY for shopping. Please help me calculate what my balance was last month. And visualize these data in a pie chart. Also, please take the current exchange rate of RMB to USD and calculate how much my balance is converted to USD?"
+ },
+ {
+  "id": "614189f6-b70d-4144-87ad-f27209f0ec14",
+  "query": "What's on the zhihu and bilibili trendings today? Help me recommend something tech related!"
+ },
+ {
+  "id": "96aaa4aa-b7da-4484-a979-b924b749448e",
+  "query": "How can I drag an element with the class 'item-to-move' to the target location with the class 'target-area' on a webpage?"
+ },
+ {
+  "id": "c2ac8b81-e908-498a-beec-93ff3ebc920f",
+  "query": "Start a new code generation session with the output path set to /opt/tests, test name prefix as GeneratedTest, and include comments set to True."
+ },
+ {
+  "id": "bb96ebd3-0379-4d7d-8b39-e0813bee5736",
+  "query": "Execute the JavaScript code alert('test') in the browser console."
+ },
+ {
+  "id": "a4cef0af-54d6-46c5-b3d4-78e2c408f10e",
+  "query": "What are the files and directories in the path ./test_project_root/tests with their types indicated?"
+ },
+ {
+  "id": "22013b6c-aea3-4a92-9800-665c62050b35",
+  "query": "What is the detailed metadata of the file or directory located at ./test_project_root/src/utils/file_utils.py?"
+ },
+ {
+  "id": "cc7d234c-d1ee-4d4b-a95c-f8b45c0e3ec4",
+  "query": "What is the current share price of Microsoft?"
+ },
+ {
+  "id": "35a9931a-c4cb-4058-bcb9-4e8d1d3d87ee",
+  "query": "What is the current share price of Tesla in the US market?"
+ },
+ {
+  "id": "da3b76c5-fa4d-41aa-8d01-e2745433d868",
+  "query": "What is the current share price of Midea Group?"
+ },
+ {
+  "id": "a20e9688-16f7-4b51-be5e-4a86a97765ac",
+  "query": "What are the driving directions from New York, NY to Denver, CO?"
+ },
+ {
+  "id": "908644cf-1176-41d9-81ca-af23a5f4e3d1",
+  "query": "¿Dónde se encuentra la ubicación de la dirección IP 10.0.0.2?"
+ },
+ {
+  "id": "d7afdb95-1314-4029-903b-b4f8b1c9e569",
+  "query": "Create a shipment tracking for transaction ID 7KL12345GHI67890 with tracking number 123456789012."
+ },
+ {
+  "id": "04a9da6d-88a9-469b-82eb-17e6f75b2fea",
+  "query": "Initiate a refund for the capture ID CAPTURE54321 with a partial amount of 75.00 GBP and note Refund for late delivery."
+ },
+ {
+  "id": "ce274650-d2d8-46a7-8d8e-11c6f78c8953",
+  "query": "Create an invoice for Green Thumb Landscaping for Garden Maintenance costing 150.00 USD."
+ },
+ {
+  "id": "1025ccd4-b5b8-410a-bf49-0b55e7c04483",
+  "query": "Find information about artificial intelligence developments."
+ },
+ {
+  "id": "5273030e-e323-4ccd-8713-9295ba2c5347",
+  "query": "Find recent news about healthcare advancements in the United Kingdom."
+ },
+ {
+  "id": "8a98aa9f-e59e-426e-a73a-5df4a1523253",
+  "query": "Can you perform an HTTP GET request on https://www.qq.com?"
+ },
+ {
+  "id": "17ed254e-068f-4b29-ba90-d6468c68fb4e",
+  "query": "Fill the .search-input element inside the iframe identified by #externalFrame with the text 'Search Keywords'."
+ },
+ {
+  "id": "963d8e96-6059-44f2-a1d9-382075253b89",
+  "query": "How can I drag an element from the slider thumb to the slider track?"
+ },
+ {
+  "id": "5de80027-ea8f-479a-abf3-440659f43afe",
+  "query": "Retrieve information for code generation session with ID session001"
+ },
+ {
+  "id": "ac6e0ac3-0160-418b-9933-4fbc32a943de",
+  "query": "How can I click on the submit button within the iframe on the webpage?"
+ },
+ {
+  "id": "ddd9cbd9-b689-46a1-bdd3-270113a38b06",
+  "query": "How can I drag the element with the selector #slider to the target with the selector #slider-end?"
+ },
+ {
+  "id": "3a9b097c-ff53-4724-81d6-f24f721d85b2",
+  "query": "Can you hover over the element with the selector .login-btn on the page?"
+ },
+ {
+  "id": "fa7b77f3-1a68-410f-bc18-6a9edfeff859",
+  "query": "Fetch the content from the URL https://www.sina.com.cn using an HTTP GET request."
+ },
+ {
+  "id": "7cab32b7-c5fb-473f-b20d-e34042d544e4",
+  "query": "Navigate to the website https://www.baidu.com using Puppeteer."
+ },
+ {
+  "id": "85c469d0-db4d-4a7c-b083-dcda309548d1",
+  "query": "Drag the element from #element1 to #element2."
+ },
+ {
+  "id": "9b0eabaf-7a95-4f91-90ef-87c8affe083f",
+  "query": "Fill the input field identified by #phone with the value 13800138000."
+ },
+ {
+  "id": "5a2c6335-1975-430a-b642-698be5518fb1",
+  "query": "Enter 'search query' into the search input field."
+ },
+ {
+  "id": "f28225c7-7fc2-40ae-9b73-cd13081fb649",
+  "query": "Execute JavaScript code to change the webpage title to 'Dynamic Title Change'."
+ },
+ {
+  "id": "bf1a44d9-48c5-4530-bfdf-515a18d2ca7e",
+  "query": "Provide a recursive tree view of files and directories at the path ./test_project_root/data, including sizes."
+ },
+ {
+  "id": "4d313c1e-d088-4f91-b794-99ca8374f121",
+  "query": "Retrieve detailed metadata about the file or directory located at ./test_project_root/docs/README.md."
+ },
+ {
+  "id": "f3e7e805-b0de-4412-b3bd-1c8772f0817a",
+  "query": "Find all files and directories in the 'test_project_root/src' directory that match the pattern 'main'."
+ },
+ {
+  "id": "fc46bfe4-f7c2-468e-86f0-33e7db5fa091",
+  "query": "Find all files and directories matching the pattern 'test' in the path './test_project_root/tests'."
+ },
+ {
+  "id": "e30deb39-fe2b-41cc-b192-e52161541e3f",
+  "query": "Read the contents of the files located at ./test_project_root/src/utils/file_utils.py and ./test_project_root/requirements.txt at the same time."
+ },
+ {
+  "id": "14b7224d-7071-4c82-849b-3291ef66c724",
+  "query": "Edit the README.md file located at ./test_project_root/docs/ by replacing the text 'Usage' with 'How to Use'."
+ },
+ {
+  "id": "33b23019-f7b6-4254-a6ff-26f12d921a0f",
+  "query": "What are the files and directories in the path ./test_project_root/data with detailed prefixes?"
+ },
+ {
+  "id": "e99beb32-2063-41bd-bce3-6ec3a1cf2f67",
+  "query": "Create a directory at the path ./test_project_root/tests/unit/new_tests."
+ },
+ {
+  "id": "b905db7f-dede-4681-9648-2e9deaada313",
+  "query": "What are the detailed metadata and characteristics of the file or directory located at the path ./test_project_root/tests/unit/test_calculations.py?"
+ },
+ {
+  "id": "d8f4fe3a-354d-4dba-9fb2-9c236cbdb287",
+  "query": "List all files and directories in the path ./test_project_root/data, distinguishing between files and directories."
+ },
+ {
+  "id": "be16b992-6095-4388-9368-d5b17229a98e",
+  "query": "Read the contents of the files test_file_json_1.json and test_file_csv_1.csv simultaneously."
+ },
+ {
+  "id": "54c2d449-fed5-4f14-b895-4fa6844e2869",
+  "query": "What are the files and directories in the path ./test_project_root/src with detailed prefixes?"
+ },
+ {
+  "id": "8ea25e94-a589-4203-9d02-df4a76496b2c",
+  "query": "What is the current share price of Kweichow Moutai in the CN_MAINLAND market?"
+ },
+ {
+  "id": "a8d25635-8f19-4d4e-ba6f-3c5bad78dd47",
+  "query": "What is the current share price of JD Health?"
+ },
+ {
+  "id": "a1364525-50b7-4769-95af-e3085788ddff",
+  "query": "What is the current share price of Gree Electric Appliances?"
+ },
+ {
+  "id": "20dfe76f-9b1a-439d-afc4-dfe058843a7c",
+  "query": "What is the current share price of CATL?"
+ },
+ {
+  "id": "217cfc0e-1b6c-4f45-bcf9-f747dce85caf",
+  "query": "What is the current share price of China Petroleum & Chemical Corporation?"
+ },
+ {
+  "id": "b929ff19-36ef-4a4f-b48c-edbd1113ba5e",
+  "query": "What is the current share price of Bank of America in the US market?"
+ },
+ {
+  "id": "65bfdf49-9f43-425c-bc08-ad46915d191e",
+  "query": "What is the current share price of Walmart?"
+ },
+ {
+  "id": "ef7eee6c-f2ef-4c33-b020-3763cddc0b51",
+  "query": "What is the current share price of BYD Company Limited?"
+ },
+ {
+  "id": "5645c67d-431a-4a4e-a946-840babf2c21f",
+  "query": "What is the current share price of Pfizer?"
+ },
+ {
+  "id": "29220a12-4347-401d-93b3-73921973a353",
+  "query": "What is the current share price of Mastercard?"
+ },
+ {
+  "id": "941e410c-edf0-4924-a409-78e13f1da618",
+  "query": "What is the current share price of JPMorgan Chase in the US market?"
+ },
+ {
+  "id": "89d5c2ac-f9a9-4a60-ad29-24f5c9a89cd6",
+  "query": "What is the current share price of Coca-Cola?"
+ },
+ {
+  "id": "1e0207d2-f60a-4125-a9f1-c209392a61f5",
+  "query": "What is the current share price of Alibaba?"
+ },
+ {
+  "id": "a4c6e6be-7413-493f-911d-67f734b67f93",
+  "query": "What is the address for the coordinates at latitude 35.689487 and longitude -118.243683?"
+ },
+ {
+  "id": "b6face32-5ea5-41ce-97bc-b10f3cd791ab",
+  "query": "What is the driving distance from Shenzhen to Tianjin?"
+ },
+ {
+  "id": "afbd391e-ab3e-4c3c-b99d-a993f8c08007",
+  "query": "Find parks around London within a radius of 2500 meters."
+ },
+ {
+  "id": "6facf1a3-aa9b-403b-ae83-32dcb7a7d97d",
+  "query": "What are the directions from the Eiffel Tower in Paris to the Louvre Museum in Paris using public transit?"
+ },
+ {
+  "id": "ecff92ae-826c-4165-a744-22409ac3612d",
+  "query": "東京タワーの緯度と経度を教えてください。"
+ },
+ {
+  "id": "5fd225ba-cc69-484f-8f70-21894c82dcf8",
+  "query": "从北京到上海的驾车距离是多少？"
+ },
+ {
+  "id": "1592690e-fed4-4a56-8ef3-46bb49160035",
+  "query": "What is the location of the IP address 172.16.0.0?"
+ },
+ {
+  "id": "0afc200d-8e81-454a-b7f1-b2290e9adb69",
+  "query": "What is the administrative address of the location at the coordinates 35.6895, 139.6917?"
+ },
+ {
+  "id": "6c6f01c8-9ef0-4196-8332-68d5bc9af031",
+  "query": "What is the best driving route from Sydney, Australia to Melbourne, Australia?"
+ },
+ {
+  "id": "9fbabe0a-adac-48df-bf94-b56960fdb737",
+  "query": "What is the administrative address for the location with coordinates 48.8566, 2.3522?"
+ },
+ {
+  "id": "9672b725-b97c-4153-9186-cc78bf2a221e",
+  "query": "What are the details of the place with the Google Maps ID ChIJrTLr-GyuEmsRBfy61i59si0?"
+ },
+ {
+  "id": "58fdd3bf-8524-488c-91f1-87edae7b8439",
+  "query": "Can you create a travel map for the itinerary: Tour the West Lake and Lingyin Temple in Hangzhou?"
+ },
+ {
+  "id": "65487bf5-4cc0-4096-a59f-6ee1072b5d32",
+  "query": "Create a subscription plan for the product with ID PROD-14151, named 'Enterprise Plan', including billing cycle details."
+ },
+ {
+  "id": "a2d4c502-aecf-4ae8-9915-910b0e5ce9c7",
+  "query": "Initiate a refund for the capture with ID CAPTURE12345 with a note saying Refund issued due to product defect."
+ },
+ {
+  "id": "3339dc69-5515-4f2d-9a23-359dc6846ec0",
+  "query": "Create a subscription plan for the product identified by PROD-11223 named Basic Plan with billing cycles every 2 weeks."
+ },
+ {
+  "id": "cf50d76e-3b2f-473e-9a46-a1b90979d2c3",
+  "query": "Create a new product called Online Yoga Classes as a SERVICE in PayPal."
+ },
+ {
+  "id": "2c1d5cbf-c9fa-404f-a950-63db56335a69",
+  "query": "Create a subscription plan for the product with ID PROD-141516, named Weekly Starter Plan, including billing cycle details."
+ },
+ {
+  "id": "e23c10ff-6255-40d3-8fab-f5ee838fa64b",
+  "query": "Create a shipment tracking for transaction ID 1QW23456MNO87654 with tracking number EC123456789US."
+ },
+ {
+  "id": "a8604453-34d8-45b2-81cd-05bbc26ca1b8",
+  "query": "Create a new product named Online Yoga Classes with the type SERVICE."
+ },
+ {
+  "id": "87c31bfa-6c92-4ce4-a479-d842865afab7",
+  "query": "Initiate a refund for the capture ID CAPTURE54321 with a partial amount of GBP 20.00 and note: Refund due to late delivery."
+ },
+ {
+  "id": "a9d7d3e2-5396-4520-b3d7-f8c98a248dc9",
+  "query": "Create an invoice for Auto Parts Co. with 50 Car Tires priced at 80.00 CAD each."
+ },
+ {
+  "id": "e6a6481e-c5a3-4480-8243-a933a02b32ae",
+  "query": "Create a subscription plan for the product with the name Standard Plan and billing cycle details."
+ },
+ {
+  "id": "5f60f709-4d66-4420-9646-4caf4dd16e48",
+  "query": "Create a PayPal order for a Wireless Mouse with a quantity of 2 and a total cost of 31.98 USD."
+ },
+ {
+  "id": "617680a6-0afa-4d25-a42f-b9b3c904225d",
+  "query": "Create a shipment tracking for transaction ID 3QR67890STU54321 with tracking number 6789012345."
+ },
+ {
+  "id": "ca748068-c885-4004-ab0b-142d4d195733",
+  "query": "Create a new product called Home Cleaning Service of type SERVICE in PayPal."
+ },
+ {
+  "id": "78844c7f-6bb1-4399-8d48-ecb7cb69a612",
+  "query": "Extract content from the website Hacker News with advanced depth, including images, in text format."
+ },
+ {
+  "id": "1aff53b9-c7db-42cf-8de0-9b208ec9b708",
+  "query": "Find the latest news on global health in India with images included."
+ },
+ {
+  "id": "ad736674-cabc-49b9-9bf5-e10968809b39",
+  "query": "Find information about healthy eating tips."
+ },
+ {
+  "id": "b0a91316-9fbd-4334-a7de-d0b2c602c579",
+  "query": "Can you extract content from the following URLs: https://www.bbc.com/news, https://www.nytimes.com/?"
+ },
+ {
+  "id": "1e2e5bf6-cad2-47fc-9e07-927a2d2e9f2b",
+  "query": "Start a web crawl from https://sample.com, specifically focusing on the Careers category."
+ },
+ {
+  "id": "e0327489-b6db-4145-aa8f-04e3ef2ef657",
+  "query": "Extract content from the following URLs: https://www.bbc.com/news, https://www.cnn.com, using basic depth and markdown format."
+ },
+ {
+  "id": "1ee15879-f384-4888-931c-73165f4da897",
+  "query": "Find the latest news about sports events in Australia."
+ },
+ {
+  "id": "de6c6426-407f-4025-b8a1-9e77c94c7b09",
+  "query": "Find the latest news about the cryptocurrency market."
+ },
+ {
+  "id": "0587f202-6a6a-47ae-ac0c-a75d66cbd3ae",
+  "query": "Can you map out the site structure for https://www.bbc.com?"
+ },
+ {
+  "id": "ae68fcb7-b247-40ad-8f66-591ce434e1e4",
+  "query": "Find the latest news on technology advancements from Germany"
+ },
+ {
+  "id": "04323a29-a020-4932-9de8-f2e0cb10526b",
+  "query": "Can you perform a web crawl starting from Apple's official website focusing on Media and retrieve the data in markdown format?"
+ },
+ {
+  "id": "7f44a3c6-e85a-4845-80d1-4c96b0c1ae31",
+  "query": "Can you extract content from the following URLs: https://www.apple.com, https://www.microsoft.com?"
+ }
+]

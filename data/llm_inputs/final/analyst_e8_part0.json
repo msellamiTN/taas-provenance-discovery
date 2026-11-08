@@ -1,0 +1,702 @@
+[
+ {
+  "id": "8a98aa9f-e59e-426e-a73a-5df4a1523253",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Can you perform an HTTP GET request on https://www.qq.com?",
+  "context": ""
+ },
+ {
+  "id": "fa5817ce-c273-4f77-8b68-bda1e6b8e095",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Drag the element from the drag source to the drop target.",
+  "context": ""
+ },
+ {
+  "id": "d7a94f27-261e-4962-9ba4-9f818e1298fc",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Start a new code generation session with the output path set to /usr/local/tests, using 'MyTest' as the test name prefix, and set include comments to False.",
+  "context": ""
+ },
+ {
+  "id": "ea38b434-1a6d-4079-b9d2-614e6dbf889b",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Navigate to the website https://www.jd.com using the browser webkit.",
+  "context": ""
+ },
+ {
+  "id": "5de80027-ea8f-479a-abf3-440659f43afe",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Retrieve information for code generation session with ID session001",
+  "context": ""
+ },
+ {
+  "id": "b313f530-41fd-45cf-8a88-63e66207fe8c",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "How can I simulate pressing the Escape key on a webpage?",
+  "context": ""
+ },
+ {
+  "id": "6d8a2831-12a6-4ea0-9a34-d1ec65069b1a",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Select the option with the value 'US' from the dropdown menu identified by '#countryDropdown'.",
+  "context": ""
+ },
+ {
+  "id": "ac9cf055-c334-4089-96a2-df9a7aa26216",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Execute the script window.scrollTo(0, document.body.scrollHeight) in the browser console.",
+  "context": ""
+ },
+ {
+  "id": "3a9b097c-ff53-4724-81d6-f24f721d85b2",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Can you hover over the element with the selector .login-btn on the page?",
+  "context": ""
+ },
+ {
+  "id": "fe6da312-6b10-49cf-9d44-9bec31d9de22",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Take a screenshot of the element with the selector .content on the page and name it content_screenshot.",
+  "context": ""
+ },
+ {
+  "id": "1736f391-a31c-44ae-8414-37ab85b5839c",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Please click the element with the selector .submit-form on the webpage.",
+  "context": ""
+ },
+ {
+  "id": "eeff8b1d-99ef-4cca-8ae4-3c666045b375",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Can you hover over the element with the selector .login-btn on the webpage?",
+  "context": ""
+ },
+ {
+  "id": "85c469d0-db4d-4a7c-b083-dcda309548d1",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Drag the element from #element1 to #element2.",
+  "context": ""
+ },
+ {
+  "id": "50194534-2d07-4147-9c7e-830a54d35482",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Can you hover over the element with the selector #footer-links on the webpage?",
+  "context": ""
+ },
+ {
+  "id": "1f4a53f9-0865-4ea3-80d5-be1251185548",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Execute the JavaScript code 'alert(\"Hello World!\")' in the browser console.",
+  "context": ""
+ },
+ {
+  "id": "71e3928b-7bdc-4e7d-b8d2-a289e01b408e",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Select the GMT option from the dropdown menu identified by #timeZoneSelect.",
+  "context": ""
+ },
+ {
+  "id": "f28225c7-7fc2-40ae-9b73-cd13081fb649",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Execute JavaScript code to change the webpage title to 'Dynamic Title Change'.",
+  "context": ""
+ },
+ {
+  "id": "93838865-7737-422e-9467-00c485a30838",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "List all files and directories in the path ./test_project_root/data with their types.",
+  "context": ""
+ },
+ {
+  "id": "6f95043e-47e6-422b-915a-ac8c6750704c",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Find all files and directories matching the pattern 'main' in the path './test_project_root/src'.",
+  "context": ""
+ },
+ {
+  "id": "f5ed8fe9-dd1c-42c9-8224-c6a5ecb0e56a",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Edit the file located at './test_project_root/src/utils/file_utils.py' by replacing the text 'import os' with 'import sys'.",
+  "context": ""
+ },
+ {
+  "id": "f3e7e805-b0de-4412-b3bd-1c8772f0817a",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Find all files and directories in the 'test_project_root/src' directory that match the pattern 'main'.",
+  "context": ""
+ },
+ {
+  "id": "bd8509d8-d3a9-4024-98d1-f6178cf3a63e",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Read the contents of the files located at ./test_project_root/data/test_file_json_1.json and ./test_project_root/data/test_file_json_2.json simultaneously.",
+  "context": ""
+ },
+ {
+  "id": "a7a2c768-d545-4fa4-8e71-3ad88b7782c9",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Provide a detailed list of all files and directories in the path ./test_project_root/tests, sorted by name, including their sizes.",
+  "context": ""
+ },
+ {
+  "id": "8cac45c6-a9ef-4881-b0e0-4b444900bdfe",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Provide a recursive tree view of the files and directories located at ./test_project_root/src.",
+  "context": ""
+ },
+ {
+  "id": "14b7224d-7071-4c82-849b-3291ef66c724",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Edit the README.md file located at ./test_project_root/docs/ by replacing the text 'Usage' with 'How to Use'.",
+  "context": ""
+ },
+ {
+  "id": "82b991e2-8923-4ca9-8331-197e32b15001",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Ensure the directory ./test_project_root/src/utils exists or create it if it does not.",
+  "context": ""
+ },
+ {
+  "id": "2d595108-3d40-48d9-b93c-850fb2690baa",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Find all files and directories with the name README in the path ./test_project_root/docs.",
+  "context": ""
+ },
+ {
+  "id": "06e06509-6a90-4d36-b0f8-6aafe61f1f0b",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Provide a detailed listing of all files and directories in the path ./test_project_root/docs, including their sizes, sorted by size.",
+  "context": ""
+ },
+ {
+  "id": "b905db7f-dede-4681-9648-2e9deaada313",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "What are the detailed metadata and characteristics of the file or directory located at the path ./test_project_root/tests/unit/test_calculations.py?",
+  "context": ""
+ },
+ {
+  "id": "e6ef9ddb-f182-4b83-b4a6-50bdc6ae1861",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "List all files and directories in the path ./test_project_root/tests, distinguishing between files and directories.",
+  "context": ""
+ },
+ {
+  "id": "c352f629-e295-46ef-9bf2-982b2f9a22cd",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Read the contents of the files located at ./test_project_root/src/main.py and ./test_project_root/src/utils/file_utils.py at the same time.",
+  "context": ""
+ },
+ {
+  "id": "fd0778b7-a64e-45fb-990f-586d82058609",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Can you provide detailed metadata for the file located at ./test_project_root/data/test_file_json_1.json?",
+  "context": ""
+ },
+ {
+  "id": "54c2d449-fed5-4f14-b895-4fa6844e2869",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "What are the files and directories in the path ./test_project_root/src with detailed prefixes?",
+  "context": ""
+ },
+ {
+  "id": "0d99bb9b-b121-4e67-a1f2-41ae95c4c94e",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "What files and directories, along with their types, are present in the path ./test_project_root/tests?",
+  "context": ""
+ },
+ {
+  "id": "bc1c406b-1edf-4040-a628-d898f8e142c0",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Royal Dutch Shell?",
+  "context": ""
+ },
+ {
+  "id": "9c119ade-acd1-4d46-9602-78effdaba6f4",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Procter & Gamble in the US market?",
+  "context": ""
+ },
+ {
+  "id": "a1364525-50b7-4769-95af-e3085788ddff",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Gree Electric Appliances?",
+  "context": ""
+ },
+ {
+  "id": "dd3a6b02-eece-4589-9579-048c237aabd3",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Sany Heavy Industry?",
+  "context": ""
+ },
+ {
+  "id": "f5af0f31-b190-4e42-bd84-6d28264f1773",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Microsoft in the US market?",
+  "context": ""
+ },
+ {
+  "id": "a387d26e-b0a6-4f36-9e69-4bf09e152710",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of UnitedHealth Group in the US market?",
+  "context": ""
+ },
+ {
+  "id": "b929ff19-36ef-4a4f-b48c-edbd1113ba5e",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Bank of America in the US market?",
+  "context": ""
+ },
+ {
+  "id": "2f318b3c-420c-4647-9bee-1b040bea5321",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of SAIC Motor Corporation Limited?",
+  "context": ""
+ },
+ {
+  "id": "8233efdb-274f-4930-8a9d-2ebb28a89d88",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of CITIC Securities?",
+  "context": ""
+ },
+ {
+  "id": "5c481342-9ff4-4bb8-a618-1ac7d922b849",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Google in the US market?",
+  "context": ""
+ },
+ {
+  "id": "5645c67d-431a-4a4e-a946-840babf2c21f",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Pfizer?",
+  "context": ""
+ },
+ {
+  "id": "e79584fe-ec53-4471-9f65-b0f1a132009e",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Gree Electric?",
+  "context": ""
+ },
+ {
+  "id": "3dfbbea4-e57e-46ce-9e04-969df291543a",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Kweichow Moutai?",
+  "context": ""
+ },
+ {
+  "id": "ecceaec8-36db-4850-8bdb-2ff9b5a77cbb",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Shanghai Pudong Development Bank?",
+  "context": ""
+ },
+ {
+  "id": "89d5c2ac-f9a9-4a60-ad29-24f5c9a89cd6",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Coca-Cola?",
+  "context": ""
+ },
+ {
+  "id": "7d3456db-a39c-4053-9e31-0467a7963049",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of China State Construction Engineering Corporation?",
+  "context": ""
+ },
+ {
+  "id": "8c05cc75-214f-4fdc-ae66-815fcac6ed50",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the address at the coordinates 48.8566, 2.3522?",
+  "context": ""
+ },
+ {
+  "id": "9659ccde-3b5e-46db-906e-7833683e0398",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the current weather and the 5-day forecast for London?",
+  "context": ""
+ },
+ {
+  "id": "b6face32-5ea5-41ce-97bc-b10f3cd791ab",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the driving distance from Shenzhen to Tianjin?",
+  "context": ""
+ },
+ {
+  "id": "a65984fe-b330-42c0-9d82-762f1520a744",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the address for the coordinates 35.6895, 139.6917?",
+  "context": ""
+ },
+ {
+  "id": "c30afbb3-41d1-4ce1-b287-9446e13154f2",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the best public transit route from Foshan to Xi'an?",
+  "context": ""
+ },
+ {
+  "id": "f51bec22-4248-4abf-af58-b0bd8922ec8b",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the current weather in Shanghai?",
+  "context": ""
+ },
+ {
+  "id": "ecff92ae-826c-4165-a744-22409ac3612d",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "東京タワーの緯度と経度を教えてください。",
+  "context": ""
+ },
+ {
+  "id": "944a531c-11ed-4eb0-8bb6-dedd60ce73ab",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Find museums within a 2000-meter radius around Beijing.",
+  "context": ""
+ },
+ {
+  "id": "63c6590a-1b5a-46ca-94fe-992a05c17cc5",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "¿Cuáles son los puntos de interés relacionados con parques cerca de Londres en un radio de 300 metros?",
+  "context": ""
+ },
+ {
+  "id": "7a8bc174-93df-4c29-8c77-d5452180ad5a",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the driving route from Berlin to Moscow?",
+  "context": ""
+ },
+ {
+  "id": "0afc200d-8e81-454a-b7f1-b2290e9adb69",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the administrative address of the location at the coordinates 35.6895, 139.6917?",
+  "context": ""
+ },
+ {
+  "id": "2f128786-5afc-4a15-8d9d-b84b9b3728ac",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the driving distance from New York, NY to Boston, MA?",
+  "context": ""
+ },
+ {
+  "id": "17909961-b011-45d8-8709-bca1438c898d",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What are the driving directions from Phoenix, AZ to Miami, FL?",
+  "context": ""
+ },
+ {
+  "id": "093e44b8-eba5-4ae1-855d-8765f6d75252",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What are the geographic coordinates of the Taj Mahal in Agra?",
+  "context": ""
+ },
+ {
+  "id": "9672b725-b97c-4153-9186-cc78bf2a221e",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What are the details of the place with the Google Maps ID ChIJrTLr-GyuEmsRBfy61i59si0?",
+  "context": ""
+ },
+ {
+  "id": "14996064-b660-4027-bb17-7257062dbcc4",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the current weather and 5-day forecast for New York City?",
+  "context": ""
+ },
+ {
+  "id": "051aae43-ebe9-42ae-8738-324bc8ec0474",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Can you create a map for the travel plan to experience the wildlife safari in Serengeti National Park, Tanzania?",
+  "context": ""
+ },
+ {
+  "id": "aacc25db-551c-457d-a4a6-aa59a6c40c29",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Initiate a refund for the capture with ID CAPTUREABCDE.",
+  "context": ""
+ },
+ {
+  "id": "a2d4c502-aecf-4ae8-9915-910b0e5ce9c7",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Initiate a refund for the capture with ID CAPTURE12345 with a note saying Refund issued due to product defect.",
+  "context": ""
+ },
+ {
+  "id": "3a3a7b10-ba25-4996-b1f4-ec3b0ec116b0",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Initiate a refund for the payment capture with ID CAPTURE12345. If it's a partial refund, refund 50.00 USD with the note: Thank you for your purchase.",
+  "context": ""
+ },
+ {
+  "id": "c7d1865b-2b42-44a6-bf0b-035211cf13a6",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a new service product named Premium Music Streaming in PayPal.",
+  "context": ""
+ },
+ {
+  "id": "8fdfc65c-a517-4be3-89a3-7387b7cd8648",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create an order to purchase a Tablet with a quantity of 1 at a cost of 250.0 each, totaling 250.0 USD.",
+  "context": ""
+ },
+ {
+  "id": "2c1d5cbf-c9fa-404f-a950-63db56335a69",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a subscription plan for the product with ID PROD-141516, named Weekly Starter Plan, including billing cycle details.",
+  "context": ""
+ },
+ {
+  "id": "4df0fc45-57f8-4188-81c7-a01fa49bde05",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a shipment tracking for transaction ID 8YH67890DEF12345 with tracking number 9876543210.",
+  "context": ""
+ },
+ {
+  "id": "6427ce63-3b25-47e9-9ebc-86af0a2862bf",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a subscription plan for the product identified by ID PROD-12345, named Basic Plan, with a billing cycle of 1 month.",
+  "context": ""
+ },
+ {
+  "id": "485f4615-b86c-4e85-a642-3a3e9a285f80",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a new digital product named E-Book Reader.",
+  "context": ""
+ },
+ {
+  "id": "87c31bfa-6c92-4ce4-a479-d842865afab7",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Initiate a refund for the capture ID CAPTURE54321 with a partial amount of GBP 20.00 and note: Refund due to late delivery.",
+  "context": ""
+ },
+ {
+  "id": "e3487e63-6a9f-4672-aaad-8168d5f267d6",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a shipment with tracking number 0987654321 for transaction 1AB23456DEF78901.",
+  "context": ""
+ },
+ {
+  "id": "a6c81811-269e-4085-8fe4-9faf9166f290",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a shipment tracking for the transaction with ID 7YH98765XYZ12345 and tracking number 0987654321.",
+  "context": ""
+ },
+ {
+  "id": "ed3e7696-4458-43e2-b042-ff37523c29db",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Initiate a refund for the transaction with ID CAPTURE54321 with a note saying 'Refund for overcharge'.",
+  "context": ""
+ },
+ {
+  "id": "5f60f709-4d66-4420-9646-4caf4dd16e48",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a PayPal order for a Wireless Mouse with a quantity of 2 and a total cost of 31.98 USD.",
+  "context": ""
+ },
+ {
+  "id": "702c896d-74e9-411f-bfa1-4b2af9acdbf1",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a PayPal order for Bluetooth Headphones with a quantity of 1 and a total item cost of 89.99 USD.",
+  "context": ""
+ },
+ {
+  "id": "0bb6ffa9-7f82-4ab4-8a7b-29a8725d0982",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a subscription plan for the product with ID PROD-123456, named Monthly Basic Plan, including billing cycle details.",
+  "context": ""
+ },
+ {
+  "id": "79a74e27-3126-430c-9087-7cbb421fed2c",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create an invoice for Bob Brown with the item Monitor priced at 300.00 GBP.",
+  "context": ""
+ },
+ {
+  "id": "78844c7f-6bb1-4399-8d48-ecb7cb69a612",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Extract content from the website Hacker News with advanced depth, including images, in text format.",
+  "context": ""
+ },
+ {
+  "id": "7fdc932d-7132-469b-95e5-e897c7199614",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find recent news articles about sports events from Brazil.",
+  "context": ""
+ },
+ {
+  "id": "2514d101-ae6d-4569-94cb-256955e35e44",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you create a map of the website structure starting from Microsoft's homepage with a maximum depth of 4?",
+  "context": ""
+ },
+ {
+  "id": "447bc618-7743-4608-a4c4-2d0af1c50879",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news on climate change in the United States with images included.",
+  "context": ""
+ },
+ {
+  "id": "b0a91316-9fbd-4334-a7de-d0b2c602c579",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you extract content from the following URLs: https://www.bbc.com/news, https://www.nytimes.com/?",
+  "context": ""
+ },
+ {
+  "id": "f1e0c476-6da2-450a-b239-085bb6b5b56e",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Extract content from https://www.bbc.com/news with basic depth and format it in markdown.",
+  "context": ""
+ },
+ {
+  "id": "8863db7d-9076-4417-8cfa-181fee1e0061",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news about politics in Japan.",
+  "context": ""
+ },
+ {
+  "id": "3e785406-21bf-42a0-b124-2272905e9f0d",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news about economic growth in China.",
+  "context": ""
+ },
+ {
+  "id": "1ee15879-f384-4888-931c-73165f4da897",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news about sports events in Australia.",
+  "context": ""
+ },
+ {
+  "id": "8a44c88f-6ff9-4005-adf9-f4c75c820d52",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news on global politics from France",
+  "context": ""
+ },
+ {
+  "id": "3d7399c0-6282-40c2-9791-59458d0e3333",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find articles about the global economy",
+  "context": ""
+ },
+ {
+  "id": "367548f5-7cbf-471c-8cd1-89ec98a02574",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news about cryptocurrency trends.",
+  "context": ""
+ },
+ {
+  "id": "ae68fcb7-b247-40ad-8f66-591ce434e1e4",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news on technology advancements from Germany",
+  "context": ""
+ },
+ {
+  "id": "2db12b3f-c190-4c7a-81b0-38c38495e20c",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you extract and analyze the content from the New York Times article published on October 1, 2023, about global market analysis?",
+  "context": ""
+ },
+ {
+  "id": "d28ffab7-420b-4e82-a2b5-2c4fb3d322b0",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find information about the latest technology trends.",
+  "context": ""
+ },
+ {
+  "id": "6f6f3685-e6b8-4c35-b4ac-268a883e1cbb",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news about space exploration in India.",
+  "context": ""
+ }
+]

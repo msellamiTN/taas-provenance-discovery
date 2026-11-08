@@ -1,0 +1,227 @@
+{
+ "experiment": "E2_typing",
+ "evidence": "LABELLED (agreement with independent LLM labels B); human study BLOCKED (sheet prepared)",
+ "notes": "Agreement, not accuracy: neither labelling is human ground truth.",
+ "manifest": {
+  "commit": "d54706adb32d335a4e366b1a0a5fe01256574951",
+  "created": "2026-11-08T05:58:57Z",
+  "python": "3.13.18",
+  "inputs": {
+   "data/processed/registry_merged.json": "a24bb9c5c788f8856288993c8f3c21b7fcd84b6491cc1a2b778b3b5d5a787045"
+  }
+ },
+ "results": {
+  "n": 569,
+  "tau": {
+   "kind_agreement": 0.789103690685413,
+   "kind_kappa": 0.7184248617485866,
+   "type_agreement_no_collection": 0.35676625659050965,
+   "per_kind": {
+    "boolean": {
+     "support": 1,
+     "precision": 0.5,
+     "recall": 1.0,
+     "f1": 0.6666666666666666
+    },
+    "code": {
+     "support": 12,
+     "precision": 1.0,
+     "recall": 0.16666666666666666,
+     "f1": 0.2857142857142857
+    },
+    "credential": {
+     "support": 1,
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0
+    },
+    "datetime": {
+     "support": 4,
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0
+    },
+    "document": {
+     "support": 31,
+     "precision": 0.6744186046511628,
+     "recall": 0.9354838709677419,
+     "f1": 0.7837837837837838
+    },
+    "identifier": {
+     "support": 15,
+     "precision": 1.0,
+     "recall": 0.26666666666666666,
+     "f1": 0.4210526315789474
+    },
+    "location": {
+     "support": 9,
+     "precision": 0.8888888888888888,
+     "recall": 0.8888888888888888,
+     "f1": 0.8888888888888888
+    },
+    "media": {
+     "support": 10,
+     "precision": 0.2857142857142857,
+     "recall": 1.0,
+     "f1": 0.4444444444444445
+    },
+    "none": {
+     "support": 65,
+     "precision": 0.6739130434782609,
+     "recall": 0.9538461538461539,
+     "f1": 0.7898089171974523
+    },
+    "number": {
+     "support": 9,
+     "precision": 1.0,
+     "recall": 0.7777777777777778,
+     "f1": 0.8750000000000001
+    },
+    "path": {
+     "support": 29,
+     "precision": 0.8888888888888888,
+     "recall": 0.8275862068965517,
+     "f1": 0.8571428571428572
+    },
+    "record": {
+     "support": 267,
+     "precision": 0.9263565891472868,
+     "recall": 0.8951310861423221,
+     "f1": 0.9104761904761904
+    },
+    "table": {
+     "support": 27,
+     "precision": 0.7222222222222222,
+     "recall": 0.9629629629629629,
+     "f1": 0.8253968253968254
+    },
+    "text": {
+     "support": 59,
+     "precision": 0.627906976744186,
+     "recall": 0.4576271186440678,
+     "f1": 0.5294117647058824
+    },
+    "url": {
+     "support": 30,
+     "precision": 0.8333333333333334,
+     "recall": 0.16666666666666666,
+     "f1": 0.2777777777777778
+    }
+   },
+   "macro_f1": 0.7037043355849335
+  },
+  "struct": {
+   "kind_agreement": 0.22847100175746923,
+   "kind_kappa": 0.07007453073927643,
+   "type_agreement_no_collection": 0.054481546572934976,
+   "per_kind": {
+    "boolean": {
+     "support": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "code": {
+     "support": 12,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "credential": {
+     "support": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "datetime": {
+     "support": 4,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "document": {
+     "support": 31,
+     "precision": 0.016666666666666666,
+     "recall": 0.03225806451612903,
+     "f1": 0.02197802197802198
+    },
+    "identifier": {
+     "support": 15,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "location": {
+     "support": 9,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "media": {
+     "support": 10,
+     "precision": 0.17857142857142858,
+     "recall": 1.0,
+     "f1": 0.30303030303030304
+    },
+    "none": {
+     "support": 65,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "number": {
+     "support": 9,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "path": {
+     "support": 29,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "record": {
+     "support": 267,
+     "precision": 0.664,
+     "recall": 0.31086142322097376,
+     "f1": 0.42346938775510207
+    },
+    "table": {
+     "support": 27,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "text": {
+     "support": 59,
+     "precision": 0.10975609756097561,
+     "recall": 0.6101694915254238,
+     "f1": 0.18604651162790697
+    },
+    "url": {
+     "support": 30,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    }
+   },
+   "macro_f1": 0.062301614959422276
+  },
+  "struct_thresholds": {
+   "0.5": {
+    "certain_share": 0.5026362038664324,
+    "kind_agreement_certain": 0.36013986013986016
+   },
+   "0.7": {
+    "certain_share": 0.0,
+    "kind_agreement_certain": null
+   },
+   "0.9": {
+    "certain_share": 0.0,
+    "kind_agreement_certain": null
+   }
+  }
+ },
+ "human_sheet": "docs/annotation/E2_human_annotation_sheet.csv"
+}

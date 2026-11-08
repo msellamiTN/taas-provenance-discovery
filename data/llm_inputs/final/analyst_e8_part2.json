@@ -1,0 +1,702 @@
+[
+ {
+  "id": "a8298bf9-fd62-4a68-a920-7c199604744b",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Set the browser's User Agent to mimic an iPhone running iOS 14 using Safari.",
+  "context": ""
+ },
+ {
+  "id": "20759686-4038-4906-a0bd-3a65d609d086",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Select the option with the value 'English' from the dropdown menu identified by #languageSelect.",
+  "context": ""
+ },
+ {
+  "id": "963d8e96-6059-44f2-a1d9-382075253b89",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "How can I drag an element from the slider thumb to the slider track?",
+  "context": ""
+ },
+ {
+  "id": "ceba0ffd-b3c4-40f1-8a73-ba71a2f1242b",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Take a screenshot of the element with the selector '.product-item img' on the page and save it as 'product_image_screenshot'.",
+  "context": ""
+ },
+ {
+  "id": "2d1f3d1b-4389-4d8c-af12-cd6792cc3bbd",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Can you provide details about the code generation session with ID 789xyz?",
+  "context": ""
+ },
+ {
+  "id": "2007c9fc-358f-4370-bebe-047970a426d8",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Please end the code generation session with session ID testSession42.",
+  "context": ""
+ },
+ {
+  "id": "ddd9cbd9-b689-46a1-bdd3-270113a38b06",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "How can I drag the element with the selector #slider to the target with the selector #slider-end?",
+  "context": ""
+ },
+ {
+  "id": "e1f1ad73-a9c5-4968-9c0c-88cee2c4a97c",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Start waiting for an HTTP response from https://www.baidu.com with identifier response1.",
+  "context": ""
+ },
+ {
+  "id": "f50ea972-6d01-4069-b152-c2496db97cf7",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Can you drag the file icon to the trash bin?",
+  "context": ""
+ },
+ {
+  "id": "65bad570-2257-45ef-a2dd-85112365cff5",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Capture a screenshot of the element identified by #main-banner on the webpage and save it as homepage_screenshot.",
+  "context": ""
+ },
+ {
+  "id": "7cab32b7-c5fb-473f-b20d-e34042d544e4",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Navigate to the website https://www.baidu.com using Puppeteer.",
+  "context": ""
+ },
+ {
+  "id": "394a745e-4f97-4247-9474-4643108f7894",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Select 'United States' from the dropdown menu with the selector #countryDropdown.",
+  "context": ""
+ },
+ {
+  "id": "352eab7d-46e8-4649-9bd1-29fdc4c97e0f",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Fill the input field with class .login-btn inside the iframe with class .iframe-container iframe with the value '测试数据'.",
+  "context": ""
+ },
+ {
+  "id": "f75b0e53-25a3-4aed-b0fc-0efedb4a1055",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Capture a screenshot of the element identified by the class 'product-image' on the page and name it product_image_snap.",
+  "context": ""
+ },
+ {
+  "id": "5a2c6335-1975-430a-b642-698be5518fb1",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Enter 'search query' into the search input field.",
+  "context": ""
+ },
+ {
+  "id": "77c362d6-e05b-4425-9b42-58460de74b83",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Select 'USA' from the dropdown menu with the selector #countryDropdown.",
+  "context": ""
+ },
+ {
+  "id": "65002658-8a56-412d-b3b8-6236eca6b47a",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Provide a recursive tree view of files and directories at the path ./test_project_root/tests.",
+  "context": ""
+ },
+ {
+  "id": "9074d5a4-093c-4317-9c75-392a081a0922",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Read the contents of the files located at ./test_project_root/tests/unit/test_calculations.py and ./test_project_root/requirements.txt simultaneously.",
+  "context": ""
+ },
+ {
+  "id": "4d313c1e-d088-4f91-b794-99ca8374f121",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Retrieve detailed metadata about the file or directory located at ./test_project_root/docs/README.md.",
+  "context": ""
+ },
+ {
+  "id": "db7abafa-2f2d-4d17-93d8-d0c464e0f817",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Can you provide detailed metadata about the file or directory located at ./test_project_root/docs/README.md?",
+  "context": ""
+ },
+ {
+  "id": "1795163a-6d52-4080-be02-77875772bfb7",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Retrieve detailed metadata about the file or directory located at ./test_project_root/src/main.py.",
+  "context": ""
+ },
+ {
+  "id": "af4db845-7a02-462f-b27b-235fbdd485ac",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Ensure the directory ./test_project_root/src/config exists or create it if it does not.",
+  "context": ""
+ },
+ {
+  "id": "e30deb39-fe2b-41cc-b192-e52161541e3f",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Read the contents of the files located at ./test_project_root/src/utils/file_utils.py and ./test_project_root/requirements.txt at the same time.",
+  "context": ""
+ },
+ {
+  "id": "c4f3c06e-31a8-40b6-9384-0fcce2749a6e",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Provide a detailed listing of all files and directories in the path ./test_project_root/tests/unit, sorted by name, including sizes.",
+  "context": ""
+ },
+ {
+  "id": "ad8498ac-b00e-42e9-b069-c30b05861c25",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "What files and directories, along with their types, are present in the path ./test_project_root/src?",
+  "context": ""
+ },
+ {
+  "id": "f4515ccc-9a4d-43e0-899d-5745b063d4ca",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Provide a detailed listing of all files and directories in the path ./test_project_root/data, sorted by size, including their sizes.",
+  "context": ""
+ },
+ {
+  "id": "e99beb32-2063-41bd-bce3-6ec3a1cf2f67",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Create a directory at the path ./test_project_root/tests/unit/new_tests.",
+  "context": ""
+ },
+ {
+  "id": "14ced88d-4ea6-4e33-980c-3152911dfbbd",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Ensure the directory ./test_project_root/tests/unit exists, creating it if necessary.",
+  "context": ""
+ },
+ {
+  "id": "ff416e3f-435e-4685-ba26-5181dcb91879",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "List all files and directories in the path ./test_project_root/docs, sorted by name, including their sizes.",
+  "context": ""
+ },
+ {
+  "id": "6d603172-74f2-4069-873e-299f921bb95b",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Can you provide detailed metadata about the file or directory located at ./test_project_root/data/test_file_csv_1.csv?",
+  "context": ""
+ },
+ {
+  "id": "be16b992-6095-4388-9368-d5b17229a98e",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Read the contents of the files test_file_json_1.json and test_file_csv_1.csv simultaneously.",
+  "context": ""
+ },
+ {
+  "id": "1e640507-80ad-4744-8061-be8a55b16692",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "What are the detailed metadata of the file or directory at the path ./test_project_root/src/main.py?",
+  "context": ""
+ },
+ {
+  "id": "0fe8188a-3275-4747-bc6a-1aad8db5e102",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "What are the detailed metadata of the file or directory located at ./test_project_root/data/test_file_csv_1.csv?",
+  "context": ""
+ },
+ {
+  "id": "f7c9dc0a-82da-46f4-8fec-267a15667700",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Toyota Motor Corporation?",
+  "context": ""
+ },
+ {
+  "id": "a8d25635-8f19-4d4e-ba6f-3c5bad78dd47",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of JD Health?",
+  "context": ""
+ },
+ {
+  "id": "c4836e49-4d18-4979-93dc-e81e9b7f971b",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current stock price of Apple?",
+  "context": ""
+ },
+ {
+  "id": "3eb2266c-847e-4200-b896-00024730f20a",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Tencent in the HK market?",
+  "context": ""
+ },
+ {
+  "id": "3e55b07f-7c07-4d5a-872a-e21992374779",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of China Merchants Bank?",
+  "context": ""
+ },
+ {
+  "id": "217cfc0e-1b6c-4f45-bcf9-f747dce85caf",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of China Petroleum & Chemical Corporation?",
+  "context": ""
+ },
+ {
+  "id": "5611c1a0-0e05-4aac-a263-b38549140973",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Procter & Gamble?",
+  "context": ""
+ },
+ {
+  "id": "1faa8e70-bc1c-42f8-b5b4-0c39481ae7b8",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of JPMorgan Chase?",
+  "context": ""
+ },
+ {
+  "id": "b80fd290-d4a0-4e67-8611-2527eb5ed0b7",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of the company with the stock code SZ000725?",
+  "context": ""
+ },
+ {
+  "id": "ef7eee6c-f2ef-4c33-b020-3763cddc0b51",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of BYD Company Limited?",
+  "context": ""
+ },
+ {
+  "id": "a8008cf0-dad1-4568-acbf-591a936efc18",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Visa?",
+  "context": ""
+ },
+ {
+  "id": "53edcecf-a24b-4e0f-9204-e2c10eac5f3b",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Wuliangye Yibin in the CN_MAINLAND market?",
+  "context": ""
+ },
+ {
+  "id": "b297994f-25ea-4658-91f4-ad78015f33ec",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Wuliangye Yibin Co., Ltd?",
+  "context": ""
+ },
+ {
+  "id": "941e410c-edf0-4924-a409-78e13f1da618",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of JPMorgan Chase in the US market?",
+  "context": ""
+ },
+ {
+  "id": "b73a183e-d12d-4f44-a7a5-67db1a894f23",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Taiwan Semiconductor Manufacturing Company in the US market?",
+  "context": ""
+ },
+ {
+  "id": "f7adad07-9a6f-49f9-9b78-5c41f5bf847e",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Meta in the US market?",
+  "context": ""
+ },
+ {
+  "id": "d8904635-6644-4c95-9512-e010942f8ace",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Reliance on the NSE India?",
+  "context": ""
+ },
+ {
+  "id": "a4c6e6be-7413-493f-911d-67f734b67f93",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the address for the coordinates at latitude 35.689487 and longitude -118.243683?",
+  "context": ""
+ },
+ {
+  "id": "1b6189f6-16f4-45b5-adf8-19a84a86feda",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the administrative address information for the location with coordinates 34.0522,-118.2437?",
+  "context": ""
+ },
+ {
+  "id": "84e222dd-9120-4e63-bfe3-02e880c94383",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "从杭州到南京的驾车距离是多少？",
+  "context": ""
+ },
+ {
+  "id": "b3eb9a0c-8e78-488d-a1ce-da8821b25f07",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "请帮我规划从当前位置到兵马俑博物馆的导航路线。",
+  "context": ""
+ },
+ {
+  "id": "6facf1a3-aa9b-403b-ae83-32dcb7a7d97d",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What are the directions from the Eiffel Tower in Paris to the Louvre Museum in Paris using public transit?",
+  "context": ""
+ },
+ {
+  "id": "cc5c4eaf-07d6-4dd2-98b8-445853dc81a3",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Measure the driving distance from Los Angeles to San Francisco.",
+  "context": ""
+ },
+ {
+  "id": "cff2ad76-5a3e-4523-999e-de4cfa19bca8",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the driving distance between Tokyo and Beijing?",
+  "context": ""
+ },
+ {
+  "id": "62a2c47c-ab84-4e31-b062-6b1149a88f84",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Find parks within a 1500-meter radius around Beijing using the keyword 'park'.",
+  "context": ""
+ },
+ {
+  "id": "1592690e-fed4-4a56-8ef3-46bb49160035",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the location of the IP address 172.16.0.0?",
+  "context": ""
+ },
+ {
+  "id": "63fbeec2-5a2c-49b6-9839-f711c1ee1adc",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Каковы координаты Большого театра в Москве?",
+  "context": ""
+ },
+ {
+  "id": "0e0b8215-46c4-43b6-9ae5-579cad8ca63c",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Calculate the driving distance and travel time from Paris to Moscow.",
+  "context": ""
+ },
+ {
+  "id": "286c5c0d-b2e5-4feb-8f8d-d7a6cca6faa4",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Find popular restaurants within a 1000 meter radius around the Empire State Building.",
+  "context": ""
+ },
+ {
+  "id": "9fbabe0a-adac-48df-bf94-b56960fdb737",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the administrative address for the location with coordinates 48.8566, 2.3522?",
+  "context": ""
+ },
+ {
+  "id": "0014460b-8215-4c7b-b8ed-1890fd94b377",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What are the driving directions from Chicago, IL to Atlanta, GA?",
+  "context": ""
+ },
+ {
+  "id": "8ca2f4e5-3b69-41f5-9c4f-db5003d6a0db",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the address of the location at latitude 51.5074 and longitude -118.2437?",
+  "context": ""
+ },
+ {
+  "id": "a57ddc87-fc4b-462e-ba74-520533162f25",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the walking route from the coordinates 116.407526,39.90403 to 116.397451,39.909187?",
+  "context": ""
+ },
+ {
+  "id": "65487bf5-4cc0-4096-a59f-6ee1072b5d32",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a subscription plan for the product with ID PROD-14151, named 'Enterprise Plan', including billing cycle details.",
+  "context": ""
+ },
+ {
+  "id": "78a20052-af37-4afc-b3cd-bce65cdf90bf",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a shipment tracking for the transaction with ID 9XJ12345ABC67890 and tracking number 1234567890.",
+  "context": ""
+ },
+ {
+  "id": "ca756141-11ae-4573-bfee-cb3b52bc136c",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a shipment tracking for the transaction with tracking number EC123456789US.",
+  "context": ""
+ },
+ {
+  "id": "d1ea71cb-6bb5-4731-a670-53b88651ff46",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a shipment tracking for transaction ID 5XH56789MNO01234 with tracking number 1Z555EE50567890123.",
+  "context": ""
+ },
+ {
+  "id": "cf50d76e-3b2f-473e-9a46-a1b90979d2c3",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a new product called Online Yoga Classes as a SERVICE in PayPal.",
+  "context": ""
+ },
+ {
+  "id": "46b8398d-6cfd-43d0-8339-41dc282a9996",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Please initiate a refund for the capture with ID CAPTURE54321. Include a note: We apologize for any inconvenience.",
+  "context": ""
+ },
+ {
+  "id": "7c6f6f7e-8afc-4a47-84b5-91ffc694459a",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create an invoice for Home Decor Shop with the item Wall Art priced at 75.00 USD.",
+  "context": ""
+ },
+ {
+  "id": "0ae9d22e-8711-42b7-a647-7191bb335752",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a subscription plan for the product with ID PROD-12345, named Basic Plan, and include the billing cycle details.",
+  "context": ""
+ },
+ {
+  "id": "a8604453-34d8-45b2-81cd-05bbc26ca1b8",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a new product named Online Yoga Classes with the type SERVICE.",
+  "context": ""
+ },
+ {
+  "id": "0ba0675b-2bec-4d3f-91d3-c63f6e3aa3e0",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Initiate a refund for the payment capture with ID CAPTURE67890. If it's a partial refund, refund 30.00 EUR with the note: Partial refund for your order.",
+  "context": ""
+ },
+ {
+  "id": "7b38433a-739f-45ee-bb8f-1e6fbea0fb05",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Initiate a refund for the capture ID CAPTURE-1234567890 with the amount of 50.00 USD and note 'Refund for damaged item'.",
+  "context": ""
+ },
+ {
+  "id": "4f944c55-11cd-4679-9dba-1ed5a5695d07",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a new product named Yoga Mat as a physical item in PayPal.",
+  "context": ""
+ },
+ {
+  "id": "e6a6481e-c5a3-4480-8243-a933a02b32ae",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a subscription plan for the product with the name Standard Plan and billing cycle details.",
+  "context": ""
+ },
+ {
+  "id": "98d20334-1add-4f09-9b34-f2a0f25e995f",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a shipment tracking for the transaction with tracking number 5678901234.",
+  "context": ""
+ },
+ {
+  "id": "b41a467d-d832-4546-9c6c-8b75f31800cf",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a new product named Super Fast Charger of type PHYSICAL.",
+  "context": ""
+ },
+ {
+  "id": "d51a4d18-edc7-42c9-b854-74dfaa40f6c0",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a shipment tracking for the transaction with ID 4UJ12345DEF67891 using the tracking number 9400110200883644329831.",
+  "context": ""
+ },
+ {
+  "id": "ca748068-c885-4004-ab0b-142d4d195733",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a new product called Home Cleaning Service of type SERVICE in PayPal.",
+  "context": ""
+ },
+ {
+  "id": "e17f23a2-6066-41a8-8cb2-05a806cccac6",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find recent news articles about climate change in the United States.",
+  "context": ""
+ },
+ {
+  "id": "7a047c14-cb29-4047-b5fc-de05a2e19fa0",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news about technology innovations in Germany.",
+  "context": ""
+ },
+ {
+  "id": "514cd468-f4cb-4246-a39e-b14c6d68988e",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Start a web crawl from https://www.educationportal.edu with a maximum depth of 3 and extract the content in markdown format.",
+  "context": ""
+ },
+ {
+  "id": "ad736674-cabc-49b9-9bf5-e10968809b39",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find information about healthy eating tips.",
+  "context": ""
+ },
+ {
+  "id": "47ab7e73-d60a-450b-846f-9655050be0a4",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find information about the global economic outlook.",
+  "context": ""
+ },
+ {
+  "id": "b008b2aa-f0ce-439e-b2d3-2d408f76a54f",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Start a web crawl from the WordPress website, focusing on the Community sections, and extract the content in text format.",
+  "context": ""
+ },
+ {
+  "id": "28082564-8291-4187-87e9-2454c5b78cfd",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you extract content from these URLs: https://www.ted.com and https://www.nationalgeographic.com?",
+  "context": ""
+ },
+ {
+  "id": "e0327489-b6db-4145-aa8f-04e3ef2ef657",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Extract content from the following URLs: https://www.bbc.com/news, https://www.cnn.com, using basic depth and markdown format.",
+  "context": ""
+ },
+ {
+  "id": "70a1a965-420a-4934-b697-0a0bc17fb760",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you extract content from the following URLs: https://www.wikipedia.org, https://www.nytimes.com?",
+  "context": ""
+ },
+ {
+  "id": "abe627f5-9d13-4137-9b57-0eff35abe372",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you map the website structure of www.microsoft.com with a maximum depth of 3?",
+  "context": ""
+ },
+ {
+  "id": "389c36d0-a89f-4627-9e85-9e322a873213",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news about space exploration.",
+  "context": ""
+ },
+ {
+  "id": "0587f202-6a6a-47ae-ac0c-a75d66cbd3ae",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you map out the site structure for https://www.bbc.com?",
+  "context": ""
+ },
+ {
+  "id": "33eda8dc-295a-496e-a561-0b9fe59ec193",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the best restaurants in San Francisco",
+  "context": ""
+ },
+ {
+  "id": "381440d7-bc63-41ab-8b79-e44b9a875628",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "What are the latest news about electric vehicles?",
+  "context": ""
+ },
+ {
+  "id": "00d3a0e9-27da-43bb-aad0-07bef1f67b96",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you perform a web crawl starting from Medium's homepage focusing on blogs and retrieve the data in markdown format?",
+  "context": ""
+ },
+ {
+  "id": "7f44a3c6-e85a-4845-80d1-4c96b0c1ae31",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you extract content from the following URLs: https://www.apple.com, https://www.microsoft.com?",
+  "context": ""
+ },
+ {
+  "id": "5dbc22f1-93aa-4bf8-991e-1f85b5aa1d14",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Search for the latest news about the global economic outlook in China.",
+  "context": ""
+ }
+]

@@ -1,0 +1,2702 @@
+[
+ {
+  "id": "8a98aa9f-e59e-426e-a73a-5df4a1523253",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Can you perform an HTTP GET request on https://www.qq.com?",
+  "gold_tools": [
+   "playwright::playwright_get"
+  ]
+ },
+ {
+  "id": "40b7428b-f571-41e2-81d1-3a2f80e5cacf",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Fill the input field labeled as username with the value testuser.",
+  "gold_tools": [
+   "puppeteer::puppeteer_fill"
+  ]
+ },
+ {
+  "id": "a8298bf9-fd62-4a68-a920-7c199604744b",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Set the browser's User Agent to mimic an iPhone running iOS 14 using Safari.",
+  "gold_tools": [
+   "playwright::playwright_custom_user_agent"
+  ]
+ },
+ {
+  "id": "fa5817ce-c273-4f77-8b68-bda1e6b8e095",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Drag the element from the drag source to the drop target.",
+  "gold_tools": [
+   "playwright::playwright_drag"
+  ]
+ },
+ {
+  "id": "17ed254e-068f-4b29-ba90-d6468c68fb4e",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Fill the .search-input element inside the iframe identified by #externalFrame with the text 'Search Keywords'.",
+  "gold_tools": [
+   "playwright::playwright_iframe_fill"
+  ]
+ },
+ {
+  "id": "20759686-4038-4906-a0bd-3a65d609d086",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Select the option with the value 'English' from the dropdown menu identified by #languageSelect.",
+  "gold_tools": [
+   "puppeteer::puppeteer_select"
+  ]
+ },
+ {
+  "id": "d7a94f27-261e-4962-9ba4-9f818e1298fc",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Start a new code generation session with the output path set to /usr/local/tests, using 'MyTest' as the test name prefix, and set include comments to False.",
+  "gold_tools": [
+   "playwright::start_codegen_session"
+  ]
+ },
+ {
+  "id": "30b7b39d-3bcc-4cd1-9256-f3278ff78e63",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Can you move the element from .card to #deck?",
+  "gold_tools": [
+   "playwright::playwright_drag"
+  ]
+ },
+ {
+  "id": "963d8e96-6059-44f2-a1d9-382075253b89",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "How can I drag an element from the slider thumb to the slider track?",
+  "gold_tools": [
+   "playwright::playwright_drag"
+  ]
+ },
+ {
+  "id": "ea38b434-1a6d-4079-b9d2-614e6dbf889b",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Navigate to the website https://www.jd.com using the browser webkit.",
+  "gold_tools": [
+   "playwright::playwright_navigate"
+  ]
+ },
+ {
+  "id": "194bc944-478d-406b-ad0a-66d625a1494d",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Please click the submit button inside the iframe on the webpage.",
+  "gold_tools": [
+   "playwright::playwright_iframe_click"
+  ]
+ },
+ {
+  "id": "ceba0ffd-b3c4-40f1-8a73-ba71a2f1242b",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Take a screenshot of the element with the selector '.product-item img' on the page and save it as 'product_image_screenshot'.",
+  "gold_tools": [
+   "puppeteer::puppeteer_screenshot"
+  ]
+ },
+ {
+  "id": "5de80027-ea8f-479a-abf3-440659f43afe",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Retrieve information for code generation session with ID session001",
+  "gold_tools": [
+   "playwright::get_codegen_session"
+  ]
+ },
+ {
+  "id": "0d85a8cb-c8f9-4a08-8866-55053aece7dc",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Please click on the submit button on the page.",
+  "gold_tools": [
+   "puppeteer::puppeteer_click"
+  ]
+ },
+ {
+  "id": "2d1f3d1b-4389-4d8c-af12-cd6792cc3bbd",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Can you provide details about the code generation session with ID 789xyz?",
+  "gold_tools": [
+   "playwright::get_codegen_session"
+  ]
+ },
+ {
+  "id": "b313f530-41fd-45cf-8a88-63e66207fe8c",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "How can I simulate pressing the Escape key on a webpage?",
+  "gold_tools": [
+   "playwright::playwright_press_key"
+  ]
+ },
+ {
+  "id": "ac6e0ac3-0160-418b-9933-4fbc32a943de",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "How can I click on the submit button within the iframe on the webpage?",
+  "gold_tools": [
+   "playwright::playwright_iframe_click"
+  ]
+ },
+ {
+  "id": "2007c9fc-358f-4370-bebe-047970a426d8",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Please end the code generation session with session ID testSession42.",
+  "gold_tools": [
+   "playwright::end_codegen_session"
+  ]
+ },
+ {
+  "id": "6d8a2831-12a6-4ea0-9a34-d1ec65069b1a",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Select the option with the value 'US' from the dropdown menu identified by '#countryDropdown'.",
+  "gold_tools": [
+   "puppeteer::puppeteer_select"
+  ]
+ },
+ {
+  "id": "2ff9fa32-a50d-4277-b8f1-1c36e7cf588e",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Start waiting for an HTTP response from the URL https://www.taobao.com with the identifier response2.",
+  "gold_tools": [
+   "playwright::playwright_expect_response"
+  ]
+ },
+ {
+  "id": "ddd9cbd9-b689-46a1-bdd3-270113a38b06",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "How can I drag the element with the selector #slider to the target with the selector #slider-end?",
+  "gold_tools": [
+   "playwright::playwright_drag"
+  ]
+ },
+ {
+  "id": "ac9cf055-c334-4089-96a2-df9a7aa26216",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Execute the script window.scrollTo(0, document.body.scrollHeight) in the browser console.",
+  "gold_tools": [
+   "puppeteer::puppeteer_evaluate"
+  ]
+ },
+ {
+  "id": "1ef41af9-2481-4462-9c7a-dbba164348be",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "How can I drag the element with the class 'drag-handle' to the target location with the class 'drop-zone' on the webpage?",
+  "gold_tools": [
+   "playwright::playwright_drag"
+  ]
+ },
+ {
+  "id": "e1f1ad73-a9c5-4968-9c0c-88cee2c4a97c",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Start waiting for an HTTP response from https://www.baidu.com with identifier response1.",
+  "gold_tools": [
+   "playwright::playwright_expect_response"
+  ]
+ },
+ {
+  "id": "3a9b097c-ff53-4724-81d6-f24f721d85b2",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Can you hover over the element with the selector .login-btn on the page?",
+  "gold_tools": [
+   "puppeteer::puppeteer_hover"
+  ]
+ },
+ {
+  "id": "65c60186-51e5-49ab-be43-0322139c3280",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Capture a screenshot of the element identified by the class 'login-btn' on the page and name it 'login_button_capture'.",
+  "gold_tools": [
+   "puppeteer::puppeteer_screenshot"
+  ]
+ },
+ {
+  "id": "f50ea972-6d01-4069-b152-c2496db97cf7",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Can you drag the file icon to the trash bin?",
+  "gold_tools": [
+   "playwright::playwright_drag"
+  ]
+ },
+ {
+  "id": "fe6da312-6b10-49cf-9d44-9bec31d9de22",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Take a screenshot of the element with the selector .content on the page and name it content_screenshot.",
+  "gold_tools": [
+   "playwright::playwright_screenshot"
+  ]
+ },
+ {
+  "id": "fa7b77f3-1a68-410f-bc18-6a9edfeff859",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Fetch the content from the URL https://www.sina.com.cn using an HTTP GET request.",
+  "gold_tools": [
+   "playwright::playwright_get"
+  ]
+ },
+ {
+  "id": "65bad570-2257-45ef-a2dd-85112365cff5",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Capture a screenshot of the element identified by #main-banner on the webpage and save it as homepage_screenshot.",
+  "gold_tools": [
+   "puppeteer::puppeteer_screenshot"
+  ]
+ },
+ {
+  "id": "1736f391-a31c-44ae-8414-37ab85b5839c",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Please click the element with the selector .submit-form on the webpage.",
+  "gold_tools": [
+   "puppeteer::puppeteer_click"
+  ]
+ },
+ {
+  "id": "3e412bf1-612f-49de-b7ed-5604ee2a7724",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Perform an HTTP PUT request to https://www.sample.com/submit with the data example@example.com.",
+  "gold_tools": [
+   "playwright::playwright_put"
+  ]
+ },
+ {
+  "id": "7cab32b7-c5fb-473f-b20d-e34042d544e4",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Navigate to the website https://www.baidu.com using Puppeteer.",
+  "gold_tools": [
+   "puppeteer::puppeteer_navigate"
+  ]
+ },
+ {
+  "id": "eeff8b1d-99ef-4cca-8ae4-3c666045b375",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Can you hover over the element with the selector .login-btn on the webpage?",
+  "gold_tools": [
+   "playwright::playwright_hover"
+  ]
+ },
+ {
+  "id": "40133820-bdc2-4bc9-b003-9503d3ab72f9",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Fill the element with ID 'comment-box' inside the iframe with ID 'embedFrame' with the text 'This is a test comment.'",
+  "gold_tools": [
+   "playwright::playwright_iframe_fill"
+  ]
+ },
+ {
+  "id": "394a745e-4f97-4247-9474-4643108f7894",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Select 'United States' from the dropdown menu with the selector #countryDropdown.",
+  "gold_tools": [
+   "playwright::playwright_select"
+  ]
+ },
+ {
+  "id": "85c469d0-db4d-4a7c-b083-dcda309548d1",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Drag the element from #element1 to #element2.",
+  "gold_tools": [
+   "playwright::playwright_drag"
+  ]
+ },
+ {
+  "id": "499fa277-24fe-4660-9ff6-d76462dc9a7c",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Start waiting for an HTTP response from https://www.qq.com with identifier response4.",
+  "gold_tools": [
+   "playwright::playwright_expect_response"
+  ]
+ },
+ {
+  "id": "352eab7d-46e8-4649-9bd1-29fdc4c97e0f",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Fill the input field with class .login-btn inside the iframe with class .iframe-container iframe with the value '测试数据'.",
+  "gold_tools": [
+   "playwright::playwright_iframe_fill"
+  ]
+ },
+ {
+  "id": "50194534-2d07-4147-9c7e-830a54d35482",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Can you hover over the element with the selector #footer-links on the webpage?",
+  "gold_tools": [
+   "puppeteer::puppeteer_hover"
+  ]
+ },
+ {
+  "id": "9b0eabaf-7a95-4f91-90ef-87c8affe083f",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Fill the input field identified by #phone with the value 13800138000.",
+  "gold_tools": [
+   "puppeteer::puppeteer_fill"
+  ]
+ },
+ {
+  "id": "f75b0e53-25a3-4aed-b0fc-0efedb4a1055",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Capture a screenshot of the element identified by the class 'product-image' on the page and name it product_image_snap.",
+  "gold_tools": [
+   "puppeteer::puppeteer_screenshot"
+  ]
+ },
+ {
+  "id": "1f4a53f9-0865-4ea3-80d5-be1251185548",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Execute the JavaScript code 'alert(\"Hello World!\")' in the browser console.",
+  "gold_tools": [
+   "playwright::playwright_evaluate"
+  ]
+ },
+ {
+  "id": "e32001ec-8d37-4855-a135-cf9e679de5c0",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Press the Tab key on the element identified by .login-input.",
+  "gold_tools": [
+   "playwright::playwright_press_key"
+  ]
+ },
+ {
+  "id": "5a2c6335-1975-430a-b642-698be5518fb1",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Enter 'search query' into the search input field.",
+  "gold_tools": [
+   "puppeteer::puppeteer_fill"
+  ]
+ },
+ {
+  "id": "71e3928b-7bdc-4e7d-b8d2-a289e01b408e",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Select the GMT option from the dropdown menu identified by #timeZoneSelect.",
+  "gold_tools": [
+   "puppeteer::puppeteer_select"
+  ]
+ },
+ {
+  "id": "91a58512-978a-4293-be2c-d76cbd22e83e",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Click the element with the selector #submit-button on the page.",
+  "gold_tools": [
+   "puppeteer::puppeteer_click"
+  ]
+ },
+ {
+  "id": "77c362d6-e05b-4425-9b42-58460de74b83",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Select 'USA' from the dropdown menu with the selector #countryDropdown.",
+  "gold_tools": [
+   "playwright::playwright_select"
+  ]
+ },
+ {
+  "id": "f28225c7-7fc2-40ae-9b73-cd13081fb649",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "Execute JavaScript code to change the webpage title to 'Dynamic Title Change'.",
+  "gold_tools": [
+   "puppeteer::puppeteer_evaluate"
+  ]
+ },
+ {
+  "id": "a4272bd5-9795-4bb0-a1fb-98745db6ebc7",
+  "source": "MCPToolBench++",
+  "category": "browser",
+  "query": "How can I drag an element from the source box to the target box on the webpage?",
+  "gold_tools": [
+   "playwright::playwright_drag"
+  ]
+ },
+ {
+  "id": "65002658-8a56-412d-b3b8-6236eca6b47a",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Provide a recursive tree view of files and directories at the path ./test_project_root/tests.",
+  "gold_tools": [
+   "filesystem::directory_tree"
+  ]
+ },
+ {
+  "id": "93838865-7737-422e-9467-00c485a30838",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "List all files and directories in the path ./test_project_root/data with their types.",
+  "gold_tools": [
+   "filesystem::list_directory"
+  ]
+ },
+ {
+  "id": "bf1a44d9-48c5-4530-bfdf-515a18d2ca7e",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Provide a recursive tree view of files and directories at the path ./test_project_root/data, including sizes.",
+  "gold_tools": [
+   "filesystem::directory_tree"
+  ]
+ },
+ {
+  "id": "9074d5a4-093c-4317-9c75-392a081a0922",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Read the contents of the files located at ./test_project_root/tests/unit/test_calculations.py and ./test_project_root/requirements.txt simultaneously.",
+  "gold_tools": [
+   "filesystem::read_multiple_files"
+  ]
+ },
+ {
+  "id": "6f95043e-47e6-422b-915a-ac8c6750704c",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Find all files and directories matching the pattern 'main' in the path './test_project_root/src'.",
+  "gold_tools": [
+   "filesystem::search_files"
+  ]
+ },
+ {
+  "id": "62296869-f2f3-4273-b117-278458df5cf2",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Create or overwrite the file at ./test_project_root/src/utils/file_utils.py with the following content: def sample_function():\n    pass",
+  "gold_tools": [
+   "filesystem::write_file"
+  ]
+ },
+ {
+  "id": "4d313c1e-d088-4f91-b794-99ca8374f121",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Retrieve detailed metadata about the file or directory located at ./test_project_root/docs/README.md.",
+  "gold_tools": [
+   "filesystem::get_file_info"
+  ]
+ },
+ {
+  "id": "f5ed8fe9-dd1c-42c9-8224-c6a5ecb0e56a",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Edit the file located at './test_project_root/src/utils/file_utils.py' by replacing the text 'import os' with 'import sys'.",
+  "gold_tools": [
+   "filesystem::edit_file"
+  ]
+ },
+ {
+  "id": "38617a42-9d5d-4dc6-8ea2-4b6dca5fc9ac",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "List all files and directories in the path ./test_project_root/tests with their types.",
+  "gold_tools": [
+   "filesystem::list_directory"
+  ]
+ },
+ {
+  "id": "db7abafa-2f2d-4d17-93d8-d0c464e0f817",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Can you provide detailed metadata about the file or directory located at ./test_project_root/docs/README.md?",
+  "gold_tools": [
+   "filesystem::get_file_info"
+  ]
+ },
+ {
+  "id": "f3e7e805-b0de-4412-b3bd-1c8772f0817a",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Find all files and directories in the 'test_project_root/src' directory that match the pattern 'main'.",
+  "gold_tools": [
+   "filesystem::search_files"
+  ]
+ },
+ {
+  "id": "4cb7bc4d-9123-4174-bb12-9e93f6af49eb",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Read the contents of the files test_file_json_1.json and test_file_json_2.json located in the test_project_root/data directory simultaneously.",
+  "gold_tools": [
+   "filesystem::read_multiple_files"
+  ]
+ },
+ {
+  "id": "1795163a-6d52-4080-be02-77875772bfb7",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Retrieve detailed metadata about the file or directory located at ./test_project_root/src/main.py.",
+  "gold_tools": [
+   "filesystem::get_file_info"
+  ]
+ },
+ {
+  "id": "bd8509d8-d3a9-4024-98d1-f6178cf3a63e",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Read the contents of the files located at ./test_project_root/data/test_file_json_1.json and ./test_project_root/data/test_file_json_2.json simultaneously.",
+  "gold_tools": [
+   "filesystem::read_multiple_files"
+  ]
+ },
+ {
+  "id": "fc46bfe4-f7c2-468e-86f0-33e7db5fa091",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Find all files and directories matching the pattern 'test' in the path './test_project_root/tests'.",
+  "gold_tools": [
+   "filesystem::search_files"
+  ]
+ },
+ {
+  "id": "af4db845-7a02-462f-b27b-235fbdd485ac",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Ensure the directory ./test_project_root/src/config exists or create it if it does not.",
+  "gold_tools": [
+   "filesystem::create_directory"
+  ]
+ },
+ {
+  "id": "a7a2c768-d545-4fa4-8e71-3ad88b7782c9",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Provide a detailed list of all files and directories in the path ./test_project_root/tests, sorted by name, including their sizes.",
+  "gold_tools": [
+   "filesystem::list_directory_with_sizes"
+  ]
+ },
+ {
+  "id": "6d19d842-5c9f-4e7a-9082-8d32e504780d",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Edit the file located at ./test_project_root/data/test_file_txt_1.txt by replacing 'Sample text' with 'Example text'. Show a preview of the changes.",
+  "gold_tools": [
+   "filesystem::edit_file"
+  ]
+ },
+ {
+  "id": "e30deb39-fe2b-41cc-b192-e52161541e3f",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Read the contents of the files located at ./test_project_root/src/utils/file_utils.py and ./test_project_root/requirements.txt at the same time.",
+  "gold_tools": [
+   "filesystem::read_multiple_files"
+  ]
+ },
+ {
+  "id": "8cac45c6-a9ef-4881-b0e0-4b444900bdfe",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Provide a recursive tree view of the files and directories located at ./test_project_root/src.",
+  "gold_tools": [
+   "filesystem::directory_tree"
+  ]
+ },
+ {
+  "id": "5f206cbb-7c23-4e36-a7a6-641e58e0b14b",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Provide detailed metadata for the file or directory located at ./test_project_root/data/test_file_csv_1.csv.",
+  "gold_tools": [
+   "filesystem::get_file_info"
+  ]
+ },
+ {
+  "id": "c4f3c06e-31a8-40b6-9384-0fcce2749a6e",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Provide a detailed listing of all files and directories in the path ./test_project_root/tests/unit, sorted by name, including sizes.",
+  "gold_tools": [
+   "filesystem::list_directory_with_sizes"
+  ]
+ },
+ {
+  "id": "14b7224d-7071-4c82-849b-3291ef66c724",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Edit the README.md file located at ./test_project_root/docs/ by replacing the text 'Usage' with 'How to Use'.",
+  "gold_tools": [
+   "filesystem::edit_file"
+  ]
+ },
+ {
+  "id": "26f9b4ea-6890-4de4-b90a-8e03cd48dd23",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "What are the files and directories, along with their types, in the path ./test_project_root/docs?",
+  "gold_tools": [
+   "filesystem::list_directory"
+  ]
+ },
+ {
+  "id": "ad8498ac-b00e-42e9-b069-c30b05861c25",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "What files and directories, along with their types, are present in the path ./test_project_root/src?",
+  "gold_tools": [
+   "filesystem::list_directory"
+  ]
+ },
+ {
+  "id": "82b991e2-8923-4ca9-8331-197e32b15001",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Ensure the directory ./test_project_root/src/utils exists or create it if it does not.",
+  "gold_tools": [
+   "filesystem::create_directory"
+  ]
+ },
+ {
+  "id": "33b23019-f7b6-4254-a6ff-26f12d921a0f",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "What are the files and directories in the path ./test_project_root/data with detailed prefixes?",
+  "gold_tools": [
+   "filesystem::list_directory"
+  ]
+ },
+ {
+  "id": "f4515ccc-9a4d-43e0-899d-5745b063d4ca",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Provide a detailed listing of all files and directories in the path ./test_project_root/data, sorted by size, including their sizes.",
+  "gold_tools": [
+   "filesystem::list_directory_with_sizes"
+  ]
+ },
+ {
+  "id": "2d595108-3d40-48d9-b93c-850fb2690baa",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Find all files and directories with the name README in the path ./test_project_root/docs.",
+  "gold_tools": [
+   "filesystem::search_files"
+  ]
+ },
+ {
+  "id": "a5cc3bc6-11e5-4698-b067-6521bf004b07",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "What files and directories, along with their types, are present in the path ./test_project_root/docs?",
+  "gold_tools": [
+   "filesystem::list_directory"
+  ]
+ },
+ {
+  "id": "e99beb32-2063-41bd-bce3-6ec3a1cf2f67",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Create a directory at the path ./test_project_root/tests/unit/new_tests.",
+  "gold_tools": [
+   "filesystem::create_directory"
+  ]
+ },
+ {
+  "id": "06e06509-6a90-4d36-b0f8-6aafe61f1f0b",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Provide a detailed listing of all files and directories in the path ./test_project_root/docs, including their sizes, sorted by size.",
+  "gold_tools": [
+   "filesystem::list_directory_with_sizes"
+  ]
+ },
+ {
+  "id": "d402701b-6475-4679-960e-8080f7d3b7eb",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Provide a recursive tree view of the files and directories located at ./test_project_root/tests.",
+  "gold_tools": [
+   "filesystem::directory_tree"
+  ]
+ },
+ {
+  "id": "14ced88d-4ea6-4e33-980c-3152911dfbbd",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Ensure the directory ./test_project_root/tests/unit exists, creating it if necessary.",
+  "gold_tools": [
+   "filesystem::create_directory"
+  ]
+ },
+ {
+  "id": "b905db7f-dede-4681-9648-2e9deaada313",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "What are the detailed metadata and characteristics of the file or directory located at the path ./test_project_root/tests/unit/test_calculations.py?",
+  "gold_tools": [
+   "filesystem::get_file_info"
+  ]
+ },
+ {
+  "id": "bd57b84c-a238-4fde-b8e9-eb62a5178837",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "What are the files and directories in the path ./test_project_root, and distinguish them with [FILE] and [DIR]?",
+  "gold_tools": [
+   "filesystem::list_directory"
+  ]
+ },
+ {
+  "id": "ff416e3f-435e-4685-ba26-5181dcb91879",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "List all files and directories in the path ./test_project_root/docs, sorted by name, including their sizes.",
+  "gold_tools": [
+   "filesystem::list_directory_with_sizes"
+  ]
+ },
+ {
+  "id": "e6ef9ddb-f182-4b83-b4a6-50bdc6ae1861",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "List all files and directories in the path ./test_project_root/tests, distinguishing between files and directories.",
+  "gold_tools": [
+   "filesystem::list_directory"
+  ]
+ },
+ {
+  "id": "d8f4fe3a-354d-4dba-9fb2-9c236cbdb287",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "List all files and directories in the path ./test_project_root/data, distinguishing between files and directories.",
+  "gold_tools": [
+   "filesystem::list_directory"
+  ]
+ },
+ {
+  "id": "6d603172-74f2-4069-873e-299f921bb95b",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Can you provide detailed metadata about the file or directory located at ./test_project_root/data/test_file_csv_1.csv?",
+  "gold_tools": [
+   "filesystem::get_file_info"
+  ]
+ },
+ {
+  "id": "c352f629-e295-46ef-9bf2-982b2f9a22cd",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Read the contents of the files located at ./test_project_root/src/main.py and ./test_project_root/src/utils/file_utils.py at the same time.",
+  "gold_tools": [
+   "filesystem::read_multiple_files"
+  ]
+ },
+ {
+  "id": "a7a60b7d-5240-4748-97fe-d596d23ac132",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Ensure the directory structure ./test_project_root/config exists.",
+  "gold_tools": [
+   "filesystem::create_directory"
+  ]
+ },
+ {
+  "id": "be16b992-6095-4388-9368-d5b17229a98e",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Read the contents of the files test_file_json_1.json and test_file_csv_1.csv simultaneously.",
+  "gold_tools": [
+   "filesystem::read_multiple_files"
+  ]
+ },
+ {
+  "id": "fd0778b7-a64e-45fb-990f-586d82058609",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Can you provide detailed metadata for the file located at ./test_project_root/data/test_file_json_1.json?",
+  "gold_tools": [
+   "filesystem::get_file_info"
+  ]
+ },
+ {
+  "id": "13cdfc87-c6e7-4788-ae59-1f082b7fafb0",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Find all files and directories in the path ./test_project_root/src/utils matching the pattern 'file'.",
+  "gold_tools": [
+   "filesystem::search_files"
+  ]
+ },
+ {
+  "id": "1e640507-80ad-4744-8061-be8a55b16692",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "What are the detailed metadata of the file or directory at the path ./test_project_root/src/main.py?",
+  "gold_tools": [
+   "filesystem::get_file_info"
+  ]
+ },
+ {
+  "id": "54c2d449-fed5-4f14-b895-4fa6844e2869",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "What are the files and directories in the path ./test_project_root/src with detailed prefixes?",
+  "gold_tools": [
+   "filesystem::list_directory"
+  ]
+ },
+ {
+  "id": "985f23ed-ff13-487f-bbea-df5d855103b8",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "Read the contents of the files located at ./test_project_root/src/config/settings.yaml and ./test_project_root/tests/unit/test_calculations.py simultaneously.",
+  "gold_tools": [
+   "filesystem::read_multiple_files"
+  ]
+ },
+ {
+  "id": "0fe8188a-3275-4747-bc6a-1aad8db5e102",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "What are the detailed metadata of the file or directory located at ./test_project_root/data/test_file_csv_1.csv?",
+  "gold_tools": [
+   "filesystem::get_file_info"
+  ]
+ },
+ {
+  "id": "0d99bb9b-b121-4e67-a1f2-41ae95c4c94e",
+  "source": "MCPToolBench++",
+  "category": "file_system",
+  "query": "What files and directories, along with their types, are present in the path ./test_project_root/tests?",
+  "gold_tools": [
+   "filesystem::list_directory"
+  ]
+ },
+ {
+  "id": "8ea25e94-a589-4203-9d02-df4a76496b2c",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Kweichow Moutai in the CN_MAINLAND market?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "f7c9dc0a-82da-46f4-8fec-267a15667700",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Toyota Motor Corporation?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "bc1c406b-1edf-4040-a628-d898f8e142c0",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Royal Dutch Shell?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "89bfb7f7-f884-4586-9cbc-858b8904ea82",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Berkshire Hathaway?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "a8d25635-8f19-4d4e-ba6f-3c5bad78dd47",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of JD Health?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "9c119ade-acd1-4d46-9602-78effdaba6f4",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Procter & Gamble in the US market?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "0dd58d41-5c91-4731-9b35-5255d642b7ab",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of China Galaxy Securities?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "c4836e49-4d18-4979-93dc-e81e9b7f971b",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current stock price of Apple?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "a1364525-50b7-4769-95af-e3085788ddff",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Gree Electric Appliances?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "524d99f9-92ca-4ffc-a304-4afe2bbf600a",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of UnitedHealth Group?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "3eb2266c-847e-4200-b896-00024730f20a",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Tencent in the HK market?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "dd3a6b02-eece-4589-9579-048c237aabd3",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Sany Heavy Industry?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "20dfe76f-9b1a-439d-afc4-dfe058843a7c",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of CATL?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "3e55b07f-7c07-4d5a-872a-e21992374779",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of China Merchants Bank?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "f5af0f31-b190-4e42-bd84-6d28264f1773",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Microsoft in the US market?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "4b3329da-aade-4e93-ac47-8f76ff34b755",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Tongcheng Travel Holdings?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "217cfc0e-1b6c-4f45-bcf9-f747dce85caf",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of China Petroleum & Chemical Corporation?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "a387d26e-b0a6-4f36-9e69-4bf09e152710",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of UnitedHealth Group in the US market?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "3f244252-bcdf-4df1-a2fa-4d5731342a93",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Meituan?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "5611c1a0-0e05-4aac-a263-b38549140973",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Procter & Gamble?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "b929ff19-36ef-4a4f-b48c-edbd1113ba5e",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Bank of America in the US market?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "75720aba-da01-42ef-adac-60fb706575de",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of East Money Information Co., Ltd.?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "1faa8e70-bc1c-42f8-b5b4-0c39481ae7b8",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of JPMorgan Chase?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "2f318b3c-420c-4647-9bee-1b040bea5321",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of SAIC Motor Corporation Limited?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "65bfdf49-9f43-425c-bc08-ad46915d191e",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Walmart?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "b80fd290-d4a0-4e67-8611-2527eb5ed0b7",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of the company with the stock code SZ000725?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "8233efdb-274f-4930-8a9d-2ebb28a89d88",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of CITIC Securities?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "44c54212-acb9-4bb6-bcdf-a8a899bcb5dd",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Nvidia?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "ef7eee6c-f2ef-4c33-b020-3763cddc0b51",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of BYD Company Limited?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "5c481342-9ff4-4bb8-a618-1ac7d922b849",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Google in the US market?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "d36c7bdd-e286-481b-8952-acae06be6e2b",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Alibaba in the HK market?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "a8008cf0-dad1-4568-acbf-591a936efc18",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Visa?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "5645c67d-431a-4a4e-a946-840babf2c21f",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Pfizer?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "532be0ed-95f3-4b41-81eb-8e0c67a03c82",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of PepsiCo?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "53edcecf-a24b-4e0f-9204-e2c10eac5f3b",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Wuliangye Yibin in the CN_MAINLAND market?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "e79584fe-ec53-4471-9f65-b0f1a132009e",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Gree Electric?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "29220a12-4347-401d-93b3-73921973a353",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Mastercard?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "b297994f-25ea-4658-91f4-ad78015f33ec",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Wuliangye Yibin Co., Ltd?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "3dfbbea4-e57e-46ce-9e04-969df291543a",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Kweichow Moutai?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "fe88446a-1efd-4d07-a1cb-17e33c3026de",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Tesla?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "941e410c-edf0-4924-a409-78e13f1da618",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of JPMorgan Chase in the US market?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "ecceaec8-36db-4850-8bdb-2ff9b5a77cbb",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Shanghai Pudong Development Bank?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "01c3bd7e-eacb-46bd-863e-afa25151cb3b",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Meituan in the HK market?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "b73a183e-d12d-4f44-a7a5-67db1a894f23",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Taiwan Semiconductor Manufacturing Company in the US market?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "89d5c2ac-f9a9-4a60-ad29-24f5c9a89cd6",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Coca-Cola?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "be4a62ad-da86-4821-89e6-246943205480",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of China Merchants Bank in the CN_MAINLAND market?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "f7adad07-9a6f-49f9-9b78-5c41f5bf847e",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Meta in the US market?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "7d3456db-a39c-4053-9e31-0467a7963049",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of China State Construction Engineering Corporation?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "1e0207d2-f60a-4125-a9f1-c209392a61f5",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Alibaba?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "d8904635-6644-4c95-9512-e010942f8ace",
+  "source": "MCPToolBench++",
+  "category": "finance",
+  "query": "What is the current share price of Reliance on the NSE India?",
+  "gold_tools": [
+   "finance-agent-mcp-server::get_stock_price_global_market"
+  ]
+ },
+ {
+  "id": "8c05cc75-214f-4fdc-ae66-815fcac6ed50",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the address at the coordinates 48.8566, 2.3522?",
+  "gold_tools": [
+   "google-maps::maps_reverse_geocode"
+  ]
+ },
+ {
+  "id": "5a3c904a-425e-4fd3-9cc4-ec747a4be0c8",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the driving route from Beijing to Moscow?",
+  "gold_tools": [
+   "amap-amap-sse::maps_direction_driving"
+  ]
+ },
+ {
+  "id": "a4c6e6be-7413-493f-911d-67f734b67f93",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the address for the coordinates at latitude 35.689487 and longitude -118.243683?",
+  "gold_tools": [
+   "google-maps::maps_reverse_geocode"
+  ]
+ },
+ {
+  "id": "9659ccde-3b5e-46db-906e-7833683e0398",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the current weather and the 5-day forecast for London?",
+  "gold_tools": [
+   "baidu-maps-sse::map_weather"
+  ]
+ },
+ {
+  "id": "4df143e2-ae4c-426f-bba1-6e34653ee34f",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "¿Cuál es el clima en Sevilla?",
+  "gold_tools": [
+   "amap-amap-sse::maps_weather"
+  ]
+ },
+ {
+  "id": "1b6189f6-16f4-45b5-adf8-19a84a86feda",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the administrative address information for the location with coordinates 34.0522,-118.2437?",
+  "gold_tools": [
+   "amap-amap-sse::maps_regeocode"
+  ]
+ },
+ {
+  "id": "b6face32-5ea5-41ce-97bc-b10f3cd791ab",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the driving distance from Shenzhen to Tianjin?",
+  "gold_tools": [
+   "amap-amap-sse::maps_direction_driving"
+  ]
+ },
+ {
+  "id": "e3c7da63-a5aa-48bd-a10e-1ba0a66eaa1a",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Quels sont les points d'intérêt autour du musée du Louvre à Paris?",
+  "gold_tools": [
+   "amap-amap-sse::maps_text_search"
+  ]
+ },
+ {
+  "id": "84e222dd-9120-4e63-bfe3-02e880c94383",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "从杭州到南京的驾车距离是多少？",
+  "gold_tools": [
+   "amap-amap-sse::maps_distance"
+  ]
+ },
+ {
+  "id": "a65984fe-b330-42c0-9d82-762f1520a744",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the address for the coordinates 35.6895, 139.6917?",
+  "gold_tools": [
+   "google-maps::maps_reverse_geocode"
+  ]
+ },
+ {
+  "id": "afbd391e-ab3e-4c3c-b99d-a993f8c08007",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Find parks around London within a radius of 2500 meters.",
+  "gold_tools": [
+   "amap-amap-sse::maps_around_search"
+  ]
+ },
+ {
+  "id": "b3eb9a0c-8e78-488d-a1ce-da8821b25f07",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "请帮我规划从当前位置到兵马俑博物馆的导航路线。",
+  "gold_tools": [
+   "amap-amap-sse::maps_schema_navi"
+  ]
+ },
+ {
+  "id": "c30afbb3-41d1-4ce1-b287-9446e13154f2",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the best public transit route from Foshan to Xi'an?",
+  "gold_tools": [
+   "amap-amap-sse::maps_direction_transit_integrated"
+  ]
+ },
+ {
+  "id": "09752559-fc2f-46e9-a6e4-590d1c04e5c6",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Quelle est la distance et le temps de trajet de Nantes à Toulouse en mode voiture?",
+  "gold_tools": [
+   "baidu-maps-sse::map_directions_matrix"
+  ]
+ },
+ {
+  "id": "6facf1a3-aa9b-403b-ae83-32dcb7a7d97d",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What are the directions from the Eiffel Tower in Paris to the Louvre Museum in Paris using public transit?",
+  "gold_tools": [
+   "google-maps::maps_directions"
+  ]
+ },
+ {
+  "id": "f51bec22-4248-4abf-af58-b0bd8922ec8b",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the current weather in Shanghai?",
+  "gold_tools": [
+   "amap-amap-sse::maps_weather"
+  ]
+ },
+ {
+  "id": "ebf80ca9-104c-4198-8296-51983f022bec",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "東京タワーから渋谷駅までの運転経路を教えてください。",
+  "gold_tools": [
+   "amap-amap-sse::maps_direction_driving"
+  ]
+ },
+ {
+  "id": "cc5c4eaf-07d6-4dd2-98b8-445853dc81a3",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Measure the driving distance from Los Angeles to San Francisco.",
+  "gold_tools": [
+   "amap-amap-sse::maps_distance"
+  ]
+ },
+ {
+  "id": "ecff92ae-826c-4165-a744-22409ac3612d",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "東京タワーの緯度と経度を教えてください。",
+  "gold_tools": [
+   "amap-amap-sse::maps_geo"
+  ]
+ },
+ {
+  "id": "b4854891-af6b-4fa6-9988-d194ed9377a2",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "获取西安兵马俑的评分和营业时间等详细信息。",
+  "gold_tools": [
+   "baidu-maps-sse::map_place_details"
+  ]
+ },
+ {
+  "id": "cff2ad76-5a3e-4523-999e-de4cfa19bca8",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the driving distance between Tokyo and Beijing?",
+  "gold_tools": [
+   "amap-amap-sse::maps_distance"
+  ]
+ },
+ {
+  "id": "944a531c-11ed-4eb0-8bb6-dedd60ce73ab",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Find museums within a 2000-meter radius around Beijing.",
+  "gold_tools": [
+   "amap-amap-sse::maps_around_search"
+  ]
+ },
+ {
+  "id": "5fd225ba-cc69-484f-8f70-21894c82dcf8",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "从北京到上海的驾车距离是多少？",
+  "gold_tools": [
+   "amap-amap-sse::maps_distance"
+  ]
+ },
+ {
+  "id": "62a2c47c-ab84-4e31-b062-6b1149a88f84",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Find parks within a 1500-meter radius around Beijing using the keyword 'park'.",
+  "gold_tools": [
+   "amap-amap-sse::maps_around_search"
+  ]
+ },
+ {
+  "id": "63c6590a-1b5a-46ca-94fe-992a05c17cc5",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "¿Cuáles son los puntos de interés relacionados con parques cerca de Londres en un radio de 300 metros?",
+  "gold_tools": [
+   "amap-amap-sse::maps_around_search"
+  ]
+ },
+ {
+  "id": "61aaa6a4-6122-4d56-a3c7-67e7f942bd7a",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "I have planned a trip to Tokyo, can you generate a map for it?",
+  "gold_tools": [
+   "baidu-maps-sse::map_mark"
+  ]
+ },
+ {
+  "id": "1592690e-fed4-4a56-8ef3-46bb49160035",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the location of the IP address 172.16.0.0?",
+  "gold_tools": [
+   "amap-amap-sse::maps_ip_location"
+  ]
+ },
+ {
+  "id": "7a8bc174-93df-4c29-8c77-d5452180ad5a",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the driving route from Berlin to Moscow?",
+  "gold_tools": [
+   "baidu-maps-sse::map_directions"
+  ]
+ },
+ {
+  "id": "ab450131-6d5d-496d-be66-31b76d191860",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Plan a bicycling route from Guangzhou to a nearby location in Guangzhou.",
+  "gold_tools": [
+   "amap-amap-sse::maps_direction_bicycling"
+  ]
+ },
+ {
+  "id": "63fbeec2-5a2c-49b6-9839-f711c1ee1adc",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Каковы координаты Большого театра в Москве?",
+  "gold_tools": [
+   "amap-amap-sse::maps_geo"
+  ]
+ },
+ {
+  "id": "0afc200d-8e81-454a-b7f1-b2290e9adb69",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the administrative address of the location at the coordinates 35.6895, 139.6917?",
+  "gold_tools": [
+   "amap-amap-sse::maps_regeocode"
+  ]
+ },
+ {
+  "id": "2c57e8a1-5bba-42f8-8c2f-050b80ff8363",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the address for the location with latitude 51.5074 and longitude 2.3522?",
+  "gold_tools": [
+   "baidu-maps-sse::map_reverse_geocode"
+  ]
+ },
+ {
+  "id": "0e0b8215-46c4-43b6-9ae5-579cad8ca63c",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Calculate the driving distance and travel time from Paris to Moscow.",
+  "gold_tools": [
+   "baidu-maps-sse::map_directions_matrix"
+  ]
+ },
+ {
+  "id": "2f128786-5afc-4a15-8d9d-b84b9b3728ac",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the driving distance from New York, NY to Boston, MA?",
+  "gold_tools": [
+   "google-maps::maps_directions"
+  ]
+ },
+ {
+  "id": "6c6f01c8-9ef0-4196-8332-68d5bc9af031",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the best driving route from Sydney, Australia to Melbourne, Australia?",
+  "gold_tools": [
+   "baidu-maps-sse::map_directions"
+  ]
+ },
+ {
+  "id": "286c5c0d-b2e5-4feb-8f8d-d7a6cca6faa4",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Find popular restaurants within a 1000 meter radius around the Empire State Building.",
+  "gold_tools": [
+   "amap-amap-sse::maps_around_search"
+  ]
+ },
+ {
+  "id": "17909961-b011-45d8-8709-bca1438c898d",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What are the driving directions from Phoenix, AZ to Miami, FL?",
+  "gold_tools": [
+   "google-maps::maps_directions"
+  ]
+ },
+ {
+  "id": "54e33e71-d22d-46bc-b134-0d740a628641",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Find the best Chinese restaurants in Phoenix.",
+  "gold_tools": [
+   "amap-amap-sse::maps_text_search"
+  ]
+ },
+ {
+  "id": "9fbabe0a-adac-48df-bf94-b56960fdb737",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the administrative address for the location with coordinates 48.8566, 2.3522?",
+  "gold_tools": [
+   "amap-amap-sse::maps_regeocode"
+  ]
+ },
+ {
+  "id": "093e44b8-eba5-4ae1-855d-8765f6d75252",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What are the geographic coordinates of the Taj Mahal in Agra?",
+  "gold_tools": [
+   "google-maps::maps_geocode"
+  ]
+ },
+ {
+  "id": "155e1f06-67e2-406f-91ec-185598b82a40",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Каковы географические координаты Ленинградского проспекта в Москве?",
+  "gold_tools": [
+   "google-maps::maps_geocode"
+  ]
+ },
+ {
+  "id": "0014460b-8215-4c7b-b8ed-1890fd94b377",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What are the driving directions from Chicago, IL to Atlanta, GA?",
+  "gold_tools": [
+   "google-maps::maps_directions"
+  ]
+ },
+ {
+  "id": "9672b725-b97c-4153-9186-cc78bf2a221e",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What are the details of the place with the Google Maps ID ChIJrTLr-GyuEmsRBfy61i59si0?",
+  "gold_tools": [
+   "google-maps::maps_place_details"
+  ]
+ },
+ {
+  "id": "20ea566d-42c8-40a6-bc3d-cba1a33c5f20",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "札幌時計台の緯度と経度を教えてください。",
+  "gold_tools": [
+   "amap-amap-sse::maps_geo"
+  ]
+ },
+ {
+  "id": "8ca2f4e5-3b69-41f5-9c4f-db5003d6a0db",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the address of the location at latitude 51.5074 and longitude -118.2437?",
+  "gold_tools": [
+   "baidu-maps-sse::map_reverse_geocode"
+  ]
+ },
+ {
+  "id": "14996064-b660-4027-bb17-7257062dbcc4",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the current weather and 5-day forecast for New York City?",
+  "gold_tools": [
+   "baidu-maps-sse::map_weather"
+  ]
+ },
+ {
+  "id": "58fdd3bf-8524-488c-91f1-87edae7b8439",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Can you create a travel map for the itinerary: Tour the West Lake and Lingyin Temple in Hangzhou?",
+  "gold_tools": [
+   "baidu-maps-sse::map_mark"
+  ]
+ },
+ {
+  "id": "a57ddc87-fc4b-462e-ba74-520533162f25",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "What is the walking route from the coordinates 116.407526,39.90403 to 116.397451,39.909187?",
+  "gold_tools": [
+   "amap-amap-sse::maps_direction_walking"
+  ]
+ },
+ {
+  "id": "051aae43-ebe9-42ae-8738-324bc8ec0474",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Can you create a map for the travel plan to experience the wildlife safari in Serengeti National Park, Tanzania?",
+  "gold_tools": [
+   "baidu-maps-sse::map_mark"
+  ]
+ },
+ {
+  "id": "0e56fcab-90b5-425e-bf98-61e0c45e1d66",
+  "source": "MCPToolBench++",
+  "category": "map",
+  "query": "Create a travel itinerary map for Cape Town with detailed plans.",
+  "gold_tools": [
+   "baidu-maps-sse::map_mark"
+  ]
+ },
+ {
+  "id": "65487bf5-4cc0-4096-a59f-6ee1072b5d32",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a subscription plan for the product with ID PROD-14151, named 'Enterprise Plan', including billing cycle details.",
+  "gold_tools": [
+   "paypal::create_subscription_plan"
+  ]
+ },
+ {
+  "id": "aacc25db-551c-457d-a4a6-aa59a6c40c29",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Initiate a refund for the capture with ID CAPTUREABCDE.",
+  "gold_tools": [
+   "paypal::create_refund"
+  ]
+ },
+ {
+  "id": "48957a59-1815-4471-81cd-aa3f060371f2",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a new product called Online Yoga Classes of type SERVICE.",
+  "gold_tools": [
+   "paypal::create_product"
+  ]
+ },
+ {
+  "id": "78a20052-af37-4afc-b3cd-bce65cdf90bf",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a shipment tracking for the transaction with ID 9XJ12345ABC67890 and tracking number 1234567890.",
+  "gold_tools": [
+   "paypal::create_shipment_tracking"
+  ]
+ },
+ {
+  "id": "a2d4c502-aecf-4ae8-9915-910b0e5ce9c7",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Initiate a refund for the capture with ID CAPTURE12345 with a note saying Refund issued due to product defect.",
+  "gold_tools": [
+   "paypal::create_refund"
+  ]
+ },
+ {
+  "id": "a8a4db6d-3c05-46f2-9228-f2b0c892602d",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create an invoice for Healthy Eats for a Meal Prep Service costing 50.00 CAD.",
+  "gold_tools": [
+   "paypal::create_invoice"
+  ]
+ },
+ {
+  "id": "ca756141-11ae-4573-bfee-cb3b52bc136c",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a shipment tracking for the transaction with tracking number EC123456789US.",
+  "gold_tools": [
+   "paypal::create_shipment_tracking"
+  ]
+ },
+ {
+  "id": "3a3a7b10-ba25-4996-b1f4-ec3b0ec116b0",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Initiate a refund for the payment capture with ID CAPTURE12345. If it's a partial refund, refund 50.00 USD with the note: Thank you for your purchase.",
+  "gold_tools": [
+   "paypal::create_refund"
+  ]
+ },
+ {
+  "id": "3339dc69-5515-4f2d-9a23-359dc6846ec0",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a subscription plan for the product identified by PROD-11223 named Basic Plan with billing cycles every 2 weeks.",
+  "gold_tools": [
+   "paypal::create_subscription_plan"
+  ]
+ },
+ {
+  "id": "d1ea71cb-6bb5-4731-a670-53b88651ff46",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a shipment tracking for transaction ID 5XH56789MNO01234 with tracking number 1Z555EE50567890123.",
+  "gold_tools": [
+   "paypal::create_shipment_tracking"
+  ]
+ },
+ {
+  "id": "c7d1865b-2b42-44a6-bf0b-035211cf13a6",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a new service product named Premium Music Streaming in PayPal.",
+  "gold_tools": [
+   "paypal::create_product"
+  ]
+ },
+ {
+  "id": "ce30a7f3-fdc5-4a2c-a76a-c5e35f1c4a04",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a new product named Premium Music Streaming with the type SERVICE.",
+  "gold_tools": [
+   "paypal::create_product"
+  ]
+ },
+ {
+  "id": "cf50d76e-3b2f-473e-9a46-a1b90979d2c3",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a new product called Online Yoga Classes as a SERVICE in PayPal.",
+  "gold_tools": [
+   "paypal::create_product"
+  ]
+ },
+ {
+  "id": "8fdfc65c-a517-4be3-89a3-7387b7cd8648",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create an order to purchase a Tablet with a quantity of 1 at a cost of 250.0 each, totaling 250.0 USD.",
+  "gold_tools": [
+   "paypal::create_order"
+  ]
+ },
+ {
+  "id": "23c80308-4580-45a8-acf1-ded3cb4d03d0",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Please initiate a refund for the transaction with ID CAPTURE12345 and refund 50.00 USD.",
+  "gold_tools": [
+   "paypal::create_refund"
+  ]
+ },
+ {
+  "id": "46b8398d-6cfd-43d0-8339-41dc282a9996",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Please initiate a refund for the capture with ID CAPTURE54321. Include a note: We apologize for any inconvenience.",
+  "gold_tools": [
+   "paypal::create_refund"
+  ]
+ },
+ {
+  "id": "2c1d5cbf-c9fa-404f-a950-63db56335a69",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a subscription plan for the product with ID PROD-141516, named Weekly Starter Plan, including billing cycle details.",
+  "gold_tools": [
+   "paypal::create_subscription_plan"
+  ]
+ },
+ {
+  "id": "a14c1def-87dd-459a-8a66-3a484f2be55b",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create an invoice for Tech Solutions Inc. with an item, a Laptop, costing 1200.00 USD.",
+  "gold_tools": [
+   "paypal::create_invoice"
+  ]
+ },
+ {
+  "id": "7c6f6f7e-8afc-4a47-84b5-91ffc694459a",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create an invoice for Home Decor Shop with the item Wall Art priced at 75.00 USD.",
+  "gold_tools": [
+   "paypal::create_invoice"
+  ]
+ },
+ {
+  "id": "4df0fc45-57f8-4188-81c7-a01fa49bde05",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a shipment tracking for transaction ID 8YH67890DEF12345 with tracking number 9876543210.",
+  "gold_tools": [
+   "paypal::create_shipment_tracking"
+  ]
+ },
+ {
+  "id": "e23c10ff-6255-40d3-8fab-f5ee838fa64b",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a shipment tracking for transaction ID 1QW23456MNO87654 with tracking number EC123456789US.",
+  "gold_tools": [
+   "paypal::create_shipment_tracking"
+  ]
+ },
+ {
+  "id": "0ae9d22e-8711-42b7-a647-7191bb335752",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a subscription plan for the product with ID PROD-12345, named Basic Plan, and include the billing cycle details.",
+  "gold_tools": [
+   "paypal::create_subscription_plan"
+  ]
+ },
+ {
+  "id": "6427ce63-3b25-47e9-9ebc-86af0a2862bf",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a subscription plan for the product identified by ID PROD-12345, named Basic Plan, with a billing cycle of 1 month.",
+  "gold_tools": [
+   "paypal::create_subscription_plan"
+  ]
+ },
+ {
+  "id": "e4ca7cff-74ef-40b6-9d35-5261e07e9858",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Please initiate a refund for the transaction with ID CAPTURE12345 and include a note saying: Thank you for your patience.",
+  "gold_tools": [
+   "paypal::create_refund"
+  ]
+ },
+ {
+  "id": "a8604453-34d8-45b2-81cd-05bbc26ca1b8",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a new product named Online Yoga Classes with the type SERVICE.",
+  "gold_tools": [
+   "paypal::create_product"
+  ]
+ },
+ {
+  "id": "485f4615-b86c-4e85-a642-3a3e9a285f80",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a new digital product named E-Book Reader.",
+  "gold_tools": [
+   "paypal::create_product"
+  ]
+ },
+ {
+  "id": "ed601abb-82c7-4376-8417-cb0744fc7c3a",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Initiate a refund for the payment with capture ID 7G6H5I4J3K.",
+  "gold_tools": [
+   "paypal::create_refund"
+  ]
+ },
+ {
+  "id": "0ba0675b-2bec-4d3f-91d3-c63f6e3aa3e0",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Initiate a refund for the payment capture with ID CAPTURE67890. If it's a partial refund, refund 30.00 EUR with the note: Partial refund for your order.",
+  "gold_tools": [
+   "paypal::create_refund"
+  ]
+ },
+ {
+  "id": "87c31bfa-6c92-4ce4-a479-d842865afab7",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Initiate a refund for the capture ID CAPTURE54321 with a partial amount of GBP 20.00 and note: Refund due to late delivery.",
+  "gold_tools": [
+   "paypal::create_refund"
+  ]
+ },
+ {
+  "id": "29294319-ba4f-41f2-8ca9-9fd104902f46",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a subscription plan for online courses with a weekly billing cycle and a fixed price of 19.99 USD.",
+  "gold_tools": [
+   "paypal::create_subscription_plan"
+  ]
+ },
+ {
+  "id": "7b38433a-739f-45ee-bb8f-1e6fbea0fb05",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Initiate a refund for the capture ID CAPTURE-1234567890 with the amount of 50.00 USD and note 'Refund for damaged item'.",
+  "gold_tools": [
+   "paypal::create_refund"
+  ]
+ },
+ {
+  "id": "e3487e63-6a9f-4672-aaad-8168d5f267d6",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a shipment with tracking number 0987654321 for transaction 1AB23456DEF78901.",
+  "gold_tools": [
+   "paypal::create_shipment_tracking"
+  ]
+ },
+ {
+  "id": "a9d7d3e2-5396-4520-b3d7-f8c98a248dc9",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create an invoice for Auto Parts Co. with 50 Car Tires priced at 80.00 CAD each.",
+  "gold_tools": [
+   "paypal::create_invoice"
+  ]
+ },
+ {
+  "id": "4f944c55-11cd-4679-9dba-1ed5a5695d07",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a new product named Yoga Mat as a physical item in PayPal.",
+  "gold_tools": [
+   "paypal::create_product"
+  ]
+ },
+ {
+  "id": "a6c81811-269e-4085-8fe4-9faf9166f290",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a shipment tracking for the transaction with ID 7YH98765XYZ12345 and tracking number 0987654321.",
+  "gold_tools": [
+   "paypal::create_shipment_tracking"
+  ]
+ },
+ {
+  "id": "6f1c2782-5e01-4136-a256-7bf43b711102",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Initiate a refund for the capture with ID CAPTUREKLMNO.",
+  "gold_tools": [
+   "paypal::create_refund"
+  ]
+ },
+ {
+  "id": "e6a6481e-c5a3-4480-8243-a933a02b32ae",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a subscription plan for the product with the name Standard Plan and billing cycle details.",
+  "gold_tools": [
+   "paypal::create_subscription_plan"
+  ]
+ },
+ {
+  "id": "ed3e7696-4458-43e2-b042-ff37523c29db",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Initiate a refund for the transaction with ID CAPTURE54321 with a note saying 'Refund for overcharge'.",
+  "gold_tools": [
+   "paypal::create_refund"
+  ]
+ },
+ {
+  "id": "d78961d8-4344-4502-9b58-6673f5d58ea0",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create an invoice for John Doe for a Laptop costing $1200.00 USD.",
+  "gold_tools": [
+   "paypal::create_invoice"
+  ]
+ },
+ {
+  "id": "98d20334-1add-4f09-9b34-f2a0f25e995f",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a shipment tracking for the transaction with tracking number 5678901234.",
+  "gold_tools": [
+   "paypal::create_shipment_tracking"
+  ]
+ },
+ {
+  "id": "5f60f709-4d66-4420-9646-4caf4dd16e48",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a PayPal order for a Wireless Mouse with a quantity of 2 and a total cost of 31.98 USD.",
+  "gold_tools": [
+   "paypal::create_order"
+  ]
+ },
+ {
+  "id": "737955ce-6b25-4d05-b2f7-1e93974fc5e4",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a shipment tracking for the transaction with tracking number 1Z888BB20234567890.",
+  "gold_tools": [
+   "paypal::create_shipment_tracking"
+  ]
+ },
+ {
+  "id": "b41a467d-d832-4546-9c6c-8b75f31800cf",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a new product named Super Fast Charger of type PHYSICAL.",
+  "gold_tools": [
+   "paypal::create_product"
+  ]
+ },
+ {
+  "id": "702c896d-74e9-411f-bfa1-4b2af9acdbf1",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a PayPal order for Bluetooth Headphones with a quantity of 1 and a total item cost of 89.99 USD.",
+  "gold_tools": [
+   "paypal::create_order"
+  ]
+ },
+ {
+  "id": "617680a6-0afa-4d25-a42f-b9b3c904225d",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a shipment tracking for transaction ID 3QR67890STU54321 with tracking number 6789012345.",
+  "gold_tools": [
+   "paypal::create_shipment_tracking"
+  ]
+ },
+ {
+  "id": "d51a4d18-edc7-42c9-b854-74dfaa40f6c0",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a shipment tracking for the transaction with ID 4UJ12345DEF67891 using the tracking number 9400110200883644329831.",
+  "gold_tools": [
+   "paypal::create_shipment_tracking"
+  ]
+ },
+ {
+  "id": "0bb6ffa9-7f82-4ab4-8a7b-29a8725d0982",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a subscription plan for the product with ID PROD-123456, named Monthly Basic Plan, including billing cycle details.",
+  "gold_tools": [
+   "paypal::create_subscription_plan"
+  ]
+ },
+ {
+  "id": "8121d946-6200-4858-925b-cea1a5db4f59",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Can you process a refund for the transaction with capture ID CAPTURE09876?",
+  "gold_tools": [
+   "paypal::create_refund"
+  ]
+ },
+ {
+  "id": "ca748068-c885-4004-ab0b-142d4d195733",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create a new product called Home Cleaning Service of type SERVICE in PayPal.",
+  "gold_tools": [
+   "paypal::create_product"
+  ]
+ },
+ {
+  "id": "79a74e27-3126-430c-9087-7cbb421fed2c",
+  "source": "MCPToolBench++",
+  "category": "pay",
+  "query": "Create an invoice for Bob Brown with the item Monitor priced at 300.00 GBP.",
+  "gold_tools": [
+   "paypal::create_invoice"
+  ]
+ },
+ {
+  "id": "43851970-b333-43ef-bce1-520d948d6558",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find information about the 2024 Olympics.",
+  "gold_tools": [
+   "google-search::search"
+  ]
+ },
+ {
+  "id": "e17f23a2-6066-41a8-8cb2-05a806cccac6",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find recent news articles about climate change in the United States.",
+  "gold_tools": [
+   "tavily-mcp::tavily-search"
+  ]
+ },
+ {
+  "id": "78844c7f-6bb1-4399-8d48-ecb7cb69a612",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Extract content from the website Hacker News with advanced depth, including images, in text format.",
+  "gold_tools": [
+   "tavily-mcp::tavily-extract"
+  ]
+ },
+ {
+  "id": "a5d66325-2a65-4486-8a80-f9d01b63a5a4",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news about artificial intelligence in China.",
+  "gold_tools": [
+   "tavily-mcp::tavily-search"
+  ]
+ },
+ {
+  "id": "7a047c14-cb29-4047-b5fc-de05a2e19fa0",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news about technology innovations in Germany.",
+  "gold_tools": [
+   "tavily-mcp::tavily-search"
+  ]
+ },
+ {
+  "id": "7fdc932d-7132-469b-95e5-e897c7199614",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find recent news articles about sports events from Brazil.",
+  "gold_tools": [
+   "tavily-mcp::tavily-search"
+  ]
+ },
+ {
+  "id": "1aff53b9-c7db-42cf-8de0-9b208ec9b708",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news on global health in India with images included.",
+  "gold_tools": [
+   "tavily-mcp::tavily-search"
+  ]
+ },
+ {
+  "id": "514cd468-f4cb-4246-a39e-b14c6d68988e",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Start a web crawl from https://www.educationportal.edu with a maximum depth of 3 and extract the content in markdown format.",
+  "gold_tools": [
+   "tavily-mcp::tavily-crawl"
+  ]
+ },
+ {
+  "id": "2514d101-ae6d-4569-94cb-256955e35e44",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you create a map of the website structure starting from Microsoft's homepage with a maximum depth of 4?",
+  "gold_tools": [
+   "tavily-mcp::tavily-map"
+  ]
+ },
+ {
+  "id": "5612a5ba-9204-46fa-8bc9-2604a092c093",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Start a web crawl from https://mydomain.com and concentrate on the Pricing category.",
+  "gold_tools": [
+   "tavily-mcp::tavily-crawl"
+  ]
+ },
+ {
+  "id": "ad736674-cabc-49b9-9bf5-e10968809b39",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find information about healthy eating tips.",
+  "gold_tools": [
+   "google-search::search"
+  ]
+ },
+ {
+  "id": "447bc618-7743-4608-a4c4-2d0af1c50879",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news on climate change in the United States with images included.",
+  "gold_tools": [
+   "tavily-mcp::tavily-search"
+  ]
+ },
+ {
+  "id": "725497a8-5ce3-4744-b096-fc21e91641d2",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find information about the latest iPhone release.",
+  "gold_tools": [
+   "google-search::search"
+  ]
+ },
+ {
+  "id": "47ab7e73-d60a-450b-846f-9655050be0a4",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find information about the global economic outlook.",
+  "gold_tools": [
+   "google-search::search"
+  ]
+ },
+ {
+  "id": "b0a91316-9fbd-4334-a7de-d0b2c602c579",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you extract content from the following URLs: https://www.bbc.com/news, https://www.nytimes.com/?",
+  "gold_tools": [
+   "tavily-mcp::tavily-extract"
+  ]
+ },
+ {
+  "id": "0021b3ca-4a44-4c91-863a-d6cbf514a513",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find recent news articles about healthcare innovations in India.",
+  "gold_tools": [
+   "tavily-mcp::tavily-search"
+  ]
+ },
+ {
+  "id": "b008b2aa-f0ce-439e-b2d3-2d408f76a54f",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Start a web crawl from the WordPress website, focusing on the Community sections, and extract the content in text format.",
+  "gold_tools": [
+   "tavily-mcp::tavily-crawl"
+  ]
+ },
+ {
+  "id": "f1e0c476-6da2-450a-b239-085bb6b5b56e",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Extract content from https://www.bbc.com/news with basic depth and format it in markdown.",
+  "gold_tools": [
+   "tavily-mcp::tavily-extract"
+  ]
+ },
+ {
+  "id": "1e2e5bf6-cad2-47fc-9e07-927a2d2e9f2b",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Start a web crawl from https://sample.com, specifically focusing on the Careers category.",
+  "gold_tools": [
+   "tavily-mcp::tavily-crawl"
+  ]
+ },
+ {
+  "id": "28082564-8291-4187-87e9-2454c5b78cfd",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you extract content from these URLs: https://www.ted.com and https://www.nationalgeographic.com?",
+  "gold_tools": [
+   "tavily-mcp::tavily-extract"
+  ]
+ },
+ {
+  "id": "8863db7d-9076-4417-8cfa-181fee1e0061",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news about politics in Japan.",
+  "gold_tools": [
+   "tavily-mcp::tavily-search"
+  ]
+ },
+ {
+  "id": "45075d91-a19d-4975-979b-e191bd596e45",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news about global warming in the United Kingdom.",
+  "gold_tools": [
+   "tavily-mcp::tavily-search"
+  ]
+ },
+ {
+  "id": "e0327489-b6db-4145-aa8f-04e3ef2ef657",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Extract content from the following URLs: https://www.bbc.com/news, https://www.cnn.com, using basic depth and markdown format.",
+  "gold_tools": [
+   "tavily-mcp::tavily-extract"
+  ]
+ },
+ {
+  "id": "3e785406-21bf-42a0-b124-2272905e9f0d",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news about economic growth in China.",
+  "gold_tools": [
+   "tavily-mcp::tavily-search"
+  ]
+ },
+ {
+  "id": "a067c489-3086-4366-b207-24e9f3475ecf",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find news articles about climate change.",
+  "gold_tools": [
+   "google-search::search"
+  ]
+ },
+ {
+  "id": "70a1a965-420a-4934-b697-0a0bc17fb760",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you extract content from the following URLs: https://www.wikipedia.org, https://www.nytimes.com?",
+  "gold_tools": [
+   "tavily-mcp::tavily-extract"
+  ]
+ },
+ {
+  "id": "1ee15879-f384-4888-931c-73165f4da897",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news about sports events in Australia.",
+  "gold_tools": [
+   "tavily-mcp::tavily-search"
+  ]
+ },
+ {
+  "id": "8a3b5d95-d49b-4bce-9d21-63aa6b81e369",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news on healthcare innovations in India",
+  "gold_tools": [
+   "tavily-mcp::tavily-search"
+  ]
+ },
+ {
+  "id": "abe627f5-9d13-4137-9b57-0eff35abe372",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you map the website structure of www.microsoft.com with a maximum depth of 3?",
+  "gold_tools": [
+   "tavily-mcp::tavily-map"
+  ]
+ },
+ {
+  "id": "8a44c88f-6ff9-4005-adf9-f4c75c820d52",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news on global politics from France",
+  "gold_tools": [
+   "tavily-mcp::tavily-search"
+  ]
+ },
+ {
+  "id": "de6c6426-407f-4025-b8a1-9e77c94c7b09",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news about the cryptocurrency market.",
+  "gold_tools": [
+   "google-search::search"
+  ]
+ },
+ {
+  "id": "389c36d0-a89f-4627-9e85-9e322a873213",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news about space exploration.",
+  "gold_tools": [
+   "google-search::search"
+  ]
+ },
+ {
+  "id": "3d7399c0-6282-40c2-9791-59458d0e3333",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find articles about the global economy",
+  "gold_tools": [
+   "google-search::search"
+  ]
+ },
+ {
+  "id": "2ae2b338-df4d-4b70-9275-bfbdce10a937",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you start a web crawl on GitHub and focus on Developers?",
+  "gold_tools": [
+   "tavily-mcp::tavily-crawl"
+  ]
+ },
+ {
+  "id": "0587f202-6a6a-47ae-ac0c-a75d66cbd3ae",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you map out the site structure for https://www.bbc.com?",
+  "gold_tools": [
+   "tavily-mcp::tavily-map"
+  ]
+ },
+ {
+  "id": "367548f5-7cbf-471c-8cd1-89ec98a02574",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news about cryptocurrency trends.",
+  "gold_tools": [
+   "google-search::search"
+  ]
+ },
+ {
+  "id": "acc1a542-6384-42b8-b8c5-42cd328b2ed9",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find information about the history of the Internet.",
+  "gold_tools": [
+   "google-search::search"
+  ]
+ },
+ {
+  "id": "33eda8dc-295a-496e-a561-0b9fe59ec193",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the best restaurants in San Francisco",
+  "gold_tools": [
+   "google-search::search"
+  ]
+ },
+ {
+  "id": "ae68fcb7-b247-40ad-8f66-591ce434e1e4",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news on technology advancements from Germany",
+  "gold_tools": [
+   "tavily-mcp::tavily-search"
+  ]
+ },
+ {
+  "id": "ee793dad-2fc5-43fe-861f-5402f5ae184d",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Extract content from https://github.com/trending with basic depth including images in text format.",
+  "gold_tools": [
+   "tavily-mcp::tavily-extract"
+  ]
+ },
+ {
+  "id": "381440d7-bc63-41ab-8b79-e44b9a875628",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "What are the latest news about electric vehicles?",
+  "gold_tools": [
+   "google-search::search"
+  ]
+ },
+ {
+  "id": "2db12b3f-c190-4c7a-81b0-38c38495e20c",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you extract and analyze the content from the New York Times article published on October 1, 2023, about global market analysis?",
+  "gold_tools": [
+   "tavily-mcp::tavily-extract"
+  ]
+ },
+ {
+  "id": "04323a29-a020-4932-9de8-f2e0cb10526b",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you perform a web crawl starting from Apple's official website focusing on Media and retrieve the data in markdown format?",
+  "gold_tools": [
+   "tavily-mcp::tavily-crawl"
+  ]
+ },
+ {
+  "id": "00d3a0e9-27da-43bb-aad0-07bef1f67b96",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you perform a web crawl starting from Medium's homepage focusing on blogs and retrieve the data in markdown format?",
+  "gold_tools": [
+   "tavily-mcp::tavily-crawl"
+  ]
+ },
+ {
+  "id": "d28ffab7-420b-4e82-a2b5-2c4fb3d322b0",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find information about the latest technology trends.",
+  "gold_tools": [
+   "google-search::search"
+  ]
+ },
+ {
+  "id": "b0e3a130-c5cc-4fe6-ac16-c18b4fc8ae0d",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Start a web crawl from Stack Overflow and extract content in markdown format.",
+  "gold_tools": [
+   "tavily-mcp::tavily-crawl"
+  ]
+ },
+ {
+  "id": "7f44a3c6-e85a-4845-80d1-4c96b0c1ae31",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Can you extract content from the following URLs: https://www.apple.com, https://www.microsoft.com?",
+  "gold_tools": [
+   "tavily-mcp::tavily-extract"
+  ]
+ },
+ {
+  "id": "6f6f3685-e6b8-4c35-b4ac-268a883e1cbb",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news about space exploration in India.",
+  "gold_tools": [
+   "tavily-mcp::tavily-search"
+  ]
+ },
+ {
+  "id": "0d6607d6-5064-406c-9bcd-3b5b44b400cd",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Find the latest news about healthcare innovations in Japan.",
+  "gold_tools": [
+   "tavily-mcp::tavily-search"
+  ]
+ },
+ {
+  "id": "5dbc22f1-93aa-4bf8-991e-1f85b5aa1d14",
+  "source": "MCPToolBench++",
+  "category": "search",
+  "query": "Search for the latest news about the global economic outlook in China.",
+  "gold_tools": [
+   "tavily-mcp::tavily-search"
+  ]
+ }
+]

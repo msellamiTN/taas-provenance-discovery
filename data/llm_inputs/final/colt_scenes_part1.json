@@ -1,0 +1,3720 @@
+[
+ {
+  "scene": "S001",
+  "tools": [
+   {
+    "id": "whois::whois_domain",
+    "description": "Looksup whois information about the domain",
+    "args": [
+     "domain"
+    ]
+   },
+   {
+    "id": "whois::whois_tld",
+    "description": "Looksup whois information about the Top Level Domain (TLD)",
+    "args": [
+     "tld"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S004",
+  "tools": [
+   {
+    "id": "Ant Design Components::get-component-changelog",
+    "description": "列出 Ant Design 特定组件的更新日志\n适用场景：\n1. 用户询问特定组件的更新日志\n2. 在知道用户 antd 版本的情况下，当用户需要实现相关组件功能时判断是否在后续版本中才实现，来决定是否需要升级依赖",
+    "args": [
+     "componentName"
+    ]
+   },
+   {
+    "id": "Ant Design Components::get-component-docs",
+    "description": "获取 Ant Design 特定组件的详细文档\n适用场景：\n1. 用户询问如何使用特定组件\n2. 用户需要查看该组件的 api 属性",
+    "args": [
+     "componentName"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S007",
+  "tools": [
+   {
+    "id": "howtocook-mcp::mcp_howtocook_getRecipeById",
+    "description": "根据菜谱名称或ID查询指定菜谱的完整详情，包括食材、步骤等",
+    "args": [
+     "query"
+    ]
+   },
+   {
+    "id": "howtocook-mcp::mcp_howtocook_recommendMeals",
+    "description": "根据用户的忌口、过敏原、人数智能推荐菜谱，创建一周的膳食计划以及大致的购物清单",
+    "args": [
+     "allergies",
+     "avoidItems",
+     "peopleCount"
+    ]
+   },
+   {
+    "id": "howtocook-mcp::mcp_howtocook_whatToEat",
+    "description": "不知道吃什么？根据人数直接推荐适合的菜品组合",
+    "args": [
+     "peopleCount"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S010",
+  "tools": [
+   {
+    "id": "howtocook-mcp::mcp_howtocook_getRecipesByCategory",
+    "description": "根据分类查询菜谱，可选分类有: 水产, 早餐, 调料, 甜品, 饮品, 荤菜, 半成品加工, 汤, 主食, 素菜",
+    "args": [
+     "category"
+    ]
+   },
+   {
+    "id": "howtocook-mcp::mcp_howtocook_whatToEat",
+    "description": "不知道吃什么？根据人数直接推荐适合的菜品组合",
+    "args": [
+     "peopleCount"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S013",
+  "tools": [
+   {
+    "id": "Bazi::buildBaziFromLunarDatetime",
+    "description": "根据农历时间、性别来获取八字信息。",
+    "args": [
+     "lunarDatetime",
+     "gender",
+     "eightCharProviderSect"
+    ]
+   },
+   {
+    "id": "opgg-mcp::lol-summoner-game-history",
+    "description": "Retrieves the recent match history of a specific summoner. If a user mentions a specific summoner, wants to know about their recent matches, wants to know how to improve or wants to get an advice, you *must* always call this function.",
+    "args": [
+     "game_name",
+     "tag_line",
+     "region",
+     "lang"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S016",
+  "tools": [
+   {
+    "id": "biomcp::trial_searcher",
+    "description": "Search ClinicalTrials.gov for clinical studies.\n\n    ⚠️ PREREQUISITE: Use the 'think' tool FIRST to plan your research strategy!\n\n    Comprehensive search tool for finding clinical trials based on multiple criteria.\n    Supports filtering by conditions, interventions, location, phase, and eligibilit",
+    "args": [
+     "conditions",
+     "interventions",
+     "other_terms",
+     "recruiting_status",
+     "phase",
+     "location",
+     "lat",
+     "long"
+    ]
+   },
+   {
+    "id": "biomcp::variant_searcher",
+    "description": "Search MyVariant.info for genetic variant DATABASE RECORDS.\n\n    ⚠️ PREREQUISITE: Use the 'think' tool FIRST to plan your research strategy!\n\n    Important: This searches for variant DATABASE RECORDS (frequency, significance, etc.),\n    NOT articles about variants. For articles about variants, use a",
+    "args": [
+     "gene",
+     "hgvs",
+     "hgvsp",
+     "hgvsc",
+     "rsid",
+     "region",
+     "significance",
+     "frequency_min"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S019",
+  "tools": [
+   {
+    "id": "baidu-maps-sse::map_place_details",
+    "description": "地点详情检索服务: 地点详情检索针对指定POI, 检索其相关的详情信息.\n通过地点检索服务获取POI uid.使用地点详情检索功能, 传入uid, 即可检索POI详情信息, 如评分、营业时间等(不同类型POI对应不同类别详情数据).",
+    "args": [
+     "uid"
+    ]
+   },
+   {
+    "id": "baidu-maps-sse::map_reverse_geocode",
+    "description": "逆地理编码服务: 根据纬经度坐标, 获取对应位置的地址描述, 所在行政区划, 道路以及相关POI等信息",
+    "args": [
+     "latitude",
+     "longitude"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S022",
+  "tools": [
+   {
+    "id": "amap-amap-sse::maps_direction_bicycling",
+    "description": "骑行路径规划用于规划骑行通勤方案，规划时会考虑天桥、单行线、封路等情况。最大支持 500km 的骑行路线规划",
+    "args": [
+     "origin",
+     "destination"
+    ]
+   },
+   {
+    "id": "amap-amap-sse::maps_direction_walking",
+    "description": "根据输入起点终点经纬度坐标规划100km 以内的步行通勤方案，并且返回通勤方案的数据",
+    "args": [
+     "origin",
+     "destination"
+    ]
+   },
+   {
+    "id": "google-maps::maps_elevation",
+    "description": "Get elevation data for locations on the earth",
+    "args": [
+     "locations"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S025",
+  "tools": [
+   {
+    "id": "Ant Design Components::list-component-examples",
+    "description": "获取 Ant Design 特定组件的代码示例\n适用场景：\n1. 用户询问特定组件的示例时\n2. 用户想要实现某个功能时直接告知可使用的例子\n3. 生成页面前需要获取组件的示例代码",
+    "args": [
+     "componentName"
+    ]
+   },
+   {
+    "id": "magicuidesign_mcp::getBackgrounds",
+    "description": "Provides implementation details for warp-background, flickering-grid, animated-grid-pattern, retro-grid, ripple, dot-pattern, grid-pattern, interactive-grid-pattern components.",
+    "args": []
+   },
+   {
+    "id": "npm-sentinel-mcp::npmChangelogAnalysis",
+    "description": "Analyze changelog and release history of packages",
+    "args": [
+     "packages"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S028",
+  "tools": [
+   {
+    "id": "met-museum::get-museum-object",
+    "description": "Get a museum object by its ID, from the Metropolitan Museum of Art Collection",
+    "args": [
+     "objectId",
+     "returnImage"
+    ]
+   },
+   {
+    "id": "met-museum::search-museum-objects",
+    "description": "Search for objects in the Metropolitan Museum of Art (Met Museum). Will return Total objects found, followed by a list of Object Ids.The parameter title should be set to true if you want to search for objects by title.The parameter hasImages is false by default, but can be set to true to return obje",
+    "args": [
+     "q",
+     "hasImages",
+     "title",
+     "departmentId"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S031",
+  "tools": [
+   {
+    "id": "MetaTagGenie::writeImageMetadata",
+    "description": "Writes metadata (tags, description, people, location) to an image file.",
+    "args": [
+     "filePath",
+     "metadata",
+     "overwrite"
+    ]
+   },
+   {
+    "id": "magicuidesign_mcp::getAnimations",
+    "description": "Provides implementation details for blur-fade components.",
+    "args": []
+   }
+  ]
+ },
+ {
+  "scene": "S034",
+  "tools": [
+   {
+    "id": "hugeicons::search_icons",
+    "description": "Search for icons by name or tags. Use commas to search for multiple icons (e.g. 'home, notification, settings')",
+    "args": [
+     "query"
+    ]
+   },
+   {
+    "id": "mcp-server-chart::generate_column_chart",
+    "description": "Generate a column chart, which are best for comparing categorical data, such as, when values are close, column charts are preferable because our eyes are better at judging height than other visual elements like area or angles.",
+    "args": [
+     "data",
+     "group",
+     "stack",
+     "theme",
+     "width",
+     "height",
+     "title",
+     "axisXTitle"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S037",
+  "tools": [
+   {
+    "id": "docker-mcp::create-container",
+    "description": "Create a new standalone Docker container",
+    "args": [
+     "image",
+     "name",
+     "ports",
+     "environment"
+    ]
+   },
+   {
+    "id": "docker-mcp::get-logs",
+    "description": "Retrieve the latest logs for a specified Docker container",
+    "args": [
+     "container_name"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S040",
+  "tools": [
+   {
+    "id": "mcp-simple-arxiv::list_categories",
+    "description": "List all available arXiv categories and how to use them in search",
+    "args": [
+     "primary_category"
+    ]
+   },
+   {
+    "id": "mcp-simple-arxiv::search_papers",
+    "description": "Search for papers on arXiv by title and abstract content.\n            \nYou can use advanced search syntax:\n- Search in title: ti:\"search terms\"\n- Search in abstract: abs:\"search terms\"\n- Search by author: au:\"author name\"\n- Combine terms with: AND, OR, ANDNOT\n- Filter by category: cat:cs.AI (use lis",
+    "args": [
+     "query",
+     "max_results"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S043",
+  "tools": [
+   {
+    "id": "Ant Design Components::list-component-examples",
+    "description": "获取 Ant Design 特定组件的代码示例\n适用场景：\n1. 用户询问特定组件的示例时\n2. 用户想要实现某个功能时直接告知可使用的例子\n3. 生成页面前需要获取组件的示例代码",
+    "args": [
+     "componentName"
+    ]
+   },
+   {
+    "id": "npm-sentinel-mcp::npmMaintenance",
+    "description": "Analyze package maintenance metrics",
+    "args": [
+     "packages"
+    ]
+   },
+   {
+    "id": "npm-sentinel-mcp::npmSearch",
+    "description": "Search for NPM packages with optional limit",
+    "args": [
+     "query",
+     "limit"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S046",
+  "tools": [
+   {
+    "id": "amap-amap-sse::maps_direction_driving",
+    "description": "驾车路径规划 API 可以根据用户起终点经纬度坐标规划以小客车、轿车通勤出行的方案，并且返回通勤方案的数据。",
+    "args": [
+     "origin",
+     "destination"
+    ]
+   },
+   {
+    "id": "baidu-maps-sse::map_search_places",
+    "description": "地点检索服务: 支持检索城市内的地点信息(最小到city级别), 也可支持圆形区域内的周边地点信息检索.\n城市内检索: 检索某一城市内（目前最细到城市级别）的地点信息.\n周边检索: 设置圆心和半径, 检索圆形区域内的地点信息（常用于周边检索场景）.",
+    "args": [
+     "query",
+     "tag",
+     "region",
+     "location",
+     "radius",
+     "language"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S049",
+  "tools": [
+   {
+    "id": "investor::get_crypto_fear_greed_index",
+    "description": "Get historical Crypto Fear & Greed Index data.",
+    "args": [
+     "days"
+    ]
+   },
+   {
+    "id": "investor::get_institutional_holders",
+    "description": "Get major institutional and mutual fund holders.",
+    "args": [
+     "ticker",
+     "top_n"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S052",
+  "tools": [
+   {
+    "id": "google-search::search",
+    "description": "Perform a web search query",
+    "args": [
+     "query",
+     "num"
+    ]
+   },
+   {
+    "id": "tavily-mcp::tavily-search",
+    "description": "A powerful web search tool that provides comprehensive, real-time results using Tavily's AI search engine. Returns relevant web content with customizable parameters for result count, content type, and domain filtering. Ideal for gathering current information, news, and detailed web content analysis.",
+    "args": [
+     "query",
+     "search_depth",
+     "topic",
+     "days",
+     "time_range",
+     "max_results",
+     "include_images",
+     "include_image_descriptions"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S055",
+  "tools": [
+   {
+    "id": "amap-amap-sse::maps_ip_location",
+    "description": "IP 定位根据用户输入的 IP 地址，定位 IP 的所在位置",
+    "args": [
+     "ip"
+    ]
+   },
+   {
+    "id": "amap-amap-sse::maps_weather",
+    "description": "根据城市名称或者标准adcode查询指定城市的天气",
+    "args": [
+     "city"
+    ]
+   },
+   {
+    "id": "google-maps::maps_distance_matrix",
+    "description": "Calculate travel distance and time for multiple origins and destinations",
+    "args": [
+     "origins",
+     "destinations",
+     "mode"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S058",
+  "tools": [
+   {
+    "id": "excel::excel_read_sheet",
+    "description": "Read values from Excel sheet with pagination.",
+    "args": [
+     "fileAbsolutePath",
+     "range",
+     "sheetName",
+     "showFormula",
+     "showStyle"
+    ]
+   },
+   {
+    "id": "filesystem::move_file",
+    "description": "Move or rename files and directories. Can move files between directories and rename them in a single operation. If the destination exists, the operation will fail. Works across different directories and can be used for simple renaming within the same directory. Both source and destination must be wi",
+    "args": [
+     "source",
+     "destination"
+    ]
+   },
+   {
+    "id": "text-editor::get_text_file_contents",
+    "description": "Read text file contents from multiple files and line ranges. Returns file contents with hashes for concurrency control and line numbers for reference. The hashes are used to detect conflicts when editing the files. File paths must be absolute.",
+    "args": [
+     "files",
+     "encoding"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S061",
+  "tools": [
+   {
+    "id": "ppt::add_slide",
+    "description": "Add a new slide to the presentation with optional background styling.",
+    "args": [
+     "layout_index",
+     "title",
+     "background_type",
+     "background_colors",
+     "gradient_direction",
+     "color_scheme",
+     "presentation_id"
+    ]
+   },
+   {
+    "id": "ppt::manage_image",
+    "description": "Unified image management tool for adding and enhancing images.",
+    "args": [
+     "slide_index",
+     "operation",
+     "image_source",
+     "source_type",
+     "left",
+     "top",
+     "width",
+     "height"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S064",
+  "tools": [
+   {
+    "id": "whois::whois_domain",
+    "description": "Looksup whois information about the domain",
+    "args": [
+     "domain"
+    ]
+   },
+   {
+    "id": "whois::whois_ip",
+    "description": "Looksup whois information about the IP",
+    "args": [
+     "ip"
+    ]
+   },
+   {
+    "id": "whois::whois_tld",
+    "description": "Looksup whois information about the Top Level Domain (TLD)",
+    "args": [
+     "tld"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S067",
+  "tools": [
+   {
+    "id": "paypal::create_refund",
+    "description": "Initiate a refund for a PayPal payment capture.\nIf you have an order ID instead of a capture ID, first use the get order tool to obtain the capture ID from the order details.\nThis function allows you to return funds to a customer by refunding a previously captured payment. You can issue a full refun",
+    "args": [
+     "capture_id",
+     "amount",
+     "invoice_id",
+     "note_to_payer"
+    ]
+   },
+   {
+    "id": "paypal::create_shipment_tracking",
+    "description": "Create a shipment for a transaction in PayPal.\nThis function creates a shipment record for a specific transaction, allowing you to track the shipment status and details.\nThe transaction_id can fetch from the captured payment details in the order information.\nRequired parameters are: tracking_number ",
+    "args": [
+     "order_id",
+     "tracking_number",
+     "transaction_id",
+     "status",
+     "carrier"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S070",
+  "tools": [
+   {
+    "id": "whois::whois_as",
+    "description": "Looksup whois information about the Autonomous System Number (ASN)",
+    "args": [
+     "asn"
+    ]
+   },
+   {
+    "id": "whois::whois_ip",
+    "description": "Looksup whois information about the IP",
+    "args": [
+     "ip"
+    ]
+   },
+   {
+    "id": "whois::whois_tld",
+    "description": "Looksup whois information about the Top Level Domain (TLD)",
+    "args": [
+     "tld"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S073",
+  "tools": [
+   {
+    "id": "basic-memory::create_memory_project",
+    "description": "Create a new Basic Memory project.\n\nCreates a new project with the specified name and path. The project directory\nwill be created if it doesn't exist. Optionally sets the new project as default.\n\nArgs:\n    project_name: Name for the new project (must be unique)\n    project_path: File system path whe",
+    "args": [
+     "project_name",
+     "project_path",
+     "set_default"
+    ]
+   },
+   {
+    "id": "playwright::playwright_get_visible_html",
+    "description": "Get the HTML content of the current page. By default, all <script> tags are removed from the output unless removeScripts is explicitly set to false.",
+    "args": [
+     "selector",
+     "removeScripts",
+     "removeComments",
+     "removeStyles",
+     "removeMeta",
+     "cleanHtml",
+     "minify",
+     "maxLength"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S076",
+  "tools": [
+   {
+    "id": "wikipedia::get_links",
+    "description": "Get the links contained within a Wikipedia article.",
+    "args": [
+     "title"
+    ]
+   },
+   {
+    "id": "wikipedia::summarize_article_section",
+    "description": "Get a summary of a specific section of a Wikipedia article.",
+    "args": [
+     "title",
+     "section_title",
+     "max_length"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S079",
+  "tools": [
+   {
+    "id": "searxng::docx_to_pdf",
+    "description": "Convert DOCX files to PDF format",
+    "args": [
+     "inputPath",
+     "outputPath"
+    ]
+   },
+   {
+    "id": "searxng::format_convert",
+    "description": "Convert between different document formats (Markdown, HTML, XML, JSON)",
+    "args": [
+     "input",
+     "fromFormat",
+     "toFormat"
+    ]
+   },
+   {
+    "id": "searxng::html_extract_resources",
+    "description": "Extract all resources (images, videos, links) from HTML",
+    "args": [
+     "inputPath",
+     "outputDir"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S082",
+  "tools": [
+   {
+    "id": "investor::get_options",
+    "description": "Get options data. Dates: YYYY-MM-DD. Type: C=calls, P=puts.",
+    "args": [
+     "ticker_symbol",
+     "num_options",
+     "start_date",
+     "end_date",
+     "strike_lower",
+     "strike_upper",
+     "option_type"
+    ]
+   },
+   {
+    "id": "investor::get_price_history",
+    "description": "Get historical OHLCV data: daily intervals for ≤1y periods, monthly intervals for ≥2y periods.",
+    "args": [
+     "ticker",
+     "period"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S085",
+  "tools": [
+   {
+    "id": "shadcn-ui-server::get_component_details",
+    "description": "Get detailed information about a specific shadcn/ui component",
+    "args": [
+     "componentName"
+    ]
+   },
+   {
+    "id": "shadcn-ui-server::list_shadcn_components",
+    "description": "Get a list of all available shadcn/ui components",
+    "args": []
+   },
+   {
+    "id": "shadcn-ui-server::search_components",
+    "description": "Search for shadcn/ui components by keyword",
+    "args": [
+     "query"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S088",
+  "tools": [
+   {
+    "id": "amap-amap-sse::maps_schema_take_taxi",
+    "description": "根据用户输入的起点和终点信息，返回一个拼装好的客户端唤醒URI，直接唤起高德地图进行打车。直接展示生成的链接，不需要总结",
+    "args": [
+     "slon",
+     "slat",
+     "sname",
+     "dlon",
+     "dlat",
+     "dname"
+    ]
+   },
+   {
+    "id": "amap-amap-sse::maps_weather",
+    "description": "根据城市名称或者标准adcode查询指定城市的天气",
+    "args": [
+     "city"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S091",
+  "tools": [
+   {
+    "id": "hugeicons::get_platform_usage",
+    "description": "Get platform-specific usage instructions for Hugeicons",
+    "args": [
+     "platform"
+    ]
+   },
+   {
+    "id": "hugeicons::list_icons",
+    "description": "Get a list of all available Hugeicons icons",
+    "args": []
+   }
+  ]
+ },
+ {
+  "scene": "S094",
+  "tools": [
+   {
+    "id": "filesystem::read_file",
+    "description": "Read the complete contents of a file from the file system. Handles various text encodings and provides detailed error messages if the file cannot be read. Use this tool when you need to examine the contents of a single file. Use the 'head' parameter to read only the first N lines of a file, or the '",
+    "args": [
+     "path",
+     "tail",
+     "head"
+    ]
+   },
+   {
+    "id": "filesystem::search_files",
+    "description": "Recursively search for files and directories matching a pattern. Searches through all subdirectories from the starting path. The search is case-insensitive and matches partial names. Returns full paths to all matching items. Great for finding files when you don't know their exact location. Only sear",
+    "args": [
+     "path",
+     "pattern",
+     "excludePatterns"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S097",
+  "tools": [
+   {
+    "id": "ppt::create_presentation_from_template",
+    "description": "Create a new PowerPoint presentation from a template file.",
+    "args": [
+     "template_path",
+     "id"
+    ]
+   },
+   {
+    "id": "ppt::manage_fonts",
+    "description": "Unified font management tool for analysis, optimization, and recommendations.",
+    "args": [
+     "operation",
+     "font_path",
+     "output_path",
+     "presentation_type",
+     "text_content"
+    ]
+   },
+   {
+    "id": "ppt::save_presentation",
+    "description": "Save a presentation to a file.",
+    "args": [
+     "file_path",
+     "presentation_id"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S100",
+  "tools": [
+   {
+    "id": "kospi-kosdaq::get_stock_fundamental",
+    "description": "Retrieves fundamental data (PER/PBR/Dividend Yield) for a specific stock.\n\nArgs:\n    fromdate (str): Start date for retrieval (YYYYMMDD)\n    todate   (str): End date for retrieval (YYYYMMDD)\n    ticker   (str): Stock ticker symbol\n\nReturns:\n    DataFrame:\n        >> get_stock_fundamental(\"20210104\",",
+    "args": [
+     "fromdate",
+     "todate",
+     "ticker"
+    ]
+   },
+   {
+    "id": "kospi-kosdaq::get_stock_market_cap",
+    "description": "Retrieves market capitalization data for a specific stock.\n\nArgs:\n    fromdate (str): Start date for retrieval (YYYYMMDD)\n    todate   (str): End date for retrieval (YYYYMMDD)\n    ticker   (str): Stock ticker symbol\n\nReturns:\n    DataFrame:\n        >> get_stock_market_cap(\"20150720\", \"20150724\", \"00",
+    "args": [
+     "fromdate",
+     "todate",
+     "ticker"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S103",
+  "tools": [
+   {
+    "id": "wuwa-mcp::get_artifact_info",
+    "description": "获取库街区上的声骸详细信息并以 Markdown 格式返回。\n\nArgs:\n    artifact_name: 要查询的声骸套装的中文名称。\n\nReturns:\n    包含声骸信息的 Markdown 字符串，\n    或者在找不到声骸或获取数据失败时返回错误消息。\n",
+    "args": [
+     "artifact_name"
+    ]
+   },
+   {
+    "id": "wuwa-mcp::get_character_info",
+    "description": "获取库街区上的角色详细信息包括角色技能，养成攻略等，并以 Markdown 格式返回。\n\nArgs:\n    character_name: 要查询的角色的中文名称。\n\nReturns:\n    包含角色信息的 Markdown 字符串，\n    或者在找不到角色或获取数据失败时返回错误消息。\n",
+    "args": [
+     "character_name"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S106",
+  "tools": [
+   {
+    "id": "painter::drawing_fillRectangle",
+    "description": "Fill a rectangle on the drawing canvas with a specified color and coordinates.",
+    "args": [
+     "x",
+     "y",
+     "width",
+     "height",
+     "color"
+    ]
+   },
+   {
+    "id": "painter::drawing_getCanvasData",
+    "description": "Get the current pixel data of the drawing canvas as JSON.",
+    "args": []
+   }
+  ]
+ },
+ {
+  "scene": "S109",
+  "tools": [
+   {
+    "id": "web3-research-mcp::list-resources",
+    "description": "",
+    "args": []
+   },
+   {
+    "id": "web3-research-mcp::search-source",
+    "description": "",
+    "args": [
+     "tokenName",
+     "tokenTicker",
+     "source"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S112",
+  "tools": [
+   {
+    "id": "chess::get_valid_moves",
+    "description": "Lists all legal moves for the current player in UCI notation.",
+    "args": []
+   },
+   {
+    "id": "chess::make_move",
+    "description": "\nMakes a move on the board using standard algebraic notation (SAN).\nArgs:\n    move_san: The player's move in algebraic notation (e.g., 'e4', 'Nf3', 'Bxe5').\nReturns:\n    A dictionary containing the move in SAN format, the move in UCI format, the new board FEN,\n    whether the game is over, and the r",
+    "args": [
+     "move_san"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S115",
+  "tools": [
+   {
+    "id": "Bazi::buildBaziFromLunarDatetime",
+    "description": "根据农历时间、性别来获取八字信息。",
+    "args": [
+     "lunarDatetime",
+     "gender",
+     "eightCharProviderSect"
+    ]
+   },
+   {
+    "id": "chess::make_move",
+    "description": "\nMakes a move on the board using standard algebraic notation (SAN).\nArgs:\n    move_san: The player's move in algebraic notation (e.g., 'e4', 'Nf3', 'Bxe5').\nReturns:\n    A dictionary containing the move in SAN format, the move in UCI format, the new board FEN,\n    whether the game is over, and the r",
+    "args": [
+     "move_san"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S118",
+  "tools": [
+   {
+    "id": "tavily-mcp::tavily-extract",
+    "description": "A powerful web content extraction tool that retrieves and processes raw content from specified URLs, ideal for data collection, content analysis, and research tasks.",
+    "args": [
+     "urls",
+     "extract_depth",
+     "include_images",
+     "format"
+    ]
+   },
+   {
+    "id": "tavily-mcp::tavily-search",
+    "description": "A powerful web search tool that provides comprehensive, real-time results using Tavily's AI search engine. Returns relevant web content with customizable parameters for result count, content type, and domain filtering. Ideal for gathering current information, news, and detailed web content analysis.",
+    "args": [
+     "query",
+     "search_depth",
+     "topic",
+     "days",
+     "time_range",
+     "max_results",
+     "include_images",
+     "include_image_descriptions"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S121",
+  "tools": [
+   {
+    "id": "tavily-mcp::tavily-extract",
+    "description": "A powerful web content extraction tool that retrieves and processes raw content from specified URLs, ideal for data collection, content analysis, and research tasks.",
+    "args": [
+     "urls",
+     "extract_depth",
+     "include_images",
+     "format"
+    ]
+   },
+   {
+    "id": "tavily-mcp::tavily-map",
+    "description": "A powerful web mapping tool that creates a structured map of website URLs, allowing you to discover and analyze site structure, content organization, and navigation paths. Perfect for site audits, content discovery, and understanding website architecture.",
+    "args": [
+     "url",
+     "max_depth",
+     "max_breadth",
+     "limit",
+     "instructions",
+     "select_paths",
+     "select_domains",
+     "allow_external"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S124",
+  "tools": [
+   {
+    "id": "Bazi::getSolarTimes",
+    "description": "根据八字获取公历时间列表。返回的时间格式为：YYYY-MM-DD hh:mm:ss。例如时间1998年7月31日下午2点整表示为：1998-07-31 14:00:00",
+    "args": [
+     "bazi"
+    ]
+   },
+   {
+    "id": "opgg-mcp::valorant-characters-statistics",
+    "description": "Retrieve character statistics data for Valorant, optionally filtered by map.",
+    "args": [
+     "mapId"
+    ]
+   },
+   {
+    "id": "wuwa-mcp::get_character_profile",
+    "description": "获取库街区上的角色档案信息并以 Markdown 格式返回。\n\nArgs:\n    character_name: 要查询的角色的中文名称。\n\nReturns:\n    包含角色档案信息的 Markdown 字符串，\n    或者在找不到角色或获取数据失败时返回错误消息。\n",
+    "args": [
+     "character_name"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S127",
+  "tools": [
+   {
+    "id": "ygocdb::get_card_by_id",
+    "description": "通过卡牌ID获取单张游戏王卡牌的详细信息",
+    "args": [
+     "id"
+    ]
+   },
+   {
+    "id": "ygocdb::get_card_image",
+    "description": "通过卡牌ID获取游戏王卡牌的图片",
+    "args": [
+     "id"
+    ]
+   },
+   {
+    "id": "ygocdb::search_cards",
+    "description": "通过关键字搜索游戏王卡牌，可以搜索卡牌名称、效果文本等。",
+    "args": [
+     "query"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S130",
+  "tools": [
+   {
+    "id": "mcp-crypto-price::get-crypto-price",
+    "description": "Get current price and 24h stats for a cryptocurrency",
+    "args": [
+     "symbol"
+    ]
+   },
+   {
+    "id": "mcp-crypto-price::get-historical-analysis",
+    "description": "Get historical price analysis with customizable timeframe",
+    "args": [
+     "symbol",
+     "interval",
+     "days"
+    ]
+   },
+   {
+    "id": "mcp-crypto-price::get-market-analysis",
+    "description": "Get detailed market analysis including top exchanges and volume distribution",
+    "args": [
+     "symbol"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S133",
+  "tools": [
+   {
+    "id": "Bazi::getSolarTimes",
+    "description": "根据八字获取公历时间列表。返回的时间格式为：YYYY-MM-DD hh:mm:ss。例如时间1998年7月31日下午2点整表示为：1998-07-31 14:00:00",
+    "args": [
+     "bazi"
+    ]
+   },
+   {
+    "id": "wuwa-mcp::get_character_info",
+    "description": "获取库街区上的角色详细信息包括角色技能，养成攻略等，并以 Markdown 格式返回。\n\nArgs:\n    character_name: 要查询的角色的中文名称。\n\nReturns:\n    包含角色信息的 Markdown 字符串，\n    或者在找不到角色或获取数据失败时返回错误消息。\n",
+    "args": [
+     "character_name"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S136",
+  "tools": [
+   {
+    "id": "12306-mcp::get-current-date",
+    "description": "获取当前日期，以上海时区（Asia/Shanghai, UTC+8）为准，返回格式为 \"yyyy-MM-dd\"。主要用于解析用户提到的相对日期（如“明天”、“下周三”），为其他需要日期的接口提供准确的日期输入。",
+    "args": []
+   },
+   {
+    "id": "12306-mcp::get-stations-code-in-city",
+    "description": "通过中文城市名查询该城市 **所有** 火车站的名称及其对应的 `station_code`，结果是一个包含多个车站信息的列表。",
+    "args": [
+     "city"
+    ]
+   },
+   {
+    "id": "12306-mcp::get-tickets",
+    "description": "查询12306余票信息。",
+    "args": [
+     "date",
+     "fromStation",
+     "toStation",
+     "trainFilterFlags",
+     "sortFlag",
+     "sortReverse",
+     "limitedNum"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S139",
+  "tools": [
+   {
+    "id": "filesystem::directory_tree",
+    "description": "Get a recursive tree view of files and directories as a JSON structure. Each entry includes 'name', 'type' (file/directory), and 'children' for directories. Files have no children array, while directories always have a children array (which may be empty). The output is formatted with 2-space indenta",
+    "args": [
+     "path"
+    ]
+   },
+   {
+    "id": "filesystem::move_file",
+    "description": "Move or rename files and directories. Can move files between directories and rename them in a single operation. If the destination exists, the operation will fail. Works across different directories and can be used for simple renaming within the same directory. Both source and destination must be wi",
+    "args": [
+     "source",
+     "destination"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S142",
+  "tools": [
+   {
+    "id": "desktop-commander::get_file_info",
+    "description": "\n                        Retrieve detailed metadata about a file or directory including:\n                        - size\n                        - creation time\n                        - last modified time \n                        - permissions\n                        - type\n                        -",
+    "args": [
+     "path"
+    ]
+   },
+   {
+    "id": "searxng::html_cleaner",
+    "description": "Clean HTML by removing unnecessary tags and attributes",
+    "args": [
+     "inputPath",
+     "outputDir"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S145",
+  "tools": [
+   {
+    "id": "Bazi::buildBaziFromLunarDatetime",
+    "description": "根据农历时间、性别来获取八字信息。",
+    "args": [
+     "lunarDatetime",
+     "gender",
+     "eightCharProviderSect"
+    ]
+   },
+   {
+    "id": "Bazi::getBaziDetail",
+    "description": "根据时间（公历或农历）、性别来获取八字信息。solarDatetime和lunarDatetime必须传且只传其中一个。",
+    "args": [
+     "solarDatetime",
+     "lunarDatetime",
+     "gender",
+     "eightCharProviderSect"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S148",
+  "tools": [
+   {
+    "id": "music-analysis::load",
+    "description": "\nLoads an audio file and returns the path to the audio time series\nOffset and duration are optional, in seconds.\nBe careful, you will never know the name of the song.\n",
+    "args": [
+     "file_path",
+     "offset",
+     "duration"
+    ]
+   },
+   {
+    "id": "playwright::playwright_select",
+    "description": "Select an element on the page with Select tag",
+    "args": [
+     "selector",
+     "value"
+    ]
+   },
+   {
+    "id": "puppeteer::puppeteer_screenshot",
+    "description": "Take a screenshot of the current page or a specific element",
+    "args": [
+     "name",
+     "selector",
+     "width",
+     "height",
+     "encoded"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S151",
+  "tools": [
+   {
+    "id": "arxiv-mcp-server::download_paper",
+    "description": "Download a paper and create a resource for it",
+    "args": [
+     "paper_id",
+     "check_status"
+    ]
+   },
+   {
+    "id": "arxiv-mcp-server::read_paper",
+    "description": "Read the full content of a stored paper in markdown format",
+    "args": [
+     "paper_id"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S154",
+  "tools": [
+   {
+    "id": "mcp-server-chart::generate_venn_chart",
+    "description": "Generate a Venn diagram to visualize the relationships between different sets, showing how they intersect and overlap, such as the commonalities and differences between various groups.",
+    "args": [
+     "data",
+     "theme",
+     "width",
+     "height",
+     "title"
+    ]
+   },
+   {
+    "id": "painter::drawing_fillRectangle",
+    "description": "Fill a rectangle on the drawing canvas with a specified color and coordinates.",
+    "args": [
+     "x",
+     "y",
+     "width",
+     "height",
+     "color"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S157",
+  "tools": [
+   {
+    "id": "mcp-server-chart::generate_fishbone_diagram",
+    "description": "Generate a fishbone diagram chart to uses a fish skeleton, like structure to display the causes or effects of a core problem, with the problem as the fish head and the causes/effects as the fish bones. It suits problems that can be split into multiple related factors.",
+    "args": [
+     "data",
+     "theme",
+     "width",
+     "height"
+    ]
+   },
+   {
+    "id": "mcp-server-chart::generate_violin_chart",
+    "description": "Generate a violin chart to show data for statistical summaries among different categories, such as, comparing the distribution of data points across categories.",
+    "args": [
+     "data",
+     "theme",
+     "width",
+     "height",
+     "title",
+     "axisXTitle",
+     "axisYTitle"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S160",
+  "tools": [
+   {
+    "id": "investor::get_earnings_history",
+    "description": "",
+    "args": [
+     "ticker",
+     "max_entries"
+    ]
+   },
+   {
+    "id": "investor::get_insider_trades",
+    "description": "",
+    "args": [
+     "ticker",
+     "max_trades"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S163",
+  "tools": [
+   {
+    "id": "investor::get_crypto_fear_greed_index",
+    "description": "Get historical Crypto Fear & Greed Index data.",
+    "args": [
+     "days"
+    ]
+   },
+   {
+    "id": "investor::get_earnings_history",
+    "description": "",
+    "args": [
+     "ticker",
+     "max_entries"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S166",
+  "tools": [
+   {
+    "id": "image-extractor::extract_image_from_file",
+    "description": "Extract and analyze images from local file paths. Supports visual content understanding, OCR text extraction, and object recognition for screenshots, photos, diagrams, and documents.",
+    "args": [
+     "file_path",
+     "resize",
+     "max_width",
+     "max_height"
+    ]
+   },
+   {
+    "id": "mcp-server-chart::generate_boxplot_chart",
+    "description": "Generate a boxplot chart to show data for statistical summaries among different categories, such as, comparing the distribution of data points across categories.",
+    "args": [
+     "data",
+     "theme",
+     "width",
+     "height",
+     "title",
+     "axisXTitle",
+     "axisYTitle"
+    ]
+   },
+   {
+    "id": "ppt::switch_presentation",
+    "description": "Switch to a different loaded presentation.",
+    "args": [
+     "presentation_id"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S169",
+  "tools": [
+   {
+    "id": "desktop-commander::create_directory",
+    "description": "\n                        Create a new directory or ensure a directory exists.\n                        \n                        Can create multiple nested directories in one operation.\n                        Only works within allowed directories.\n                        \n                        IMPO",
+    "args": [
+     "path"
+    ]
+   },
+   {
+    "id": "word-document-server::find_text_in_document",
+    "description": "Find occurrences of specific text in a Word document.",
+    "args": [
+     "filename",
+     "text_to_find",
+     "match_case",
+     "whole_word"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S172",
+  "tools": [
+   {
+    "id": "filesystem::create_directory",
+    "description": "Create a new directory or ensure a directory exists. Can create multiple nested directories in one operation. If the directory already exists, this operation will succeed silently. Perfect for setting up directory structures for projects or ensuring required paths exist. Only works within allowed di",
+    "args": [
+     "path"
+    ]
+   },
+   {
+    "id": "filesystem::move_file",
+    "description": "Move or rename files and directories. Can move files between directories and rename them in a single operation. If the destination exists, the operation will fail. Works across different directories and can be used for simple renaming within the same directory. Both source and destination must be wi",
+    "args": [
+     "source",
+     "destination"
+    ]
+   },
+   {
+    "id": "filesystem::read_multiple_files",
+    "description": "Read the contents of multiple files simultaneously. This is more efficient than reading files one by one when you need to analyze or compare multiple files. Each file's content is returned with its path as a reference. Failed reads for individual files won't stop the entire operation. Only works wit",
+    "args": [
+     "paths"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S175",
+  "tools": [
+   {
+    "id": "investor::get_institutional_holders",
+    "description": "Get major institutional and mutual fund holders.",
+    "args": [
+     "ticker",
+     "top_n"
+    ]
+   },
+   {
+    "id": "yahoo-finance::get_recommendations",
+    "description": "Get analyst recommendations for a given symbol.",
+    "args": [
+     "symbol"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S178",
+  "tools": [
+   {
+    "id": "google-maps::maps_geocode",
+    "description": "Convert an address into geographic coordinates",
+    "args": [
+     "address"
+    ]
+   },
+   {
+    "id": "google-maps::maps_reverse_geocode",
+    "description": "Convert coordinates into an address",
+    "args": [
+     "latitude",
+     "longitude"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S181",
+  "tools": [
+   {
+    "id": "mcp-server-chart::generate_histogram_chart",
+    "description": "Generate a histogram chart to show the frequency of data points within a certain range. It can observe data distribution, such as, normal and skewed distributions, and identify data concentration areas and extreme points.",
+    "args": [
+     "data",
+     "binNumber",
+     "theme",
+     "width",
+     "height",
+     "title",
+     "axisXTitle",
+     "axisYTitle"
+    ]
+   },
+   {
+    "id": "mcp-server-chart::generate_network_graph",
+    "description": "Generate a network graph chart to show relationships (edges) between entities (nodes), such as, relationships between people in social networks.",
+    "args": [
+     "data",
+     "theme",
+     "width",
+     "height"
+    ]
+   },
+   {
+    "id": "mcp-server-chart::generate_radar_chart",
+    "description": "Generate a radar chart to display multidimensional data (four dimensions or more), such as, evaluate Huawei and Apple phones in terms of five dimensions: ease of use, functionality, camera, benchmark scores, and battery life.",
+    "args": [
+     "data",
+     "theme",
+     "width",
+     "height",
+     "title"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S184",
+  "tools": [
+   {
+    "id": "osm-mcp-server::analyze_neighborhood",
+    "description": "\nGenerate a comprehensive neighborhood analysis focused on livability factors.\n\nThis advanced analysis tool evaluates a neighborhood based on multiple livability factors,\nincluding amenities, transportation options, green spaces, and services. Results include\ncounts and proximity scores for various ",
+    "args": [
+     "latitude",
+     "longitude",
+     "radius"
+    ]
+   },
+   {
+    "id": "osm-mcp-server::search_category",
+    "description": "\nSearch for specific types of places within a defined geographic area.\n\nThis tool allows targeted searches for places matching specific categories within\na rectangular geographic region. It's particularly useful for filtering places by type\n(restaurants, schools, parks, etc.) within a neighborhood o",
+    "args": [
+     "category",
+     "min_latitude",
+     "min_longitude",
+     "max_latitude",
+     "max_longitude",
+     "subcategories"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S187",
+  "tools": [
+   {
+    "id": "weather::get_weather",
+    "description": "\nGet current weather and forecast for a specific location.\n\nArgs:\n    latitude: Latitude of the location\n    longitude: Longitude of the location\n    location_name: Optional name of the location for display\n    temperature_unit: Temperature unit (celsius or fahrenheit)\n    wind_speed_unit: Wind spee",
+    "args": [
+     "latitude",
+     "longitude",
+     "location_name",
+     "temperature_unit",
+     "wind_speed_unit",
+     "precipitation_unit"
+    ]
+   },
+   {
+    "id": "weather::get_weather_by_city",
+    "description": "\nGet weather for a city by name using geocoding.\n\nArgs:\n    city: Name of the city\n    country_code: Optional 2-letter country code (e.g., \"US\", \"GB\")\n    temperature_unit: Temperature unit (celsius or fahrenheit)\n    wind_speed_unit: Wind speed unit (kmh, ms, mph, kn)\n    precipitation_unit: Precip",
+    "args": [
+     "city",
+     "country_code",
+     "temperature_unit",
+     "wind_speed_unit",
+     "precipitation_unit"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S190",
+  "tools": [
+   {
+    "id": "investor::get_earnings_history",
+    "description": "",
+    "args": [
+     "ticker",
+     "max_entries"
+    ]
+   },
+   {
+    "id": "yfmcp::search",
+    "description": "Fetches and organizes search results from Yahoo Finance, including stock quotes and news articles.",
+    "args": [
+     "query",
+     "search_type"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S193",
+  "tools": [
+   {
+    "id": "Ant Design Components::get-component-changelog",
+    "description": "列出 Ant Design 特定组件的更新日志\n适用场景：\n1. 用户询问特定组件的更新日志\n2. 在知道用户 antd 版本的情况下，当用户需要实现相关组件功能时判断是否在后续版本中才实现，来决定是否需要升级依赖",
+    "args": [
+     "componentName"
+    ]
+   },
+   {
+    "id": "Ant Design Components::get-component-docs",
+    "description": "获取 Ant Design 特定组件的详细文档\n适用场景：\n1. 用户询问如何使用特定组件\n2. 用户需要查看该组件的 api 属性",
+    "args": [
+     "componentName"
+    ]
+   },
+   {
+    "id": "Ant Design Components::list-component-examples",
+    "description": "获取 Ant Design 特定组件的代码示例\n适用场景：\n1. 用户询问特定组件的示例时\n2. 用户想要实现某个功能时直接告知可使用的例子\n3. 生成页面前需要获取组件的示例代码",
+    "args": [
+     "componentName"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S196",
+  "tools": [
+   {
+    "id": "Asset_Price_MCP::get_asset_price",
+    "description": "Retrieves current pricing information for various assets including precious metals and cryptocurrencies",
+    "args": []
+   },
+   {
+    "id": "investor::get_options",
+    "description": "Get options data. Dates: YYYY-MM-DD. Type: C=calls, P=puts.",
+    "args": [
+     "ticker_symbol",
+     "num_options",
+     "start_date",
+     "end_date",
+     "strike_lower",
+     "strike_upper",
+     "option_type"
+    ]
+   },
+   {
+    "id": "yfmcp::get_top",
+    "description": "Get top entities (ETFs, mutual funds, companies, growth companies, or performing companies) in a sector.",
+    "args": [
+     "sector",
+     "top_type",
+     "top_n"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S199",
+  "tools": [
+   {
+    "id": "investor::get_ticker_data",
+    "description": "\nReturns:\n- info: Core financial metrics (P/E ratios, margins, growth rates, debt ratios, market cap, EPS, etc.)\n- calendar: Upcoming earnings dates and dividend dates\n- news: Recent news articles (headlines, dates, sources)\n- recommendations: Latest analyst recommendations (buy/sell/hold ratings)\n-",
+    "args": [
+     "ticker",
+     "max_news",
+     "max_recommendations",
+     "max_upgrades"
+    ]
+   },
+   {
+    "id": "yahoo-finance::get_stock_price_date_range",
+    "description": "Get the stock prices for a given date range for a given stock symbol.",
+    "args": [
+     "symbol",
+     "start_date",
+     "end_date"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S202",
+  "tools": [
+   {
+    "id": "baidu-maps-sse::map_reverse_geocode",
+    "description": "逆地理编码服务: 根据纬经度坐标, 获取对应位置的地址描述, 所在行政区划, 道路以及相关POI等信息",
+    "args": [
+     "latitude",
+     "longitude"
+    ]
+   },
+   {
+    "id": "baidu-maps-sse::map_weather",
+    "description": "天气查询服务: 通过行政区划或是经纬度坐标查询实时天气信息及未来5天天气预报.",
+    "args": [
+     "location",
+     "district_id"
+    ]
+   },
+   {
+    "id": "google-maps::maps_directions",
+    "description": "Get directions between two points",
+    "args": [
+     "origin",
+     "destination",
+     "mode"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S205",
+  "tools": [
+   {
+    "id": "basic-memory::build_context",
+    "description": "Build context from a memory:// URI to continue conversations naturally.\n    \n    Use this to follow up on previous discussions or explore related topics.\n    \n    Memory URL Format:\n    - Use paths like \"folder/note\" or \"memory://folder/note\" \n    - Pattern matching: \"folder/*\" matches all notes in ",
+    "args": [
+     "url",
+     "depth",
+     "timeframe",
+     "page",
+     "page_size",
+     "max_related",
+     "project"
+    ]
+   },
+   {
+    "id": "basic-memory::list_memory_projects",
+    "description": "List all available projects with their status.\n\nShows all Basic Memory projects that are available, indicating which one\nis currently active and which is the default.\n\nReturns:\n    Formatted list of projects with status indicators\n\nExample:\n    list_memory_projects()",
+    "args": [
+     "_compatibility"
+    ]
+   },
+   {
+    "id": "playwright::get_codegen_session",
+    "description": "Get information about a code generation session",
+    "args": [
+     "sessionId"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S208",
+  "tools": [
+   {
+    "id": "mcp-crypto-price::get-crypto-price",
+    "description": "Get current price and 24h stats for a cryptocurrency",
+    "args": [
+     "symbol"
+    ]
+   },
+   {
+    "id": "mcp-crypto-price::get-market-analysis",
+    "description": "Get detailed market analysis including top exchanges and volume distribution",
+    "args": [
+     "symbol"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S211",
+  "tools": [
+   {
+    "id": "image-extractor::extract_image_from_base64",
+    "description": "Extract and analyze images from base64-encoded data. Ideal for processing screenshots from clipboard, dynamically generated images, or images embedded in applications without requiring file system access.",
+    "args": [
+     "base64",
+     "mime_type",
+     "resize",
+     "max_width",
+     "max_height"
+    ]
+   },
+   {
+    "id": "image-extractor::extract_image_from_file",
+    "description": "Extract and analyze images from local file paths. Supports visual content understanding, OCR text extraction, and object recognition for screenshots, photos, diagrams, and documents.",
+    "args": [
+     "file_path",
+     "resize",
+     "max_width",
+     "max_height"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S214",
+  "tools": [
+   {
+    "id": "memory::add_observations",
+    "description": "Add new observations to existing entities in the knowledge graph",
+    "args": [
+     "observations"
+    ]
+   },
+   {
+    "id": "memory::open_nodes",
+    "description": "Open specific nodes in the knowledge graph by their names",
+    "args": [
+     "names"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S217",
+  "tools": [
+   {
+    "id": "playwright::playwright_drag",
+    "description": "Drag an element to a target location",
+    "args": [
+     "sourceSelector",
+     "targetSelector"
+    ]
+   },
+   {
+    "id": "playwright::playwright_press_key",
+    "description": "Press a keyboard key",
+    "args": [
+     "key",
+     "selector"
+    ]
+   },
+   {
+    "id": "playwright::playwright_select",
+    "description": "Select an element on the page with Select tag",
+    "args": [
+     "selector",
+     "value"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S220",
+  "tools": [
+   {
+    "id": "mcp-server-chart::generate_network_graph",
+    "description": "Generate a network graph chart to show relationships (edges) between entities (nodes), such as, relationships between people in social networks.",
+    "args": [
+     "data",
+     "theme",
+     "width",
+     "height"
+    ]
+   },
+   {
+    "id": "okppt::insert_svg",
+    "description": "\n将SVG图像插入到PPTX文件的指定位置。(如果需要替换已有的幻灯片，请组合使用`delete_slide`和`insert_blank_slide`功能)\n如果未提供PPTX路径，将自动创建一个临时文件，位于服务器同级目录的tmp目录。\n如果未提供输出路径，将使用标准输出目录，位于服务器同级目录的output目录。\n如果未提供坐标，默认对齐幻灯片左上角。\n如果未提供宽度和高度，默认覆盖整个幻灯片（16:9）。\n\n支持批量处理：\n- 如果svg_path是单个字符串数组，则将SVG添加到slide_number指定的页面\n- 如果svg_path是列表，则从slide_number开始顺序添",
+    "args": [
+     "pptx_path",
+     "svg_path",
+     "slide_number",
+     "x_inches",
+     "y_inches",
+     "width_inches",
+     "height_inches",
+     "output_path"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S223",
+  "tools": [
+   {
+    "id": "memory::add_observations",
+    "description": "Add new observations to existing entities in the knowledge graph",
+    "args": [
+     "observations"
+    ]
+   },
+   {
+    "id": "memory::open_nodes",
+    "description": "Open specific nodes in the knowledge graph by their names",
+    "args": [
+     "names"
+    ]
+   },
+   {
+    "id": "memory::read_graph",
+    "description": "Read the entire knowledge graph",
+    "args": []
+   }
+  ]
+ },
+ {
+  "scene": "S226",
+  "tools": [
+   {
+    "id": "yahoo-finance::get_cashflow",
+    "description": "Get cashflow for a given stock symbol.",
+    "args": [
+     "symbol",
+     "freq"
+    ]
+   },
+   {
+    "id": "yahoo-finance::get_recommendations",
+    "description": "Get analyst recommendations for a given symbol.",
+    "args": [
+     "symbol"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S229",
+  "tools": [
+   {
+    "id": "paypal::create_order",
+    "description": "Create an order in PayPal.\n\nThis tool is used to create a new order in PayPal. This is typically the first step in initiating a payment flow. It sets up an order with specified details such as item(s) to be purchased, quantity, amount, currency, and other details.",
+    "args": [
+     "currencyCode",
+     "items",
+     "discount",
+     "shippingCost",
+     "shippingAddress",
+     "notes",
+     "returnUrl",
+     "cancelUrl"
+    ]
+   },
+   {
+    "id": "paypal::create_refund",
+    "description": "Initiate a refund for a PayPal payment capture.\nIf you have an order ID instead of a capture ID, first use the get order tool to obtain the capture ID from the order details.\nThis function allows you to return funds to a customer by refunding a previously captured payment. You can issue a full refun",
+    "args": [
+     "capture_id",
+     "amount",
+     "invoice_id",
+     "note_to_payer"
+    ]
+   },
+   {
+    "id": "paypal::create_shipment_tracking",
+    "description": "Create a shipment for a transaction in PayPal.\nThis function creates a shipment record for a specific transaction, allowing you to track the shipment status and details.\nThe transaction_id can fetch from the captured payment details in the order information.\nRequired parameters are: tracking_number ",
+    "args": [
+     "order_id",
+     "tracking_number",
+     "transaction_id",
+     "status",
+     "carrier"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S232",
+  "tools": [
+   {
+    "id": "npm-sentinel-mcp::npmAlternatives",
+    "description": "Find alternative packages with similar functionality",
+    "args": [
+     "packages"
+    ]
+   },
+   {
+    "id": "npm-sentinel-mcp::npmRepoStats",
+    "description": "Get repository statistics for NPM packages",
+    "args": [
+     "packages"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S235",
+  "tools": [
+   {
+    "id": "arxiv-mcp-server::download_paper",
+    "description": "Download a paper and create a resource for it",
+    "args": [
+     "paper_id",
+     "check_status"
+    ]
+   },
+   {
+    "id": "arxiv-mcp-server::list_papers",
+    "description": "List all existing papers available as resources",
+    "args": []
+   },
+   {
+    "id": "arxiv-mcp-server::read_paper",
+    "description": "Read the full content of a stored paper in markdown format",
+    "args": [
+     "paper_id"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S238",
+  "tools": [
+   {
+    "id": "amap-amap-sse::maps_direction_driving",
+    "description": "驾车路径规划 API 可以根据用户起终点经纬度坐标规划以小客车、轿车通勤出行的方案，并且返回通勤方案的数据。",
+    "args": [
+     "origin",
+     "destination"
+    ]
+   },
+   {
+    "id": "amap-amap-sse::maps_text_search",
+    "description": "关键字搜索 API 根据用户输入的关键字进行 POI 搜索，并返回相关的信息",
+    "args": [
+     "keywords",
+     "city",
+     "citylimit"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S241",
+  "tools": [
+   {
+    "id": "mcp-server-chart::generate_histogram_chart",
+    "description": "Generate a histogram chart to show the frequency of data points within a certain range. It can observe data distribution, such as, normal and skewed distributions, and identify data concentration areas and extreme points.",
+    "args": [
+     "data",
+     "binNumber",
+     "theme",
+     "width",
+     "height",
+     "title",
+     "axisXTitle",
+     "axisYTitle"
+    ]
+   },
+   {
+    "id": "mcp-server-chart::generate_mind_map",
+    "description": "Generate a mind map chart to organizes and presents information in a hierarchical structure with branches radiating from a central topic, such as, a diagram showing the relationship between a main topic and its subtopics.",
+    "args": [
+     "data",
+     "theme",
+     "width",
+     "height"
+    ]
+   },
+   {
+    "id": "mcp-server-chart::generate_violin_chart",
+    "description": "Generate a violin chart to show data for statistical summaries among different categories, such as, comparing the distribution of data points across categories.",
+    "args": [
+     "data",
+     "theme",
+     "width",
+     "height",
+     "title",
+     "axisXTitle",
+     "axisYTitle"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S244",
+  "tools": [
+   {
+    "id": "mcp-server-chart::generate_district_map",
+    "description": "Generates regional distribution maps, which are usually used to show the administrative divisions and coverage of a dataset. It is not suitable for showing the distribution of specific locations, such as urban administrative divisions, GDP distribution maps of provinces and cities across the country",
+    "args": [
+     "title",
+     "data",
+     "width",
+     "height"
+    ]
+   },
+   {
+    "id": "mcp-server-chart::generate_liquid_chart",
+    "description": "Generate a liquid chart to visualize a single value as a percentage, such as, the current occupancy rate of a reservoir or the completion percentage of a project.",
+    "args": [
+     "percent",
+     "shape",
+     "theme",
+     "width",
+     "height",
+     "title"
+    ]
+   },
+   {
+    "id": "mcp-server-chart::generate_treemap_chart",
+    "description": "Generate a treemap chart to display hierarchical data and can intuitively show comparisons between items at the same level, such as, show disk space usage with treemap.",
+    "args": [
+     "data",
+     "theme",
+     "width",
+     "height",
+     "title"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S247",
+  "tools": [
+   {
+    "id": "coin-flip::get-contest-details",
+    "description": "",
+    "args": [
+     "contestSlug"
+    ]
+   },
+   {
+    "id": "coin-flip::search-problems",
+    "description": "",
+    "args": [
+     "tags",
+     "difficulty",
+     "limit",
+     "skip"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S250",
+  "tools": [
+   {
+    "id": "word-document-server::get_document_info",
+    "description": "Get information about a Word document.",
+    "args": [
+     "filename"
+    ]
+   },
+   {
+    "id": "word-document-server::get_paragraph_text_from_document",
+    "description": "Get text from a specific paragraph in a Word document.",
+    "args": [
+     "filename",
+     "paragraph_index"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S253",
+  "tools": [
+   {
+    "id": "excel::excel_create_table",
+    "description": "Create a table in the Excel sheet",
+    "args": [
+     "fileAbsolutePath",
+     "range",
+     "sheetName",
+     "tableName"
+    ]
+   },
+   {
+    "id": "searxng::text_splitter",
+    "description": "Split text file by specified delimiter or line count",
+    "args": [
+     "inputPath",
+     "outputDir",
+     "splitBy",
+     "value"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S256",
+  "tools": [
+   {
+    "id": "coin-flip::get-daily-challenge",
+    "description": "",
+    "args": []
+   },
+   {
+    "id": "git::git_status",
+    "description": "Shows the working tree status",
+    "args": [
+     "repo_path"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S259",
+  "tools": [
+   {
+    "id": "sitemap::get_sitemap_stats",
+    "description": "Get comprehensive statistics about a website's sitemap structure",
+    "args": [
+     "url"
+    ]
+   },
+   {
+    "id": "sitemap::parse_sitemap_content",
+    "description": "Parse a sitemap directly from its XML or text content",
+    "args": [
+     "content",
+     "include_pages"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S262",
+  "tools": [
+   {
+    "id": "trends-hub::get-bilibili-rank",
+    "description": "获取哔哩哔哩视频排行榜，包含全站、动画、音乐、游戏等多个分区的热门视频，反映当下年轻人的内容消费趋势",
+    "args": [
+     "type"
+    ]
+   },
+   {
+    "id": "trends-hub::get-netease-news-trending",
+    "description": "获取网易新闻热点榜，包含时政要闻、社会事件、财经资讯、科技动态及娱乐体育的全方位中文新闻资讯",
+    "args": []
+   },
+   {
+    "id": "trends-hub::get-nytimes-news",
+    "description": "获取纽约时报新闻，包含国际政治、经济金融、社会文化、科学技术及艺术评论的高质量英文或中文国际新闻资讯",
+    "args": [
+     "region",
+     "section"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S265",
+  "tools": [
+   {
+    "id": "painter::drawing_fillRectangle",
+    "description": "Fill a rectangle on the drawing canvas with a specified color and coordinates.",
+    "args": [
+     "x",
+     "y",
+     "width",
+     "height",
+     "color"
+    ]
+   },
+   {
+    "id": "ppt::manage_slide_masters",
+    "description": "\nAccess and manage slide master properties and layouts.\n\nArgs:\n    operation: Operation type (\"list\", \"get_layouts\", \"get_info\")\n    master_index: Index of the slide master (0-based)\n    layout_index: Index of specific layout within master (0-based)\n    presentation_id: Optional presentation ID (use",
+    "args": [
+     "operation",
+     "master_index",
+     "layout_index",
+     "presentation_id"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S268",
+  "tools": [
+   {
+    "id": "exchange-rate-mcp::exchange_rate",
+    "description": "Retrieves exchange rates using Norges Bank's API. Returns rate information including the base currency, target currency, date, and conversion rate.",
+    "args": [
+     "baseCurrency",
+     "targetCurrency",
+     "date"
+    ]
+   },
+   {
+    "id": "investor::get_financial_statements",
+    "description": "",
+    "args": [
+     "ticker",
+     "statement_type",
+     "frequency",
+     "max_periods"
+    ]
+   },
+   {
+    "id": "kospi-kosdaq::get_stock_ohlcv",
+    "description": "Retrieves OHLCV (Open/High/Low/Close/Volume) data for a specific stock.\n\nArgs:\n    fromdate (str): Start date for retrieval (YYYYMMDD)\n    todate   (str): End date for retrieval (YYYYMMDD)\n    ticker   (str): Stock ticker symbol\n    adjusted (bool, optional): Whether to use adjusted prices (True: ad",
+    "args": [
+     "fromdate",
+     "todate",
+     "ticker",
+     "adjusted"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S271",
+  "tools": [
+   {
+    "id": "maven-deps-server::check_maven_version_exists",
+    "description": "Check if a specific version of a Maven dependency exists",
+    "args": [
+     "dependency",
+     "version"
+    ]
+   },
+   {
+    "id": "maven-deps-server::get_latest_release",
+    "description": "Get the latest release version of a Maven dependency (excludes pre-releases by default)",
+    "args": [
+     "dependency",
+     "excludePreReleases"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S274",
+  "tools": [
+   {
+    "id": "puppeteer::puppeteer_screenshot",
+    "description": "Take a screenshot of the current page or a specific element",
+    "args": [
+     "name",
+     "selector",
+     "width",
+     "height",
+     "encoded"
+    ]
+   },
+   {
+    "id": "taskmanager::update_task",
+    "description": "Update an existing task's title and/or description. Only uncompleted tasks can be updated.\n\nA progress table will be displayed showing the updated task information.",
+    "args": [
+     "requestId",
+     "taskId",
+     "title",
+     "description"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S277",
+  "tools": [
+   {
+    "id": "web3-research-mcp::create-research-plan",
+    "description": "",
+    "args": [
+     "tokenName",
+     "tokenTicker"
+    ]
+   },
+   {
+    "id": "web3-research-mcp::research-token",
+    "description": "",
+    "args": [
+     "tokenName",
+     "tokenTicker",
+     "source"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S280",
+  "tools": [
+   {
+    "id": "desktop-commander::read_file",
+    "description": "\n                        Read the contents of a file from the file system or a URL with optional offset and length parameters.\n                        \n                        Prefer this over 'execute_command' with cat/type for viewing files.\n                        \n                        Support",
+    "args": [
+     "path",
+     "isUrl",
+     "offset",
+     "length"
+    ]
+   },
+   {
+    "id": "desktop-commander::write_file",
+    "description": "\n                        Write or append to file contents. \n\n                        CHUNKING IS STANDARD PRACTICE: Always write files in chunks of 25-30 lines maximum.\n                        This is the normal, recommended way to write files - not an emergency measure.\n\n                        STA",
+    "args": [
+     "path",
+     "content",
+     "mode"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S283",
+  "tools": [
+   {
+    "id": "mcp-simple-arxiv::update_categories",
+    "description": "Update the stored category taxonomy by fetching the latest version from arxiv.org",
+    "args": []
+   },
+   {
+    "id": "wikipedia::search_wikipedia",
+    "description": "Search Wikipedia for articles matching a query.",
+    "args": [
+     "query",
+     "limit"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S286",
+  "tools": [
+   {
+    "id": "wikipedia::extract_key_facts",
+    "description": "Extract key facts from a Wikipedia article, optionally focused on a topic.",
+    "args": [
+     "title",
+     "topic_within_article",
+     "count"
+    ]
+   },
+   {
+    "id": "wikipedia::get_related_topics",
+    "description": "Get topics related to a Wikipedia article based on links and categories.",
+    "args": [
+     "title",
+     "limit"
+    ]
+   },
+   {
+    "id": "wikipedia::search_wikipedia",
+    "description": "Search Wikipedia for articles matching a query.",
+    "args": [
+     "query",
+     "limit"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S289",
+  "tools": [
+   {
+    "id": "yfmcp::get_ticker_info",
+    "description": "Retrieve stock data including company info, financials, trading metrics and governance data.",
+    "args": [
+     "symbol"
+    ]
+   },
+   {
+    "id": "yfmcp::get_top",
+    "description": "Get top entities (ETFs, mutual funds, companies, growth companies, or performing companies) in a sector.",
+    "args": [
+     "sector",
+     "top_type",
+     "top_n"
+    ]
+   },
+   {
+    "id": "yfmcp::search",
+    "description": "Fetches and organizes search results from Yahoo Finance, including stock quotes and news articles.",
+    "args": [
+     "query",
+     "search_type"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S292",
+  "tools": [
+   {
+    "id": "random-number::random_float",
+    "description": "Generate a random float between low and high.\n\nArgs:\n    low: Lower bound (default 0.0)\n    high: Upper bound (default 1.0)\n\nReturns:\n    Random float between low and high",
+    "args": [
+     "low",
+     "high"
+    ]
+   },
+   {
+    "id": "random-number::random_shuffle",
+    "description": "Return a new list with items in random order.\n\nArgs:\n    items: List of items to shuffle\n\nReturns:\n    New list with items in random order",
+    "args": [
+     "items"
+    ]
+   },
+   {
+    "id": "random-number::secure_random_int",
+    "description": "Generate a secure random integer below upper_bound.\n\nArgs:\n    upper_bound: Upper bound (exclusive)\n\nReturns:\n    Random integer in range [0, upper_bound)",
+    "args": [
+     "upper_bound"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S295",
+  "tools": [
+   {
+    "id": "biomcp::trial_references_getter",
+    "description": "Fetch publications and references for a clinical trial.\n\n    Retrieves all linked publications including:\n    - Published results papers\n    - Background literature\n    - Protocol publications\n    - Related analyses\n\n    Includes PubMed IDs when available for easy cross-referencing.\n    ",
+    "args": [
+     "nct_id"
+    ]
+   },
+   {
+    "id": "biomcp::variant_getter",
+    "description": "Fetch comprehensive details for a specific genetic variant.\n\n    Retrieves all available information for a variant including:\n    - Gene location and consequences\n    - Population frequencies across databases\n    - Clinical significance from ClinVar\n    - Functional predictions\n    - External annota",
+    "args": [
+     "variant_id",
+     "include_external"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S298",
+  "tools": [
+   {
+    "id": "searxng::html_to_text",
+    "description": "Convert HTML to plain text while preserving structure",
+    "args": [
+     "inputPath",
+     "outputDir"
+    ]
+   },
+   {
+    "id": "searxng::pdf_merger",
+    "description": "Merge multiple PDF files into one",
+    "args": [
+     "inputPaths",
+     "outputDir"
+    ]
+   },
+   {
+    "id": "searxng::pdf_splitter",
+    "description": "Split a PDF file into multiple files",
+    "args": [
+     "inputPath",
+     "outputDir",
+     "pageRanges"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S301",
+  "tools": [
+   {
+    "id": "ppt::get_template_file_info",
+    "description": "Get information about a template file including layouts and properties.",
+    "args": [
+     "template_path"
+    ]
+   },
+   {
+    "id": "ppt::populate_placeholder",
+    "description": "Populate a placeholder with text.",
+    "args": [
+     "slide_index",
+     "placeholder_idx",
+     "text",
+     "presentation_id"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S304",
+  "tools": [
+   {
+    "id": "music-analysis::chroma_cqt",
+    "description": "\nComputes the chroma CQT of the given audio time series using librosa.\nThe chroma CQT is a representation of the audio signal in terms of its\nchromatic content, which is useful for music analysis.\nThe chroma CQT is computed using the following parameters:\n- path_audio_time_series_y: The path to the ",
+    "args": [
+     "path_audio_time_series_y",
+     "hop_length",
+     "fmin",
+     "n_chroma",
+     "n_octaves"
+    ]
+   },
+   {
+    "id": "music-analysis::load",
+    "description": "\nLoads an audio file and returns the path to the audio time series\nOffset and duration are optional, in seconds.\nBe careful, you will never know the name of the song.\n",
+    "args": [
+     "file_path",
+     "offset",
+     "duration"
+    ]
+   },
+   {
+    "id": "music-analysis::mfcc",
+    "description": "\nComputes the MFCC of the given audio time series using librosa.\nThe MFCC is a representation of the audio signal in terms of its\nspectral content, which is useful for music analysis.\nThe MFCC is computed using the following parameters:\n- path_audio_time_series_y: The path to the audio time series (",
+    "args": [
+     "path_audio_time_series_y"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S307",
+  "tools": [
+   {
+    "id": "git::git_branch",
+    "description": "List Git branches",
+    "args": [
+     "repo_path",
+     "branch_type",
+     "contains",
+     "not_contains"
+    ]
+   },
+   {
+    "id": "npm-sentinel-mcp::npmChangelogAnalysis",
+    "description": "Analyze changelog and release history of packages",
+    "args": [
+     "packages"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S310",
+  "tools": [
+   {
+    "id": "trends-hub::get-ifanr-news",
+    "description": "获取爱范儿科技快讯，包含最新的科技产品、数码设备、互联网动态等前沿科技资讯",
+    "args": [
+     "limit",
+     "offset"
+    ]
+   },
+   {
+    "id": "web3-research-mcp::research-token",
+    "description": "",
+    "args": [
+     "tokenName",
+     "tokenTicker",
+     "source"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S313",
+  "tools": [
+   {
+    "id": "puppeteer::puppeteer_navigate",
+    "description": "Navigate to a URL",
+    "args": [
+     "url",
+     "launchOptions",
+     "allowDangerous"
+    ]
+   },
+   {
+    "id": "puppeteer::puppeteer_screenshot",
+    "description": "Take a screenshot of the current page or a specific element",
+    "args": [
+     "name",
+     "selector",
+     "width",
+     "height",
+     "encoded"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S316",
+  "tools": [
+   {
+    "id": "mcp-server-chart::generate_district_map",
+    "description": "Generates regional distribution maps, which are usually used to show the administrative divisions and coverage of a dataset. It is not suitable for showing the distribution of specific locations, such as urban administrative divisions, GDP distribution maps of provinces and cities across the country",
+    "args": [
+     "title",
+     "data",
+     "width",
+     "height"
+    ]
+   },
+   {
+    "id": "mcp-server-chart::generate_treemap_chart",
+    "description": "Generate a treemap chart to display hierarchical data and can intuitively show comparisons between items at the same level, such as, show disk space usage with treemap.",
+    "args": [
+     "data",
+     "theme",
+     "width",
+     "height",
+     "title"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S319",
+  "tools": [
+   {
+    "id": "mcp-server-chart::generate_fishbone_diagram",
+    "description": "Generate a fishbone diagram chart to uses a fish skeleton, like structure to display the causes or effects of a core problem, with the problem as the fish head and the causes/effects as the fish bones. It suits problems that can be split into multiple related factors.",
+    "args": [
+     "data",
+     "theme",
+     "width",
+     "height"
+    ]
+   },
+   {
+    "id": "ppt::manage_image",
+    "description": "Unified image management tool for adding and enhancing images.",
+    "args": [
+     "slide_index",
+     "operation",
+     "image_source",
+     "source_type",
+     "left",
+     "top",
+     "width",
+     "height"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S322",
+  "tools": [
+   {
+    "id": "desktop-commander::create_directory",
+    "description": "\n                        Create a new directory or ensure a directory exists.\n                        \n                        Can create multiple nested directories in one operation.\n                        Only works within allowed directories.\n                        \n                        IMPO",
+    "args": [
+     "path"
+    ]
+   },
+   {
+    "id": "desktop-commander::set_config_value",
+    "description": "\n                        Set a specific configuration value by key.\n                        \n                        WARNING: Should be used in a separate chat from file operations and \n                        command execution to prevent security issues.\n                        \n                   ",
+    "args": [
+     "key",
+     "value"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S325",
+  "tools": [
+   {
+    "id": "shadcn-ui-server::get_component_details",
+    "description": "Get detailed information about a specific shadcn/ui component",
+    "args": [
+     "componentName"
+    ]
+   },
+   {
+    "id": "trends-hub::get-netease-news-trending",
+    "description": "获取网易新闻热点榜，包含时政要闻、社会事件、财经资讯、科技动态及娱乐体育的全方位中文新闻资讯",
+    "args": []
+   },
+   {
+    "id": "ygocdb::get_card_by_id",
+    "description": "通过卡牌ID获取单张游戏王卡牌的详细信息",
+    "args": [
+     "id"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S328",
+  "tools": [
+   {
+    "id": "Context7::get-library-docs",
+    "description": "Fetches up-to-date documentation for a library. You must call 'resolve-library-id' first to obtain the exact Context7-compatible library ID required to use this tool, UNLESS the user explicitly provides a library ID in the format '/org/project' or '/org/project/version' in their query.",
+    "args": [
+     "context7CompatibleLibraryID",
+     "topic",
+     "tokens"
+    ]
+   },
+   {
+    "id": "git::git_init",
+    "description": "Initialize a new Git repository",
+    "args": [
+     "repo_path"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S331",
+  "tools": [
+   {
+    "id": "memory::create_entities",
+    "description": "Create multiple new entities in the knowledge graph",
+    "args": [
+     "entities"
+    ]
+   },
+   {
+    "id": "memory::read_graph",
+    "description": "Read the entire knowledge graph",
+    "args": []
+   }
+  ]
+ },
+ {
+  "scene": "S334",
+  "tools": [
+   {
+    "id": "amap-amap-sse::maps_direction_bicycling",
+    "description": "骑行路径规划用于规划骑行通勤方案，规划时会考虑天桥、单行线、封路等情况。最大支持 500km 的骑行路线规划",
+    "args": [
+     "origin",
+     "destination"
+    ]
+   },
+   {
+    "id": "baidu-maps-sse::map_directions_matrix",
+    "description": "批量算路服务: 根据起点和终点坐标计算路线规划距离和行驶时间.\n批量算路目前支持驾车、骑行、步行.\n步行时任意起终点之间的距离不得超过200KM, 超过此限制会返回参数错误.\n驾车批量算路一次最多计算100条路线, 起终点个数之积不能超过100.",
+    "args": [
+     "origins",
+     "destinations",
+     "model"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S337",
+  "tools": [
+   {
+    "id": "playwright::playwright_expect_response",
+    "description": "Ask Playwright to start waiting for a HTTP response. This tool initiates the wait operation but does not wait for its completion.",
+    "args": [
+     "id",
+     "url"
+    ]
+   },
+   {
+    "id": "playwright::playwright_put",
+    "description": "Perform an HTTP PUT request",
+    "args": [
+     "url",
+     "value"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S340",
+  "tools": [
+   {
+    "id": "docker-mcp::create-container",
+    "description": "Create a new standalone Docker container",
+    "args": [
+     "image",
+     "name",
+     "ports",
+     "environment"
+    ]
+   },
+   {
+    "id": "docker-mcp::deploy-compose",
+    "description": "Deploy a Docker Compose stack",
+    "args": [
+     "compose_yaml",
+     "project_name"
+    ]
+   },
+   {
+    "id": "docker-mcp::get-logs",
+    "description": "Retrieve the latest logs for a specified Docker container",
+    "args": [
+     "container_name"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S343",
+  "tools": [
+   {
+    "id": "painter::drawing_generateCanvas",
+    "description": "Generate a new drawing canvas with specified width and height.",
+    "args": [
+     "width",
+     "height"
+    ]
+   },
+   {
+    "id": "painter::drawing_getCanvasData",
+    "description": "Get the current pixel data of the drawing canvas as JSON.",
+    "args": []
+   },
+   {
+    "id": "painter::drawing_getCanvasPng",
+    "description": "Get the current drawing canvas as a PNG image (base64 encoded).",
+    "args": []
+   }
+  ]
+ },
+ {
+  "scene": "S346",
+  "tools": [
+   {
+    "id": "amap-amap-sse::maps_text_search",
+    "description": "关键字搜索 API 根据用户输入的关键字进行 POI 搜索，并返回相关的信息",
+    "args": [
+     "keywords",
+     "city",
+     "citylimit"
+    ]
+   },
+   {
+    "id": "amap-amap-sse::maps_weather",
+    "description": "根据城市名称或者标准adcode查询指定城市的天气",
+    "args": [
+     "city"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S349",
+  "tools": [
+   {
+    "id": "wikipedia::get_article",
+    "description": "Get the full content of a Wikipedia article.",
+    "args": [
+     "title"
+    ]
+   },
+   {
+    "id": "wikipedia::get_sections",
+    "description": "Get the sections of a Wikipedia article.",
+    "args": [
+     "title"
+    ]
+   },
+   {
+    "id": "wikipedia::summarize_article_for_query",
+    "description": "Get a summary of a Wikipedia article tailored to a specific query.",
+    "args": [
+     "title",
+     "query",
+     "max_length"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S352",
+  "tools": [
+   {
+    "id": "chess::get_board_visualization",
+    "description": "Provides the current state of the chessboard as an image.",
+    "args": []
+   },
+   {
+    "id": "chess::make_move",
+    "description": "\nMakes a move on the board using standard algebraic notation (SAN).\nArgs:\n    move_san: The player's move in algebraic notation (e.g., 'e4', 'Nf3', 'Bxe5').\nReturns:\n    A dictionary containing the move in SAN format, the move in UCI format, the new board FEN,\n    whether the game is over, and the r",
+    "args": [
+     "move_san"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S355",
+  "tools": [
+   {
+    "id": "shadcn-ui-server::search_components",
+    "description": "Search for shadcn/ui components by keyword",
+    "args": [
+     "query"
+    ]
+   },
+   {
+    "id": "wikipedia::summarize_article_section",
+    "description": "Get a summary of a specific section of a Wikipedia article.",
+    "args": [
+     "title",
+     "section_title",
+     "max_length"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S358",
+  "tools": [
+   {
+    "id": "playwright::end_codegen_session",
+    "description": "End a code generation session and generate the test file",
+    "args": [
+     "sessionId"
+    ]
+   },
+   {
+    "id": "playwright::playwright_go_forward",
+    "description": "Navigate forward in browser history",
+    "args": []
+   },
+   {
+    "id": "playwright::playwright_upload_file",
+    "description": "Upload a file to an input[type='file'] element on the page",
+    "args": [
+     "selector",
+     "filePath"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S361",
+  "tools": [
+   {
+    "id": "excel::excel_write_to_sheet",
+    "description": "Write values to the Excel sheet",
+    "args": [
+     "fileAbsolutePath",
+     "newSheet",
+     "range",
+     "sheetName",
+     "values"
+    ]
+   },
+   {
+    "id": "filesystem::list_directory",
+    "description": "Get a detailed listing of all files and directories in a specified path. Results clearly distinguish between files and directories with [FILE] and [DIR] prefixes. This tool is essential for understanding directory structure and finding specific files within a directory. Only works within allowed dir",
+    "args": [
+     "path"
+    ]
+   },
+   {
+    "id": "searxng::docx_to_pdf",
+    "description": "Convert DOCX files to PDF format",
+    "args": [
+     "inputPath",
+     "outputPath"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S364",
+  "tools": [
+   {
+    "id": "Ant Design Components::get-component-changelog",
+    "description": "列出 Ant Design 特定组件的更新日志\n适用场景：\n1. 用户询问特定组件的更新日志\n2. 在知道用户 antd 版本的情况下，当用户需要实现相关组件功能时判断是否在后续版本中才实现，来决定是否需要升级依赖",
+    "args": [
+     "componentName"
+    ]
+   },
+   {
+    "id": "npm-sentinel-mcp::npmCompare",
+    "description": "Compare multiple NPM packages based on various metrics",
+    "args": [
+     "packages"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S367",
+  "tools": [
+   {
+    "id": "investor::get_earnings_history",
+    "description": "",
+    "args": [
+     "ticker",
+     "max_entries"
+    ]
+   },
+   {
+    "id": "investor::get_price_history",
+    "description": "Get historical OHLCV data: daily intervals for ≤1y periods, monthly intervals for ≥2y periods.",
+    "args": [
+     "ticker",
+     "period"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S370",
+  "tools": [
+   {
+    "id": "wikipedia::get_summary",
+    "description": "Get a summary of a Wikipedia article.",
+    "args": [
+     "title"
+    ]
+   },
+   {
+    "id": "wikipedia::summarize_article_for_query",
+    "description": "Get a summary of a Wikipedia article tailored to a specific query.",
+    "args": [
+     "title",
+     "query",
+     "max_length"
+    ]
+   },
+   {
+    "id": "wikipedia::summarize_article_section",
+    "description": "Get a summary of a specific section of a Wikipedia article.",
+    "args": [
+     "title",
+     "section_title",
+     "max_length"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S373",
+  "tools": [
+   {
+    "id": "coin-flip::get-user-profile",
+    "description": "",
+    "args": [
+     "username"
+    ]
+   },
+   {
+    "id": "maven-deps-server::get_latest_release",
+    "description": "Get the latest release version of a Maven dependency (excludes pre-releases by default)",
+    "args": [
+     "dependency",
+     "excludePreReleases"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S376",
+  "tools": [
+   {
+    "id": "mcp-server-chart::generate_flow_diagram",
+    "description": "Generate a flow diagram chart to show the steps and decision points of a process or system, such as, scenarios requiring linear process presentation.",
+    "args": [
+     "data",
+     "theme",
+     "width",
+     "height"
+    ]
+   },
+   {
+    "id": "ppt::add_slide",
+    "description": "Add a new slide to the presentation with optional background styling.",
+    "args": [
+     "layout_index",
+     "title",
+     "background_type",
+     "background_colors",
+     "gradient_direction",
+     "color_scheme",
+     "presentation_id"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S379",
+  "tools": [
+   {
+    "id": "git::git_show",
+    "description": "Shows the contents of a commit",
+    "args": [
+     "repo_path",
+     "revision"
+    ]
+   },
+   {
+    "id": "magicuidesign_mcp::getButtons",
+    "description": "Provides implementation details for rainbow-button, shimmer-button, shiny-button, interactive-hover-button, animated-subscribe-button, pulsating-button, ripple-button components.",
+    "args": []
+   }
+  ]
+ },
+ {
+  "scene": "S382",
+  "tools": [
+   {
+    "id": "git::git_diff",
+    "description": "Shows differences between branches or commits",
+    "args": [
+     "repo_path",
+     "target",
+     "context_lines"
+    ]
+   },
+   {
+    "id": "git::git_diff_unstaged",
+    "description": "Shows changes in the working directory that are not yet staged",
+    "args": [
+     "repo_path",
+     "context_lines"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S385",
+  "tools": [
+   {
+    "id": "hackernews::getComments",
+    "description": "Get comments for a story",
+    "args": [
+     "storyId",
+     "limit"
+    ]
+   },
+   {
+    "id": "hackernews::getStory",
+    "description": "Get a single story by ID",
+    "args": [
+     "id"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S388",
+  "tools": [
+   {
+    "id": "music-analysis::get_duration",
+    "description": "\nReturns the total duration (in seconds) of the given audio time series.\n",
+    "args": [
+     "path_audio_time_series_y"
+    ]
+   },
+   {
+    "id": "playwright::playwright_assert_response",
+    "description": "Wait for and validate a previously initiated HTTP response wait operation.",
+    "args": [
+     "id",
+     "value"
+    ]
+   },
+   {
+    "id": "playwright::playwright_click",
+    "description": "Click an element on the page",
+    "args": [
+     "selector"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S391",
+  "tools": [
+   {
+    "id": "web3-research-mcp::search",
+    "description": "",
+    "args": [
+     "query",
+     "searchType"
+    ]
+   },
+   {
+    "id": "web3-research-mcp::update-status",
+    "description": "",
+    "args": [
+     "section",
+     "status"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S394",
+  "tools": [
+   {
+    "id": "Bazi::buildBaziFromLunarDatetime",
+    "description": "根据农历时间、性别来获取八字信息。",
+    "args": [
+     "lunarDatetime",
+     "gender",
+     "eightCharProviderSect"
+    ]
+   },
+   {
+    "id": "Bazi::buildBaziFromSolarDatetime",
+    "description": "根据阳历时间、性别来获取八字信息。",
+    "args": [
+     "solarDatetime",
+     "gender",
+     "eightCharProviderSect"
+    ]
+   },
+   {
+    "id": "Bazi::getBaziDetail",
+    "description": "根据时间（公历或农历）、性别来获取八字信息。solarDatetime和lunarDatetime必须传且只传其中一个。",
+    "args": [
+     "solarDatetime",
+     "lunarDatetime",
+     "gender",
+     "eightCharProviderSect"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S397",
+  "tools": [
+   {
+    "id": "biomcp::alphagenome_predictor",
+    "description": "Predict variant effects on gene regulation using Google DeepMind's AlphaGenome.\n\n    ⚠️ PREREQUISITE: Use the 'think' tool FIRST to plan your analysis strategy!\n\n    AlphaGenome provides state-of-the-art predictions for how genetic variants\n    affect gene regulation, including:\n    - Gene expressio",
+    "args": [
+     "chromosome",
+     "position",
+     "reference",
+     "alternate",
+     "interval_size",
+     "tissue_types",
+     "significance_threshold",
+     "api_key"
+    ]
+   },
+   {
+    "id": "trends-hub::get-ifanr-news",
+    "description": "获取爱范儿科技快讯，包含最新的科技产品、数码设备、互联网动态等前沿科技资讯",
+    "args": [
+     "limit",
+     "offset"
+    ]
+   },
+   {
+    "id": "web3-research-mcp::research-source",
+    "description": "",
+    "args": [
+     "tokenName",
+     "tokenTicker",
+     "source"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S400",
+  "tools": [
+   {
+    "id": "kospi-kosdaq::get_stock_fundamental",
+    "description": "Retrieves fundamental data (PER/PBR/Dividend Yield) for a specific stock.\n\nArgs:\n    fromdate (str): Start date for retrieval (YYYYMMDD)\n    todate   (str): End date for retrieval (YYYYMMDD)\n    ticker   (str): Stock ticker symbol\n\nReturns:\n    DataFrame:\n        >> get_stock_fundamental(\"20210104\",",
+    "args": [
+     "fromdate",
+     "todate",
+     "ticker"
+    ]
+   },
+   {
+    "id": "kospi-kosdaq::get_stock_trading_volume",
+    "description": "Retrieves trading volume by investor type for a specific stock.\n\nArgs:\n    fromdate (str): Start date for retrieval (YYYYMMDD)\n    todate   (str): End date for retrieval (YYYYMMDD)\n    ticker   (str): Stock ticker symbol\n\nReturns:\n    DataFrame with columns:\n    - Volume (Sell/Buy/Net Buy)\n    - Tra",
+    "args": [
+     "fromdate",
+     "todate",
+     "ticker"
+    ]
+   },
+   {
+    "id": "kospi-kosdaq::load_all_tickers",
+    "description": "Loads all ticker symbols and names for KOSPI and KOSDAQ into memory.\n\nReturns:\n    Dict[str, str]: A dictionary mapping tickers to stock names.\n    Example: {\"005930\": \"삼성전자\", \"035720\": \"카카오\", ...}\n",
+    "args": []
+   }
+  ]
+ },
+ {
+  "scene": "S403",
+  "tools": [
+   {
+    "id": "git::git_reset",
+    "description": "Unstages all staged changes",
+    "args": [
+     "repo_path"
+    ]
+   },
+   {
+    "id": "magicuidesign_mcp::getSpecialEffects",
+    "description": "Provides implementation details for animated-beam, border-beam, shine-border, magic-card, meteors, neon-gradient-card, confetti, particles, cool-mode, scratch-to-reveal components.",
+    "args": []
+   }
+  ]
+ },
+ {
+  "scene": "S406",
+  "tools": [
+   {
+    "id": "filesystem::move_file",
+    "description": "Move or rename files and directories. Can move files between directories and rename them in a single operation. If the destination exists, the operation will fail. Works across different directories and can be used for simple renaming within the same directory. Both source and destination must be wi",
+    "args": [
+     "source",
+     "destination"
+    ]
+   },
+   {
+    "id": "filesystem::write_file",
+    "description": "Create a new file or completely overwrite an existing file with new content. Use with caution as it will overwrite existing files without warning. Handles text content with proper encoding. Only works within allowed directories.",
+    "args": [
+     "path",
+     "content"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S409",
+  "tools": [
+   {
+    "id": "opgg-mcp::valorant-agents-composition-with-map",
+    "description": "Retrieve agent composition data for a Valorant map.",
+    "args": [
+     "mapId"
+    ]
+   },
+   {
+    "id": "random-number::random_choices",
+    "description": "Choose k items from population with replacement, optionally weighted.\n\nArgs:\n    population: List of items to choose from\n    k: Number of items to choose (default 1)\n    weights: Optional weights for each item (default None for equal weights)\n\nReturns:\n    List of k chosen items",
+    "args": [
+     "population",
+     "k",
+     "weights"
+    ]
+   },
+   {
+    "id": "random-number::random_int",
+    "description": "Generate a random integer between low and high (inclusive).\n\nArgs:\n    low: Lower bound (inclusive)\n    high: Upper bound (inclusive)\n\nReturns:\n    Random integer between low and high",
+    "args": [
+     "low",
+     "high"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S412",
+  "tools": [
+   {
+    "id": "trends-hub::get-bbc-news",
+    "description": "获取 BBC 新闻，提供全球新闻、英国新闻、商业、政治、健康、教育、科技、娱乐等资讯",
+    "args": [
+     "category",
+     "edition"
+    ]
+   },
+   {
+    "id": "trends-hub::get-bilibili-rank",
+    "description": "获取哔哩哔哩视频排行榜，包含全站、动画、音乐、游戏等多个分区的热门视频，反映当下年轻人的内容消费趋势",
+    "args": [
+     "type"
+    ]
+   },
+   {
+    "id": "trends-hub::get-theverge-news",
+    "description": "获取 The Verge 新闻，包含科技创新、数码产品评测、互联网趋势及科技公司动态的英文科技资讯",
+    "args": []
+   }
+  ]
+ },
+ {
+  "scene": "S415",
+  "tools": [
+   {
+    "id": "paypal::create_product",
+    "description": "Create a product in PayPal using product catalog - create products API.\nThis function creates a new product that will be used in subscription plans, subscriptions.\nRequired parameters are: name (product name), type (product type).\nHigh level: \n    - id: (auto-generated or specify SKU of the product)",
+    "args": [
+     "name",
+     "type",
+     "description",
+     "category",
+     "image_url",
+     "home_url"
+    ]
+   },
+   {
+    "id": "paypal::create_refund",
+    "description": "Initiate a refund for a PayPal payment capture.\nIf you have an order ID instead of a capture ID, first use the get order tool to obtain the capture ID from the order details.\nThis function allows you to return funds to a customer by refunding a previously captured payment. You can issue a full refun",
+    "args": [
+     "capture_id",
+     "amount",
+     "invoice_id",
+     "note_to_payer"
+    ]
+   },
+   {
+    "id": "paypal::create_subscription_plan",
+    "description": "Create a subsctiption plan in PayPal using subscription - create plan API.\nThis function creates a new subscription plan that defines pricing and billing cycle details for subscriptions.\nRequired parameters are: product_id (the ID of the product for which to create the plan), name (subscription plan",
+    "args": [
+     "product_id",
+     "name",
+     "description",
+     "billing_cycles",
+     "payment_preferences",
+     "taxes"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S418",
+  "tools": [
+   {
+    "id": "memory::delete_entities",
+    "description": "Delete multiple entities and their associated relations from the knowledge graph",
+    "args": [
+     "entityNames"
+    ]
+   },
+   {
+    "id": "taskmanager::mark_task_done",
+    "description": "Mark a given task as done after you've completed it. Provide 'requestId' and 'taskId', and optionally 'completedDetails'.\n\nAfter marking a task as done, a progress table will be displayed showing the updated status of all tasks.\n\nAfter this, DO NOT proceed to 'get_next_task' again until the user has",
+    "args": [
+     "requestId",
+     "taskId",
+     "completedDetails"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S421",
+  "tools": [
+   {
+    "id": "amap-amap-sse::maps_schema_personal_map",
+    "description": "用于行程规划结果在高德地图展示。将行程规划位置点按照行程顺序填入lineList，返回结果为高德地图打开的URI链接，该结果不需总结，直接返回！",
+    "args": [
+     "orgName",
+     "lineList"
+    ]
+   },
+   {
+    "id": "baidu-maps-sse::map_road_traffic",
+    "description": "实时路况查询服务: 查询实时交通拥堵情况, 可通过指定道路名和区域形状(矩形, 多边形, 圆形)进行实时路况查询.\n道路实时路况查询: 查询具体道路的实时拥堵评价和拥堵路段、拥堵距离、拥堵趋势等信息.\n矩形区域实时路况查询: 查询指定矩形地理范围的实时拥堵情况和各拥堵路段信息.\n多边形区域实时路况查询: 查询指定多边形地理范围的实时拥堵情况和各拥堵路段信息.\n圆形区域(周边)实时路况查询: 查询某中心点周边半径范围内的实时拥堵情况和各拥堵路段信息.",
+    "args": [
+     "model",
+     "road_name",
+     "city",
+     "bounds",
+     "vertexes",
+     "center",
+     "radius"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S424",
+  "tools": [
+   {
+    "id": "magicuidesign_mcp::getAnimations",
+    "description": "Provides implementation details for blur-fade components.",
+    "args": []
+   },
+   {
+    "id": "magicuidesign_mcp::getSpecialEffects",
+    "description": "Provides implementation details for animated-beam, border-beam, shine-border, magic-card, meteors, neon-gradient-card, confetti, particles, cool-mode, scratch-to-reveal components.",
+    "args": []
+   },
+   {
+    "id": "magicuidesign_mcp::getTextAnimations",
+    "description": "Provides implementation details for text-animate, line-shadow-text, aurora-text, number-ticker, animated-shiny-text, animated-gradient-text, text-reveal, hyper-text, word-rotate, typing-animation, scroll-based-velocity, flip-text, box-reveal, sparkles-text, morphing-text, spinning-text components.",
+    "args": []
+   }
+  ]
+ },
+ {
+  "scene": "S427",
+  "tools": [
+   {
+    "id": "Bazi::getBaziDetail",
+    "description": "根据时间（公历或农历）、性别来获取八字信息。solarDatetime和lunarDatetime必须传且只传其中一个。",
+    "args": [
+     "solarDatetime",
+     "lunarDatetime",
+     "gender",
+     "eightCharProviderSect"
+    ]
+   },
+   {
+    "id": "opgg-mcp::lol-champion-positions-data",
+    "description": "Retrieves the analytics of champions by each positions. You can also look up the winrate, banrate, plays, wins, kills, kda and etc. `tier_data` is champion tier which tells which champion is powerful (OP) or not, for example `tier 1` champion is easy to play and powerful champion. (You can recommend",
+    "args": [
+     "lang",
+     "format"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S430",
+  "tools": [
+   {
+    "id": "baidu-maps-sse::map_weather",
+    "description": "天气查询服务: 通过行政区划或是经纬度坐标查询实时天气信息及未来5天天气预报.",
+    "args": [
+     "location",
+     "district_id"
+    ]
+   },
+   {
+    "id": "google-maps::maps_place_details",
+    "description": "Get detailed information about a specific place",
+    "args": [
+     "place_id"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S433",
+  "tools": [
+   {
+    "id": "okppt::set_placeholder_value",
+    "description": "Assigns content to a specific placeholder on a specific slide and returns a JSON string of the result.",
+    "args": [
+     "prs_path",
+     "slide_idx",
+     "placeholder_id",
+     "content_to_set",
+     "output_path"
+    ]
+   },
+   {
+    "id": "ppt::create_presentation",
+    "description": "Create a new PowerPoint presentation.",
+    "args": [
+     "id"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S436",
+  "tools": [
+   {
+    "id": "painter::drawing_fillRectangle",
+    "description": "Fill a rectangle on the drawing canvas with a specified color and coordinates.",
+    "args": [
+     "x",
+     "y",
+     "width",
+     "height",
+     "color"
+    ]
+   },
+   {
+    "id": "painter::drawing_generateCanvas",
+    "description": "Generate a new drawing canvas with specified width and height.",
+    "args": [
+     "width",
+     "height"
+    ]
+   },
+   {
+    "id": "painter::drawing_getCanvasData",
+    "description": "Get the current pixel data of the drawing canvas as JSON.",
+    "args": []
+   }
+  ]
+ },
+ {
+  "scene": "S439",
+  "tools": [
+   {
+    "id": "searxng::text_encoding_converter",
+    "description": "Convert text between different encodings",
+    "args": [
+     "inputPath",
+     "outputDir",
+     "fromEncoding",
+     "toEncoding"
+    ]
+   },
+   {
+    "id": "word-document-server::add_paragraph",
+    "description": "Add a paragraph to a Word document.",
+    "args": [
+     "filename",
+     "text",
+     "style"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S442",
+  "tools": [
+   {
+    "id": "desktop-commander::get_usage_stats",
+    "description": "\n                        Get usage statistics for debugging and analysis.\n                        \n                        Returns summary of tool usage, success/failure rates, and performance metrics.\n                        \n                        This command can be referenced as \"DC: ...\" or \"u",
+    "args": []
+   },
+   {
+    "id": "desktop-commander::start_process",
+    "description": "\n                        Start a new terminal process with intelligent state detection.\n                        \n                        PRIMARY TOOL FOR FILE ANALYSIS AND DATA PROCESSING\n                        This is the ONLY correct tool for analyzing local files (CSV, JSON, logs, etc.).\n       ",
+    "args": [
+     "command",
+     "timeout_ms",
+     "shell"
+    ]
+   },
+   {
+    "id": "searxng::text_formatter",
+    "description": "Format text with proper indentation and line spacing",
+    "args": [
+     "inputPath",
+     "outputDir"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S445",
+  "tools": [
+   {
+    "id": "sitemap::get_sitemap_stats",
+    "description": "Get comprehensive statistics about a website's sitemap structure",
+    "args": [
+     "url"
+    ]
+   },
+   {
+    "id": "trends-hub::get-36kr-trending",
+    "description": "获取 36 氪热榜，提供创业、商业、科技领域的热门资讯，包含投融资动态、新兴产业分析和商业模式创新信息",
+    "args": [
+     "type"
+    ]
+   },
+   {
+    "id": "wikipedia::get_article",
+    "description": "Get the full content of a Wikipedia article.",
+    "args": [
+     "title"
+    ]
+   }
+  ]
+ },
+ {
+  "scene": "S448",
+  "tools": [
+   {
+    "id": "opgg-mcp::tft-champion-item-build",
+    "description": "TFT tool for retrieving champion item build information.",
+    "args": [
+     "championId"
+    ]
+   },
+   {
+    "id": "opgg-mcp::valorant-meta-maps",
+    "description": "Valorant map meta data",
+    "args": []
+   }
+  ]
+ }
+]

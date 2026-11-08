@@ -1,0 +1,114 @@
+{"id": "dda8ea55-629c-4ae8-ab87-0c81477ae615", "requests": [{"server": "map service", "tool": "geocode the Forbidden City in Beijing"}, {"server": "map service", "tool": "search nearby parking lots around a location"}, {"server": "map service", "tool": "search nearby tourist attractions within a radius of a location"}]}
+{"id": "e9df60b1-37a6-4b10-aff0-d432fa79d400", "requests": [{"server": "arXiv", "tool": "search recent papers by keyword"}, {"server": "arXiv", "tool": "get paper metadata and citation counts"}]}
+{"id": "6b7fc66e-fe96-4403-9a52-df5afa53ab68", "requests": [{"server": "clinical trials registry", "tool": "get details of a clinical trial by NCT ID"}, {"server": "file system", "tool": "write a text file"}]}
+{"id": "567c79c3-3afb-4979-90cf-88ca49cb701d", "requests": [{"server": "documentation website", "tool": "get Ant Design quick start documentation"}, {"server": "file system", "tool": "write a text file"}]}
+{"id": "f2a9eb67-efec-4c86-abad-efa55a72f86d", "requests": [{"server": "web search engine", "tool": "search the web for information about bitcoin"}, {"server": "cryptocurrency market data", "tool": "get bitcoin price and market data"}, {"server": "file system", "tool": "write a text file"}]}
+{"id": "860f7b99-23fe-41fe-9608-59717bad2a9a", "requests": [{"server": "DeepWiki", "tool": "get the wiki documentation structure of a GitHub repository"}, {"server": "mind map generator", "tool": "convert structured content into a mind map"}]}
+{"id": "7bda47e8-1b8b-4f1f-b67c-573a81417d36", "requests": [{"server": "arXiv", "tool": "get the content of a paper by arXiv ID"}]}
+{"id": "10b5dbf7-0bac-4b25-835f-e806967ad340", "requests": [{"server": "railway ticket service", "tool": "query train timetables between two cities"}, {"server": "railway ticket service", "tool": "get train ticket prices"}, {"server": "travel information service", "tool": "search attractions and costs in Tianjin"}, {"server": "hotel booking service", "tool": "search hotel prices in Tianjin"}]}
+{"id": "f2b074b5-860e-4ecf-afac-16874155dc59", "requests": [{"server": "homestay booking platform", "tool": "search homestay listings in a city for given dates and guests"}]}
+{"id": "fa451c3f-23c2-4b03-bcb6-60b49e3a142f", "requests": [{"server": "file system", "tool": "read the content of a PDF file"}, {"server": "arXiv", "tool": "search latest papers by topic"}]}
+{"id": "b276e772-28b5-42fd-bb85-fd73e017fe25", "requests": [{"server": "precious metals market data", "tool": "get current gold price"}]}
+{"id": "83da9f72-640f-439d-861e-97b449e02da7", "requests": [{"server": "web browser", "tool": "fetch and extract the content of a webpage"}, {"server": "web browser", "tool": "capture screenshots of a webpage"}, {"server": "file system", "tool": "write a text file"}]}
+{"id": "1ef11556-37d6-4585-b4b2-cf2f782141e6", "requests": [{"server": "file system", "tool": "list files in a directory"}, {"server": "file system", "tool": "read the content of PDF files"}, {"server": "file system", "tool": "write a text file"}]}
+{"id": "29fa007d-5caf-41a0-b107-e9388305c6c5", "requests": [{"server": "game wiki knowledge base", "tool": "get character team composition recommendations for Wuthering Waves"}, {"server": "game wiki knowledge base", "tool": "get Echo set and main Echo recommendations for a character"}]}
+{"id": "5c19a347-7423-47e1-b8e1-dba01860bc1a", "requests": [{"server": "arXiv", "tool": "search the latest papers on web agents"}, {"server": "arXiv", "tool": "read the full text of a paper"}]}
+{"id": "086e2393-dc1a-4c55-bf54-1e9a94951db7", "requests": [{"server": "file system", "tool": "read the content of a Word docx file"}]}
+{"id": "71a7a42a-54af-4552-ad9b-d36f4912cc1c", "requests": [{"server": "file system", "tool": "read the content of a BibTeX file"}, {"server": "file system", "tool": "write a Word docx file"}]}
+{"id": "41899b5b-b6db-48b1-9899-334452904a12", "requests": [{"server": "stock market data", "tool": "get stock quote and market data for a Korean listed company"}, {"server": "company financial data", "tool": "get financial statements of a company"}, {"server": "web search engine", "tool": "search news about a company"}]}
+{"id": "1f6a6db5-05b5-4a8d-a6ef-fbb5d823ad1d", "requests": [{"server": "map service", "tool": "geocode locations in Tokyo"}, {"server": "map service", "tool": "search nearby restaurants around a location"}, {"server": "map service", "tool": "plan a route between two places"}]}
+{"id": "2293b5eb-3af1-4f5f-9eaf-138c27885544", "requests": [{"server": "weather service", "tool": "get weather forecast for a city"}, {"server": "map service", "tool": "search tourist attractions in Beijing"}, {"server": "map service", "tool": "plan a route between places"}]}
+{"id": "665e1166-1062-444f-81e3-df207d0f975b", "requests": [{"server": "Wikipedia", "tool": "get the content of an article"}, {"server": "file system", "tool": "write a text file"}]}
+{"id": "2e190c2a-8aab-44e1-896d-671cb3fcc495", "requests": [{"server": "file system", "tool": "read the content of text files"}, {"server": "file system", "tool": "compare differences between two text files"}]}
+{"id": "0dafdf66-af3a-4110-ab79-d9c037f7bc62", "requests": [{"server": "railway ticket service", "tool": "query train tickets between two stations on a date"}]}
+{"id": "38c156c5-ff2c-4cf4-9a23-984d761b8bcb", "requests": [{"server": "stock market data", "tool": "get current stock quote of a company"}, {"server": "stock market data", "tool": "get historical prices of a stock"}, {"server": "company financial data", "tool": "get financial statements and ratios"}, {"server": "web search engine", "tool": "search recent news about a company"}]}
+{"id": "7315917c-2c98-47c9-80a4-98626a4e9e04", "requests": [{"server": "web browser automation", "tool": "click an element by selector on a webpage"}]}
+{"id": "7d31f202-029c-40b9-b537-4b2ee79adfc2", "requests": [{"server": "web browser automation", "tool": "drag and drop an element on a webpage"}]}
+{"id": "45abac06-0cc9-4d44-b1bd-384be23cf335", "requests": [{"server": "file system", "tool": "list files and directories in a path"}]}
+{"id": "e1ebe891-9bad-4697-87c9-ce5193a4417e", "requests": [{"server": "file system", "tool": "edit a file by replacing text"}]}
+{"id": "4e04f1cf-e709-4d65-82c7-9eec8d8df286", "requests": [{"server": "file system", "tool": "create a directory"}]}
+{"id": "85593c28-b2b9-4ebb-ada5-6db0d9e30c74", "requests": [{"server": "stock market data", "tool": "get current stock price of a company"}]}
+{"id": "b37cd2e4-8d8d-4d66-a798-35ffc004267c", "requests": [{"server": "stock market data", "tool": "get current stock price of a company"}]}
+{"id": "4e6bd7f5-8739-49d8-a28c-2140b25273f2", "requests": [{"server": "IP geolocation service", "tool": "look up the location of an IP address"}]}
+{"id": "30071abb-b346-4c05-b485-5ff0059cb687", "requests": [{"server": "map service", "tool": "geocode a landmark"}, {"server": "map service", "tool": "search nearby points of interest around a location"}]}
+{"id": "e249b5d8-ffaa-49d6-afcf-de9684c36c31", "requests": [{"server": "map service", "tool": "reverse geocode coordinates to an address"}]}
+{"id": "e64b0500-0997-4dc7-b928-0923c2416404", "requests": [{"server": "PayPal", "tool": "create a subscription plan for a product"}]}
+{"id": "01235d16-2c71-4052-90c1-ed36be8687da", "requests": [{"server": "PayPal", "tool": "create an order with items and shipping address"}]}
+{"id": "69f2dfac-8a18-445a-a50c-f3aacc174de5", "requests": [{"server": "web content extraction", "tool": "extract web page content in markdown with images"}]}
+{"id": "48b27300-93f2-4596-901b-877ab5cca0df", "requests": [{"server": "news search engine", "tool": "search recent news by topic and region"}]}
+{"id": "8edc1141-22ab-4e92-9d20-442e93180e5f", "requests": [{"server": "web search engine", "tool": "search the web for information on a topic"}]}
+{"id": "fa5817ce-c273-4f77-8b68-bda1e6b8e095", "requests": [{"server": "web browser automation", "tool": "drag and drop an element on a webpage"}]}
+{"id": "30b7b39d-3bcc-4cd1-9256-f3278ff78e63", "requests": [{"server": "web browser automation", "tool": "drag and drop an element on a webpage"}]}
+{"id": "ceba0ffd-b3c4-40f1-8a73-ba71a2f1242b", "requests": [{"server": "web browser automation", "tool": "take a screenshot of an element by selector"}]}
+{"id": "b313f530-41fd-45cf-8a88-63e66207fe8c", "requests": [{"server": "web browser automation", "tool": "simulate pressing a keyboard key on a webpage"}]}
+{"id": "2ff9fa32-a50d-4277-b8f1-1c36e7cf588e", "requests": [{"server": "web browser automation", "tool": "start waiting for an HTTP response from a URL"}]}
+{"id": "e1f1ad73-a9c5-4968-9c0c-88cee2c4a97c", "requests": [{"server": "web browser automation", "tool": "start waiting for an HTTP response from a URL"}]}
+{"id": "fe6da312-6b10-49cf-9d44-9bec31d9de22", "requests": [{"server": "web browser automation", "tool": "take a screenshot of an element by selector"}]}
+{"id": "3e412bf1-612f-49de-b7ed-5604ee2a7724", "requests": [{"server": "web browser automation", "tool": "perform an HTTP PUT request with data"}]}
+{"id": "394a745e-4f97-4247-9474-4643108f7894", "requests": [{"server": "web browser automation", "tool": "select an option from a dropdown by selector"}]}
+{"id": "50194534-2d07-4147-9c7e-830a54d35482", "requests": [{"server": "web browser automation", "tool": "hover over an element by selector"}]}
+{"id": "e32001ec-8d37-4855-a135-cf9e679de5c0", "requests": [{"server": "web browser automation", "tool": "press a keyboard key on an element"}]}
+{"id": "77c362d6-e05b-4425-9b42-58460de74b83", "requests": [{"server": "web browser automation", "tool": "select an option from a dropdown by selector"}]}
+{"id": "93838865-7737-422e-9467-00c485a30838", "requests": [{"server": "file system", "tool": "list files and directories in a path with types"}]}
+{"id": "62296869-f2f3-4273-b117-278458df5cf2", "requests": [{"server": "file system", "tool": "create or overwrite a file with content"}]}
+{"id": "db7abafa-2f2d-4d17-93d8-d0c464e0f817", "requests": [{"server": "file system", "tool": "get detailed metadata of a file or directory"}]}
+{"id": "bd8509d8-d3a9-4024-98d1-f6178cf3a63e", "requests": [{"server": "file system", "tool": "read the content of multiple files"}]}
+{"id": "6d19d842-5c9f-4e7a-9082-8d32e504780d", "requests": [{"server": "file system", "tool": "edit a file by replacing text with a preview of changes"}]}
+{"id": "c4f3c06e-31a8-40b6-9384-0fcce2749a6e", "requests": [{"server": "file system", "tool": "list files and directories in a path with sizes sorted by name"}]}
+{"id": "82b991e2-8923-4ca9-8331-197e32b15001", "requests": [{"server": "file system", "tool": "create a directory if it does not exist"}]}
+{"id": "a5cc3bc6-11e5-4698-b067-6521bf004b07", "requests": [{"server": "file system", "tool": "list files and directories in a path with types"}]}
+{"id": "14ced88d-4ea6-4e33-980c-3152911dfbbd", "requests": [{"server": "file system", "tool": "create a directory if it does not exist"}]}
+{"id": "e6ef9ddb-f182-4b83-b4a6-50bdc6ae1861", "requests": [{"server": "file system", "tool": "list files and directories in a path with types"}]}
+{"id": "a7a60b7d-5240-4748-97fe-d596d23ac132", "requests": [{"server": "file system", "tool": "create a directory if it does not exist"}]}
+{"id": "1e640507-80ad-4744-8061-be8a55b16692", "requests": [{"server": "file system", "tool": "get detailed metadata of a file or directory"}]}
+{"id": "0d99bb9b-b121-4e67-a1f2-41ae95c4c94e", "requests": [{"server": "file system", "tool": "list files and directories in a path with types"}]}
+{"id": "89bfb7f7-f884-4586-9cbc-858b8904ea82", "requests": [{"server": "stock market data", "tool": "get current stock price of a company"}]}
+{"id": "c4836e49-4d18-4979-93dc-e81e9b7f971b", "requests": [{"server": "stock market data", "tool": "get current stock price of a company"}]}
+{"id": "dd3a6b02-eece-4589-9579-048c237aabd3", "requests": [{"server": "stock market data", "tool": "get current stock price of a China A-share company"}]}
+{"id": "4b3329da-aade-4e93-ac47-8f76ff34b755", "requests": [{"server": "stock market data", "tool": "get current stock price of a Hong Kong listed company"}]}
+{"id": "5611c1a0-0e05-4aac-a263-b38549140973", "requests": [{"server": "stock market data", "tool": "get current stock price of a company"}]}
+{"id": "2f318b3c-420c-4647-9bee-1b040bea5321", "requests": [{"server": "stock market data", "tool": "get current stock price of a China A-share company"}]}
+{"id": "44c54212-acb9-4bb6-bcdf-a8a899bcb5dd", "requests": [{"server": "stock market data", "tool": "get current stock price of a company"}]}
+{"id": "a8008cf0-dad1-4568-acbf-591a936efc18", "requests": [{"server": "stock market data", "tool": "get current stock price of a company"}]}
+{"id": "e79584fe-ec53-4471-9f65-b0f1a132009e", "requests": [{"server": "stock market data", "tool": "get current stock price of a China A-share company"}]}
+{"id": "fe88446a-1efd-4d07-a1cb-17e33c3026de", "requests": [{"server": "stock market data", "tool": "get current stock price of a company"}]}
+{"id": "b73a183e-d12d-4f44-a7a5-67db1a894f23", "requests": [{"server": "stock market data", "tool": "get current stock price of a company"}]}
+{"id": "7d3456db-a39c-4053-9e31-0467a7963049", "requests": [{"server": "stock market data", "tool": "get current stock price of a China A-share company"}]}
+{"id": "5a3c904a-425e-4fd3-9cc4-ec747a4be0c8", "requests": [{"server": "map service", "tool": "plan a driving route between two places"}]}
+{"id": "1b6189f6-16f4-45b5-adf8-19a84a86feda", "requests": [{"server": "map service", "tool": "reverse geocode coordinates to an address"}]}
+{"id": "a65984fe-b330-42c0-9d82-762f1520a744", "requests": [{"server": "map service", "tool": "reverse geocode coordinates to an address"}]}
+{"id": "09752559-fc2f-46e9-a6e4-590d1c04e5c6", "requests": [{"server": "map service", "tool": "calculate distance and travel time between two places"}]}
+{"id": "cc5c4eaf-07d6-4dd2-98b8-445853dc81a3", "requests": [{"server": "map service", "tool": "calculate distance and travel time between two places"}]}
+{"id": "944a531c-11ed-4eb0-8bb6-dedd60ce73ab", "requests": [{"server": "map service", "tool": "geocode a city"}, {"server": "map service", "tool": "search nearby museums within a radius"}]}
+{"id": "61aaa6a4-6122-4d56-a3c7-67e7f942bd7a", "requests": [{"server": "map service", "tool": "generate a trip map for a destination"}]}
+{"id": "63fbeec2-5a2c-49b6-9839-f711c1ee1adc", "requests": [{"server": "map service", "tool": "geocode a landmark to coordinates"}]}
+{"id": "2f128786-5afc-4a15-8d9d-b84b9b3728ac", "requests": [{"server": "map service", "tool": "calculate distance and travel time between two places"}]}
+{"id": "54e33e71-d22d-46bc-b134-0d740a628641", "requests": [{"server": "map service", "tool": "search restaurants by cuisine in a city"}]}
+{"id": "0014460b-8215-4c7b-b8ed-1890fd94b377", "requests": [{"server": "map service", "tool": "plan a driving route between two places"}]}
+{"id": "14996064-b660-4027-bb17-7257062dbcc4", "requests": [{"server": "weather service", "tool": "get current weather and multi-day forecast for a city"}]}
+{"id": "0e56fcab-90b5-425e-bf98-61e0c45e1d66", "requests": [{"server": "map service", "tool": "generate a travel itinerary map for a destination"}]}
+{"id": "78a20052-af37-4afc-b3cd-bce65cdf90bf", "requests": [{"server": "PayPal", "tool": "create shipment tracking for a transaction"}]}
+{"id": "3a3a7b10-ba25-4996-b1f4-ec3b0ec116b0", "requests": [{"server": "PayPal", "tool": "refund a captured payment"}]}
+{"id": "ce30a7f3-fdc5-4a2c-a76a-c5e35f1c4a04", "requests": [{"server": "PayPal", "tool": "create a product in the catalog"}]}
+{"id": "46b8398d-6cfd-43d0-8339-41dc282a9996", "requests": [{"server": "PayPal", "tool": "refund a captured payment"}]}
+{"id": "4df0fc45-57f8-4188-81c7-a01fa49bde05", "requests": [{"server": "PayPal", "tool": "create shipment tracking for a transaction"}]}
+{"id": "e4ca7cff-74ef-40b6-9d35-5261e07e9858", "requests": [{"server": "PayPal", "tool": "refund a captured payment"}]}
+{"id": "0ba0675b-2bec-4d3f-91d3-c63f6e3aa3e0", "requests": [{"server": "PayPal", "tool": "refund a captured payment"}]}
+{"id": "e3487e63-6a9f-4672-aaad-8168d5f267d6", "requests": [{"server": "PayPal", "tool": "create shipment tracking for a transaction"}]}
+{"id": "6f1c2782-5e01-4136-a256-7bf43b711102", "requests": [{"server": "PayPal", "tool": "refund a captured payment"}]}
+{"id": "98d20334-1add-4f09-9b34-f2a0f25e995f", "requests": [{"server": "PayPal", "tool": "create shipment tracking for a transaction"}]}
+{"id": "702c896d-74e9-411f-bfa1-4b2af9acdbf1", "requests": [{"server": "PayPal", "tool": "create an order with items"}]}
+{"id": "8121d946-6200-4858-925b-cea1a5db4f59", "requests": [{"server": "PayPal", "tool": "refund a captured payment"}]}
+{"id": "e17f23a2-6066-41a8-8cb2-05a806cccac6", "requests": [{"server": "news search engine", "tool": "search recent news by topic and region"}]}
+{"id": "7fdc932d-7132-469b-95e5-e897c7199614", "requests": [{"server": "news search engine", "tool": "search recent news by topic and region"}]}
+{"id": "5612a5ba-9204-46fa-8bc9-2604a092c093", "requests": [{"server": "web crawler", "tool": "start a web crawl from a URL with a focus category"}]}
+{"id": "47ab7e73-d60a-450b-846f-9655050be0a4", "requests": [{"server": "web search engine", "tool": "search the web for information on a topic"}]}
+{"id": "f1e0c476-6da2-450a-b239-085bb6b5b56e", "requests": [{"server": "web content extraction", "tool": "extract web page content in markdown"}]}
+{"id": "45075d91-a19d-4975-979b-e191bd596e45", "requests": [{"server": "news search engine", "tool": "search recent news by topic and region"}]}
+{"id": "70a1a965-420a-4934-b697-0a0bc17fb760", "requests": [{"server": "web content extraction", "tool": "extract content from multiple URLs"}]}
+{"id": "8a44c88f-6ff9-4005-adf9-f4c75c820d52", "requests": [{"server": "news search engine", "tool": "search recent news by topic and region"}]}
+{"id": "2ae2b338-df4d-4b70-9275-bfbdce10a937", "requests": [{"server": "web crawler", "tool": "start a web crawl from a URL with a focus category"}]}
+{"id": "33eda8dc-295a-496e-a561-0b9fe59ec193", "requests": [{"server": "map service", "tool": "search restaurants in a city"}]}
+{"id": "2db12b3f-c190-4c7a-81b0-38c38495e20c", "requests": [{"server": "web content extraction", "tool": "extract web page content from a news article"}]}
+{"id": "b0e3a130-c5cc-4fe6-ac16-c18b4fc8ae0d", "requests": [{"server": "web crawler", "tool": "start a web crawl from a website and extract content in markdown"}]}
+{"id": "5dbc22f1-93aa-4bf8-991e-1f85b5aa1d14", "requests": [{"server": "news search engine", "tool": "search recent news by topic and region"}]}

@@ -1,0 +1,6 @@
+- `E1_categories`: Tools per source-qualified category of the merged registry, tools not read-only under labels B, and annotated tools (tick).
+- `E2_typing_f1`: Per-kind F1 of output types against the independent labels B (kinds with ≥5 tools).
+- `E4_exposure_utility`: Exposure and utility of read-only policy encodings by retriever (coverage 1, 273 requests with read-only targets).
+- `E4_coverage`: Verified-evidence encoding: utility, eligible share and exposure against the share of tools the verifier probes (5 seeds below ρ = 1).
+- `E12_calibration`: Claimed against measured reliability per class and input size (16 cells per model).
+- `E11_gap`: Toolkit size of the review scenario against input size n, by threshold τ and exactness (Sonnet profile; NoGap abstains in every setting).

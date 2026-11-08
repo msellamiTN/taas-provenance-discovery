@@ -1,0 +1,153 @@
+{
+ "experiment": "E1_registry",
+ "evidence": "MEASURED (counts); LABELLED (non-read-only share, labels B)",
+ "notes": "Three views; categories are source-qualified (LiveMCPTool server categories and MCPToolBench++ request categories are different taxonomies).",
+ "manifest": {
+  "commit": "d54706adb32d335a4e366b1a0a5fe01256574951",
+  "created": "2026-11-08T05:58:57Z",
+  "python": "3.13.18",
+  "inputs": {
+   "data/processed/registry_merged.json": "a24bb9c5c788f8856288993c8f3c21b7fcd84b6491cc1a2b778b3b5d5a787045"
+  }
+ },
+ "results": {
+  "LiveMCPTool": {
+   "view": "LiveMCPTool",
+   "tools": 525,
+   "servers": 69,
+   "tools_per_server": {
+    "median": 4,
+    "mean": 7.608695652173913,
+    "max": 35
+   },
+   "categories": {
+    "LiveMCPTool:Code": 64,
+    "LiveMCPTool:Discovery": 122,
+    "LiveMCPTool:Entertainment": 43,
+    "LiveMCPTool:File Access": 81,
+    "LiveMCPTool:Finance": 31,
+    "LiveMCPTool:Location": 12,
+    "LiveMCPTool:Miscellaneous": 87,
+    "LiveMCPTool:Visualization": 85
+   },
+   "n_categories": 8,
+   "annotated": 44,
+   "annotated_share": 0.0838095238095238,
+   "declared_read_only": 44,
+   "declared_read_only_share": 0.0838095238095238,
+   "description_chars": {
+    "mean": 221.49142857142857,
+    "median": 61,
+    "p90": 588,
+    "empty": 19
+   },
+   "non_read_only_B": 113,
+   "non_read_only_A": 124,
+   "labelled": 525,
+   "non_read_only_B_share": 0.21523809523809523,
+   "non_read_only_B_ci": [
+    0.1822171114421288,
+    0.25239620188269285
+   ],
+   "annotated_but_unsafe_B": [
+    "opgg-mcp::lol-summoner-renewal"
+   ]
+  },
+  "MCPToolBench++ (original 87)": {
+   "view": "MCPToolBench++ (original 87)",
+   "tools": 87,
+   "servers": 10,
+   "tools_per_server": {
+    "median": 7.0,
+    "mean": 8.7,
+    "max": 25
+   },
+   "categories": {
+    "MCPToolBench++:browser": 32,
+    "MCPToolBench++:file_system": 11,
+    "MCPToolBench++:finance": 1,
+    "MCPToolBench++:map": 32,
+    "MCPToolBench++:pay": 6,
+    "MCPToolBench++:search": 5
+   },
+   "n_categories": 6,
+   "annotated": 0,
+   "annotated_share": 0.0,
+   "declared_read_only": 0,
+   "declared_read_only_share": 0.0,
+   "description_chars": {
+    "mean": 145.2528735632184,
+    "median": 51,
+    "p90": 323,
+    "empty": 0
+   },
+   "non_read_only_B": 24,
+   "non_read_only_A": 33,
+   "labelled": 87,
+   "non_read_only_B_share": 0.27586206896551724,
+   "non_read_only_B_ci": [
+    0.19294158124476965,
+    0.37773969253288286
+   ],
+   "annotated_but_unsafe_B": []
+  },
+  "merged": {
+   "view": "merged",
+   "tools": 569,
+   "servers": 76,
+   "tools_per_server": {
+    "median": 4.5,
+    "mean": 7.4868421052631575,
+    "max": 35
+   },
+   "categories": {
+    "LiveMCPTool:Code": 64,
+    "LiveMCPTool:Discovery": 122,
+    "LiveMCPTool:Entertainment": 43,
+    "LiveMCPTool:File Access": 81,
+    "LiveMCPTool:Finance": 31,
+    "LiveMCPTool:Location": 12,
+    "LiveMCPTool:Miscellaneous": 87,
+    "LiveMCPTool:Visualization": 85,
+    "MCPToolBench++:finance": 1,
+    "MCPToolBench++:map": 32,
+    "MCPToolBench++:pay": 6,
+    "MCPToolBench++:search": 5
+   },
+   "n_categories": 12,
+   "annotated": 44,
+   "annotated_share": 0.0773286467486819,
+   "declared_read_only": 44,
+   "declared_read_only_share": 0.0773286467486819,
+   "description_chars": {
+    "mean": 218.57293497363796,
+    "median": 61,
+    "p90": 601,
+    "empty": 19
+   },
+   "non_read_only_B": 120,
+   "non_read_only_A": 131,
+   "labelled": 569,
+   "non_read_only_B_share": 0.210896309314587,
+   "non_read_only_B_ci": [
+    0.17937167064748777,
+    0.24629853207521957
+   ],
+   "annotated_but_unsafe_B": [
+    "opgg-mcp::lol-summoner-renewal"
+   ]
+  },
+  "overlap": {
+   "tools_in_both": 43,
+   "servers_in_both": 3
+  },
+  "raw_inputs": {
+   "browser.json": "cab77b32e40f457155da0887e78d0c258f42196fb5198e996072f2bb5ab29d06",
+   "file_system.json": "77ad59f0f1733dac7017cebe64226cf3367f44f66d74a1343608d81827ea8e06",
+   "finance.json": "47262716aea2cb3c4cfe08ec9826a181c3384dcb74742b0a02b160055cf44432",
+   "map.json": "56fbe85b95b8dbd6b00dfc0a5d5cf202c84b73f83cbc6229e4031fb2a0f1710d",
+   "pay.json": "018a07cec6d24047172835b5beb690594393fe177d570a35a9e7b2fde2288dfd",
+   "search.json": "2b4b65d1b6bf0fdc1c1a4c4b39712edce1a4b283f23312e552df562aeb5336af"
+  }
+ }
+}

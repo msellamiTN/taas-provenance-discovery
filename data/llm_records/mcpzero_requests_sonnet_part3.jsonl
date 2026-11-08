@@ -1,0 +1,113 @@
+{"id": "629106a5-9508-4ac9-97c3-f22f6069ee7f", "requests": [{"server": "web search engine", "tool": "search for Valorant ranked improvement guides and Radiant player strategies"}]}
+{"id": "2b96c022-a2db-47a5-981a-03cc6ad8f95e", "requests": [{"server": "domain information service", "tool": "look up whois registration information of a domain"}, {"server": "web crawler", "tool": "fetch and parse the sitemap of a website"}, {"server": "file system", "tool": "write a markdown report to a file"}]}
+{"id": "be3f2275-15a4-4e05-b3cb-b0eeb9109d3a", "requests": [{"server": "railway ticket service", "tool": "query high-speed train tickets between two cities on a given date"}]}
+{"id": "4de2e9f7-f3ea-4d02-8532-0a1b0b530609", "requests": [{"server": "file system", "tool": "read the content of an Excel spreadsheet"}, {"server": "data visualization", "tool": "plot data as a bar chart and save it as an image file"}]}
+{"id": "9fc8b7f3-776c-4756-bb84-a7ae667521a9", "requests": [{"server": "web search engine", "tool": "search for a researcher's profile and resume"}, {"server": "web browser", "tool": "fetch the content of a web page"}, {"server": "file system", "tool": "write text content to a markdown file"}]}
+{"id": "cda14e48-b067-48fc-94de-bb8ec090b952", "requests": [{"server": "browser canvas", "tool": "draw a cowboy illustration on an HTML canvas"}]}
+{"id": "2bf318d4-754d-43f3-a1b5-cb2f50a7d144", "requests": [{"server": "academic literature search", "tool": "search recent publications on head and neck cancer treatments"}, {"server": "web search engine", "tool": "search for emerging head and neck cancer therapies"}, {"server": "file system", "tool": "write a markdown report to a file"}]}
+{"id": "37d72d03-29ae-48d1-9a48-66c9294d82fa", "requests": [{"server": "cryptocurrency market data", "tool": "get the last 24 hours of price history for Bitcoin"}, {"server": "web search engine", "tool": "search for recent Bitcoin news and events"}]}
+{"id": "5b2087e4-4c07-4e0d-9b2f-79514ce465f5", "requests": [{"server": "web search engine", "tool": "search for League of Legends mid lane champion builds, runes and summoner spells"}]}
+{"id": "4aa079dd-9d2d-440d-a654-9ba9cb3868b0", "requests": [{"server": "academic literature search", "tool": "find and read the papers WebArena, Mind2Web and Mind2Web 2"}, {"server": "file system", "tool": "write a markdown comparison report to a file"}]}
+{"id": "fab605cf-d337-4ac1-beba-b3f563eaffff", "requests": [{"server": "trading card game database", "tool": "get card effect text, ATK/DEF and image of a Yu-Gi-Oh card"}]}
+{"id": "9a18862e-22ce-46e7-b46a-72c6f5c79b23", "requests": [{"server": "file system", "tool": "read a specific line from a very large text file"}]}
+{"id": "fbe982c3-4142-40ec-8541-e06d7ab2e399", "requests": [{"server": "encyclopedia", "tool": "get Wikipedia introduction of a company"}, {"server": "news search", "tool": "search recent news about a company in the last quarter"}, {"server": "web search engine", "tool": "search for the main vehicle models of a company"}, {"server": "document generation", "tool": "create a Word document with headings and bullet lists and save it"}]}
+{"id": "90098a9c-2a37-4655-82b1-6b58c5154660", "requests": [{"server": "file system", "tool": "write code to a file"}]}
+{"id": "2f8db365-6b8b-4188-8812-4efcf91a40bd", "requests": [{"server": "web search engine", "tool": "search for recommended gaming PC build and component prices for latest Call of Duty"}]}
+{"id": "507f592a-f21f-45f6-bbde-dadb86441791", "requests": [{"server": "file system", "tool": "read the content of a CSV file"}]}
+{"id": "9bc7feb8-2db9-4c5b-8ad9-44ff15748bf6", "requests": [{"server": "encyclopedia", "tool": "get Wikipedia article content on convolutional neural networks"}, {"server": "file system", "tool": "write a Python script to a file"}]}
+{"id": "e28e8dcb-3ccb-406d-a2c7-f5670d649979", "requests": [{"server": "financial news service", "tool": "get recent finance-related news articles"}]}
+{"id": "cab818f4-ee48-440b-a37e-564c4edf401a", "requests": [{"server": "weather service", "tool": "get recent weather history and forecast for a city"}]}
+{"id": "84326f9f-d4b7-4dc8-b9e0-3c8868a3f79f", "requests": [{"server": "Hacker News", "tool": "get comments of a story by its id"}]}
+{"id": "49cdaab7-39f0-4556-a3bb-7bd523916b32", "requests": [{"server": "random number generator", "tool": "pick a random item from a list"}]}
+{"id": "80bb6782-58c0-4d5e-9022-5173be685833", "requests": [{"server": "data visualization", "tool": "create a pie chart from data"}, {"server": "currency exchange service", "tool": "get current exchange rate from CNY to USD"}]}
+{"id": "614189f6-b70d-4144-87ad-f27209f0ec14", "requests": [{"server": "trending topics service", "tool": "get today's trending list on Zhihu"}, {"server": "trending topics service", "tool": "get today's trending list on Bilibili"}]}
+{"id": "96aaa4aa-b7da-4484-a979-b924b749448e", "requests": [{"server": "web browser automation", "tool": "drag an element onto a target element on a webpage using CSS selectors"}]}
+{"id": "c2ac8b81-e908-498a-beec-93ff3ebc920f", "requests": [{"server": "code generation tool", "tool": "start a new test code generation session with output path, name prefix and comment options"}]}
+{"id": "bb96ebd3-0379-4d7d-8b39-e0813bee5736", "requests": [{"server": "web browser automation", "tool": "execute JavaScript code in the browser console"}]}
+{"id": "a4cef0af-54d6-46c5-b3d4-78e2c408f10e", "requests": [{"server": "file system", "tool": "list files and directories in a path with their types"}]}
+{"id": "22013b6c-aea3-4a92-9800-665c62050b35", "requests": [{"server": "file system", "tool": "get detailed metadata of a file or directory"}]}
+{"id": "cc7d234c-d1ee-4d4b-a95c-f8b45c0e3ec4", "requests": [{"server": "stock market data", "tool": "get the current share price of a stock"}]}
+{"id": "35a9931a-c4cb-4058-bcb9-4e8d1d3d87ee", "requests": [{"server": "stock market data", "tool": "get the current share price of a US-listed stock"}]}
+{"id": "da3b76c5-fa4d-41aa-8d01-e2745433d868", "requests": [{"server": "stock market data", "tool": "get the current share price of a stock"}]}
+{"id": "a20e9688-16f7-4b51-be5e-4a86a97765ac", "requests": [{"server": "map service", "tool": "get driving directions between two places"}]}
+{"id": "908644cf-1176-41d9-81ca-af23a5f4e3d1", "requests": [{"server": "IP geolocation service", "tool": "look up the geographic location of an IP address"}]}
+{"id": "d7afdb95-1314-4029-903b-b4f8b1c9e569", "requests": [{"server": "payment platform", "tool": "create shipment tracking for a transaction"}]}
+{"id": "04a9da6d-88a9-469b-82eb-17e6f75b2fea", "requests": [{"server": "payment platform", "tool": "refund a captured payment with partial amount and note"}]}
+{"id": "ce274650-d2d8-46a7-8d8e-11c6f78c8953", "requests": [{"server": "payment platform", "tool": "create an invoice with line item and amount"}]}
+{"id": "1025ccd4-b5b8-410a-bf49-0b55e7c04483", "requests": [{"server": "web search engine", "tool": "search for artificial intelligence developments"}]}
+{"id": "5273030e-e323-4ccd-8713-9295ba2c5347", "requests": [{"server": "news search", "tool": "search recent healthcare news in the United Kingdom"}]}
+{"id": "8a98aa9f-e59e-426e-a73a-5df4a1523253", "requests": [{"server": "HTTP client", "tool": "perform an HTTP GET request on a URL"}]}
+{"id": "17ed254e-068f-4b29-ba90-d6468c68fb4e", "requests": [{"server": "web browser automation", "tool": "fill text into an input element inside an iframe"}]}
+{"id": "963d8e96-6059-44f2-a1d9-382075253b89", "requests": [{"server": "web browser automation", "tool": "drag an element from a slider thumb to the slider track"}]}
+{"id": "5de80027-ea8f-479a-abf3-440659f43afe", "requests": [{"server": "code generation tool", "tool": "retrieve information of a code generation session by id"}]}
+{"id": "ac6e0ac3-0160-418b-9933-4fbc32a943de", "requests": [{"server": "web browser automation", "tool": "click a button inside an iframe"}]}
+{"id": "ddd9cbd9-b689-46a1-bdd3-270113a38b06", "requests": [{"server": "web browser automation", "tool": "drag an element to a target element using selectors"}]}
+{"id": "3a9b097c-ff53-4724-81d6-f24f721d85b2", "requests": [{"server": "web browser automation", "tool": "hover over an element by selector"}]}
+{"id": "fa7b77f3-1a68-410f-bc18-6a9edfeff859", "requests": [{"server": "HTTP client", "tool": "perform an HTTP GET request on a URL"}]}
+{"id": "7cab32b7-c5fb-473f-b20d-e34042d544e4", "requests": [{"server": "web browser automation", "tool": "navigate to a URL"}]}
+{"id": "85c469d0-db4d-4a7c-b083-dcda309548d1", "requests": [{"server": "web browser automation", "tool": "drag an element to another element"}]}
+{"id": "9b0eabaf-7a95-4f91-90ef-87c8affe083f", "requests": [{"server": "web browser automation", "tool": "fill an input field with a value"}]}
+{"id": "5a2c6335-1975-430a-b642-698be5518fb1", "requests": [{"server": "web browser automation", "tool": "fill a search input field with text"}]}
+{"id": "f28225c7-7fc2-40ae-9b73-cd13081fb649", "requests": [{"server": "web browser automation", "tool": "execute JavaScript code in the page"}]}
+{"id": "bf1a44d9-48c5-4530-bfdf-515a18d2ca7e", "requests": [{"server": "file system", "tool": "get a recursive tree view of directories with file sizes"}]}
+{"id": "4d313c1e-d088-4f91-b794-99ca8374f121", "requests": [{"server": "file system", "tool": "get detailed metadata of a file or directory"}]}
+{"id": "f3e7e805-b0de-4412-b3bd-1c8772f0817a", "requests": [{"server": "file system", "tool": "search files and directories matching a name pattern"}]}
+{"id": "fc46bfe4-f7c2-468e-86f0-33e7db5fa091", "requests": [{"server": "file system", "tool": "search files and directories matching a name pattern"}]}
+{"id": "e30deb39-fe2b-41cc-b192-e52161541e3f", "requests": [{"server": "file system", "tool": "read the contents of multiple files at once"}]}
+{"id": "14b7224d-7071-4c82-849b-3291ef66c724", "requests": [{"server": "file system", "tool": "edit a file by replacing text"}]}
+{"id": "33b23019-f7b6-4254-a6ff-26f12d921a0f", "requests": [{"server": "file system", "tool": "list files and directories in a path with detailed prefixes"}]}
+{"id": "e99beb32-2063-41bd-bce3-6ec3a1cf2f67", "requests": [{"server": "file system", "tool": "create a directory"}]}
+{"id": "b905db7f-dede-4681-9648-2e9deaada313", "requests": [{"server": "file system", "tool": "get detailed metadata of a file or directory"}]}
+{"id": "d8f4fe3a-354d-4dba-9fb2-9c236cbdb287", "requests": [{"server": "file system", "tool": "list files and directories in a path distinguishing files from directories"}]}
+{"id": "be16b992-6095-4388-9368-d5b17229a98e", "requests": [{"server": "file system", "tool": "read the contents of multiple files at once"}]}
+{"id": "54c2d449-fed5-4f14-b895-4fa6844e2869", "requests": [{"server": "file system", "tool": "list files and directories in a path with detailed prefixes"}]}
+{"id": "8ea25e94-a589-4203-9d02-df4a76496b2c", "requests": [{"server": "stock market data", "tool": "get the current share price of a stock"}]}
+{"id": "a8d25635-8f19-4d4e-ba6f-3c5bad78dd47", "requests": [{"server": "stock market data", "tool": "get the current share price of a stock"}]}
+{"id": "a1364525-50b7-4769-95af-e3085788ddff", "requests": [{"server": "stock market data", "tool": "get the current share price of a stock"}]}
+{"id": "20dfe76f-9b1a-439d-afc4-dfe058843a7c", "requests": [{"server": "stock market data", "tool": "get the current share price of a stock"}]}
+{"id": "217cfc0e-1b6c-4f45-bcf9-f747dce85caf", "requests": [{"server": "stock market data", "tool": "get the current share price of a stock"}]}
+{"id": "b929ff19-36ef-4a4f-b48c-edbd1113ba5e", "requests": [{"server": "stock market data", "tool": "get the current share price of a stock"}]}
+{"id": "65bfdf49-9f43-425c-bc08-ad46915d191e", "requests": [{"server": "stock market data", "tool": "get the current share price of a stock"}]}
+{"id": "ef7eee6c-f2ef-4c33-b020-3763cddc0b51", "requests": [{"server": "stock market data", "tool": "get the current share price of a stock"}]}
+{"id": "5645c67d-431a-4a4e-a946-840babf2c21f", "requests": [{"server": "stock market data", "tool": "get the current share price of a stock"}]}
+{"id": "29220a12-4347-401d-93b3-73921973a353", "requests": [{"server": "stock market data", "tool": "get the current share price of a stock"}]}
+{"id": "941e410c-edf0-4924-a409-78e13f1da618", "requests": [{"server": "stock market data", "tool": "get the current share price of a stock"}]}
+{"id": "89d5c2ac-f9a9-4a60-ad29-24f5c9a89cd6", "requests": [{"server": "stock market data", "tool": "get the current share price of a stock"}]}
+{"id": "1e0207d2-f60a-4125-a9f1-c209392a61f5", "requests": [{"server": "stock market data", "tool": "get the current share price of a stock"}]}
+{"id": "a4c6e6be-7413-493f-911d-67f734b67f93", "requests": [{"server": "map service", "tool": "reverse geocode coordinates to an address"}]}
+{"id": "b6face32-5ea5-41ce-97bc-b10f3cd791ab", "requests": [{"server": "map service", "tool": "calculate driving distance between two cities"}]}
+{"id": "afbd391e-ab3e-4c3c-b99d-a993f8c08007", "requests": [{"server": "map service", "tool": "search nearby places of a type within a radius"}]}
+{"id": "6facf1a3-aa9b-403b-ae83-32dcb7a7d97d", "requests": [{"server": "map service", "tool": "search public transit route between two places"}]}
+{"id": "ecff92ae-826c-4165-a744-22409ac3612d", "requests": [{"server": "map service", "tool": "geocode a landmark name to latitude and longitude"}]}
+{"id": "5fd225ba-cc69-484f-8f70-21894c82dcf8", "requests": [{"server": "map service", "tool": "calculate driving distance between two cities"}]}
+{"id": "1592690e-fed4-4a56-8ef3-46bb49160035", "requests": [{"server": "IP geolocation service", "tool": "look up the geographic location of an IP address"}]}
+{"id": "0afc200d-8e81-454a-b7f1-b2290e9adb69", "requests": [{"server": "map service", "tool": "reverse geocode coordinates to an administrative address"}]}
+{"id": "6c6f01c8-9ef0-4196-8332-68d5bc9af031", "requests": [{"server": "map service", "tool": "search driving route between two cities"}]}
+{"id": "9fbabe0a-adac-48df-bf94-b56960fdb737", "requests": [{"server": "map service", "tool": "reverse geocode coordinates to an administrative address"}]}
+{"id": "9672b725-b97c-4153-9186-cc78bf2a221e", "requests": [{"server": "map service", "tool": "get details of a place by its place ID"}]}
+{"id": "58fdd3bf-8524-488c-91f1-87edae7b8439", "requests": [{"server": "map service", "tool": "generate a travel map for an itinerary"}]}
+{"id": "65487bf5-4cc0-4096-a59f-6ee1072b5d32", "requests": [{"server": "PayPal payment platform", "tool": "create a subscription plan for a product with billing cycles"}]}
+{"id": "a2d4c502-aecf-4ae8-9915-910b0e5ce9c7", "requests": [{"server": "PayPal payment platform", "tool": "refund a captured payment with note"}]}
+{"id": "3339dc69-5515-4f2d-9a23-359dc6846ec0", "requests": [{"server": "PayPal payment platform", "tool": "create a subscription plan for a product with billing cycles"}]}
+{"id": "cf50d76e-3b2f-473e-9a46-a1b90979d2c3", "requests": [{"server": "PayPal payment platform", "tool": "create a new product"}]}
+{"id": "2c1d5cbf-c9fa-404f-a950-63db56335a69", "requests": [{"server": "PayPal payment platform", "tool": "create a subscription plan for a product with billing cycles"}]}
+{"id": "e23c10ff-6255-40d3-8fab-f5ee838fa64b", "requests": [{"server": "PayPal payment platform", "tool": "create shipment tracking for a transaction"}]}
+{"id": "a8604453-34d8-45b2-81cd-05bbc26ca1b8", "requests": [{"server": "PayPal payment platform", "tool": "create a new product"}]}
+{"id": "87c31bfa-6c92-4ce4-a479-d842865afab7", "requests": [{"server": "PayPal payment platform", "tool": "refund a captured payment with note"}]}
+{"id": "a9d7d3e2-5396-4520-b3d7-f8c98a248dc9", "requests": [{"server": "PayPal payment platform", "tool": "create an invoice with line items"}]}
+{"id": "e6a6481e-c5a3-4480-8243-a933a02b32ae", "requests": [{"server": "PayPal payment platform", "tool": "create a subscription plan for a product with billing cycles"}]}
+{"id": "5f60f709-4d66-4420-9646-4caf4dd16e48", "requests": [{"server": "PayPal payment platform", "tool": "create an order with items and total amount"}]}
+{"id": "617680a6-0afa-4d25-a42f-b9b3c904225d", "requests": [{"server": "PayPal payment platform", "tool": "create shipment tracking for a transaction"}]}
+{"id": "ca748068-c885-4004-ab0b-142d4d195733", "requests": [{"server": "PayPal payment platform", "tool": "create a new product"}]}
+{"id": "78844c7f-6bb1-4399-8d48-ecb7cb69a612", "requests": [{"server": "web content extraction service", "tool": "extract content from web page URLs"}]}
+{"id": "1aff53b9-c7db-42cf-8de0-9b208ec9b708", "requests": [{"server": "news search", "tool": "search latest news on a topic in a region including images"}]}
+{"id": "ad736674-cabc-49b9-9bf5-e10968809b39", "requests": [{"server": "web search engine", "tool": "search for information on a topic"}]}
+{"id": "b0a91316-9fbd-4334-a7de-d0b2c602c579", "requests": [{"server": "web content extraction service", "tool": "extract content from web page URLs"}]}
+{"id": "1e2e5bf6-cad2-47fc-9e07-927a2d2e9f2b", "requests": [{"server": "web crawler", "tool": "crawl a website from a starting URL focusing on a category"}]}
+{"id": "e0327489-b6db-4145-aa8f-04e3ef2ef657", "requests": [{"server": "web content extraction service", "tool": "extract content from web page URLs"}]}
+{"id": "1ee15879-f384-4888-931c-73165f4da897", "requests": [{"server": "news search", "tool": "search latest news on a topic in a region"}]}
+{"id": "de6c6426-407f-4025-b8a1-9e77c94c7b09", "requests": [{"server": "news search", "tool": "search latest news on a topic"}]}
+{"id": "0587f202-6a6a-47ae-ac0c-a75d66cbd3ae", "requests": [{"server": "web crawler", "tool": "map the site structure of a website"}]}
+{"id": "ae68fcb7-b247-40ad-8f66-591ce434e1e4", "requests": [{"server": "news search", "tool": "search latest news on a topic in a country"}]}
+{"id": "04323a29-a020-4932-9de8-f2e0cb10526b", "requests": [{"server": "web crawler", "tool": "crawl a website from a starting URL focusing on a category"}]}
+{"id": "7f44a3c6-e85a-4845-80d1-4c96b0c1ae31", "requests": [{"server": "web content extraction service", "tool": "extract content from web page URLs"}]}
