@@ -170,6 +170,20 @@ The current HTML has 383 unique element IDs, with no duplicate IDs. All 20 disti
 
 The current frontend still uses horizontal anchor navigation, while the product blueprint specifies a persistent left rail/drawer and workspace context. This remains an approved-shell convergence gap; do not replace the current shell until the target mockup is approved.
 
+
+### 4.4 Independent UX branches and integration state
+
+The repository has independently developed UX pull requests. They must be treated as integration candidates, not assumed to be part of the convergence branch:
+
+| Feature | PR | Current evidence/boundary |
+|---|---:|---|
+| UX-8 Platform Governance & Quality | #84 | Separate branch `codex/ux8-governance-quality-validation`; six local evidence-oriented views, no validation runner or live governance actions; acceptance still pending |
+| UX-24 Agent Governance & Trust | #88 | Separate feature branch; reuses Core read endpoints; CI passed, live Colab/browser acceptance pending |
+| UX-7 Runtime & Observability | #83 | Separate PR; must be reviewed for actual runtime evidence and no simulated execution |
+| UX-9 Objective Traceability | #89 (verify current PR mapping before integration) | Separate PR candidate; exact branch ancestry and current CI must be verified |
+
+Do not cherry-pick or merge by feature number alone. Before integration, verify the PR base/head ancestry, changed-file overlap, mockup approval record, exact CI commit, API contract compatibility, regression suite, and Colab acceptance. In particular, the current convergence HTML does not yet contain the UX-24 workspace, and the UX-8 branch inspected separately does not contain UX-24; this is expected branch separation, not proof of a broken PR.
+
 ### 4.3 Documentation baseline drift
 
 `FEATURE_CATALOG.md` previously presented an audit baseline from `feature/studio-goalspec-editor` at `e641fc7412dbb77ae44304562820db619aaf7359` without a sufficiently prominent historical-snapshot warning. A notice was added on 2026-11-08 to direct readers to this convergence audit and prevent old feature status from being mistaken for current branch acceptance.
