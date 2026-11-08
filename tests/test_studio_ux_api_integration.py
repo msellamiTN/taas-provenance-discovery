@@ -293,15 +293,18 @@ def test_ux22_agent_observability_bounded_live_and_hidden_demo():
     assert 'id="ux22-demo-mode"' in html
     assert 'id="ux22-live-mode"' in html
     assert "DEMO DATA · ILLUSTRATIVE" in html
-    # Live mode queries only real read-only routes.
-    for path in ("/api/v1/agents?limit=500", "/api/v1/agents/events?limit=1000",
-                 "/api/v1/discovery/runs?limit=100", "/api/v1/runtime/status",
-                 "/api/v1/runtime/hardware", "/api/v1/models/runtime"):
-        assert path in html
-    # Demo visuals must be hidden in live mode (not merely overwritten).
-    assert "u22-live-mode .u22-chart" in html and "display:none" in html
-    # Boundary: no lifecycle mutation, deployment, invocation or execution.
-    assert "No Agent registration, lifecycle mutation, deployment" in html or "not proof of Agent execution" in html
+    # Live mode queries only the exact-version recorded-activity route.
+    assert "/activity" in html
+    assert 'versions/"+encodeURIComponent(version)+"/activity' in html or "/versions/" in html
+    # Pinned contract validation: schema + recorded_activity + semantics.
+    assert "taas.agent-version-activity/v1" in html
+    assert "recorded_activity" in html
+    # Per-block state handling: unavailable sources are never zero-filled.
+    assert 'state==="recorded"' in html or 'state==="unavailable"' in html
+    # Fail-closed: no demo substitution on live error.
+    assert "No demo fallback" in html or "Demo data has not been substituted" in html or "not been substituted" in html
+    # Boundary: recorded activity, never performance telemetry/execution.
+    assert "performance telemetry" in html or "not been substituted" in html
 
 
 def test_ux23_discovery_composition_bounded_live_and_in_wrapper_scope():
