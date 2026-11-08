@@ -169,6 +169,21 @@ def test_reproducibility_envelope_links_certificate_to_run_record():
     assert "not tool invocation" in html
 
 
+def test_workspace_breadcrumb_carries_lifecycle_activity_and_boundary():
+    html = _studio_html()
+    assert 'id="studio-workspace-activity"' in html
+    assert 'id="studio-workspace-boundary"' in html
+    # Activity is derived from the nearest preceding nav-label, not hardcoded.
+    assert 'classList.contains("nav-label")' in html
+    for label in ("1 · DEFINE", "2 · BUILD", "3 · DISCOVER", "4 · VERIFY",
+                  "5 · OPERATE", "6 · EVALUATE &amp; MANAGE"):
+        assert f'"{label}"' in html or f'"{label.replace("&amp;", "&")}"' in html
+    # Every activity carries its own boundary hint — no implied execution.
+    assert "not authorization or execution" in html
+    assert "not execution proof" in html
+    assert "grants no execution" in html
+
+
 def test_ux15_tool_registry_governance_center_uses_read_only_endpoints():
     html = _studio_html()
     assert 'id="tool-registry-governance-center"' in html
