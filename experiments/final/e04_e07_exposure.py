@@ -230,7 +230,7 @@ def main(quick: bool = False) -> None:
     for attack in ("forge", "launder", "both"):
         for delta in deltas:
             acc = []
-            for sd in range(5 if delta > 0 else 1):
+            for sd in range(5):   # Revision 2: five seeds at every delta (the paper ran one at delta = 0)
                 atk, adv = attack_registry(raw, delta, sd, launder_desc=attack in ("launder", "both"),
                                            forge=attack in ("forge", "both"))
                 cs = build_contracts(atk, None)

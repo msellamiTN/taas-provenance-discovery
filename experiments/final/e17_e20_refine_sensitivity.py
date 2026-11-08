@@ -8,6 +8,8 @@ from __future__ import annotations
 import copy
 from collections import Counter, defaultdict
 
+import sys
+
 import fe
 import methods as M
 import set_evaluator as SE
@@ -15,9 +17,15 @@ from taas.composer import ComposerConfig
 from taas.engine import DiscoveryEngine, EngineConfig
 
 
+SPLIT = "test" if "--split" in sys.argv and sys.argv[sys.argv.index("--split") + 1] == "test" else "all"
+SUFFIX = "_test" if SPLIT == "test" else ""
+
+
 def tasks_specs():
+    """All 155 tasks (paper), or with --split test only the 95 LiveMCPBench tasks (Revision 2: the 60 development
+    prompts selected K and w_rel)."""
     out = []
-    for t in fe.tasks_live() + fe.tasks_dev():
+    for t in fe.tasks_live() + ([] if SPLIT == "test" else fe.tasks_dev()):
         spec, rec = fe.spec_for(t)
         if spec is not None:
             pol, need = M.least_privilege(rec)
@@ -139,13 +147,13 @@ def e20(ts) -> dict:
 def main() -> None:
     ts = tasks_specs()
     r17 = e17(ts)
-    fe.save("E17_refinement", {"results": r17}, "MEASURED (engine; LLM-free repairs); assistant-role variants not run",
+    fe.save("E17_refinement" + SUFFIX, {"results": r17, "split": SPLIT}, "MEASURED (engine; LLM-free repairs); assistant-role variants not run",
             config={"tasks": len(ts), "policy": "least privilege", "k": [0, 1, 2, 3, 5], "budgets": ["K=5", "K=1"]},
-            raw=fe.save_raw("E17_refinement", RAW17))
+            raw=fe.save_raw("E17_refinement" + SUFFIX, RAW17))
     r20 = e20(ts)
-    fe.save("E20_sensitivity", {"results": r20}, "MEASURED (toolkits, recall vs gold); LABELLED (forbidden tools, B)",
+    fe.save("E20_sensitivity" + SUFFIX, {"results": r20, "split": SPLIT}, "MEASURED (toolkits, recall vs gold); LABELLED (forbidden tools, B)",
             config={"tasks": len(ts), "weights": [0.0, 0.25, 0.5, 1.0], "u_min": [0.4, 0.5, 0.6, 0.8],
-                    "joint": "beta x gamma"}, raw=fe.save_raw("E20_sensitivity", RAW20))
+                    "joint": "beta x gamma"}, raw=fe.save_raw("E20_sensitivity" + SUFFIX, RAW20))
     for k, v in r20.items():
         print("E20", k, {x: round(y, 3) for x, y in v.items() if isinstance(y, float)})
 
