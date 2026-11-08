@@ -145,59 +145,82 @@ def _stable_seed(seed: int, key: str) -> int:
 
 
 def _paired_inference(
-    differences: list[float],
+    observations: list[tuple[float, str]],
     seed: int,
     bootstrap_resamples: int = 10000,
     sign_flip_resamples: int = 100000,
 ) -> dict[str, Any]:
-    """Paired task bootstrap CI and two-sided paired sign-flip test."""
-    values = np.asarray(differences, dtype=float)
-    n = int(values.size)
-    if n < 2:
-        return {"status": "insufficient_paired_tasks", "n": n}
+    """Cluster-paired task bootstrap CI and sign-flip test.
+
+    Each independent_unit_id is one exchangeable unit. Tasks sharing a cluster
+    are resampled together and receive one common sign in the sign-flip test.
+    The point estimate remains the task-weighted mean paired difference.
+    """
     if bootstrap_resamples < 100 or sign_flip_resamples < 100:
         raise ValueError("Paired inference requires at least 100 resamples")
-    point = float(values.mean())
+    by_unit: dict[str, list[float]] = defaultdict(list)
+    for difference, independent_unit_id in observations:
+        unit = str(independent_unit_id).strip()
+        if not unit:
+            raise ValueError("Paired inference requires non-empty independent_unit_id values")
+        by_unit[unit].append(float(difference))
+
+    n_tasks = sum(len(values) for values in by_unit.values())
+    unit_ids = sorted(by_unit)
+    n_units = len(unit_ids)
+    if n_units < 2:
+        return {
+            "status": "insufficient_independent_units",
+            "n": n_tasks,
+            "n_independent_units": n_units,
+        }
+
+    clusters = [np.asarray(by_unit[unit], dtype=float) for unit in unit_ids]
+    cluster_sums = np.asarray([float(values.sum()) for values in clusters], dtype=float)
+    point = float(cluster_sums.sum() / n_tasks)
+
+    # Resample whole independent units, retaining every paired task in each draw.
     rng = np.random.default_rng(seed)
     draws = np.empty(bootstrap_resamples, dtype=float)
-    batch = 2000
-    offset = 0
-    while offset < bootstrap_resamples:
-        count = min(batch, bootstrap_resamples - offset)
-        indices = rng.integers(0, n, size=(count, n))
-        draws[offset:offset + count] = values[indices].mean(axis=1)
-        offset += count
+    for index in range(bootstrap_resamples):
+        sampled_indices = rng.integers(0, n_units, size=n_units)
+        sampled_values = [clusters[int(i)] for i in sampled_indices]
+        draws[index] = float(np.concatenate(sampled_values).mean())
     ci_low, ci_high = np.quantile(draws, [0.025, 0.975]).tolist()
 
+    # Sign flips are applied per independent unit, not per task within a cluster.
     observed = abs(point)
-    if n <= 16:
-        total = 1 << n
+    if n_units <= 16:
+        total = 1 << n_units
         extreme = 0
         for mask in range(total):
             signed_sum = sum(
-                float(value) if (mask >> index) & 1 else -float(value)
-                for index, value in enumerate(values)
+                float(cluster_sums[index]) if (mask >> index) & 1 else -float(cluster_sums[index])
+                for index in range(n_units)
             )
-            if abs(signed_sum / n) >= observed - 1e-15:
+            if abs(signed_sum / n_tasks) >= observed - 1e-15:
                 extreme += 1
         p_value = extreme / total
-        test_method = "exact_paired_sign_flip"
+        test_method = "exact_cluster_paired_sign_flip"
         actual_resamples = total
     else:
         extreme = 0
         offset = 0
+        batch = 2000
         while offset < sign_flip_resamples:
             count = min(batch, sign_flip_resamples - offset)
-            signs = rng.choice(np.array([-1.0, 1.0]), size=(count, n))
-            permuted = np.abs((signs @ values) / n)
+            signs = rng.choice(np.array([-1.0, 1.0]), size=(count, n_units))
+            permuted = np.abs((signs @ cluster_sums) / n_tasks)
             extreme += int(np.count_nonzero(permuted >= observed - 1e-15))
             offset += count
         p_value = (extreme + 1) / (sign_flip_resamples + 1)
-        test_method = "monte_carlo_paired_sign_flip"
+        test_method = "monte_carlo_cluster_paired_sign_flip"
         actual_resamples = sign_flip_resamples
+
     return {
         "status": "tested",
-        "n": n,
+        "n": n_tasks,
+        "n_independent_units": n_units,
         "mean_paired_difference": point,
         "ci_low": float(ci_low),
         "ci_high": float(ci_high),
@@ -206,7 +229,6 @@ def _paired_inference(
         "sign_flip_resamples": actual_resamples,
         "bootstrap_resamples": bootstrap_resamples,
     }
-
 
 def _holm_adjust(rows: list[dict[str, Any]]) -> None:
     tested = [row for row in rows if row.get("status") == "tested" and row.get("p_value") is not None]
@@ -496,20 +518,29 @@ def export_e9_figures(
             comparator_rows = methods_by_task.get(comparator, {})
             common = sorted(set(full_rows) & set(comparator_rows))
             comparison_id = f"{benchmark}/{decomposition}/k={k}/Full_PaMCP-vs-{comparator}"
-            differences = [
-                float(full_rows[task_id]["group_recall"])
-                - float(comparator_rows[task_id]["group_recall"])
-                for task_id in common
-            ]
+            paired_observations = []
+            independent_unit_ids = []
+            for task_id in common:
+                full_row = full_rows[task_id]
+                comparator_row = comparator_rows[task_id]
+                full_unit = str(full_row.get("independent_unit_id") or "").strip()
+                comparator_unit = str(comparator_row.get("independent_unit_id") or "").strip()
+                if not full_unit or full_unit != comparator_unit:
+                    raise ValueError(
+                        f"{comparison_id}/{task_id}: paired methods have missing or mismatched "
+                        "independent_unit_id values"
+                    )
+                independent_unit_ids.append(full_unit)
+                paired_observations.append((
+                    float(full_row["group_recall"]) - float(comparator_row["group_recall"]),
+                    full_unit,
+                ))
             inference = _paired_inference(
-                differences,
+                paired_observations,
                 _stable_seed(seed, comparison_id),
                 bootstrap_resamples=bootstrap_resamples,
                 sign_flip_resamples=sign_flip_resamples,
-            ) if len(common) >= 2 else {
-                "status": "insufficient_paired_tasks",
-                "n": len(common),
-            }
+            )
             paired_rows.append({
                 "comparison_id": comparison_id,
                 "benchmark": benchmark,
@@ -519,8 +550,12 @@ def export_e9_figures(
                 "comparator": comparator,
                 "metric": "group_recall",
                 "n_common_tasks": len(common),
+                "n_independent_units": len(set(independent_unit_ids)),
                 "common_task_ids_sha256": hashlib.sha256(
                     "\n".join(common).encode("utf-8")
+                ).hexdigest(),
+                "independent_unit_ids_sha256": hashlib.sha256(
+                    "\n".join(sorted(set(independent_unit_ids))).encode("utf-8")
                 ).hexdigest(),
                 **inference,
             })
@@ -531,6 +566,7 @@ def export_e9_figures(
             [
                 "comparison_id", "benchmark", "decomposition", "k",
                 "primary_method", "comparator", "metric", "status", "n_common_tasks",
+                "n_independent_units", "independent_unit_ids_sha256",
                 "mean_paired_difference", "ci_low", "ci_high", "p_value", "test_method",
                 "sign_flip_resamples", "bootstrap_resamples", "holm_adjusted_p",
                 "holm_family_size", "common_task_ids_sha256",
