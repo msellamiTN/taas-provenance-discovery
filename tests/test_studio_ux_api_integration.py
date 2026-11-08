@@ -167,3 +167,48 @@ def test_reproducibility_envelope_links_certificate_to_run_record():
     assert "discovery_run_id" in html
     assert '"/api/v1/discovery/runs/"+encodeURIComponent(runId)' in html
     assert "not tool invocation" in html
+
+
+def test_ux15_tool_registry_governance_center_uses_read_only_endpoints():
+    html = _studio_html()
+    assert 'id="tool-registry-governance-center"' in html
+    assert 'id="ux15-refresh"' in html
+    assert 'id="ux15-refresh-snapshots"' in html
+    assert "/api/v1/tools?" in html
+    assert '"/api/v1/mcp/servers"' in html
+    assert '"/api/v1/mcp/registry/snapshots' in html
+    # UX-15 is an inventory/inspection surface — no tool invocation.
+    section = html[html.index('id="tool-registry-governance-center"'):html.index("</section>", html.index('id="tool-registry-governance-center"'))]
+    assert "No MCP connection, tool call" in section
+
+
+def test_ux16_selection_workbench_wires_retrieval_eligibility_compare():
+    html = _studio_html()
+    assert 'id="ux16-tool-selection-workbench"' in html
+    assert 'id="ux16-retrieve"' in html
+    assert 'id="ux16-eligibility"' in html
+    assert 'id="ux16-compare"' in html
+    assert "/api/v1/tools/retrieve" in html
+    assert "/api/v1/tools/eligibility" in html
+    assert "/api/v1/tools/compare" in html
+    # Honest capability semantics disclaimer on the candidate table.
+    assert "not quality or permission" in html and "Structural analysis is not authorization" in html
+
+
+def test_ux17_policy_designer_is_evaluation_only():
+    html = _studio_html()
+    assert 'id="ux17-policy-governance"' in html
+    assert 'id="ux17-evaluate"' in html
+    assert "/api/v1/policy/evaluate" in html
+    section = html[html.index('id="ux17-policy-governance"'):html.index("</section>", html.index('id="ux17-policy-governance"'))]
+    assert "not authorization" in section
+
+
+def test_ux18_policy_test_workbench_persists_nothing():
+    html = _studio_html()
+    assert 'id="ux18-policy-test-workbench"' in html
+    assert 'id="ux18-run"' in html
+    section = html[html.index('id="ux18-policy-test-workbench"'):html.index("</section>", html.index('id="ux18-policy-test-workbench"'))]
+    assert "not persisted" in section
+    # Verdict results must be labeled MATCH/MISMATCH/ERROR, not executed.
+    assert "MATCH" in html and "MISMATCH" in html
