@@ -3,12 +3,21 @@
  "evidence": "SIMULATED evidence (\u03ba ~ U(0.3, 1), 50% trusted signers), scored against labels B",
  "notes": "",
  "manifest": {
-  "run_id": "E7_trust-2026-11-08T06:53:38Z-ced1f72b4a",
-  "created": "2026-11-08T06:53:38Z",
-  "commit": "0a9c5f2a17ae89c30a380410636a9249236bb296",
-  "dirty_code_files": [],
-  "code_sha256": "ced1f72b4a192f9736a49621705bb6a05a5f0a6de14ed3a11b8009bb5effdb08",
+  "run_id": "E7_trust-2026-11-08T15:17:19Z-8255c9713a",
+  "created": "2026-11-08T15:17:19Z",
+  "commit": "376bcb5e281e4efa0efafd42fd717530ebff0a7a",
+  "dirty_code_files": [
+   "src/taas/engine.py",
+   "src/taas/hypergraph.py"
+  ],
+  "code_sha256": "8255c9713a13cd88ecc9f9815b8abb0c9f264fe5fca466aa39d889465cdbd407",
   "python": "3.13.18",
+  "packages": {
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "sklearn": "1.9.1",
+   "matplotlib": "3.11.2"
+  },
   "config": {
    "delta": 0.2,
    "attack": "both",
@@ -89,7 +98,7 @@
   },
   "raw": {
    "path": "results/final/raw/E7_trust.jsonl.gz",
-   "sha256": "cd8f2564366a080173a90bf68cc9231f998dcf0e3ee85a26484af861f86969ac",
+   "sha256": "0bf4b9908ed163cba2e21d88ec9fb1e23c1a130338150f5401fe396ae12de2fa",
    "rows": 289
   },
   "models": "LLM roles were played by Claude models requested by alias (sonnet, opus, haiku) through the session; exact version strings were not exposed and are not recorded"

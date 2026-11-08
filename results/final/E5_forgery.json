@@ -3,12 +3,21 @@
  "evidence": "SIMULATED attacker and verifier (FAR 5%), scored against labels B",
  "notes": "",
  "manifest": {
-  "run_id": "E5_forgery-2026-11-08T06:51:02Z-ced1f72b4a",
-  "created": "2026-11-08T06:51:02Z",
-  "commit": "5a606c8644a41ef322099e0b7986400a076b25dd",
-  "dirty_code_files": [],
-  "code_sha256": "ced1f72b4a192f9736a49621705bb6a05a5f0a6de14ed3a11b8009bb5effdb08",
+  "run_id": "E5_forgery-2026-11-08T15:15:06Z-8255c9713a",
+  "created": "2026-11-08T15:15:06Z",
+  "commit": "376bcb5e281e4efa0efafd42fd717530ebff0a7a",
+  "dirty_code_files": [
+   "src/taas/engine.py",
+   "src/taas/hypergraph.py"
+  ],
+  "code_sha256": "8255c9713a13cd88ecc9f9815b8abb0c9f264fe5fca466aa39d889465cdbd407",
   "python": "3.13.18",
+  "packages": {
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "sklearn": "1.9.1",
+   "matplotlib": "3.11.2"
+  },
   "config": {
    "attacks": [
     "forge",
@@ -71,8 +80,8 @@
   },
   "raw": {
    "path": "results/final/raw/E5_forgery.jsonl.gz",
-   "sha256": "7456a9aacfc4bdedad5fbc1d10ceab361a512d4b3411162b3f68665d84b84bbb",
-   "rows": 1009
+   "sha256": "ff9b9cbfcd9b247cd69166cdba253785d6243c1177f299ecabb62f4bc8cafbb9",
+   "rows": 1201
   },
   "models": "LLM roles were played by Claude models requested by alias (sonnet, opus, haiku) through the session; exact version strings were not exposed and are not recorded"
  },
@@ -104,28 +113,28 @@
     "eligible_share": 0.6783831282952548
    },
    "pamcp_rrf|verified_evidence": {
-    "Exp@5": 0.0,
-    "Util@5": 0.46886446886446886,
-    "eligible_share": 0.7768014059753954
+    "Exp@5": 0.05421245421245422,
+    "Util@5": 0.4644688644688645,
+    "eligible_share": 0.7803163444639719
    },
    "pamcp_rrf|observed_lexical_fallback": {
-    "Exp@5": 0.0,
-    "Util@5": 0.46886446886446886,
-    "eligible_share": 0.7768014059753954
+    "Exp@5": 0.05421245421245422,
+    "Util@5": 0.4644688644688645,
+    "eligible_share": 0.7803163444639719
    },
    "pamcp_rrf|attested_only": {
-    "Exp@5": 0.003663003663003663,
-    "Util@5": 0.16483516483516483,
-    "eligible_share": 0.26537785588752194
+    "Exp@5": 0.05860805860805861,
+    "Util@5": 0.22344322344322345,
+    "eligible_share": 0.24850615114235497
    },
    "rag_mcp|no_filter": {
     "Exp@5": 0.326007326007326,
-    "Util@5": 0.4432234432234432,
+    "Util@5": 0.44322344322344326,
     "eligible_share": 1.0
    },
    "rag_mcp|mcp_default_annotations": {
     "Exp@5": 0.326007326007326,
-    "Util@5": 0.4432234432234432,
+    "Util@5": 0.44322344322344326,
     "eligible_share": 1.0
    },
    "rag_mcp|closed_world_annotations": {
@@ -144,19 +153,19 @@
     "eligible_share": 0.6783831282952548
    },
    "rag_mcp|verified_evidence": {
-    "Exp@5": 0.0,
-    "Util@5": 0.41025641025641024,
-    "eligible_share": 0.7768014059753954
+    "Exp@5": 0.03809523809523809,
+    "Util@5": 0.40512820512820513,
+    "eligible_share": 0.7803163444639719
    },
    "rag_mcp|observed_lexical_fallback": {
-    "Exp@5": 0.0,
-    "Util@5": 0.41025641025641024,
-    "eligible_share": 0.7768014059753954
+    "Exp@5": 0.03809523809523809,
+    "Util@5": 0.40512820512820513,
+    "eligible_share": 0.7803163444639719
    },
    "rag_mcp|attested_only": {
-    "Exp@5": 0.0,
-    "Util@5": 0.16483516483516483,
-    "eligible_share": 0.26537785588752194
+    "Exp@5": 0.06153846153846154,
+    "Util@5": 0.2271062271062271,
+    "eligible_share": 0.24850615114235497
    }
   },
   "forge|0.05": {
@@ -514,28 +523,28 @@
     "eligible_share": 0.6783831282952548
    },
    "pamcp_rrf|verified_evidence": {
-    "Exp@5": 0.0,
-    "Util@5": 0.46886446886446886,
-    "eligible_share": 0.7768014059753954
+    "Exp@5": 0.05421245421245422,
+    "Util@5": 0.4644688644688645,
+    "eligible_share": 0.7803163444639719
    },
    "pamcp_rrf|observed_lexical_fallback": {
-    "Exp@5": 0.0,
-    "Util@5": 0.46886446886446886,
-    "eligible_share": 0.7768014059753954
+    "Exp@5": 0.05421245421245422,
+    "Util@5": 0.4644688644688645,
+    "eligible_share": 0.7803163444639719
    },
    "pamcp_rrf|attested_only": {
-    "Exp@5": 0.003663003663003663,
-    "Util@5": 0.16483516483516483,
-    "eligible_share": 0.26537785588752194
+    "Exp@5": 0.05860805860805861,
+    "Util@5": 0.22344322344322345,
+    "eligible_share": 0.24850615114235497
    },
    "rag_mcp|no_filter": {
     "Exp@5": 0.326007326007326,
-    "Util@5": 0.4432234432234432,
+    "Util@5": 0.44322344322344326,
     "eligible_share": 1.0
    },
    "rag_mcp|mcp_default_annotations": {
     "Exp@5": 0.326007326007326,
-    "Util@5": 0.4432234432234432,
+    "Util@5": 0.44322344322344326,
     "eligible_share": 1.0
    },
    "rag_mcp|closed_world_annotations": {
@@ -554,19 +563,19 @@
     "eligible_share": 0.6783831282952548
    },
    "rag_mcp|verified_evidence": {
-    "Exp@5": 0.0,
-    "Util@5": 0.41025641025641024,
-    "eligible_share": 0.7768014059753954
+    "Exp@5": 0.03809523809523809,
+    "Util@5": 0.40512820512820513,
+    "eligible_share": 0.7803163444639719
    },
    "rag_mcp|observed_lexical_fallback": {
-    "Exp@5": 0.0,
-    "Util@5": 0.41025641025641024,
-    "eligible_share": 0.7768014059753954
+    "Exp@5": 0.03809523809523809,
+    "Util@5": 0.40512820512820513,
+    "eligible_share": 0.7803163444639719
    },
    "rag_mcp|attested_only": {
-    "Exp@5": 0.0,
-    "Util@5": 0.16483516483516483,
-    "eligible_share": 0.26537785588752194
+    "Exp@5": 0.06153846153846154,
+    "Util@5": 0.2271062271062271,
+    "eligible_share": 0.24850615114235497
    }
   },
   "launder|0.05": {
@@ -924,28 +933,28 @@
     "eligible_share": 0.6783831282952548
    },
    "pamcp_rrf|verified_evidence": {
-    "Exp@5": 0.0,
-    "Util@5": 0.46886446886446886,
-    "eligible_share": 0.7768014059753954
+    "Exp@5": 0.05421245421245422,
+    "Util@5": 0.4644688644688645,
+    "eligible_share": 0.7803163444639719
    },
    "pamcp_rrf|observed_lexical_fallback": {
-    "Exp@5": 0.0,
-    "Util@5": 0.46886446886446886,
-    "eligible_share": 0.7768014059753954
+    "Exp@5": 0.05421245421245422,
+    "Util@5": 0.4644688644688645,
+    "eligible_share": 0.7803163444639719
    },
    "pamcp_rrf|attested_only": {
-    "Exp@5": 0.003663003663003663,
-    "Util@5": 0.16483516483516483,
-    "eligible_share": 0.26537785588752194
+    "Exp@5": 0.05860805860805861,
+    "Util@5": 0.22344322344322345,
+    "eligible_share": 0.24850615114235497
    },
    "rag_mcp|no_filter": {
     "Exp@5": 0.326007326007326,
-    "Util@5": 0.4432234432234432,
+    "Util@5": 0.44322344322344326,
     "eligible_share": 1.0
    },
    "rag_mcp|mcp_default_annotations": {
     "Exp@5": 0.326007326007326,
-    "Util@5": 0.4432234432234432,
+    "Util@5": 0.44322344322344326,
     "eligible_share": 1.0
    },
    "rag_mcp|closed_world_annotations": {
@@ -964,19 +973,19 @@
     "eligible_share": 0.6783831282952548
    },
    "rag_mcp|verified_evidence": {
-    "Exp@5": 0.0,
-    "Util@5": 0.41025641025641024,
-    "eligible_share": 0.7768014059753954
+    "Exp@5": 0.03809523809523809,
+    "Util@5": 0.40512820512820513,
+    "eligible_share": 0.7803163444639719
    },
    "rag_mcp|observed_lexical_fallback": {
-    "Exp@5": 0.0,
-    "Util@5": 0.41025641025641024,
-    "eligible_share": 0.7768014059753954
+    "Exp@5": 0.03809523809523809,
+    "Util@5": 0.40512820512820513,
+    "eligible_share": 0.7803163444639719
    },
    "rag_mcp|attested_only": {
-    "Exp@5": 0.0,
-    "Util@5": 0.16483516483516483,
-    "eligible_share": 0.26537785588752194
+    "Exp@5": 0.06153846153846154,
+    "Util@5": 0.2271062271062271,
+    "eligible_share": 0.24850615114235497
    }
   },
   "both|0.05": {

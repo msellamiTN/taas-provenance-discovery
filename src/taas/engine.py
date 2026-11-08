@@ -32,6 +32,7 @@ class EngineConfig:
     ctx_mode: str = "all_predecessors"
     use_gap: bool = True          # ablation: False ⇒ every goal is in the gap (no model coverage)
     budget_items: int | None = None
+    pair_mode: str = "eager"      # Revision 2: eager (paper) | partitioned | lazy construction of the risk relation
 
 
 @dataclass
@@ -61,7 +62,7 @@ class DiscoveryEngine:
         self.assistant = assistant
         contracts = list(contracts)
         self.index = BitmapIndex(trust=trust)
-        self.H = Hypergraph()
+        self.H = Hypergraph(pair_mode=self.cfg.pair_mode)
         self.H.trust = trust  # type: ignore[attr-defined]
         for c in contracts:
             self.index.insert(c)

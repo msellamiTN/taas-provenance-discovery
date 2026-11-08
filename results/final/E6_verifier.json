@@ -3,12 +3,21 @@
  "evidence": "SIMULATED verifier errors, scored against labels B",
  "notes": "",
  "manifest": {
-  "run_id": "E6_verifier-2026-11-08T06:53:06Z-ced1f72b4a",
-  "created": "2026-11-08T06:53:06Z",
-  "commit": "0a9c5f2a17ae89c30a380410636a9249236bb296",
-  "dirty_code_files": [],
-  "code_sha256": "ced1f72b4a192f9736a49621705bb6a05a5f0a6de14ed3a11b8009bb5effdb08",
+  "run_id": "E6_verifier-2026-11-08T15:16:53Z-8255c9713a",
+  "created": "2026-11-08T15:16:53Z",
+  "commit": "376bcb5e281e4efa0efafd42fd717530ebff0a7a",
+  "dirty_code_files": [
+   "src/taas/engine.py",
+   "src/taas/hypergraph.py"
+  ],
+  "code_sha256": "8255c9713a13cd88ecc9f9815b8abb0c9f264fe5fca466aa39d889465cdbd407",
   "python": "3.13.18",
+  "packages": {
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "sklearn": "1.9.1",
+   "matplotlib": "3.11.2"
+  },
   "config": {
    "delta": [
     0.0,
@@ -82,7 +91,7 @@
   },
   "raw": {
    "path": "results/final/raw/E6_verifier.jsonl.gz",
-   "sha256": "3db809ab5f19f84856d3854318bcb13ae521f32a6f38acd8ac14ac09f32d5442",
+   "sha256": "82db36d57162e042840f20feaf39412e20b432e927f67936e3514020fdeddd64",
    "rows": 865
   },
   "models": "LLM roles were played by Claude models requested by alias (sonnet, opus, haiku) through the session; exact version strings were not exposed and are not recorded"

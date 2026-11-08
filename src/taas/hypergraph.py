@@ -128,12 +128,23 @@ class Hypergraph:
     admin_forbidden: dict[tuple[str, str], str] = field(default_factory=dict)
     subst: dict[str, set[str]] = field(default_factory=lambda: defaultdict(set))  # ∼ by head key
     kappa_min: float = 0.5
+    # Revision 2 (review Major 10): how the pairwise risk relation F is built.
+    #   eager       all pairs at construction (the paper's implementation; quadratic in |T|)
+    #   partitioned only pairs whose members match the two sides of a template (|X|·|Y|), same relation
+    #   lazy        nothing at construction; is_forbidden decides a pair on demand (cached), same relation
+    pair_mode: str = "eager"
+    _pair_policy: object = None
+    _pos: dict = field(default_factory=dict)
+    _pair_cache: dict = field(default_factory=dict)
 
     # ---------------------------------------------------------------- update
     def add(self, c: CapabilityContract, policy: Policy | None = None) -> None:
         self.remove(c.tool)
         self.contracts[c.tool] = c
         self.subst[self.head_key(c.head)].add(c.tool)
+        if self.pair_mode == "lazy":
+            self._pos.setdefault(c.tool, len(self._pos))
+            return
         for other in self.contracts.values():
             if other.tool != c.tool:
                 self._pair(c, other, policy)
@@ -146,6 +157,8 @@ class Hypergraph:
         self.subst[self.head_key(c.head)].discard(tool)
         for k in [k for k in self.forbidden if tool in k]:
             del self.forbidden[k]
+        for k in [k for k in self._pair_cache if tool in k]:
+            del self._pair_cache[k]
 
     @staticmethod
     def head_key(t: SemType) -> str:
@@ -163,14 +176,55 @@ class Hypergraph:
 
     def rebuild_pairs(self, policy: Policy | None = None) -> None:
         self.forbidden = {}
+        self._pair_policy = policy
+        self._pos = {t: i for i, t in enumerate(self.contracts)}
+        self._pair_cache = {}
+        if self.pair_mode == "lazy":
+            return
+        if self.pair_mode == "partitioned":
+            templates = policy.forbidden_pairs if policy else (("private_read", "egress_any"),)
+            cand = set()
+            for x, y in templates:
+                X = [t for t, c in self.contracts.items() if _matches(c, x)]
+                Y = [t for t, c in self.contracts.items() if _matches(c, y)]
+                cand |= {tuple(sorted((a, b))) for a in X for b in Y if a != b}
+            cand |= {k for k in self.admin_forbidden if k[0] in self.contracts and k[1] in self.contracts}
+            for key in cand:
+                r = self._pair_reason(*key, policy)
+                if r is not None:
+                    self.forbidden[key] = r  # type: ignore[index]
+            return
         cs = list(self.contracts.values())
         for i, a in enumerate(cs):
             for b in cs[i + 1:]:
                 self._pair(a, b, policy)
                 self._pair(b, a, policy)
 
+    def _pair_reason(self, a: str, b: str, policy: Policy | None) -> str | None:
+        """The reason the eager construction would record for the pair {a, b} (None if none)."""
+        if self._pos.get(a, 0) > self._pos.get(b, 0):
+            a, b = b, a                                   # eager order: earlier contract first
+        ca, cb = self.contracts[a], self.contracts[b]
+        templates = policy.forbidden_pairs if policy else (("private_read", "egress_any"),)
+        reason = None
+        for u, v in ((ca, cb), (cb, ca)):
+            for x, y in templates:
+                if _matches(u, x) and _matches(v, y):
+                    reason = f"{x}+{y}: exfiltration"
+        key = tuple(sorted((a, b)))
+        if key in self.admin_forbidden:
+            reason = self.admin_forbidden[key]
+        return reason
+
     def is_forbidden(self, a: str, b: str) -> str | None:
-        return self.forbidden.get(tuple(sorted((a, b))))  # type: ignore[arg-type]
+        key = tuple(sorted((a, b)))
+        if self.pair_mode != "lazy":
+            return self.forbidden.get(key)  # type: ignore[arg-type]
+        if a not in self.contracts or b not in self.contracts or a == b:
+            return None
+        if key not in self._pair_cache:
+            self._pair_cache[key] = self._pair_reason(a, b, self._pair_policy)  # type: ignore[arg-type]
+        return self._pair_cache[key]
 
     def substitutes(self, tool: str) -> set[str]:
         c = self.contracts[tool]
