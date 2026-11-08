@@ -1,6 +1,6 @@
 # PaMCP E1-E22 Figure Catalogue
 
-**Figure contracts:** 80 across 22 experiments.
+**Figure contracts:** 81 across 22 experiments.
 
 Each entry specifies the chart family, X/Y axes, comparison set, interpretation and required facets. The machine-readable registry is `docs/experiment_design/pamcp_plot_plan_v1.json`.
 
@@ -77,10 +77,20 @@ Each entry specifies the chart family, X/Y axes, comparison set, interpretation 
 
 | Figure | Chart | X-axis | Y-axis | Facets | Comparison / interpretation |
 |---|---|---|---|---|---|
-| E9-F1: Goal-group retrieval recall | `grouped_dot` | Group recall@k | Method | benchmark × decomposition | rag_mcp, mcp_zero, per_subtask, colt_adapted, toolscope_adapted, cmtf_adapted, all_tools. Protocol primary: group recall@k by baseline, benchmark, and decomposition condition; series identifies k. |
-| E9-F2: Set precision versus group recall | `pareto_scatter` | Set precision | Group recall@k | benchmark × decomposition | rag_mcp, mcp_zero, per_subtask, colt_adapted, toolscope_adapted, cmtf_adapted, all_tools. Supporting set precision versus group recall for each k, baseline, benchmark, and decomposition condition; bubble size is complete-set share. |
-| E9-F3: Complete-set coverage by task group | `heatmap` | Task group | Method | benchmark × decomposition × k | rag_mcp, mcp_zero, per_subtask, colt_adapted, toolscope_adapted, cmtf_adapted, all_tools. Supporting complete-set share by task group, baseline, k, benchmark, and decomposition condition. |
+| E9-F1: Goal-group retrieval recall | \`grouped_dot\` | Group recall@k | Method | benchmark × decomposition | mcp_zero, colt_adapted, toolscope_adapted, cmtf_adapted, pamcp_no_backward_closure. Protocol primary: compare Group Recall@k at k={1,3,5,10,20}; Full PaMCP is the separate primary configuration. |
+| E9-F2: Set precision versus group recall | \`pareto_scatter\` | Set precision | Group recall@k | benchmark × decomposition | mcp_zero, colt_adapted, toolscope_adapted, cmtf_adapted, pamcp_no_backward_closure. Bubble size is complete-set share; only paired/matched tasks and explicit set semantics are used. |
+| E9-F3: Complete-set coverage by task group | \`heatmap\` | Task group | Method | benchmark × decomposition × k | mcp_zero, colt_adapted, toolscope_adapted, cmtf_adapted, pamcp_no_backward_closure. Complete-set share is evaluated against the benchmark's documented successful reference sets. |
+| E9-F4: Toolchain-size distribution | \`violin\` | Method | Retrieved tool count | benchmark × decomposition × k | Full PaMCP and the five registered comparators. Task-level predicted-set size observations; violin width is not an uncertainty interval. |
 
+## E9 protocol factors
+
+- Dataset: 94 resolvable LiveMCPBench tasks from the pinned 95-task public snapshot.
+- Decomposition: \`none\`, \`clause_splitter\`, \`llm_analyst\`.
+- Candidate budgets: k = 1, 3, 5, 10, 20. Each K is an independent run condition; do not derive lower K values by truncating a K=20 result.
+- Comparators: COLT retrained on MCPToolBench++ development data, MCP-Zero, ToolScope, CMTF using the common accepted contracts, and PaMCP without backward closure. Full PaMCP with backward closure is the separate primary configuration.
+- The NoBackwardClosure variant changes only backward-closure depth to zero; it is not per-subtask retrieval.
+- Positive LiveMCPBench toolchain annotations are benchmark-native successful references, not exhaustive alternatives. Ambiguous names expand to all candidate server::tool identities; unresolved mentions remain audited.
+- The paired inference file compares Full PaMCP with each comparator on matched task IDs, with paired bootstrap intervals, sign-flip tests and Holm correction. Unsupported adapters remain blocked and do not receive invented scores.
 ## E10 — Set validity and compatibility
 
 | Figure | Chart | X-axis | Y-axis | Facets | Comparison / interpretation |
