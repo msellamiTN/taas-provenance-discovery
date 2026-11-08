@@ -83,7 +83,7 @@ def test_studio_inline_javascript_parses_with_node(tmp_path):
     if node is None:
         pytest.skip("Node.js is unavailable; browser/runtime acceptance remains separate.")
     html = HTML.read_text(encoding="utf-8")
-    scripts = re.findall(r"<script\\b[^>]*>(.*?)</script>", html, flags=re.DOTALL)
+    scripts = re.findall(r"<script\b[^>]*>(.*?)</script>", html, flags=re.DOTALL)
     assert scripts, "Studio page must contain its application script."
     for index, script in enumerate(scripts):
         source = tmp_path / f"studio-{index}.js"
