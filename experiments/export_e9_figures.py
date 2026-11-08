@@ -141,6 +141,90 @@ def _stable_seed(seed: int, key: str) -> int:
     return seed + int(digest[:12], 16)
 
 
+def _paired_inference(
+    differences: list[float],
+    seed: int,
+    bootstrap_resamples: int = 10000,
+    sign_flip_resamples: int = 100000,
+) -> dict[str, Any]:
+    """Paired task bootstrap CI and two-sided paired sign-flip test."""
+    values = np.asarray(differences, dtype=float)
+    n = int(values.size)
+    if n < 2:
+        return {"status": "insufficient_paired_tasks", "n": n}
+    if bootstrap_resamples < 100 or sign_flip_resamples < 100:
+        raise ValueError("Paired inference requires at least 100 resamples")
+    point = float(values.mean())
+    rng = np.random.default_rng(seed)
+    draws = np.empty(bootstrap_resamples, dtype=float)
+    batch = 2000
+    offset = 0
+    while offset < bootstrap_resamples:
+        count = min(batch, bootstrap_resamples - offset)
+        indices = rng.integers(0, n, size=(count, n))
+        draws[offset:offset + count] = values[indices].mean(axis=1)
+        offset += count
+    ci_low, ci_high = np.quantile(draws, [0.025, 0.975]).tolist()
+
+    observed = abs(point)
+    if n <= 16:
+        total = 1 << n
+        extreme = 0
+        for mask in range(total):
+            signed_sum = sum(
+                float(value) if (mask >> index) & 1 else -float(value)
+                for index, value in enumerate(values)
+            )
+            if abs(signed_sum / n) >= observed - 1e-15:
+                extreme += 1
+        p_value = extreme / total
+        test_method = "exact_paired_sign_flip"
+        actual_resamples = total
+    else:
+        extreme = 0
+        offset = 0
+        while offset < sign_flip_resamples:
+            count = min(batch, sign_flip_resamples - offset)
+            signs = rng.choice(np.array([-1.0, 1.0]), size=(count, n))
+            permuted = np.abs((signs @ values) / n)
+            extreme += int(np.count_nonzero(permuted >= observed - 1e-15))
+            offset += count
+        p_value = (extreme + 1) / (sign_flip_resamples + 1)
+        test_method = "monte_carlo_paired_sign_flip"
+        actual_resamples = sign_flip_resamples
+    return {
+        "status": "tested",
+        "n": n,
+        "mean_paired_difference": point,
+        "ci_low": float(ci_low),
+        "ci_high": float(ci_high),
+        "p_value": float(p_value),
+        "test_method": test_method,
+        "sign_flip_resamples": actual_resamples,
+        "bootstrap_resamples": bootstrap_resamples,
+    }
+
+
+def _holm_adjust(rows: list[dict[str, Any]]) -> None:
+    tested = [row for row in rows if row.get("status") == "tested" and row.get("p_value") is not None]
+    ordered = sorted(tested, key=lambda row: (float(row["p_value"]), str(row["comparison_id"])))
+    family_size = len(ordered)
+    adjusted_running = 0.0
+    tested_ids = {id(row) for row in tested}
+    for rank, row in enumerate(ordered):
+        adjusted_running = max(
+            adjusted_running,
+            min(1.0, (family_size - rank) * float(row["p_value"])),
+        )
+        row["holm_adjusted_p"] = adjusted_running
+        row["holm_family_size"] = family_size
+    for row in rows:
+        if id(row) not in tested_ids:
+            row["holm_adjusted_p"] = ""
+            row["holm_family_size"] = family_size
+
+
+
 def export_e9_figures(
     run_dir: Path,
     output_dir: Path,
@@ -394,6 +478,62 @@ def export_e9_figures(
             "and no trace-only diagnostic rows are available."
         )
 
+    # Paired comparisons use the same task IDs, condition and K.
+    paired_index: dict[tuple[str, str, int], dict[str, dict[str, Any]]] = defaultdict(dict)
+    for row in per_task:
+        key = (str(row["benchmark"]), str(row["decomposition"]), int(row["k"]))
+        paired_index[key].setdefault(str(row["baseline"]), {})[str(row["task_id"])] = row
+
+    paired_rows: list[dict[str, Any]] = []
+    for benchmark, decomposition, k in sorted(paired_index):
+        methods_by_task = paired_index[(benchmark, decomposition, k)]
+        full_rows = methods_by_task.get("Full_PaMCP", {})
+        for comparator in sorted(registered):
+            comparator_rows = methods_by_task.get(comparator, {})
+            common = sorted(set(full_rows) & set(comparator_rows))
+            comparison_id = f"{benchmark}/{decomposition}/k={k}/Full_PaMCP-vs-{comparator}"
+            differences = [
+                float(full_rows[task_id]["group_recall"])
+                - float(comparator_rows[task_id]["group_recall"])
+                for task_id in common
+            ]
+            inference = _paired_inference(
+                differences,
+                _stable_seed(seed, comparison_id),
+                bootstrap_resamples=bootstrap_resamples,
+                sign_flip_resamples=sign_flip_resamples,
+            ) if len(common) >= 2 else {
+                "status": "insufficient_paired_tasks",
+                "n": len(common),
+            }
+            paired_rows.append({
+                "comparison_id": comparison_id,
+                "benchmark": benchmark,
+                "decomposition": decomposition,
+                "k": k,
+                "primary_method": "Full_PaMCP",
+                "comparator": comparator,
+                "metric": "group_recall",
+                "n_common_tasks": len(common),
+                "common_task_ids_sha256": hashlib.sha256(
+                    "\n".join(common).encode("utf-8")
+                ).hexdigest(),
+                **inference,
+            })
+    _holm_adjust(paired_rows)
+    if paired_rows:
+        _write_csv(
+            output_dir / "E9_PAIRED_TESTS.csv",
+            [
+                "comparison_id", "benchmark", "decomposition", "k",
+                "primary_method", "comparator", "metric", "status", "n_common_tasks",
+                "mean_paired_difference", "ci_low", "ci_high", "p_value", "test_method",
+                "sign_flip_resamples", "bootstrap_resamples", "holm_adjusted_p",
+                "holm_family_size", "common_task_ids_sha256",
+            ],
+            paired_rows,
+        )
+
     # Preserve per-task evidence so later paired analyses can be reconstructed.
     per_task_columns = [
         "task_id", "benchmark", "baseline", "decomposition", "task_group", "k", "prediction_kind",
@@ -527,6 +667,16 @@ def export_e9_figures(
             "resamples": bootstrap_resamples,
             "seed": seed,
         },
+        "paired_inference": {
+            "unit": "matched task ID",
+            "primary_metric": "group_recall@k",
+            "test": "paired sign-flip",
+            "sign_flip_resamples": sign_flip_resamples,
+            "exact_when_n_at_most": 16,
+            "multiple_testing": "Holm across available Full_PaMCP-versus-registered-comparator tests",
+            "paired_test_rows": len(paired_rows),
+        },
+        "paired_test_file": "E9_PAIRED_TESTS.csv" if paired_rows else None,
         "primary_reference_semantics": sorted(PRIMARY_REFERENCE_SEMANTICS),
         "trace_only_reference_semantics_excluded_from_primary": sorted(TRACE_REFERENCE_SEMANTICS),
         "baseline_ids_registered": sorted(registered),
@@ -573,7 +723,7 @@ def main() -> int:
     args = parser.parse_args()
     result = export_e9_figures(
         args.run_dir, args.output_dir, args.protocol,
-        args.bootstrap_resamples, args.seed,
+        args.bootstrap_resamples, args.seed, args.sign_flip_resamples,
     )
     print(json.dumps(result, indent=2, ensure_ascii=False))
     return 0
