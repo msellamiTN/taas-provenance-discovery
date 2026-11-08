@@ -9,6 +9,7 @@ from experiments.e9_retrieval_campaign import (
     evaluate_equivalence_groups,
     load_discovery_package,
     load_goal_specs,
+    load_composer_config,
     validate_release_gate,
 )
 from taas.experiments.baseline_runner import BaselineResult
@@ -178,3 +179,35 @@ def test_toolscope_oracle_scores_only_independently_adjudicated_pairs():
     assert scored["merge_precision"] == 0.5
     assert scored["merge_recall"] == 1.0
     assert evaluate_equivalence_groups([], None)["status"] == "blocked_missing_independent_equivalence_oracle"
+
+
+def test_composer_parameters_are_loaded_only_from_approved_e9_config(tmp_path):
+    from dataclasses import asdict
+    from taas.composer import ComposerConfig
+
+    config = asdict(ComposerConfig(K=20))
+    path = tmp_path / "composer.json"
+    _json(path, {
+        "schema_version": "1.0.0",
+        "status": "accepted",
+        "experiment_id": "E9",
+        "approval_record": "protocol-approval-2026-11",
+        "composer": config,
+        "refine_k": 3,
+    })
+    loaded, refine_k, meta = load_composer_config(path)
+    assert loaded.K == 20
+    assert refine_k == 3
+    assert meta["composer"]["K"] == 20
+
+    config["K"] = 10
+    _json(path, {
+        "schema_version": "1.0.0",
+        "status": "accepted",
+        "experiment_id": "E9",
+        "approval_record": "protocol-approval-2026-11",
+        "composer": config,
+        "refine_k": 3,
+    })
+    with pytest.raises(ValueError, match="K=20"):
+        load_composer_config(path)
