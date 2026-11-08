@@ -373,6 +373,7 @@ def test_agent_version_activity_reports_only_recorded_data(client, headers):
     # Lifecycle counts are version-scoped from the persisted event column —
     # version 1.0.0 shows created+validated+published, never version 2.0.0's.
     events = body["recorded_activity"]["lifecycle_events"]
+    assert events["state"] == "recorded"
     assert events["count"] == 3
     assert events["latest"]["to_state"] == "published"
     assert events["latest"]["version"] == "1.0.0"
@@ -380,7 +381,8 @@ def test_agent_version_activity_reports_only_recorded_data(client, headers):
     # No verdicts or approvals recorded yet — counts are zero, not synthetic.
     assert body["recorded_activity"]["policy_verdicts"]["count"] == 0
     assert body["recorded_activity"]["human_approvals"]["verified_count"] == 0
-    assert body["recorded_activity"]["revocation"] is None
+    assert body["recorded_activity"]["revocation"]["state"] == "recorded"
+    assert body["recorded_activity"]["revocation"]["record"] is None
 
     # Unsupported metrics stay explicitly unavailable with the architectural reason.
     assert "per-agent latency" in body["unsupported_metrics"]
@@ -410,7 +412,7 @@ def test_agent_version_activity_counts_verdicts_and_approvals_separately(client,
     assert ra["policy_verdicts"]["latest_recorded_at"] is not None
     # Approvals come only from human_approval evidence records.
     assert ra["human_approvals"]["verified_count"] == 1
-    assert ra["human_approvals"]["audit_approval_events"] == 1
+    assert ra["human_approvals"]["audit_approval_events"]["count"] == 1
     # Verified evidence of other types is reported separately, never as approval.
     assert ra["evidence_records"]["verified_non_approval_count"] == 0
 
@@ -437,3 +439,29 @@ def test_list_events_version_filter_is_exact_match(monkeypatch, tmp_path):
     assert none["count"] == 0
     all_events = agent_registry.list_events(agent_id="vfilter")
     assert all_events["count"] == 2
+
+
+def test_agent_version_activity_reports_unavailable_not_zero_on_source_failure(client, headers, monkeypatch):
+    """An unreadable evidence store must surface state=unavailable, never a
+    synthesized count: 'no approvals' and 'cannot check' are different claims."""
+    from taas.studio import assurance_evidence
+
+    _create_publish(client, headers, "act-unavail", "1.0.0")
+
+    def _boom(*args, **kwargs):
+        raise assurance_evidence.EvidenceError("evidence store unavailable")
+
+    monkeypatch.setattr(assurance_evidence, "list_verified_evidence_for_subject", _boom)
+    resp = client.get("/api/v1/agents/act-unavail/versions/1.0.0/activity",
+                      headers=headers)
+    assert resp.status_code == 200
+    ra = resp.json()["recorded_activity"]
+    # Evidence-backed blocks report unavailable, not zero.
+    assert ra["human_approvals"]["state"] == "unavailable"
+    assert "verified_count" not in ra["human_approvals"] or ra["human_approvals"]["verified_count"] is None
+    assert "reason" in ra["human_approvals"]
+    assert ra["evidence_records"]["state"] == "unavailable"
+    # Independent sources still report recorded values.
+    assert ra["lifecycle_events"]["state"] == "recorded"
+    assert ra["lifecycle_events"]["count"] == 3
+    assert ra["policy_verdicts"]["state"] == "recorded"

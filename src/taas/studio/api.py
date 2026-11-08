@@ -2723,28 +2723,75 @@ def agent_version_activity(agent_id: str, version: str) -> dict[str, Any]:
     manifest = agent.get("manifest") or {}
     spec = manifest.get("spec") or {}
 
-    lifecycle = agent_registry.list_events(agent_id=agent_id, version=version, limit=500)
-    latest_lifecycle = lifecycle["events"][0] if lifecycle["events"] else None
+    def _unavailable(reason: str) -> dict[str, Any]:
+        # An unreadable source is reported as unavailable — never as a
+        # synthesized zero. "No recorded rows" and "cannot read the store"
+        # are different states and stay distinguishable.
+        return {"state": "unavailable", "reason": reason[:200]}
 
-    verdicts = audit_ledger.count_events_for_subject(
-        agent_id=agent_id, version=version, event_type="policy_verdict")
-    approvals_audit = audit_ledger.count_events_for_subject(
-        agent_id=agent_id, version=version, event_type="approval")
+    try:
+        lifecycle = agent_registry.list_events(agent_id=agent_id, version=version, limit=500)
+        lifecycle_block = {
+            "state": "recorded",
+            "count": lifecycle["count"],
+            "latest": lifecycle["events"][0] if lifecycle["events"] else None,
+        }
+    except Exception as exc:
+        lifecycle_block = _unavailable(str(exc))
+
+    try:
+        verdicts = audit_ledger.count_events_for_subject(
+            agent_id=agent_id, version=version, event_type="policy_verdict")
+        verdicts_block = {
+            "state": "recorded",
+            "count": verdicts["count"],
+            "latest_recorded_at": (verdicts["latest"] or {}).get("created_at"),
+            "latest_decision": ((verdicts["latest"] or {}).get("payload") or {}).get("decision"),
+        }
+    except Exception as exc:
+        verdicts_block = _unavailable(str(exc))
+
+    try:
+        approvals_audit = audit_ledger.count_events_for_subject(
+            agent_id=agent_id, version=version, event_type="approval")
+        approvals_audit_block = {
+            "state": "recorded",
+            "count": approvals_audit["count"],
+            "latest_recorded_at": (approvals_audit["latest"] or {}).get("created_at"),
+        }
+    except Exception as exc:
+        approvals_audit_block = _unavailable(str(exc))
 
     binding = release_readiness.build_release_subject_binding(agent)
     try:
         approval_evidence = assurance_evidence.list_verified_evidence_for_subject(
             binding, expected_type="human_approval")
-    except assurance_evidence.EvidenceError:
-        approval_evidence = {"count": 0, "valid": [], "invalid": []}
+        approvals_block = {
+            "state": "recorded",
+            "verified_count": approval_evidence["count"],
+            "latest_observed_at": (approval_evidence["valid"][0]["observed_at"]
+                                   if approval_evidence["valid"] else None),
+        }
+    except assurance_evidence.EvidenceError as exc:
+        approvals_block = _unavailable(str(exc))
     try:
         all_evidence = assurance_evidence.list_verified_evidence_for_subject(binding)
-    except assurance_evidence.EvidenceError:
-        all_evidence = {"count": 0, "valid": [], "invalid": []}
-    other_evidence_count = sum(
-        1 for item in all_evidence["valid"] if item.get("evidence_type") != "human_approval")
+        evidence_block = {
+            "state": "recorded",
+            # Verified non-approval evidence bound to this exact version.
+            # Never folded into approvals — separate kinds of records.
+            "verified_non_approval_count": sum(
+                1 for item in all_evidence["valid"]
+                if item.get("evidence_type") != "human_approval"),
+        }
+    except assurance_evidence.EvidenceError as exc:
+        evidence_block = _unavailable(str(exc))
 
-    revocation = agent_registry.get_revocation(agent_id, version)
+    try:
+        revocation = agent_registry.get_revocation(agent_id, version)
+        revocation_block = {"state": "recorded", "record": revocation}
+    except Exception as exc:
+        revocation_block = _unavailable(str(exc))
 
     return {
         "schema": "taas.agent-version-activity/v1",
@@ -2753,28 +2800,17 @@ def agent_version_activity(agent_id: str, version: str) -> dict[str, Any]:
         "lifecycle_state": agent.get("lifecycle_state"),
         "manifest_sha256": agent.get("manifest_sha256"),
         "recorded_activity": {
-            "lifecycle_events": {
-                "count": lifecycle["count"],
-                "latest": latest_lifecycle,
-            },
-            "policy_verdicts": {
-                "count": verdicts["count"],
-                "latest_recorded_at": (verdicts["latest"] or {}).get("created_at"),
-            },
+            "lifecycle_events": lifecycle_block,
+            "policy_verdicts": verdicts_block,
             "human_approvals": {
-                "verified_count": approval_evidence["count"],
-                "latest_observed_at": (approval_evidence["valid"][0]["observed_at"]
-                                       if approval_evidence["valid"] else None),
-                "audit_approval_events": approvals_audit["count"],
+                **approvals_block,
+                "audit_approval_events": approvals_audit_block,
             },
-            "evidence_records": {
-                # Verified non-approval evidence bound to this exact version.
-                # Never folded into approvals — separate kinds of records.
-                "verified_non_approval_count": other_evidence_count,
-            },
-            "revocation": revocation,
+            "evidence_records": evidence_block,
+            "revocation": revocation_block,
             "configuration": {
                 # Manifest-derived facts — authored configuration, not telemetry.
+                "state": "recorded",
                 "skill_references": len(spec.get("skill_refs") or []),
                 "tool_allowlist_entries": len(spec.get("tool_allowlist") or []),
             },
