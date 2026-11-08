@@ -99,17 +99,21 @@ Evaluator references are stored separately:
 
 For trace-only rows, use \`reference_semantics: "annotated_trace_only"\` (or the source-specific trace class) and \`reference_trace_tool_ids\`; do not populate primary acceptable sets from that trace.
 
-## Protocol decomposition and ranking cutoffs
+## Protocol decomposition and candidate budgets
 
-The original experiment specification preregisters three decomposition conditions and three cutoffs:
+The original E9 protocol preregisters three decomposition conditions:
 
 | Decomposition | Operational input to retrieval |
 |---|---|
 | \`none\` | The original user request is passed as one unsegmented goal/query. |
-| \`clause_splitter\` | A deterministic clause-splitter output is frozen without access to evaluator references. Preserve the source prompt and splitter version. |
-| \`llm_analyst\` | An independently versioned analyst produces a structured GoalSpec. Freeze model ID/revision, prompt version, decoding settings, usage and raw response before evaluation. |
+| \`clause_splitter\` | A deterministic clause-splitter output is frozen without access to evaluator references. Preserve the source prompt, splitter version and source-code hash. |
+| \`llm_analyst\` | An independently versioned analyst produces a structured GoalSpec. Freeze model ID/revision, prompt version, decoding settings, usage, raw response and their hashes before evaluation. |
 
-Run all conditions at **k = 5, 10, 20**. Each ranking record must include its \`decomposition\` value and contain the top 20 ordered tool IDs; the exporter derives all three cutoffs from that single frozen ranking. The figure contracts use separate panels for benchmark × decomposition, and E9-F3 additionally facets by k. Never merge the three decomposition conditions into a single average.
+The current full evaluation protocol preregisters **k = 1, 3, 5, 10, 20**. Execute every value as a separate candidate-budget condition. Every discovery row must include \`decomposition\` and \`ranking_k\`; the unique observation key is benchmark × task × method × decomposition × k. Do not derive lower k conditions by truncating a single k=20 output.
+
+For retrieval comparators, save the ordered top-k tools. For Full PaMCP and PaMCP-NoBackwardClosure, save the actual certified selected toolkit returned at that candidate budget; it may contain more than k tools because a multi-goal composition can require multiple tools. Do not truncate the composed toolkit after selection. Preserve the empty-set/abstention state as a zero-coverage task result.
+
+The figures facet by benchmark × decomposition, and E9-F3/E9-F4 additionally facet by k. Never average decomposition conditions or candidate budgets together.
 
 The \`llm_analyst\` condition is not executable until a pinned model and accepted analyst outputs are available. Missing analyst outputs are recorded as blocked; do not substitute the clause splitter or an LLM output created after evaluator access.
 
@@ -127,66 +131,45 @@ The same selected reference is used for precision and recall. This avoids select
 
 Bootstrap intervals use the evaluator's \`independent_unit_id\` (task or a declared cluster). A group with fewer than two independent units receives no CI and is listed in the export manifest.
 
-## Baseline assignment reconciliation
+## E9 comparator set
 
-The frozen E9 experiment object lists exactly: `rag_mcp`, `mcp_zero`, `per_subtask`, `colt_adapted`, `toolscope_adapted`, `cmtf_adapted` and `all_tools`.
+The comparator mapping follows the explicit E9 comparison table in the original Experimental Protocol and the k-grid update in the 5 November TSC Full v1 protocol. The machine-readable E9 baseline catalogue now carries the same experiment-specific comparator IDs.
 
-The broader baseline catalogue marks `bm25` and `dense_lsa` as usable in E9, and the Core Protocol v2 baseline table mentions BM25/dense retrieval for E8/E9. They are **not** present in E9's frozen `baseline_ids` array. For this confirmatory E9 exporter, the experiment-specific assignment is authoritative: BM25 and Dense LSA are rejected as unregistered E9 primary methods until an explicit, versioned protocol amendment updates E9's baseline assignment and plotting plan. Do not add them to a run manifest as if they were preregistered.
+| Method | E9 role | Execution condition |
+|---|---|---|
+| Full PaMCP | Separate primary configuration | Full backward closure, accepted contracts, accepted E12 profile, policy and certificate path |
+| COLT | External comparator | Retrained/constructed from the MCPToolBench++ development split; query scenes are derived from server membership and mapped through an explicit tool crosswalk into the LiveMCPTool candidate pool |
+| MCP-Zero | External comparator | Official iterative LLM active-request loop and request protocol are required; the repository's single-pass adapter is not accepted as a substitute |
+| ToolScope | External comparator | Independent accepted equivalence oracle is required to report merge precision, recall and false-equivalence |
+| CMTF | External comparator | Uses the same accepted common typed contracts and frozen GoalSpecs as PaMCP |
+| PaMCP without backward closure | Internal ablation comparator | Same PaMCP pipeline and settings as Full PaMCP; change only backward-closure depth to zero |
 
-## Protocol comparator reconciliation — unresolved before confirmatory execution
+\`per_subtask\` is independent per-goal retrieval followed by union; it is not the PaMCP-NoBackwardClosure ablation. \`rag_mcp\` and \`all_tools\` may be useful supplementary controls elsewhere in the study, but are not E9 confirmatory comparators under the explicit E9 comparator table. They must not be inserted into E9's confirmatory baseline list without a versioned protocol amendment.
 
-The original \`Experimental_Protocol_PaMCP.docx\` lists E9 comparators as COLT (retrained on MCP dev), MCP-Zero, ToolScope, CMTF with common contracts, and PaMCP without/with backward closure. The repository's machine-readable \`pamcp_experiments_v1.json\` instead assigns \`rag_mcp\`, \`mcp_zero\`, \`per_subtask\`, \`colt_adapted\`, \`toolscope_adapted\`, \`cmtf_adapted\`, and \`all_tools\`, with \`Full_PaMCP\` separately declared as primary.
-
-These lists are not semantically identical:
-
-- \`per_subtask\` performs independent per-subgoal retrieval and union; it is **not** a PaMCP ablation that changes only backward closure.
-- \`rag_mcp\` should be retained as a clearly labelled simple retrieval control because it appears in the current manuscript, but it is not one of the five retained external baselines in the DOCX.
-- \`all_tools\` is an exposure/control condition, not an external baseline.
-- The current \`mcp_zero\` implementation is single-pass and does not reproduce the full iterative active-request protocol.
-- The current \`colt_adapted\` implementation requires genuine training query/tool scenes; server co-membership is not a substitute.
-- The current \`toolscope_adapted\` is a clean-room clustering adaptation, not the full merger + equivalence-check + correction + contextual reranking pipeline.
-- CMTF consumes typed contracts; its errors are dependent on E2 contract quality.
-- A true PaMCP-NoBackwardClosure configuration must preserve eligibility, cost-based set cover and the set-level checks while setting only the closure depth to zero. Do not alias \`per_subtask\` to this condition.
-
-The exporter deliberately validates the repository's current frozen method IDs for software consistency. That does **not** resolve this research-protocol mismatch. Before confirmatory E9, version and approve a single comparator map, then update the frozen experiment/baseline catalogs and manuscript consistently. Until then, report method adapters as software-ready/blocked with fidelity labels; do not call them faithful reproductions or claim E9 completed.
-
-## Registered methods and prerequisites
-
-E9's frozen baselines are \`rag_mcp\`, \`mcp_zero\`, \`per_subtask\`, \`colt_adapted\`, \`toolscope_adapted\`, \`cmtf_adapted\` and \`all_tools\`.
-
-- \`all_tools\`: expose the complete per-task visible candidate set.
-- \`rag_mcp\`: clean-room global prompt/goal-view retrieval adaptation; disclose its configuration.
-- \`mcp_zero\`: the current adapter is single-pass and does not reproduce the official active-request loop.
-- \`per_subtask\`: requires independently authored/frozen GoalSpecs; do not derive goals from evaluator labels.
-- \`colt_adapted\`: requires a declared training split and training-only query/tool scenes. Test/evaluator labels cannot create scenes.
-- \`toolscope_adapted\`: requires an independent tool-equivalence oracle for merge precision/recall/false-equivalence; preserve original tool identities.
-- \`cmtf_adapted\`: requires independently sourced typed precondition/effect contracts and frozen GoalSpecs.
-- \`Full_PaMCP\`: run as the separately declared primary configuration; do not alias it to one of the baseline adapters.
-
-Every method's exact adaptation, parameters, candidate visibility and run status must be in the manifest. A method that cannot run is recorded as blocked/not comparable, not replaced with a similarly named method.
+The current repository implementation maturity is disclosed in each run manifest. MCP-Zero remains blocked until the official active-request loop is implemented. COLT remains blocked unless the accepted MCPToolBench++ dev scene bundle and crosswalk validate. ToolScope remains blocked until its independent equivalence oracle is accepted. CMTF is executable only with the accepted common typed-contract bundle. None may be silently replaced by a similarly named method.
 
 ## Executable E9 runner and accepted inputs
 
-The campaign runner is **experiments/e9_retrieval_campaign.py**. It does not load evaluator/task_references.jsonl until the top-20 discovery rankings have been written and hashed. It refuses to start unless the E1, E2, E3 and E12 prerequisite artifacts are explicitly accepted and SHA-256 verified, and the comparator-map approval is in place.
+The campaign runner is \`experiments/e9_retrieval_campaign.py\`. It does not open evaluator/task references until the discovery rankings have been written and hashed. It refuses to start unless the E1, E2, E3 and E12 prerequisites are accepted, SHA-256 verified, and the comparator-map approval is in place.
 
 Required input package:
 
 | Input | Acceptance contract |
 |---|---|
-| Release gate | schema_version=1.0.0, status=accepted; E1/E2/E3/E12 each include status=accepted, artifact_path, SHA-256 and acceptance_id |
-| Comparator map | status=accepted; exact baseline IDs from the frozen E9 experiment, separate Full_PaMCP primary ID, protocol DOCX SHA-256 and approval record |
+| Release gate | schema_version=1.0.0, status=accepted; E1/E2/E3/E12 each have status=accepted, an artifact path, SHA-256 and acceptance ID |
+| Comparator map | status=accepted; baseline IDs exactly match the frozen E9 experiment; separate Full_PaMCP primary ID; protocol document SHA-256 and approval record |
 | GoalSpecs | 94 tasks × 3 decomposition conditions = 282 frozen JSONL records; prompt hash, explicit no-evaluator-access flag and transformation provenance |
-| Contract bundle | status=accepted; all 525 candidate tools hash-bound to their definition; no evaluator labels used; accepted E2 and E3 source-artifact hashes |
+| Contract bundle | status=accepted; all 525 candidate tools are hash-bound to their definitions; no evaluator labels used; accepted E2 and E3 source-artifact hashes |
 | Model profile | accepted E12 bundle with model ID/revision and measured ModelProfile class curves |
 | Policy bundle | accepted and versioned E9 policy artifact |
-| Composer config | accepted E9 ComposerConfig with K=20 and frozen refinement depth |
+| Composer config | approved E9 ComposerConfig with base K=20 and positive backward-closure depth; frozen refinement depth |
 | Encoder bundle | accepted local SentenceTransformers snapshot, model ID/revision, package version and per-file SHA-256 list |
-| COLT scenes | training-only JSONL; task IDs must not overlap the 94 E9 evaluation tasks |
-| ToolScope oracle | independent, accepted positive/negative tool-equivalence pairs; not derived from E9 reference labels |
+| COLT scene bundle | accepted MCPToolBench++ development split; query-to-server memberships; server-derived scenes; source-tool-to-LiveMCPTool crosswalk and SHA-256 |
+| ToolScope oracle | independent accepted positive/negative tool-equivalence pairs, not derived from E9 evaluator references |
 
-The runner uses a local-only SentenceTransformers model snapshot; it sets offline flags and does not silently download or substitute an encoder. It does not synthesize GoalSpecs, contracts, effects, model profiles, training scenes or equivalence labels. Method/adapter fidelity is preserved in the run manifest.
+The runner uses a local-only SentenceTransformers model snapshot; it sets offline flags and does not silently download or substitute an encoder. It does not synthesize GoalSpecs, contracts, effects, model profiles, training scenes or equivalence labels.
 
-Launch command (after all input artifacts have been accepted):
+Launch command after all mandatory input artifacts have been accepted:
 
     pip install -e ".[retrieval,experiment]"
 
@@ -200,43 +183,44 @@ Launch command (after all input artifacts have been accepted):
       --policy-bundle artifacts/e9/policy.json \
       --composer-config artifacts/e9/composer_config.json \
       --encoder-bundle artifacts/e9/encoder_bundle.json \
-      --training-scenes artifacts/e9/colt_training_scenes.jsonl \
+      --training-scenes artifacts/e9/colt_dev_server_scenes.json \
       --equivalence-oracle artifacts/e9/tool_equivalence_oracle.json \
       --output-dir results/definitive/E9/e9-livemcpbench-run-001 \
       --run-id e9-livemcpbench-run-001 \
       --device cuda
 
-The training-scenes and equivalence-oracle arguments may be omitted only when COLT and ToolScope are explicitly recorded as blocked; the resulting run is partial, not complete. MCP-Zero is recorded as the repository's single-pass adaptation, not as a faithful reproduction of the official active-request loop.
+The COLT scene bundle and ToolScope equivalence oracle may be omitted only when those methods are explicitly recorded as blocked; the resulting E9 run remains partial. MCP-Zero is also marked blocked until its official iterative active-request loop is implemented.
 
-For every task × method × decomposition condition, the runner emits one ordered top-20 ranking. The exporter derives k=5,10,20 from that frozen ranking. It does not treat the three cutoffs as independent task observations. Full PaMCP is run once per task/decomposition with its frozen K=20 composition budget and certificate; its selected toolkit is recorded as the method output. A PaMCP abstention is retained as an empty prediction, not deleted from the denominator.
+For every task × method × decomposition × k condition, the runner emits one prediction row. Full PaMCP and PaMCP-NoBackwardClosure each run with the same accepted configuration; the ablation changes only backward-closure depth from its accepted positive value to zero. The other candidate-budget values are applied independently to each run. A selected PaMCP toolkit is recorded as returned; it is not truncated to k after composition.
 
-The runner output is results/definitive/E9/<run-id>/MANIFEST.json, discovery/rankings.jsonl and the copied evaluator references. The manifest remains partial whenever a registered method is blocked or incomplete.
+The runner's output is \`results/definitive/E9/<run-id>/MANIFEST.json\`, \`discovery/rankings.jsonl\` and the copied evaluator references. The manifest remains \`partial\` whenever any registered comparator is blocked or incomplete.
 
 ## Export and render
 
-After the run has materialized discovery rankings and evaluator references:
+After a definitive or partial E9 run has materialized discovery predictions and evaluator references:
 
-\`\`\`bash
-python experiments/export_e9_figures.py \\
-  --run-dir results/definitive/E9/<run-id> \\
-  --output-dir results/visualization/data \\
-  --bootstrap-resamples 5000 \\
-  --seed 20261107
+    python experiments/export_e9_figures.py \
+      --run-dir results/definitive/E9/<run-id> \
+      --output-dir results/visualization/data \
+      --bootstrap-resamples 10000 \
+      --sign-flip-resamples 100000 \
+      --seed 20261108
 
-python experiments/plot_results.py validate-data --experiment E9
-python experiments/plot_results.py render --experiment E9
-\`\`\`
+    python experiments/plot_results.py validate-data --experiment E9
+    python experiments/plot_results.py render --experiment E9
 
 Outputs:
 
-- \`E9_per_task_metrics.csv\` — task-level metrics retained for paired analyses.
-- \`E9-F1.csv\` — group recall@k with bootstrap CIs, benchmark-faceted.
-- \`E9-F2.csv\` — set precision vs group recall Pareto points; point labels identify methods and bubble size is complete-set share.
-- \`E9-F3.csv\` — complete-set share by task group and method, benchmark-faceted.
-- \`E9_TRACE_DIAGNOSTICS.csv\` — positive-trace coverage only; never included in primary figures.
-- \`E9_EXPORT_MANIFEST.json\` — source hashes, run status, reference semantics, excluded rows, CIs and figure availability.
+- \`E9_per_task_metrics.csv\` — task-level Group Recall@k, set precision, complete-set indicator, coverage and predicted/reference set sizes.
+- \`E9-F1.csv\` — Group Recall@k with 95% paired-task/cluster bootstrap CIs.
+- \`E9-F2.csv\` — set precision versus Group Recall@k; bubble size represents complete-set share.
+- \`E9-F3.csv\` — complete-set share by task group, method, decomposition and k.
+- \`E9-F4.csv\` — task-level retrieved-toolkit size distribution by method, decomposition and k.
+- \`E9_PAIRED_TESTS.csv\` — Full PaMCP versus each registered E9 comparator on matched task IDs; paired mean difference, 95% bootstrap interval, paired sign-flip p-value and Holm adjustment across available tests.
+- \`E9_TRACE_DIAGNOSTICS.csv\` — trace-only coverage; never merged into primary set-quality metrics.
+- \`E9_EXPORT_MANIFEST.json\` — source hashes, run status, reference semantics, exclusions, confidence intervals, paired-test family and figure availability.
 
-A partial E9 run can render partial figures. A rendered figure does not change the experiment status. Do not claim E9 complete while any preregistered source, baseline or reference-oracle gate remains blocked.
+A partial E9 run can render partial figures. Missing methods are recorded as blocked; no missing scores are imputed. A rendered figure or passing unit test does not change the experiment status.
 
 ## Current readiness boundary
 
