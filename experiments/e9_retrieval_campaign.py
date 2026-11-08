@@ -441,7 +441,25 @@ def contract_from_json(row: dict[str, Any]) -> CapabilityContract:
     )
 
 
-def load_contracts(path: Path, tools: list[dict[str, Any]]) -> tuple[list[CapabilityContract], dict]:
+def validate_source_artifact_link(
+    source_record: dict[str, Any] | None,
+    expected_proof: dict[str, Any],
+    label: str,
+) -> None:
+    """Bind a downstream accepted bundle to the exact accepted upstream artifact."""
+    if not isinstance(source_record, dict) or source_record.get("status") != "accepted":
+        raise ValueError(f"{label} source artifact must be explicitly accepted")
+    if source_record.get("sha256") != expected_proof.get("sha256"):
+        raise ValueError(f"{label} source artifact SHA-256 does not match the E9 release gate")
+    if source_record.get("acceptance_id") != expected_proof.get("acceptance_id"):
+        raise ValueError(f"{label} source acceptance ID does not match the E9 release gate")
+
+
+def load_contracts(
+    path: Path,
+    tools: list[dict[str, Any]],
+    prerequisite_proofs: dict[str, dict[str, Any]],
+) -> tuple[list[CapabilityContract], dict]:
     bundle = read_json(path)
     if bundle.get("schema_version") != "1.0.0" or bundle.get("status") != "accepted":
         raise ValueError("Contract bundle must have schema_version=1.0.0 and status=accepted")
@@ -452,9 +470,12 @@ def load_contracts(path: Path, tools: list[dict[str, Any]]) -> tuple[list[Capabi
         raise ValueError("Contract bundle contains no contracts")
     sources = bundle.get("source_artifacts") or {}
     for experiment in ("E2", "E3"):
-        source = sources.get(experiment) or {}
-        if source.get("status") != "accepted" or not source.get("sha256"):
-            raise ValueError(f"Contract bundle must cite accepted, hash-bound {experiment} inputs")
+        expected_proof = prerequisite_proofs.get(experiment) or {}
+        if not expected_proof:
+            raise ValueError(f"Missing accepted {experiment} proof from the E9 release gate")
+        validate_source_artifact_link(
+            sources.get(experiment), expected_proof, f"Contract bundle {experiment}"
+        )
     tool_by_id = {str(row["tool_id"]): row for row in tools}
     contracts: list[CapabilityContract] = []
     seen: set[str] = set()
@@ -555,12 +576,19 @@ def load_policy(path: Path) -> tuple[Policy, str]:
     return policy, sha256_file(path)
 
 
-def load_accepted_profile(path: Path) -> tuple[ModelProfile, dict]:
+def load_accepted_profile(
+    path: Path, e12_prerequisite_proof: dict[str, Any]
+) -> tuple[ModelProfile, dict]:
     bundle = read_json(path)
     if bundle.get("schema_version") != "1.0.0" or bundle.get("status") != "accepted":
         raise ValueError("E12 profile bundle must be accepted and schema_version=1.0.0")
     if bundle.get("calibration_experiment") != "E12":
         raise ValueError("Profile bundle must originate from accepted E12")
+    validate_source_artifact_link(
+        bundle.get("calibration_source_artifact"),
+        e12_prerequisite_proof,
+        "E12 model profile",
+    )
     profile_data = bundle.get("model_profile")
     if not isinstance(profile_data, dict):
         raise ValueError("E12 profile bundle does not contain model_profile")
@@ -915,13 +943,17 @@ def run_campaign(args: argparse.Namespace) -> dict:
     gate_info = validate_release_gate(args.release_gate, args.comparator_map)
     tools, tasks, visibility, prep_manifest = load_discovery_package(prepared_dir)
     dataset_info = validate_e9_dataset_snapshot(tools, tasks, prep_manifest)
-    contracts, contract_info = load_contracts(args.contract_bundle, tools)
+    contracts, contract_info = load_contracts(
+        args.contract_bundle, tools, gate_info["prerequisite_proofs"]
+    )
     if contract_info["coverage"] < 1.0:
         raise ValueError(
             "Full_PaMCP confirmatory comparison requires accepted hash-bound contracts "
             f"for every candidate tool; current coverage={contract_info['coverage']:.3f}"
         )
-    profile, profile_info = load_accepted_profile(args.model_profile)
+    profile, profile_info = load_accepted_profile(
+        args.model_profile, gate_info["prerequisite_proofs"]["E12"]
+    )
     policy, policy_sha = load_policy(args.policy_bundle)
     composer_config, refine_k, composer_info = load_composer_config(args.composer_config)
     encoder, encoder_info = load_encoder(args.encoder_bundle, args.device)
