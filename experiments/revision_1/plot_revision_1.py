@@ -79,7 +79,7 @@ def figure_label_overlap() -> str:
         transform=ax.transAxes, ha="right", va="top", fontsize=7,
         bbox={"boxstyle": "round,pad=0.3", "facecolor": "white", "edgecolor": "0.8"},
     )
-    base_plots.grid(ax, "x")
+    base_plots.P.grid(ax, "x")
     save_figure(fig, "revision1_label_overlap")
     return (
         "Machine-label audit only, not human ground truth. If B-unsafe is a subset of A-unsafe, "
@@ -107,7 +107,7 @@ def figure_sanitiser() -> str:
     ax.set_title("Revision 1 — manifest field canary audit")
     ax.legend(fontsize=7)
     ax.set_ylim(bottom=0)
-    base_plots.grid(ax, "y")
+    base_plots.P.grid(ax, "y")
     save_figure(fig, "revision1_manifest_canaries")
     return (
         "Transformation-level canary test, not an agent or runtime attack experiment. "
@@ -148,7 +148,7 @@ def figure_e14_scope_aware() -> str:
     ax.set_xlabel("Share of tasks")
     ax.set_title("E14 Revision 1 — scope-aware offline reachability")
     ax.legend(fontsize=6.5, loc="lower right")
-    base_plots.grid(ax, "x")
+    base_plots.P.grid(ax, "x")
     fig.text(
         0.01, 0.01,
         "Attacks are nested within task. Labels B are LLM-generated; no action was executed. "

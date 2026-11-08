@@ -1,5 +1,5 @@
 name: PaMCP Revision 1 — tests, re-analysis and figures
-# Re-runs the full repository suite plus Revision 1 scope tests; includes corrected plot namespace aliases.
+# Re-runs tests, offline analyses and all figure outputs; uses shared style namespace P.grid.
 
 on:
   push:
