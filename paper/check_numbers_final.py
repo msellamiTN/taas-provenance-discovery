@@ -23,6 +23,10 @@ def walk(x):
         return
     if isinstance(x, (int, float)):
         vals.add(float(x))
+        if 1.0 < x < 2.0:          # cost ratios printed as a relative excess (1.157 -> 15.7%)
+            vals.add(float(x) - 1.0)
+        if x > 1.0:                # milliseconds printed in seconds
+            vals.add(float(x) / 1000.0)
     elif isinstance(x, dict):
         for k, v in x.items():
             if k == "manifest":
