@@ -7,7 +7,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from experiments.export_e9_figures import export_e9_figures
+from experiments.export_e9_figures import _paired_inference, export_e9_figures
 from taas.experiments.plotting import iter_figures, load_plot_plan, render_figure, validate_figure_data
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -145,8 +145,9 @@ def test_e9_export_uses_only_acceptable_set_references_and_renders(tmp_path):
     assert len(paired) == 75  # 5 comparators × 3 decomposition conditions × 5 k values.
     assert set(paired["metric"]) == {"group_recall"}
     assert set(paired["status"]) == {"tested"}
-    assert set(paired["test_method"]) == {"exact_paired_sign_flip"}
+    assert set(paired["test_method"]) == {"exact_cluster_paired_sign_flip"}
     assert paired["holm_adjusted_p"].between(0, 1).all()
+    assert set(paired["n_independent_units"]) == {3}
 
     for figure_id, frame in [("E9-F1", f1), ("E9-F2", f2), ("E9-F3", f3), ("E9-F4", f4)]:
         figure = _figure(figure_id)
@@ -198,3 +199,35 @@ def test_e9_does_not_promote_trace_only_data_to_primary_metrics(tmp_path):
     assert not (output / "E9-F2.csv").exists()
     assert not (output / "E9-F3.csv").exists()
     # Trace-only tasks remain diagnostics, not primary set-quality observations.
+
+
+def test_paired_inference_resamples_and_sign_flips_by_independent_cluster():
+    observations = [
+        (0.5, "cluster-a"),
+        (0.7, "cluster-a"),
+        (-0.2, "cluster-b"),
+    ]
+    result = _paired_inference(
+        observations,
+        seed=7,
+        bootstrap_resamples=200,
+        sign_flip_resamples=200,
+    )
+    assert result["status"] == "tested"
+    assert result["n"] == 3
+    assert result["n_independent_units"] == 2
+    assert result["test_method"] == "exact_cluster_paired_sign_flip"
+    assert result["sign_flip_resamples"] == 4
+    assert result["mean_paired_difference"] == pytest.approx(1.0 / 3.0)
+
+
+def test_paired_inference_does_not_claim_independence_with_one_cluster():
+    result = _paired_inference(
+        [(0.1, "same-cluster"), (0.3, "same-cluster")],
+        seed=7,
+        bootstrap_resamples=200,
+        sign_flip_resamples=200,
+    )
+    assert result["status"] == "insufficient_independent_units"
+    assert result["n"] == 2
+    assert result["n_independent_units"] == 1
