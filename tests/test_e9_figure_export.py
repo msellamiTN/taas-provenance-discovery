@@ -38,7 +38,7 @@ def _build_run(root: Path) -> Path:
                         if baseline in {"Full_PaMCP", "pamcp_no_backward_closure"}
                         else "top_k_retrieved_tools"
                     )
-                    prediction = ranked[:min(k, len(ranked))]
+                    prediction = ranked if prediction_kind == "selected_toolkit" else ranked[:min(k, len(ranked))]
                     ranking_rows.append({
                         "task_id": task_id,
                         "benchmark": "live_mcpbench_test",
@@ -140,7 +140,13 @@ def test_e9_export_uses_only_acceptable_set_references_and_renders(tmp_path):
     assert (f4.groupby(["group", "k"]).size() > 0).all()
     full_pa = f4[(f4["group"] == "Full_PaMCP") & (f4["k"] == 1)]
     assert len(full_pa) == 3 * 3  # 3 evaluable tasks × 3 decomposition conditions
-    # A selected toolkit can be larger than the candidate budget; do not truncate it.
+    assert set(full_pa["value"]) == {3}  # Full PaMCP selected sets are not sliced to k.
+    paired = pd.read_csv(output / "E9_PAIRED_TESTS.csv")
+    assert len(paired) == 75  # 5 comparators × 3 decomposition conditions × 5 k values.
+    assert set(paired["metric"]) == {"group_recall"}
+    assert set(paired["status"]) == {"tested"}
+    assert set(paired["test_method"]) == {"exact_paired_sign_flip"}
+    assert paired["holm_adjusted_p"].between(0, 1).all()
 
     for figure_id, frame in [("E9-F1", f1), ("E9-F2", f2), ("E9-F3", f3), ("E9-F4", f4)]:
         figure = _figure(figure_id)
