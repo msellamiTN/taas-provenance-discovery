@@ -282,7 +282,9 @@ def main() -> None:
                "Ranking stability across 200 half splits: " + "; ".join(
                    f"{k}: Kendall τ {num(v['kendall_tau_mean'])} (5th pct {num(v['kendall_tau_p5'])}), same best method "
                    f"{pct(v['same_best_share'])}" for k, v in r["split_stability"].items()), ""]
-    (fe.ROOT / "docs" / "FINAL_EVALUATION_TABLES.md").write_text("\n".join(md) + "\n")
+    # reference run -> docs/; a reproduction run (PAMCP_RESULTS_DIR) keeps its tables next to its results
+    out = fe.ROOT / "docs" / "FINAL_EVALUATION_TABLES.md" if fe.RES == fe.REFERENCE else fe.RES / "TABLES.md"
+    out.write_text("\n".join(md) + "\n")
     print("written", len(md), "lines")
 
 

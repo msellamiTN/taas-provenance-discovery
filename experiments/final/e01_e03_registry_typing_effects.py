@@ -1,7 +1,8 @@
 """E1 registry characterisation (three source views), E2 typing agreement (proxy: no human annotators),
 E3 declared/lexical effects against the reference labels (observed effects BLOCKED: no runnable servers).
 
-Run: python experiments/final/e01_e03_registry_typing_effects.py <path to raw dir with mcptoolbenchpp/*.json>
+Run: python experiments/final/e01_e03_registry_typing_effects.py [raw dir with mcptoolbenchpp/*.json; default data/raw]
+(the six MCPToolBench++ request files are fetched by experiments/final/run_all.py --only data)
 """
 from __future__ import annotations
 
@@ -205,4 +206,4 @@ def main(raw_dir: str) -> None:
 
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    main(sys.argv[1] if len(sys.argv) > 1 else str(fe.ROOT / "data" / "raw"))

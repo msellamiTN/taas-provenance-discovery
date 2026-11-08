@@ -15,6 +15,7 @@ import copy
 import hashlib
 import json
 import math
+import os
 import random
 import subprocess
 import sys
@@ -36,8 +37,20 @@ from taas.provenance import EvidenceStore  # noqa: E402
 from taas.realreg import Truth, build_contracts, raw_registry, truth  # noqa: E402
 from taas.simulation import Verifier  # noqa: E402
 
-RES = ROOT / "results" / "final"
+REFERENCE = ROOT / "results" / "final"          # results reported in the paper (committed)
+# PAMCP_RESULTS_DIR redirects every output (reproduction runs must not overwrite the reference results)
+RES = Path(os.environ.get("PAMCP_RESULTS_DIR", str(REFERENCE)))
+if not RES.is_absolute():
+    RES = ROOT / RES
 RES.mkdir(parents=True, exist_ok=True)
+
+
+def rel(p: Path) -> str:
+    """Path relative to the repository when possible (manifests stay portable)."""
+    try:
+        return str(Path(p).resolve().relative_to(ROOT))
+    except ValueError:
+        return str(p)
 REC = ROOT / "data" / "llm_records"
 INP = ROOT / "data" / "llm_inputs"
 
@@ -87,13 +100,23 @@ def save_raw(name: str, rows: list) -> dict:
     with gzip.open(p, "wt") as f:
         for r in rows:
             f.write(json.dumps(r, default=_default) + "\n")
-    return {"path": str(p.relative_to(ROOT)), "sha256": sha256(p), "rows": len(rows)}
+    return {"path": rel(p), "sha256": sha256(p), "rows": len(rows)}
 
 
 def load_raw(name: str) -> list:
     import gzip
     with gzip.open(RES / "raw" / f"{name}.jsonl.gz", "rt") as f:
         return [json.loads(x) for x in f if x.strip()]
+
+
+def packages() -> dict:
+    out = {}
+    for m in ("numpy", "scipy", "sklearn", "matplotlib"):
+        try:
+            out[m] = __import__(m).__version__
+        except Exception:  # pragma: no cover
+            out[m] = "missing"
+    return out
 
 
 def save(name: str, obj: dict, evidence: str | dict, inputs: Sequence[str] = (), notes: str = "",
@@ -103,7 +126,7 @@ def save(name: str, obj: dict, evidence: str | dict, inputs: Sequence[str] = (),
     cs = code_state()
     out = {"experiment": name, "evidence": evidence, "notes": notes,
            "manifest": {"run_id": f"{name}-{created}-{cs['code_sha256'][:10]}", "created": created,
-                        **cs, "python": sys.version.split()[0], "config": config or {},
+                        **cs, "python": sys.version.split()[0], "packages": packages(), "config": config or {},
                         "inputs": {str(f.relative_to(ROOT)): sha256(f) for f in files if f.exists()},
                         "labels": {f: sha256(ROOT / f) for f in LABEL_FILES if (ROOT / f).exists()},
                         "llm_records": {str(f.relative_to(ROOT)): sha256(f) for f in sorted(REC.glob("*"))

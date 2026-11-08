@@ -56,6 +56,7 @@ def pctl(xs, q):
 
 
 RAW15: list[dict] = []
+E15_SIZES = (569, 1000, 10000, 100000)
 NODE_BUDGET = 20_000    # the engine's default branch-and-bound node budget (as in E9-E20); when exhausted the
                         # composer falls back to the greedy regime and reports regime 'greedy(after-budget)'
 
@@ -66,7 +67,7 @@ def e15() -> dict:
     A = fe.labels_A()
     tasks = [t for t in fe.tasks_live() if t["gold"]][:30]
     res = {}
-    for n in (569, 1000, 10000, 100000):
+    for n in E15_SIZES:
         raw, orig = clones(n)
         J = {t.id: A[orig[t.id]] for t in raw}
         t0 = time.perf_counter()
@@ -120,6 +121,8 @@ def e15() -> dict:
                        **{f"{k}_p95_ms": 1000 * pctl(v, 95) for k, v in st.items()}, **base}
         print("E15", n, {k: round(v, 2) for k, v in res[str(n)].items()})
         del eng, cs, store
+    if max(E15_SIZES) < 100000:      # reduced run (--e15-max-n): skip the 10^6 bitmap test as well
+        return res
     # bitmap eligibility only at 10^6 (as in Section 8.7)
     idx = BitmapIndex()
     rng = random.Random(0)
@@ -276,27 +279,28 @@ def e16() -> dict:
 
 
 def main() -> None:
-    if "--e15-only" in sys.argv:
-        gap = optimality_gap()
-        r15 = e15()
-        fe.save("E15_scalability", {"results": r15, "optimality_gap": gap},
-                "SYNTHETIC (clones; generated cover instances); MEASURED latencies on 2 vCPUs",
-                config={"n": [569, 1000, 10000, 100000], "tasks": 30, "eligibility_only_n": 1000000,
-                        "gap_goals": [1, 3, 5, 8, 12], "gap_seeds": 10, "node_budget": NODE_BUDGET},
-                raw=fe.save_raw("E15_scalability", RAW15 + [{"optimality": x} for x in RAW_GAP]))
-        return
-    r16 = e16()
-    ev = r16.pop("event_log")
-    fe.save("E16_evolution", {"results": r16}, "MEASURED (real registry, simulated evidence for the rug-pull check)",
-            config={"events": "remove + re-insert each server", "rug_pulls": 20, "cached_tasks": 40},
-            raw=fe.save_raw("E16_evolution", ev))
-    print("E16", {k: v for k, v in r16.items() if k != "rug_details"})
+    """Default: E16, then E15. Flags: --e16-only, --e15-only, --e15-max-n N (largest cloned registry; the
+    paper's run uses 100000, whose engine build takes about 35 minutes and 3 GB on two vCPUs)."""
+    global E15_SIZES
+    if "--e15-max-n" in sys.argv:
+        cap = int(sys.argv[sys.argv.index("--e15-max-n") + 1])
+        E15_SIZES = tuple(n for n in E15_SIZES if n <= cap)
+    if "--e15-only" not in sys.argv:
+        r16 = e16()
+        ev = r16.pop("event_log")
+        fe.save("E16_evolution", {"results": r16}, "MEASURED (real registry, simulated evidence for the rug-pull check)",
+                config={"events": "remove + re-insert each server", "rug_pulls": 20, "cached_tasks": 40},
+                raw=fe.save_raw("E16_evolution", ev))
+        print("E16", {k: v for k, v in r16.items() if k != "rug_details"})
+        if "--e16-only" in sys.argv:
+            return
     gap = optimality_gap()
     r15 = e15()
     fe.save("E15_scalability", {"results": r15, "optimality_gap": gap},
             "SYNTHETIC (clones; generated cover instances); MEASURED latencies on 2 vCPUs",
-            config={"n": [569, 1000, 10000, 100000], "tasks": 30, "eligibility_only_n": 1000000,
-                    "gap_goals": [1, 3, 5, 8, 12], "gap_seeds": 10},
+            config={"n": list(E15_SIZES), "tasks": 30,
+                    "eligibility_only_n": 1000000 if E15_SIZES and max(E15_SIZES) >= 100000 else None,
+                    "gap_goals": [1, 3, 5, 8, 12], "gap_seeds": 10, "node_budget": NODE_BUDGET},
             raw=fe.save_raw("E15_scalability", RAW15 + [{"optimality": x} for x in RAW_GAP]))
 
 

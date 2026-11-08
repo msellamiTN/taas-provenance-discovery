@@ -2,12 +2,15 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-RES = ROOT / "results" / "final"
-OUT = ROOT / "paper" / "tables_final"
-OUT.mkdir(exist_ok=True)
+# PAMCP_RESULTS_DIR: read a reproduction run instead of the reference results and write its tables next to it
+RES = Path(os.environ.get("PAMCP_RESULTS_DIR", str(ROOT / "results" / "final")))
+RES = RES if RES.is_absolute() else ROOT / RES
+OUT = ROOT / "paper" / "tables_final" if RES == ROOT / "results" / "final" else RES / "paper_tables"
+OUT.mkdir(parents=True, exist_ok=True)
 
 
 def L(n):
