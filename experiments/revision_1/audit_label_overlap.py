@@ -7,7 +7,8 @@ from pathlib import Path
 import sys
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "experiments"))
+sys.path.insert(0, str(ROOT / "experiments" / "final"))
+sys.path.insert(1, str(ROOT / "experiments"))
 import fe  # noqa: E402
 
 
