@@ -10,7 +10,7 @@ NOTEBOOK = ROOT / "notebooks" / "colab" / "taas_core_studio_colab.ipynb"
 GUIDE = ROOT / "docs" / "deployment" / "COLAB_T4_QUICKSTART.md"
 RUNTIME_GUIDE = ROOT / "docs" / "deployment" / "MODEL_RUNTIME_BACKENDS.md"
 WORKFLOW = ROOT / ".github" / "workflows" / "benchmark-hypergraph.yml"
-INTEGRATED_STUDIO_COMMIT = "387bc39006a81e685d9a55862877bbeec231e8d6"
+INTEGRATED_STUDIO_COMMIT = "20da92cbfcde6a00319c4dcce4c3d33d24fb613c"
 
 
 def notebook_source() -> tuple[dict, str, str]:
