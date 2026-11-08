@@ -539,6 +539,22 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 @media(max-width:1050px){.ux9-workspace{grid-template-columns:minmax(180px,.8fr) minmax(0,1.4fr)}.ux9-workspace>.ux9-inspector{grid-column:1/-1}}
 @media(max-width:680px){.ux9-workspace{grid-template-columns:1fr}.ux9-workspace>.ux9-inspector{grid-column:auto}.ux9-canvas{min-height:260px}}
 
+  .ux24-section .ux24-toolbar{display:grid;grid-template-columns:minmax(180px,1fr) minmax(180px,1fr) auto;gap:12px;align-items:end;padding:14px;border:1px solid var(--line);border-radius:11px;background:var(--surface);margin:12px 0}
+  .ux24-section .ux24-toolbar select{width:100%;min-height:38px;border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--surface);color:var(--ink)}
+  .ux24-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0;border-bottom:1px solid var(--line);padding-bottom:8px}
+  .ux24-tabs [role=tab]{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:8px 11px;font-size:12px;font-weight:650;cursor:pointer}
+  .ux24-tabs [role=tab][aria-selected=true]{background:var(--ink);color:white;border-color:var(--ink)}
+  .ux24-panel{display:grid;gap:12px}
+  .ux24-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .ux24-card{min-width:0;border:1px solid var(--line);border-radius:11px;background:var(--surface);padding:15px}
+  .ux24-card h3{font-size:13px;margin:0 0 10px}
+  .ux24-state{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:4px 9px;font-size:10px;font-weight:800;letter-spacing:.04em}
+  .ux24-card pre,.ux24-panel pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:360px;overflow:auto;font-size:11px;line-height:1.5;background:var(--surface-secondary,#f7f9fc);border-radius:8px;padding:12px}
+  .ux24-rule{display:grid;grid-template-columns:minmax(150px,.8fr) 100px minmax(0,1.5fr);gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:12px}
+  .ux24-rule:last-child{border-bottom:0}
+  .ux24-empty{color:var(--muted);font-size:12px;padding:10px 0}
+  @media(max-width:850px){.ux24-section .ux24-toolbar{grid-template-columns:1fr 1fr}.ux24-section .ux24-toolbar .inline-actions{grid-column:1/-1}.ux24-grid{grid-template-columns:1fr}}
+  @media(max-width:560px){.ux24-section .ux24-toolbar{grid-template-columns:1fr}.ux24-rule{grid-template-columns:1fr;gap:3px}.ux24-tabs{display:grid;grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -566,6 +582,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <a href="#model-runtime-panel">Model runtime</a>
       <a href="#agent-goal-panel">Objective Engineering</a>
       <a href="#agent-engineering-workspace">Agent Engineering</a>
+      <a href="#agent-governance-trust-center">Agent Governance &amp; Trust Center (UX-24)</a>
       <a href="#agent-chat-panel">Model inference sandbox</a>
       <span class="nav-label">TOOLS &amp; DISCOVERY</span>
       <a href="#bench-tools">Tool registry</a>
@@ -673,6 +690,51 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     <div class="ux8-card"><div class="panel-head"><h3 style="margin:0">Source retrieval log</h3><span class="subtle">Browser-observed retrieval times · not source event timestamps</span></div><div id="ux11-source-log" class="subtle" aria-live="polite">No operational requests have been made from this workspace.</div></div>
     <p class="subtle" style="margin:12px 0 0">This workspace does not infer global service health from missing responses. “Reported” means the endpoint returned a response; “Request failed” means evidence could not be retrieved. Audit-chain integrity does not establish claim truth. No Agent, MCP tool, worker or workflow is executed here.</p>
   </section>
+  <section id="agent-governance-trust-center" class="section-anchor ux24-section" aria-labelledby="ux24-title" style="margin-bottom:18px">
+    <div class="panel-head"><div><div class="eyebrow">GOVERN · AGENT TRUST &amp; ASSURANCE · UX-24</div><h2 id="ux24-title" style="margin:4px 0">Agent Governance &amp; Trust Center</h2><p class="subtle" style="margin:4px 0 0">Inspect the authoritative governance posture of an immutable Agent version using TaaS Core evidence and policy decisions.</p></div><span class="pill">Core-backed · diagnostic only</span></div>
+    <div class="notice" role="note"><strong>Governance boundary.</strong> A policy verdict is diagnostic, not an authorization grant. Evidence integrity does not prove assessor-claim truth. This workspace does not approve, publish, authorize, invoke or execute Agents or tools.</div>
+    <div class="ux24-toolbar">
+      <div class="field"><label for="ux24-agent-select">Agent</label><select id="ux24-agent-select"><option value="">Load Agent versions first</option></select></div>
+      <div class="field"><label for="ux24-version-select">Immutable version</label><select id="ux24-version-select" disabled><option value="">Select an Agent</option></select></div>
+      <div class="inline-actions"><button id="ux24-refresh" type="button">Load Agent versions</button><button id="ux24-assess" type="button" class="secondary" disabled>Refresh assessment</button></div>
+    </div>
+    <div id="ux24-status" class="status subtle" role="status" aria-live="polite">Connect to TaaS Studio, then load Agent versions. No assessment has been requested.</div>
+    <div class="ux24-tabs" role="tablist" aria-label="Agent governance views">
+      <button type="button" role="tab" id="ux24-tab-overview" aria-controls="ux24-panel-overview" aria-selected="true" tabindex="0">Trust overview</button>
+      <button type="button" role="tab" id="ux24-tab-policy" aria-controls="ux24-panel-policy" aria-selected="false" tabindex="-1">Policy registry &amp; verdict</button>
+      <button type="button" role="tab" id="ux24-tab-consistency" aria-controls="ux24-panel-consistency" aria-selected="false" tabindex="-1">Consistency &amp; conflicts</button>
+      <button type="button" role="tab" id="ux24-tab-access" aria-controls="ux24-panel-access" aria-selected="false" tabindex="-1">Permissions &amp; access</button>
+      <button type="button" role="tab" id="ux24-tab-evidence" aria-controls="ux24-panel-evidence" aria-selected="false" tabindex="-1">Governance evidence</button>
+    </div>
+    <section id="ux24-panel-overview" class="ux24-panel" role="tabpanel" aria-labelledby="ux24-tab-overview">
+      <div class="ux24-grid">
+        <article class="ux24-card"><h3>Trust posture</h3><div id="ux24-trust-state" class="ux24-state">NOT_ASSESSED</div><p id="ux24-trust-summary" class="subtle">Select an immutable Agent version to inspect its Core assessment.</p></article>
+        <article class="ux24-card"><h3>Release readiness</h3><div id="ux24-release-state" class="ux24-state">NOT_ASSESSED</div><p id="ux24-release-summary" class="subtle">No readiness report loaded.</p></article>
+        <article class="ux24-card"><h3>Evidence integrity</h3><div id="ux24-evidence-state" class="ux24-state">NOT_ASSESSED</div><p id="ux24-evidence-summary" class="subtle">Evidence status is unknown until Core returns a verified summary.</p></article>
+      </div>
+      <div class="ux24-card"><h3>Immutable subject binding</h3><pre id="ux24-subject">No Agent version selected.</pre></div>
+    </section>
+    <section id="ux24-panel-policy" class="ux24-panel" role="tabpanel" aria-labelledby="ux24-tab-policy" hidden>
+      <div class="ux24-card"><h3>Policy verdict · Core rules</h3><p class="subtle">The rules shown below are those actually returned in the per-Agent policy verdict. This view does not create or edit policies.</p><div id="ux24-policy-rules">No policy verdict loaded.</div></div>
+      <div class="ux24-card"><h3>Raw policy verdict</h3><pre id="ux24-policy-raw">Not assessed.</pre></div>
+    </section>
+    <section id="ux24-panel-consistency" class="ux24-panel" role="tabpanel" aria-labelledby="ux24-tab-consistency" hidden>
+      <div class="ux24-card"><h3>Policy conflicts &amp; review findings</h3><div id="ux24-conflicts">No conflict assessment loaded.</div></div>
+      <div class="ux24-card"><h3>Unavailable facts</h3><pre id="ux24-unavailable">Not assessed.</pre></div>
+      <div class="ux24-card"><h3>Readiness checks</h3><pre id="ux24-readiness-checks">Not assessed.</pre></div>
+    </section>
+    <section id="ux24-panel-access" class="ux24-panel" role="tabpanel" aria-labelledby="ux24-tab-access" hidden>
+      <div class="ux24-card"><h3>Declared capabilities &amp; tool grants</h3><p class="subtle">Manifest declarations are not effective permissions. Authorization must be established separately by the trusted Core preflight.</p><pre id="ux24-access-manifest">No Agent manifest loaded.</pre></div>
+      <div class="ux24-card"><h3>Authorization boundary</h3><p id="ux24-access-boundary">No authorization preflight has been requested. No permissions are granted by this workspace.</p></div>
+    </section>
+    <section id="ux24-panel-evidence" class="ux24-panel" role="tabpanel" aria-labelledby="ux24-tab-evidence" hidden>
+      <div class="ux24-card"><h3>Human approval records</h3><div id="ux24-approvals">No approval records loaded.</div></div>
+      <div class="ux24-card"><h3>Agent lifecycle events</h3><pre id="ux24-agent-events">No lifecycle events loaded.</pre></div>
+      <div class="ux24-card"><h3>Audit-chain integrity</h3><div id="ux24-audit-state" class="ux24-state">NOT_ASSESSED</div><pre id="ux24-audit-detail">Audit chain has not been checked.</pre></div>
+    </section>
+    <p class="subtle">Missing or unavailable evidence remains UNKNOWN / NEEDS_REVIEW. This workspace is read-only: it does not create approvals, alter policies, revoke credentials, or perform authorization preflight.</p>
+  </section>
+
   <section id="runtime-overview" class="runtime-overview" aria-labelledby="runtime-overview-title">
     <div class="runtime-overview-head">
       <div><div class="eyebrow">Live runtime · Colab / host</div><h2 id="runtime-overview-title" style="margin:4px 0">Environment overview</h2><p class="muted" style="margin:0">Observed process and hardware diagnostics. A visible GPU is not proof that a model is loaded or inference works.</p></div>
@@ -4964,6 +5026,37 @@ el("ux15-refresh").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-
     el("ux23-demo-mode").addEventListener("click",demo);el("ux23-live-mode").addEventListener("click",live);
     el("ux23-history").addEventListener("click",async event=>{const tr=event.target.closest("tr");if(!tr)return;const id=tr.cells?.[0]?.textContent;if(!id||id==="No persisted discovery runs returned.")return;});
     demo();
+  })();
+
+  // UX-24: Agent Governance & Trust Center — read-only projections over existing Core APIs.
+  (() => {
+    const root=document.getElementById("agent-governance-trust-center");
+    if(!root)return;
+    const $24=id=>document.getElementById(id);
+    const put=(id,value)=>{const node=$24(id);if(node)node.textContent=value==null?"Not reported":String(value);};
+    const json=(id,value)=>put(id,value===undefined? "Not reported":JSON.stringify(value,null,2));
+    const showList=(id,items,empty)=>{const host=$24(id);host.replaceChildren();if(!Array.isArray(items)||!items.length){const p=document.createElement("p");p.className="ux24-empty";p.textContent=empty;host.append(p);return;}items.forEach(item=>{const row=document.createElement("div");row.className="ux24-rule";[item.rule_id||item.kind||item.evidence_id||item.event_type||"Record",item.outcome||item.decision||item.evidence_type||item.severity||"—",item.description||item.detail||item.assessor||item.created_at||"No additional detail reported"].forEach(value=>{const span=document.createElement("span");span.textContent=String(value??"—");row.append(span);});host.append(row);});};
+    let versions=[],selected=null;
+    const agentSelect=$24("ux24-agent-select"),versionSelect=$24("ux24-version-select");
+    const status=(message,error=false)=>{const node=$24("ux24-status");node.textContent=message;node.classList.toggle("error",error);};
+    const activate=(tab,focus=false)=>{root.querySelectorAll('[role="tab"]').forEach(item=>{const active=item===tab;item.setAttribute("aria-selected",String(active));item.tabIndex=active?0:-1;});root.querySelectorAll('[role="tabpanel"]').forEach(panel=>panel.hidden=panel.id!==tab.getAttribute("aria-controls"));if(focus)tab.focus();};
+    const tabs=[...root.querySelectorAll('[role="tab"]')];
+    tabs.forEach((tab,index)=>{tab.addEventListener("click",()=>activate(tab));tab.addEventListener("keydown",event=>{let next=index;if(event.key==="ArrowRight")next=(index+1)%tabs.length;else if(event.key==="ArrowLeft")next=(index+tabs.length-1)%tabs.length;else if(event.key==="Home")next=0;else if(event.key==="End")next=tabs.length-1;else return;event.preventDefault();activate(tabs[next],true);});});
+    const versionsForAgent=()=>versions.filter(item=>item.agent_id===agentSelect.value);
+    const refreshVersions=async()=>{const button=$24("ux24-refresh");button.disabled=true;status("Loading Agent versions from TaaS Core…");try{const data=await apiGet("/api/v1/agents?limit=500");versions=Array.isArray(data.versions)?data.versions:[];const agents=[...new Set(versions.map(item=>item.agent_id))].sort();agentSelect.replaceChildren();const first=document.createElement("option");first.value="";first.textContent=agents.length?"Select an Agent":"No Agent versions returned";agentSelect.append(first);agents.forEach(id=>{const option=document.createElement("option");option.value=id;option.textContent=id;agentSelect.append(option);});versionSelect.replaceChildren();const versionFirst=document.createElement("option");versionFirst.value="";versionFirst.textContent="Select an Agent";versionSelect.append(versionFirst);versionSelect.disabled=true;$24("ux24-assess").disabled=true;selected=null;status(versions.length+" Agent version record(s) returned by Core. Select an Agent and version.");}catch(error){status("Unable to load Agent versions: "+error.message,true);}finally{button.disabled=false;}};
+    const renderReadiness=(data)=>{const decision=data?.decision||"NOT_REPORTED";put("ux24-release-state",decision);put("ux24-release-summary",(data?.blockers?.length||0)+" blocker(s) · "+(data?.warnings?.length||0)+" warning(s) reported.");json("ux24-readiness-checks",{checks:data?.checks,blockers:data?.blockers,warnings:data?.warnings});};
+    const renderVerdict=(data)=>{put("ux24-trust-state",String(data?.decision||"UNKNOWN").toUpperCase());put("ux24-trust-summary",(data?.fired_rules?.length||0)+" rule result(s) · "+(data?.facts_unavailable?.length||0)+" unavailable fact source(s).");json("ux24-policy-raw",data);showList("ux24-policy-rules",data?.fired_rules,"No policy rules were returned.");showList("ux24-conflicts",data?.conflicts,"No conflicts were reported by the policy engine.");json("ux24-unavailable",data?.facts_unavailable||[]);};
+    const assess=async()=>{if(!selected)return;const button=$24("ux24-assess");button.disabled=true;status("Requesting exact-version governance assessment from TaaS Core…");const base="/api/v1/agents/"+encodeURIComponent(selected.agent_id)+"/versions/"+encodeURIComponent(selected.version);const requests=await Promise.allSettled([apiGet(base),apiGet(base+"/release-readiness"),apiGet(base+"/policy-verdict"),apiGet(base+"/approvals"),apiGet("/api/v1/agents/events?agent_id="+encodeURIComponent(selected.agent_id)+"&limit=100"),apiGet("/api/v1/audit/verify")]);const [agent,readiness,verdict,approvals,events,audit]=requests;const failures=[];if(agent.status==="fulfilled"){const a=agent.value;json("ux24-subject",{agent_id:a.agent_id,version:a.version,manifest_sha256:a.manifest_sha256,registry_snapshot_id:a.registry_snapshot_id,lifecycle_state:a.lifecycle_state,created_at:a.created_at,updated_at:a.updated_at});const manifest=a.manifest||{};const spec=manifest.spec||{};json("ux24-access-manifest",{tool_allowlist:spec.tool_allowlist||[],resource_allowlist:spec.resource_allowlist||[],approval_policy:spec.approval||null,declared_capabilities:spec.capabilities||[]});put("ux24-access-boundary","Manifest declarations are descriptive configuration only. authorization_granted=false; execution_enabled=false. No authorization preflight was run.");}else failures.push("Agent details: "+agent.reason.message);
+      if(readiness.status==="fulfilled")renderReadiness(readiness.value);else{failures.push("Release readiness: "+readiness.reason.message);put("ux24-release-state","UNKNOWN");put("ux24-release-summary",readiness.reason.message);}
+      if(verdict.status==="fulfilled")renderVerdict(verdict.value);else{failures.push("Policy verdict: "+verdict.reason.message);put("ux24-trust-state","UNKNOWN");put("ux24-trust-summary",verdict.reason.message);}
+      if(verdict.status==="fulfilled"){const summary=verdict.value.evidence_summary||verdict.value.facts?.evidence_summary;put("ux24-evidence-state",summary?((summary.invalid_records||0)===0?"VERIFIED_RECORDS_PRESENT":"INVALID_RECORDS_PRESENT"):"UNKNOWN");put("ux24-evidence-summary",summary?((summary.verified_records||0)+" verified · "+(summary.invalid_records||0)+" invalid record(s)"):"Evidence summary not included in this response.");}else{put("ux24-evidence-state","UNKNOWN");put("ux24-evidence-summary","No evidence summary returned.");}
+      if(approvals.status==="fulfilled"){const items=approvals.value.approvals||[];showList("ux24-approvals",items,"No verified human approval records returned.");}else{failures.push("Approvals: "+approvals.reason.message);put("ux24-approvals",approvals.reason.message);}
+      if(events.status==="fulfilled")json("ux24-agent-events",events.value);else{failures.push("Agent events: "+events.reason.message);put("ux24-agent-events",events.reason.message);}
+      if(audit.status==="fulfilled"){const valid=audit.value.chain_valid===true;put("ux24-audit-state",valid?"CHAIN_VALID":"CHAIN_INVALID_OR_UNKNOWN");json("ux24-audit-detail",audit.value);}else{failures.push("Audit verification: "+audit.reason.message);put("ux24-audit-state","UNKNOWN");put("ux24-audit-detail",audit.reason.message);}
+      status("Assessment refreshed for "+selected.agent_id+"@"+selected.version+". "+(failures.length?failures.length+" data source(s) unavailable: "+failures.join(" | "):"All requested Core read endpoints responded.")+" No approval, authorization or execution was performed.",failures.length>0);button.disabled=false;};
+    agentSelect.addEventListener("change",()=>{const items=versionsForAgent();versionSelect.replaceChildren();const first=document.createElement("option");first.value="";first.textContent=items.length?"Select immutable version":"No versions available";versionSelect.append(first);items.forEach(item=>{const option=document.createElement("option");option.value=item.version;option.textContent=item.version+" · "+item.lifecycle_state;versionSelect.append(option);});versionSelect.disabled=!items.length;$24("ux24-assess").disabled=true;selected=null;});
+    versionSelect.addEventListener("change",()=>{const item=versionsForAgent().find(value=>value.version===versionSelect.value);selected=item||null;$24("ux24-assess").disabled=!selected;if(selected)status("Selected "+selected.agent_id+"@"+selected.version+". Refresh assessment to inspect its governance evidence.");});
+    $24("ux24-refresh").addEventListener("click",refreshVersions);$24("ux24-assess").addEventListener("click",assess);
   })();
 
 })();
