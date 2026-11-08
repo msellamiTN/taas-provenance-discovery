@@ -229,3 +229,21 @@ def test_ux19_audit_timeline_is_read_only_ledger_inspection():
     # exact SHA-256 ids found in stored records — no inferred references.
     assert "evidence_id" in html and "assurance/evidence/" in html
     assert "no reference inferred" in html or "No exact lowercase SHA-256" in html
+
+
+def test_ux20_compliance_dashboard_keeps_demo_and_live_strictly_separated():
+    html = _studio_html()
+    assert 'id="ux20-compliance-dashboard"' in html
+    assert 'id="ux20-demo-mode"' in html
+    assert 'id="ux20-live-mode"' in html
+    section = html[html.index('id="ux20-compliance-dashboard"'):html.index("</section>", html.index('id="ux20-compliance-dashboard"'))]
+    # Demo provenance must be unmistakable.
+    assert "DEMO DATA · ILLUSTRATIVE" in section
+    assert "DEMO DATA — NOT LIVE / NOT VERIFIED" in section
+    assert "not a compliance result" in section
+    # Live mode must never estimate missing APIs.
+    assert "never estimated" in section or "Unavailable" in html
+    # Live mode only queries the two real audit endpoints.
+    assert "/api/v1/audit/events?limit=1000" in html
+    assert "/api/v1/audit/verify" in html
+    assert "unsupported compliance panels remain unavailable" in html

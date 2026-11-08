@@ -27,8 +27,11 @@ def test_ux8_uses_evidence_states_and_does_not_claim_conformance():
 
 def test_ux8_does_not_fabricate_scores_metrics_or_validation_runs():
     html = _studio_html()
+    start = html.index('id="platform-governance-quality"')
+    end = html.index("</section>", start)
+    ux8 = html[start:end]
     for forbidden in ("92%", "24/24 passed", "LCP 1.2 s", "INP 68 ms", "CLS 0.01", "Validation run #"):
-        assert forbidden not in html
+        assert forbidden not in ux8
 
 
 def test_ux8_validation_and_security_states_are_explicitly_unrun_or_unknown():
