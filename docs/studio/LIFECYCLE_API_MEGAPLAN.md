@@ -92,6 +92,7 @@ Demo states: `live-only` (real Core data, no synthetic) · `demo/live split`
 | Agent lifecycle & version control (UX-13) | Registry inventory, lifecycle states | `GET /agents`, `GET /agents/events` | live-only |
 | Agent observability (UX-22) | Agents/events/runs/runtime — bounded, demo/live | `GET /agents`, `GET /agents/events`, `GET /discovery/runs`, `GET /runtime/*`, **NEW** `GET /agents/{id}/versions/{v}/activity` | demo/live split (verified end-to-end, `2470afb`) |
 | Audit timeline (UX-19) | `audit/events` cursor paging + `audit/verify`, evidence links | `GET /audit/events?after_seq=`, `GET /audit/verify` | live-only |
+| Workspace Revision History (UX-26) | Immutable saved-draft history, actor/digest, field-level diff and explicit completeness | `GET /workspaces/{id}/revisions` (`taas.workspace-revision-history/v1`) | live-only · read-only |
 | Discovery history & audit (`#discovery-observability`) | Persisted runs inspector | `GET /discovery/runs`, `GET /discovery/runs/{id}` | live-only |
 | Runtime diagnostics (`#runtime`) | Process/GPU probe | `GET /runtime/status`, `GET /runtime/hardware` | live-only |
 
@@ -174,6 +175,7 @@ occurs in this activity" where applicable).
 4. ~~**A3 facets**~~ — **done**: `facets` block on `/api/v1/tools`; UX-15 consumption is a follow-on slice.
 5. ~~**A5 cursor**~~ — **done**: `after_seq` keyset pagination; verify walks the full ledger.
 6. ~~**A1 provenance**~~ — **done** (`3bf8584`): immutable per-revision workspace edit history with field-level added/removed/changed paths + actor.
+11. **UX-26** — Workspace Revision History browser surface: read-only inspection of the existing A1 provenance API; no Core contract changes.
 7. ~~**A1 templates**~~ — **done** (`4964cec`): versioned GoalSpec template catalog; every draft round-trips `/goals/validate`.
 8. ~~**Registry lifecycle hardening**~~ — **done** (`20da92c`): engine-level transition validation + event-consistency + updated_at guards on agent/skill registries.
 9. ~~**A5 recorded activity**~~ — **done** (`d32c9f6` + `e32ae88`): `GET /agents/{id}/versions/{v}/activity`, explicit `state: recorded|unavailable` per source block; UX-22 consumes end-to-end (verified `2470afb`).
