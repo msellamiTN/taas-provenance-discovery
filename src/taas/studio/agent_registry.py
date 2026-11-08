@@ -13,6 +13,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from taas.studio import json_diff
+
 
 class AgentRegistryError(RuntimeError):
     """Base error for Agent registry operations."""
@@ -477,35 +479,6 @@ def list_events(agent_id: str | None = None, limit: int = 200) -> dict[str, Any]
     return {"count": len(rows), "events": [dict(row) for row in rows]}
 
 
-_MAX_DIFF_PATHS = 500
-
-
-def _walk_diff(a: Any, b: Any, path: str, out: dict[str, list]) -> None:
-    """Record JSON-path differences between two manifest values, sorted later."""
-    if len(out["added"]) + len(out["removed"]) + len(out["changed"]) >= _MAX_DIFF_PATHS:
-        out["truncated"] = True
-        return
-    if isinstance(a, dict) and isinstance(b, dict):
-        for key in sorted(set(a) | set(b), key=str):
-            sub = f"{path}.{key}" if path else str(key)
-            if key not in a:
-                out["added"].append(sub)
-            elif key not in b:
-                out["removed"].append(sub)
-            else:
-                _walk_diff(a[key], b[key], sub, out)
-        return
-    if isinstance(a, list) and isinstance(b, list):
-        if a == b:
-            return
-        # Lists compare as values; report the path once with both lengths.
-        out["changed"].append({"path": path or "$",
-                               "a_items": len(a), "b_items": len(b)})
-        return
-    if a != b:
-        out["changed"].append({"path": path or "$", "a": a, "b": b})
-
-
 def diff_versions(agent_id: str, version_a: str, version_b: str) -> dict[str, Any]:
     """Structural manifest diff between two immutable versions of one Agent.
 
@@ -514,12 +487,7 @@ def diff_versions(agent_id: str, version_a: str, version_b: str) -> dict[str, An
     """
     va = get_version(agent_id, version_a)
     vb = get_version(agent_id, version_b)
-    out: dict[str, Any] = {"added": [], "removed": [], "changed": [],
-                           "truncated": False}
-    _walk_diff(va["manifest"], vb["manifest"], "", out)
-    out["added"].sort()
-    out["removed"].sort()
-    out["changed"].sort(key=lambda c: c["path"])
+    out = json_diff.walk_diff(va["manifest"], vb["manifest"])
     return {
         "schema": "taas.agent-version-diff/v1",
         "agent_id": agent_id,

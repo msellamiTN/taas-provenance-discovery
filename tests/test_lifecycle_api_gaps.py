@@ -18,6 +18,7 @@ def env(monkeypatch, tmp_path):
     monkeypatch.setenv("TAAS_AUDIT_LEDGER_PATH", str(tmp_path / "audit.sqlite3"))
     monkeypatch.setenv("TAAS_AGENT_REGISTRY_PATH", str(tmp_path / "agents.sqlite3"))
     monkeypatch.setenv("TAAS_DISCOVERY_RUNS_PATH", str(tmp_path / "runs.sqlite3"))
+    monkeypatch.setenv("TAAS_WORKSPACES_PATH", str(tmp_path / "workspaces.sqlite3"))
     monkeypatch.setenv("TAAS_EVIDENCE_DB_PATH", str(tmp_path / "evidence.sqlite3"))
     monkeypatch.setenv("TAAS_EVIDENCE_ATTESTATION_KEY", "x" * 40)
     monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "gap-token")
@@ -282,3 +283,38 @@ def test_evidence_freshness_batch(client, headers):
     bad = client.post("/api/v1/assurance/evidence/freshness",
                       headers=headers, json={"bindings": []})
     assert bad.status_code == 422
+
+
+# ---------- A1: workspace revision provenance ----------
+
+def test_workspace_revision_history_records_field_level_edits(client, headers):
+    create = client.post("/api/v1/workspaces", headers=headers,
+                         json={"name": "draft-1",
+                               "draft": {"goal": "a", "constraints": {"x": 1}}})
+    assert create.status_code == 201
+    wid = create.json()["workspace_id"]
+    update = client.put(f"/api/v1/workspaces/{wid}", headers=headers,
+                        json={"revision": 1,
+                              "draft": {"goal": "b", "constraints": {"x": 1, "y": 2}}})
+    assert update.status_code == 200
+    history = client.get(f"/api/v1/workspaces/{wid}/revisions",
+                         headers=headers)
+    assert history.status_code == 200
+    body = history.json()
+    assert body["schema"] == "taas.workspace-revision-history/v1"
+    assert body["count"] == 2
+    rev2 = next(r for r in body["revisions"] if r["revision"] == 2)
+    assert rev2["actor"] == "studio-api"
+    changed_paths = [c["path"] for c in rev2["changes"]["changed_paths"]]
+    assert "goal" in changed_paths
+    assert rev2["changes"]["added_paths"] == ["constraints.y"]
+    assert rev2["changes"]["removed_paths"] == []
+    rev1 = next(r for r in body["revisions"] if r["revision"] == 1)
+    assert rev1["changes"]["kind"] == "created"
+    assert body["record_semantics"].endswith("not_correctness_not_execution")
+    unknown = client.get("/api/v1/workspaces/nope/revisions", headers=headers)
+    assert unknown.status_code == 404
+    # Deleting a draft cascades its revision history.
+    assert client.delete(f"/api/v1/workspaces/{wid}", headers=headers).status_code == 200
+    assert client.get(f"/api/v1/workspaces/{wid}/revisions",
+                      headers=headers).status_code == 404
