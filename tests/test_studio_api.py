@@ -1858,3 +1858,20 @@ def test_discovery_revalidates_objective_conformance_before_core_engine(monkeypa
     assert "conformance rejected" in detail["message"]
     assert any(item["code"] == "objective_operation_missing"
                for item in detail["diagnostics"])
+
+
+
+def test_ux26_workspace_revision_history_is_read_only_and_contract_aware():
+    from pathlib import Path
+    from taas.studio import api
+
+    page = Path(api.__file__).parent / "static" / "index.html"
+    html = page.read_text(encoding="utf-8")
+    assert 'id="workspace-revision-history"' in html
+    assert 'href="#workspace-revision-history"' in html
+    assert '"/api/v1/workspaces/"+encodeURIComponent(id)+"/revisions?limit=500"' in html
+    assert 'data.schema!=="taas.workspace-revision-history/v1"' in html
+    assert 'Object.prototype.hasOwnProperty.call(x,key)' in html
+    assert 'Object.prototype.hasOwnProperty.call(c,"truncated")' in html
+    assert 'changed_paths is not present as an array' in html
+    assert "No restore, replay, rollback, mutation, approval, authorization, or execution action" in html
