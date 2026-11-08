@@ -4664,7 +4664,7 @@ el("ux15-refresh").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-
     const live=async()=>{
       const token=el("token")?.value?.trim();if(!token){set("ux22-status","Connect to TaaS Studio and provide an API token before loading live data.");return}
       el("ux22-agent-observability").classList.add("u22-live-mode");el("ux22-live-mode").disabled=true;el("ux22-demo-banner").hidden=true;set("ux22-mode-pill","LIVE CORE OBSERVATIONS · LIMITED");set("ux22-status","Requesting read-only Agent, lifecycle and runtime observations…");
-      const get=async path=>{const r=await fetch(path,{headers:{"Authorization":"Bearer "+token,"Accept":"application/json","Cache-Control":"no-cache"},cache:"no-store"});const d=await r.json().catch(()=>({detail:"Non-JSON response"}));if(!r.ok)throw Error("HTTP "+r.status+": "+(d.detail||"request failed"));return d};
+      const get=async path=>{const r=await fetch(path,{headers:{"Authorization":"Bearer "+token,"Accept":"application/json","Cache-Control":"no-cache"},cache:"no-store"});const d=await readJsonResponse(r);if(r.status===401)markStudioAuthRejected();if(!r.ok)throw Error(formatApiError(d.detail||d,"HTTP "+r.status));return d};
       const paths=["/api/v1/agents?limit=500","/api/v1/agents/events?limit=1000","/api/v1/discovery/runs?limit=100","/api/v1/runtime/status","/api/v1/runtime/hardware","/api/v1/models/runtime"];
       const results=await Promise.allSettled(paths.map(get)),names=["agent_registry","agent_lifecycle_events","discovery_runs","runtime_status","runtime_hardware","model_runtime"];
       const raw={},errors=[];results.forEach((r,i)=>{if(r.status==="fulfilled")raw[names[i]]=r.value;else{raw[names[i]]=null;errors.push(names[i]+": "+r.reason.message)}});
