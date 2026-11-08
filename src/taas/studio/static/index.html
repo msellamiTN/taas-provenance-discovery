@@ -4773,8 +4773,7 @@ el("ux15-refresh").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-
       recorded_activity:{
         lifecycle_events:{state:"recorded",count:8,latest:{event_type:"published",created_at:"2026-11-07T14:20:00Z"}},
         policy_verdicts:{state:"recorded",count:5,latest_recorded_at:"2026-11-07T14:18:00Z",latest_decision:"allow"},
-        human_approvals:{state:"recorded",verified_count:1,latest_observed_at:"2026-11-07T14:15:00Z"},
-        approval_audit_events:{state:"recorded",count:1,latest_recorded_at:"2026-11-07T14:15:00Z"},
+        human_approvals:{state:"recorded",verified_count:1,latest_observed_at:"2026-11-07T14:15:00Z",audit_approval_events:{state:"recorded",count:1,latest_recorded_at:"2026-11-07T14:15:00Z"}},
         evidence_records:{state:"recorded",verified_non_approval_count:3},
         revocation:{state:"recorded",record:null},
         configuration:{skill_references:4,tool_allowlist_entries:6}
@@ -4792,7 +4791,7 @@ el("ux15-refresh").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-
     };
     const render=payload=>{
       const activity=payload.recorded_activity||{};
-      const life=activity.lifecycle_events||{},verdict=activity.policy_verdicts||{},approval=activity.human_approvals||{},auditApproval=activity.approval_audit_events||activity.audit_approval_events||{},evidence=activity.evidence_records||{},revoke=activity.revocation||{},config=activity.configuration||{};
+      const life=activity.lifecycle_events||{},verdict=activity.policy_verdicts||{},approval=activity.human_approvals||{},auditApproval=approval.audit_approval_events||{},evidence=activity.evidence_records||{},revoke=activity.revocation||{},config=activity.configuration||{};
       put("ux22-version-posture",(payload.lifecycle_state||"UNKNOWN")+" · "+payload.agent_id+" @ "+payload.version);
       put("ux22-lifecycle-count",life.state==="recorded"?(life.count??0):"UNAVAILABLE");
       put("ux22-lifecycle-note",life.state==="recorded"?"Persisted version-scoped lifecycle events":"Lifecycle event source unavailable");
