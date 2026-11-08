@@ -220,17 +220,20 @@ profile refuted 12 of the 128 native claims of the analyst (9.4%).
 ## E15 Cost and scalability
 
 30 LiveMCPBench tasks, least privilege, two vCPUs; registries of n cloned contracts (n > 569). Latency per
-request, p50 / p95: 45 / 164 ms (569, real registry), 55 / 787 ms (1,000), 252 ms / 5.8 s (10,000), 2.6 / 13.5 s
-(100,000). Separately timed stages, p50: eligibility 0.08, 0.16, 5.2 and 327 ms (listing the eligible tools);
-per-goal retrieval 42, 50, 256 ms and 2.5 s; one dense ranking (RAG-MCP) 12, 12, 33 and 212 ms. Bitmap eligibility
-test over 10^6 contracts: 0.025 ms (index built in 123 s). Engine build: 2.0, 2.9, 31.6 and 2,078 s, dominated by
-the eager, quadratic materialisation of the pairwise risk relation; peak memory 3.1 GB at 100,000. Exact search in
-26–28 of 30 tasks at every size; abstentions 2, 3, 9, 10 (χ1, one χ5 at 100,000); no failures.
+request, p50 / p95: 49 / 191 ms (569, real registry), 58 / 786 ms (1,000), 281 ms / 5.7 s (10,000), 2.7 / 16.1 s
+(100,000). Separately timed stages, p50: eligibility 0.08, 0.17, 5.3 and 335 ms (listing the eligible tools);
+per-goal retrieval 45, 53, 228 ms and 2.7 s; one dense ranking (RAG-MCP) 12, 13, 36 and 206 ms. Bitmap eligibility
+test over 10^6 contracts: 0.024 ms (index built in 132 s; microbenchmark only). Engine build: 2.2, 2.8, 30.3 and
+2,224 s, dominated by the eager, quadratic materialisation of the pairwise risk relation; peak memory 3.1 GB at
+100,000. Exact search in 26–28 of 30 tasks at every size; abstentions 2, 3, 9, 10 (χ1, one χ5 at 100,000); no
+failures.
 
-Optimality gap (generated cover instances, 10 per size, node budget 20,000 = engine default): greedy / exact cost
-1.008, 1.027, 1.157 on average (max 1.039, 1.219, 1.395) for 1, 3, 5 goals; exact search 3 ms, 21 ms, 1.06 s. With
-8 and 12 goals the exact search exhausts the budget in 10/10 instances (11.6 s, 17.6 s) and falls back to greedy
-(28 ms, 66 ms); the gap is not measurable there.
+Optimality gap (`E15_optimality_gap.json`; generated cover instances, 10 per size, node budget 20,000 = engine
+default; cost = the engine's Eq. (6) objective, as minimised by the exact search): greedy / exact 1.007, 1.024,
+1.145 on average (max 1.030, 1.198, 1.381) for 1, 3, 5 goals; greedy optimal in 7, 8 and 2 of 10 instances; exact
+search 3 ms, 21 ms, 1.1 s. With 8 and 12 goals the exact search exhausts the budget in 10/10 instances (12.0 s,
+18.2 s) and falls back to greedy (27 ms, 69 ms); the gap is not measurable there. (An earlier version of this
+analysis divided costs measured as price + latency + 1 per tool, which is not the searched objective.)
 
 ## E16 Evolution
 

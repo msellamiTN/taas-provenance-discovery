@@ -387,20 +387,22 @@ opus: extract n=10: 4/4, n=40: 4/4, n=160: 4/4, n=640: 4/4; aggregate_sum n=10: 
 
 | Tools | Eligibility | Retrieval | Composition | Total | Index build (s) | Peak RSS (MB) | RAG-MCP ranking (ms) |
 |---|---|---|---|---|---|---|---|
-| 569 | 0.08 / 0.09 | 42.4 / 69.4 | 43.8 / 163.5 | 45.2 / 163.9 | 2.0 | 981 | 12.3 |
-| 1000 | 0.16 / 0.21 | 50.2 / 84.2 | 52.9 / 714.7 | 54.8 / 787.3 | 2.9 | 981 | 12.4 |
-| 10000 | 5.17 / 5.55 | 256.2 / 427.8 | 225.8 / 5510.3 | 251.8 / 5784.6 | 31.6 | 981 | 33.4 |
-| 100000 | 326.75 / 361.05 | 2521.1 / 4894.3 | 2328.8 / 8868.4 | 2575.4 / 13492.7 | 2078.0 | 3136 | 211.6 |
+| 569 | 0.08 / 0.10 | 45.0 / 76.7 | 48.4 / 190.9 | 48.8 / 191.3 | 2.2 | 982 | 12.1 |
+| 1000 | 0.17 / 0.24 | 53.4 / 89.2 | 57.5 / 712.1 | 58.3 / 785.7 | 2.8 | 982 | 13.0 |
+| 10000 | 5.27 / 5.79 | 227.7 / 475.7 | 197.5 / 5414.0 | 281.1 / 5689.1 | 30.3 | 982 | 36.1 |
+| 100000 | 334.78 / 345.58 | 2652.7 / 5122.9 | 2394.1 / 10939.2 | 2668.8 / 16098.1 | 2223.7 | 3149 | 205.8 |
 
-10^6 tools, eligibility only: 0.03 ms per query (index build 123 s).
+10^6 tools, eligibility only: 0.024 ms per query (index build 132 s).
 
-| |Γ| | Greedy / exact cost (mean) | max | n | Exact ms (p50) | Greedy ms (p50) |
-|---|---|---|---|---|---|
-| 1 | 1.008 | 1.039 | 10 | 3.2 | 2.9 |
-| 3 | 1.027 | 1.219 | 10 | 20.6 | 5.6 |
-| 5 | 1.157 | 1.395 | 10 | 1057.6 | 11.4 |
-| 8 | – | – | 0 | 11551.0 | 28.4 |
-| 12 | – | – | 0 | 17604.7 | 66.5 |
+## E15 Optimality gap (generated cover instances; cost = the engine's Eq. (6) objective)
+
+| |Γ| | Greedy / exact (mean) | max | greedy optimal | exact budget exhausted | n | Exact ms (p50) | Greedy ms (p50) |
+|---|---|---|---|---|---|---|---|
+| 1 | 1.007 | 1.030 | 70.0% | 0/10 | 10 | 3.1 | 2.8 |
+| 3 | 1.024 | 1.198 | 80.0% | 0/10 | 10 | 20.8 | 5.7 |
+| 5 | 1.145 | 1.381 | 20.0% | 0/10 | 10 | 1075.6 | 10.9 |
+| 8 | – | – | -- | 10/10 | 0 | 12007.3 | 27.2 |
+| 12 | – | – | -- | 10/10 | 0 | 18170.8 | 69.0 |
 
 ## E16 Registry and model evolution
 
@@ -559,5 +561,5 @@ Revenue scenario (flow counterexample): revenue_scenario|k=0: toolkit None, χ c
 | toolscope_adapted | 36.0% | 10.7% | 33.0% |
 | cmtf_adapted | 33.3% | 10.7% | 31.4% |
 
-Ranking stability across 200 half splits: stratified: Kendall τ 0.688 (5th pct 0.429), same best method 100.0%; tool_disjoint: Kendall τ 0.431 (5th pct 0.143), same best method 87.5%
+Ranking stability across 200 half splits: stratified: Kendall τ 0.683 (5th pct 0.429), same best method 100.0%; tool_disjoint: Kendall τ 0.431 (5th pct 0.143), same best method 87.5%
 
