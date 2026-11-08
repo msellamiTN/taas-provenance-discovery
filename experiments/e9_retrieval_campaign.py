@@ -283,6 +283,18 @@ def validate_e9_dataset_snapshot(
             f"E9 candidate registry contains {len(tools)} tools; "
             f"expected {EXPECTED_E9_CANDIDATE_TOOL_COUNT}"
         )
+    if any(row.get("dataset_id") != "livemcpbench" for row in tools):
+        raise ValueError("E9 candidate registry contains a non-LiveMCPBench tool row")
+    actual_servers = {str(row.get("server_id") or "").strip() for row in tools}
+    if "" in actual_servers or len(actual_servers) != EXPECTED_E9_CANDIDATE_SERVER_COUNT:
+        raise ValueError(
+            f"E9 candidate registry contains {len(actual_servers - {''})} valid server IDs; "
+            f"expected {EXPECTED_E9_CANDIDATE_SERVER_COUNT}"
+        )
+    if any(row.get("dataset_id") != "livemcpbench" for row in tasks):
+        raise ValueError("E9 discovery task set contains a non-LiveMCPBench task row")
+    if any(row.get("split") != "benchmark_evaluation" for row in tasks):
+        raise ValueError("E9 discovery tasks must use the benchmark_evaluation split")
     if len(tasks) != EXPECTED_E9_TASK_COUNT:
         raise ValueError(
             f"E9 discovery task set contains {len(tasks)} tasks; expected {EXPECTED_E9_TASK_COUNT}"
