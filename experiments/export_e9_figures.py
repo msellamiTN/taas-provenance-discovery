@@ -145,7 +145,7 @@ def export_e9_figures(
     run_dir: Path,
     output_dir: Path,
     protocol_path: Path = PROTOCOL,
-    bootstrap_resamples: int = 5000,
+    bootstrap_resamples: int = 10000,
     seed: int = 20261107,
 ) -> dict[str, Any]:
     run_dir = run_dir.resolve()
@@ -191,9 +191,9 @@ def export_e9_figures(
     if not primary_executed and manifest_primary_id not in {None, primary_id}:
         raise ValueError(f"E9 manifest declares an unexpected primary configuration {manifest_primary_id!r}")
     executable_methods = executed | ({primary_id} if primary_executed and primary_id else set())
-    cutoffs = sorted({int(k) for k in manifest.get("ranking_cutoffs", [5, 10, 20])})
-    if cutoffs != [5, 10, 20]:
-        raise ValueError("E9 ranking_cutoffs must match the protocol values [5, 10, 20]")
+    cutoffs = sorted({int(k) for k in manifest.get("ranking_cutoffs", [1, 3, 5, 10, 20])})
+    if cutoffs != [1, 3, 5, 10, 20]:
+        raise ValueError("E9 ranking_cutoffs must match the protocol values [1, 3, 5, 10, 20]")
 
     ranking_rows = _read_jsonl(ranking_path)
     reference_rows = _read_jsonl(reference_path)
@@ -238,7 +238,7 @@ def export_e9_figures(
                 "declare an accepted reference class explicitly"
             )
 
-    seen: set[tuple[str, str, str, str]] = set()
+    seen: set[tuple[str, str, str, str, int]] = set()
     per_task: list[dict[str, Any]] = []
     task_meta: dict[tuple[str, str], dict[str, Any]] = {}
     diagnostic_rows: list[dict[str, Any]] = []
@@ -259,14 +259,20 @@ def export_e9_figures(
         baseline = str(row.get("baseline", "")).strip()
         task_group = str(row.get("task_group") or "unspecified")
         decomposition = str(row.get("decomposition") or "").strip()
+        ranking_k = int(row.get("ranking_k", -1))
+        prediction_kind = str(row.get("prediction_kind") or "top_k_retrieved_tools")
         key = (benchmark, task_id)
         if not task_id or not benchmark or not baseline or not decomposition:
             raise ValueError("E9 discovery rows require task_id, benchmark, baseline and decomposition")
         if decomposition not in {"none", "clause_splitter", "llm_analyst"}:
             raise ValueError(f"{benchmark}/{task_id}: unknown decomposition condition {decomposition!r}")
+        if ranking_k not in cutoffs:
+            raise ValueError(f"{benchmark}/{task_id}/{baseline}: ranking_k={ranking_k} is outside {cutoffs}")
+        if prediction_kind not in {"selected_toolkit", "top_k_retrieved_tools"}:
+            raise ValueError(f"{benchmark}/{task_id}/{baseline}: unsupported prediction_kind={prediction_kind!r}")
         if baseline not in executable_methods:
             raise ValueError(f"{benchmark}/{task_id}: method {baseline!r} absent from executed baseline/primary-configuration manifest")
-        pair = (benchmark, task_id, baseline, decomposition)
+        pair = (benchmark, task_id, baseline, decomposition, ranking_k)
         if pair in seen:
             raise ValueError(f"Duplicate E9 discovery ranking: {pair}")
         seen.add(pair)
@@ -277,27 +283,29 @@ def export_e9_figures(
         ranked = [str(x).strip() for x in ranked_raw]
         visible = {str(x).strip() for x in visible_raw}
         if any(not x for x in ranked) or len(ranked) != len(set(ranked)):
-            raise ValueError(f"{benchmark}/{task_id}/{baseline}: ranking has empty or duplicate tool IDs")
+            raise ValueError(f"{benchmark}/{task_id}/{baseline}: prediction has empty or duplicate tool IDs")
+        if prediction_kind == "top_k_retrieved_tools" and len(ranked) > ranking_k:
+            raise ValueError(f"{benchmark}/{task_id}/{baseline}: top-k retrieval output exceeds ranking_k")
         if len(visible) != len(set(str(x).strip() for x in visible_raw)) or any(not x for x in visible):
             raise ValueError(f"{benchmark}/{task_id}/{baseline}: visibility contains duplicate/empty IDs")
         if not set(ranked).issubset(visible):
-            raise ValueError(f"{benchmark}/{task_id}/{baseline}: ranking includes tools outside task visibility")
+            raise ValueError(f"{benchmark}/{task_id}/{baseline}: prediction includes tools outside task visibility")
         if key not in refs:
             skipped_no_reference += 1
             skipped_no_reference_task_keys.add(key)
             trace = trace_ref_map.get(key)
             if trace:
                 ref_tools = set(trace["reference_trace_tool_ids"])
-                for k in cutoffs:
-                    predicted = set(ranked[:k])
-                    intersection = len(predicted & ref_tools)
-                    diagnostic_rows.append({
-                        "task_id": task_id, "benchmark": benchmark, "baseline": baseline,
-                        "task_group": task_group, "decomposition": decomposition, "k": k,
-                        "trace_coverage": intersection / len(ref_tools) if ref_tools else "",
-                        "reference_trace_size": len(ref_tools),
-                        "reference_semantics": trace["reference_semantics"],
-                    })
+                predicted = set(ranked)
+                intersection = len(predicted & ref_tools)
+                diagnostic_rows.append({
+                    "task_id": task_id, "benchmark": benchmark, "baseline": baseline,
+                    "task_group": task_group, "decomposition": decomposition, "k": ranking_k,
+                    "prediction_size": len(predicted),
+                    "trace_coverage": intersection / len(ref_tools) if ref_tools else "",
+                    "reference_trace_size": len(ref_tools),
+                    "reference_semantics": trace["reference_semantics"],
+                })
             continue
 
         ref = refs[key]
@@ -311,27 +319,26 @@ def export_e9_figures(
         if invalid_reference_visibility and invalid_reference_visibility[-1]["benchmark"] == benchmark and invalid_reference_visibility[-1]["task_id"] == task_id:
             continue
         task_meta[key] = {"task_group": task_group}
-        for k in cutoffs:
-            predicted_list = ranked[:k]
-            predicted = set(predicted_list)
-            precision, recall, selected_reference = _best_reference(predicted, ref["alternatives"])
-            complete = any(set(alternative).issubset(predicted) for alternative in ref["alternatives"])
-            per_task.append({
-                "task_id": task_id,
-                "benchmark": benchmark,
-                "baseline": baseline,
-                "task_group": task_group,
-                "decomposition": decomposition,
-                "k": k,
-                "group_recall": recall,
-                "set_precision": precision,
-                "complete_set": int(complete),
-                "coverage": int(bool(predicted)),
-                "reference_size": len(selected_reference),
-                "predicted_size": len(predicted),
-                "reference_semantics": ref["semantics"],
-                "independent_unit_id": ref["independent_unit_id"],
-            })
+        predicted = set(ranked)
+        precision, recall, selected_reference = _best_reference(predicted, ref["alternatives"])
+        complete = any(set(alternative).issubset(predicted) for alternative in ref["alternatives"])
+        per_task.append({
+            "task_id": task_id,
+            "benchmark": benchmark,
+            "baseline": baseline,
+            "task_group": task_group,
+            "decomposition": decomposition,
+            "k": ranking_k,
+            "prediction_kind": prediction_kind,
+            "group_recall": recall,
+            "set_precision": precision,
+            "complete_set": int(complete),
+            "coverage": int(bool(predicted)),
+            "reference_size": len(selected_reference),
+            "predicted_size": len(predicted),
+            "reference_semantics": ref["semantics"],
+            "independent_unit_id": ref["independent_unit_id"],
+        })
         baseline_rows[baseline] += 1
 
     if invalid_reference_visibility:
@@ -389,7 +396,7 @@ def export_e9_figures(
 
     # Preserve per-task evidence so later paired analyses can be reconstructed.
     per_task_columns = [
-        "task_id", "benchmark", "baseline", "decomposition", "task_group", "k",
+        "task_id", "benchmark", "baseline", "decomposition", "task_group", "k", "prediction_kind",
         "group_recall", "set_precision", "complete_set", "coverage",
         "reference_size", "predicted_size", "reference_semantics", "independent_unit_id",
     ]
@@ -403,7 +410,7 @@ def export_e9_figures(
             (row["benchmark"], row["decomposition"], row["baseline"], row["task_group"], row["k"])
         ].append(row)
 
-    f1_rows, f2_rows, f3_rows, ci_exclusions = [], [], [], []
+    f1_rows, f2_rows, f3_rows, f4_rows, ci_exclusions = [], [], [], [], []
     for (benchmark, decomposition, baseline, k), observations in sorted(grouped.items()):
         unit_obs = [
             (float(row["group_recall"]), str(row["independent_unit_id"]))
@@ -453,6 +460,15 @@ def export_e9_figures(
             "n_independent_units": n_units,
         })
 
+    for row in per_task:
+        f4_rows.append({
+            "group": row["baseline"],
+            "value": row["predicted_size"],
+            "benchmark": row["benchmark"],
+            "decomposition": row["decomposition"],
+            "k": row["k"],
+        })
+
     for (benchmark, decomposition, baseline, task_group, k), observations in sorted(group_by_task.items()):
         complete_share = (
             sum(int(row["complete_set"]) for row in observations) / len(observations)
@@ -479,13 +495,20 @@ def export_e9_figures(
         _write_csv(output_dir / "E9-F3.csv",
                    ["task_group", "method", "value", "benchmark", "decomposition", "k", "n"],
                    f3_rows)
+    if f4_rows:
+        _write_csv(
+            output_dir / "E9-F4.csv",
+            ["group", "value", "benchmark", "decomposition", "k"],
+            f4_rows,
+        )
     if diagnostic_rows:
         _write_csv(output_dir / "E9_TRACE_DIAGNOSTICS.csv",
-                   ["task_id", "benchmark", "baseline", "task_group", "decomposition", "k", "trace_coverage",
-                    "reference_trace_size", "reference_semantics"], diagnostic_rows)
+                   ["task_id", "benchmark", "baseline", "task_group", "decomposition", "k",
+                    "prediction_size", "trace_coverage", "reference_trace_size", "reference_semantics"],
+                   diagnostic_rows)
 
     exported = [figure_id for figure_id, rows in [
-        ("E9-F1", f1_rows), ("E9-F2", f2_rows), ("E9-F3", f3_rows)
+        ("E9-F1", f1_rows), ("E9-F2", f2_rows), ("E9-F3", f3_rows), ("E9-F4", f4_rows)
     ] if rows]
     export_manifest = {
         "schema_version": "1.0.0",
@@ -521,7 +544,7 @@ def export_e9_figures(
         "figures_exported": exported,
         "figures_not_exported": {
             figure: "No primary acceptable-set observations satisfy the figure's required grouping/uncertainty contract."
-            for figure, rows in [("E9-F1", f1_rows), ("E9-F2", f2_rows), ("E9-F3", f3_rows)]
+            for figure, rows in [("E9-F1", f1_rows), ("E9-F2", f2_rows), ("E9-F3", f3_rows), ("E9-F4", f4_rows)]
             if not rows
         },
         "interpretation": (
@@ -545,7 +568,7 @@ def main() -> int:
     parser.add_argument("--run-dir", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, default=ROOT / "results/visualization/data")
     parser.add_argument("--protocol", type=Path, default=PROTOCOL)
-    parser.add_argument("--bootstrap-resamples", type=int, default=5000)
+    parser.add_argument("--bootstrap-resamples", type=int, default=10000)
     parser.add_argument("--seed", type=int, default=20261107)
     args = parser.parse_args()
     result = export_e9_figures(
