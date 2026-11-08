@@ -14,6 +14,7 @@ from experiments.e9_retrieval_campaign import (
     make_no_backward_closure_config,
     canonical_sha256,
     load_encoder,
+    load_equivalence_oracle,
     validate_release_gate,
 )
 from taas.experiments.baseline_runner import BaselineResult
@@ -372,3 +373,42 @@ def test_encoder_bundle_rejects_symlinked_snapshot_directory(tmp_path):
     })
     with pytest.raises(ValueError, match="must not be a symlink"):
         load_encoder(tmp_path / "encoder.json", "cpu")
+
+
+def test_toolscope_oracle_rejects_duplicate_or_contradictory_pairs(tmp_path):
+    common = {
+        "schema_version": "1.0.0",
+        "status": "accepted",
+        "evaluator_labels_used_for_oracle": False,
+        "equivalent_pairs": [["srv::a", "srv::b"]],
+        "non_equivalent_pairs": [["srv::a", "srv::c"]],
+    }
+    path = tmp_path / "oracle.json"
+    _json(path, common)
+    oracle = load_equivalence_oracle(path, {"srv::a", "srv::b", "srv::c"})
+    assert oracle["positive_pairs"] == [["srv::a", "srv::b"]]
+    assert oracle["negative_pairs"] == [["srv::a", "srv::c"]]
+
+    duplicate = dict(common)
+    duplicate["equivalent_pairs"] = [["srv::a", "srv::b"], ["srv::b", "srv::a"]]
+    _json(path, duplicate)
+    with pytest.raises(ValueError, match="duplicated or conflicting"):
+        load_equivalence_oracle(path, {"srv::a", "srv::b", "srv::c"})
+
+    conflict = dict(common)
+    conflict["non_equivalent_pairs"] = [["srv::b", "srv::a"]]
+    _json(path, conflict)
+    with pytest.raises(ValueError, match="duplicated or conflicting"):
+        load_equivalence_oracle(path, {"srv::a", "srv::b", "srv::c"})
+
+
+def test_toolscope_oracle_requires_both_pair_classes(tmp_path):
+    _json(tmp_path / "oracle.json", {
+        "schema_version": "1.0.0",
+        "status": "accepted",
+        "evaluator_labels_used_for_oracle": False,
+        "equivalent_pairs": [["srv::a", "srv::b"]],
+        "non_equivalent_pairs": [],
+    })
+    with pytest.raises(ValueError, match="at least one positive and one negative"):
+        load_equivalence_oracle(tmp_path / "oracle.json", {"srv::a", "srv::b"})
