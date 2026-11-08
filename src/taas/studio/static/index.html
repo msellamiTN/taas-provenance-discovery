@@ -2642,7 +2642,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   };
   const inspectBenchTool = tool => {
     const provenance={};
-    ["id","server","source","source_id","dataset","dataset_id","registry","category"].forEach(key=>{if(tool[key]!==undefined&&tool[key]!==null)provenance[key]=tool[key];});
+    ["id","server","source","source_id","dataset","dataset_id","registry","category","definition_hash"].forEach(key=>{if(tool[key]!==undefined&&tool[key]!==null)provenance[key]=tool[key];});
     const detail={
       registry_record_identity:provenance,
       description:tool.description??"Not reported",
@@ -2653,6 +2653,37 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
     };
     $("bench-tool-inspector-status").textContent="Inspecting Core-returned registry metadata. Declarations are not runtime verification.";
     $("bench-tool-inspector-data").textContent=JSON.stringify(detail,null,2);
+    // Enrich with live identity + capability intelligence when the registry
+    // record resolves to a retained tool. Failures fall back to the row data.
+    const server=tool.server,name=tool.name;
+    if(server&&name){
+      const path="/api/v1/tools/"+encodeURIComponent(server)+"/"+encodeURIComponent(name);
+      (async()=>{
+        try{
+          const [identity,intel]=await Promise.all([
+            apiGet(path),
+            apiGet(path+"/intelligence").catch(()=>null)
+          ]);
+          detail.core_identity=identity;
+          if(intel){
+            detail.capability_profile={
+              schema:intel.schema,
+              inputs:intel.capability?.inputs??intel.inputs??"Not reported",
+              output:intel.capability?.output??intel.output??"Not reported",
+              declared_effects:intel.capability?.effects??intel.effects??"Not reported",
+              tool_class:intel.capability?.tool_class??intel.tool_class??"Not reported",
+              property_strengths:intel.evidence?.property_strengths??intel.property_strengths??"Not reported",
+              evidence_kinds:intel.evidence?.kinds??intel.evidence_kinds??"Not reported",
+              definition_hash_verified:intel.evidence?.definition_hash_verified??intel.definition_hash_verified??"Not reported"
+            };
+          }
+          $("bench-tool-inspector-status").textContent="Core identity"+(intel?" + capability intelligence":"")+" loaded. Declarations and evidence levels are not runtime verification.";
+          $("bench-tool-inspector-data").textContent=JSON.stringify(detail,null,2);
+        }catch(e){
+          $("bench-tool-inspector-status").textContent="Core lookup failed ("+e.message+") — showing the registry row only.";
+        }
+      })();
+    }
   };
   const invalidateBenchmarkTaskContext = (message) => {
     bench.selectedTask=null;bench.selectedTaskKey=null;bench.selectedTools.clear();
