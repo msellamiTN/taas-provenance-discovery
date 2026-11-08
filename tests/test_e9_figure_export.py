@@ -148,6 +148,9 @@ def test_e9_export_uses_only_acceptable_set_references_and_renders(tmp_path):
     assert set(paired["test_method"]) == {"exact_cluster_paired_sign_flip"}
     assert paired["holm_adjusted_p"].between(0, 1).all()
     assert set(paired["n_independent_units"]) == {3}
+    export_manifest = json.loads((output / "E9_EXPORT_MANIFEST.json").read_text())
+    assert export_manifest["paired_inference"]["independent_resampling_unit"] == "independent_unit_id cluster"
+    assert export_manifest["paired_inference"]["exact_when_independent_units_at_most"] == 16
 
     for figure_id, frame in [("E9-F1", f1), ("E9-F2", f2), ("E9-F3", f3), ("E9-F4", f4)]:
         figure = _figure(figure_id)
