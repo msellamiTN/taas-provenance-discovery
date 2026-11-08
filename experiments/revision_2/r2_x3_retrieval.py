@@ -237,10 +237,15 @@ def summarise(rows):
     return out
 
 
+ORACLE = {"pamcp|I", "pamcp|J", "pamcp|IJ"}     # diagnostic only: they use gold or reference labels at query time
+
+
 def select(summ, cfg_names):
     best = {}
     order = {c: i for i, c in enumerate(cfg_names)}
     for cfg, m in summ["B1m"].items():
+        if cfg in ORACLE:
+            continue
         meth = cfg.split("|")[0]
         key = (m["hit1"], m["mrr10"], -order[cfg])
         if meth not in best or key > best[meth][0]:
@@ -274,7 +279,10 @@ def main() -> None:
             print(f"pamcp|{v:4s} B1m hit1 {s['hit1']:.3f} mrr {s['mrr10']:.3f} ndcg {s['ndcg10']:.3f}  "
                   f"B1 hit1 {summ['B1'][f'pamcp|{v}']['hit1']:.3f}")
     else:
-        sel = json.load(open(SEL_PATH))["selected"]
+        dev = json.load(open(SEL_PATH))
+        # selection recomputed from the saved dev summary with oracle variants excluded (the first dev run's rule
+        # did not exclude them and named an oracle for PaMCP; that choice is not deployable and is not used)
+        sel = select(dev["summary"], list(cfgs))
         keep = {c: cfgs[c] for c in sel.values()} | {c: cfgs[c] for c in cfgs if c.startswith("pamcp|")}
         rows = evaluate(sample, keep, pools, R)
         summ = summarise(rows)
