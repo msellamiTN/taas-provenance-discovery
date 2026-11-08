@@ -286,9 +286,10 @@ def validate_e9_dataset_snapshot(
     if any(row.get("dataset_id") != "livemcpbench" for row in tools):
         raise ValueError("E9 candidate registry contains a non-LiveMCPBench tool row")
     actual_servers = {str(row.get("server_id") or "").strip() for row in tools}
-    if "" in actual_servers or len(actual_servers) != EXPECTED_E9_CANDIDATE_SERVER_COUNT:
+    valid_server_count = len(actual_servers) - (1 if "" in actual_servers else 0)
+    if "" in actual_servers or valid_server_count != EXPECTED_E9_CANDIDATE_SERVER_COUNT:
         raise ValueError(
-            f"E9 candidate registry contains {len(actual_servers - {''})} valid server IDs; "
+            f"E9 candidate registry contains {valid_server_count} valid server IDs; "
             f"expected {EXPECTED_E9_CANDIDATE_SERVER_COUNT}"
         )
     if any(row.get("dataset_id") != "livemcpbench" for row in tasks):
