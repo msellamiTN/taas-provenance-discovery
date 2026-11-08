@@ -483,3 +483,14 @@ def test_evaluator_file_digest_is_deferred_until_after_rankings_freeze(tmp_path)
     assert integrity["evaluator_references_sha256"] == expected_hash
     # The pre-discovery integrity pass validates the evaluator path and expected
     # digest only; the campaign compares the actual digest after ranking freeze.
+
+
+def test_prepared_package_rejects_symlinked_checksum_manifest(tmp_path):
+    root = tmp_path / "prepared"
+    root.mkdir()
+    target = tmp_path / "checksums.json"
+    target.write_text('{"x":"0000000000000000000000000000000000000000000000000000000000000000"}', encoding="utf-8")
+    (root / "SHA256SUMS.json").symlink_to(target)
+    with pytest.raises(ValueError, match="must not be a symlink"):
+        from experiments.e9_retrieval_campaign import verify_prepared_package_integrity
+        verify_prepared_package_integrity(root)
