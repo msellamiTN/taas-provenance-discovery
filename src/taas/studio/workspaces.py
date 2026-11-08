@@ -17,6 +17,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from taas.studio import json_diff
+
 WORKSPACE_SCHEMA = "taas.workspace-draft/v1"
 WORKSPACE_LIST_SCHEMA = "taas.workspace-list/v1"
 _DEFAULT_MAX_ROWS = 200
@@ -58,6 +60,21 @@ def _connect() -> sqlite3.Connection:
     )
     connection.execute(
         "CREATE INDEX IF NOT EXISTS idx_workspaces_updated ON workspaces(updated_at)"
+    )
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS workspace_revisions (
+            workspace_id TEXT NOT NULL,
+            revision INTEGER NOT NULL,
+            draft_sha256 TEXT NOT NULL,
+            actor TEXT NOT NULL,
+            changes_json TEXT NOT NULL,
+            occurred_at TEXT NOT NULL,
+            PRIMARY KEY (workspace_id, revision),
+            FOREIGN KEY (workspace_id)
+                REFERENCES workspaces(workspace_id) ON DELETE CASCADE
+        )
+        """
     )
     return connection
 
@@ -102,10 +119,31 @@ def _row_to_workspace(row: sqlite3.Row) -> dict[str, Any]:
     }
 
 
-def create_workspace(*, name: str, draft: dict[str, Any]) -> dict[str, Any]:
+def _record_revision(connection: sqlite3.Connection, *, workspace_id: str,
+                     revision: int, draft_sha256: str, actor: str,
+                     changes: dict[str, Any]) -> None:
+    """Append the immutable per-revision provenance record.
+
+    Records who changed which field paths and to what digest — an edit
+    history, never evidence that the draft content is correct or executed.
+    """
+    connection.execute(
+        """
+        INSERT OR REPLACE INTO workspace_revisions (
+            workspace_id, revision, draft_sha256, actor, changes_json, occurred_at
+        ) VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        (workspace_id, revision, draft_sha256, actor,
+         _canonical(changes), _now()),
+    )
+
+
+def create_workspace(*, name: str, draft: dict[str, Any],
+                   actor: str = "studio-api") -> dict[str, Any]:
     """Explicitly save a new draft; nothing is persisted implicitly."""
     workspace_id = uuid.uuid4().hex
     now = _now()
+    digest = _sha256(draft)
     with _connect() as connection:
         connection.execute(
             """
@@ -114,7 +152,13 @@ def create_workspace(*, name: str, draft: dict[str, Any]) -> dict[str, Any]:
                 created_at, updated_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
-            (workspace_id, name, _canonical(draft), _sha256(draft), 1, now, now),
+            (workspace_id, name, _canonical(draft), digest, 1, now, now),
+        )
+        _record_revision(
+            connection, workspace_id=workspace_id, revision=1,
+            draft_sha256=digest, actor=actor,
+            changes={"kind": "created",
+                     "added_paths": json_diff.walk_diff({}, draft)["added"]},
         )
         _evict_oldest(connection)
     return get_workspace(workspace_id)  # type: ignore[return-value]
@@ -159,16 +203,18 @@ def get_workspace(workspace_id: str) -> dict[str, Any] | None:
 
 
 def update_workspace(
-    workspace_id: str, *, name: str | None, draft: dict[str, Any], revision: int
+    workspace_id: str, *, name: str | None, draft: dict[str, Any], revision: int,
+    actor: str = "studio-api",
 ) -> dict[str, Any] | None:
     """Optimistic-concurrency update; returns None if id unknown.
 
     Raises ``RevisionConflictError`` when the caller's revision is stale —
     the draft is never silently overwritten.
     """
+    new_digest = _sha256(draft)
     with _connect() as connection:
         row = connection.execute(
-            "SELECT revision, name FROM workspaces WHERE workspace_id = ?",
+            "SELECT revision, name, draft_json FROM workspaces WHERE workspace_id = ?",
             (workspace_id,),
         ).fetchone()
         if row is None:
@@ -177,6 +223,16 @@ def update_workspace(
             raise RevisionConflictError(
                 f"workspace revision {row['revision']} != supplied {revision}"
             )
+        previous = json.loads(row["draft_json"])
+        diff = json_diff.walk_diff(previous, draft)
+        changes = {
+            "kind": "updated",
+            "added_paths": diff["added"],
+            "removed_paths": diff["removed"],
+            "changed_paths": diff["changed"],
+            "truncated": diff["truncated"],
+            "renamed": bool(name) and name != row["name"],
+        }
         connection.execute(
             """
             UPDATE workspaces
@@ -187,12 +243,51 @@ def update_workspace(
             (
                 name or row["name"],
                 _canonical(draft),
-                _sha256(draft),
+                new_digest,
                 _now(),
                 workspace_id,
             ),
         )
+        _record_revision(
+            connection, workspace_id=workspace_id, revision=revision + 1,
+            draft_sha256=new_digest, actor=actor, changes=changes,
+        )
     return get_workspace(workspace_id)
+
+
+def list_revisions(workspace_id: str, *, limit: int = 100) -> dict[str, Any] | None:
+    """Immutable per-revision edit history for one workspace draft."""
+    limit = max(1, min(int(limit), 500))
+    with _connect() as connection:
+        exists = connection.execute(
+            "SELECT 1 FROM workspaces WHERE workspace_id = ?", (workspace_id,)
+        ).fetchone()
+        if exists is None:
+            return None
+        rows = connection.execute(
+            """
+            SELECT revision, draft_sha256, actor, changes_json, occurred_at
+            FROM workspace_revisions WHERE workspace_id = ?
+            ORDER BY revision DESC LIMIT ?
+            """,
+            (workspace_id, limit),
+        ).fetchall()
+    return {
+        "schema": "taas.workspace-revision-history/v1",
+        "workspace_id": workspace_id,
+        "count": len(rows),
+        "revisions": [
+            {
+                "revision": r["revision"],
+                "draft_sha256": r["draft_sha256"],
+                "actor": r["actor"],
+                "changes": json.loads(r["changes_json"]),
+                "occurred_at": r["occurred_at"],
+            }
+            for r in rows
+        ],
+        "record_semantics": "authored_edit_history_not_correctness_not_execution",
+    }
 
 
 class RevisionConflictError(Exception):

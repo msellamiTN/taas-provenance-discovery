@@ -1195,7 +1195,9 @@ def workspace_list(limit: int = 100) -> dict[str, Any]:
 @app.post("/api/v1/workspaces", dependencies=[Depends(require_api_token)], status_code=201)
 def workspace_create(payload: WorkspaceDraftRequest) -> dict[str, Any]:
     """Explicitly save a workspace draft; nothing is persisted implicitly."""
-    return workspaces.create_workspace(name=payload.name, draft=payload.draft)
+    return workspaces.create_workspace(
+        name=payload.name, draft=payload.draft,
+        actor=os.environ.get("TAAS_STUDIO_ACTOR", "studio-api"))
 
 
 @app.get("/api/v1/workspaces/{workspace_id}", dependencies=[Depends(require_api_token)])
@@ -1212,13 +1214,25 @@ def workspace_update(workspace_id: str, payload: WorkspaceUpdateRequest) -> dict
     """Update a draft with optimistic-concurrency check; stale revisions are rejected."""
     try:
         record = workspaces.update_workspace(
-            workspace_id, name=payload.name, draft=payload.draft, revision=payload.revision
+            workspace_id, name=payload.name, draft=payload.draft,
+            revision=payload.revision,
+            actor=os.environ.get("TAAS_STUDIO_ACTOR", "studio-api"),
         )
     except workspaces.RevisionConflictError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
     if record is None:
         raise HTTPException(status_code=404, detail=f"Unknown workspace: {workspace_id}")
     return record
+
+
+@app.get("/api/v1/workspaces/{workspace_id}/revisions",
+         dependencies=[Depends(require_api_token)])
+def workspace_revision_history(workspace_id: str, limit: int = 100) -> dict[str, Any]:
+    """Immutable per-revision edit history: who changed which field paths."""
+    history = workspaces.list_revisions(workspace_id, limit=limit)
+    if history is None:
+        raise HTTPException(status_code=404, detail=f"Unknown workspace: {workspace_id}")
+    return history
 
 
 @app.delete("/api/v1/workspaces/{workspace_id}", dependencies=[Depends(require_api_token)])
