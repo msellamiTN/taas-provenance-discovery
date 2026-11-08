@@ -29,6 +29,7 @@ import plots_final as base_plots
 import paper_figures_final as paper_plots
 
 OUT = Path(os.environ.get("PAMCP_RESULTS_DIR", ROOT / "results" / "revision_1"))
+OUT = OUT if OUT.is_absolute() else ROOT / OUT
 FIG = OUT / "figures"
 FIG.mkdir(parents=True, exist_ok=True)
 

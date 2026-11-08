@@ -1,5 +1,5 @@
 name: PaMCP Revision 1 — tests, re-analysis and figures
-# Re-runs tests, offline analyses and all figure outputs; uses shared style namespace P.grid.
+# Runs tests, audits, scope-aware E14, all plots, and writes relative/absolute-safe SHA-256 manifest.
 
 on:
   push:
