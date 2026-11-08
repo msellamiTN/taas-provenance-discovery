@@ -324,6 +324,29 @@ def load_contracts(path: Path, tools: list[dict[str, Any]]) -> tuple[list[Capabi
     }
 
 
+def load_composer_config(path: Path) -> tuple[ComposerConfig, int, dict]:
+    bundle = read_json(path)
+    if bundle.get("schema_version") != "1.0.0" or bundle.get("status") != "accepted":
+        raise ValueError("E9 composer configuration must be accepted, schema_version=1.0.0")
+    if bundle.get("experiment_id") != "E9" or not bundle.get("approval_record"):
+        raise ValueError("Composer configuration must be E9-specific and approved")
+    values = bundle.get("composer")
+    if not isinstance(values, dict):
+        raise ValueError("Composer configuration must contain a composer object")
+    config = ComposerConfig(**values)
+    if config.K != 20:
+        raise ValueError("E9 runner requires composer retrieval K=20; metrics derive k={5,10,20}")
+    refine_k = int(bundle.get("refine_k", -1))
+    if not 0 <= refine_k <= 10:
+        raise ValueError("Accepted E9 composer config must freeze refine_k in [0,10]")
+    return config, refine_k, {
+        "bundle_sha256": sha256_file(path),
+        "composer": asdict(config),
+        "refine_k": refine_k,
+        "approval_record": bundle["approval_record"],
+    }
+
+
 def load_policy(path: Path) -> tuple[Policy, str]:
     bundle = read_json(path)
     if bundle.get("schema_version") != "1.0.0" or bundle.get("status") != "accepted":
@@ -604,6 +627,7 @@ def run_campaign(args: argparse.Namespace) -> dict:
         )
     profile, profile_info = load_accepted_profile(args.model_profile)
     policy, policy_sha = load_policy(args.policy_bundle)
+    composer_config, refine_k, composer_info = load_composer_config(args.composer_config)
     encoder, encoder_info = load_encoder(args.encoder_bundle, args.device)
     goal_specs = load_goal_specs(args.goal_specs, tasks)
     candidate_ids = {str(row["tool_id"]) for row in tools}
@@ -651,7 +675,7 @@ def run_campaign(args: argparse.Namespace) -> dict:
     engine = DiscoveryEngine(
         contracts,
         profile,
-        cfg=EngineConfig(composer=ComposerConfig(K=20), refine_k=args.refine_k),
+        cfg=EngineConfig(composer=composer_config, refine_k=refine_k),
         encoder=encoder,
     )
     method_counts: dict[str, dict[str, Any]] = defaultdict(
@@ -827,6 +851,7 @@ def run_campaign(args: argparse.Namespace) -> dict:
             "contract_bundle": contract_info,
             "model_profile": profile_info,
             "policy_sha256": policy_sha,
+            "composer_config": composer_info,
             "encoder": encoder_info,
             "goal_specs_sha256": sha256_file(args.goal_specs),
             "training_scenes_sha256": sha256_file(args.training_scenes) if args.training_scenes else None,
@@ -839,7 +864,7 @@ def run_campaign(args: argparse.Namespace) -> dict:
             "encoder_fit_seconds": encoder_fit_seconds,
             "elapsed_seconds": elapsed,
             "seed": args.seed,
-            "refine_k": args.refine_k,
+            "refine_k": refine_k,
         },
         "separation": {
             "discovery_rankings_frozen_before_evaluator_read": True,
@@ -871,6 +896,7 @@ def main() -> int:
     parser.add_argument("--contract-bundle", type=Path, required=True)
     parser.add_argument("--model-profile", type=Path, required=True)
     parser.add_argument("--policy-bundle", type=Path, required=True)
+    parser.add_argument("--composer-config", type=Path, required=True)
     parser.add_argument("--encoder-bundle", type=Path, required=True)
     parser.add_argument("--training-scenes", type=Path)
     parser.add_argument("--equivalence-oracle", type=Path)
@@ -878,10 +904,7 @@ def main() -> int:
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--seed", type=int, default=20261108)
-    parser.add_argument("--refine-k", type=int, default=3)
     args = parser.parse_args()
-    if args.refine_k < 0 or args.refine_k > 10:
-        raise ValueError("--refine-k must be between 0 and 10")
     result = run_campaign(args)
     print(json.dumps(result, indent=2, ensure_ascii=False))
     return 0
