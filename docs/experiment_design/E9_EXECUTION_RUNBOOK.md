@@ -129,7 +129,7 @@ For predicted top-k set \(P_k\) and acceptable reference alternatives \(\mathcal
 
 The same selected reference is used for precision and recall. This avoids selecting a different alternative set for each side of the precision/recall point. An empty prediction set has precision=0, recall=0 and complete-set indicator=0; report coverage/abstention separately. Tasks with no admissible acceptable-set reference are excluded from these metrics, not scored as zero.
 
-Bootstrap intervals use the evaluator's \`independent_unit_id\` (task or a declared cluster). A group with fewer than two independent units receives no CI and is listed in the export manifest.
+Bootstrap intervals use the evaluator's \`independent_unit_id\` (task or a declared cluster). A group with fewer than two independent units receives no CI and is listed in the export manifest. Paired method comparisons use the same independent-unit definition: task differences are cluster-bootstrapped and sign-flipped at cluster level, while the reported mean difference is task-weighted. Paired rows retain both common-task and independent-unit counts.
 
 ## E9 comparator set
 
