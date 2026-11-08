@@ -1,0 +1,67 @@
+# Evidence ledger and corrected interpretation
+
+This ledger records what the current branch supports. The figures below are transcribed from the current final evaluation artifacts and must remain attached to their evidence class.
+
+## Registry and labels
+
+| Item | Current value | Evidence class | Permitted interpretation |
+|---|---:|---|---|
+| Merged registry | 76 servers, 569 tools | Measured from public registry snapshots | Size of the studied snapshot only |
+| MCP annotations | 44/569 tools; all claim \`readOnlyHint=true\` | Measured metadata | Annotation sparsity in this snapshot |
+| \(J_A\) state-modifying tools | 131 | LLM-labelled | First model's labels, not ground truth |
+| \(J_B\) state-modifying tools | 120 | LLM-labelled | Second model's labels, not ground truth |
+| Unsafe-set relation | \(U_B \subseteq U_A\) | Derived from machine labels | The simulated verifier based on A is guaranteed not to admit a B-unsafe tool when error-free |
+| Type agreement | 78.9% output-kind agreement; 35.7% complete-type agreement | LLM-labelled | Agreement, not semantic correctness |
+
+The subset relationship is a critical dependency. It invalidates the interpretation of zero false admission under the ideal simulated verifier as an independent measurement of verifier accuracy.
+
+## Retrieval and composition
+
+| Result | Current value | Correct interpretation |
+|---|---:|---|
+| E8 PaMCP Hit@1 on 569 tools | 23.0% | Negative result for current structural retrieval |
+| E8 MCP-Zero Hit@1 on 569 tools | 50.0% | Stronger result on the reported sample/protocol |
+| E8 raw-text RRF Hit@1 on 569 tools | 38.7% | Stronger result than current PaMCP full-registry retrieval |
+| E9 PaMCP group recall | 0.169 | Smaller toolkit, lower gold-group coverage |
+| E9 per-subtask group recall | 0.249 | Higher coverage |
+| E9 RAG-MCP / COLT / ToolScope group recall | 0.293 / 0.295 / 0.361 | Higher coverage with larger sets |
+| E9 non-inferiority to per-subtask | Not established; \(\Delta=-0.080\), 95% CI \([-0.166,0.002]\) | No non-inferiority conclusion |
+| E10 PaMCP joint feasibility | 67.0% | Labelled proxy from the separate evaluator, not executed task success |
+| E10 comparison to eligible per-subtask | Not significant; corrected \(p_H=1.0\) | No demonstrated superiority |
+
+## Trust and security
+
+| Experiment | Current evidence | Correct interpretation |
+|---|---|---|
+| E3 | Declarations and lexical cues scored against LLM labels | No observed sandbox effects were produced |
+| E4 | Simulated verifier evidence derived from \(J_A\), scored against \(J_B\) | Zero exposure is construction-dependent under the ideal verifier; utility remains measurable |
+| E5–E7 | Simulated forgeries, verifier errors and trust thresholds | Sensitivity under the selected simulator, not measured adversary/verifier behaviour |
+| E14 | Offline reachable-action analysis over label-derived effects | Static class-level reachability proxy; no injected action was executed |
+| E14 poisoning | \`poison_shown\` assigned \`0.0\` for selected sanitised variants in the experiment code | Not an empirical scan of the serialized manifest; the old zero must not be reported as an observed sanitisation rate |
+| E14 attack classes | Original code omitted tampering for any task with a non-empty required-effect set | The old denominator did not include all out-of-scope tampering cases |
+| E10 evaluator | Separate implementation using \(J_B\) and analyst goal records, with coarse kinds/effect classes | Separate implementation, not independent ground truth or a full semantic/runtime oracle |
+
+## Evolution, optimisation and QoS
+
+| Item | Current evidence | Correct interpretation |
+|---|---|---|
+| E15 at 10k/100k | Registries cloned from 569 source definitions | Synthetic scaling trend; not realistic registry heterogeneity |
+| E15 at 1m | Bitmap eligibility microbenchmark | Index microbenchmark only; not full-engine scaling |
+| E15 exact/greedy | Generated shared-intermediate cover instances; 20,000-node exact-search budget | Optimality gap only for solved instances; timeout/fallback is not an optimality guarantee |
+| E16 | Replay of remove/insert events and simulated rug pulls | Reference-implementation update behaviour, not independently observed production-server behaviour |
+| E17 | Deterministic repair operators | No evidence for LLM assistant repair |
+| E19/E21 | Not run | No evidence for role configurations or experience-reuse benefit |
+| E20 QoS | Registry has no differentiated price/latency; defaults are equal | QoS advantage not empirically exercised |
+
+## Evidence vocabulary to use consistently
+
+- **Measured:** deterministic quantity computed from a documented public snapshot or benchmark.
+- **Human-validated:** checked by independent human annotators with adjudication.
+- **Observed:** measured from controlled execution traces of actual MCP servers.
+- **Labelled:** scored against machine-generated reference labels.
+- **Simulated:** generated by an explicit verifier/attacker simulator.
+- **Synthetic:** generated registry/task/instance.
+- **Formal:** proven under stated mathematical assumptions.
+- **Blocked / not run:** required data, runtime environment or oracle is unavailable.
+
+Do not collapse “labelled”, “simulated”, and “observed” into one undifferentiated category.

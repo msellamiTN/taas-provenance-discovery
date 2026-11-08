@@ -1,0 +1,98 @@
+% Revision 1 evaluation draft. This file deliberately does not overwrite sections/evaluation_final.tex.
+% Evidence status is made explicit; no new measurements are claimed by this draft.
+\section{Experimental Evaluation}
+\label{sec:ev-revision}
+
+\subsection{Evaluation scope and evidence status}
+
+The evaluation distinguishes registry measurements, retrieval measurements, machine-labelled assessments,
+simulated verifier/attacker outcomes, synthetic scalability experiments and formal results. The distinction is
+material: the public registries do not provide human-validated effect labels or differentiated quality-of-service
+(QoS) measurements, and the current study does not execute the selected toolkits against live MCP servers.
+
+The merged snapshot contains 76 servers and 569 tools. Only 44 tools publish MCP annotations, all declaring
+\texttt{readOnlyHint=true}. The two reference label sets are LLM-generated: \(J_A\) contains 131 tools labelled
+state-modifying, while \(J_B\) contains 120. Importantly, the unsafe set of \(J_B\) is contained in that of \(J_A\).
+The simulated verifier uses \(J_A\), whereas the scoring step uses \(J_B\). Thus, under the ideal simulated verifier,
+zero admission of a \(J_B\)-unsafe tool follows from the label-set construction; it is not independent evidence that
+a real verifier has zero false accepts. Neither label set is human ground truth.
+
+\subsection{Retrieval and composition}
+
+On the reported 569-tool E8 registry, PaMCP's goal-contract retrieval obtains 23.0\% Hit@1, compared with
+50.0\% for MCP-Zero and 38.7\% for raw-text reciprocal-rank fusion. This is a negative result for the current
+structural retrieval configuration. The existing diagnosis identifies disagreement between goal output types and
+tool output types as a major source of ranking errors. Therefore, the current evidence does not support a claim
+that structural ranking improves full-registry retrieval.
+
+For the 94 LiveMCPBench tasks in E9, PaMCP selects smaller toolkits (1.47 tools on average) but obtains group
+recall of 0.169. Per-subtask retrieval obtains 0.249, RAG-MCP 0.293, COLT 0.295 and ToolScope 0.361 under the
+reported configurations. Non-inferiority to per-subtask retrieval is not established (\(\Delta=-0.080\),
+95\% CI \([-0.166,0.002]\)). The result supports a toolkit-size/context trade-off, not superior functional coverage.
+
+E10 reports 67.0\% joint feasibility for PaMCP under its separate evaluator. This is a labelled proxy: the evaluator
+uses the analyst's goal records and LLM-generated \(J_B\) labels, and it simplifies semantic type and effect-scope
+reasoning. The comparison with eligible-only per-subtask retrieval is not significant after the stated correction
+(\(\Delta=0.043,\ p_H=1.0\)). The result does not establish improved end-to-end task success.
+
+\subsection{Trust and policy evaluation}
+
+E4--E7 explore annotation, lexical and simulated verifier encodings. Their findings describe outcomes under the
+chosen label-derived verifier and error simulator. Utility can be measured under these conditions, but verifier
+false-acceptance rates are simulator parameters rather than measured rates from executed server probes. In
+particular, zero exposure under the error-free verifier must not be interpreted independently of
+\(U_{J_B}\subseteq U_{J_A}\).
+
+The current E14 experiment is an offline reachable-action analysis. No injected action is executed. Moreover,
+the previous poisoning statistic assigned zero exposure to selected sanitised variants rather than scanning the
+actual serialized manifest, and its task-level attack-set builder omitted tampering for tasks with any required
+effect. These values are not retained as evidence of sanitisation or runtime attack prevention. Revision 1 adds
+a scope-aware re-analysis and a manifest canary audit; their output must be generated before any revised numeric
+result is inserted here. Because the revised estimand differs from the original F5, the re-analysis is exploratory
+and does not inherit the original confirmatory status.
+
+Task effect requirements are interpreted at their declared scope. For example,
+\texttt{write(/reports)} does not authorize \texttt{write(/secrets)} or an unknown, unscoped write. When the
+reference labels contain only an effect class and no target scope, the outcome is reported as indeterminate rather
+than safe.
+
+\subsection{Profile, scale, evolution and repair}
+
+The model profile experiment uses 64 calibration items across four operation classes and the tested input sizes.
+It supports observations about these items and models only; it does not validate the full conditional reliability
+function over all transformation classes, languages and difficulty levels.
+
+The 10k/100k scalability experiments use cloned contracts derived from the 569-tool registry. They are synthetic
+scaling experiments. The one-million-entry result measures bitmap eligibility only and must not be described as
+full-engine one-million-tool scalability. The eager pairwise risk relation also contributes materially to engine
+construction cost.
+
+The current registry provides no differentiated prices or measured latency values, so the QoS weights are not
+meaningfully exercised. The generated exact-versus-greedy cover experiments establish behaviour only for their
+specified generated instances and node budget. E17 evaluates deterministic repair operators; the LLM assistant
+repair role was not run. E13 end-to-end execution, E19 role configurations and E21 experience reuse remain
+unmeasured.
+
+\subsection{Threats to validity}
+
+\emph{Construct validity.} Tool types, effects and private-source labels are LLM-generated. Agreement between
+models is not a substitute for human or runtime ground truth. Joint feasibility and attack reachability are proxies,
+not executed task outcomes.
+
+\emph{Internal validity.} The simulated verifier's evidence source is label A, and label B's unsafe set is contained
+in A's. The ideal verifier's zero unsafe admission is consequently construction-dependent. The baseline
+implementations include documented adaptations; those results should not be conflated with faithful reproductions
+of the original systems. The current retrieval comparison also has a negative result for PaMCP on the merged
+registry.
+
+\emph{External validity.} The registry snapshot has 569 tools and sparse annotations. Larger registries are
+constructed by cloning. QoS data are absent. No live MCP task-execution benchmark or human-annotated tool
+ground truth is included.
+
+\subsection{Summary}
+
+The current evidence establishes the feasibility of the reference implementation and provides useful measurements
+of registry metadata, retrieval behaviour, toolkit size, labelled feasibility proxies, index maintenance and
+synthetic scaling. It does not yet establish end-to-end task success, real-world verifier accuracy, executed
+attack prevention, QoS advantage, LLM-assisted repair effectiveness or experience-reuse benefit. Those claims
+require the additional experiments specified in the Revision 1 protocol.
