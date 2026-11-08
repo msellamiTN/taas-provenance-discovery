@@ -16,6 +16,7 @@ from experiments.e9_retrieval_campaign import (
     load_encoder,
     load_equivalence_oracle,
     validate_release_gate,
+    validate_e9_dataset_snapshot,
 )
 from taas.experiments.baseline_runner import BaselineResult
 
@@ -494,3 +495,35 @@ def test_prepared_package_rejects_symlinked_checksum_manifest(tmp_path):
     with pytest.raises(ValueError, match="must not be a symlink"):
         from experiments.e9_retrieval_campaign import verify_prepared_package_integrity
         verify_prepared_package_integrity(root)
+
+
+def test_e9_dataset_snapshot_requires_pinned_revision_and_exact_denominators():
+    tools = [{"tool_id": f"server-{i}::tool-{i}"} for i in range(525)]
+    tasks = [{"task_id": f"task-{i}"} for i in range(94)]
+    manifest = {
+        "benchmark": "LiveMCPBench",
+        "source_revision": "36a51a1065dda49c1e503b87edf33a1e0b331a74",
+        "candidate_registry_view": "LiveMCPTool only; MCPToolBench++ is not merged into E9 candidates",
+        "candidate_tool_count": 525,
+        "candidate_server_count": 69,
+        "resolution": {
+            "tasks_total": 95,
+            "tasks_primary_eligible": 94,
+            "tasks_excluded_no_resolvable_gold": 1,
+        },
+    }
+    result = validate_e9_dataset_snapshot(tools, tasks, manifest)
+    assert result["candidate_tool_count"] == 525
+    assert result["task_count"] == 94
+
+    wrong_revision = dict(manifest, source_revision="different-revision")
+    with pytest.raises(ValueError, match="source revision mismatch"):
+        validate_e9_dataset_snapshot(tools, tasks, wrong_revision)
+
+    wrong_denominator = dict(manifest, candidate_tool_count=569)
+    with pytest.raises(ValueError, match="denominator mismatch"):
+        validate_e9_dataset_snapshot(tools, tasks, wrong_denominator)
+
+    wrong_pool = dict(manifest, candidate_registry_view="merged registry")
+    with pytest.raises(ValueError, match="LiveMCPTool-only"):
+        validate_e9_dataset_snapshot(tools, tasks, wrong_pool)
