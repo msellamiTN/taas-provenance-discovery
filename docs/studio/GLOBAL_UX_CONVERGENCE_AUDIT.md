@@ -137,6 +137,26 @@ Static extraction from src/taas/studio/api.py found:
 
 The assurance evidence route is defined in the separately mounted src/taas/studio/assurance_routes.py router, not directly in api.py. Route existence does not prove frontend integration, production authorization, safe operational readiness, or correct UI semantics. Each route needs request/response schema, auth, side-effect, error, pagination, provenance and state-semantics review before being exposed as an action.
 
+
+
+### Route protection and POST side-effect classification
+
+The inspected app declares 62 routes (35 GET, 27 POST). The separately mounted assurance router adds one authenticated GET route. In the inspected source, the three public routes are GET /health, GET /ready and GET /; the remaining 60 effective routes declare the bearer-token dependency. This confirms a route-level token boundary, not a production identity/role/tenant authorization model.
+
+POST routes must not be treated as one generic “action” class:
+
+| Operation class | Routes / behavior | UX treatment |
+|---|---|---|
+| Pure validation/estimation | GoalSpec validation, Agent/Skill manifest validation, model-memory estimate | Safe to present as explicit validation/estimate; do not imply semantic correctness or measured capacity |
+| Discovery analysis | Tool retrieve, eligibility, comparison, discovery | Explicit user-triggered analysis; discovery persists a run/audit record, requires human_review_confirmed, and does not invoke MCP tools |
+| Model inference/runtime | Model load and model chat; Agent decomposition uses a selected model to propose a GoalSpec | Clearly label model download/load and inference; never label these as MCP execution |
+| Registry mutations | Agent/Skill draft creation, saved-version validation transitions, publish, Skill signing/revocation | Require explicit user intent, exact immutable subject/version, precondition display, confirmation, and audit/provenance feedback |
+| Human approval evidence | Agent approval-record endpoint | Explicit human action only; immutable evidence record, not authorization or execution permission |
+| MCP metadata inspection | Server inspect and registry snapshot inspect | Read-only tools/list inspection only; snapshot inspection also persists an immutable registry snapshot, so disclose this state change |
+| Governance diagnostics | Policy evaluation and authorization preflight | Diagnostic decision only; caller-asserted facts must remain labelled, and preflight must never be presented as an authorization grant |
+
+The discovery handler explicitly rejects requests without human_review_confirmed (HTTP 409), records a discovery run and audit event, and states that it does not invoke MCP tools. The authorization-preflight handler explicitly says it evaluates trusted preconditions only and never authorizes or invokes tools. The human-approval handler explicitly returns authorization_granted=false and execution_enabled=false.
+
 ## 5. Confirmed convergence defects and risks
 
 | ID | Finding | Evidence | Required correction |
