@@ -84,7 +84,7 @@ def eligibility():
 def retrieval():
     e8 = load("E8_single_tool")
     R = e8["results"]
-    fig, axs = plt.subplots(1, 2, figsize=(7.16, 2.0), gridspec_kw={"width_ratios": [1, 1.1]})
+    fig, axs = plt.subplots(1, 2, figsize=(7.16, 2.45), gridspec_kw={"width_ratios": [1, 1.1]})
     ax = axs[0]
     lab = {"pamcp_contract": "PaMCP (goal contract)", "mcp_zero": "MCP-Zero", "bm25": "BM25", "rrf": "RRF (raw text)",
            "dense_lsa": "dense / RAG-MCP", "colt_adapted": "COLT", "toolscope_adapted": "ToolScope",
@@ -100,7 +100,7 @@ def retrieval():
     ax.xaxis.set_major_formatter(P.PCT)
     ax.set_xlabel("Hit@1 (95% CI, target-tool clusters)")
     P.grid(ax, "x")
-    ax.legend(fontsize=5.5, loc="lower right")
+    ax.legend(fontsize=5.5, loc="upper center", bbox_to_anchor=(0.5, -0.36), ncol=2, frameon=False)
     ax.set_title("(a) Single-tool retrieval, 300 requests", fontsize=7)
     ax = axs[1]
     c = R["distractor_curve_hit1"]
@@ -111,7 +111,7 @@ def retrieval():
     ax.set_ylabel("Hit@1")
     ax.yaxis.set_major_formatter(P.PCT)
     P.grid(ax)
-    ax.legend(fontsize=5.5, ncol=2)
+    ax.legend(fontsize=5.5, ncol=3, loc="upper center", bbox_to_anchor=(0.5, -0.4), frameon=False)
     ax.set_title("(b) Distractor curve (5 seeds)", fontsize=7)
     fig.tight_layout(w_pad=1.0)
     save(fig, "paper_retrieval")
@@ -139,6 +139,11 @@ def profile_gap():
     for i, ex in enumerate(("tolerant", "exact")):
         ys = [np.nan if R[f"sonnet|0.9|{n}|{ex}|gap"]["abstain"] else R[f"sonnet|0.9|{n}|{ex}|gap"]["size"] for n in ns]
         ax.plot(ns, ys, marker=P.MARKERS[i], color=S[i], ms=3, label=ex)
+        ab = [n for n, y in zip(ns, ys) if y != y]
+        ax.scatter(ab, [1.4 + 0.25 * i] * len(ab), marker="x", s=14, color=S[i], zorder=3)
+    ax.annotate("abstains", (30000, 1.5), xytext=(-4, 0), textcoords="offset points", ha="right", va="center",
+                fontsize=5.5, color=P.INK2)
+    ax.set_ylim(1.0, 6.6)
     ax.set_xscale("log")
     ax.set_xlabel("reviews n", fontsize=6.5)
     ax.set_ylabel("|K|", fontsize=6.5)

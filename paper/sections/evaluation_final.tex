@@ -27,6 +27,8 @@ and 3 servers coincide, giving the 76 servers and 569 tools of Table~1. Multi-st
 tasks of the public release, 94 of them with a resolvable gold tool. MCPToolBench++ provides 1,509 single-call
 requests; a 60-query development split (ten per category) is used for every tuning decision, and a disjoint
 evaluation sample of 300 distinct queries (50 per category) is used wherever a method needs a recorded LLM output.
+E14, E17, E18 and E20 run on 155 tasks, the 95 LiveMCPBench tasks and the 60 development prompts, each under its
+least-privilege policy (read access plus the scoped writes its goals need) and under a strict read-only policy.
 
 % Plan: two independent labellings; what each is used for; agreement and its limit.
 \emph{Reference labels.} Neither benchmark labels effects. Labels $J_A$ were produced by Claude Sonnet from each
@@ -35,8 +37,9 @@ sandbox verifier bound to $h(t)$. Labels $J_B$ were produced blind by Claude Opu
 and are used only for scoring, so that the evidence an experiment simulates never comes from the labels that
 score it. The two agree on state modification for 558 of the 569 tools ($\kappa=0.944$) and on private output with
 $\kappa=0.893$. Every tool that is not read-only under $J_B$ (120 tools) is also not read-only under $J_A$ (131
-tools), so verified evidence simulated from $J_A$ can over-exclude but never admit a tool that $J_B$ considers
-unsafe. Both labellings come from one model family and neither is human ground truth.
+tools), so an error-free verifier simulated from $J_A$ can over-exclude but never admit a tool that $J_B$
+considers unsafe; verifier errors are injected separately (E5--E7). Both labellings come from one model family
+and neither is human ground truth.
 
 % Plan: recorded LLM roles.
 \emph{LLM roles.} All LLM outputs were recorded once and are replayed: the analyst's goal contracts (Claude Sonnet;
@@ -103,7 +106,7 @@ native claims (9.4\%).
 \includegraphics[width=\columnwidth]{paper_profile_gap}
 \caption{(a) Self-assessed against measured reliability per class and input size (E12; four items per point).
 (b) Toolkit size of the review scenario against the number of reviews, Claude Sonnet profile, $\tau=0.9$ (E11);
-a missing point is an abstention.}
+crosses mark abstentions.}
 \label{fig:ev-profile}
 \end{figure}
 
@@ -150,8 +153,8 @@ the simulation, and the measured content is the utility cost.
 
 % Plan: E5 forgery and laundering.
 \emph{Forged and laundered metadata (E5).} Forged annotations are what break the closed-world reading: its
-exposure rises from 31.5\% to 57.1\% when a tenth of the servers forge their hints and to 62.6\% at 30\%
-(Fig.~\ref{fig:ev-eligibility}b). Laundered descriptions barely affect the lexical encoding (8.7--9.9\%), because
+exposure rises from 31.5\% to 57.1\% when a tenth of the servers forge their hints and launder their descriptions
+(56.8\% with forgery alone) and to 62.6\% at 30\% (Fig.~\ref{fig:ev-eligibility}b). Laundered descriptions barely affect the lexical encoding (8.7--9.9\%), because
 the tool names that carry most lexical cues are kept. Verified evidence does not depend on $\delta$: with a 5\%
 false-accept rate its exposure averages 5.4--5.6\% for every $\delta>0$, at a utility of 46.1--46.7\%. Which unsafe
 tools are falsely accepted varies with the seed, and so does exposure (0.0--14.7\% per seed); the single seed run

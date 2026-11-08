@@ -19,7 +19,9 @@ def p(x, d=1):
 
 
 def f(x, d=3):
-    s = "--" if x is None or x != x else f"{x:.{d}f}"
+    if x is None or x != x:
+        return "--"
+    s = f"{x:.{d}f}"
     return "$-$" + s[1:] if s.startswith("-") else s
 
 
@@ -76,7 +78,7 @@ def sets():
     rows = [
         ("\\pamcp{} ($K{=}5$)", "pamcp@5", "pamcp(K=10)", "pamcp@size-matched"),
         ("\\quad without closure", "pamcp_noclosure", None, None),
-        ("Per-subtask (analyst)", "per_subtask[analyst]", "per_subtask[analyst]|eligible-only",
+        ("Per-subtask", "per_subtask[analyst]", "per_subtask[analyst]|eligible-only",
          "per_subtask[analyst]@size-matched"),
         ("MCP-Zero", "mcp_zero", "mcp_zero|eligible-only", "mcp_zero_ranked@size-matched"),
         ("RAG-MCP top-5", "rag_mcp@5", "rag_mcp@5|eligible-only", "rag_mcp@size-matched"),
@@ -99,10 +101,11 @@ def sets():
 \caption{Set retrieval (E9, open policy) and set validity (E10, each task's least-privilege policy) on the 94
 LiveMCPBench tasks. Rec.: group recall; Comp.: share of tasks whose gold groups are all covered; Rec.$_{sm}$:
 recall with every method truncated to \pamcp{}'s toolkit size (84 tasks with a non-empty toolkit); Joint: joint
-feasibility under the independent evaluator, for baselines restricted to eligible tools / as published;
-Abst.: abstentions. Tokens of the raw tool definitions.}
+feasibility under the independent evaluator (\pamcp{} with $K{=}10$, identical for $K{=}20, 40$; baselines
+restricted to eligible tools / as published); Abst.: abstentions. Per-subtask uses the analyst's subgoals. Tokens
+of the raw tool definitions.}
 \label{tab:ev-sets}
-\centering\footnotesize\setlength{\tabcolsep}{2.2pt}
+\centering\footnotesize\setlength{\tabcolsep}{1.5pt}
 \begin{tabular}{@{}lrrrrrrr@{}}
 \toprule
 Method & $|K|$ & Tok. & Rec. & Comp.\% & Rec.$_{sm}$ & Joint\% & Abst.\%\\
@@ -152,7 +155,7 @@ joint feasibility (independent evaluator); Reach: worst-case share of task $\tim
 toolkit can realise under $J_B$ (least privilege: 712 pairs; strict read-only: 775). Shapley attribution of the
 full-vs-none difference (G/P/S): """ + "; ".join(shrow).replace("$-$", "$-$") + r""".}
 \label{tab:ev-factorial}
-\centering\footnotesize\setlength{\tabcolsep}{2.0pt}
+\centering\footnotesize\setlength{\tabcolsep}{1.5pt}
 \begin{tabular}{@{}llrrrrrrr@{}}
 \toprule
 Cell & Mech. & $|K|$ & Tok. & Rec. & Joint\% & Reach\% & R-O\% & Abst.\%\\
@@ -186,8 +189,8 @@ def family():
 \caption{Preregistered confirmatory family (E22): paired sign-flip tests, bootstrap 95\% CIs of the mean
 difference (first method minus second), Holm-adjusted $p_H$. For F1, $p$ is the one-sided non-inferiority test.}
 \label{tab:ev-family}
-\centering\footnotesize\setlength{\tabcolsep}{2.0pt}
-\begin{tabular}{@{}lp{3.25cm}rrlrr@{}}
+\centering\footnotesize\setlength{\tabcolsep}{1.8pt}
+\begin{tabular}{@{}lp{2.6cm}rrlrr@{}}
 \toprule
 ID & Comparison & $n$ & $\Delta$ & 95\% CI & $p$ & $p_H$\\
 \midrule

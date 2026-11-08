@@ -2,22 +2,23 @@
 \caption{Set retrieval (E9, open policy) and set validity (E10, each task's least-privilege policy) on the 94
 LiveMCPBench tasks. Rec.: group recall; Comp.: share of tasks whose gold groups are all covered; Rec.$_{sm}$:
 recall with every method truncated to \pamcp{}'s toolkit size (84 tasks with a non-empty toolkit); Joint: joint
-feasibility under the independent evaluator, for baselines restricted to eligible tools / as published;
-Abst.: abstentions. Tokens of the raw tool definitions.}
+feasibility under the independent evaluator (\pamcp{} with $K{=}10$, identical for $K{=}20, 40$; baselines
+restricted to eligible tools / as published); Abst.: abstentions. Per-subtask uses the analyst's subgoals. Tokens
+of the raw tool definitions.}
 \label{tab:ev-sets}
-\centering\footnotesize\setlength{\tabcolsep}{2.2pt}
+\centering\footnotesize\setlength{\tabcolsep}{1.5pt}
 \begin{tabular}{@{}lrrrrrrr@{}}
 \toprule
 Method & $|K|$ & Tok. & Rec. & Comp.\% & Rec.$_{sm}$ & Joint\% & Abst.\%\\
 \midrule
 \pamcp{} ($K{=}5$) & 1.47 & 199 & 0.169 & 4.3 & 0.189 & 67 & 7\\
-\quad without closure & 1.40 & 195 & 0.168 & 4.3 & $-$- & -- & 10\\
-Per-subtask (analyst) & 2.59 & 346 & 0.249 & 9.6 & 0.138 & 63/52 & 0\\
+\quad without closure & 1.40 & 195 & 0.168 & 4.3 & -- & -- & 10\\
+Per-subtask & 2.59 & 346 & 0.249 & 9.6 & 0.138 & 63/52 & 0\\
 MCP-Zero & 1.76 & 250 & 0.227 & 8.5 & 0.200 & 57/55 & 0\\
 RAG-MCP top-5 & 5.00 & 1244 & 0.293 & 13.8 & 0.130 & 61/49 & 0\\
 COLT top-5 & 5.00 & 1094 & 0.295 & 12.8 & 0.084 & 60/48 & 0\\
-ToolScope top-5 & 5.20 & 976 & 0.361 & 17.0 & $-$- & 73/60 & 0\\
-CMTF (path) & 0.64 & 105 & 0.072 & 1.1 & $-$- & 26/23 & 0\\
+ToolScope top-5 & 5.20 & 976 & 0.361 & 17.0 & -- & 73/60 & 0\\
+CMTF (path) & 0.64 & 105 & 0.072 & 1.1 & -- & 26/23 & 0\\
 \bottomrule
 \end{tabular}
 \end{table}
