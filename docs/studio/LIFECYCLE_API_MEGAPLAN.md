@@ -126,7 +126,7 @@ authorization; preflight does not execute; diagnostics are observations.
 | Activity | Gaps worth filing | Status |
 |---|---|---|
 | A1 Define | Server-side proposal provenance (who edited which field) | **Delivered** — `GET /workspaces/{id}/revisions` (`taas.workspace-revision-history/v1`): immutable per-revision actor + added/removed/changed JSON paths, cascade-deleted with the draft |
-| A1 Define | Versioned GoalSpec templates | Open — template catalog, no persistence contract yet |
+| A1 Define | Versioned GoalSpec templates | **Delivered** — `GET /goalspec/templates` + `GET /goalspec/templates/{id}` (`taas.goalspec-template(-list)/v1`): curated immutable catalog, `spec_sha256` per draft, every draft passes `/goals/validate`; explicit `authored_draft_not_validation_not_authorization` semantics |
 | A2 Build | Agent version diff endpoint | **Delivered** — `GET /agents/{id}/versions/{a}/diff/{b}` (`taas.agent-version-diff/v1`) |
 | A2 Build | Manifest signature/attestation parity with skills | **Delivered** — `POST/GET …/sign`, `…/signature`, `POST/GET …/revoke`, `…/revocation`; revoked versions refuse new signatures |
 | A3 Discover | `GET /tools` lacks category/source facet counts | **Delivered** — deterministic `facets` over the filtered result set |
