@@ -122,13 +122,13 @@ def test_e9_export_uses_only_acceptable_set_references_and_renders(tmp_path):
     f2 = pd.read_csv(output / "E9-F2.csv")
     f3 = pd.read_csv(output / "E9-F3.csv")
     assert set(f1["benchmark"]) == {"live_mcpbench_test"}
-    assert set(f1["category"]) == {"Full_PaMCP", "all_tools", "rag_mcp"}
+    assert set(f1["category"]) == {"Full_PaMCP", *REGISTERED}
     assert set(f1["series"]) == {"Group recall@1", "Group recall@3", "Group recall@5", "Group recall@10", "Group recall@20"}
     assert set(f1["decomposition"]) == {"none", "clause_splitter", "llm_analyst"}
     assert ((f1["ci_low"] <= f1["value"]) & (f1["value"] <= f1["ci_high"])).all()
     assert set(f2["series"]) == {"@1", "@3", "@5", "@10", "@20"}
     assert set(f2["decomposition"]) == {"none", "clause_splitter", "llm_analyst"}
-    assert set(f2["label"]) == {"Full_PaMCP", "all_tools", "rag_mcp"}
+    assert set(f2["label"]) == {"Full_PaMCP", *REGISTERED}
     assert set(f3["task_group"]) == {"Office", "Travel"}
     assert set(f3["decomposition"]) == {"none", "clause_splitter", "llm_analyst"}
     assert set(f3["k"]) == {1, 3, 5, 10, 20}
@@ -137,6 +137,10 @@ def test_e9_export_uses_only_acceptable_set_references_and_renders(tmp_path):
     assert set(f4["group"]) == {"Full_PaMCP", *REGISTERED}
     assert set(f4["k"]) == {1, 3, 5, 10, 20}
     assert len(f4) == 270
+    assert (f4.groupby(["group", "k"]).size() > 0).all()
+    full_pa = f4[(f4["group"] == "Full_PaMCP") & (f4["k"] == 1)]
+    assert len(full_pa) == 3 * 3  # 3 evaluable tasks × 3 decomposition conditions
+    # A selected toolkit can be larger than the candidate budget; do not truncate it.
 
     for figure_id, frame in [("E9-F1", f1), ("E9-F2", f2), ("E9-F3", f3), ("E9-F4", f4)]:
         figure = _figure(figure_id)
