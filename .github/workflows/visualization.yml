@@ -210,8 +210,27 @@ jobs:
               ).encode(),
           }
           create_zip(base / "PaMCP-E2-OWNER-CONTROL-NOT-FROZEN.zip", owner_payload)
-          for path in sorted(base.glob("*.zip")):
-              print(path.name, path.stat().st_size)
+          import zipfile
+          paths = {
+              "A": base / "PaMCP-E2-ANNOTATOR-A-PROPOSAL-NOT-FROZEN.zip",
+              "B": base / "PaMCP-E2-ANNOTATOR-B-PROPOSAL-NOT-FROZEN.zip",
+              "OWNER": base / "PaMCP-E2-OWNER-CONTROL-NOT-FROZEN.zip",
+          }
+          for key, path in paths.items():
+              with zipfile.ZipFile(path) as archive:
+                  names = set(archive.namelist())
+                  assert "SHA256SUMS.json" in names
+                  sums = json.loads(archive.read("SHA256SUMS.json"))
+                  for name, expected in sums.items():
+                      assert hashlib.sha256(archive.read(name)).hexdigest() == expected
+                  if key in {"A", "B"}:
+                      assert "restricted_mapping_DO_NOT_DISTRIBUTE.csv" not in names
+                      assert "restricted_mapping.csv" not in names
+                      assert f"annotator_{key}.csv" in names
+                  else:
+                      assert "restricted_mapping_DO_NOT_DISTRIBUTE.csv" in names
+                      assert "annotator_A.csv" not in names and "annotator_B.csv" not in names
+              print(path.name, path.stat().st_size, "SHA-256 verified")
           PY
       - name: Upload proposed E2 Annotator A package (no restricted mapping)
         uses: actions/upload-artifact@v4
