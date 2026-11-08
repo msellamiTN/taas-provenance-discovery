@@ -5,7 +5,7 @@ HTML = Path(__file__).parents[1] / "src" / "taas" / "studio" / "static" / "index
 
 def test_ux9_navigation_and_all_mockup_views_exist():
     html = HTML.read_text(encoding="utf-8")
-    assert '<a href="#objective-traceability-explorer">Objective Traceability Explorer (UX-9)</a>' in html
+    assert '<a href="#objective-traceability-explorer">Traceability explorer</a>' in html
     for marker in ('id="ux9-panel-graph"', 'id="ux9-panel-lineage"', 'id="ux9-panel-relationships"',
                    'id="ux9-panel-evidence"', 'id="ux9-panel-export"', 'id="ux9-inspector-body"',
                    'id="ux9-group-objectives"', 'id="ux9-group-subgoals"', 'id="ux9-group-tools"', 'id="ux9-group-evidence"', 'id="ux9-group-experiments"', 'id="ux9-group-other"', 'id="ux9-canvas"'):

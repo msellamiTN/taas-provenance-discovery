@@ -36,9 +36,8 @@ def test_nested_workspace_switching_preserves_global_runtime_snapshot():
 
 def test_professional_studio_navigation_exposes_capability_groups():
     html = STUDIO_HTML.read_text(encoding="utf-8")
-    assert 'nav-label">BUILD</span>' in html
-    assert 'nav-label">TOOLS &amp; DISCOVERY</span>' in html
-    assert 'nav-label">OPERATE &amp; OBSERVE</span>' in html
+    for label in ("1 · DEFINE", "2 · BUILD", "3 · DISCOVER", "4 · VERIFY", "5 · OPERATE", "6 · EVALUATE &amp; MANAGE"):
+        assert f'nav-label">{label}</span>' in html
     assert 'href="#overview-workspace" aria-current="page"' in html
     assert ".studio-nav a:focus-visible" in html
 
