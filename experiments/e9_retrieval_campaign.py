@@ -120,6 +120,8 @@ def git_value(*args: str) -> str | None:
 def verify_prepared_package_integrity(prepared_dir: Path) -> dict[str, Any]:
     """Verify package inventory and discovery bytes without opening evaluator references."""
     sums_path = prepared_dir / "SHA256SUMS.json"
+    if sums_path.is_symlink():
+        raise ValueError(f"E9 package checksum manifest must not be a symlink: {sums_path}")
     if not sums_path.is_file():
         raise FileNotFoundError(f"Missing E9 package checksum manifest: {sums_path}")
     checksums = read_json(sums_path)
