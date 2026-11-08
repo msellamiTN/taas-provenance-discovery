@@ -17,6 +17,7 @@ from experiments.e9_retrieval_campaign import (
     load_equivalence_oracle,
     validate_release_gate,
     validate_e9_dataset_snapshot,
+    validate_source_artifact_link,
 )
 from taas.experiments.baseline_runner import BaselineResult
 
@@ -602,3 +603,28 @@ def test_llm_analyst_goalspec_requires_frozen_prompt_decoding_and_usage_metadata
     _jsonl(path, [bad])
     with pytest.raises(ValueError, match="non-empty usage"):
         load_goal_specs(path, [{"task_id": "t1", "prompt": prompt}])
+
+
+def test_downstream_bundle_source_artifacts_must_match_release_gate():
+    expected = {
+        "sha256": "a" * 64,
+        "acceptance_id": "accepted-E2-2026-11",
+    }
+    source = {
+        "status": "accepted",
+        "sha256": expected["sha256"],
+        "acceptance_id": expected["acceptance_id"],
+    }
+    validate_source_artifact_link(source, expected, "E2 contract")
+    with pytest.raises(ValueError, match="SHA-256 does not match"):
+        validate_source_artifact_link(
+            dict(source, sha256="b" * 64), expected, "E2 contract"
+        )
+    with pytest.raises(ValueError, match="acceptance ID does not match"):
+        validate_source_artifact_link(
+            dict(source, acceptance_id="different-acceptance"), expected, "E2 contract"
+        )
+    with pytest.raises(ValueError, match="explicitly accepted"):
+        validate_source_artifact_link(
+            dict(source, status="proposed_not_frozen"), expected, "E2 contract"
+        )
