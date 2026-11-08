@@ -415,13 +415,13 @@ def test_toolscope_oracle_rejects_duplicate_or_contradictory_pairs(tmp_path):
     duplicate = dict(common)
     duplicate["equivalent_pairs"] = [["srv::a", "srv::b"], ["srv::b", "srv::a"]]
     _json(path, duplicate)
-    with pytest.raises(ValueError, match="duplicated or conflicting"):
+    with pytest.raises(ValueError, match="duplicated or receives conflicting labels"):
         load_equivalence_oracle(path, {"srv::a", "srv::b", "srv::c"})
 
     conflict = dict(common)
     conflict["non_equivalent_pairs"] = [["srv::b", "srv::a"]]
     _json(path, conflict)
-    with pytest.raises(ValueError, match="duplicated or conflicting"):
+    with pytest.raises(ValueError, match="duplicated or receives conflicting labels"):
         load_equivalence_oracle(path, {"srv::a", "srv::b", "srv::c"})
 
 
