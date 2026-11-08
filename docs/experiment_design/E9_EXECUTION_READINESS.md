@@ -21,7 +21,7 @@ The E9 figure contracts, 94-task LiveMCPBench preparer, protocol-gated retrieval
 | Independent typed contracts / equivalence oracle | No E9-specific frozen contract/oracle package is present | CMTF and ToolScope results remain blocked until their independent inputs exist |
 | E9 rankings / run manifest | No \`results/definitive/E9/<run-id>/\` exists | No definitive method ranking or primary set metric is available |
 
-Before any method execution, the runner rejects a checksummed but protocol-mismatched package: it checks the immutable LiveMCPBench source revision, LiveMCPTool-only registry view, 525 candidate tools/69 servers, and 94 eligible tasks from the 95-task source set.
+Before any method execution, the runner rejects a checksummed but protocol-mismatched package: it checks the immutable LiveMCPBench source revision, LiveMCPTool-only registry view, 525 candidate tools/69 servers, and 94 eligible tasks from the 95-task source set. It also verifies the actual tool server IDs and `dataset_id`/split fields in candidate and task rows.
 
 ## Primary metric gate
 
