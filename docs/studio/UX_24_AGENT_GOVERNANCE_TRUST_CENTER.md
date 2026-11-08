@@ -51,6 +51,8 @@ The current per-Agent verdict response does not expose the complete internal fac
 
 The current audit verifier scans at most the first 1,000 events in ascending sequence (`audit_ledger.verify_chain`). UX-24 therefore labels a successful result `SCANNED_PREFIX_VALID` and states the scan limit. It must not be interpreted as whole-ledger verification if more than 1,000 events exist.
 
+On each assessment, UX-24 clears prior subject data before requesting the newly selected immutable version and temporarily locks the selectors to prevent late responses from being attributed to a different selection. An empty evidence summary is rendered as `NO_VERIFIED_RECORDS`, not as evidence present.
+
 ## Acceptance criteria
 
 - [ ] Navigation link opens UX-24 through the existing workspace router.
