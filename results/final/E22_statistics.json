@@ -3,15 +3,18 @@
  "evidence": "MEASURED (statistics over the other result files)",
  "notes": "",
  "manifest": {
-  "run_id": "E22_statistics-2026-11-08T10:59:11Z-18d29b17f3",
-  "created": "2026-11-08T10:59:11Z",
-  "commit": "0a9c5f2a17ae89c30a380410636a9249236bb296",
-  "dirty_code_files": [
-   "experiments/final/e15_e16_scale_evolution.py",
-   "experiments/final/paper_figures_final.py"
-  ],
-  "code_sha256": "18d29b17f3c3a2512efa06c5bc4b49a8366556e38bff11c412cb9324fea765f9",
+  "run_id": "E22_statistics-2026-11-08T13:28:17Z-fb20fb3e90",
+  "created": "2026-11-08T13:28:17Z",
+  "commit": "d2f2131cfd7bedc92c98c9641a09ff5e124fb06b",
+  "dirty_code_files": [],
+  "code_sha256": "fb20fb3e9023aaee833b30ffe3b1e17636557834e2b5c2c2dc4a58e3c3325fe4",
   "python": "3.13.18",
+  "packages": {
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "sklearn": "1.9.1",
+   "matplotlib": "3.11.2"
+  },
   "config": {},
   "inputs": {
    "data/processed/registry_merged.json": "a24bb9c5c788f8856288993c8f3c21b7fcd84b6491cc1a2b778b3b5d5a787045"
@@ -167,7 +170,7 @@
  },
  "split_stability": {
   "stratified": {
-   "kendall_tau_mean": 0.6878571428571427,
+   "kendall_tau_mean": 0.6828571428571428,
    "kendall_tau_p5": 0.42857142857142855,
    "same_best_share": 1.0,
    "n_splits": 200
