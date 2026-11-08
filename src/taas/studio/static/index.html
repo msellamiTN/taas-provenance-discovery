@@ -593,6 +593,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
       <a href="#ux20-compliance-dashboard">Compliance &amp; Assurance Dashboard (UX-20)</a>
       <a href="#ux21-remediation-workbench">Risk &amp; Remediation Workbench (UX-21)</a>
       <a href="#ux22-agent-observability">Agent Performance &amp; Lifecycle Observability (UX-22)</a>
+      <a href="#ux23-discovery-composition">Agent Discovery, Selection &amp; Composition (UX-23)</a>
       <span class="nav-label">OPERATE &amp; OBSERVE</span>
       <a href="#workspace">Benchmark workspace</a>
       <a class="overview-shortcut" href="#runtime">Runtime diagnostics</a>
@@ -1420,6 +1421,72 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 </div>
 <div class="u22-card"><div class="panel-head"><div><h3>Live Core response inspector</h3><p class="subtle">Exact supported responses and explicit unavailable capabilities.</p></div><span class="pill" id="ux22-live-state">NOT LOADED</span></div><pre id="ux22-live-detail" class="u22-raw">No live Core request has been made. Demo mode makes no API requests.</pre></div>
 <p class="subtle" style="margin-top:10px">Live mode uses authenticated GET requests only: <code>/api/v1/agents?limit=500</code>, <code>/api/v1/agents/events?limit=1000</code>, <code>/api/v1/discovery/runs?limit=100</code>, <code>/api/v1/runtime/status</code>, <code>/api/v1/runtime/hardware</code> and <code>/api/v1/models/runtime</code>. Registry lifecycle is not runtime health. Discovery records are not proof of Agent execution. Host resource observations are not per-Agent attribution. No Agent registration, lifecycle mutation, deployment, authorization, MCP invocation or execution is performed.</p>
+</section>
+
+
+<section id="ux23-discovery-composition" class="section-anchor" aria-labelledby="ux23-title" style="margin-bottom:18px">
+<style>
+#ux23-discovery-composition{--u23-blue:#3567d4;--u23-green:#15966b;--u23-orange:#e59a32;--u23-purple:#8066c8}
+#ux23-discovery-composition .u23-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:13px 15px;background:#fff;border:1px solid var(--line);border-radius:12px;margin:12px 0}
+#ux23-discovery-composition .u23-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin:12px 0}
+#ux23-discovery-composition .u23-kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+#ux23-discovery-composition .u23-kpi strong{display:block;font-size:25px;letter-spacing:-.7px;margin:5px 0}
+#ux23-discovery-composition .u23-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.9fr);gap:12px;margin:12px 0}
+#ux23-discovery-composition .u23-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px;min-width:0}
+#ux23-discovery-composition .u23-card h3{font-size:13px;margin:0 0 4px}
+#ux23-discovery-composition .u23-chart{width:100%;height:auto;display:block}
+#ux23-discovery-composition .u23-chart text{font:10px system-ui;fill:#718096}
+#ux23-discovery-composition .u23-legend{display:flex;gap:13px;flex-wrap:wrap;font-size:10px;color:#68778d;margin-top:8px}
+#ux23-discovery-composition .u23-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+#ux23-discovery-composition .u23-demo{padding:11px 14px;border:1px solid #e7c978;background:#fff8e7;color:#765016;border-radius:10px;margin:10px 0;font-size:11px}
+#ux23-discovery-composition .u23-state{display:inline-flex;border-radius:99px;padding:4px 8px;font-size:10px;font-weight:750;background:#e8f7f0;color:#14734f}
+#ux23-discovery-composition .u23-state.warn{background:#fff3df;color:#9a6419}
+#ux23-discovery-composition .u23-unavailable{padding:13px;border:1px dashed #cbd5e1;border-radius:9px;background:#f8fafc;color:#68778d;font-size:11px;line-height:1.55}
+#ux23-discovery-composition .u23-table{width:100%;border-collapse:collapse;font-size:11px}
+#ux23-discovery-composition .u23-table th,#ux23-discovery-composition .u23-table td{padding:9px 7px;text-align:left;border-bottom:1px solid #edf0f5;vertical-align:middle}
+#ux23-discovery-composition .u23-table th{font-size:9px;color:#7b8798;text-transform:uppercase;letter-spacing:.5px}
+#ux23-discovery-composition .u23-pipeline{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:15px 0}
+#ux23-discovery-composition .u23-stage{border:1px solid #e4eaf2;border-radius:9px;padding:12px 5px;text-align:center;background:#f8faff;color:#52627a;font-size:10px;font-weight:700}
+#ux23-discovery-composition .u23-stage strong{display:block;font-size:19px;margin-top:4px;color:#253b60}
+#ux23-discovery-composition .u23-flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:18px 8px}
+#ux23-discovery-composition .u23-node{border:1px solid #cbd8f4;background:#f0f4ff;color:#294c9d;border-radius:10px;padding:12px 14px;font-size:11px;font-weight:700;text-align:center;min-width:105px}
+#ux23-discovery-composition .u23-arrow{font-size:18px;color:#8b99ad}
+#ux23-discovery-composition .u23-raw{max-height:300px;min-height:110px}
+@media(max-width:900px){#ux23-discovery-composition .u23-layout{grid-template-columns:1fr}#ux23-discovery-composition .u23-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){#ux23-discovery-composition .u23-kpis{grid-template-columns:1fr 1fr}#ux23-discovery-composition .u23-pipeline{grid-template-columns:repeat(2,minmax(0,1fr))}}
+#ux23-discovery-composition.u23-live-mode .u23-chart,#uxux23-discovery-composition.u23-live-mode .u23-legend{display:none!important}
+</style>
+<div class="panel-head"><div><div class="eyebrow">DISCOVER · SELECT · COMPOSE · UX-23</div><h2 id="ux23-title" style="margin:4px 0">Agent Discovery, Selection &amp; Composition</h2><p class="subtle">Explore persisted discovery observations, selection outcomes and composition evidence without confusing pre-execution analysis with runtime execution.</p></div><span class="pill" id="ux23-mode-pill">DEMO DATA · ILLUSTRATIVE</span></div>
+<div class="u23-toolbar"><div><strong>Discovery analytics data mode</strong><p class="subtle" style="margin:3px 0">Demo visualizations are isolated from authenticated live Core observations.</p></div><div class="inline-actions" style="margin:0"><button id="ux23-demo-mode" class="secondary" type="button">Demo dashboard</button><button id="ux23-live-mode" type="button">Load live Core data</button></div></div>
+<div id="ux23-demo-banner" class="u23-demo"><strong>DEMO DATA — NOT LIVE / NOT VERIFIED.</strong> All counts, rates, timings, pipeline stages, Agent rankings, composition diagrams and tool usage in this mode are fictional examples.</div>
+<p id="ux23-status" class="subtle" role="status" aria-live="polite">Illustrative discovery workspace loaded.</p>
+<div class="u23-kpis">
+ <div class="u23-kpi"><div class="eyebrow">DISCOVERY RUNS</div><strong id="ux23-runs">248</strong><span class="subtle" id="ux23-runs-note">Fictional sample volume</span></div>
+ <div class="u23-kpi"><div class="eyebrow">CANDIDATES ANALYZED</div><strong id="ux23-candidates">1,284</strong><span class="subtle" id="ux23-candidates-note">Fictional candidate count</span></div>
+ <div class="u23-kpi"><div class="eyebrow">SELECTED TOOLKITS</div><strong id="ux23-selected">236</strong><span class="subtle" id="ux23-selected-note">Illustrative selected outcomes</span></div>
+ <div class="u23-kpi"><div class="eyebrow">AVG DISCOVERY TIME</div><strong id="ux23-time">1.73 s</strong><span class="subtle" id="ux23-time-note">Fictional timing metric</span></div>
+</div>
+<div class="u23-layout">
+ <div class="u23-card"><div class="panel-head"><div><h3>Selection performance trends</h3><p class="subtle">Illustrative selection success and discovery-time series.</p></div><span class="u23-state" id="ux23-trend-state">DEMO</span></div>
+ <svg class="u23-chart" viewBox="0 0 620 220" role="img" aria-label="Fictional discovery success and latency trend"><g stroke="#edf0f5"><line x1="45" y1="35" x2="590" y2="35"/><line x1="45" y1="80" x2="590" y2="80"/><line x1="45" y1="125" x2="590" y2="125"/><line x1="45" y1="170" x2="590" y2="170"/></g><polyline points="55,90 140,77 225,82 310,62 395,67 480,48 575,53" fill="none" stroke="#3567d4" stroke-width="3" stroke-linecap="round"/><polyline points="55,145 140,135 225,140 310,119 395,126 480,112 575,105" fill="none" stroke="#15966b" stroke-width="3" stroke-linecap="round"/><g fill="#3567d4"><circle cx="55" cy="90" r="4"/><circle cx="140" cy="77" r="4"/><circle cx="225" cy="82" r="4"/><circle cx="310" cy="62" r="4"/><circle cx="395" cy="67" r="4"/><circle cx="480" cy="48" r="4"/><circle cx="575" cy="53" r="4"/></g><g><text x="55" y="194">Mon</text><text x="140" y="194">Tue</text><text x="225" y="194">Wed</text><text x="310" y="194">Thu</text><text x="395" y="194">Fri</text><text x="480" y="194">Sat</text><text x="575" y="194">Sun</text></g></svg><div class="u23-legend"><span><i class="u23-dot" style="background:#3567d4"></i>Selection success</span><span><i class="u23-dot" style="background:#15966b"></i>Discovery time</span></div>
+ </div>
+ <div class="u23-card"><div class="panel-head"><div><h3>Candidate pipeline</h3><p class="subtle">Illustrative progression through discovery stages.</p></div><span class="u23-state" id="ux23-pipeline-state">DEMO</span></div>
+ <div class="u23-pipeline"><div class="u23-stage">Discovered<strong>1,284</strong></div><div class="u23-stage">Eligible<strong>842</strong></div><div class="u23-stage">Ranked<strong>516</strong></div><div class="u23-stage">Selected<strong>312</strong></div></div><p class="subtle">Eligibility is not authorization. A selected toolkit is a pre-execution analysis result.</p></div>
+</div>
+<div class="u23-layout">
+ <div class="u23-card"><div class="panel-head"><div><h3>Discovery history</h3><p class="subtle">Persisted run observations · newest first.</p></div><span class="u23-state" id="ux23-history-state">DEMO</span></div><div style="overflow:auto"><table class="u23-table"><thead><tr><th>Run ID</th><th>Created</th><th>Status</th><th>Selected tools</th></tr></thead><tbody id="ux23-history"><tr><td>demo-8c12</td><td>Today</td><td>Selected</td><td>4</td></tr><tr><td>demo-7b31</td><td>Yesterday</td><td>Selected</td><td>3</td></tr><tr><td>demo-6a09</td><td>Yesterday</td><td>Abstained</td><td>0</td></tr></tbody></table></div><p class="subtle" id="ux23-history-note">Fictional run records · not persisted in Core.</p></div>
+ <div class="u23-card"><div class="panel-head"><div><h3>Composition blueprint</h3><p class="subtle">Illustrative multi-Agent orchestration shape.</p></div><span class="u23-state" id="ux23-blueprint-state">DEMO</span></div><div class="u23-flow"><div class="u23-node">Goal analysis</div><span class="u23-arrow">→</span><div class="u23-node">Agent selection</div><span class="u23-arrow">→</span><div class="u23-node">Composition</div><span class="u23-arrow">→</span><div class="u23-node">Review gate</div></div><p class="subtle" id="ux23-blueprint-note">Fictional blueprint; not a live orchestration graph or execution trace.</p></div>
+</div>
+<div class="u23-layout">
+ <div class="u23-card"><div class="panel-head"><div><h3>Composition performance</h3><p class="subtle">Illustrative composition outcomes and duration.</p></div><span class="u23-state" id="ux23-composition-state">DEMO</span></div><div class="u23-kpis" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div><div class="eyebrow">COMPOSITIONS</div><strong id="ux23-compositions">86</strong></div><div><div class="eyebrow">SUCCESS RATE</div><strong id="ux23-composition-success">95.6%</strong></div></div><p class="subtle" id="ux23-composition-note">Fictional sample only. Core does not persist historical composition statistics.</p></div>
+ <div class="u23-card"><div class="panel-head"><div><h3>Top selected Agents</h3><p class="subtle">Illustrative Agent selection frequency.</p></div><span class="u23-state" id="ux23-agents-state">DEMO</span></div><div id="ux23-agent-ranking"><p>Research Agent <b>84</b></p><p>Data Analyst <b>72</b></p><p>Workflow Agent <b>58</b></p><p>Compliance Agent <b>46</b></p></div><p class="subtle" id="ux23-agents-note">No Agent-selection frequency API is available.</p></div>
+</div>
+<div class="u23-layout">
+ <div class="u23-card"><div class="panel-head"><div><h3>Tool usage in compositions</h3><p class="subtle">Illustrative selected-tool frequency.</p></div><span class="u23-state" id="ux23-tools-state">DEMO</span></div><div id="ux23-tool-usage"><p>search <b>142</b></p><p>retrieve <b>118</b></p><p>analyze <b>96</b></p></div><p class="subtle" id="ux23-tools-note">Fictional sample; not runtime tool-call telemetry.</p></div>
+ <div class="u23-card"><div class="panel-head"><div><h3>Insights &amp; recommendations</h3><p class="subtle">Illustrative operational insights.</p></div><span class="u23-state warn" id="ux23-insights-state">3 SAMPLE INSIGHTS</span></div><div id="ux23-insights"><p><b>Selection:</b> review low-confidence candidates before composition.</p><p><b>Coverage:</b> preserve abstention when required capabilities are missing.</p><p><b>Governance:</b> keep human review before any downstream action.</p></div></div>
+</div>
+<div class="u23-card"><div class="panel-head"><div><h3>Live Core response inspector</h3><p class="subtle">Exact persisted discovery observations and explicit capability gaps.</p></div><span class="pill" id="ux23-live-state">NOT LOADED</span></div><pre id="ux23-live-detail" class="u23-raw">No live Core request has been made. Demo mode makes no API requests.</pre></div>
+<p class="subtle" style="margin-top:10px">Live mode uses authenticated read-only <code>GET /api/v1/discovery/runs?limit=100</code> and exact run records only when requested by a user selection. Persisted runs record pre-execution analysis observations, not Agent execution. No MCP invocation, authorization grant, Agent execution or deployment is performed.</p>
 </section>
 
 <section id="ux21-remediation-workbench" class="section-anchor" aria-labelledby="ux21-title" style="margin-bottom:18px">
@@ -4605,6 +4672,55 @@ el("ux15-refresh").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-
 
 })();
 })();
+
+  // UX-23: isolated fictional demo dashboard and read-only persisted discovery observations.
+  (() => {
+    const el=id=>document.getElementById(id),pretty=v=>JSON.stringify(v,null,2),token=()=>el("token")?.value?.trim()||"";
+    const set=(id,v)=>{const n=el(id);if(n)n.textContent=String(v)};
+    const demo=()=>{
+      const root=el("ux23-discovery-composition");root.classList.remove("u23-live-mode");el("ux23-demo-banner").hidden=false;
+      set("ux23-mode-pill","DEMO DATA · ILLUSTRATIVE");set("ux23-status","Demo mode active. Fictional sample values are isolated from Core.");
+      [["ux23-runs","248"],["ux23-candidates","1,284"],["ux23-selected","236"],["ux23-time","1.73 s"],["ux23-compositions","86"],["ux23-composition-success","95.6%"]].forEach(([id,v])=>set(id,v));
+      [["ux23-runs-note","Fictional sample volume"],["ux23-candidates-note","Fictional candidate count"],["ux23-selected-note","Illustrative selected outcomes"],["ux23-time-note","Fictional timing metric"],["ux23-history-note","Fictional run records · not persisted in Core"],["ux23-composition-note","Fictional sample only. Core does not persist historical composition statistics."],["ux23-agents-note","No Agent-selection frequency API is available."],["ux23-tools-note","Fictional sample; not runtime tool-call telemetry."]].forEach(([id,v])=>set(id,v));
+      ["trend","pipeline","history","blueprint","composition","agents","tools"].forEach(k=>set("ux23-"+k+"-state","DEMO"));
+      set("ux23-insights-state","3 SAMPLE INSIGHTS");el("ux23-demo-mode").disabled=true;el("ux23-live-mode").disabled=false;set("ux23-live-state","NOT LOADED");set("ux23-live-detail","No live Core request has been made. Demo mode makes no API requests.");
+    };
+    const unavailable=(id,msg)=>{const p=document.createElement("p");p.className="u23-unavailable";p.textContent=msg;el(id).replaceChildren(p)};
+    const live=async()=>{
+      const t=token();if(!t){set("ux23-status","Connect to TaaS Studio and provide an API token before loading live data.");return}
+      el("ux23-live-mode").disabled=true;el("ux23-demo-banner").hidden=true;el("ux23-discovery-composition").classList.add("u23-live-mode");set("ux23-mode-pill","LIVE CORE OBSERVATIONS · LIMITED");set("ux23-status","Loading persisted discovery observations…");
+      try{
+        const response=await fetch("/api/v1/discovery/runs?limit=100",{headers:{"Authorization":"Bearer "+t,"Accept":"application/json","Cache-Control":"no-cache"},cache:"no-store"});
+        const data=await response.json().catch(()=>({detail:"Core returned non-JSON response"}));if(!response.ok)throw Error("HTTP "+response.status+": "+(data.detail||"request failed"));
+        if(data.schema!=="taas.discovery-run-list/v1"||!Array.isArray(data.runs)||typeof data.total_matching!=="number"||data.record_semantics!=="observation_of_pre_execution_analysis_not_execution")throw Error("Unexpected discovery-run list schema or record semantics.");
+        const runs=data.runs,selected=runs.filter(x=>x.status==="selected").length,abstained=runs.filter(x=>x.status==="abstained").length,unknown=runs.length-selected-abstained;
+        set("ux23-runs",data.total_matching);set("ux23-runs-note","Core total_matching · bounded retained store");
+        set("ux23-candidates","Unavailable");set("ux23-candidates-note","Candidate counts are not stored in discovery-run history");
+        set("ux23-selected",selected);set("ux23-selected-note","Selected records in this returned page · not Agent selections");
+        set("ux23-time","Unavailable");set("ux23-time-note","Historical discovery duration is not stored in run records");
+        set("ux23-compositions","Unavailable");set("ux23-composition-success","Unavailable");set("ux23-composition-note","No persisted composition count, success rate or duration API.");
+        set("ux23-history-state","CORE PERSISTED RUNS");set("ux23-trend-state","UNAVAILABLE");set("ux23-pipeline-state","UNAVAILABLE");set("ux23-blueprint-state","UNAVAILABLE");set("ux23-composition-state","UNAVAILABLE");set("ux23-agents-state","UNAVAILABLE");set("ux23-tools-state","RUN TOOL IDS ONLY");
+        set("ux23-insights-state","OBSERVATIONS ONLY");
+        set("ux23-history-note","Returned "+runs.length+" of "+data.total_matching+" matching records · newest first · bounded by requested limit.");
+        const body=el("ux23-history");body.replaceChildren();
+        if(!runs.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=4;td.textContent="No persisted discovery runs returned.";tr.append(td);body.append(tr)}
+        runs.forEach(run=>{const tr=document.createElement("tr");[String(run.run_id||"—").slice(0,12),run.created_at||"—",run.status||"unknown",Array.isArray(run.tool_ids)?run.tool_ids.length:"—"].forEach(v=>{const td=document.createElement("td");td.textContent=String(v);tr.append(td)});body.append(tr)});
+        unavailable("ux23-agent-ranking","Agent selection ranking unavailable: Core discovery history records selected tool IDs, not Agent IDs or Agent-selection frequency.");
+        unavailable("ux23-tool-usage","Runtime tool usage unavailable: selected tool IDs in discovery records are not observed tool calls or execution telemetry.");
+        unavailable("ux23-insights","No live recommendations inferred. Core does not expose historical composition outcomes, Agent performance or operational insight APIs.");
+        unavailable("ux23-pipeline-state","Candidate pipeline counts and stage conversion are not persisted in discovery-run records.");
+        unavailable("ux23-blueprint-state","No historical composition blueprint or Agent workflow graph is persisted by the discovery-run API.");
+        set("ux23-live-state","CORE RESPONSE");
+        set("ux23-live-detail",pretty({schema:data.schema,total_matching:data.total_matching,returned_runs:runs.length,limit:data.limit,status_counts:{selected,abstained,other:unknown},record_semantics:data.record_semantics,runs,unsupported_live_capabilities:["candidate counts and stage conversion","historical discovery latency","selection success-rate time series","composition history, success rate and duration","Agent selection frequency/rankings","runtime tool-call telemetry","composition workflow graph","operational alerts and recommendations"],invariants:{discovery_is_pre_execution_analysis:true,execution_performed:false,authorization_granted:false,tool_invocations_performed:false}}));
+        set("ux23-status","Core returned "+runs.length+" persisted discovery observation(s) of "+data.total_matching+". Selected/abstained are discovery outcomes, not execution outcomes.");
+      }catch(e){set("ux23-live-state","REQUEST ERROR");set("ux23-status","Live discovery history unavailable: "+e.message);set("ux23-live-detail",pretty({error:e.message,live_metrics_not_inferred:true}));}
+      finally{el("ux23-live-mode").disabled=false;el("ux23-demo-mode").disabled=false}
+    };
+    el("ux23-demo-mode").addEventListener("click",demo);el("ux23-live-mode").addEventListener("click",live);
+    el("ux23-history").addEventListener("click",async event=>{const tr=event.target.closest("tr");if(!tr)return;const id=tr.cells?.[0]?.textContent;if(!id||id==="No persisted discovery runs returned.")return;});
+    demo();
+  })();
+
 </script>
 </body>
 </html>
