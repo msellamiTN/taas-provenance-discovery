@@ -282,3 +282,21 @@ def test_ux22_agent_observability_bounded_live_and_hidden_demo():
     assert "u22-live-mode .u22-chart" in html and "display:none" in html
     # Boundary: no lifecycle mutation, deployment, invocation or execution.
     assert "No Agent registration, lifecycle mutation, deployment" in html or "not proof of Agent execution" in html
+
+
+def test_ux23_discovery_composition_bounded_live_and_in_wrapper_scope():
+    html = _studio_html()
+    assert 'id="ux23-discovery-composition"' in html
+    assert 'id="ux23-demo-mode"' in html
+    assert 'id="ux23-live-mode"' in html
+    assert "DEMO DATA · ILLUSTRATIVE" in html
+    assert "/api/v1/discovery/runs?limit=100" in html
+    # Strict record semantics: persisted runs are pre-execution observations.
+    assert "observation_of_pre_execution_analysis_not_execution" in html
+    assert "not execution outcomes" in html or "pre-execution analysis" in html
+    # Scope regression: the UX-23 IIFE must sit inside the outer script
+    # wrapper where readJsonResponse/formatApiError are defined (a top-level
+    # placement renders live mode dead with "readJsonResponse is not defined").
+    ux23 = html.index("// UX-23:")
+    wrapper_close = html.rindex("})();", 0, html.index("</script>"))
+    assert ux23 < wrapper_close
