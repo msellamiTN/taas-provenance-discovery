@@ -322,27 +322,26 @@
       "id": "E9",
       "title": "Multi-tool set retrieval",
       "datasets": [
-        "LiveMCPBench (resolvable tasks)",
-        "MCP-Atlas public (trajectory diagnostics only)",
-        "MCPVerse time-invariant v1.1 (where tool references resolve)"
+        "94 resolvable LiveMCPBench tasks"
       ],
       "metrics": [
         "group recall@k",
         "set precision",
-        "complete-set share"
+        "complete-set share",
+        "toolchain-size distribution"
       ],
       "outputs": [
-        "Group recall bars/lines"
+        "group recall@10 bars",
+        "group recall versus k",
+        "complete-set share"
       ],
       "status": "planned_not_run",
       "baseline_ids": [
-        "rag_mcp",
         "mcp_zero",
-        "per_subtask",
         "colt_adapted",
         "toolscope_adapted",
         "cmtf_adapted",
-        "all_tools"
+        "pamcp_no_backward_closure"
       ]
     },
     {
