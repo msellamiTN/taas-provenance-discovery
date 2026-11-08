@@ -212,3 +212,20 @@ def test_ux18_policy_test_workbench_persists_nothing():
     assert "not persisted" in section
     # Verdict results must be labeled MATCH/MISMATCH/ERROR, not executed.
     assert "MATCH" in html and "MISMATCH" in html
+
+
+def test_ux19_audit_timeline_is_read_only_ledger_inspection():
+    html = _studio_html()
+    assert 'id="ux19-governance-audit-timeline"' in html
+    assert 'id="ux19-load"' in html
+    assert 'id="ux19-verify"' in html
+    assert "/api/v1/audit/events" in html
+    assert "/api/v1/audit/verify" in html
+    section = html[html.index('id="ux19-governance-audit-timeline"'):html.index("</section>", html.index('id="ux19-governance-audit-timeline"'))]
+    # Tamper-evidence is not truth/authorization/execution proof.
+    assert "not proof of execution" in section
+    assert "maximum 1,000" in section and "not necessarily complete" in html
+    # Linked-evidence inspection reuses the real evidence route only for
+    # exact SHA-256 ids found in stored records — no inferred references.
+    assert "evidence_id" in html and "assurance/evidence/" in html
+    assert "no reference inferred" in html or "No exact lowercase SHA-256" in html
