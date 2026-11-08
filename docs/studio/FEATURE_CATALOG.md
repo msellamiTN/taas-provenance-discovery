@@ -54,23 +54,25 @@ Frontend: `src/taas/studio/static/index.html` (single HTML document, inline CSS 
 
 | Surface | Current behavior | Remaining UX work |
 |---|---|---|
-| Studio header and anchor navigation | Horizontal in-page navigation | No persistent product shell, active route state, workspace identity or capability-aware navigation |
-| Discovery workspace | Request configuration and result in one page | No durable workspace/session model; no review/confirmation step |
+| Studio header and anchor navigation | Left-rail section navigation with grouped workspace links | No active route state, workspace identity or capability-aware navigation |
+| Discovery workspace | Request configuration, result, reproducibility envelope and run-history deep link; durable draft save/restore via `/api/v1/workspaces` | No multi-draft workspace switching UI or review/confirmation step |
 | Benchmark catalogue | Displays retained dataset counts/source | Add dataset snapshot/version identity and robust empty/error states |
 | Task browser | Search, category, pagination, select task and copy prompt | No task provenance detail; imported task still requires human-authored semantic goals |
-| Tool registry | Search/source filter, pagination and checkbox selection | Selection basket must be verified across pages/filters; add detail drawer and metadata trust/provenance inspection |
+| Tool registry | Search/source filter, pagination, basket independent of filters, tool inspector with Core identity + capability intelligence; dedicated governance center (UX-15) | Trusted verification pipeline and registry version pinning |
 | GoalSpec editor | Visual goal cards, prompt context types, add/remove, local checks, server validation, advanced JSON reload | Add dependency graph/table equivalence, type/effect reference catalogue, examples/templates, clearer field-level diagnostics |
-| Request JSON | Advanced JSON payload editor | Policy and engine settings are not yet first-class guided editors |
+| Request JSON | Advanced JSON payload editor + guided policy presets (read-only/egress-limited/strict-evidence) | Engine settings are not yet first-class guided editors |
 | Discovery results | Status, metrics, selected toolkit, explanation and full response | Add explicit request/decision state taxonomy and candidate comparison |
 | Assurance | Certificate mandatory/diagnostic checks, witnesses, goal binding/coverage and counterexample | Explain each check's formal meaning and evidence source/freshness; prevent green styling from implying task completion |
-| Runtime diagnostics | GPU/CUDA hardware probe | No runtime sessions, tool invocation, cancellation, logs or execution traces |
+| Runtime diagnostics | Host/hardware/model observability workspace (UX-7) + operations command center (UX-11) | No runtime sessions, tool invocation, cancellation, logs or execution traces |
 | Model catalog | Search and model metadata detail | No persisted model selection, benchmarked compatibility or deployment workflow |
 | Model artifacts | Read-only artifact metadata and compatibility preflight | No weight download, sandboxed load test or inference |
 | Memory estimate | Request-driven estimate API | UI currently needs explicit assumption transparency and measured-vs-estimated distinction |
 | Experiments/evaluation | Research scripts and tests exist outside the Studio workflow | No integrated evaluator, run history, comparison dashboard or gold-label isolation UX |
 | Settings | Token/API connection is represented in the page | No complete connection manager, profile management, audit settings or durable preferences |
 
-The page contains responsive CSS breakpoints and a horizontal anchor navigation, but it is not yet the persistent left-rail/workspace shell described in `PRODUCT_UX_BLUEPRINT.md`.
+Delivered Studio workspaces (all read-only / analysis-only, wired to real Core routes): UX-2 Objective Engineering, UX-3 Tool Registry, UX-5 GoalSpec designer, UX-7 runtime observability, UX-8 governance actions, UX-9 model-assisted objective preparation, UX-10 Release Center, UX-11 Operations Command Center, UX-12 Evidence & Provenance Inspector, UX-13/14 Agent & Skill Lifecycle centers, UX-15 Tool Registry & MCP Governance, UX-16 Tool Selection & Eligibility, UX-17 Policy Designer, UX-18 Policy Testing & Simulation, UX-19 Governance Audit Timeline. Boundary invariants preserved throughout: no tool invocation, approval != authorization != execution, diagnostics are observations not proof.
+
+The page contains responsive CSS breakpoints and a grouped left-rail navigation. It is not yet the full persistent shell described in `PRODUCT_UX_BLUEPRINT.md`.
 
 ## 4. Core feature readiness matrix
 
@@ -80,12 +82,12 @@ The page contains responsive CSS breakpoints and a horizontal anchor navigation,
 | Intent / GoalSpec | Visual authoring and structural server validation | Semantic intent grounding, assisted GoalSpec synthesis, provenance of human edits, reusable versioned templates |
 | Registry | Read-only retained snapshot browsing + tool detail/intelligence views (UX-3) | Live registry synchronization, registry version pinning, richer search facets, trusted verification pipeline |
 | Discovery | Core engine + persisted run records + reproducibility envelope + human-review gate | Side-by-side candidates, policy editor guided presets (implemented: read-only/egress-limited/strict-evidence), cancellation |
-| Assurance | Certificate and counterexample response surfaces + evidence inspector (UX-12) + audit ledger | Evidence lifecycle/freshness beyond recorded fields, formal check documentation, exportable signed assurance package |
+| Assurance | Certificate and counterexample surfaces + evidence inspector (UX-12) + audit ledger + audit timeline (UX-19) | Evidence lifecycle/freshness beyond recorded fields, formal check documentation, exportable signed assurance package |
 | Model metadata | Read-only catalog and artifact metadata + live runtime status/load/chat | Model serving at scale, measured benchmarks, controlled download and isolated inference |
 | Runtime | Host diagnostics + read-only runtime observability workspace (UX-7) | Sandboxed MCP invocation, credential isolation, network controls, quotas, cancellation, event logs and output capture |
 | Evaluation | Gold labels isolated from discovery endpoint | Dedicated evaluator service/API, benchmark scoring, experiment IDs and result provenance |
 | Workspace lifecycle | Durable draft save/restore via `/api/v1/workspaces` (explicit save, optimistic concurrency) | Sharing, versioning and collaboration |
-| Operations | Health/readiness and host probe | Structured logs, metrics, traces, deployment profiles, backup/recovery and production runbooks |
+| Operations | Health/readiness, host probe, operations command center (UX-11), persisted audit ledger with hash-chain verify (UX-19) | Structured logs, metrics, traces, deployment profiles, backup/recovery and production runbooks |
 
 ## 5. UX and engineering priorities
 
@@ -147,7 +149,8 @@ The page contains responsive CSS breakpoints and a horizontal anchor navigation,
 
 ## 7. Validation status at this audit baseline
 
-- GitHub Actions workflow run for `e641fc7412dbb77ae44304562820db619aaf7359`: completed successfully.
+- Integration branch `devin/studio-ux-integration-v1` tip `a94d8e845d7f8bea88727506ccc7b3d0940fae7a`: 684 tests green locally; notebook acceptance verified on Colab at `b84d53e` (229 v2 + 122 v3/API + readiness/intelligence/governance cells).
+- Earlier baseline `e641fc7412dbb77ae44304562820db619aaf7359`: GitHub Actions run completed successfully.
 - Repository tests in `tests/test_studio_api.py`: 52 test functions are present at this baseline; this count is a static source inspection, not a claim that each was executed locally during this audit.
 - The current PR's browser/Colab workflow has not been executed by this agent in this session. Browser behavior remains unverified.
 - No upstream repository was fetched or cloned. Retained repository data remains the source of truth.
