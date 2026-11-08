@@ -43,12 +43,14 @@ The previous E3 result is preserved byte-for-byte at:
 
 `results/history/E3_effects_pre_tristate_20261108.json`
 
-Its original Git blob SHA is `92308ad9b3df104bec91af8944189aced903cc9e`. The existing `results/final/E3_effects.json` is not silently rewritten by this patch. A corrected E3 run must be executed from the pinned raw MCPToolBench++ files using:
+Its original Git blob SHA is `92308ad9b3df104bec91af8944189aced903cc9e`. The existing `results/final/E3_effects.json` is not silently rewritten by this patch. The corrected standalone runner uses only the already committed merged registry and label files, and does not require the absent raw MCPToolBench++ JSON package:
 
 ```bash
-python experiments/final/e01_e03_registry_typing_effects.py <raw-dir>
+python experiments/final/run_e3_tristate_only.py
 python experiments/final/tables_final.py
 ```
+
+It writes `results/final/E3_effects_tristate.json` with hashes for the registry, labels A and all three labels-B shards. It refuses to overwrite an existing corrected result unless `--replace` is passed. The full E1/E2/E3 runner also writes the corrected, versioned E3 result and now hashes the label inputs for E1, E2 and E3.
 
 After the rerun, record the new run commit, Python version, input hashes and result-file SHA. Do not substitute the expected consistency counts above for an actual execution.
 
