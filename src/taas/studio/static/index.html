@@ -459,7 +459,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 .command-palette-hint{padding:9px 14px;border-top:1px solid var(--line);color:var(--muted);font-size:10px}
 @media(max-width:900px){.command-palette-trigger{margin:0;flex:1}}
 
-.goal-design-tools{display:flex;align-items:end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:12px 0;padding:12px;border:1px solid var(--line);border-radius:10px;background:#f7f9fc}.goal-view-switch,.goal-example-control{display:flex;align-items:end;gap:7px;flex-wrap:wrap}.goal-view-switch button,.goal-example-control button{margin:0}.goal-view-switch button[aria-pressed="true"]{background:#18345e;color:#fff}.goal-example-control label{display:block;margin:0 0 5px;color:#50617a;font-size:11px;font-weight:700}.goal-example-control select{min-width:210px;padding:8px 10px;font:12px Inter,system-ui,sans-serif}.goal-example-note{flex-basis:100%;color:#8a5a13;font-size:10px}.goal-visual-panel{margin:10px 0 14px;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fff}.goal-visual-panel[hidden]{display:none}.goal-graph-scroll{overflow:auto;max-width:100%}#goal-graph-svg{display:block;min-width:560px;width:100%;height:auto}.goal-graph-node{fill:#f5f8ff;stroke:#9db4df;stroke-width:1.5}.goal-graph-node-label{fill:#18345e;font-size:12px;font-weight:700}.goal-graph-node-meta{fill:#53647d;font-size:10px}.goal-graph-edge{fill:none;stroke:#7892bd;stroke-width:1.8}.goal-graph-text{margin:10px 0 0;padding-left:22px;color:#53647d;font-size:11px;line-height:1.6}.goal-dependency-table{width:100%;border-collapse:collapse;font-size:11px}.goal-dependency-table th,.goal-dependency-table td{padding:9px 8px;border-bottom:1px solid #e7ecf2;text-align:left;vertical-align:top;overflow-wrap:anywhere}.goal-dependency-table th{color:#52627a;background:#f7f9fc}@media(max-width:650px){.goal-design-tools{align-items:stretch}.goal-example-control{width:100%}.goal-example-control select{min-width:0;flex:1}}
+.goal-design-tools{display:flex;align-items:end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:12px 0;padding:12px;border:1px solid var(--line);border-radius:10px;background:#f7f9fc}.goal-view-switch,.goal-example-control{display:flex;align-items:end;gap:7px;flex-wrap:wrap}.goal-view-switch button,.goal-example-control button{margin:0}.goal-view-switch button[aria-pressed="true"]{background:#18345e;color:#fff}.goal-example-control label{display:block;margin:0 0 5px;color:#50617a;font-size:11px;font-weight:700}.goal-example-control select{min-width:210px;padding:8px 10px;font:12px Inter,system-ui,sans-serif}.goal-example-note{flex-basis:100%;color:#8a5a13;font-size:10px}.goal-template-card{flex-basis:100%;border:1px solid #dfe6f0;border-radius:9px;background:#fbfcff;padding:11px 13px;font-size:11px}.goal-template-card .tpl-head{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;color:#18345e}.goal-template-card .tpl-tag{border:1px solid #cdd8ea;border-radius:99px;padding:1px 7px;font-size:9px;font-weight:700;color:#50617a;background:#fff}.goal-template-card .tpl-desc{margin:6px 0;color:#3d4c63;line-height:1.5}.goal-template-card .tpl-sha{font-size:9px;color:#8a5a13}.goal-template-status{flex-basis:100%;font-size:10px;color:#50617a}.goal-visual-panel{margin:10px 0 14px;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fff}.goal-visual-panel[hidden]{display:none}.goal-graph-scroll{overflow:auto;max-width:100%}#goal-graph-svg{display:block;min-width:560px;width:100%;height:auto}.goal-graph-node{fill:#f5f8ff;stroke:#9db4df;stroke-width:1.5}.goal-graph-node-label{fill:#18345e;font-size:12px;font-weight:700}.goal-graph-node-meta{fill:#53647d;font-size:10px}.goal-graph-edge{fill:none;stroke:#7892bd;stroke-width:1.8}.goal-graph-text{margin:10px 0 0;padding-left:22px;color:#53647d;font-size:11px;line-height:1.6}.goal-dependency-table{width:100%;border-collapse:collapse;font-size:11px}.goal-dependency-table th,.goal-dependency-table td{padding:9px 8px;border-bottom:1px solid #e7ecf2;text-align:left;vertical-align:top;overflow-wrap:anywhere}.goal-dependency-table th{color:#52627a;background:#f7f9fc}@media(max-width:650px){.goal-design-tools{align-items:stretch}.goal-example-control{width:100%}.goal-example-control select{min-width:0;flex:1}}
 
 /* UX-6: local comparison of two exported UX-5 evidence snapshots */
 .ux6-toolbar{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
@@ -879,7 +879,7 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
         <div id="goal-cards"></div>
 
         <div class="goal-design-tools"><div><div class="subtle" style="margin-bottom:6px;font-weight:700">Dependency representation</div><div class="goal-view-switch" role="group" aria-label="Goal dependency representation"><button id="goal-view-graph" type="button" class="secondary" aria-pressed="true">Graph</button><button id="goal-view-table" type="button" class="secondary" aria-pressed="false">Table</button></div></div>
-        <div class="goal-example-control"><div><label for="goal-example">Illustrative GoalSpec template</label><select id="goal-example"><option value="">Choose an example…</option><option value="research">Web research → summary</option><option value="data-report">Read data → aggregate → report</option></select></div><button id="goal-example-load" type="button" class="secondary">Replace draft with example</button></div><div class="goal-example-note">Templates replace the draft only after an explicit click. Review and adapt every goal before validation; examples are not semantic recommendations.</div></div>
+        <div class="goal-example-control"><div><label for="goal-template">GoalSpec template catalog · LIVE CORE</label><select id="goal-template"><option value="">Template catalog not loaded</option></select></div><button id="goal-template-load" type="button" class="secondary" disabled>Load template into draft</button><button id="goal-template-retry" type="button" class="secondary" hidden>Retry catalog</button></div><div id="goal-template-card" class="goal-template-card" hidden></div><div id="goal-template-status" class="goal-template-status" role="status" aria-live="polite">Template catalog has not been loaded.</div><div class="goal-example-note">Templates replace the draft only after an explicit click. Loading a template writes an authored draft — it is not validation, evidence or authorization. Review and validate every goal before use.</div></div>
         <section id="goal-dependency-graph" class="goal-visual-panel" aria-label="Goal dependency graph"><div class="panel-head"><h3>Dependency graph</h3><span class="subtle">Arrows point from prerequisite to dependent goal.</span></div><div class="goal-graph-scroll"><svg id="goal-graph-svg" viewBox="0 0 900 180" role="img" aria-label="Directed goal dependency graph"></svg></div><ol id="goal-graph-text" class="goal-graph-text" aria-label="Text equivalent of dependency graph"></ol><div id="goal-graph-status" class="subtle" role="status" aria-live="polite"></div></section>
         <section id="goal-dependency-table-panel" class="goal-visual-panel" hidden aria-label="Goal dependency table"><div class="panel-head"><h3>Dependency table</h3><span class="subtle">Same goal and dependency data as the graph.</span></div><div style="overflow-x:auto"><table class="goal-dependency-table"><thead><tr><th>Goal</th><th>Operation</th><th>Output</th><th>Inputs</th><th>Depends on</th><th>Effects</th></tr></thead><tbody id="goal-dependency-table-body"></tbody></table></div></section>
 
@@ -2510,16 +2510,66 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   };
   $("goal-view-graph").addEventListener("click",()=>{goalViewState.mode="graph";renderGoalDependencyViews();});
   $("goal-view-table").addEventListener("click",()=>{goalViewState.mode="table";renderGoalDependencyViews();});
-  const GOAL_EXAMPLES={
-    research:{prompt:"Find a current technical topic and produce a concise evidence-based summary.",prompt_inputs_text:"text",goals:[
-      {id:"g1",class:"fetch_web",in:["query:web"],out:"document:web",eff:["egress(web)"],sigma:"data",desc:"Retrieve relevant current source material for the topic",deps:[],n:3,exactness:"tolerant",lang:"en",optional:false},
-      {id:"g2",class:"summarise",in:["document:web"],out:"text",eff:[],sigma:"unreliable",desc:"Summarise the retrieved source material",deps:["g1"],n:1,exactness:"tolerant",lang:"en",optional:false}]},
-    "data-report":{prompt:"Read a supplied data file, aggregate its records, and prepare a report.",prompt_inputs_text:"text, path:file",goals:[
-      {id:"g1",class:"retrieve",in:["path:file"],out:"table:data",eff:["read(fs)"],sigma:"data",desc:"Read the supplied data file into a structured table",deps:[],n:1,exactness:"tolerant",lang:"en",optional:false},
-      {id:"g2",class:"aggregate",in:["table:data"],out:"table:summary",eff:[],sigma:"native",desc:"Aggregate the data into a summary table",deps:["g1"],n:1,exactness:"tolerant",lang:"en",optional:false},
-      {id:"g3",class:"create_document",in:["table:summary"],out:"path:file",eff:["write(fs)"],sigma:"effect",desc:"Write the summary as a report file",deps:["g2"],n:1,exactness:"tolerant",lang:"en",optional:false}]}
+  // GoalSpec template catalog — versioned authored drafts served by Core.
+  // Loading a template is an authored draft change only: not validation, not
+  // evidence, not authorization. Contract mismatch or request failure renders
+  // an explicit unavailable state; the draft is never silently substituted.
+  const GOAL_TEMPLATE_LIST_SCHEMA="taas.goalspec-template-list/v1",GOAL_TEMPLATE_SCHEMA="taas.goalspec-template/v1";
+  const goalTemplateState={templates:[],selected:null};
+  const goalTemplateStatus=msg=>{$("goal-template-status").textContent=msg;};
+  const renderGoalTemplateCard=t=>{
+    const card=$("goal-template-card");card.replaceChildren();
+    const head=document.createElement("div");head.className="tpl-head";
+    const name=document.createElement("strong");name.textContent=t.id+" · v"+t.version;head.append(name);
+    (t.tags||[]).forEach(tag=>{const s=document.createElement("span");s.className="tpl-tag";s.textContent=tag;head.append(s);});
+    const desc=document.createElement("p");desc.className="tpl-desc";desc.textContent=t.description||"";
+    const sha=document.createElement("div");sha.className="tpl-sha";sha.textContent="spec_sha256: "+String(t.spec_sha256||"").slice(0,16)+"… · authored draft — not validated on load";
+    card.append(head,desc,sha);card.hidden=false;
   };
-  $("goal-example-load").addEventListener("click",()=>{const ex=GOAL_EXAMPLES[$("goal-example").value];if(!ex){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent="Choose an example template first.";return;}goalSpecState={prompt:ex.prompt,prompt_inputs_text:ex.prompt_inputs_text,goals:ex.goals.map(g=>({...g,in:[...g.in],eff:[...g.eff],deps:[...g.deps]}))};invalidateHumanReview();renderGoalEditor();syncGoalSpec();$("goal-validation").className="goal-validation";$("goal-validation").textContent="Illustrative example loaded. Review prompt, goals, types, effects and dependencies, then validate; no semantic correctness is implied.";});
+  const loadGoalTemplates=async()=>{
+    const sel=$("goal-template"),btn=$("goal-template-load"),retry=$("goal-template-retry");
+    sel.disabled=true;btn.disabled=true;retry.hidden=true;$("goal-template-card").hidden=true;
+    goalTemplateState.templates=[];goalTemplateState.selected=null;
+    goalTemplateStatus("Loading GoalSpec template catalog…");
+    try{
+      const d=await apiGet("/api/v1/goalspec/templates");
+      if(d.schema!==GOAL_TEMPLATE_LIST_SCHEMA||d.semantics!=="authored_draft_catalog_not_validation_not_evidence_not_authorization"||!Array.isArray(d.templates))throw new Error("Invalid template catalog response");
+      goalTemplateState.templates=d.templates;
+      sel.replaceChildren();
+      const none=document.createElement("option");none.value="";none.textContent=d.templates.length?"Choose a template…":"No templates published";sel.append(none);
+      d.templates.forEach(t=>{const o=document.createElement("option");o.value=t.id;o.textContent=t.title+" · v"+t.version;sel.append(o);});
+      sel.disabled=d.templates.length===0;
+      goalTemplateStatus(d.templates.length?d.templates.length+" catalog template(s) · authored drafts — select one to inspect.":"Template catalog is empty.");
+    }catch(e){
+      sel.replaceChildren();const o=document.createElement("option");o.value="";o.textContent="Catalog unavailable";sel.append(o);
+      retry.hidden=false;
+      goalTemplateStatus("Template catalog UNAVAILABLE: "+e.message+" Draft unchanged.");
+    }
+  };
+  $("goal-template").addEventListener("change",async()=>{
+    const id=$("goal-template").value,btn=$("goal-template-load"),card=$("goal-template-card");
+    goalTemplateState.selected=null;btn.disabled=true;card.hidden=true;
+    if(!id){goalTemplateStatus("Choose a template to inspect.");return;}
+    goalTemplateStatus("Loading template "+id+"…");
+    try{
+      const d=await apiGet("/api/v1/goalspec/templates/"+encodeURIComponent(id));
+      if(d.schema!==GOAL_TEMPLATE_SCHEMA||d.semantics!=="authored_draft_not_validation_not_evidence_not_authorization"||!d.template||typeof d.template!=="object"||!d.template.goal_spec)throw new Error("Invalid template response");
+      goalTemplateState.selected=d.template;renderGoalTemplateCard(d.template);btn.disabled=false;
+      goalTemplateStatus("Template "+id+" · v"+d.template.version+" inspected — loading writes an authored draft only.");
+    }catch(e){goalTemplateStatus("Template "+id+" UNAVAILABLE: "+e.message+" Draft unchanged.");}
+  });
+  $("goal-template-load").addEventListener("click",()=>{
+    const t=goalTemplateState.selected;
+    if(!t){$("goal-validation").className="goal-validation invalid";$("goal-validation").textContent="Choose and inspect a catalog template first.";return;}
+    const spec=t.goal_spec;
+    goalSpecState={prompt:spec.prompt||"",prompt_inputs_text:(spec.prompt_inputs||[]).join(", "),goals:(spec.goals||[]).map(g=>({...g,in:[...(g.in||[])],eff:[...(g.eff||[])],deps:[...(g.deps||[])]}))};
+    invalidateHumanReview();renderGoalEditor();syncGoalSpec();
+    $("goal-validation").className="goal-validation";
+    $("goal-validation").textContent="Template "+t.id+" v"+t.version+" loaded as authored draft · spec_sha256 "+String(t.spec_sha256||"").slice(0,16)+"… · review and validate before use.";
+    goalTemplateStatus("Draft loaded from "+t.id+" v"+t.version+" — edits diverge from the catalog draft; the catalog entry is unchanged.");
+  });
+  $("goal-template-retry").addEventListener("click",loadGoalTemplates);
+  setTimeout(loadGoalTemplates,0);
 
   const validateGoalSpecLocal = () => {
     const errors=[], ids=new Set(), goals=goalSpecState.goals;
