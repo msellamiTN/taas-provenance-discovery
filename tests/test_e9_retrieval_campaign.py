@@ -353,3 +353,22 @@ def test_release_gate_requires_acceptance_id_for_each_accepted_prerequisite(tmp_
     _json(comparator_path, {})
     with pytest.raises(ValueError, match="E3 accepted prerequisite must carry"):
         validate_release_gate(gate_path, comparator_path)
+
+
+def test_encoder_bundle_rejects_symlinked_snapshot_directory(tmp_path):
+    model = tmp_path / "real-model"
+    model.mkdir()
+    (model / "config.json").write_text("{}", encoding="utf-8")
+    (tmp_path / "model-link").symlink_to(model, target_is_directory=True)
+    _json(tmp_path / "encoder.json", {
+        "schema_version": "1.0.0",
+        "status": "accepted",
+        "provider": "sentence-transformers-local",
+        "model_id": "test/model",
+        "model_revision": "immutable-revision",
+        "package_version": "5.0.0",
+        "model_path": "model-link",
+        "files": {"config.json": "0" * 64},
+    })
+    with pytest.raises(ValueError, match="must not be a symlink"):
+        load_encoder(tmp_path / "encoder.json", "cpu")
