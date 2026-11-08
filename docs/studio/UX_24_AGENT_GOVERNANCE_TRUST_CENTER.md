@@ -49,7 +49,7 @@ The current policy engine exposes default rules through the per-Agent verdict's 
 
 The current per-Agent verdict response does not expose the complete internal fact bundle. The UI does not reconstruct or infer missing facts; evidence summaries not present in the response remain UNKNOWN.
 
-The current audit verifier scans at most the first 1,000 events in ascending sequence (`audit_ledger.verify_chain`). UX-24 therefore labels a successful result `SCANNED_PREFIX_VALID` and states the scan limit. It must not be interpreted as whole-ledger verification if more than 1,000 events exist.
+The current audit verifier scans the entire recorded ledger in bounded batches of at most 1,000 events per page (`audit_ledger.verify_chain` via `list_events_page`). UX-24 therefore labels a successful result `FULL_CHAIN_VALID` and a failed or unavailable result `FULL_CHAIN_INVALID_OR_UNKNOWN`. The response reports `scan_scope: full_ledger`. This establishes tamper-evidence for all recorded events at verification time; it does not prove that the recorded claims are true, that an action occurred, or that any tool was authorized or executed.
 
 On each assessment, UX-24 clears prior subject data before requesting the newly selected immutable version and temporarily locks the selectors to prevent late responses from being attributed to a different selection. An empty evidence summary is rendered as `NO_VERIFIED_RECORDS`, not as evidence present.
 
