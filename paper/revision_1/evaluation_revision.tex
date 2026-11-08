@@ -46,10 +46,12 @@ particular, zero exposure under the error-free verifier must not be interpreted 
 The current E14 experiment is an offline reachable-action analysis. No injected action is executed. Moreover,
 the previous poisoning statistic assigned zero exposure to selected sanitised variants rather than scanning the
 actual serialized manifest, and its task-level attack-set builder omitted tampering for tasks with any required
-effect. These values are not retained as evidence of sanitisation or runtime attack prevention. Revision 1 adds
-a scope-aware re-analysis and a manifest canary audit; their output must be generated before any revised numeric
-result is inserted here. Because the revised estimand differs from the original F5, the re-analysis is exploratory
-and does not inherit the original confirmatory status.
+effect. These values are not retained as evidence of sanitisation or runtime attack prevention. Source inspection
+of the current sanitizer shows that it reconstructs the description but retains provider-controlled tool names
+and argument keys in the model-visible manifest. Revision 1 adds a canary audit for these fields, an alias-manifest
+prototype with a server-side reverse map, and a scope-aware re-analysis; their generated output must be reviewed
+before any revised numeric result is inserted here. Because the revised estimand differs from the original F5,
+the re-analysis is exploratory and does not inherit the original confirmatory status.
 
 Task effect requirements are interpreted at their declared scope. For example,
 \texttt{write(/reports)} does not authorize \texttt{write(/secrets)} or an unknown, unscoped write. When the
