@@ -1,5 +1,5 @@
 name: PaMCP Revision 1 — tests, re-analysis and figures
-# Re-runs the full repository suite plus the Revision 1 scope-policy tests.
+# Re-runs the full repository suite plus Revision 1 scope tests; includes corrected plot namespace aliases.
 
 on:
   push:

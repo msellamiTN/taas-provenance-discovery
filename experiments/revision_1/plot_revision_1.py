@@ -144,7 +144,7 @@ def figure_e14_scope_aware() -> str:
         ax.barh(y + (offset - 1) * h, values, h, label=label, color=color)
     ax.set_yticks(y, labels)
     ax.set_xlim(0, 1)
-    ax.xaxis.set_major_formatter(base_plots.PCT)
+    ax.xaxis.set_major_formatter(base_plots.P.PCT)
     ax.set_xlabel("Share of tasks")
     ax.set_title("E14 Revision 1 — scope-aware offline reachability")
     ax.legend(fontsize=6.5, loc="lower right")
@@ -153,7 +153,7 @@ def figure_e14_scope_aware() -> str:
         0.01, 0.01,
         "Attacks are nested within task. Labels B are LLM-generated; no action was executed. "
         "Indeterminate bars overlap definite violations.",
-        fontsize=6, color=base_plots.INK2,
+        fontsize=6, color=base_plots.P.INK2,
     )
     fig.tight_layout(rect=(0, 0.07, 1, 1))
     save_figure(fig, "E14_injection")
