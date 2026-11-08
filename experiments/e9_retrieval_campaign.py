@@ -342,9 +342,16 @@ def load_goal_specs(path: Path, tasks: list[dict[str, Any]]) -> dict[tuple[str, 
             if not splitter_path.is_file() or sha256_file(splitter_path) != metadata["splitter_sha256"]:
                 raise ValueError(f"{task_id}: clause-splitter artifact is missing or hash-mismatched")
         else:
-            for field in ("model_id", "model_revision", "prompt_sha256", "raw_response_sha256", "prompt_path", "raw_response_path"):
+            for field in (
+                "model_id", "model_revision", "prompt_version", "prompt_sha256",
+                "raw_response_sha256", "prompt_path", "raw_response_path",
+            ):
                 if not metadata.get(field):
                     raise ValueError(f"{task_id}: llm_analyst metadata missing {field}")
+            for field in ("decoding_settings", "usage"):
+                value = metadata.get(field)
+                if not isinstance(value, dict) or not value:
+                    raise ValueError(f"{task_id}: llm_analyst metadata requires a non-empty {field} object")
             for path_key, hash_key in (("prompt_path", "prompt_sha256"), ("raw_response_path", "raw_response_sha256")):
                 artifact_path = Path(metadata[path_key])
                 if not artifact_path.is_absolute():
