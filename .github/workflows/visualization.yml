@@ -280,3 +280,10 @@ jobs:
               "status": manifest["status"]
           }, indent=2))
           PY
+      - name: Upload E3 synthetic fixture validation artifacts (not empirical results)
+        uses: actions/upload-artifact@v4
+        with:
+          name: PaMCP-E3-SYNTHETIC-FIXTURE-VALIDATION-ONLY
+          path: /tmp/e3-simulation/
+          if-no-files-found: error
+          retention-days: 30
