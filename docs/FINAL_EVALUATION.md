@@ -15,22 +15,23 @@ LLM-record hashes, and its configuration.
 | E1 Registry characterisation | run (3 views) | MEASURED; LABELLED for the not-read-only share |
 | E2 Semantic typing | proxy run; human study BLOCKED (sheet prepared) | LABELLED (agreement, not accuracy) |
 | E3 Declared vs observed effects | declared/lexical vs labels B; observed BLOCKED | LABELLED |
-| E4–E7 Exposure, forgery, verifier, trust | run | SIMULATED evidence, LABELLED scoring |
+| E4–E5 Exposure and forgery | outputs present | SIMULATED evidence, LABELLED scoring |
+| E6–E7 Verifier and trust | legacy log only; versioned outputs absent | Historical log reports figures; current result files are not committed |
 | E8 Single-tool retrieval | run | MEASURED (benchmark gold) |
-| E9 Set retrieval | run | MEASURED (benchmark gold) |
-| E10 Set validity | run | LABELLED (independent evaluator) |
+| E9 Set retrieval | output missing from audited snapshot | MEASURED claim not reproducible from committed output |
+| E10 Set validity | output missing from audited snapshot | LABELLED claim not reproducible from committed output |
 | E11 Capability gap | partial (task success BLOCKED) | MEASURED (engine) |
 | E12 Profile calibration | partial (64-item set, 3 models) | MEASURED |
 | E13 End-to-end execution | BLOCKED | — |
-| E14 Prompt injection | offline only | LABELLED |
-| E15 Scalability | run | SYNTHETIC, MEASURED latency |
-| E16 Evolution | run | MEASURED |
-| E17 Refinement | partial (LLM-free repairs) | MEASURED |
-| E18 Factorial ablation | run (task success BLOCKED) | MEASURED / LABELLED |
+| E14 Prompt injection | output missing from audited snapshot | Offline runner exists; result not committed |
+| E15 Scalability | output missing from audited snapshot | SYNTHETIC, MEASURED latency claim not reproducible from committed output |
+| E16 Evolution | output missing from audited snapshot | MEASURED claim not reproducible from committed output |
+| E17 Refinement | output missing from audited snapshot | LLM-free repair runner/result not committed |
+| E18 Factorial ablation | output and raw rows missing from audited snapshot | MEASURED / LABELLED claims not reproducible from committed output; task success BLOCKED |
 | E19 LLM role configurations | not run | — |
-| E20 Sensitivity | run | MEASURED / LABELLED |
+| E20 Sensitivity | output missing from audited snapshot | MEASURED / LABELLED claim not reproducible from committed output |
 | E21 Experience reuse (AutoTool) | BLOCKED | — |
-| E22 Statistics | run | — |
+| E22 Statistics | not reproducible from audited snapshot | E9, E10, E18 and raw E18 records are missing |
 
 ## Reference labels and reproducibility
 
@@ -102,7 +103,7 @@ verifier has a 5% false-accept rate. Exp@5 / Util@5, PaMCP retrieval stage:
 * With 66 target tools for 300 requests, CIs that resample target tools are about three times wider than
   request-level CIs (E22).
 
-<!-- E9-E10 -->
+<!-- E9-E10: versioned outputs not committed in the audited snapshot; see docs/ARTIFACT_COMPLETENESS_AUDIT.md -->
 
 ## E11 Capability gap (review scenario)
 
@@ -112,9 +113,10 @@ at n = 30,000; exact aggregation adds two tools at n = 30 and 300. With τ = 0.6
 n = 3,000. The three measured profiles give the same
 toolkits, because Sonnet and Opus answered all 64 calibration items correctly and the scenario's native classes
 use the same declared priors beyond the measured sizes. Without gap analysis the engine abstains in every
-setting (no registry tool serves the native goals). With the 569 public tools added to this scenario's registry,
-the engine abstains with a χ1 counterexample because the K = 5 shortlist of the report goal fills with public
-document tools.
+setting (no registry tool serves the native goals). The checked-in E11 runner uses only the review scenario's
+11-tool registry; it does not append the 569-tool public registry. Therefore, the expanded-registry χ1
+counterexample involving public document tools is not part of this checked-in E11 result and must not be
+attributed to it. That case requires a separately scoped execution.
 
 ## E12 Model profile calibration
 
@@ -124,4 +126,4 @@ asked beforehand: mean signed error −0.23 (Sonnet), −0.22 (Haiku), −0.30 (
 Self-assessment alone would therefore have sent work to tools that the model does correctly. The engine's
 profile refuted 12 of the 128 native claims of the analyst (9.4%).
 
-<!-- E14-E22 -->
+<!-- E14-E22: per-series committed artifact status is qualified in docs/ARTIFACT_COMPLETENESS_AUDIT.md -->
