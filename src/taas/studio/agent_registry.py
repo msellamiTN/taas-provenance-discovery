@@ -625,6 +625,68 @@ def get_mcp_snapshot(snapshot_id: str) -> dict[str, Any]:
     }
 
 
+def diff_mcp_snapshots(snapshot_id_a: str, snapshot_id_b: str) -> dict[str, Any]:
+    """Structural diff of two persisted MCP registry snapshots.
+
+    Normalizes servers/tools into key-indexed maps first so diff paths are
+    semantic (``servers.<id>.tools.<name>...``) rather than list positions.
+    Compares captured schemas only — it reports how two recorded captures
+    differ, not whether any tool is correct or behaved differently.
+    """
+    snap_a = get_mcp_snapshot(snapshot_id_a)
+    snap_b = get_mcp_snapshot(snapshot_id_b)
+
+    def _index(snapshot_row: dict[str, Any]) -> dict[str, Any]:
+        body = snapshot_row.get("snapshot") or {}
+        servers: dict[str, Any] = {}
+        for server in (body.get("servers") or []):
+            sid = str(server.get("server_id") or "<unknown>")
+            key = sid
+            suffix = 1
+            while key in servers:  # collision-safe: never merge two rows
+                key = f"{sid}#{suffix}"
+                suffix += 1
+            tools: dict[str, Any] = {}
+            for tool in (server.get("tools") or []):
+                tname = str(tool.get("name") or "<unknown>")
+                tkey = tname
+                tsuffix = 1
+                while tkey in tools:
+                    tkey = f"{tname}#{tsuffix}"
+                    tsuffix += 1
+                tools[tkey] = tool
+            servers[key] = {
+                "status": server.get("status"),
+                "protocol_version": server.get("protocol_version"),
+                "tools": tools,
+            }
+        return {
+            "schema_version": body.get("schema_version"),
+            "capture_mode": body.get("capture_mode"),
+            "servers": servers,
+        }
+
+    out = json_diff.walk_diff(_index(snap_a), _index(snap_b))
+    return {
+        "schema": "taas.mcp-snapshot-diff/v1",
+        "snapshot_a": snapshot_id_a,
+        "snapshot_b": snapshot_id_b,
+        "captured_at": {"a": snap_a["created_at"], "b": snap_b["created_at"]},
+        "server_count": {"a": snap_a["server_count"], "b": snap_b["server_count"],
+                         "same": snap_a["server_count"] == snap_b["server_count"]},
+        "tool_count": {"a": snap_a["tool_count"], "b": snap_b["tool_count"],
+                       "same": snap_a["tool_count"] == snap_b["tool_count"]},
+        "changes": {
+            "added_paths": out["added"],
+            "removed_paths": out["removed"],
+            "changed_paths": out["changed"],
+            "truncated": out["truncated"],
+        },
+        "record_semantics": "structural_diff_of_captured_registry_schemas_not_tool_behavior_evidence",
+        "execution_record": False,
+    }
+
+
 def list_mcp_snapshots(limit: int = 100) -> dict[str, Any]:
     connection = _connect()
     try:

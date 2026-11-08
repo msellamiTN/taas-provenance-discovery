@@ -89,14 +89,27 @@ def append_event(event_type: str, subject: dict[str, Any],
 
 
 def list_events_page(*, limit: int = 100, event_type: str | None = None,
-                     after_seq: int | None = None) -> dict[str, Any]:
-    """Keyset-paginated read: ascending ``seq`` order, bounded page size."""
+                     after_seq: int | None = None,
+                     subject_agent_id: str | None = None,
+                     subject_version: str | None = None) -> dict[str, Any]:
+    """Keyset-paginated read: ascending ``seq`` order, bounded page size.
+
+    ``subject_*`` filters are exact-match on the persisted ``subject_json``
+    keys — no prefix or inferred attribution. Events whose subject lacks the
+    key never match.
+    """
     limit = max(1, min(int(limit), 1000))
     clauses: list[str] = []
     params: list[Any] = []
     if event_type:
         clauses.append("event_type = ?")
         params.append(event_type)
+    if subject_agent_id:
+        clauses.append("json_extract(subject_json, '$.agent_id') = ?")
+        params.append(subject_agent_id)
+    if subject_version:
+        clauses.append("json_extract(subject_json, '$.version') = ?")
+        params.append(subject_version)
     if after_seq is not None:
         clauses.append("seq > ?")
         params.append(int(after_seq))

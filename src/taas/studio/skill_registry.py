@@ -12,6 +12,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from taas.studio import json_diff
+
 class SkillRegistryError(RuntimeError):
     pass
 class SkillRegistryConflict(SkillRegistryError):
@@ -243,12 +245,48 @@ def transition(skill_id: str, version: str, target_state: str, actor: str = "stu
     finally: db.close()
     return get_version(skill_id,version)
 
-def list_events(skill_id: str | None = None, limit: int = 200) -> dict[str, Any]:
+def list_events(skill_id: str | None = None, limit: int = 200,
+                version: str | None = None) -> dict[str, Any]:
+    """Append-only lifecycle events, newest first.
+
+    `version` filtering is exact-match on the persisted per-event column —
+    events that were never recorded with a version are never attributed to one.
+    """
     db=_connect()
     try:
         if skill_id is None:
             rows=db.execute("SELECT * FROM skill_events ORDER BY event_id DESC LIMIT ?",(limit,)).fetchall()
-        else:
+        elif version is None:
             rows=db.execute("SELECT * FROM skill_events WHERE skill_id=? ORDER BY event_id DESC LIMIT ?",(skill_id,limit)).fetchall()
+        else:
+            rows=db.execute("SELECT * FROM skill_events WHERE skill_id=? AND version=? ORDER BY event_id DESC LIMIT ?",(skill_id,version,limit)).fetchall()
     finally: db.close()
     return {"count":len(rows),"events":[dict(row) for row in rows]}
+
+
+def diff_versions(skill_id: str, version_a: str, version_b: str) -> dict[str, Any]:
+    """Structural manifest diff between two immutable versions of one Skill.
+
+    Compares stored manifests only — it proves nothing about runtime behavior;
+    it reports how two recorded configurations differ.
+    """
+    va = get_version(skill_id, version_a)
+    vb = get_version(skill_id, version_b)
+    out = json_diff.walk_diff(va["manifest"], vb["manifest"])
+    return {
+        "schema": "taas.skill-version-diff/v1",
+        "skill_id": skill_id,
+        "version_a": version_a,
+        "version_b": version_b,
+        "manifest_sha256": {"a": va["manifest_sha256"], "b": vb["manifest_sha256"],
+                            "same": va["manifest_sha256"] == vb["manifest_sha256"]},
+        "lifecycle_state": {"a": va["lifecycle_state"], "b": vb["lifecycle_state"]},
+        "changes": {
+            "added_paths": out["added"],
+            "removed_paths": out["removed"],
+            "changed_paths": out["changed"],
+            "truncated": out["truncated"],
+        },
+        "record_semantics": "structural_diff_of_persisted_manifests_not_behavior_evidence",
+        "execution_record": False,
+    }
