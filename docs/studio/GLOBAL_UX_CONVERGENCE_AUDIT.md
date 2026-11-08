@@ -54,7 +54,8 @@ This domain mapping organizes existing features; it does not rename or erase his
 
 Static extraction from src/taas/studio/api.py found:
 
-**Health/runtime**
+**Health/runtime and Studio shell**
+- GET /
 - GET /health
 - GET /ready
 - GET /api/v1/runtime/hardware
