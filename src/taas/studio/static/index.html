@@ -3059,6 +3059,8 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
   document.body.append(ux25Dialog);
   const ux25SetState=(id,ok,yes,no)=>{const node=$(id);node.textContent=ok?yes:no;node.classList.toggle("warn",!ok);};
   const ux25OpenReview=()=>{
+    $("ux25-ack").checked=false;
+    $("ux25-confirm").disabled=true;
     let body;
     try{body=JSON.parse($("payload").value)}catch(error){setDiscoveryStatus("Invalid JSON: "+error.message);return}
     const spec=body.goal_spec||{},goals=Array.isArray(spec.goals)?spec.goals:[];
