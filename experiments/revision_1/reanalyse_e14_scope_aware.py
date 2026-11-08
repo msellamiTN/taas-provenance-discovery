@@ -59,7 +59,7 @@ def task_requirements(record: dict, policy: str) -> TaskEffectRequirements:
             if not raw:
                 continue
             raw_values.append(raw)
-            match = re.match(r"^\\s*([a-z]+)", raw)
+            match = re.match(r"^\s*([a-z]+)", raw)   # Revision 2: was r"^\\s*", which never matched, so a bare class became a blanket permission
             cls = match.group(1) if match else ""
             if cls in {"write", "delete", "egress"} and "(" not in raw:
                 ambiguous.add(cls)
@@ -129,6 +129,10 @@ def cluster_bootstrap_ci(differences: np.ndarray, *, seed: int = 23, draws: int 
 def main() -> None:
     source = ROOT / "results" / "final" / "raw" / "E18_factorial.jsonl.gz"
     rows = load_gzip_jsonl(source)
+    # Revision 2 (A6): PAMCP_SPLIT=test keeps the 95 LiveMCPBench tasks (the 60 dev prompts selected K and w_rel)
+    split = os.environ.get("PAMCP_SPLIT", "all")
+    if split == "test":
+        rows = [r for r in rows if r.get("set") == "LMB"]
     labels_b = fe.labels_B()
     analysts = fe.analyst_records("sonnet")
     tasks_by_method: dict[tuple[str, str], dict] = {}
