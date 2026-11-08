@@ -12,6 +12,7 @@ unaccepted proposal artifacts cannot be used as empirical experiment inputs.
 from __future__ import annotations
 
 import argparse
+import copy
 import hashlib
 import json
 import os
@@ -20,7 +21,7 @@ import subprocess
 import sys
 import time
 from collections import defaultdict
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
@@ -42,7 +43,7 @@ from taas.retrieval import HybridRetriever
 from taas.types import TypeAssignment, parse_type
 
 DECOMPOSITIONS = ("none", "clause_splitter", "llm_analyst")
-RANKING_CUTOFFS = (5, 10, 20)
+RANKING_CUTOFFS = (1, 3, 5, 10, 20)
 PRIMARY_CONFIGURATION_ID = "Full_PaMCP"
 REQUIRED_PREREQUISITES = ("E1", "E2", "E3", "E12")
 FORBIDDEN_EVALUATOR_KEYS = {
@@ -336,7 +337,9 @@ def load_composer_config(path: Path) -> tuple[ComposerConfig, int, dict]:
         raise ValueError("Composer configuration must contain a composer object")
     config = ComposerConfig(**values)
     if config.K != 20:
-        raise ValueError("E9 runner requires composer retrieval K=20; metrics derive k={5,10,20}")
+        raise ValueError("Accepted E9 base composer config must freeze K=20; the campaign applies each protocol K separately")
+    if config.depth < 1:
+        raise ValueError("Full_PaMCP config must enable backward closure (depth >= 1)")
     refine_k = int(bundle.get("refine_k", -1))
     if not 0 <= refine_k <= 10:
         raise ValueError("Accepted E9 composer config must freeze refine_k in [0,10]")
@@ -416,6 +419,8 @@ class LocalSentenceTransformerEncoder:
         self.model = None
 
     def fit(self, documents: Sequence[str]):
+        if self.model is not None:
+            return self
         try:
             from importlib.metadata import version
             from sentence_transformers import SentenceTransformer
@@ -668,20 +673,33 @@ def run_campaign(args: argparse.Namespace) -> dict:
     }
 
     ranking_rows: list[dict[str, Any]] = []
-    method_status: dict[str, dict[str, Any]] = {}
     primary_rows = 0
+    no_backward_rows = 0
     start_time = time.perf_counter()
 
-    # Prepare engines with identical accepted contracts, model profile and policy.
-    engine = DiscoveryEngine(
+    # Paired engines differ in exactly one factor: backward-closure depth.
+    full_config = replace(composer_config, K=20)
+    no_backward_config = replace(composer_config, K=20, depth=0)
+    full_engine = DiscoveryEngine(
         contracts,
         profile,
-        cfg=EngineConfig(composer=composer_config, refine_k=refine_k),
+        cfg=EngineConfig(composer=full_config, refine_k=refine_k),
         encoder=encoder,
     )
+    no_backward_engine = DiscoveryEngine(
+        contracts,
+        profile,
+        cfg=EngineConfig(composer=no_backward_config, refine_k=refine_k),
+        encoder=encoder,
+    )
+
     method_counts: dict[str, dict[str, Any]] = defaultdict(
         lambda: {"completed_task_runs": 0, "blocked_task_runs": 0, "status_counts": defaultdict(int)}
     )
+    expected_runs = len(tasks) * len(DECOMPOSITIONS) * len(RANKING_CUTOFFS)
+    mcp_zero_block_reason = "blocked_official_active_request_loop_not_implemented"
+    colt_block_reason = "blocked_missing_MCPToolBench_dev_server_membership_scenes_and_crosswalk"
+    toolscope_block_reason = "blocked_missing_independent_equivalence_oracle"
 
     for decomposition in DECOMPOSITIONS:
         for task in tasks:
@@ -689,86 +707,143 @@ def run_campaign(args: argparse.Namespace) -> dict:
             prompt = str(task["prompt"])
             visible_row = next(row for row in visibility if str(row["task_id"]) == task_id)
             visible = [str(tool_id) for tool_id in visible_row["visible_tool_ids"]]
-            spec = goal_specs[(task_id, decomposition)]
+            base_spec = goal_specs[(task_id, decomposition)]
 
-            # One frozen top-20 result per task/decomposition. The exporter derives
-            # the protocol cutoffs k={5,10,20} from this single ranking, avoiding
-            # duplicate task/method rows or repeated look at evaluator references.
-            result = engine.discover(spec, policy)
-            selected = result.toolkit or []
-            if result.toolkit is not None and (result.certificate is None or not result.certificate.valid):
-                raise RuntimeError(f"{task_id}/{decomposition}/Full_PaMCP: invalid certificate selected")
-            if len(selected) != len(set(selected)) or not set(selected).issubset(set(visible)):
-                raise RuntimeError(f"{task_id}/{decomposition}/Full_PaMCP: invalid selected toolkit")
-            ranking_rows.append({
-                "task_id": task_id,
-                "benchmark": "live_mcpbench",
-                "baseline": PRIMARY_CONFIGURATION_ID,
-                "decomposition": decomposition,
-                "task_group": str(task.get("task_group") or "unspecified"),
-                "ranked_tool_ids": selected[:20],
-                "visible_tool_ids": visible,
-                "method_status": "completed" if result.toolkit is not None else "abstained",
-                "certificate_valid": bool(result.certificate and result.certificate.valid),
-                "discovery_time_seconds": result.time_s,
-                "gap_goal_ids": [goal.id for goal in result.gap.gap],
-                "model_profile_id": profile.model_id,
-                "model_profile_sha256": profile_info["profile_sha256"],
-            })
-            primary_rows += 1
-            method_counts[PRIMARY_CONFIGURATION_ID]["completed_task_runs"] += 1
-            method_counts[PRIMARY_CONFIGURATION_ID]["status_counts"][
-                "abstained" if result.toolkit is None else "completed"
-            ] += 1
-
-            # Registered comparison methods are run once per task/decomposition to
-            # produce one frozen ordered top-20 list. Unsupported adapters are blocked.
-            for baseline_id in baseline_ids:
-                if baseline_id == "toolscope_adapted" and equivalence_oracle is None:
-                    method_counts[baseline_id]["blocked_task_runs"] += 1
-                    method_counts[baseline_id]["status_counts"]["blocked_missing_independent_equivalence_oracle"] += 1
-                    continue
-                if baseline_id == "colt_adapted" and not train_scenes:
-                    method_counts[baseline_id]["blocked_task_runs"] += 1
-                    method_counts[baseline_id]["status_counts"]["blocked_missing_training_scenes"] += 1
-                    continue
-                if baseline_id == PRIMARY_CONFIGURATION_ID:
-                    continue
-                result = run_baseline(
-                    baseline_id=baseline_id,
-                    retriever=retriever,
-                    spec=spec,
-                    prompt=prompt,
-                    pool=visible,
-                    top_k=20,
-                    policy=policy,
-                    training_scenes=train_scenes,
-                    parameters={"top_k": 20},
-                )
-                if result.status != "completed":
-                    method_counts[baseline_id]["blocked_task_runs"] += 1
-                    method_counts[baseline_id]["status_counts"][result.status] += 1
-                    continue
-                method_counts[baseline_id]["completed_task_runs"] += 1
-                method_counts[baseline_id]["status_counts"]["completed"] += 1
-                ranked = _result_ranking(result, 20)
-                if not set(ranked).issubset(set(visible)):
-                    raise RuntimeError(f"{task_id}/{decomposition}/{baseline_id}: out-of-visibility output")
-                row = {
+            for k in RANKING_CUTOFFS:
+                # Apply the candidate budget to both PaMCP variants while keeping every
+                # other accepted composer parameter identical. The selected toolkit is
+                # the actual set prediction; do not truncate it to k after composition.
+                full_engine.cfg.composer.K = k
+                result = full_engine.discover(copy.deepcopy(base_spec), policy)
+                selected = list(result.toolkit or [])
+                if result.toolkit is not None and (result.certificate is None or not result.certificate.valid):
+                    raise RuntimeError(f"{task_id}/{decomposition}/Full_PaMCP/k={k}: invalid certificate selected")
+                if len(selected) != len(set(selected)) or not set(selected).issubset(set(visible)):
+                    raise RuntimeError(f"{task_id}/{decomposition}/Full_PaMCP/k={k}: invalid selected toolkit")
+                ranking_rows.append({
                     "task_id": task_id,
                     "benchmark": "live_mcpbench",
-                    "baseline": baseline_id,
+                    "baseline": PRIMARY_CONFIGURATION_ID,
                     "decomposition": decomposition,
+                    "ranking_k": k,
+                    "prediction_kind": "selected_toolkit",
                     "task_group": str(task.get("task_group") or "unspecified"),
-                    "ranked_tool_ids": ranked,
+                    "ranked_tool_ids": selected,
                     "visible_tool_ids": visible,
-                    "method_status": "completed",
-                    "discovery_time_seconds": None,
-                    "fidelity_label": baseline_fidelity[baseline_id]["implementation"],
-                }
-                if baseline_id == "toolscope_adapted":
-                    row["merge_quality"] = evaluate_equivalence_groups(result.merged_groups, equivalence_oracle)
-                ranking_rows.append(row)
+                    "method_status": "completed" if result.toolkit is not None else "abstained",
+                    "certificate_valid": bool(result.certificate and result.certificate.valid),
+                    "discovery_time_seconds": result.time_s,
+                    "gap_goal_ids": [goal.id for goal in result.gap.gap],
+                    "model_profile_id": profile.model_id,
+                    "model_profile_sha256": profile_info["profile_sha256"],
+                    "closure_depth": composer_config.depth,
+                })
+                primary_rows += 1
+                method_counts[PRIMARY_CONFIGURATION_ID]["completed_task_runs"] += 1
+                method_counts[PRIMARY_CONFIGURATION_ID]["status_counts"][
+                    "abstained" if result.toolkit is None else "completed"
+                ] += 1
+
+                no_backward_engine.cfg.composer.K = k
+                no_backward_result = no_backward_engine.discover(copy.deepcopy(base_spec), policy)
+                no_backward_selected = list(no_backward_result.toolkit or [])
+                if no_backward_result.toolkit is not None and (
+                    no_backward_result.certificate is None or not no_backward_result.certificate.valid
+                ):
+                    raise RuntimeError(
+                        f"{task_id}/{decomposition}/PaMCP_NoBackwardClosure/k={k}: invalid certificate selected"
+                    )
+                if (len(no_backward_selected) != len(set(no_backward_selected))
+                        or not set(no_backward_selected).issubset(set(visible))):
+                    raise RuntimeError(
+                        f"{task_id}/{decomposition}/PaMCP_NoBackwardClosure/k={k}: invalid toolkit"
+                    )
+                ranking_rows.append({
+                    "task_id": task_id,
+                    "benchmark": "live_mcpbench",
+                    "baseline": "pamcp_no_backward_closure",
+                    "decomposition": decomposition,
+                    "ranking_k": k,
+                    "prediction_kind": "selected_toolkit",
+                    "task_group": str(task.get("task_group") or "unspecified"),
+                    "ranked_tool_ids": no_backward_selected,
+                    "visible_tool_ids": visible,
+                    "method_status": "completed" if no_backward_result.toolkit is not None else "abstained",
+                    "certificate_valid": bool(
+                        no_backward_result.certificate and no_backward_result.certificate.valid
+                    ),
+                    "discovery_time_seconds": no_backward_result.time_s,
+                    "gap_goal_ids": [goal.id for goal in no_backward_result.gap.gap],
+                    "model_profile_id": profile.model_id,
+                    "model_profile_sha256": profile_info["profile_sha256"],
+                    "closure_depth": 0,
+                })
+                no_backward_rows += 1
+                method_counts["pamcp_no_backward_closure"]["completed_task_runs"] += 1
+                method_counts["pamcp_no_backward_closure"]["status_counts"][
+                    "abstained" if no_backward_result.toolkit is None else "completed"
+                ] += 1
+
+                for baseline_id in baseline_ids:
+                    # Do not report a partial MCP-Zero implementation as the official
+                    # iterative active-request baseline. Missing prerequisite data also
+                    # keeps COLT and ToolScope blocked rather than substituting controls.
+                    if baseline_id == "mcp_zero":
+                        method_counts[baseline_id]["blocked_task_runs"] += 1
+                        method_counts[baseline_id]["status_counts"][mcp_zero_block_reason] += 1
+                        continue
+                    if baseline_id == "colt_adapted" and not train_scenes:
+                        method_counts[baseline_id]["blocked_task_runs"] += 1
+                        method_counts[baseline_id]["status_counts"][colt_block_reason] += 1
+                        continue
+                    if baseline_id == "toolscope_adapted" and equivalence_oracle is None:
+                        method_counts[baseline_id]["blocked_task_runs"] += 1
+                        method_counts[baseline_id]["status_counts"][toolscope_block_reason] += 1
+                        continue
+                    if baseline_id == "pamcp_no_backward_closure":
+                        continue
+
+                    baseline_result = run_baseline(
+                        baseline_id=baseline_id,
+                        retriever=retriever,
+                        spec=copy.deepcopy(base_spec),
+                        prompt=prompt,
+                        pool=visible,
+                        top_k=k,
+                        policy=policy,
+                        training_scenes=train_scenes,
+                        parameters={"top_k": k},
+                    )
+                    if baseline_result.status != "completed":
+                        method_counts[baseline_id]["blocked_task_runs"] += 1
+                        method_counts[baseline_id]["status_counts"][baseline_result.status] += 1
+                        continue
+                    method_counts[baseline_id]["completed_task_runs"] += 1
+                    method_counts[baseline_id]["status_counts"]["completed"] += 1
+                    ranked = _result_ranking(baseline_result, k)
+                    if not set(ranked).issubset(set(visible)):
+                        raise RuntimeError(
+                            f"{task_id}/{decomposition}/{baseline_id}/k={k}: out-of-visibility output"
+                        )
+                    row = {
+                        "task_id": task_id,
+                        "benchmark": "live_mcpbench",
+                        "baseline": baseline_id,
+                        "decomposition": decomposition,
+                        "ranking_k": k,
+                        "prediction_kind": "top_k_retrieved_tools",
+                        "task_group": str(task.get("task_group") or "unspecified"),
+                        "ranked_tool_ids": ranked,
+                        "visible_tool_ids": visible,
+                        "method_status": "completed",
+                        "discovery_time_seconds": None,
+                        "fidelity_label": baseline_fidelity[baseline_id]["implementation"],
+                    }
+                    if baseline_id == "toolscope_adapted":
+                        row["merge_quality"] = evaluate_equivalence_groups(
+                            baseline_result.merged_groups, equivalence_oracle
+                        )
+                    ranking_rows.append(row)
 
     # Freeze discovery evidence before reading any evaluator references.
     output_dir.mkdir(parents=True)
@@ -793,7 +868,6 @@ def run_campaign(args: argparse.Namespace) -> dict:
         if row["baseline"] in baseline_ids
     })
     statuses = {}
-    expected_runs = len(tasks) * len(DECOMPOSITIONS)
     for method in baseline_ids:
         counts = method_counts[method]
         if counts["completed_task_runs"] == expected_runs:
@@ -811,6 +885,13 @@ def run_campaign(args: argparse.Namespace) -> dict:
             "status_counts": dict(counts["status_counts"]),
             **baseline_fidelity[method],
         }
+    statuses["pamcp_no_backward_closure"] = {
+        "status": "completed" if no_backward_rows == expected_runs else "partial",
+        "rows": no_backward_rows,
+        "expected_rows": expected_runs,
+        "variant": "PaMCP with backward-closure depth fixed to zero; all other composer settings identical",
+        "status_counts": dict(method_counts["pamcp_no_backward_closure"]["status_counts"]),
+    }
     statuses[PRIMARY_CONFIGURATION_ID] = {
         "status": "completed" if primary_rows == expected_runs else "partial",
         "rows": primary_rows,
@@ -844,7 +925,8 @@ def run_campaign(args: argparse.Namespace) -> dict:
         "primary_configuration_id": PRIMARY_CONFIGURATION_ID,
         "primary_configuration_executed": True,
         "primary_configuration_rows": primary_rows,
-        "expected_task_decomposition_runs_per_method": expected_runs,
+        "no_backward_configuration_rows": no_backward_rows,
+        "expected_task_decomposition_k_runs_per_method": expected_runs,
         "method_status": statuses,
         "fidelity": baseline_fidelity,
         "inputs": {
