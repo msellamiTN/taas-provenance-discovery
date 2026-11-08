@@ -1427,103 +1427,88 @@ a{color:#355db9}a:focus-visible,summary:focus-visible{outline:2px solid #6d8ce0;
 
 <section id="ux22-agent-observability" class="section-anchor" aria-labelledby="ux22-title" style="margin-bottom:18px">
 <style>
-#ux22-agent-observability{--u22-blue:#3567d4;--u22-green:#15966b;--u22-red:#dc5656;--u22-orange:#e59a32;--u22-navy:#142541}
+#ux22-agent-observability{--u22-blue:#3567d4;--u22-green:#15966b;--u22-purple:#8066c8;--u22-amber:#a86a12}
 #ux22-agent-observability .u22-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:13px 15px;background:#fff;border:1px solid var(--line);border-radius:12px;margin:12px 0}
+#ux22-agent-observability .u22-selectors{display:flex;align-items:end;gap:10px;flex-wrap:wrap}
+#ux22-agent-observability .u22-field{min-width:150px}.u22-field label{display:block;color:#53647d;font-size:10px;font-weight:700;margin-bottom:5px}
+#ux22-agent-observability .u22-field select{min-width:150px;padding:9px 11px;font:12px Inter,system-ui,sans-serif}
 #ux22-agent-observability .u22-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin:12px 0}
-#ux22-agent-observability .u22-kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+#ux22-agent-observability .u22-kpi,#ux22-agent-observability .u22-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
 #ux22-agent-observability .u22-kpi strong{display:block;font-size:25px;letter-spacing:-.7px;margin:5px 0}
-#ux22-agent-observability .u22-layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,.85fr);gap:12px;margin:12px 0}
-#ux22-agent-observability .u22-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px;min-width:0}
+#ux22-agent-observability .u22-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.9fr);gap:12px;margin:12px 0}
 #ux22-agent-observability .u22-card h3{font-size:13px;margin:0 0 4px}
-#ux22-agent-observability .u22-chart{width:100%;height:auto;display:block}
-#ux22-agent-observability .u22-chart text{font:10px system-ui;fill:#718096}
-#ux22-agent-observability .u22-legend{display:flex;gap:13px;flex-wrap:wrap;font-size:10px;color:#68778d;margin-top:8px}
-#ux22-agent-observability .u22-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
 #ux22-agent-observability .u22-status{display:inline-flex;border-radius:99px;padding:4px 8px;font-size:10px;font-weight:750;background:#e8f7f0;color:#14734f}
 #ux22-agent-observability .u22-status.warn{background:#fff3df;color:#9a6419}
-#ux22-agent-observability .u22-status.bad{background:#ffeded;color:#ad3d3d}
-#ux22-agent-observability .u22-table{width:100%;border-collapse:collapse;font-size:11px}
-#ux22-agent-observability .u22-table th,#ux22-agent-observability .u22-table td{padding:9px 7px;text-align:left;border-bottom:1px solid #edf0f5;vertical-align:middle}
-#ux22-agent-observability .u22-table th{font-size:9px;color:#7b8798;text-transform:uppercase;letter-spacing:.5px}
-#ux22-agent-observability .u22-lifecycle{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:12px 0}
-#ux22-agent-observability .u22-stage{border:1px solid #e4eaf2;border-radius:9px;padding:10px 4px;text-align:center;background:#f8faff;color:#52627a;font-size:10px;font-weight:700}
-#ux22-agent-observability .u22-stage.active{background:#edf3ff;border-color:#b9ccfb;color:#315fce}
-#ux22-agent-observability .u22-bars{display:grid;gap:12px;margin-top:13px}
-#ux22-agent-observability .u22-barrow{display:grid;grid-template-columns:95px minmax(0,1fr) 38px;gap:8px;align-items:center;font-size:10px;color:#617087}
-#ux22-agent-observability .u22-track{height:8px;background:#edf1f6;border-radius:99px;overflow:hidden}
-#ux22-agent-observability .u22-track span{display:block;height:100%;border-radius:99px;background:var(--u22-blue)}
+#ux22-agent-observability .u22-status.neutral{background:#edf1f6;color:#52627a}
 #ux22-agent-observability .u22-demo{padding:11px 14px;border:1px solid #e7c978;background:#fff8e7;color:#765016;border-radius:10px;margin:10px 0;font-size:11px}
-#ux22-agent-observability .u22-unavailable{padding:13px;border:1px dashed #cbd5e1;border-radius:9px;background:#f8fafc;color:#68778d;font-size:11px;line-height:1.55}
-#ux22-agent-observability .u22-raw{max-height:300px;min-height:110px}
+#ux22-agent-observability .u22-unavailable{padding:12px;border:1px dashed #cbd5e1;border-radius:9px;background:#f8fafc;color:#68778d;font-size:11px;line-height:1.55}
+#ux22-agent-observability .u22-list{display:grid;gap:0}
+#ux22-agent-observability .u22-event{display:grid;grid-template-columns:54px 30px minmax(0,1fr) auto;gap:9px;align-items:start;padding:12px 0;border-bottom:1px solid #edf0f5}
+#ux22-agent-observability .u22-event:last-child{border-bottom:0}
+#ux22-agent-observability .u22-time{font-size:10px;color:#7b8798;padding-top:3px}
+#ux22-agent-observability .u22-event-icon{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#edf3ff;color:#315fce;font-size:13px;font-weight:800}
+#ux22-agent-observability .u22-event strong{display:block;font-size:11px}
+#ux22-agent-observability .u22-event small{display:block;color:#68778d;font-size:10px;line-height:1.45;margin-top:3px;overflow-wrap:anywhere}
+#ux22-agent-observability .u22-fact{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #edf0f5;font-size:11px}
+#ux22-agent-observability .u22-fact:last-child{border-bottom:0}
+#ux22-agent-observability .u22-fact strong{overflow-wrap:anywhere;text-align:right}
+#ux22-agent-observability .u22-unavailable-list{columns:2;padding-left:18px;margin:8px 0;font-size:11px}
+#ux22-agent-observability .u22-unavailable-list li{margin:5px 0;break-inside:avoid}
+#ux22-agent-observability .u22-raw{max-height:280px;min-height:90px}
 @media(max-width:900px){#ux22-agent-observability .u22-layout{grid-template-columns:1fr}#ux22-agent-observability .u22-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:520px){#ux22-agent-observability .u22-kpis{grid-template-columns:1fr 1fr}#ux22-agent-observability .u22-lifecycle{grid-template-columns:repeat(3,minmax(0,1fr))}}
-#ux22-agent-observability.u22-live-mode .u22-chart,#ux22-agent-observability.u22-live-mode .u22-bars,#ux22-agent-observability.u22-live-mode .u22-lifecycle,#ux22-agent-observability.u22-live-mode .u22-legend{display:none!important}
+@media(max-width:520px){#ux22-agent-observability .u22-kpis{grid-template-columns:1fr 1fr}#ux22-agent-observability .u22-event{grid-template-columns:42px 28px minmax(0,1fr)}#ux22-agent-observability .u22-event>.u22-status{grid-column:3}#ux22-agent-observability .u22-unavailable-list{columns:1}}
 </style>
-<div class="panel-head"><div><div class="eyebrow">OPERATE · OBSERVE · UX-22</div><h2 id="ux22-title" style="margin:4px 0">Agent Performance &amp; Lifecycle Observability</h2><p class="subtle">Monitor Agent registry health, lifecycle signals, runtime capacity and operational indicators.</p></div><span class="pill" id="ux22-mode-pill">DEMO DATA · ILLUSTRATIVE</span></div>
-<div class="u22-toolbar"><div><strong>Observability data mode</strong><p class="subtle" style="margin:3px 0">Switch between isolated sample visualizations and authenticated read-only Core responses.</p></div><div class="inline-actions" style="margin:0"><button id="ux22-demo-mode" class="secondary" type="button">Demo dashboard</button><button id="ux22-live-mode" type="button">Load live Core data</button></div></div>
-<div id="ux22-demo-banner" class="u22-demo"><strong>DEMO DATA — NOT LIVE / NOT VERIFIED.</strong> All counts, rates, latency, tool-call volumes, costs, resource percentages, agent statuses, rankings, alerts and time-series are fictional examples. They do not describe a real TaaS deployment.</div>
-<p id="ux22-status" class="subtle" role="status" aria-live="polite">Illustrative observability dashboard loaded.</p>
+<div class="panel-head"><div><div class="eyebrow">OPERATE · OBSERVE · UX-22</div><h2 id="ux22-title" style="margin:4px 0">Agent Observability</h2><p class="subtle">Recorded governance activity for one exact Agent version. Not performance telemetry.</p></div><span class="pill" id="ux22-mode-pill">DEMO DATA · ILLUSTRATIVE</span></div>
+<div class="u22-toolbar"><div><strong>Agent version</strong><p class="subtle" style="margin:3px 0">Inspect persisted records scoped to one immutable version.</p></div><div class="u22-selectors">
+ <div class="u22-field"><label for="ux22-agent-select">Agent</label><select id="ux22-agent-select"><option value="acc-release">acc-release</option></select></div>
+ <div class="u22-field"><label for="ux22-version-select">Version</label><select id="ux22-version-select"><option value="1.0.0">1.0.0</option></select></div>
+ <button id="ux22-refresh" class="secondary" type="button">Refresh</button>
+ <button id="ux22-demo-mode" class="secondary" type="button">Demo</button>
+ <button id="ux22-live-mode" type="button">Load live</button>
+</div></div>
+<div id="ux22-demo-banner" class="u22-demo"><strong>DEMO DATA — SYNTHETIC.</strong> The counts, event examples and timestamps below are fictional interface data. They are not records from a real deployment.</div>
+<p id="ux22-status" class="subtle" role="status" aria-live="polite">Illustrative recorded-activity view loaded.</p>
 <div class="u22-kpis">
- <div class="u22-kpi"><div class="eyebrow">REGISTERED AGENTS</div><strong id="ux22-agents">18</strong><span class="subtle" id="ux22-agents-note">Illustrative registry inventory</span></div>
- <div class="u22-kpi"><div class="eyebrow">EXECUTION RUNS</div><strong id="ux22-runs">12,846</strong><span class="subtle" id="ux22-runs-note">Sample operational volume</span></div>
- <div class="u22-kpi"><div class="eyebrow">SUCCESS RATE</div><strong id="ux22-success">96.1%</strong><span class="subtle" id="ux22-success-note">Fictional performance metric</span></div>
- <div class="u22-kpi"><div class="eyebrow">AVERAGE LATENCY</div><strong id="ux22-latency">842 ms</strong><span class="subtle" id="ux22-latency-note">Fictional response-time metric</span></div>
+ <div class="u22-kpi"><div class="eyebrow">LIFECYCLE EVENTS</div><strong id="ux22-lifecycle-count">12</strong><span class="subtle" id="ux22-lifecycle-note">Synthetic demo records</span></div>
+ <div class="u22-kpi"><div class="eyebrow">POLICY VERDICTS</div><strong id="ux22-policy-count">4</strong><span class="subtle" id="ux22-policy-note">Synthetic demo records</span></div>
+ <div class="u22-kpi"><div class="eyebrow">HUMAN APPROVALS</div><strong id="ux22-approval-count">2</strong><span class="subtle" id="ux22-approval-note">Synthetic demo records</span></div>
+ <div class="u22-kpi"><div class="eyebrow">REVOCATION</div><strong id="ux22-revocation-state" style="font-size:18px">None recorded</strong><span class="subtle" id="ux22-revocation-note">Synthetic demo state</span></div>
 </div>
 <div class="u22-layout">
- <div class="u22-card"><div class="panel-head"><div><h3>Agent performance trends</h3><p class="subtle">Success rate and average latency · illustrative historical series.</p></div><span class="u22-status" id="ux22-trend-state">DEMO</span></div>
- <svg id="ux22-performance-chart" class="u22-chart" viewBox="0 0 620 230" role="img" aria-label="Illustrative Agent success and latency trends">
-  <g stroke="#edf0f5"><line x1="48" y1="35" x2="590" y2="35"/><line x1="48" y1="80" x2="590" y2="80"/><line x1="48" y1="125" x2="590" y2="125"/><line x1="48" y1="170" x2="590" y2="170"/></g>
-  <polyline points="58,91 145,80 232,88 319,58 406,67 493,46 580,54" fill="none" stroke="#3567d4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  <polyline points="58,139 145,126 232,145 319,119 406,131 493,110 580,119" fill="none" stroke="#15966b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  <g fill="#3567d4"><circle cx="58" cy="91" r="4"/><circle cx="145" cy="80" r="4"/><circle cx="232" cy="88" r="4"/><circle cx="319" cy="58" r="4"/><circle cx="406" cy="67" r="4"/><circle cx="493" cy="46" r="4"/><circle cx="580" cy="54" r="4"/></g>
-  <g fill="#15966b"><circle cx="58" cy="139" r="4"/><circle cx="145" cy="126" r="4"/><circle cx="232" cy="145" r="4"/><circle cx="319" cy="119" r="4"/><circle cx="406" cy="131" r="4"/><circle cx="493" cy="110" r="4"/><circle cx="580" cy="119" r="4"/></g>
-  <g><text x="58" y="195">Mon</text><text x="145" y="195">Tue</text><text x="232" y="195">Wed</text><text x="319" y="195">Thu</text><text x="406" y="195">Fri</text><text x="493" y="195">Sat</text><text x="580" y="195">Sun</text></g>
- </svg><div class="u22-legend"><span><i class="u22-dot" style="background:#3567d4"></i>Success rate</span><span><i class="u22-dot" style="background:#15966b"></i>Latency trend</span></div>
+ <div class="u22-card"><div class="panel-head"><div><h3>Recorded activity timeline</h3><p class="subtle">Persisted lifecycle, policy and approval records only.</p></div><span class="u22-status neutral" id="ux22-timeline-state">DEMO</span></div>
+ <div id="ux22-activity-list" class="u22-list">
+  <div class="u22-event"><span class="u22-time">10:35</span><span class="u22-event-icon">✓</span><div><strong>Policy verdict recorded</strong><small>Compliance check: Compliant</small></div><span class="u22-status">Policy</span></div>
+  <div class="u22-event"><span class="u22-time">10:35</span><span class="u22-event-icon">人</span><div><strong>Approval record observed</strong><small>Release approval · synthetic example</small></div><span class="u22-status neutral">Approval</span></div>
+  <div class="u22-event"><span class="u22-time">10:12</span><span class="u22-event-icon">↗</span><div><strong>Agent version published</strong><small>acc-release @ 1.0.0</small></div><span class="u22-status neutral">Lifecycle</span></div>
+  <div class="u22-event"><span class="u22-time">09:58</span><span class="u22-event-icon">▤</span><div><strong>Assurance evidence verified</strong><small>Release package integrity · not a human approval</small></div><span class="u22-status neutral">Evidence</span></div>
+  <div class="u22-event"><span class="u22-time">09:42</span><span class="u22-event-icon">＋</span><div><strong>Agent version created</strong><small>acc-release @ 1.0.0 (draft)</small></div><span class="u22-status neutral">Lifecycle</span></div>
  </div>
- <div class="u22-card"><div class="panel-head"><div><h3>Agent health distribution</h3><p class="subtle">Healthy, degraded and unhealthy · sample status mix.</p></div><span class="u22-status" id="ux22-health-state">DEMO</span></div>
- <svg class="u22-chart" viewBox="0 0 360 190" role="img" aria-label="Illustrative Agent health distribution">
-  <circle cx="180" cy="91" r="62" fill="none" stroke="#edf1f6" stroke-width="22"/>
-  <circle cx="180" cy="91" r="62" fill="none" stroke="#15966b" stroke-width="22" stroke-dasharray="245 390" transform="rotate(-90 180 91)"/>
-  <circle cx="180" cy="91" r="62" fill="none" stroke="#e59a32" stroke-width="22" stroke-dasharray="105 390" stroke-dashoffset="-245" transform="rotate(-90 180 91)"/>
-  <circle cx="180" cy="91" r="62" fill="none" stroke="#dc5656" stroke-width="22" stroke-dasharray="40 390" stroke-dashoffset="-350" transform="rotate(-90 180 91)"/>
-  <text x="180" y="88" text-anchor="middle" style="font-size:25px;fill:#17243a;font-weight:750">18</text><text x="180" y="106" text-anchor="middle">Agents</text>
- </svg><div class="u22-legend"><span><i class="u22-dot" style="background:#15966b"></i>Healthy 12</span><span><i class="u22-dot" style="background:#e59a32"></i>Degraded 4</span><span><i class="u22-dot" style="background:#dc5656"></i>Unhealthy 2</span></div>
+ <p class="subtle" style="margin:10px 0 0">Evidence verification is displayed separately and never counted as human approval.</p>
+ </div>
+ <div style="display:grid;gap:12px;align-content:start">
+  <div class="u22-card"><div class="panel-head"><div><h3>Configuration (manifest)</h3><p class="subtle">Declared configuration, not observed activity.</p></div><span class="u22-status neutral" id="ux22-config-state">DEMO</span></div>
+   <div class="u22-fact"><span>Skill references</span><strong id="ux22-skill-refs">3</strong></div><div class="u22-fact"><span>Tool allowlist entries</span><strong id="ux22-tool-entries">2</strong></div>
+   <p class="subtle" id="ux22-config-note">Synthetic manifest illustration; configuration facts are not execution evidence.</p>
+  </div>
+  <div class="u22-card"><div class="panel-head"><div><h3>Unavailable (by design)</h3><span class="u22-status warn">UNAVAILABLE</span></div></div>
+   <ul class="u22-unavailable-list"><li>Latency</li><li>Success / failure rate</li><li>Execution count</li><li>Tool-call volume</li><li>Resource attribution</li><li>Cost</li><li>Health score</li><li>Time series</li></ul>
+   <div class="u22-unavailable">Performance and execution telemetry are unavailable in the current architecture. They require a separately governed execution and telemetry capability.</div>
+  </div>
  </div>
 </div>
 <div class="u22-layout">
- <div class="u22-card"><div class="panel-head"><div><h3>Agent registry &amp; operational profile</h3><p class="subtle">Registry lifecycle state is not runtime health or execution performance.</p></div><span class="u22-status" id="ux22-registry-state">DEMO</span></div>
- <div style="overflow:auto"><table class="u22-table"><thead><tr><th>Agent</th><th>Lifecycle</th><th>Runs</th><th>Success</th><th>Latency</th><th>Health</th></tr></thead><tbody id="ux22-agent-body">
- <tr><td>customer-support</td><td>Published</td><td>2,840</td><td>98.2%</td><td>620 ms</td><td><span class="u22-status">Healthy</span></td></tr>
- <tr><td>invoice-review</td><td>Published</td><td>2,210</td><td>97.1%</td><td>780 ms</td><td><span class="u22-status">Healthy</span></td></tr>
- <tr><td>risk-assessment</td><td>Validated</td><td>1,840</td><td>91.4%</td><td>1,240 ms</td><td><span class="u22-status warn">Degraded</span></td></tr>
- <tr><td>data-quality</td><td>Published</td><td>1,620</td><td>96.8%</td><td>850 ms</td><td><span class="u22-status">Healthy</span></td></tr>
- </tbody></table></div><p class="subtle" id="ux22-registry-note">Sample rows combine fictional operational metrics with illustrative lifecycle labels.</p>
+ <div class="u22-card"><div class="panel-head"><div><h3>Selected Agent version</h3><p class="subtle">Registry identity and lifecycle facts.</p></div><span class="u22-status neutral" id="ux22-agent-state">DEMO</span></div>
+  <div class="u22-fact"><span>Agent ID</span><strong id="ux22-agent-id">acc-release</strong></div><div class="u22-fact"><span>Version</span><strong id="ux22-version">1.0.0</strong></div><div class="u22-fact"><span>Lifecycle state</span><strong id="ux22-release-state">Published</strong></div><div class="u22-fact"><span>Last recorded activity</span><strong id="ux22-last-activity">Jan 26, 10:35 UTC</strong></div>
  </div>
- <div class="u22-card"><div class="panel-head"><div><h3>Agent lifecycle</h3><p class="subtle">Design → Build → Test → Deploy → Operate.</p></div><span class="u22-status" id="ux22-lifecycle-state">DEMO</span></div>
- <div class="u22-lifecycle"><div class="u22-stage active">01 · Design</div><div class="u22-stage active">02 · Build</div><div class="u22-stage active">03 · Test</div><div class="u22-stage active">04 · Deploy</div><div class="u22-stage active">05 · Operate</div></div>
- <div class="u22-bars"><div class="u22-barrow"><span>Draft</span><div class="u22-track"><span style="width:22%;background:#94a3b8"></span></div><b>4</b></div><div class="u22-barrow"><span>Validated</span><div class="u22-track"><span style="width:33%;background:#3567d4"></span></div><b>6</b></div><div class="u22-barrow"><span>Published</span><div class="u22-track"><span style="width:67%;background:#15966b"></span></div><b>8</b></div></div>
- <p class="subtle" id="ux22-lifecycle-note">Lifecycle distribution is derived from fictional sample versions.</p></div>
-</div>
-<div class="u22-layout">
- <div class="u22-card"><div class="panel-head"><div><h3>Resource &amp; cost overview</h3><p class="subtle">Compute, model API, tool calls and storage.</p></div><span class="u22-status" id="ux22-cost-state">DEMO</span></div>
- <div class="u22-bars"><div class="u22-barrow"><span>Compute</span><div class="u22-track"><span style="width:74%"></span></div><b>$48</b></div><div class="u22-barrow"><span>Model API</span><div class="u22-track"><span style="width:91%;background:#15966b"></span></div><b>$52</b></div><div class="u22-barrow"><span>Tool calls</span><div class="u22-track"><span style="width:34%;background:#e59a32"></span></div><b>$18</b></div><div class="u22-barrow"><span>Storage</span><div class="u22-track"><span style="width:17%;background:#8b72cc"></span></div><b>$9</b></div></div>
- <p class="subtle" id="ux22-cost-note">Estimated sample total: $127.40 · fictional, not billed.</p></div>
- <div class="u22-card"><div class="panel-head"><div><h3>Runtime resources</h3><p class="subtle">Observed host diagnostics are not Agent-attributed utilization.</p></div><span class="u22-status" id="ux22-runtime-state">DEMO</span></div>
- <div class="u22-bars"><div class="u22-barrow"><span>CPU</span><div class="u22-track"><span style="width:62%"></span></div><b>62%</b></div><div class="u22-barrow"><span>Memory</span><div class="u22-track"><span style="width:71%;background:#15966b"></span></div><b>71%</b></div><div class="u22-barrow"><span>GPU</span><div class="u22-track"><span style="width:43%;background:#8b72cc"></span></div><b>43%</b></div></div>
- <p class="subtle" id="ux22-runtime-note">Fictional sample utilization. Not a live host measurement.</p></div>
-</div>
-<div class="u22-layout">
- <div class="u22-card"><div class="panel-head"><div><h3>Top Agents by usage</h3><p class="subtle">Illustrative run volume ranking.</p></div><span class="u22-status" id="ux22-usage-state">DEMO</span></div>
- <svg class="u22-chart" viewBox="0 0 560 205" role="img" aria-label="Illustrative top Agents by usage bar chart"><g fill="#718096" font-size="10"><text x="8" y="36">Support</text><text x="8" y="76">Invoice</text><text x="8" y="116">Risk</text><text x="8" y="156">Quality</text></g><g><rect x="90" y="20" width="380" height="20" rx="5" fill="#3567d4"/><rect x="90" y="60" width="295" height="20" rx="5" fill="#5d83df"/><rect x="90" y="100" width="246" height="20" rx="5" fill="#87a4e8"/><rect x="90" y="140" width="205" height="20" rx="5" fill="#a9bdec"/></g><g fill="#53647d" font-size="10"><text x="480" y="35">2,840</text><text x="395" y="75">2,210</text><text x="346" y="115">1,840</text><text x="305" y="155">1,620</text></g></svg>
- <p class="subtle" id="ux22-usage-note">Fictional run volumes; no live per-Agent execution history API.</p></div>
- <div class="u22-card"><div class="panel-head"><div><h3>Alerts &amp; key insights</h3><p class="subtle">Illustrative operational signals.</p></div><span class="u22-status warn" id="ux22-alert-state">3 SAMPLE ALERTS</span></div>
- <div id="ux22-alerts" style="display:grid;gap:9px"><div><span class="u22-status bad">Critical</span><strong style="font-size:11px;margin-left:7px">Risk-assessment latency above target</strong><p class="subtle">Investigate model response time and dependency health.</p></div><div><span class="u22-status warn">Warning</span><strong style="font-size:11px;margin-left:7px">Two Agents marked unhealthy</strong><p class="subtle">Review the relevant runtime and lifecycle evidence.</p></div><div><span class="u22-status">Info</span><strong style="font-size:11px;margin-left:7px">Model capacity stable</strong><p class="subtle">Sample insight only; not a live capacity conclusion.</p></div></div>
+ <div class="u22-card"><div class="panel-head"><div><h3>Semantics &amp; safety boundaries</h3><span class="u22-status neutral">READ ONLY</span></div></div>
+  <div class="u22-unavailable">Recorded governance activity, not performance telemetry, not execution proof.</div>
+  <div class="u22-fact"><span>Execution performed</span><strong id="ux22-execution">False</strong></div><div class="u22-fact"><span>Authorization granted</span><strong id="ux22-authorization">False</strong></div>
+  <div class="u22-demo" style="margin-bottom:0"><strong>Demo environment</strong><br>Illustrative synthetic values only. They do not represent real activity, approval, authorization or operational performance.</div>
  </div>
 </div>
-<div class="u22-card"><div class="panel-head"><div><h3>Live Core response inspector</h3><p class="subtle">Exact supported responses and explicit unavailable capabilities.</p></div><span class="pill" id="ux22-live-state">NOT LOADED</span></div><pre id="ux22-live-detail" class="u22-raw">No live Core request has been made. Demo mode makes no API requests.</pre></div>
-<p class="subtle" style="margin-top:10px">Live mode uses authenticated GET requests only: <code>/api/v1/agents?limit=500</code>, <code>/api/v1/agents/events?limit=1000</code>, <code>/api/v1/discovery/runs?limit=100</code>, <code>/api/v1/runtime/status</code>, <code>/api/v1/runtime/hardware</code> and <code>/api/v1/models/runtime</code>. Registry lifecycle is not runtime health. Discovery records are not proof of Agent execution. Host resource observations are not per-Agent attribution. No Agent registration, lifecycle mutation, deployment, authorization, MCP invocation or execution is performed.</p>
+<div class="u22-card"><div class="panel-head"><div><h3>Live Core response inspector</h3><p class="subtle">Exact endpoint response and provenance fields.</p></div><span class="pill" id="ux22-live-state">NOT LOADED</span></div><pre id="ux22-live-detail" class="u22-raw">No live Core request has been made. Demo mode makes no API requests.</pre></div>
+<p class="subtle" style="margin-top:10px">Live mode uses authenticated read-only GET requests. It does not infer human approval from verified evidence, attribute discovery runs to Agents, grant authorization or execute tools.</p>
 </section>
-
 
 <section id="ux23-discovery-composition" class="section-anchor" aria-labelledby="ux23-title" style="margin-bottom:18px">
 <style>
@@ -4804,62 +4789,103 @@ el("ux15-refresh").addEventListener("click",()=>{s.offset=0;tools();});el("ux15-
   });
 
 
-  // UX-22: mockup-faithful Agent observability. Demo values are isolated; live mode uses GET-only Core observations.
+  // UX-22: exact-version recorded governance activity. Demo values are synthetic and isolated from live Core data.
   (() => {
-    const el=id=>document.getElementById(id),pretty=v=>JSON.stringify(v,null,2);
-    const set=(id,v)=>{const n=el(id);if(n)n.textContent=String(v)};
+    const el=id=>document.getElementById(id), pretty=v=>JSON.stringify(v,null,2);
+    const set=(id,value)=>{const node=el(id);if(node)node.textContent=value==null?"Unavailable":String(value)};
+    const token=()=>el("token")?.value?.trim()||"";
     const unavailable="Unavailable";
     const demo=()=>{
-      el("ux22-agent-observability").classList.remove("u22-live-mode");el("ux22-demo-banner").hidden=false;set("ux22-mode-pill","DEMO DATA · ILLUSTRATIVE");set("ux22-status","Demo mode active. All dashboard metrics and chart series are fictional.");set("ux22-live-state","DEMO ONLY");
-      [["ux22-agents","18"],["ux22-runs","12,846"],["ux22-success","96.1%"],["ux22-latency","842 ms"]].forEach(([i,v])=>set(i,v));
-      [["ux22-agents-note","Illustrative registry inventory"],["ux22-runs-note","Sample operational volume"],["ux22-success-note","Fictional performance metric"],["ux22-latency-note","Fictional response-time metric"]].forEach(([i,v])=>set(i,v));
-      ["trend","health","registry","lifecycle","cost","runtime","usage"].forEach(k=>set("ux22-"+k+"-state","DEMO"));
-      set("ux22-alert-state","3 SAMPLE ALERTS");
-      el("ux22-agent-body").innerHTML='<tr><td>customer-support</td><td>Published</td><td>2,840</td><td>98.2%</td><td>620 ms</td><td><span class="u22-status">Healthy</span></td></tr><tr><td>invoice-review</td><td>Published</td><td>2,210</td><td>97.1%</td><td>780 ms</td><td><span class="u22-status">Healthy</span></td></tr><tr><td>risk-assessment</td><td>Validated</td><td>1,840</td><td>91.4%</td><td>1,240 ms</td><td><span class="u22-status warn">Degraded</span></td></tr><tr><td>data-quality</td><td>Published</td><td>1,620</td><td>96.8%</td><td>850 ms</td><td><span class="u22-status">Healthy</span></td></tr>';
-      set("ux22-registry-note","Sample rows combine fictional operational metrics with illustrative lifecycle labels.");set("ux22-lifecycle-note","Lifecycle distribution is derived from fictional sample versions.");set("ux22-cost-note","Estimated sample total: $127.40 · fictional, not billed.");set("ux22-runtime-note","Fictional sample utilization. Not a live host measurement.");set("ux22-usage-note","Fictional run volumes; no live per-Agent execution history API.");
-      el("ux22-alerts").innerHTML='<div><span class="u22-status bad">Critical</span><strong style="font-size:11px;margin-left:7px">Risk-assessment latency above target</strong><p class="subtle">Investigate model response time and dependency health.</p></div><div><span class="u22-status warn">Warning</span><strong style="font-size:11px;margin-left:7px">Two Agents marked unhealthy</strong><p class="subtle">Review the relevant runtime and lifecycle evidence.</p></div><div><span class="u22-status">Info</span><strong style="font-size:11px;margin-left:7px">Model capacity stable</strong><p class="subtle">Sample insight only; not a live capacity conclusion.</p></div>';
-      el("ux22-live-detail").textContent="DEMO DATA ONLY. No Core API requests were made. Every chart, metric, Agent operational row, alert, cost and resource percentage is fictional and must not be interpreted as an observation.";
+      set("ux22-mode-pill","DEMO DATA · ILLUSTRATIVE");set("ux22-status","Demo mode active. All displayed activity records are synthetic.");set("ux22-live-state","DEMO ONLY");
+      el("ux22-demo-banner").hidden=false;
+      [["ux22-lifecycle-count","12"],["ux22-policy-count","4"],["ux22-approval-count","2"],["ux22-revocation-state","None recorded"],["ux22-skill-refs","3"],["ux22-tool-entries","2"],["ux22-agent-id","acc-release"],["ux22-version","1.0.0"],["ux22-release-state","Published"],["ux22-last-activity","Jan 26, 10:35 UTC"],["ux22-execution","False"],["ux22-authorization","False"]].forEach(([id,value])=>set(id,value));
+      [["ux22-lifecycle-note","Synthetic demo records"],["ux22-policy-note","Synthetic demo records"],["ux22-approval-note","Synthetic demo records"],["ux22-revocation-note","Synthetic demo state"],["ux22-config-note","Synthetic manifest illustration; configuration facts are not execution evidence."]].forEach(([id,value])=>set(id,value));
+      ["ux22-timeline-state","ux22-config-state","ux22-agent-state"].forEach(id=>set(id,"DEMO"));
+      el("ux22-activity-list").innerHTML='<div class="u22-event"><span class="u22-time">10:35</span><span class="u22-event-icon">✓</span><div><strong>Policy verdict recorded</strong><small>Compliance check: Compliant · synthetic example</small></div><span class="u22-status">Policy</span></div><div class="u22-event"><span class="u22-time">10:35</span><span class="u22-event-icon">人</span><div><strong>Approval record observed</strong><small>Release approval · synthetic example</small></div><span class="u22-status neutral">Approval</span></div><div class="u22-event"><span class="u22-time">10:12</span><span class="u22-event-icon">↗</span><div><strong>Agent version published</strong><small>acc-release @ 1.0.0</small></div><span class="u22-status neutral">Lifecycle</span></div><div class="u22-event"><span class="u22-time">09:58</span><span class="u22-event-icon">▤</span><div><strong>Assurance evidence verified</strong><small>Release package integrity · not a human approval</small></div><span class="u22-status neutral">Evidence</span></div><div class="u22-event"><span class="u22-time">09:42</span><span class="u22-event-icon">＋</span><div><strong>Agent version created</strong><small>acc-release @ 1.0.0 (draft)</small></div><span class="u22-status neutral">Lifecycle</span></div>';
+      el("ux22-live-detail").textContent="DEMO DATA ONLY. No Core API request was made. All counts, timestamps, event examples and manifest values are synthetic.";
       el("ux22-demo-mode").disabled=true;el("ux22-live-mode").disabled=false;
     };
-    const live=async()=>{
-      const token=el("token")?.value?.trim();if(!token){set("ux22-status","Connect to TaaS Studio and provide an API token before loading live data.");return}
-      el("ux22-agent-observability").classList.add("u22-live-mode");el("ux22-live-mode").disabled=true;el("ux22-demo-banner").hidden=true;set("ux22-mode-pill","LIVE CORE OBSERVATIONS · LIMITED");set("ux22-status","Requesting read-only Agent, lifecycle and runtime observations…");
-      const get=async path=>{const r=await fetch(path,{headers:{"Authorization":"Bearer "+token,"Accept":"application/json","Cache-Control":"no-cache"},cache:"no-store"});const d=await readJsonResponse(r);if(r.status===401)markStudioAuthRejected();if(!r.ok)throw Error(formatApiError(d.detail||d,"HTTP "+r.status));return d};
-      const paths=["/api/v1/agents?limit=500","/api/v1/agents/events?limit=1000","/api/v1/discovery/runs?limit=100","/api/v1/runtime/status","/api/v1/runtime/hardware","/api/v1/models/runtime"];
-      const results=await Promise.allSettled(paths.map(get)),names=["agent_registry","agent_lifecycle_events","discovery_runs","runtime_status","runtime_hardware","model_runtime"];
-      const raw={},errors=[];results.forEach((r,i)=>{if(r.status==="fulfilled")raw[names[i]]=r.value;else{raw[names[i]]=null;errors.push(names[i]+": "+r.reason.message)}});
-      const reg=raw.agent_registry,versions=reg&&Array.isArray(reg.versions)?reg.versions:null;
-      const events=raw.agent_lifecycle_events&&Array.isArray(raw.agent_lifecycle_events.events)?raw.agent_lifecycle_events.events:null;
-      const runs=raw.discovery_runs&&(Array.isArray(raw.discovery_runs.runs)?raw.discovery_runs.runs:Array.isArray(raw.discovery_runs.items)?raw.discovery_runs.items:null);
-      const runtime=raw.runtime_status,hardware=raw.runtime_hardware,model=raw.model_runtime;
-      const validVersions=versions||[],ids=new Set(validVersions.map(x=>x.agent_id).filter(x=>typeof x==="string"));
-      set("ux22-agents",versions?ids.size:unavailable);set("ux22-agents-note",versions?"Distinct Agent IDs from returned registry versions":"Agent registry response unavailable");
-      set("ux22-runs",runs?runs.length:unavailable);set("ux22-runs-note",runs?"Returned discovery records only; not execution proof":"Discovery run response unavailable");
-      set("ux22-success",unavailable);set("ux22-success-note","No Agent success-rate or inference outcome analytics endpoint");
-      set("ux22-latency",unavailable);set("ux22-latency-note","No per-Agent or historical latency metrics endpoint");
-      ["trend","health","cost","usage"].forEach(k=>set("ux22-"+k+"-state","UNAVAILABLE"));
-      set("ux22-registry-state",versions?"CORE REGISTRY":"UNAVAILABLE");set("ux22-lifecycle-state",versions?"CORE LIFECYCLE STATES":"UNAVAILABLE");
-      const counts=validVersions.reduce((m,v)=>(m[v.lifecycle_state||"unknown"]=(m[v.lifecycle_state||"unknown"]||0)+1,m),{});
-      const tbody=el("ux22-agent-body");tbody.replaceChildren();
-      if(versions&&versions.length){validVersions.slice(0,12).forEach(v=>{const tr=document.createElement("tr");[v.agent_id,v.lifecycle_state,"Not reported","Not reported","Not reported","Not reported"].forEach(x=>{const td=document.createElement("td");td.textContent=x==null?"Not reported":String(x);tr.append(td)});tbody.append(tr)});set("ux22-registry-note","Core registry versions are shown. Operational runs, success and latency columns are not returned by this registry.");}
-      else{const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=6;td.textContent="No validated Agent registry version array returned; no inventory inferred.";tr.append(td);tbody.append(tr);set("ux22-registry-note","Registry inventory unavailable.");}
-      set("ux22-lifecycle-note",versions?"Counts derived only from lifecycle_state values in the returned version records. These are configuration lifecycle states, not runtime health.":"Lifecycle distribution unavailable.");
-      const stage=el("ux22-lifecycle-state");if(versions)stage.textContent="CORE REGISTRY";
-      const lifecycle=el("ux22-agent-body");
-      const totalVersions=validVersions.length;
-      const resource={runtime_status:runtime?{service:runtime.service,host:runtime.host,colab:runtime.colab,model_runtime:runtime.model_runtime}:null,runtime_hardware:hardware,model_runtime:model};
-      set("ux22-runtime-state",runtime||hardware||model?"HOST OBSERVATIONS":"UNAVAILABLE");
-      set("ux22-runtime-note",runtime?"Core host memory/disk/CPU count are available as returned values; CPU/GPU utilization percentages are not reported.":"Host runtime diagnostics unavailable.");
-      const cost=el("ux22-cost-note");cost.textContent="Unavailable: Core exposes no cost/billing analytics or per-Agent resource attribution.";
-      const bars=el("ux22-agent-observability");
-      const alerts=el("ux22-alerts");alerts.replaceChildren();
-      const alert=document.createElement("div");alert.className="u22-unavailable";alert.textContent="No Core Agent health/alerting endpoint. Lifecycle states, runtime diagnostics and discovery records do not establish Agent health.";alerts.append(alert);set("ux22-alert-state","NOT AVAILABLE");
-      set("ux22-live-state",errors.length?"PARTIAL / ERROR":"CORE RESPONSES");
-      el("ux22-live-detail").textContent=pretty({responses:raw,derived:{distinct_agent_ids:versions?ids.size:null,returned_agent_versions:versions?totalVersions:null,lifecycle_state_counts:versions?counts:null,discovery_records:runs?runs.length:null},unavailable_live_capabilities:["Agent health state and health distribution","Agent success rate and failure rate","per-Agent or historical latency","Agent execution/run history and per-Agent usage","tool-call volume analytics","CPU and memory utilization percentages","GPU utilization percentage (hardware probe only reports device/memory metadata)","per-Agent resource attribution","cost and billing analytics","historical performance and usage time series","top Agents by operational usage","operational alert inventory"],interpretation_boundaries:{lifecycle_state_is_not_runtime_health:true,discovery_run_is_not_execution_proof:true,host_resources_are_not_agent_attributed:true,execution_performed:false,authorization_granted:false},errors});
-      set("ux22-status","Live Core observations loaded where supported. Performance, health, cost and historical analytics remain unavailable unless Core returns dedicated evidence for them.");
-      el("ux22-demo-mode").disabled=false;el("ux22-live-mode").disabled=false;
+    const addEvent=(host,{time,title,detail,kind})=>{
+      const row=document.createElement("div");row.className="u22-event";
+      const t=document.createElement("span");t.className="u22-time";t.textContent=time||"Time unavailable";
+      const icon=document.createElement("span");icon.className="u22-event-icon";icon.textContent=kind==="Policy"?"✓":kind==="Approval"?"人":kind==="Evidence"?"▤":"↗";
+      const copy=document.createElement("div"),strong=document.createElement("strong"),small=document.createElement("small");strong.textContent=title;small.textContent=detail||"No additional detail recorded.";copy.append(strong,small);
+      const badge=document.createElement("span");badge.className="u22-status neutral";badge.textContent=kind||"Recorded";
+      row.append(t,icon,copy,badge);host.append(row);
     };
-    el("ux22-demo-mode").addEventListener("click",demo);el("ux22-live-mode").addEventListener("click",live);demo();
+    const live=async()=>{
+      const t=token();if(!t){set("ux22-status","Connect to TaaS Studio and provide an API token before loading live data.");return;}
+      const agent=el("ux22-agent-select").value.trim(),version=el("ux22-version-select").value.trim();
+      if(!agent||!version){set("ux22-status","Select an Agent and exact version first.");return;}
+      const button=el("ux22-live-mode");button.disabled=true;el("ux22-demo-mode").disabled=true;el("ux22-demo-banner").hidden=true;
+      set("ux22-mode-pill","LIVE CORE · RECORDED ACTIVITY");set("ux22-status","Loading exact-version recorded activity…");
+      const path="/api/v1/agents/"+encodeURIComponent(agent)+"/versions/"+encodeURIComponent(version)+"/activity";
+      try{
+        const response=await fetch(path,{headers:{"Authorization":"Bearer "+t,"Accept":"application/json","Cache-Control":"no-cache"},cache:"no-store"});
+        const data=await readJsonResponse(response);if(response.status===401)markStudioAuthRejected();if(!response.ok)throw Error(formatApiError(data.detail||data,"HTTP "+response.status));
+        if(data.schema!=="taas.agent-version-activity/v1")throw Error("Unexpected response schema. Expected taas.agent-version-activity/v1.");
+        if(data.semantics!=="recorded_governance_activity_not_performance_telemetry_not_execution_proof")throw Error("Response semantics are missing or do not match the UX-22 contract.");
+        const lifecycle=data.lifecycle_events||{},policy=data.policy_verdicts||{},approvals=data.human_approvals||{},revocation=data.revocation||{};
+        const countValue=(obj,key)=>Number.isFinite(obj?.[key])?obj[key]:unavailable;
+        set("ux22-lifecycle-count",countValue(lifecycle,"count"));set("ux22-policy-count",countValue(policy,"count"));
+        const approvalCount=Number.isFinite(approvals.verified_count)?approvals.verified_count:unavailable;
+        set("ux22-approval-count",approvalCount);
+        set("ux22-revocation-state",revocation.revoked===true?"Revoked":revocation.revoked===false?"Not revoked":revocation.status||unavailable);
+        set("ux22-lifecycle-note",lifecycle.latest?"Latest recorded lifecycle event: "+(lifecycle.latest.event_type||lifecycle.latest.type||"event"):"No latest lifecycle event supplied");
+        set("ux22-policy-note",policy.latest_decision?"Latest recorded decision: "+policy.latest_decision:"No latest policy decision supplied");
+        set("ux22-approval-note",approvals.latest_observed_at?"Latest approval record: "+approvals.latest_observed_at:"Approval record timestamp unavailable; verified evidence is not substituted.");
+        set("ux22-revocation-note",revocation.recorded_at||revocation.reason||"Revocation provenance not supplied");
+        set("ux22-agent-id",data.agent_id||agent);set("ux22-version",data.version||version);
+        set("ux22-release-state",data.lifecycle_state||data.agent_version?.lifecycle_state||unavailable);
+        set("ux22-last-activity",data.latest_recorded_at||policy.latest_recorded_at||approvals.latest_observed_at||"Not reported");
+        set("ux22-execution",data.execution_performed===false?"False":data.execution_performed===true?"True":"Not reported");
+        set("ux22-authorization",data.authorization_granted===false?"False":data.authorization_granted===true?"True":"Not reported");
+        const skills=Array.isArray(data.skill_references)?data.skill_references.length:unavailable;
+        const tools=Array.isArray(data.tool_allowlist_entries)?data.tool_allowlist_entries.length:unavailable;
+        set("ux22-skill-refs",skills);set("ux22-tool-entries",tools);set("ux22-config-state","MANIFEST");set("ux22-agent-state","CORE RESPONSE");set("ux22-timeline-state","CORE RECORDED");
+        set("ux22-config-note","Manifest-derived configuration facts. They are declarations, not observed activity.");
+        const host=el("ux22-activity-list");host.replaceChildren();let eventCount=0;
+        const latestLifecycle=Array.isArray(lifecycle.latest)?lifecycle.latest:lifecycle.latest?[lifecycle.latest]:[];
+        latestLifecycle.forEach(item=>{addEvent(host,{time:item.recorded_at||item.created_at||item.timestamp,title:item.event_type||item.type||"Lifecycle event",detail:item.detail||item.reason||item.lifecycle_state||"Persisted lifecycle record",kind:"Lifecycle"});eventCount++;});
+        const latestPolicy=Array.isArray(policy.latest)?policy.latest:policy.latest?[policy.latest]:[];
+        latestPolicy.forEach(item=>{addEvent(host,{time:item.recorded_at||item.created_at||item.timestamp,title:"Policy verdict recorded",detail:item.decision||item.outcome||policy.latest_decision||"Persisted policy verdict",kind:"Policy"});eventCount++;});
+        const latestApproval=Array.isArray(approvals.latest)?approvals.latest:approvals.latest?[approvals.latest]:[];
+        latestApproval.forEach(item=>{addEvent(host,{time:item.observed_at||item.recorded_at||item.created_at,title:"Human approval recorded",detail:item.decision||item.status||item.approver||"Persisted approval record",kind:"Approval"});eventCount++;});
+        if(!eventCount){const empty=document.createElement("div");empty.className="u22-unavailable";empty.textContent="No latest event records were supplied by the endpoint. Counts are retained as returned; no timeline events are inferred.";host.append(empty);}
+        const unsupported=Array.isArray(data.unsupported_metrics)?data.unsupported_metrics:[];
+        const expected=["latency","success/failure rate","execution count","tool-call volume","resource attribution","cost","health score","time series"];
+        if(expected.some(name=>!unsupported.some(value=>String(value).toLowerCase().includes(name.split("/")[0].toLowerCase()))))set("ux22-status","Live response loaded, but its unsupported_metrics list differs from the UX-22 expected capability boundary. Inspect raw response.");
+        else set("ux22-status","Live recorded governance activity loaded for "+agent+" @ "+version+". No performance telemetry or execution proof is implied.");
+        set("ux22-live-state","CORE RESPONSE");
+        el("ux22-live-detail").textContent=pretty(data);
+      }catch(error){
+        set("ux22-live-state","REQUEST ERROR");set("ux22-status","Live activity unavailable: "+error.message);
+        el("ux22-live-detail").textContent=pretty({endpoint:path,error:error.message,synthetic_fallback:false});
+        el("ux22-activity-list").innerHTML='<div class="u22-unavailable">Live request failed. Demo data was not substituted. Retry after the Core endpoint is available.</div>';
+      }finally{button.disabled=false;el("ux22-demo-mode").disabled=false;}
+    };
+    const refresh=async()=>{
+      const t=token();if(!t){set("ux22-status","Connect to TaaS Studio and provide an API token to load Agent versions.");return;}
+      const button=el("ux22-refresh");button.disabled=true;
+      try{
+        const response=await fetch("/api/v1/agents?limit=500",{headers:{"Authorization":"Bearer "+t,"Accept":"application/json","Cache-Control":"no-cache"},cache:"no-store"});
+        const data=await readJsonResponse(response);if(response.status===401)markStudioAuthRejected();if(!response.ok)throw Error(formatApiError(data.detail||data,"HTTP "+response.status));
+        const versions=Array.isArray(data.versions)?data.versions:[];
+        const agents=[...new Set(versions.map(item=>item.agent_id).filter(Boolean))].sort();
+        const agentSelect=el("ux22-agent-select"),versionSelect=el("ux22-version-select"),currentAgent=agentSelect.value,currentVersion=versionSelect.value;
+        agentSelect.replaceChildren();agents.forEach(id=>{const option=document.createElement("option");option.value=id;option.textContent=id;agentSelect.append(option);});
+        if(!agents.length){const option=document.createElement("option");option.value="";option.textContent="No Agent versions returned";agentSelect.append(option);}
+        agentSelect.value=agents.includes(currentAgent)?currentAgent:(agents[0]||"");
+        const matches=versions.filter(item=>item.agent_id===agentSelect.value);
+        versionSelect.replaceChildren();matches.forEach(item=>{const option=document.createElement("option");option.value=item.version;option.textContent=item.version+" · "+(item.lifecycle_state||"state unknown");versionSelect.append(option);});
+        if(matches.some(item=>item.version===currentVersion))versionSelect.value=currentVersion;
+        set("ux22-status",versions.length+" Agent version record(s) returned. Select an exact version and load its recorded activity.");
+      }catch(error){set("ux22-status","Unable to refresh Agent versions: "+error.message);}
+      finally{button.disabled=false;}
+    };
+    el("ux22-demo-mode").addEventListener("click",demo);el("ux22-live-mode").addEventListener("click",live);el("ux22-refresh").addEventListener("click",refresh);
+    el("ux22-agent-select").addEventListener("change",()=>{const t=token();if(t)refresh();});
+    demo();
   })();
 
   // UX-21: mockup-faithful risk/remediation workspace; fictional demo data is isolated from live Core audit observations.
