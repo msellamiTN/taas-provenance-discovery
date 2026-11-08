@@ -471,9 +471,12 @@ def load_encoder(path: Path, device: str):
         raise ValueError("Encoder bundle must pin model ID, model revision and package version")
     model_path = Path(bundle.get("model_path") or "")
     if not model_path.is_absolute():
-        model_path = (path.parent / model_path).resolve()
-    if model_path.is_symlink() or not model_path.is_dir():
-        raise FileNotFoundError(f"Pinned encoder snapshot directory missing or unsafe: {model_path}")
+        model_path = path.parent / model_path
+    if model_path.is_symlink():
+        raise ValueError(f"Pinned encoder snapshot must not be a symlink: {model_path}")
+    model_path = model_path.resolve()
+    if not model_path.is_dir():
+        raise FileNotFoundError(f"Pinned encoder snapshot directory missing: {model_path}")
     expected_files = bundle.get("files")
     if not isinstance(expected_files, dict) or not expected_files:
         raise ValueError("Encoder bundle must record per-file SHA-256 values")
