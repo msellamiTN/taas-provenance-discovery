@@ -671,20 +671,42 @@ def load_equivalence_oracle(path: Path | None, candidate_ids: set[str]) -> dict 
         raise ValueError("ToolScope equivalence oracle must be accepted")
     if bundle.get("evaluator_labels_used_for_oracle") is not False:
         raise ValueError("ToolScope oracle must be independently authored, not inferred from E9 labels")
-    pairs = []
-    for label, key in (("equivalent_pairs", "positive"), ("non_equivalent_pairs", "negative")):
-        for pair in bundle.get(label, []):
-            if len(pair) != 2 or pair[0] == pair[1] or not set(pair).issubset(candidate_ids):
+
+    positive_pairs: list[list[str]] = []
+    negative_pairs: list[list[str]] = []
+    seen_pairs: dict[tuple[str, str], str] = {}
+    for label, key, destination in (
+        ("equivalent_pairs", "positive", positive_pairs),
+        ("non_equivalent_pairs", "negative", negative_pairs),
+    ):
+        rows = bundle.get(label, [])
+        if not isinstance(rows, list):
+            raise ValueError(f"ToolScope oracle {label} must be a list")
+        for pair in rows:
+            if (
+                not isinstance(pair, (list, tuple)) or len(pair) != 2
+                or not all(isinstance(tool_id, str) for tool_id in pair)
+                or pair[0] == pair[1]
+                or not set(pair).issubset(candidate_ids)
+            ):
                 raise ValueError(f"Invalid ToolScope oracle pair: {pair}")
-            pairs.append((str(pair[0]), str(pair[1]), key))
-    if not pairs:
-        raise ValueError("ToolScope equivalence oracle contains no adjudicated pairs")
+            canonical_pair = tuple(sorted(pair))
+            previous_label = seen_pairs.get(canonical_pair)
+            if previous_label is not None:
+                raise ValueError(
+                    "ToolScope oracle pair is duplicated or receives conflicting labels: "
+                    f"{canonical_pair} ({previous_label} and {key})"
+                )
+            seen_pairs[canonical_pair] = key
+            destination.append([canonical_pair[0], canonical_pair[1]])
+
+    if not positive_pairs or not negative_pairs:
+        raise ValueError("ToolScope oracle requires at least one positive and one negative pair")
     return {
         "sha256": sha256_file(path),
-        "positive_pairs": [x[:2] for x in pairs if x[2] == "positive"],
-        "negative_pairs": [x[:2] for x in pairs if x[2] == "negative"],
+        "positive_pairs": positive_pairs,
+        "negative_pairs": negative_pairs,
     }
-
 
 def evaluate_equivalence_groups(groups: list[list[str]], oracle: dict | None) -> dict:
     if oracle is None:
