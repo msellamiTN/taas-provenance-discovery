@@ -389,6 +389,245 @@ Model & $n$ & Accuracy (\%) & $n{=}640$ & ECE & Brier & $\tau$ & Cov. & FNR & Co
 """)
 
 
+# ------------------------------------------------------------------------------------------------ 8.3 RQ2
+ENC = (("no_filter", "no filter / MCP default", "o", C["grey"]),
+       ("closed_world_annotations", "closed-world annotations", "s", C["purple"]),
+       ("lexical_positive", "lexical cues", "^", C["green"]),
+       ("verified_evidence", "verified evidence (P)", "D", C["pamcp"]),
+       ("attested_only", "attested only", "v", C["blue"]))
+
+
+def rq2():
+    e4, e5, e6, e7 = F("E4_exposure"), F("E5_forgery"), F("E6_verifier"), F("E7_trust")
+    adm = F("E4_admitted")
+    # ---- Figure: exposure under encodings, forgery and verifier error
+    fig, axs = plt.subplots(1, 3, figsize=(COL2, 2.0), gridspec_kw={"width_ratios": [1.2, 1, 1]})
+    ax = axs[0]
+    R = e4["1.0"]
+    for e, lab, mk, col in ENC:
+        a, b = R[f"pamcp_rrf|{e}"], R[f"mcp_zero|{e}"]
+        ax.plot([a["Util@5"], b["Util@5"]], [a["Exp@5"], b["Exp@5"]], color=col, lw=0.6, alpha=0.5)
+        ax.scatter(a["Util@5"], a["Exp@5"], marker=mk, s=30, color=col, edgecolor="white", lw=0.4, zorder=3, label=lab)
+        ax.scatter(b["Util@5"], b["Exp@5"], marker=mk, s=30, facecolor="white", edgecolor=col, lw=0.8, zorder=3)
+    for cov, al in (("0.75", 0.75), ("0.5", 0.5), ("0.25", 0.3)):
+        v = e4[cov]["pamcp_rrf|verified_evidence"]
+        ax.scatter(v["Util@5"], v["Exp@5"], marker="D", s=14, color=C["pamcp"], alpha=al, lw=0, zorder=3)
+        ax.annotate(f"$\\kappa$={cov}", (v["Util@5"], v["Exp@5"]), xytext=(0, 5), textcoords="offset points",
+                    fontsize=5, ha="center", color=C["pamcp"])
+    ax.set_xlabel("Util@5 (gold tool in top 5)")
+    ax.set_ylabel("Exp@5 (unsafe tool in top 5)")
+    ax.xaxis.set_major_formatter(PCT)
+    ax.yaxis.set_major_formatter(PCT)
+    ax.set_xlim(-0.02, 0.85)
+    ax.set_ylim(-0.02, 0.48)
+    ax.text(0.84, 0.47, "filled: PaMCP retrieval\nopen: MCP-Zero", fontsize=5, ha="right", va="top",
+            color=C["grey"])
+    grid(ax, "both")
+    panel(ax, "a", "policy encodings, full coverage")
+    ax = axs[1]
+    rows = raw(FIN / "raw" / "E5_forgery.jsonl.gz")
+    ds = [0.0, 0.05, 0.1, 0.2, 0.3]
+    for e, lab, mk, col in ENC[:4]:
+        ys = [e5[f"both|{d}"][f"pamcp_rrf|{e}"]["Exp@5"] for d in ds]
+        ax.plot(ds, ys, marker=mk, color=col, label=lab)
+        per = [[sum(a == "1" and b == "1" for a, b in zip(r["exp5"], r["ro"])) / r["ro"].count("1")
+                for r in rows if r.get("attack") == "both" and r.get("delta") == d and
+                r.get("retriever") == "pamcp_rrf" and r.get("encoding") == e and "exp5" in r] for d in ds]
+        if all(per) and e == "verified_evidence":
+            ax.fill_between(ds, [min(p_) for p_ in per], [max(p_) for p_ in per], color=col, alpha=0.15, lw=0)
+    ax.set_xlabel("share of forging servers $\\delta$")
+    ax.set_ylabel("Exp@5")
+    ax.xaxis.set_major_formatter(PCT)
+    ax.yaxis.set_major_formatter(PCT)
+    ax.text(0.3, 0.17, "band: verified, 5 seeds (min-max)", fontsize=5, ha="right", color=C["pamcp"])
+    grid(ax, "both")
+    panel(ax, "b", "forged + laundered metadata")
+    ax = axs[2]
+    phis = [0.0, 0.01, 0.02, 0.05, 0.1, 0.2]
+    for pl, lab, ls, mk in (("random", "random errors", "-", "D"), ("lookalike", "look-alike errors", ":", "d")):
+        ax.plot(phis, [e6[f"0.2|{pl}|0.0|1.0|{p_}"]["pamcp_rrf|verified_evidence"]["Exp@5"] for p_ in phis],
+                ls=ls, marker=mk, color=C["pamcp"], label=f"verified, {lab}")
+    lex = e6["0.2|random|0.0|1.0|0.0"]["pamcp_rrf|lexical_positive"]["Exp@5"]
+    ax.axhline(lex, color=C["green"], lw=0.9, ls="--", label="lexical cues")
+    ax.axvspan(0, 0.05, color=C["pamcp"], alpha=0.06, lw=0)
+    ax.text(0.025, 0.17, "verified\nbelow\nlexical", fontsize=5, ha="center", color=C["pamcp"])
+    ax.set_xlabel("verifier false-accept rate $\\varphi$")
+    ax.set_ylabel("Exp@5")
+    ax.xaxis.set_major_formatter(PCT)
+    ax.yaxis.set_major_formatter(PCT)
+    ax.legend(loc="lower right", fontsize=5.3)
+    ax.set_ylim(-0.005, 0.2)
+    grid(ax, "both")
+    panel(ax, "c", "imperfect verifier, $\\delta$ = 20%")
+    fig.tight_layout(w_pad=0.8, rect=(0, 0.07, 1, 1))
+    fig.legend(handles=[Line2D([], [], marker=mk, color=col, ls="-", label=lab) for _, lab, mk, col in ENC],
+               loc="lower center", ncol=5, bbox_to_anchor=(0.42, -0.01), fontsize=6)
+    save(fig, "fig_rq2_exposure")
+
+    # ---- Figure: trust threshold and label independence
+    fig, axs = plt.subplots(1, 2, figsize=(COL1, 1.75), gridspec_kw={"width_ratios": [1.25, 1]})
+    ax = axs[0]
+    ls_ = sorted({float(k.split("|")[2]) for k in e7})
+    for kap, ls in (("0.0", "-"), ("0.8", ":")):
+        ax.plot(ls_, [e7[f"default|{kap}|{l}"]["Exp@5"] for l in ls_], ls=ls, color=C["pamcp"],
+                label=f"Exp@5, $\\kappa\\geq${kap}")
+        ax.plot(ls_, [e7[f"default|{kap}|{l}"]["Util@5"] for l in ls_], ls=ls, color=C["blue"],
+                label=f"Util@5, $\\kappa\\geq${kap}")
+    ax.plot(ls_, [e7[f"default|0.0|{l}"]["eligible_share"] for l in ls_], color=C["grey"], lw=0.7,
+            label="eligible share")
+    ax.axvline(0.65, color=C["black"], lw=0.5, ls="--")
+    ax.set_xlabel("trust threshold $\\ell_{\\min}$")
+    ax.yaxis.set_major_formatter(PCT)
+    ax.set_ylim(0, 1.0)
+    ax.legend(loc="upper right", fontsize=4.8, handlelength=1.4)
+    grid(ax, "both")
+    panel(ax, "a", "trust threshold")
+    ax = axs[1]
+    sw = X("R2_label_swap")
+    dirs = (("paper: verifier A, scored B", "$J_A\\to J_B$", C["light"]),
+            ("swapped: verifier B, scored A", "$J_B\\to J_A$", C["pamcp"]))
+    rets = (("pamcp_rrf", "PaMCP"), ("rag_mcp", "RAG"), ("mcp_zero", "MCP-0"), ("toolscope", "TScope"))
+    x = np.arange(len(rets))
+    for j, (k, lab, col) in enumerate(dirs):
+        v = [sw[k]["Exp@5"][r] for r, _ in rets]
+        ci = [sw[k]["Exp@5_ci_target_clusters"][r] for r, _ in rets]
+        ax.bar(x + (j - 0.5) * 0.36, v, 0.36, color=col, label=lab,
+               yerr=[[a - c[0] for a, c in zip(v, ci)], [c[1] - a for a, c in zip(v, ci)]],
+               error_kw={"lw": 0.6, "capsize": 1.2})
+    ax.set_xticks(x, [l for _, l in rets], fontsize=5.5)
+    ax.yaxis.set_major_formatter(PCT)
+    ax.set_ylabel("Exp@5, verified evidence")
+    ax.legend(loc="upper left", fontsize=5.2, title="verifier $\\to$ scorer", title_fontsize=5.2)
+    grid(ax)
+    panel(ax, "b", "label swap")
+    fig.tight_layout(w_pad=0.6)
+    save(fig, "fig_rq2_trust")
+
+    # ---- Figure: observed effects of executed reference servers
+    obs = X("R2_X2_observed")
+    rws = [r for r in raw(R2 / "raw" / "R2_X2_observed.jsonl.gz") if "id" in r]
+    srv_order = ["filesystem", "git", "memory", "time", "sequential-thinking", "fetch"]
+    rws.sort(key=lambda r: (srv_order.index(r["server"]), r["id"]))
+    srcs = (("observed", "observed"), ("ja_state", "$J_A$"), ("jb_state", "$J_B$"), ("ann_state", "live annot."))
+    fig, axs = plt.subplots(1, 2, figsize=(COL2, 2.35), gridspec_kw={"width_ratios": [4.2, 1]})
+    ax = axs[0]
+    for j, r in enumerate(rws):
+        for i, (k, _) in enumerate(srcs):
+            if k == "observed":
+                if not r["exercised"]:
+                    ax.add_patch(plt.Rectangle((j - 0.45, i - 0.4), 0.9, 0.8, facecolor="white",
+                                               edgecolor=C["light"], hatch="////", lw=0.4))
+                    continue
+                v = r["obs_state"]
+            else:
+                v = r[k]
+            ax.add_patch(plt.Rectangle((j - 0.45, i - 0.4), 0.9, 0.8, lw=0,
+                                       facecolor=C["pamcp"] if v else "#D9D9D9"))
+            if k != "observed" and r["exercised"] and bool(v) != bool(r["obs_state"]):
+                ax.scatter(j, i, marker="x", s=10, color="black", lw=0.6, zorder=4)
+    ax.set_xlim(-0.6, len(rws) - 0.4)
+    ax.set_ylim(len(srcs) - 0.5, -0.5)
+    ax.set_yticks(range(len(srcs)), [l for _, l in srcs])
+    names = [r["id"].split("::")[1].replace("git_", "").replace("_", " ") for r in rws]
+    ax.set_xticks(range(len(rws)), names, rotation=90, fontsize=4.6)
+    pos = 0
+    for sv in srv_order:
+        n = sum(1 for r in rws if r["server"] == sv)
+        if n:
+            short = {"sequential-thinking": "seq.", "time": "time", "fetch": "fetch"}.get(sv, sv)
+            ax.text(pos + (n - 1) / 2, -0.62, short, ha="center", va="bottom", fontsize=5.5)
+            if pos:
+                ax.axvline(pos - 0.5, color="black", lw=0.5)
+            pos += n
+    for s_ in ax.spines.values():
+        s_.set_visible(False)
+    ax.tick_params(length=0)
+    ax.legend(handles=[Patch(color=C["pamcp"], label="modifies state"), Patch(color="#D9D9D9", label="read-only"),
+                       Patch(facecolor="white", edgecolor=C["light"], hatch="////", label="call failed (not exercised)"),
+                       Line2D([], [], marker="x", ls="", color="black", label="differs from observation")],
+              loc="lower right", bbox_to_anchor=(1.0, 1.1), ncol=4, fontsize=5.3, columnspacing=0.8)
+    ax = axs[1]
+    d = obs["drift"]
+    items = (("hash_invalidated", "$h(t)$ invalidated"), ("annotations_changed", "annotations"),
+             ("schema_changed", "input schema"), ("schema_unpublished", "schema without\nproperties"),
+             ("description_changed", "description"), ("removed", "tool removed"))
+    vals = [d[k] / d["registry_tools"] for k, _ in items]
+    ax.barh(range(len(items)), vals, 0.65, color=[C["pamcp"]] + [C["blue"]] * (len(items) - 1))
+    for i, v in enumerate(vals):
+        ax.text(v + 0.02, i, f"{round(v * d['registry_tools'])}", va="center", fontsize=5.5)
+    ax.set_yticks(range(len(items)), [l for _, l in items], fontsize=5.5)
+    ax.invert_yaxis()
+    ax.set_xlim(0, 1.25)
+    ax.xaxis.set_major_formatter(PCT)
+    ax.set_xlabel(f"of {d['registry_tools']} snapshot tools", fontsize=6)
+    grid(ax, "x")
+    panel(ax, "b", "definition drift")
+    axs[0].set_title("(a) state change: executed vs. labelled, per tool", loc="left", fontsize=7, pad=9)
+    fig.tight_layout(w_pad=0.5)
+    save(fig, "fig_rq2_observed")
+
+    # ---- Table: policy encodings
+    R1 = e4["1.0"]
+    lab = {e: l for e, l, _, _ in ENC}
+    lab.update({"mcp_default_annotations": "MCP default (display only)", "no_filter": "no filter",
+                "observed_lexical_fallback": "observed + lexical fallback"})
+    order = ["no_filter", "mcp_default_annotations", "closed_world_annotations", "lexical_positive",
+             "verified_evidence", "observed_lexical_fallback", "attested_only"]
+    rows = []
+    for e in order:
+        a, z = R1[f"pamcp_rrf|{e}"], R1[f"mcp_zero|{e}"]
+        f2 = e5["both|0.2"].get(f"pamcp_rrf|{e}")
+        rows.append(f"{lab[e]} & {pct(adm[e]['eligible'] / 569, 1)} & {adm[e]['unsafe_admitted']} & "
+                    f"{pct(a['Exp@5'])} & {pct(a['Util@5'])} & {pct(z['Exp@5'])} & {pct(z['Util@5'])} & "
+                    f"{pct(f2['Exp@5']) if f2 else '--'} \\\\")
+    write_table("tab_rq2_encodings", r"""\begin{table}[t]
+\centering
+\caption{Encodings of a read-only policy over 273 requests with read-only gold tools: eligible share of the
+registry, unsafe tools admitted (of 120, $J_B$), exposure and utility of the top five for \pamcp{}'s retrieval
+stage and MCP-Zero, and exposure when 20\% of the servers forge and launder their metadata (verifier
+false-accept rate 5\%, mean of five seeds).}
+\label{tab:ev-encodings}
+\scriptsize
+\setlength{\tabcolsep}{2.2pt}
+\begin{tabular}{@{}lrrrrrrr@{}}
+\toprule
+ & & & \multicolumn{2}{c}{\pamcp{} retr.} & \multicolumn{2}{c}{MCP-Zero} & $\delta{=}0.2$ \\
+\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(l){8-8}
+Encoding & Elig. & Unsafe & Exp@5 & Util@5 & Exp@5 & Util@5 & Exp@5 \\
+\midrule
+""" + "\n".join(rows) + r"""
+\bottomrule
+\end{tabular}
+\end{table}
+""")
+    # ---- Table: observed vs labelled
+    L = obs["labels_vs_observed_state"]
+    rows = []
+    for k, lab_ in (("J_A", "$J_A$ (Sonnet)"), ("J_B", "$J_B$ (Opus)"), ("live_annotations", "live annotations")):
+        v = L[k]
+        lo, hi = v["false_safe_ci"]
+        rows.append(f"{lab_} & {v['tp']} & {v['fn']} & {v['fp_unconfirmed']} & {v['tn']} & "
+                    f"{pct(v['false_safe_rate'], 0)} [{pct(lo, 0)}, {pct(hi, 1)}] & {pct(v['agreement'], 0)} \\\\")
+    write_table("tab_rq2_observed", r"""\begin{table}[t]
+\centering
+\caption{State changes observed when executing the """ + str(obs["exercised"]) + r""" exercised tools of six MCP
+reference servers, against the two labellings and the servers' current annotations. FS: labelled read-only but
+observed to modify state (false safe; Wilson 95\% CI); Unconf.: labelled state-changing, not triggered by the
+probe.}
+\label{tab:ev-observed}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Reference & TP & FS & Unconf. & TN & False-safe rate (\%) & Agree. \\
+\midrule
+""" + "\n".join(rows) + r"""
+\bottomrule
+\end{tabular}
+\end{table}
+""")
+
+
 if __name__ == "__main__":
     which = sys.argv[1:] or ["setup", "rq1", "rq2", "rq3", "sec", "eff"]
     for w in which:
