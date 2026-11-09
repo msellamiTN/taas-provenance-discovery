@@ -1,0 +1,34 @@
+\subsection{Threats to Validity}
+\label{sec:ev-threats}
+
+\emph{Construct validity.} Effects, types and joint feasibility are scored against labels produced by LLMs, not by
+human annotators; execution confirms these labels only on the state changes of 30 tools of six reference
+servers, which are maintained by the protocol's authors and are not adversarial. Reachability of injected actions
+is decided offline from labels; no injected instruction was executed, and whether an agent follows it, or whether
+runtime enforcement blocks it, was not measured. Group recall rewards gold tools rather than functional
+sufficiency, and the strict evaluator, although more accurate than the coarse one on hand-built cases (7 of 10
+against 2), lacks scope, credential and declassification information. No toolkit was executed end to end, so task
+success, argument validity, recovery after execution failures and end-to-end latency are outside the evidence
+(Fig.~\ref{fig:ev-evidence}). QoS effects are shown on generated instances only.
+
+\emph{Internal validity.} One model family provides the two labellings, the typing, the analyst and the profiles,
+so their errors may correlate; the label swap bounds the effect of their disagreement but not of shared errors.
+The verifier is simulated with controlled error rates. Each LLM role was sampled once, and one Opus calibration
+batch (45 items) is missing. The baselines are adaptations sharing a TF-IDF and SVD encoder (a stronger encoder
+could not be installed): COLT without encoder fine-tuning, ToolScope without its cross-encoder, MCP-Zero with one
+round of requests. All retrieval methods were tuned on the same 60 development requests with grids of 1--16
+configurations; the variant selected for \pamcp{} on these requests did not transfer to the test set, a reminder
+that 60 requests are a small selection sample.
+
+\emph{External validity.} The registry has 569 tools from two benchmarks, with sparse annotations and no QoS data;
+larger registries are cloned or generated, and latencies are measured on two virtual CPUs. The provider did not
+expose exact model version strings; the measured profiles and the reference servers' definitions, which all
+changed since the benchmark snapshot, may not hold for later versions. \emph{Statistical conclusion validity.}
+Confirmatory comparisons are few and Holm-corrected within families fixed in advance; every other comparison is
+exploratory, and resampling one benchmark sample measures stability, not replication.
+
+\emph{What remains open.} Three experiments would close the main gaps: human annotation of a stratified sample of
+tools by two annotators, executed multi-step compositions over isolated MCP servers including adversarial ones,
+and faithful reproductions of the strongest baselines with their original encoders. The released artifact
+contains the annotation sheet, the probing harness used for the reference servers and the scripts of every
+experiment above, so that these can be run against the same data and scoring.

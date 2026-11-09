@@ -1,0 +1,28 @@
+\begin{table}[t]
+\centering
+\caption{Confirmatory comparisons, fixed before the data they test (F1--F7 before the set-level experiments; H1--H5
+in a dated amendment before the revised test runs), Holm-corrected within each family. Differences in points
+(tokens for F6), \pamcp{} minus comparator, with 95\% CI.}
+\label{tab:ev-family}
+\scriptsize
+\setlength{\tabcolsep}{2.2pt}
+\begin{tabular}{@{}llrlll@{}}
+\toprule
+ & Comparison & $\Delta$ & 95\% CI & $p_{\mathrm{Holm}}$ & Verdict \\
+\midrule
+F1 & Group recall vs per-subtask (non-inf., 0.05) & -8.0 & [-16.6, +0.2] & 1.000 & not shown \\
+F2 & Size-matched recall vs RAG-MCP & +6.0 & [-1.6, +13.7] & 0.397 & n.s. \\
+F3 & Joint feasibility vs per-subtask (elig.) & +4.3 & [-8.5, +18.1] & 1.000 & n.s. \\
+F4 & Exp@5 verified vs lexical & -9.9 & [-13.9, -6.6] & $<$0.001 & supports \\
+F5 & Reachable attacks vs per-subtask & -2.7 & [-3.9, -1.5] & $<$0.001 & supports \\
+F6 & Tokens, full vs NoGap & -16.7 & [-34.6, +1.0] & 0.269 & n.s. \\
+F7 & Hit@1 goal contract vs raw RRF (569) & -15.7 & [-21.3, -10.0] & $<$0.001 & against \\
+\midrule
+H1 & Hit@1 PaMCP-L vs tuned BM25 (569) & +0.3 & [-8.9, +8.8] & 1.000 & n.s. \\
+H2 & Hit@1 PaMCP-L vs Eq. (5) (569) & +11.7 & [+3.0, +22.6] & 0.070 & n.s. \\
+H3 & Group recall PaMCP-L vs per-subtask (non-inf.) & -8.8 & [-17.6, -0.5] & 1.000 & not shown \\
+H4 & Strict joint feas. vs per-subtask (elig.) & +7.4 & [+0.0, +14.9] & 0.277 & n.s. \\
+H5 & Definite out-of-scope vs per-subtask & -20.0 & [-28.4, -12.6] & $<$0.001 & supports \\
+\bottomrule
+\end{tabular}
+\end{table}

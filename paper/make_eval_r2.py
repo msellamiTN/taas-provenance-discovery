@@ -1004,6 +1004,332 @@ G & P & S & Recall & Tokens & Joint (\%) & Reach (\%) & Abst. (\%) \\
 """)
 
 
+# ------------------------------------------------------------------------------------------------ 8.6 efficiency
+FAM = (("base", "base"), ("dense_alternatives", "6 alternatives"), ("deep", "depth 3"), ("arity2", "arity 2"),
+       ("conflicts", "conflicts"), ("shared_tools", "shared tools"), ("more_goals", "6 goals"),
+       ("infeasible", "infeasible"))
+
+
+def eff():
+    e15, x7 = F("E15_scalability"), X("R2_X7_scale")
+    # ---- Figure: scalability
+    fig, axs = plt.subplots(1, 3, figsize=(COL2, 2.0), gridspec_kw={"width_ratios": [1, 1, 1.25]})
+    ax = axs[0]
+    cb = x7["cloned_builds"]
+    ns = sorted(cb, key=int)
+    for mode, col, mk in (("eager", C["pamcp"], "o"), ("partitioned", C["blue"], "s"), ("lazy", C["green"], "^")):
+        pts = [(int(n), cb[n][f"build_s|{mode}"]) for n in ns if f"build_s|{mode}" in cb[n]]
+        if mode == "eager":
+            pts.append((100000, e15["100000"]["index_build_s"]))
+        ax.plot([p_[0] for p_ in pts], [p_[1] for p_ in pts], marker=mk, color=col, label=mode)
+    xs = np.array([569, 100000])
+    for k, lab in ((2, "$n^2$"), (1, "$n$")):
+        ref = 2.5 * (xs / 569) ** k
+        ax.plot(xs, ref, color=C["light"], lw=0.7, ls="--")
+        ax.text(xs[-1] * 0.8, ref[-1] * (0.45 if k == 2 else 1.5), lab, fontsize=5.5, color=C["grey"], ha="right")
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_ylim(0.5, 3e4)
+    ax.set_xlabel("registry size (cloned contracts)")
+    ax.set_ylabel("engine build time (s)")
+    ax.legend(loc="upper left", fontsize=5.5, title="pair relation", title_fontsize=5.5)
+    grid(ax, "both")
+    panel(ax, "a", "build time")
+    ax = axs[1]
+    nn = [n for n in ("569", "1000", "10000", "100000") if n in e15]
+    for st_, lab, col, mk in (("total", "total", C["black"], "o"), ("retrieval", "retrieval", C["blue"], "s"),
+                              ("compose", "composition", C["pamcp"], "^"), ("eligibility", "eligibility", C["green"], "v")):
+        ax.plot([int(n) for n in nn], [e15[n][f"{st_}_p50_ms"] for n in nn], marker=mk, color=col, label=lab)
+    ax.fill_between([int(n) for n in nn], [e15[n]["total_p50_ms"] for n in nn], [e15[n]["total_p95_ms"] for n in nn],
+                    color=C["black"], alpha=0.08, lw=0, label="total p50-p95")
+    het = x7["heterogeneous"]
+    hn = [n for n in ("1000", "10000", "100000") if f"default|{n}" in het]
+    ax.plot([int(n) for n in hn], [het[f"default|{n}"]["total_p50_ms"] for n in hn], marker="D", ls=":",
+            color=C["purple"], label="total, heterogeneous")
+    e6m = e15.get("1000000_eligibility_only", {})
+    v6 = e6m.get("eligibility_ms")
+    if v6 is not None:
+        ax.scatter([1e6], [v6], marker="v", color=C["green"], s=14, zorder=3)
+        ax.annotate("bitmap only", (1e6, v6), xytext=(-2, 5), textcoords="offset points", fontsize=5, ha="right",
+                    color=C["green"])
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("registry size")
+    ax.set_ylabel("median latency per request (ms)")
+    ax.legend(loc="upper left", fontsize=5, ncol=2, columnspacing=0.5)
+    ax.set_ylim(1e-2, 1e5)
+    grid(ax, "both")
+    panel(ax, "b", "request latency (2 vCPU)")
+    ax = axs[2]
+    facs = [k.split("|")[0] for k in het if k.endswith("|10000")]
+    x = np.arange(len(facs))
+    for j, (mode, col) in enumerate((("eager", C["pamcp"]), ("partitioned", C["blue"]), ("lazy", C["green"]))):
+        ax.bar(x + (j - 1) * 0.27, [het[f"{f_}|10000"].get(f"build_s|{mode}", np.nan) for f_ in facs], 0.27,
+               color=col, label=mode)
+    ax2 = ax.twinx()
+    ax2.plot(x, [het[f"{f_}|10000"]["total_p50_ms"] for f_ in facs], color=C["black"], marker="o", ms=3, lw=0.8,
+             label="median latency")
+    ax2.set_ylabel("median latency (ms)", fontsize=6)
+    ax2.spines["right"].set_visible(True)
+    ax2.set_ylim(0, 320)
+    ax2.tick_params(labelsize=5.5)
+    ax.set_xticks(x, [f_.replace("_", " ") for f_ in facs], rotation=35, ha="right", fontsize=5.6)
+    ax.set_ylabel("build time (s), $10^4$ tools")
+    ax.legend(loc="upper left", fontsize=5.2, ncol=3, columnspacing=0.6)
+    ax2.legend(loc="upper right", fontsize=5.2, bbox_to_anchor=(1.0, 0.88))
+    ax.set_ylim(0, 95)
+    grid(ax)
+    panel(ax, "c", "heterogeneous registries")
+    fig.tight_layout(w_pad=0.6)
+    save(fig, "fig_eff_scale")
+
+    # ---- Figure: optimality and QoS
+    comp = X("R2_X6_X13_composition")
+    rows = raw(R2 / "raw" / "R2_X6_X13_composition.jsonl.gz")
+    x13 = [r["x13"] for r in rows if "x13" in r]
+    x6 = [r["x6"] for r in rows if "x6" in r]
+    fig, axs = plt.subplots(1, 3, figsize=(COL2, 2.0), gridspec_kw={"width_ratios": [1.25, 1.05, 0.9]})
+    ax = axs[0]
+    rng = np.random.default_rng(0)
+    for i, (f_, lab) in enumerate(FAM[:-1]):
+        g = [r["greedy_cost"] / r["ilp_candidates"] for r in x13 if r["family"] == f_ and r["greedy_cost"]
+             and r["ilp_candidates"]]
+        ex = [r["exact_cost"] / r["ilp_candidates"] for r in x13 if r["family"] == f_ and r["exact_cost"]
+              and r["ilp_candidates"]]
+        ax.scatter(i - 0.15 + rng.uniform(-0.06, 0.06, len(g)), g, s=8, color=C["blue"], alpha=0.75, lw=0,
+                   label="greedy regime" if i == 0 else None)
+        ax.scatter(i + 0.15 + rng.uniform(-0.06, 0.06, len(ex)), ex, s=8, color=C["pamcp"], alpha=0.75, lw=0,
+                   label="exact regime" if i == 0 else None)
+        ax.plot([i - 0.28, -0.02 + i], [np.mean(g)] * 2, color=C["blue"], lw=1.2)
+        v = comp["x13_optimality"][f_]
+        ax.text(i, 1.47, f"{v['exact_equals_ilp_on_candidates']}/{v['instances']}", ha="center", fontsize=5.2,
+                color=C["pamcp"])
+    ax.text(-0.6, 1.47, "=ILP:", ha="right", fontsize=5.2, color=C["pamcp"])
+    ax.axhline(1, color=C["black"], lw=0.5)
+    ax.set_xticks(range(len(FAM) - 1), [l for _, l in FAM[:-1]], rotation=35, ha="right", fontsize=5.8)
+    ax.set_ylabel("cost / ILP optimum (Eq. 6)")
+    ax.set_ylim(0.97, 1.5)
+    ax.legend(loc="upper left", fontsize=5.2, bbox_to_anchor=(0.0, 0.93))
+    grid(ax)
+    panel(ax, "a", "optimality gap, 70 feasible instances")
+    ax = axs[1]
+    sys.path.insert(0, str(ROOT / "experiments" / "revision_2"))
+    sys.path.insert(0, str(ROOT / "experiments" / "final"))
+    sys.path.insert(0, str(ROOT / "src"))
+    import itertools
+    from r2_x6_x13_composition import qos_instance  # noqa: E402
+    cs, _ = qos_instance(roles=4, alts=4, seed=0)
+    Cc = {c.tool: c for c in cs}
+    by_role = [[c.tool for c in cs if c.tool.endswith(f"::role{i}")] for i in range(4)]
+    allk = []
+    for combo in itertools.product(*by_role):
+        allk.append((sum(Cc[t].qos.price for t in combo), sum(Cc[t].qos.latency for t in combo),
+                     float(np.prod([1 - Cc[t].qos.fail for t in combo]))))
+    A = np.array(allk)
+    dom = [any(o[0] <= k[0] and o[1] <= k[1] and o[2] >= k[2] and tuple(o) != tuple(k) for o in A) for k in A]
+    sc = ax.scatter(A[:, 0] * 1000, A[:, 1], c=A[:, 2], cmap="cividis", s=5, alpha=0.6, lw=0, vmin=A[:, 2].min(),
+                    vmax=1)
+    F_ = A[[not d for d in dom]]
+    ax.scatter(F_[:, 0] * 1000, F_[:, 1], facecolor="none", edgecolor=C["black"], s=14, lw=0.5,
+               label="Pareto-optimal")
+    picks = (("default (all 0.5)", "o", "equal weights"), ("price only", "s", "price only"),
+             ("latency only", "^", "latency only"))
+    for w, mk, lab in picks:
+        for um, col in ((0.0, C["pamcp"]), (0.9, C["purple"])):
+            r = next((r for r in x6 if r["weights"] == w and r["u_min"] == um and r["seed"] == 0 and not r["abstained"]),
+                     None)
+            if r:
+                ax.scatter(r["price"] * 1000, r["latency"], marker=mk, s=34, color=col, edgecolor="white", lw=0.5,
+                           zorder=4, label=f"{lab}, $u_{{\\min}}$={um:g}")
+    ax.set_xlabel("expected price ($10^{-3}$ per call)")
+    ax.set_ylabel("latency (s)")
+    cbar = fig.colorbar(sc, ax=ax, fraction=0.05, pad=0.02)
+    cbar.set_label("reliability", fontsize=5.5)
+    cbar.ax.tick_params(labelsize=5)
+    cbar.outline.set_linewidth(0.4)
+    ax.legend(loc="upper right", fontsize=4.6, handletextpad=0.1, borderaxespad=0.1)
+    grid(ax, "both")
+    panel(ax, "b", "QoS: 256 toolkits, one instance")
+    ax = axs[2]
+    W = ("default (all 0.5)", "price only", "latency only")
+    U = (0.0, 0.8, 0.9)
+    q = comp["x6_qos"]
+    metr = (("mean_price", "price"), ("mean_latency", "latency"), ("mean_reliability", "reliability"))
+    x = np.arange(len(W))
+    for j, (m, lab) in enumerate(metr):
+        base = q["default (all 0.5)|u_min=0.0"][m]
+        ax.bar(x + (j - 1) * 0.26, [q[f"{w}|u_min=0.0"][m] / base for w in W], 0.26,
+               color=(C["blue"], C["green"], C["purple"])[j], label=lab)
+        ax.scatter(x + (j - 1) * 0.26, [q[f"{w}|u_min=0.9"][m] / base for w in W], marker="_", s=40,
+                   color=C["black"], lw=1.0, zorder=3, label="$u_{\\min}$=0.9" if j == 0 else None)
+    for i, w in enumerate(W):
+        ax.text(i, 7.3, f"{100 * q[f'{w}|u_min=0.0']['pareto_optimal_share']:.0f}%", ha="center", fontsize=5.5,
+                color=C["pamcp"])
+    ax.text(-0.55, 7.3, "PO:", ha="right", fontsize=5.5, color=C["pamcp"])
+    ax.axhline(1, color=C["black"], lw=0.5)
+    ax.set_xticks(x, ["equal", "price", "latency"])
+    ax.set_xlabel("objective weights")
+    ax.set_ylabel("relative to equal weights")
+    ax.set_ylim(0, 8)
+    ax.legend(loc="upper left", fontsize=5, bbox_to_anchor=(0.0, 0.92))
+    grid(ax)
+    panel(ax, "c", "weights and floors (10 inst.)")
+    fig.tight_layout(w_pad=0.5)
+    save(fig, "fig_eff_opt")
+
+    # ---- Figure: evolution, refinement, reuse
+    e16r = raw(FIN / "raw" / "E16_evolution.jsonl.gz")
+    e16 = F("E16_evolution")
+    e17 = F("E17_refinement_test")
+    e21 = X("R2_E21_reuse")
+    fig, axs = plt.subplots(1, 3, figsize=(COL2, 1.85), gridspec_kw={"width_ratios": [1.1, 1, 1.05]})
+    ax = axs[0]
+    for ev, col in (("remove", C["blue"]), ("insert", C["pamcp"])):
+        v = np.sort([r["ms"] for r in e16r if r.get("event") == ev])
+        ax.step(v, np.arange(1, len(v) + 1) / len(v), where="post", color=col, label=f"{ev} a server ({len(v)})")
+    ax.axvline(e16["full_rebuild_s"] * 1000, color=C["black"], lw=0.8, ls="--")
+    ax.text(e16["full_rebuild_s"] * 1000 * 0.9, 0.35, "full\nrebuild", ha="right", fontsize=5.5)
+    ax.set_xscale("log")
+    ax.set_xlabel("update time (ms)")
+    ax.set_ylabel("cumulative share of events")
+    ax.yaxis.set_major_formatter(PCT)
+    ax.legend(loc="upper left", fontsize=5.3)
+    grid(ax, "both")
+    panel(ax, "a", "incremental maintenance")
+    ax = axs[1]
+    conds = (("K=5|k=0", "K=5|k=3", "budget 5"), ("K=1 (induced chi1)|k=0", "K=1 (induced chi1)|k=3", "budget 1"))
+    x = np.arange(len(conds))
+    ax.bar(x - 0.18, [e17[a]["valid_rate"] for a, _, _ in conds], 0.36, color=C["light"], label="no repair")
+    ax.bar(x + 0.18, [e17[b]["valid_rate"] for _, b, _ in conds], 0.36, color=C["pamcp"], label="deterministic repair")
+    for i, (_, b, _) in enumerate(conds):
+        rs = e17[b]["repair_success_by_chi"]
+        nb = e17[b]["n_by_chi"]
+        ax.text(i + 0.18, e17[b]["valid_rate"] + 0.015,
+                "\n".join(f"$\\chi_{c[-1]}$: {100 * rs[c]:.0f}% of {nb[c]}" for c in rs), ha="center", fontsize=5,
+                va="bottom")
+    ax.set_xticks(x, [l for _, _, l in conds])
+    ax.set_ylim(0.5, 1.15)
+    ax.yaxis.set_major_formatter(PCT)
+    ax.set_ylabel("certified test tasks (95)")
+    ax.legend(loc="lower right", fontsize=5.3)
+    grid(ax)
+    panel(ax, "b", "refinement")
+    ax = axs[2]
+    mets = (("hit_rate", "pattern reused"), ("same_toolkit_as_cold", "same toolkit\n(of reused)"),
+            ("certified", "certified"), ("recall", "recall (reused)"))
+    vals_c = [None, None, e21["certified_cold"], e21["recall_cold_on_reused"]]
+    vals_r = [e21["hit_rate"], e21["same_toolkit_as_cold"], e21["certified_reuse"], e21["recall_reuse_on_reused"]]
+    x = np.arange(len(mets))
+    ax.bar(x[2:] - 0.18, vals_c[2:], 0.36, color=C["light"], label="cold (no repository)")
+    ax.bar(x[:2], vals_r[:2], 0.5, color=C["blue"])
+    ax.bar(x[2:] + 0.18, vals_r[2:], 0.36, color=C["blue"], label="with reuse + revalidation")
+    ax.set_xticks(x, [l for _, l in mets], fontsize=5.6)
+    ax.yaxis.set_major_formatter(PCT)
+    ax.set_ylim(0, 1.05)
+    ax.legend(loc="upper right", fontsize=5.2)
+    grid(ax)
+    panel(ax, "c", f"experience reuse ({e21['requests']} requests)")
+    fig.tight_layout(w_pad=0.6)
+    save(fig, "fig_eff_evolution")
+
+    # ---- Table: scalability
+    rows = []
+    for n in ("569", "1000", "10000", "100000"):
+        e = e15.get(n, {})
+        c = cb.get(n, {})
+        h = het.get(f"default|{n}", {})
+        rows.append(f"{int(n):,} & {e15[n]['index_build_s']:.1f} & "
+                    + " & ".join(f"{c[f'build_s|{m}']:.1f}" if f"build_s|{m}" in c else "--"
+                                 for m in ("partitioned", "lazy"))
+                    + f" & {e.get('total_p50_ms', float('nan')):.0f} & {e.get('total_p95_ms', float('nan')):.0f} & "
+                    f"{e.get('abstentions', 0)}/{e.get('tasks', 0)} & "
+                    + (f"{h['total_p50_ms']:.0f}" if h else "--") + " \\\\")
+    write_table("tab_eff_scale", r"""\begin{table}[t]
+\centering
+\caption{Engine build time by pair-relation mode (cloned registries; eager at $10^5$ from the protocol run) and
+request latency over 30 tasks (two virtual CPUs); last column: heterogeneous registries, lazy mode.}
+\label{tab:ev-scale}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}rrrrrrrr@{}}
+\toprule
+ & \multicolumn{3}{c}{Build (s)} & \multicolumn{2}{c}{Latency (ms)} & & Het. \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-6}
+Tools & eager & part. & lazy & p50 & p95 & Abst. & p50 \\
+\midrule
+""" + "\n".join(rows) + r"""
+\bottomrule
+\end{tabular}
+\end{table}
+""")
+    rows = []
+    for f_, lab in FAM:
+        v = comp["x13_optimality"][f_]
+        g = (f"{100 * (v['greedy_over_ilp_mean'] - 1):.1f} ({100 * (v['greedy_over_ilp_max'] - 1):.1f})"
+             if v["greedy_over_ilp_mean"] else "--")
+        rows.append(f"{lab} & {v['ilp_infeasible']} & {v['abstention_agrees_with_ilp']}/{v['instances']} & "
+                    f"{v['exact_equals_ilp_on_candidates']}/{v['exact_solved']} & {v['exact_budget_exhausted']} & {g} & "
+                    f"{v['exact_ms_p50']:.0f} & {v['greedy_ms_p50']:.0f} & {v['ilp_ms_p50']:.1f} \\\\")
+    write_table("tab_eff_opt", r"""\begin{table}[t]
+\centering
+\caption{Composition against exact optima (integer program, HiGHS) on 80 generated cover instances, ten per
+family: infeasible instances, abstentions agreeing with the ILP, exact search equal to the optimum among the
+instances it solved, node-budget exhaustion, greedy excess cost (mean, max; \%) and median times (ms).}
+\label{tab:ev-opt}
+\scriptsize
+\setlength{\tabcolsep}{2.2pt}
+\begin{tabular}{@{}lrrrrlrrr@{}}
+\toprule
+Family & Inf. & Abst. & Exact & Budget & Greedy (\%) & Exact & Greedy & ILP \\
+\midrule
+""" + "\n".join(rows) + r"""
+\bottomrule
+\end{tabular}
+\end{table}
+""")
+    # ---- Table: confirmatory families
+    fam1 = F("E22_statistics")["family"]
+    fam2 = X("R2_family")["family"]
+    desc1 = {"F1": "Group recall vs per-subtask (non-inf., 0.05)", "F2": "Size-matched recall vs RAG-MCP",
+             "F3": "Joint feasibility vs per-subtask (elig.)", "F4": "Exp@5 verified vs lexical",
+             "F5": "Reachable attacks vs per-subtask", "F6": "Tokens, full vs NoGap",
+             "F7": "Hit@1 goal contract vs raw RRF (569)"}
+    desc2 = {"H1": "Hit@1 PaMCP-L vs tuned BM25 (569)", "H2": "Hit@1 PaMCP-L vs Eq. (5) (569)",
+             "H3": "Group recall PaMCP-L vs per-subtask (non-inf.)", "H4": "Strict joint feas. vs per-subtask (elig.)",
+             "H5": "Definite out-of-scope vs per-subtask"}
+    def fmt(v, k):
+        d = v.get("diff", 0)
+        sc = 1 if k in ("F6",) else 100
+        ci = v.get("ci")
+        ci_s = f"[{sc * ci[0]:+.1f}, {sc * ci[1]:+.1f}]" if ci else "--"
+        ph = v.get("p_holm", 1)
+        ph_s = "$<$0.001" if ph < 0.001 else f"{ph:.3f}"
+        verdict = "supports" if v.get("significant_0.05") and d * (1 if k in ("F2", "F3", "F7", "H1", "H2", "H4") else -1) > 0 \
+            else ("against" if v.get("significant_0.05") else "n.s.")
+        if k in ("F1", "H3"):
+            verdict = "not shown"
+        return f"{k} & {desc1.get(k, desc2.get(k))} & {sc * d:+.1f} & {ci_s} & {ph_s} & {verdict} \\\\"
+    rows = [fmt(fam1[k], k) for k in sorted(fam1)] + ["\\midrule"] + [fmt(fam2[k], k) for k in sorted(fam2)
+                                                                         if k in desc2]
+    write_table("tab_family", r"""\begin{table}[t]
+\centering
+\caption{Confirmatory comparisons, fixed before the data they test (F1--F7 before the set-level experiments; H1--H5
+in a dated amendment before the revised test runs), Holm-corrected within each family. Differences in points
+(tokens for F6), \pamcp{} minus comparator, with 95\% CI.}
+\label{tab:ev-family}
+\scriptsize
+\setlength{\tabcolsep}{2.2pt}
+\begin{tabular}{@{}llrlll@{}}
+\toprule
+ & Comparison & $\Delta$ & 95\% CI & $p_{\mathrm{Holm}}$ & Verdict \\
+\midrule
+""" + "\n".join(rows) + r"""
+\bottomrule
+\end{tabular}
+\end{table}
+""")
+
+
 if __name__ == "__main__":
     which = sys.argv[1:] or ["setup", "rq1", "rq2", "rq3", "sec", "eff"]
     for w in which:

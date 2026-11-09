@@ -45,3 +45,27 @@ Plan: `docs/REVISION_PLAN_TSC.md`. Outputs of new analyses: `results/revision_2/
   improve on v1 (negative result of the dev selection).
 * Family R2 (`R2_family.json`, Holm): H1 +0.003 (p_H 1.0); H2 +0.117 [0.03, 0.226] (p_H 0.070); H3 non-inferiority
   not shown (−0.088); H4 +0.074 [0.0, 0.149] (p_H 0.277); H5 −0.200 [−0.284, −0.126] (p_H 0.0005).
+
+## Step 5 — LLM runs and observed effects (2026-11-08/09)
+* Calibration (`R2_X2_calibration.json`): Haiku 86.1% [82.5, 89.1], Sonnet 91.4% [88.4, 93.7], Opus 100% of 387 items
+  (batch 19, 45 items, stopped by a usage limit; excluded for Opus). Measured profile at a 5% risk target: held-out
+  false-native rate 3.6% / 3.3% / 0.0% at coverage 83% / 90% / 100%; the 64-item profile at tau 0.9 keeps 21-26% native.
+  All models underconfident (ECE 0.39 / 0.20 / 0.38).
+* Observed effects (`r2_x2_probe.py`, `R2_X2_observed.json`): six MCP reference servers (filesystem, git, memory,
+  time, sequential-thinking, fetch) executed under strace and sandbox snapshots; 37 registry tools probed, 30
+  exercised, 13 state-changing; J_A and J_B agree with all 30 (0/13 false safe, Wilson upper 22.8%); live annotations
+  (25 tools) never claim read-only for a state change. Drift: all 37 surviving definitions changed since the snapshot
+  (annotations 25, schemas 19, descriptions 8; 13 schemas without properties), 1 removed, 5 added.
+  Third-party servers were not probed: the session's safety check blocked launching servers that execute shell
+  commands; left for an isolated VM (author decision).
+* X7 (`R2_X7_scale.json`): eager/partitioned/lazy give identical toolkits on 94 tasks; build at 1e5 cloned tools
+  134 s (partitioned) / 133 s (lazy) vs 2,224 s eager; heterogeneous 1e4 lazy 4.6-5.9 s; 2 workers 21.0 vs 11.3 req/s.
+
+## Step 8 — revised Section 8 (2026-11-09)
+* `paper/sections/evaluation_r2.tex` (+ `sections/eval_r2/s1..s7`), organised as 8.1 setup, 8.2 RQ1, 8.3 RQ2, 8.4 RQ3,
+  8.5 security and mechanisms, 8.6 efficiency/evolution/stability, 8.7 threats; no series identifiers in the text.
+* `paper/make_eval_r2.py` builds 16 figures (`paper/figures_r2/`, vector PDF) and 9 generated tables
+  (`paper/tables_r2/`) from frozen results; 3 tables (data, methods, parameters) are in the LaTeX source.
+* Preview: `paper/evaluation_r2_preview.pdf` (pp. 13-24; IEEEtran when installed, otherwise IEEE page geometry).
+* Not run (heavy, deferred by the authors' instruction): executed end-to-end compositions, adversarial third-party
+  servers, LLM-proposed repair, human annotation, faithful baselines with original encoders.
