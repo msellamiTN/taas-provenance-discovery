@@ -255,9 +255,28 @@ def update_workspace(
     return get_workspace(workspace_id)
 
 
-def list_revisions(workspace_id: str, *, limit: int = 100) -> dict[str, Any] | None:
-    """Immutable per-revision edit history for one workspace draft."""
+def list_revisions(workspace_id: str, *, limit: int = 100,
+                   kind: str | None = None, actor: str | None = None,
+                   before_revision: int | None = None) -> dict[str, Any] | None:
+    """Immutable per-revision edit history for one workspace draft.
+
+    ``kind`` is an exact-match filter on ``changes.kind``; ``actor`` exact-
+    matches the recorded actor; ``before_revision`` is a keyset cursor for
+    descending order — returns revisions strictly older than it.
+    """
     limit = max(1, min(int(limit), 500))
+    clauses = ["workspace_id = ?"]
+    params: list[Any] = [workspace_id]
+    if kind:
+        clauses.append("json_extract(changes_json, '$.kind') = ?")
+        params.append(kind)
+    if actor:
+        clauses.append("actor = ?")
+        params.append(actor)
+    if before_revision is not None:
+        clauses.append("revision < ?")
+        params.append(int(before_revision))
+    where = " AND ".join(clauses)
     with _connect() as connection:
         exists = connection.execute(
             "SELECT 1 FROM workspaces WHERE workspace_id = ?", (workspace_id,)
@@ -265,17 +284,21 @@ def list_revisions(workspace_id: str, *, limit: int = 100) -> dict[str, Any] | N
         if exists is None:
             return None
         rows = connection.execute(
-            """
+            f"""
             SELECT revision, draft_sha256, actor, changes_json, occurred_at
-            FROM workspace_revisions WHERE workspace_id = ?
+            FROM workspace_revisions WHERE {where}
             ORDER BY revision DESC LIMIT ?
             """,
-            (workspace_id, limit),
+            (*params, limit + 1),
         ).fetchall()
+    has_more = len(rows) > limit
+    rows = rows[:limit]
     return {
         "schema": "taas.workspace-revision-history/v1",
         "workspace_id": workspace_id,
         "count": len(rows),
+        "has_more": has_more,
+        "next_cursor": rows[-1]["revision"] if (has_more and rows) else None,
         "revisions": [
             {
                 "revision": r["revision"],
