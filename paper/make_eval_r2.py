@@ -221,6 +221,174 @@ def setup():
     save(fig, "fig_setup_evidence")
 
 
+# ------------------------------------------------------------------------------------------------ 8.2 RQ1
+MODELS = (("haiku", "Haiku"), ("sonnet", "Sonnet"), ("opus", "Opus"))
+MCOL = {"haiku": C["green"], "sonnet": C["blue"], "opus": C["purple"]}
+CLASSES = (("extract", "extract"), ("classify", "classify"), ("count", "count"), ("aggregate_sum", "sum (approx.)"),
+           ("compute_exactly", "exact compute"), ("join", "join"))
+
+
+def rq1():
+    cal = X("R2_X2_calibration")
+    # ---- Figure: accuracy by operation and input size, three models
+    fig, axs = plt.subplots(1, 3, figsize=(COL2, 1.75), sharey=True)
+    ns = ["10", "40", "160", "640"]
+    for ax, (m, ml) in zip(axs, MODELS):
+        r = cal[m]["by_class_n"]
+        M = np.array([[r.get(f"{c}|{n}", np.nan) for n in ns] for c, _ in CLASSES])
+        im = ax.imshow(M, cmap="cividis", vmin=0.3, vmax=1.0, aspect="auto")
+        for i in range(M.shape[0]):
+            for j in range(M.shape[1]):
+                v = M[i, j]
+                if v == v:
+                    ax.text(j, i, f"{100 * v:.0f}", ha="center", va="center", fontsize=5.8,
+                            color="black" if v > 0.7 else "white")
+                else:
+                    ax.add_patch(plt.Rectangle((j - 0.5, i - 0.5), 1, 1, facecolor="white", edgecolor="#BBBBBB",
+                                               hatch="////", lw=0))
+                    ax.text(j, i, "not run", ha="center", va="center", fontsize=5, color=C["grey"])
+        ax.set_xticks(range(4), ns)
+        ax.set_yticks(range(len(CLASSES)), [l for _, l in CLASSES])
+        ax.set_xlabel("input size $n$")
+        a = cal[m]
+        panel(ax, "abc"[MODELS.index((m, ml))], f"{ml}: {100 * a['accuracy']:.1f}% of {a['items']} items")
+        for s_ in ax.spines.values():
+            s_.set_visible(False)
+        ax.tick_params(length=0)
+    cb = fig.colorbar(im, ax=axs, fraction=0.025, pad=0.01)
+    cb.set_label("accuracy", fontsize=6)
+    cb.ax.yaxis.set_major_formatter(PCT)
+    cb.ax.tick_params(labelsize=5.5)
+    cb.outline.set_linewidth(0.4)
+    save(fig, "fig_rq1_calibration")
+
+    # ---- Figure: self-assessment, selective risk, model-conditioned gap
+    fig, axs = plt.subplots(1, 3, figsize=(COL2, 1.95), gridspec_kw={"width_ratios": [1, 1.15, 1.1]})
+    ax = axs[0]
+    for m, ml in MODELS:
+        rel = cal[m]["self_assessment"]["reliability"]
+        xs = [b["mean_conf"] for b in rel if b["n"]]
+        ys = [b["accuracy"] for b in rel if b["n"]]
+        ss = [8 + 0.5 * b["n"] for b in rel if b["n"]]
+        ax.plot(xs, ys, color=MCOL[m], lw=0.8, alpha=0.8)
+        ax.scatter(xs, ys, s=ss, color=MCOL[m], edgecolor="white", lw=0.4, zorder=3,
+                   label=f"{ml} (ECE {cal[m]['self_assessment']['ece']:.2f})")
+    ax.plot([0, 1], [0, 1], color=C["grey"], lw=0.6, ls="--")
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1.04)
+    ax.set_xlabel("self-assessed P(correct)")
+    ax.set_ylabel("observed accuracy")
+    ax.xaxis.set_major_formatter(PCT)
+    ax.yaxis.set_major_formatter(PCT)
+    ax.legend(loc="lower right", handletextpad=0.1)
+    grid(ax, "both")
+    panel(ax, "a", "self-assessment (before items)")
+    ax = axs[1]
+    kinds = (("measured|exact_rule=True", "target=0.05", "o", "measured profile, risk 5%"),
+             ("self_assessed|exact_rule=True", "target=0.05", "s", "self-assessed, risk 5%"),
+             ("manuscript_64|exact_rule=True", "manuscript_tau=0.9", "^", "64-item profile, $\\tau$=0.9"))
+    for m, ml in MODELS:
+        for key, t, mk, lab in kinds:
+            s_ = cal[m]["selection"].get(key)
+            if not s_:
+                continue
+            te = s_[t]["test"]
+            ax.scatter(te["coverage"], te["selective_risk"], marker=mk, s=26, color=MCOL[m], edgecolor="white",
+                       lw=0.4, zorder=3)
+    ax.axhline(0.05, color=C["pamcp"], lw=0.7, ls=":")
+    ax.text(0.02, 0.053, "risk target 5%", fontsize=5.5, color=C["pamcp"], va="bottom")
+    ax.set_xlim(0, 1.05)
+    ax.set_ylim(-0.004, 0.1)
+    ax.xaxis.set_major_formatter(PCT)
+    ax.yaxis.set_major_formatter(PCT)
+    ax.set_xlabel("coverage (operations kept native)")
+    ax.set_ylabel("false-native rate (held-out)")
+    hs = [Line2D([], [], marker=mk, ls="", color=C["grey"], label=lab) for _, _, mk, lab in kinds]
+    hs += [Line2D([], [], marker="o", ls="", color=MCOL[m], label=ml) for m, ml in MODELS]
+    ax.legend(handles=hs, loc="upper left", fontsize=5.3, ncol=2, columnspacing=0.6, handletextpad=0.1)
+    grid(ax, "both")
+    panel(ax, "b", "selective risk on 168 test items")
+    ax = axs[2]
+    R = F("E11_gap")
+    nn = [30, 300, 3000, 30000]
+    styles = (("0.9", "tolerant", "-", "o", C["blue"]), ("0.9", "exact", "-", "s", C["pamcp"]),
+              ("0.6", "tolerant", ":", "o", C["sky"]), ("0.6", "exact", ":", "s", C["pamcp2"]))
+    for i, (tau, agg, ls, mk, col) in enumerate(styles):
+        ys, ab = [], []
+        for n in nn:
+            v = R.get(f"sonnet|{tau}|{n}|{agg}|gap")
+            if v is None or v["abstain"]:
+                ys.append(np.nan)
+                ab.append(n)
+            else:
+                ys.append(v["size"])
+        ax.plot(nn, ys, ls=ls, marker=mk, color=col, label=f"$\\tau$={tau}, {agg}")
+        ax.scatter(ab, [0.6 + 0.18 * i] * len(ab), marker="x", s=14, color=col, lw=0.8, zorder=3)
+    ax.text(30000, 1.35, "abstains", ha="right", fontsize=5.5, color=C["grey"])
+    ax.set_xscale("log")
+    ax.set_ylim(0.3, 8.5)
+    ax.set_xlabel("reviews $n$ (scenario of Fig. 1)")
+    ax.set_ylabel("toolkit size $|K|$")
+    ax.legend(loc="upper left", fontsize=5.3, handlelength=1.6)
+    grid(ax, "both")
+    panel(ax, "c", "model-conditioned gap")
+    fig.tight_layout(w_pad=0.9)
+    save(fig, "fig_rq1_profile")
+
+    # ---- Figure: typing agreement per output kind
+    e2 = F("E2_typing")
+    pk_t, pk_s = e2["tau"]["per_kind"], e2["struct"]["per_kind"]
+    kinds_ = sorted([k for k in pk_t if pk_t[k]["support"] >= 4], key=lambda k: -pk_t[k]["support"])
+    fig, ax = plt.subplots(figsize=(COL1, 1.9))
+    y = np.arange(len(kinds_))
+    ax.barh(y - 0.2, [pk_t[k]["f1"] for k in kinds_], 0.4, color=C["blue"], label="LLM-assisted typing $\\tau$")
+    ax.barh(y + 0.2, [pk_s.get(k, {}).get("f1", 0) for k in kinds_], 0.4, color=C["light"],
+            label="structural typer (schema + name)")
+    for i, k in enumerate(kinds_):
+        ax.text(1.02, i, f"{pk_t[k]['support']}", va="center", fontsize=5.5, color=C["grey"])
+    ax.text(1.02, -0.9, "$n$", fontsize=5.5, color=C["grey"])
+    ax.set_yticks(y, kinds_)
+    ax.invert_yaxis()
+    ax.set_xlim(0, 1.0)
+    ax.set_xlabel("F1 against $J_B$ output kinds")
+    ax.legend(loc="upper center", bbox_to_anchor=(0.45, -0.22), ncol=2, fontsize=5.5)
+    grid(ax, "x")
+    save(fig, "fig_rq1_typing")
+
+    # ---- Table: calibration summary
+    rows = []
+    for m, ml in MODELS:
+        r = cal[m]
+        sa = r["self_assessment"]
+        me = r["selection"]["measured|exact_rule=True"]["target=0.05"]
+        old = r["selection"].get("manuscript_64|exact_rule=True", {}).get("manuscript_tau=0.9")
+        lo, hi = r["accuracy_ci"]
+        rows.append(f"{ml} & {r['items']} & {100 * r['accuracy']:.1f} [{100 * lo:.1f}, {100 * hi:.1f}] & "
+                    f"{pct(r['by_n']['640']['accuracy'], 0)} & {sa['ece']:.2f} & {sa['brier']:.2f} & "
+                    f"{me['tau']:.2f} & {pct(me['test']['coverage'], 0)} & {pct(me['test']['selective_risk'])} & "
+                    + (f"{pct(old['test']['coverage'], 0)} & {pct(old['test']['selective_risk'])}" if old else "-- & --")
+                    + r" \\")
+    write_table("tab_rq1_calibration", r"""\begin{table}[t]
+\centering
+\caption{Model-profile calibration: accuracy (Wilson 95\% CI), self-assessment calibration, and the held-out
+behaviour of the threshold $\tau$ chosen for a 5\% risk target (measured profile) versus the 64-item profile at
+$\tau=0.9$. Cov.: share of operations kept native; FNR: false-native rate (errors among them).}
+\label{tab:ev-calibration}
+\scriptsize
+\setlength{\tabcolsep}{2.2pt}
+\begin{tabular}{@{}lrcrrrrrrrr@{}}
+\toprule
+ & & & & \multicolumn{2}{c}{Self-assess.} & \multicolumn{3}{c}{Measured, risk 5\%} & \multicolumn{2}{c}{64-item} \\
+\cmidrule(lr){5-6}\cmidrule(lr){7-9}\cmidrule(l){10-11}
+Model & $n$ & Accuracy (\%) & $n{=}640$ & ECE & Brier & $\tau$ & Cov. & FNR & Cov. & FNR \\
+\midrule
+""" + "\n".join(rows) + r"""
+\bottomrule
+\end{tabular}
+\end{table}
+""")
+
+
 if __name__ == "__main__":
     which = sys.argv[1:] or ["setup", "rq1", "rq2", "rq3", "sec", "eff"]
     for w in which:

@@ -1,0 +1,20 @@
+\begin{table}[t]
+\centering
+\caption{Model-profile calibration: accuracy (Wilson 95\% CI), self-assessment calibration, and the held-out
+behaviour of the threshold $\tau$ chosen for a 5\% risk target (measured profile) versus the 64-item profile at
+$\tau=0.9$. Cov.: share of operations kept native; FNR: false-native rate (errors among them).}
+\label{tab:ev-calibration}
+\scriptsize
+\setlength{\tabcolsep}{2.2pt}
+\begin{tabular}{@{}lrcrrrrrrrr@{}}
+\toprule
+ & & & & \multicolumn{2}{c}{Self-assess.} & \multicolumn{3}{c}{Measured, risk 5\%} & \multicolumn{2}{c}{64-item} \\
+\cmidrule(lr){5-6}\cmidrule(lr){7-9}\cmidrule(l){10-11}
+Model & $n$ & Accuracy (\%) & $n{=}640$ & ECE & Brier & $\tau$ & Cov. & FNR & Cov. & FNR \\
+\midrule
+Haiku & 432 & 86.1 [82.5, 89.1] & 67 & 0.39 & 0.30 & 0.21 & 83 & 3.6 & 21 & 0.0 \\
+Sonnet & 432 & 91.4 [88.4, 93.7] & 62 & 0.20 & 0.11 & 0.42 & 90 & 3.3 & 26 & 4.5 \\
+Opus & 387 & 100.0 [99.0, 100.0] & 100 & 0.38 & 0.20 & 0.90 & 100 & 0.0 & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
