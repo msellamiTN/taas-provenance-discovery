@@ -851,6 +851,159 @@ Method & $|K|$ & Tok. & Group recall [CI] & coarse & strict & Abst. \\
 """)
 
 
+# ------------------------------------------------------------------------------------------------ 8.5 security
+SECM = (("Full_PaMCP", "PaMCP"), ("PaMCP_NoCert", "PaMCP NoCert"), ("PaMCP_NoGap", "PaMCP NoGap"),
+        ("PaMCP_Declared", "PaMCP Declared"), ("per_subtask", "per-subtask"), ("mcp_zero", "MCP-Zero"),
+        ("cmtf_path", "CMTF"), ("colt@5", "COLT@5"), ("toolscope@5", "ToolScope@5"), ("rag_mcp@5", "RAG-MCP@5"),
+        ("all_tools", "full catalogue"))
+
+
+def sec():
+    e14 = F("E14_injection")
+    ar, sm = e14["attack_rates"], e14["summary"]
+    v2 = X("R2_v2_eval")["summary"]
+    fig, axs = plt.subplots(1, 3, figsize=(COL2, 2.2), gridspec_kw={"width_ratios": [1.2, 1.0, 0.95]})
+    ax = axs[0]
+    y = np.arange(len(SECM))
+    for j, (pol, mk, lab) in enumerate((("least_privilege", "o", "least privilege"), ("read_only", "s", "read-only"))):
+        for i, (k, _) in enumerate(SECM):
+            for var, fc in (("unfiltered", True), ("eligible", False)):
+                key = f"{pol}|{k}" if k.startswith(("Full", "PaMCP")) else f"{pol}|{k}|{var}"
+                if key not in ar or (k.startswith(("Full", "PaMCP")) and not fc):
+                    continue
+                v = ar[key]
+                yy = i + (j - 0.5) * 0.34
+                col = C["pamcp"] if k.startswith(("Full", "PaMCP")) else (C["blue"] if fc else C["sky"])
+                ax.plot(v["ci"], [yy, yy], color=col, lw=0.7, alpha=0.7)
+                ax.scatter(v["rate"], yy, marker=mk, s=14, color=col if fc else "white", edgecolor=col, lw=0.7,
+                           zorder=3)
+    ax.set_yticks(y, [l for _, l in SECM])
+    ax.invert_yaxis()
+    ax.set_xscale("symlog", linthresh=0.01)
+    ax.set_xlim(-0.0005, 1.2)
+    ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{100 * v:g}%"))
+    ax.set_xlabel("task-attack pairs reachable (Wilson 95% CI)")
+    ax.legend(handles=[Line2D([], [], marker="o", ls="", color=C["grey"], label="least privilege"),
+                       Line2D([], [], marker="s", ls="", color=C["grey"], label="read-only"),
+                       Line2D([], [], marker="o", ls="", mfc="white", mec=C["sky"], label="eligible tools only")],
+              loc="upper center", bbox_to_anchor=(0.4, -0.2), ncol=3, fontsize=5.2, handletextpad=0.1,
+              columnspacing=0.6)
+    grid(ax, "x")
+    panel(ax, "a", "out-of-scope actions reachable")
+    ax = axs[1]
+    rows = (("Full_PaMCP", "PaMCP"), ("per_subtask|unfiltered", "per-subtask"), ("mcp_zero|unfiltered", "MCP-Zero"),
+            ("cmtf_path|unfiltered", "CMTF"), ("colt@5|unfiltered", "COLT@5"), ("rag_mcp@5|unfiltered", "RAG-MCP@5"),
+            ("toolscope@5|unfiltered", "ToolScope@5"))
+    x = np.arange(len(rows))
+    shown = [sm[f"least_privilege|{k}"].get("poison_shown_0.3", {}).get("mean", np.nan) for k, _ in rows]
+    rawv = [sm[f"least_privilege|{k}"].get("poison_raw_0.3", sm[f"least_privilege|{k}"].get("poison_shown_0.3", {}))
+            .get("mean", np.nan) for k, _ in rows]
+    leg = sm["least_privilege|Full_PaMCP"]["poison_shown_legacy_0.3"]["mean"]
+    ax.bar(x - 0.2, rawv, 0.4, color=C["light"], label="raw definitions")
+    ax.bar(x + 0.2, shown, 0.4, color=[C["pamcp"]] + [C["blue"]] * (len(rows) - 1), label="shown to the model")
+    ax.scatter([0.2], [leg], marker="_", s=60, color=C["black"], lw=1.2, zorder=4, label="legacy sanitiser")
+    ax.text(0.2, 0.02, "0", ha="center", fontsize=5.5, color=C["pamcp"])
+    ax.set_xticks(x, [l for _, l in rows], rotation=35, ha="right", fontsize=5.8)
+    ax.yaxis.set_major_formatter(PCT)
+    ax.set_ylabel("tasks with a poisoned definition")
+    ax.legend(loc="upper left", fontsize=5.2)
+    grid(ax)
+    panel(ax, "b", "30% of descriptions poisoned")
+    ax = axs[2]
+    order = (("pamcp_v1", "PaMCP"), ("pamcp_v2", "PaMCP-L"), ("mcp_zero", "MCP-Zero"), ("per_subtask", "per-subtask"),
+             ("rag_mcp@5", "RAG-MCP@5"), ("toolscope@5", "ToolScope@5"))
+    x = np.arange(len(order))
+    dfn = [v2[k]["scope_definite"] for k, _ in order]
+    ind = [max(v2[k]["scope_possible"] - v2[k]["scope_definite"], 0) for k, _ in order]
+    ax.bar(x, dfn, 0.6, color=C["pamcp"], label="definitely out of scope")
+    ax.bar(x, ind, 0.6, bottom=dfn, color=C["light"], hatch="////", edgecolor="white", lw=0,
+           label="indeterminate (scope unknown)")
+    ax.set_xticks(x, [l for _, l in order], rotation=35, ha="right", fontsize=5.8)
+    ax.yaxis.set_major_formatter(PCT)
+    ax.set_ylabel("test tasks (95)")
+    ax.set_ylim(0, 0.8)
+    ax.legend(loc="upper left", fontsize=5.2)
+    grid(ax)
+    panel(ax, "c", "scope-aware attacks")
+    fig.tight_layout(w_pad=0.7)
+    save(fig, "fig_sec_injection")
+
+    # ---- Figure: factorial effects
+    fa = F("E18_factorial")["factorial"]
+    outs = (("recall", "group recall", 1), ("tokens", "manifest tokens", 1), ("joint", "joint feasibility", 1),
+            ("reach_any", "tasks with reachable action", 1))
+    effs = (("main_G", "G"), ("main_P", "P"), ("main_S", "S"), ("interaction_GP", "G$\\times$P"),
+            ("interaction_GS", "G$\\times$S"), ("interaction_PS", "P$\\times$S"))
+    fig, axs = plt.subplots(1, 5, figsize=(COL2, 1.6), gridspec_kw={"width_ratios": [1, 1, 1, 1, 1.15]})
+    for ax, (m, lab, _) in zip(axs[:4], outs):
+        E = fa[f"least_privilege|{m}"]["effects"]
+        for i, (k, l) in enumerate(effs):
+            v = E[k]
+            sig = v["ci"][0] > 0 or v["ci"][1] < 0
+            col = C["pamcp"] if sig else C["grey"]
+            ax.plot(v["ci"], [i, i], color=col, lw=0.9)
+            ax.scatter(v["mean"], i, s=14, color=col, zorder=3)
+        ax.axvline(0, color=C["black"], lw=0.5)
+        ax.set_yticks(range(len(effs)), [l for _, l in effs] if ax is axs[0] else [])
+        ax.invert_yaxis()
+        if m in ("recall", "joint", "reach_any"):
+            ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{100 * v:+.0f}"))
+            ax.set_xlabel("effect (points)")
+        else:
+            ax.set_xlabel("effect (tokens)")
+        grid(ax, "x")
+        ax.set_title(lab, fontsize=6.5)
+    ax = axs[4]
+    sh = {m: fa[f"least_privilege|{m}"].get("shapley") for m, _, _ in outs}
+    labs = (("recall", "recall"), ("tokens", "tokens"), ("reach_any", "reach"))
+    for j, f_ in enumerate("GPS"):
+        vals = [sh[m][f_] / sum(sh[m].values()) for m, _ in labs]
+        ax.barh(np.arange(3) + (j - 1) * 0.26, vals, 0.26, color=(C["blue"], C["green"], C["pamcp"])[j], label=f_)
+    ax.axvline(0, color=C["black"], lw=0.5)
+    ax.set_yticks(range(3), [l for _, l in labs], fontsize=5.8)
+    ax.invert_yaxis()
+    ax.xaxis.set_major_formatter(PCT)
+    ax.set_xlabel("share of full $-$ none")
+    ax.legend(loc="lower right", fontsize=5.2, ncol=3, columnspacing=0.6, handlelength=0.8)
+    grid(ax, "x")
+    ax.set_title("Shapley attribution", fontsize=6.5)
+    fig.tight_layout(w_pad=0.5)
+    save(fig, "fig_sec_factorial")
+
+    # ---- Table: factorial cells and components
+    cells = (("G0_P0_S0", "--", "--", "--"), ("G1_P0_S0", "on", "--", "--"), ("G0_P1_S0", "--", "on", "--"),
+             ("G0_P0_S1", "--", "--", "on"), ("PaMCP_NoCert", "on", "on", "--"), ("PaMCP_Declared", "on", "--", "on"),
+             ("PaMCP_NoGap", "--", "on", "on"), ("Full_PaMCP", "on", "on", "on"))
+    comps = (("Full-no_closure", "no backward closure"), ("Full-derivation_flow", "flow along derivations"),
+             ("Full-no_relevance_term", "no relevance term"), ("Full-no_utility_floor", "no utility floor"),
+             ("Full-no_refinement", "no refinement"))
+    def cell(k):
+        s_ = sm[f"least_privilege|{k}"]
+        a = ar[f"least_privilege|{k}"]
+        return (f"{s_['recall']['mean']:.3f} & {s_['tokens']['mean']:.0f} & {pct(s_['joint']['mean'])} & "
+                f"{pct(a['rate'])} & {pct(s_['abstain']['mean'])} \\\\")
+    rows = [f"{g} & {p_} & {s_} & " + cell(k) for k, g, p_, s_ in cells]
+    rows.append("\\midrule")
+    rows += [f"\\multicolumn{{3}}{{@{{}}l}}{{Full, {l}}} & " + cell(k) for k, l in comps]
+    write_table("tab_sec_factorial", r"""\begin{table}[t]
+\centering
+\caption{Mechanism ablation on 155 tasks under least-privilege policies: the $2^3$ design over the gap (G),
+provenance-sound eligibility (P) and set-level reasoning (S), and five components of the full configuration.
+Reach: task--attack pairs whose out-of-scope action the toolkit can realise.}
+\label{tab:ev-factorial}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}cccrrrrr@{}}
+\toprule
+G & P & S & Recall & Tokens & Joint (\%) & Reach (\%) & Abst. (\%) \\
+\midrule
+""" + "\n".join(rows) + r"""
+\bottomrule
+\end{tabular}
+\end{table}
+""")
+
+
 if __name__ == "__main__":
     which = sys.argv[1:] or ["setup", "rq1", "rq2", "rq3", "sec", "eff"]
     for w in which:

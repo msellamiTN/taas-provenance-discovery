@@ -1,0 +1,29 @@
+\begin{table}[t]
+\centering
+\caption{Mechanism ablation on 155 tasks under least-privilege policies: the $2^3$ design over the gap (G),
+provenance-sound eligibility (P) and set-level reasoning (S), and five components of the full configuration.
+Reach: task--attack pairs whose out-of-scope action the toolkit can realise.}
+\label{tab:ev-factorial}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}cccrrrrr@{}}
+\toprule
+G & P & S & Recall & Tokens & Joint (\%) & Reach (\%) & Abst. (\%) \\
+\midrule
+-- & -- & -- & 0.270 & 297 & 53.5 & 1.1 & 0.0 \\
+on & -- & -- & 0.239 & 208 & 55.5 & 0.4 & 0.0 \\
+-- & on & -- & 0.295 & 316 & 58.1 & 0.1 & 0.0 \\
+-- & -- & on & 0.223 & 221 & 52.9 & 0.1 & 16.1 \\
+on & on & -- & 0.253 & 229 & 56.8 & 0.1 & 0.0 \\
+on & -- & on & 0.230 & 189 & 54.8 & 0.0 & 6.5 \\
+-- & on & on & 0.183 & 193 & 55.5 & 0.0 & 20.0 \\
+on & on & on & 0.181 & 176 & 56.1 & 0.0 & 10.3 \\
+\midrule
+\multicolumn{3}{@{}l}{Full, no backward closure} & 0.181 & 173 & 53.5 & 0.0 & 12.3 \\
+\multicolumn{3}{@{}l}{Full, flow along derivations} & 0.236 & 206 & 60.6 & 0.0 & 5.8 \\
+\multicolumn{3}{@{}l}{Full, no relevance term} & 0.167 & 141 & 54.8 & 0.0 & 10.3 \\
+\multicolumn{3}{@{}l}{Full, no utility floor} & 0.181 & 176 & 56.1 & 0.0 & 10.3 \\
+\multicolumn{3}{@{}l}{Full, no refinement} & 0.179 & 175 & 55.5 & 0.0 & 11.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
