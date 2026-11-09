@@ -9,7 +9,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import taas.studio.api as studio_api
-from taas.studio import agent_registry, audit_ledger, skill_registry
+from taas.studio import agent_registry, audit_ledger, skill_registry, workspaces
 from taas.studio.skill_spec import validate_skill_manifest
 
 
@@ -21,6 +21,8 @@ def client(monkeypatch, tmp_path):
     monkeypatch.setenv("TAAS_AUDIT_LEDGER_PATH", str(tmp_path / "audit.sqlite3"))
     monkeypatch.setenv("TAAS_EVIDENCE_DB_PATH", str(tmp_path / "evidence.sqlite3"))
     monkeypatch.setenv("TAAS_EVIDENCE_ATTESTATION_KEY", "k" * 40)
+    monkeypatch.setenv("TAAS_WORKSPACES_PATH", str(tmp_path / "workspaces.sqlite3"))
+    monkeypatch.setenv("TAAS_DISCOVERY_RUNS_PATH", str(tmp_path / "runs.sqlite3"))
     yield TestClient(studio_api.app)
 
 
@@ -184,3 +186,86 @@ def test_mcp_snapshot_diff(client):
     # invalid id → 422, missing id → 404
     assert client.get("/api/v1/mcp/registry/snapshots/nope/diff/" + "0" * 64,
                       headers=HEADERS).status_code == 422
+
+
+def test_workspace_revision_filters_and_cursor(client):
+    ws = workspaces.create_workspace(name="w", draft={"goal": "v1"})
+    ws_id = ws["workspace_id"]
+    workspaces.update_workspace(ws_id, name="w", draft={"goal": "v2"}, revision=1)
+    workspaces.update_workspace(ws_id, name="w", draft={"goal": "v3"}, revision=2)
+
+    body = client.get(
+        f"/api/v1/workspaces/{ws_id}/revisions?kind=created",
+        headers=HEADERS).json()
+    assert body["count"] == 1
+    assert body["revisions"][0]["changes"]["kind"] == "created"
+
+    body = client.get(
+        f"/api/v1/workspaces/{ws_id}/revisions?actor=studio-api&kind=updated",
+        headers=HEADERS).json()
+    assert body["count"] == 2
+
+    page = client.get(
+        f"/api/v1/workspaces/{ws_id}/revisions?limit=2",
+        headers=HEADERS).json()
+    assert page["has_more"] is True and page["next_cursor"] is not None
+    page2 = client.get(
+        f"/api/v1/workspaces/{ws_id}/revisions"
+        f"?limit=2&before_revision={page['next_cursor']}",
+        headers=HEADERS).json()
+    assert page2["count"] == 1 and page2["has_more"] is False
+
+
+def test_notifications_feed_and_monotonic_cursor(client):
+    audit_ledger.append_event("policy_verdict", {"agent_id": "a", "version": "1"}, {"d": 1})
+    audit_ledger.append_event("approval", {"agent_id": "a", "version": "1"}, {})
+    body = client.get("/api/v1/notifications", headers=HEADERS).json()
+    assert body["schema"] == "taas.notifications/v1"
+    assert body["count"] == 2 and body["unread_count"] == 2
+    assert body["items"][0]["seq"] > body["items"][1]["seq"]  # newest first
+    assert body["acknowledgement_is_not_approval"] is True
+
+    # mark first event read → unread drops to 1; monotonic + clamped
+    client.post("/api/v1/notifications/read", headers=HEADERS,
+                json={"last_read_seq": 1})
+    body = client.get("/api/v1/notifications?unread_only=true",
+                      headers=HEADERS).json()
+    assert body["unread_count"] == 1 and body["count"] == 1
+    # cursor can't move backward
+    client.post("/api/v1/notifications/read", headers=HEADERS,
+                json={"last_read_seq": 0})
+    assert client.get("/api/v1/notifications", headers=HEADERS
+                      ).json()["last_read_seq"] == 1
+    # cursor can't overshoot recorded events
+    client.post("/api/v1/notifications/read", headers=HEADERS,
+                json={"last_read_seq": 999})
+    assert client.get("/api/v1/notifications", headers=HEADERS
+                      ).json()["last_read_seq"] == 2
+
+
+def test_platform_overview_recorded_counts(client):
+    workspaces.create_workspace(name="w", draft={"a": 1})
+    skill_registry.create_draft(_skill("skill-one", "1.0.0"))
+    audit_ledger.append_event("policy_verdict", {"agent_id": "a", "version": "1"}, {})
+    body = client.get("/api/v1/platform/overview", headers=HEADERS).json()
+    assert body["schema"] == "taas.platform-overview/v1"
+    inv = body["inventory"]
+    assert inv["workspaces"] == {"state": "recorded", "count": 1}
+    assert inv["skills"]["versions"] == 1
+    assert inv["skills"]["distinct_skills"] == 1
+    assert inv["audit_events"]["count"] == 1
+    assert body["unsupported_kpis"]  # explicit, never synthesized
+    assert body["record_semantics"] == (
+        "recorded_inventory_counts_not_performance_telemetry_not_execution")
+
+
+def test_hypergraph_projection_inventory(client):
+    skill_registry.create_draft(_skill("skill-one", "1.0.0"))
+    body = client.get("/api/v1/hypergraph/projections", headers=HEADERS).json()
+    assert body["schema"] == "taas.hypergraph-inventory/v1"
+    assert body["global_graph"] == "unavailable"  # no fabricated global KG
+    assert body["skill_projections"] == 1
+    assert body["projections"][0]["href"].endswith(
+        "/hypergraph/skills/skill-one/versions/1.0.0")
+    assert body["record_semantics"] == (
+        "inventory_of_existing_projections_not_a_global_knowledge_graph")

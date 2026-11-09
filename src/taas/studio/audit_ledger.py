@@ -47,6 +47,14 @@ def _connect() -> sqlite3.Connection:
         )
         """
     )
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS notification_cursor (
+            id INTEGER PRIMARY KEY CHECK (id = 1),
+            last_read_seq INTEGER NOT NULL
+        )
+        """
+    )
     return connection
 
 
@@ -145,6 +153,46 @@ def list_events(*, limit: int = 100, event_type: str | None = None,
                 after_seq: int | None = None) -> list[dict[str, Any]]:
     return list_events_page(limit=limit, event_type=event_type,
                             after_seq=after_seq)["events"]
+
+
+def count_events() -> int:
+    """Total recorded audit events. Read-only."""
+    with _connect() as connection:
+        return connection.execute("SELECT COUNT(*) AS n FROM audit_events").fetchone()["n"]
+
+
+def get_notification_cursor() -> int:
+    """Shared notification read cursor — last seq marked read (0 when unset)."""
+    with _connect() as connection:
+        row = connection.execute(
+            "SELECT last_read_seq FROM notification_cursor WHERE id = 1"
+        ).fetchone()
+    return int(row["last_read_seq"]) if row else 0
+
+
+def set_notification_cursor(last_read_seq: int) -> int:
+    """Advance the shared read cursor. Monotonic: never moves backward.
+
+    Values beyond the recorded ledger are clamped to the current max seq —
+    the cursor can never claim events that do not exist.
+    """
+    with _connect() as connection:
+        max_seq = connection.execute(
+            "SELECT COALESCE(MAX(seq), 0) AS m FROM audit_events"
+        ).fetchone()["m"]
+        target = min(int(last_read_seq), int(max_seq))
+        current = connection.execute(
+            "SELECT last_read_seq FROM notification_cursor WHERE id = 1"
+        ).fetchone()
+        if current is not None:
+            target = max(target, int(current["last_read_seq"]))
+        connection.execute(
+            "INSERT INTO notification_cursor (id, last_read_seq) VALUES (1, ?) "
+            "ON CONFLICT(id) DO UPDATE SET last_read_seq = excluded.last_read_seq",
+            (target,),
+        )
+        connection.commit()
+    return target
 
 
 def count_events_for_subject(*, agent_id: str, version: str,
