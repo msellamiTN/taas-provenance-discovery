@@ -132,7 +132,9 @@ cd paper && latexmk -pdf evaluation_r2_preview.tex   # preview of Section 8, pp.
 
 `make_eval_r2.py` reads only frozen result files (`PAMCP_FINAL_RESULTS`, `PAMCP_R2_RESULTS`) and writes to
 `PAMCP_PAPER_OUT` (default `paper/`); `run_r2.py --only figures` renders them from a reviewer's re-run instead.
-The section is `paper/sections/evaluation_r2.tex` with one file per subsection in `paper/sections/eval_r2/`;
+The journal version (6-page limit) is `paper/sections/evaluation_tsc6.tex` (preview `paper/evaluation_tsc6_preview.tex`,
+pp. 13-17; its efficiency figure is `make_eval_r2.py tsc`); the extended version is
+`paper/sections/evaluation_r2.tex` with one file per subsection in `paper/sections/eval_r2/`;
 the three descriptive tables (data, methods, parameters) are written in `s1_setup.tex`, the nine result tables are
 generated. Figures of the protocol-era section: `experiments/final/paper_figures_final.py`, tables:
 `paper/make_tables_final.py`, number check: `paper/check_numbers_final.py`.

@@ -1334,6 +1334,89 @@ in a dated amendment before the revised test runs), Holm-corrected within each f
 """)
 
 
+# ------------------------------------------------------------------------------------------------ 6-page version
+def tsc():
+    """Composite efficiency figure for the 6-page section: build time by pair mode, optimality vs ILP, QoS front."""
+    import itertools
+    e15, x7 = F("E15_scalability"), X("R2_X7_scale")
+    comp = X("R2_X6_X13_composition")
+    rows = raw(R2 / "raw" / "R2_X6_X13_composition.jsonl.gz")
+    x13 = [r["x13"] for r in rows if "x13" in r]
+    x6 = [r["x6"] for r in rows if "x6" in r]
+    fig, axs = plt.subplots(1, 3, figsize=(COL2, 1.95), gridspec_kw={"width_ratios": [0.95, 1.2, 1.1]})
+    ax = axs[0]
+    cb = x7["cloned_builds"]
+    ns = sorted(cb, key=int)
+    for mode, col, mk in (("eager", C["grey"], "o"), ("partitioned", C["blue"], "s"), ("lazy", C["pamcp"], "^")):
+        pts = [(int(n), cb[n][f"build_s|{mode}"]) for n in ns if f"build_s|{mode}" in cb[n]]
+        if mode == "eager":
+            pts.append((100000, e15["100000"]["index_build_s"]))
+        ax.plot([p_[0] for p_ in pts], [p_[1] for p_ in pts], marker=mk, color=col, label=mode)
+    ax.annotate("16.5$\\times$", xy=(100000, 140), xytext=(100000, 1500), ha="center", fontsize=6,
+                arrowprops={"arrowstyle": "<->", "lw": 0.6, "color": C["black"]})
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("registry size (tools)")
+    ax.set_ylabel("engine build time (s)")
+    ax.legend(loc="upper left", fontsize=5.5, title="pair relation", title_fontsize=5.5)
+    grid(ax, "both")
+    panel(ax, "a", "build time, identical toolkits")
+    ax = axs[1]
+    rng = np.random.default_rng(0)
+    fams = FAM[:-1]
+    for i, (f_, lab) in enumerate(fams):
+        g = [r["greedy_cost"] / r["ilp_candidates"] for r in x13 if r["family"] == f_ and r["greedy_cost"]
+             and r["ilp_candidates"]]
+        ex = [r["exact_cost"] / r["ilp_candidates"] for r in x13 if r["family"] == f_ and r["exact_cost"]
+              and r["ilp_candidates"] and "budget" not in r["exact_regime"]]
+        ax.scatter(i - 0.15 + rng.uniform(-0.06, 0.06, len(g)), g, s=7, color=C["sky"], alpha=0.85, lw=0,
+                   label="greedy regime" if i == 0 else None)
+        ax.scatter(i + 0.15 + rng.uniform(-0.06, 0.06, len(ex)), ex, s=9, color=C["pamcp"], lw=0,
+                   label="exact regime (solved)" if i == 0 else None)
+        v = comp["x13_optimality"][f_]
+        ax.text(i + 0.15, 1.46, f"{v['exact_equals_ilp_on_candidates']}/{v['exact_solved']}", ha="center",
+                fontsize=5.2, color=C["pamcp"])
+    ax.text(-0.75, 1.46, "=opt.", ha="right", fontsize=5.2, color=C["pamcp"])
+    ax.axhline(1, color=C["black"], lw=0.5)
+    ax.set_xticks(range(len(fams)), [l for _, l in fams], rotation=30, ha="right", fontsize=5.6)
+    ax.set_ylabel("cost / ILP optimum")
+    ax.set_ylim(0.97, 1.5)
+    ax.legend(loc="upper left", fontsize=5.2, bbox_to_anchor=(0.0, 0.93))
+    grid(ax)
+    panel(ax, "b", "optimality on 70 feasible covers")
+    ax = axs[2]
+    sys.path.insert(0, str(ROOT / "experiments" / "revision_2"))
+    sys.path.insert(0, str(ROOT / "experiments" / "final"))
+    sys.path.insert(0, str(ROOT / "src"))
+    from r2_x6_x13_composition import qos_instance  # noqa: E402
+    cs, _ = qos_instance(roles=4, alts=4, seed=0)
+    Cc = {c.tool: c for c in cs}
+    by_role = [[c.tool for c in cs if c.tool.endswith(f"::role{i}")] for i in range(4)]
+    A = np.array([(sum(Cc[t].qos.price for t in k), sum(Cc[t].qos.latency for t in k),
+                   float(np.prod([1 - Cc[t].qos.fail for t in k]))) for k in itertools.product(*by_role)])
+    dom = np.array([any(o[0] <= k[0] and o[1] <= k[1] and o[2] >= k[2] and tuple(o) != tuple(k) for o in A) for k in A])
+    sc = ax.scatter(A[:, 0] * 1000, A[:, 1], c=A[:, 2], cmap="cividis", s=4, alpha=0.55, lw=0)
+    ax.scatter(A[~dom, 0] * 1000, A[~dom, 1], facecolor="none", edgecolor=C["black"], s=12, lw=0.5,
+               label="Pareto front")
+    for w, mk, lab in (("default (all 0.5)", "o", "equal weights"), ("price only", "s", "price"),
+                       ("latency only", "^", "latency")):
+        r = next((r for r in x6 if r["weights"] == w and r["u_min"] == 0.0 and r["seed"] == 0), None)
+        if r:
+            ax.scatter(r["price"] * 1000, r["latency"], marker=mk, s=34, color=C["pamcp"], edgecolor="white", lw=0.5,
+                       zorder=4, label=f"PaMCP, {lab}")
+    cbar = fig.colorbar(sc, ax=ax, fraction=0.05, pad=0.02)
+    cbar.set_label("reliability", fontsize=5.5)
+    cbar.ax.tick_params(labelsize=5)
+    cbar.outline.set_linewidth(0.4)
+    ax.set_xlabel("expected price ($10^{-3}$)")
+    ax.set_ylabel("latency (s)")
+    ax.legend(loc="upper right", fontsize=5, handletextpad=0.1)
+    grid(ax, "both")
+    panel(ax, "c", "QoS: weighted choices vs. Pareto front")
+    fig.tight_layout(w_pad=0.5)
+    save(fig, "fig_tsc_eff")
+
+
 if __name__ == "__main__":
     which = sys.argv[1:] or ["setup", "rq1", "rq2", "rq3", "sec", "eff"]
     for w in which:
