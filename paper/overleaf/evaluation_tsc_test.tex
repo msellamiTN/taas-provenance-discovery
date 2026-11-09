@@ -1,0 +1,18 @@
+% Optional check: compiles the section alone. Keep it in the project root, next to the folder evaluation_tsc/,
+% and set it as the main document (Overleaf: Menu > Main document). Numbered as Section 8 from page 13.
+\documentclass[10pt,journal,compsoc]{IEEEtran}
+\usepackage[nocompress]{cite}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath,amssymb}
+\usepackage{url}
+\newcommand{\pamcp}{PaMCP}
+\begin{document}
+\setcounter{section}{7}
+\setcounter{figure}{7}
+\setcounter{table}{6}
+\setcounter{page}{13}
+\input{evaluation_tsc/evaluation_tsc}
+\bibliographystyle{IEEEtran}
+\bibliography{evaluation_tsc/evaluation_tsc}
+\end{document}
