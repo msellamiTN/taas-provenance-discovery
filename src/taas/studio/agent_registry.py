@@ -695,6 +695,10 @@ def list_mcp_snapshots(limit: int = 100) -> dict[str, Any]:
             "FROM mcp_registry_snapshots ORDER BY created_at DESC, snapshot_id LIMIT ?",
             (limit,),
         ).fetchall()
+        total = connection.execute(
+            "SELECT COUNT(*) AS n FROM mcp_registry_snapshots"
+        ).fetchone()["n"]
     finally:
         connection.close()
-    return {"count": len(rows), "snapshots": [dict(row) for row in rows]}
+    return {"count": len(rows), "total": total,
+            "snapshots": [dict(row) for row in rows]}

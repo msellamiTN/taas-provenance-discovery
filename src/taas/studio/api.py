@@ -1184,6 +1184,115 @@ def audit_chain_verify() -> dict[str, Any]:
     return audit_ledger.verify_chain()
 
 
+class NotificationReadRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    last_read_seq: int
+
+
+@app.get("/api/v1/notifications", dependencies=[Depends(require_api_token)])
+def notifications_feed(limit: int = Query(default=100, ge=1, le=500),
+                       event_type: str | None = None,
+                       unread_only: bool = False) -> dict[str, Any]:
+    """Derived notification feed over the audit ledger.
+
+    Notifications ARE recorded audit events — this is a read view, not an
+    independent source. Read state is a shared monotonic cursor; it records
+    "marked read", never "acknowledged" or "approved".
+    """
+    cursor = audit_ledger.get_notification_cursor()
+    page = audit_ledger.list_events_page(
+        limit=limit, event_type=event_type,
+        after_seq=cursor if unread_only else None)
+    events = list(reversed(page["events"]))  # ledger ascends; feed is newest-first
+    try:
+        total = audit_ledger.count_events()
+    except Exception:
+        total = None
+    return {
+        "schema": "taas.notifications/v1",
+        "items": events,
+        "count": len(events),
+        "last_read_seq": cursor,
+        "unread_count": (max(0, total - cursor) if total is not None else None),
+        "total_events": total,
+        "record_semantics": "derived_from_audit_ledger_not_independent_source",
+        "acknowledgement_is_not_approval": True,
+    }
+
+
+@app.post("/api/v1/notifications/read", dependencies=[Depends(require_api_token)])
+def notifications_mark_read(request: NotificationReadRequest) -> dict[str, Any]:
+    """Advance the shared read cursor. Monotonic; clamped to recorded events."""
+    stored = audit_ledger.set_notification_cursor(request.last_read_seq)
+    return {
+        "last_read_seq": stored,
+        "semantics": "marked_read_not_acknowledged_not_approved",
+    }
+
+
+@app.get("/api/v1/platform/overview", dependencies=[Depends(require_api_token)])
+def platform_overview() -> dict[str, Any]:
+    """Aggregated recorded-inventory counts for the shell KPI strip.
+
+    Every block is a count of persisted records read from its own store —
+    `recorded` with a real count, or `unavailable` with a reason. Zero rows
+    and an unreadable store are different states and stay distinguishable.
+    KPIs with no live source are named in `unsupported_kpis`, never
+    synthesized.
+    """
+    def _unavailable(reason: str) -> dict[str, Any]:
+        return {"state": "unavailable", "reason": reason[:200]}
+
+    def _count(fn) -> dict[str, Any]:
+        try:
+            return {"state": "recorded", "count": int(fn())}
+        except Exception as exc:
+            return _unavailable(str(exc))
+
+    try:
+        agents = agent_registry.list_versions(limit=500)
+        agents_block = {
+            "state": "recorded",
+            "versions": agents["count"],
+            "distinct_agents": len({v["agent_id"] for v in agents["versions"]}),
+        }
+    except Exception as exc:
+        agents_block = _unavailable(str(exc))
+
+    try:
+        skills = skill_registry.list_versions(limit=500)
+        skills_block = {
+            "state": "recorded",
+            "versions": skills["count"],
+            "distinct_skills": len({v["skill_id"] for v in skills["versions"]}),
+        }
+    except Exception as exc:
+        skills_block = _unavailable(str(exc))
+
+    return {
+        "schema": "taas.platform-overview/v1",
+        "inventory": {
+            "workspaces": _count(lambda: workspaces.list_workspaces(limit=500)["count"]),
+            "agents": agents_block,
+            "skills": skills_block,
+            "tools": _count(
+                lambda: tool_registry.search_registry_tools(limit=1)["total"]),
+            "mcp_snapshots": _count(
+                lambda: agent_registry.list_mcp_snapshots(limit=1)["total"]),
+            "discovery_runs": _count(
+                lambda: discovery_runs.list_discovery_runs(limit=1)["total_matching"]),
+            "audit_events": _count(audit_ledger.count_events),
+        },
+        "unsupported_kpis": [
+            "knowledge-graph node count (no persistent global KG — projections are per-skill/per-run)",
+            "compliance score (no scoring engine — verdicts are per-version diagnostics)",
+            "test counts (no test-run store)",
+            "pipeline execution stats (no governed execution)",
+        ],
+        "record_semantics": "recorded_inventory_counts_not_performance_telemetry_not_execution",
+    }
+
+
 @app.get("/api/v1/reference/vocabulary", dependencies=[Depends(require_api_token)])
 def reference_vocabulary() -> dict[str, Any]:
     """Declared contract vocabulary: goal classes, sigmas, and the Θ semantic types.
@@ -1263,9 +1372,14 @@ def workspace_update(workspace_id: str, payload: WorkspaceUpdateRequest) -> dict
 
 @app.get("/api/v1/workspaces/{workspace_id}/revisions",
          dependencies=[Depends(require_api_token)])
-def workspace_revision_history(workspace_id: str, limit: int = 100) -> dict[str, Any]:
+def workspace_revision_history(workspace_id: str, limit: int = 100,
+                               kind: str | None = Query(default=None, max_length=32),
+                               actor: str | None = Query(default=None, max_length=128),
+                               before_revision: int | None = None) -> dict[str, Any]:
     """Immutable per-revision edit history: who changed which field paths."""
-    history = workspaces.list_revisions(workspace_id, limit=limit)
+    history = workspaces.list_revisions(
+        workspace_id, limit=limit, kind=kind, actor=actor,
+        before_revision=before_revision)
     if history is None:
         raise HTTPException(status_code=404, detail=f"Unknown workspace: {workspace_id}")
     return history
@@ -2069,6 +2183,46 @@ def skill_hypergraph_projection_get(skill_id: str, version: str) -> dict[str, An
         "semantic_correctness_verified": False,
         "tools_authorized": False,
         "execution_enabled": False,
+    }
+
+
+@app.get("/api/v1/hypergraph/projections", dependencies=[Depends(require_api_token)])
+def hypergraph_projection_inventory(limit: int = Query(default=100, ge=1, le=500)) -> dict[str, Any]:
+    """Inventory of hypergraph projections that actually exist.
+
+    There is no persistent global knowledge graph — projections exist per
+    published Skill version (dependency DAG) and per persisted discovery run.
+    This lists what can be explored; it never fabricates a merged graph.
+    """
+    skills = skill_registry.list_versions(limit=500)
+    skill_items = [
+        {
+            "kind": "skill_dependency",
+            "skill_id": v["skill_id"],
+            "version": v["version"],
+            "lifecycle_state": v["lifecycle_state"],
+            "href": f"/api/v1/hypergraph/skills/{v['skill_id']}/versions/{v['version']}",
+        }
+        for v in skills["versions"]
+    ]
+    runs = discovery_runs.list_discovery_runs(limit=limit)
+    run_items = [
+        {
+            "kind": "discovery_run",
+            "run_id": r["run_id"],
+            "created_at": r["created_at"],
+            "href": f"/api/v1/discovery/runs/{r['run_id']}",
+        }
+        for r in runs["runs"] if r.get("projection_sha256")
+    ]
+    return {
+        "schema": "taas.hypergraph-inventory/v1",
+        "projections": skill_items + run_items,
+        "count": len(skill_items) + len(run_items),
+        "skill_projections": len(skill_items),
+        "run_projections": len(run_items),
+        "global_graph": "unavailable",
+        "record_semantics": "inventory_of_existing_projections_not_a_global_knowledge_graph",
     }
 
 
