@@ -11,5 +11,26 @@
  "sonnet batches 23-25": "Reported exact (case-sensitive) matching in join items, the opposite reading to sonnet batches 21-22; joi-640 en-00/en-01/fr-00/fr-01 estimated as 160 (not counted) and joi-640 *-10/*-11 as 160 minus the lower-case twins; all 40- and 160-size join items counted id by id.",
  "sonnet batch 17": "Reported summing in running sub-totals in groups of 10 for every sum (including approximate ones), nothing estimated; 40- and 160-number sums at higher risk of an arithmetic slip; ext-640-fr-11-0 from a single scan.",
  "sonnet batches 19-20": "Reported counting cou-160-fr-11-1 line by line and the eight cou-640 items in blocks of ten with a running total (off-by-one or two possible); largest-value items found by scanning for the maximum.",
- "haiku batches 23-25": "Reported that joi-640-en-11-0, joi-640-fr-00-0, joi-640-fr-01-0, joi-640-fr-10-0 and joi-640-fr-11-0 are estimates (membership check of ~500-600 ids not completed) and joi-640-en-00-0, -en-01-0, -en-10-0 low-confidence; all other items checked id by id."
+ "haiku batches 23-25": "Reported that joi-640-en-11-0, joi-640-fr-00-0, joi-640-fr-01-0, joi-640-fr-10-0 and joi-640-fr-11-0 are estimates (membership check of ~500-600 ids not completed) and joi-640-en-00-0, -en-01-0, -en-10-0 low-confidence; all other items checked id by id.",
+ "opus": {
+  "model_alias": "opus (Agent tool model override; serving model reported as claude-opus-5-5)",
+  "date": "2026-11-08",
+  "protocol": "Read tool on the batch file only, Write on the answer file; no Bash, code or other files",
+  "batches_answered": "00-18, 20-25 (25 of 26; batch 18 written by the agent for batches 18-19 before it was stopped, no self-report)",
+  "batches_unanswered": "19 (run stopped by a usage limit; its items are excluded for Opus in the scoring, not counted wrong)",
+  "self_reports": {
+   "opus batches 14-15": "Reported reading each 640-record extract list fully, pulling matches line by line, then recounting in blocks of about 100 lines (62 and 69 ids, same both times); nothing estimated; a missed or misread id possible.",
+   "opus batches 12-13": "Reported reading every record directly, writing the matching ids in file order, then a second visual pass (65 and 60 ids); nothing estimated; a missed or extra id possible.",
+   "opus batches 10-11": "Reported copying ids line by line, then a second check pass in blocks of 20-40 lines; nothing estimated; the two 640-record lists (ext-640-en-00-0, ext-640-en-01-0) most likely to contain a missed or miscopied id.",
+   "opus batches 08-09": "Reported reading each item's records directly and a second pass for missed ids; nothing estimated; longest lists (ext-160-en-11-0, ext-160-fr-10-1, ext-160-en-01-0) carry the most risk of a missed line.",
+   "opus batches 04-05": "Reported labelling each review, counting negatives in blocks of 20 and adding block totals; nothing estimated; one block re-checked; a miscount of 1-2 possible, mostly on the English typo items.",
+   "opus batches 02-03": "Reported marking each review one by one, counting in groups of 10 (64 groups for the 640 items) and re-checking a few groups; nothing estimated; the two 640-review counts most likely off by a few.",
+   "opus batches 06-07": "Reported counting the two 640-review items in blocks of 10 and re-adding per 100; list items read directly; nothing estimated; the 640-review counts medium confidence (off by one possible).",
+   "opus batches 00-01": "Reported counting 10-review items directly, 40-review items twice (negatives, then 40 minus positives, always agreeing) and 160-review items in blocks of 10; nothing estimated; five 160-review items of batch 01 (en-10-0, en-10-1, en-11-0, en-11-1, fr-00-1) counted once, off by one or two possible.",
+   "opus batches 20-21": "Reported finding maxima by reading, with a second pass over values near the maximum (blocks of 40 for the 640-record items); nothing estimated; com-640-en-00-0 has a margin of a few hundredths; ids written with a space before the colon recorded without it.",
+   "opus batches 22-23": "Reported scanning all records for maxima (com-640 medium-high confidence) and checking join ids one by one with a running count; nothing estimated; counted lower-case ids in list B as matches (case-insensitive reading) and also reported the case-sensitive counts (joi-10-en-10-0 1, joi-10-en-11-1 1, joi-10-fr-10-2 1, joi-10-fr-11-0 0; joi-40-en-10-0 9, joi-40-en-11-2 9, joi-40-fr-10-0 9, joi-40-fr-10-2 9, joi-40-fr-11-2 9, joi-40-en-10-1 8, joi-40-en-11-0 8; joi-160-en-10-0 34, joi-160-en-11-0 36, joi-160-en-10-1 34, joi-160-en-11-1 38, joi-160-fr-10-0 35, joi-160-fr-10-1 35).",
+   "opus batches 24-25": "Reported checking every list-B id against list A one by one and summing matches in blocks of 50; nothing estimated; counted lower-case ids as matches (case-insensitive); case-sensitive alternatives reported for joi-160-fr-11-0 (38) and joi-640-en-10-0 (144), others not tallied.",
+   "opus batches 16-17": "Reported scanning the 640-record extract lists line by line twice; all 64 sums added exactly by mental arithmetic in blocks of 10 and checked a second way (tens and units separately); approximate-sum items answered with exact sums; nothing estimated."
+  }
+ }
 }

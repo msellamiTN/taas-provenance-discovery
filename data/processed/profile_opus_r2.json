@@ -1,0 +1,187 @@
+{
+ "model_id": "claude-opus-r2",
+ "tau": 0.9,
+ "exact_n_max": 20,
+ "strict": true,
+ "priors": {},
+ "classes": {
+  "classify": {
+   "buckets": [
+    10,
+    40,
+    160,
+    640
+   ],
+   "acc": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "raw": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "count": [
+    16,
+    16,
+    8,
+    4
+   ],
+   "langs": [
+    "en",
+    "fr"
+   ],
+   "source": "measured"
+  },
+  "extract": {
+   "buckets": [
+    10,
+    40,
+    160,
+    640
+   ],
+   "acc": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "raw": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "count": [
+    16,
+    16,
+    8,
+    4
+   ],
+   "langs": [
+    "en",
+    "fr"
+   ],
+   "source": "measured"
+  },
+  "aggregate_sum": {
+   "buckets": [
+    10,
+    40,
+    160,
+    640
+   ],
+   "acc": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "raw": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "count": [
+    16,
+    16,
+    8,
+    4
+   ],
+   "langs": [
+    "en",
+    "fr"
+   ],
+   "source": "measured"
+  },
+  "count": {
+   "buckets": [
+    10,
+    40,
+    160
+   ],
+   "acc": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "raw": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "count": [
+    16,
+    16,
+    8
+   ],
+   "langs": [
+    "en",
+    "fr"
+   ],
+   "source": "measured"
+  },
+  "compute_exactly": {
+   "buckets": [
+    40,
+    160,
+    640
+   ],
+   "acc": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "raw": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "count": [
+    8,
+    8,
+    4
+   ],
+   "langs": [
+    "en",
+    "fr"
+   ],
+   "source": "measured"
+  },
+  "join": {
+   "buckets": [
+    10,
+    40,
+    160,
+    640
+   ],
+   "acc": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "raw": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "count": [
+    16,
+    16,
+    8,
+    4
+   ],
+   "langs": [
+    "en",
+    "fr"
+   ],
+   "source": "measured"
+  }
+ }
+}

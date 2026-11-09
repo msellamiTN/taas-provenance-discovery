@@ -13,7 +13,7 @@ Outputs (results/revision_2/R2_X2_calibration.json):
   correctly). Three profiles are compared at the same targets: measured (this suite), self-assessed (the model's own
   per-cell estimate) and the 64-item profile used in the manuscript (data/processed/profile_<model>.json, tau 0.9);
 * with and without the manuscript's exactness rule (exact classes beyond n = 20 are never native).
-Missing answers count as wrong. Noisy join items: the generator's gold compares ids case-insensitively, which the
+Missing answers count as wrong; items of a batch whose run was interrupted (placeholder file) are excluded for that model and reported. Noisy join items: the generator's gold compares ids case-insensitively, which the
 question text does not state; accuracy is also reported accepting either reading (sensitivity). Evidence: MEASURED (gold computed by the generator; answers by the models).
 """
 from __future__ import annotations
@@ -97,6 +97,19 @@ def exactness(it: dict) -> str:
     return "tolerant"
 
 
+def pending_items(model: str) -> tuple[list[str], set[str]]:
+    """Batches whose answer file is still the placeholder (the run was interrupted, e.g. by a usage limit) and the
+    item ids they contain; these items are excluded for that model (reported), not counted as wrong."""
+    batches, ids = [], set()
+    for f in sorted(REC.glob(f"answers_{model}_batch_*.json")):
+        j = json.loads(f.read_text())
+        if isinstance(j, dict) and j.get("answers") == "PENDING":
+            k = f.stem.rsplit("_", 1)[-1]
+            batches.append(k)
+            ids |= set(re.findall(r"^### ITEM (\S+)", (IN / f"batch_{k}.md").read_text(), re.M))
+    return batches, ids
+
+
 def load_answers(model: str) -> dict:
     out = {}
     for f in sorted(REC.glob(f"answers_{model}_batch_*.json")):
@@ -162,7 +175,9 @@ def main() -> None:
         if not ans:
             continue
         rows = []
-        for it in items:
+        pend_b, pend_i = pending_items(model)
+        items_m = [it for it in items if it["id"] not in pend_i]
+        for it in items_m:
             a = ans.get(it["id"])
             y = int(correct(it, gold[it["id"]], a))
             y_len = int(correct(it, gold[it["id"]], a, lenient_join=True))
@@ -173,6 +188,7 @@ def main() -> None:
         raw_rows += rows
         Y = np.array([r["correct"] for r in rows])
         r_m = {"answered": int(sum(r["answered"] for r in rows)), "items": len(rows),
+               "unanswered_batches": pend_b, "excluded_items": len(pend_i),
                "accuracy": float(Y.mean()), "accuracy_ci": wilson(int(Y.sum()), len(Y)),
                "accuracy_either_join_reading": float(np.mean([r["correct_either_join_reading"] for r in rows])),
                "noisy_join_items": int(sum(1 for r in rows if r["class"] == "join" and r["noisy"])),
@@ -200,9 +216,9 @@ def main() -> None:
                                       "ece": e, "overconfidence": float(P[ok].mean() - Y[ok].mean()),
                                       "reliability": tab}
         # ---- profiles and held-out selective risk
-        cal = [r for r, it in zip(rows, items) if it["split"] == "calibration"]
-        tst_idx = [i for i, it in enumerate(items) if it["split"] == "test"]
-        cal_idx = [i for i, it in enumerate(items) if it["split"] == "calibration"]
+        cal = [r for r, it in zip(rows, items_m) if it["split"] == "calibration"]
+        tst_idx = [i for i, it in enumerate(items_m) if it["split"] == "test"]
+        cal_idx = [i for i, it in enumerate(items_m) if it["split"] == "calibration"]
         prof = ModelProfile.from_calibration(f"claude-{model}-r2", [{"class": r["class"], "n": r["n"],
                                                                     "correct": r["correct"]} for r in cal])
         for cp in prof.classes.values():
@@ -221,14 +237,14 @@ def main() -> None:
                 if name == "self_assessed" and not sa:
                     continue
                 if name == "measured":
-                    conf = np.array([conf_measured(prof, it, exact_rule) for it in items])
+                    conf = np.array([conf_measured(prof, it, exact_rule) for it in items_m])
                 elif name == "self_assessed":
-                    conf = np.array([sa.get(cell(it), 0.0) for it in items])
+                    conf = np.array([sa.get(cell(it), 0.0) for it in items_m])
                     if exact_rule:
                         conf = np.array([min(c, prof.tau - 1e-6) if exactness(it) == "exact" and it["n"] > prof.exact_n_max
-                                         else c for c, it in zip(conf, items)])
+                                         else c for c, it in zip(conf, items_m)])
                 else:
-                    conf = np.array([conf_measured(old, it, exact_rule) for it in items])
+                    conf = np.array([conf_measured(old, it, exact_rule) for it in items_m])
                 key = f"{name}|exact_rule={exact_rule}"
                 sel[key] = {}
                 cc, yc = conf[cal_idx], Y[cal_idx]
