@@ -18,3 +18,10 @@ paper/*.blg
 paper/*.fls
 paper/*.fdb_latexmk
 paper/*.out
+paper/*.aux
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.blg
+paper/*.bbl
+paper/*.out
+paper/evaluation_r2_preview.log

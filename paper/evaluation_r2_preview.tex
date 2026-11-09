@@ -1,0 +1,34 @@
+% Stand-alone preview of the revised Experimental Evaluation section (IEEEtran, compsoc, 10pt, two columns),
+% numbered as Section 8 after Figures 1-7 and Tables 1-6 of the manuscript.
+% Uses IEEEtran when installed; otherwise an article layout with the IEEE page geometry (7.16 in text width,
+% 3.5 in columns, 10 pt Times), so that figure and table sizes match the manuscript.
+\IfFileExists{IEEEtran.cls}{\documentclass[10pt,journal,compsoc]{IEEEtran}}{%
+\documentclass[10pt,twocolumn]{article}
+\usepackage[letterpaper,textwidth=7.16in,textheight=9.5in,columnsep=0.17in,top=0.7in]{geometry}
+\usepackage{mathptmx}
+\usepackage[font=footnotesize,labelsep=period]{caption}
+\usepackage{titlesec}
+\titleformat{\section}{\normalfont\large\scshape}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\normalsize\itshape}{\thesubsection}{1em}{}
+\renewcommand{\thetable}{\arabic{table}}}
+\usepackage[nocompress]{cite}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{amsmath,amssymb}
+\usepackage{url}
+\usepackage{xcolor}
+\newcommand{\pamcp}{PaMCP}
+\graphicspath{{figures_r2/}}
+\begin{document}
+\setcounter{section}{7}
+\setcounter{figure}{7}
+\setcounter{table}{6}
+\setcounter{equation}{7}
+\setcounter{page}{13}
+\input{sections/evaluation_r2}
+\clearpage
+\typeout{EVAL-LAST-PAGE: \the\numexpr\value{page}-1\relax}
+\IfFileExists{IEEEtran.bst}{\bibliographystyle{IEEEtran}}{\bibliographystyle{unsrt}}
+\bibliography{evaluation_final}
+\end{document}
