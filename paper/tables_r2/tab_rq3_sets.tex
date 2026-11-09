@@ -1,0 +1,27 @@
+\begin{table}[t]
+\centering
+\caption{Toolkits on the 94 LiveMCPBench test tasks: size, manifest tokens, group recall (task bootstrap 95\%
+CI), share of toolkits jointly feasible for the coarse and the strict independent evaluator (least-privilege
+policies), and abstentions. Baselines restricted to eligible tools unless marked published.}
+\label{tab:ev-sets}
+\scriptsize
+\setlength{\tabcolsep}{2.1pt}
+\begin{tabular}{@{}lrrlrrr@{}}
+\toprule
+ & & & & \multicolumn{2}{c}{Joint feas. (\%)} & \\
+\cmidrule(lr){5-6}
+Method & $|K|$ & Tok. & Group recall [CI] & coarse & strict & Abst. \\
+\midrule
+\pamcp{} ($K{=}10$) & 1.46 & 198 & 0.174 [0.12, 0.23] & 67.0 & 27.7 & 7.4 \\
+\pamcp{}-L & 1.22 & 146 & 0.161 & 54.7 & 15.8 & 9.5 \\
+\pamcp{} NoCert & -- & -- & -- & 59.6 & 13.8 & 0.0 \\
+Per-subtask (elig.) & 2.59 & 346 & 0.249 [0.19, 0.32] & 62.8 & 8.5 & -- \\
+RAG-MCP@5 (elig.) & 5.00 & 1244 & 0.293 [0.22, 0.37] & 60.6 & 5.3 & -- \\
+COLT@5 (elig.) & 5.00 & 1094 & 0.295 [0.23, 0.37] & 59.6 & 8.5 & -- \\
+ToolScope@5 (elig.) & 5.20 & 976 & 0.361 [0.29, 0.44] & 73.4 & 11.7 & -- \\
+MCP-Zero (elig.) & 1.76 & 250 & 0.227 [0.17, 0.29] & 57.4 & 11.7 & -- \\
+CMTF (elig.) & 0.64 & 105 & 0.072 [0.04, 0.11] & 25.5 & 14.9 & -- \\
+RAG-MCP@5 (published) & 5.00 & 1244 & 0.293 [0.22, 0.37] & 48.9 & 5.3 & -- \\
+\bottomrule
+\end{tabular}
+\end{table}

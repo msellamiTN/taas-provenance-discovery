@@ -628,6 +628,229 @@ Reference & TP & FS & Unconf. & TN & False-safe rate (\%) & Agree. \\
 """)
 
 
+# ------------------------------------------------------------------------------------------------ 8.4 RQ3
+BASE = (("bm25|k1=1.5,b=0.9", "BM25", C["sky"]), ("dense|-", "RAG-MCP (dense)", C["blue"]),
+        ("rrf|k0=30", "RRF fusion", C["green"]), ("mcp_zero|servers_k=2", "MCP-Zero", C["black"]),
+        ("colt|lam=0.0,mu=0.0", "COLT", C["purple"]), ("toolscope|lex", "ToolScope", C["grey"]),
+        ("cmtf|N=20,depth=4", "CMTF", C["light"]), ("pamcp|E", "PaMCP (Eq. 5)", C["pamcp"]),
+        ("pamcp|A", "PaMCP-L", C["pamcp2"]))
+VAR = (("A", "lexical"), ("B", "dense"), ("C", "lex+dense"), ("D", "structural only"), ("E", "Eq. (5): lex+den+str"),
+       ("F", "relevance first"), ("F2", "type filter first"), ("G85", "conf.-gated str."), ("W50", "str. weight 0.5"),
+       ("W25", "str. weight 0.25"), ("I", "oracle goal types"), ("J", "oracle tool types"), ("IJ", "both oracles"))
+
+
+def rq3():
+    t3, d3 = X("R2_X3_test")["summary"], X("R2_X3_dev")["summary"]
+    e8 = F("E8_single_tool")
+    fig, axs = plt.subplots(1, 3, figsize=(COL2, 2.25), gridspec_kw={"width_ratios": [1.05, 1.25, 0.95]})
+    ax = axs[0]
+    ms = sorted(BASE, key=lambda b: t3["B1m"][b[0]]["hit1"])
+    for i, (k, lab, col) in enumerate(ms):
+        a, b = t3["B1m"][k], t3["B1"][k]
+        lo, hi = a["hit1_ci_target"]
+        ax.plot([lo, hi], [i, i], color=C["pamcp"] if "pamcp" in k else C["grey"], lw=1.0)
+        ax.scatter(a["hit1"], i, s=18, color=C["pamcp"] if "pamcp" in k else C["black"], zorder=3,
+                   label="569 tools (95% CI)" if i == 0 else None)
+        ax.scatter(b["hit1"], i, s=18, marker="o", facecolor="white",
+                   edgecolor=C["pamcp"] if "pamcp" in k else C["black"], lw=0.8, zorder=3,
+                   label="81 tools" if i == 0 else None)
+    ax.set_yticks(range(len(ms)), [l for _, l, _ in ms])
+    ax.set_xlim(0, 0.9)
+    ax.xaxis.set_major_formatter(PCT)
+    ax.set_xlabel("Hit@1 (300 test requests)")
+    ax.legend(loc="upper center", bbox_to_anchor=(0.4, -0.2), ncol=2, fontsize=5.3, handletextpad=0.1)
+    grid(ax, "x")
+    panel(ax, "a", "tuned methods")
+    ax = axs[1]
+    y = np.arange(len(VAR))
+    h1 = [t3["B1m"][f"pamcp|{v}"]["hit1"] for v, _ in VAR]
+    mr = [t3["B1m"][f"pamcp|{v}"]["mrr10"] for v, _ in VAR]
+    dv = [d3["B1m"][f"pamcp|{v}"]["hit1"] for v, _ in VAR]
+    cols = [C["light"] if v in ("I", "J", "IJ") else C["pamcp"] if v == "E" else C["pamcp2"] if v == "A"
+            else C["sky"] for v, _ in VAR]
+    ax.barh(y, h1, 0.62, color=cols, label="Hit@1 (test)")
+    ax.scatter(mr, y, marker="|", s=40, color=C["black"], lw=1.0, zorder=3, label="MRR@10 (test)")
+    ax.scatter(dv, y, marker="o", s=10, facecolor="white", edgecolor=C["black"], lw=0.6, zorder=3,
+               label="Hit@1 (dev, selection)")
+    ax.axvline(t3["B1m"]["bm25|k1=1.5,b=0.9"]["hit1"], color=C["sky"], lw=0.6, ls="--")
+    ax.text(t3["B1m"]["bm25|k1=1.5,b=0.9"]["hit1"] + 0.01, len(VAR) - 0.6, "tuned BM25", fontsize=5,
+            color=C["blue"], va="top")
+    ax.axhline(9.5, color=C["grey"], lw=0.5)
+    ax.text(0.86, 9.75, "diagnostic (oracles)", fontsize=5, ha="right", va="center", color=C["grey"],
+            style="italic")
+    ax.set_yticks(y, [f"{v}  {l}" for v, l in VAR], fontsize=5.6)
+    ax.invert_yaxis()
+    ax.set_xlim(0, 0.88)
+    ax.xaxis.set_major_formatter(PCT)
+    ax.set_xlabel("569-tool registry")
+    ax.legend(loc="upper center", bbox_to_anchor=(0.45, -0.2), ncol=3, fontsize=5, handletextpad=0.2,
+              columnspacing=0.6)
+    grid(ax, "x")
+    panel(ax, "b", "PaMCP ranking variants")
+    ax = axs[2]
+    c = e8["distractor_curve_hit1"]
+    ds = sorted(c, key=int)
+    curves = (("pamcp_contract", "PaMCP (Eq. 5)", C["pamcp"], "o"), ("mcp_zero", "MCP-Zero", C["black"], "s"),
+              ("bm25", "BM25", C["sky"], "^"), ("rrf", "RRF fusion", C["green"], "v"),
+              ("toolscope_adapted", "ToolScope", C["grey"], "D"))
+    for k, lab, col, mk in curves:
+        ax.plot([81 + int(d) for d in ds], [c[d][k] for d in ds], marker=mk, color=col, label=lab, ms=3)
+    ax.set_xlabel("registry size (B1 + LiveMCPTool tools)")
+    ax.set_ylabel("Hit@1")
+    ax.yaxis.set_major_formatter(PCT)
+    ax.legend(loc="lower left", fontsize=5.3)
+    grid(ax, "both")
+    panel(ax, "c", "added distractors (5 seeds)")
+    fig.tight_layout(w_pad=0.7)
+    save(fig, "fig_rq3_retrieval")
+
+    # ---- Figure: set-level quality
+    e9, e10 = F("E9_sets")["summary"], F("E10_validity")["summary"]
+    st = X("R2_evaluator_audit")["e10_strict"]
+    v2 = X("R2_v2_eval")["summary"]
+    fig, axs = plt.subplots(1, 3, figsize=(COL2, 2.05), gridspec_kw={"width_ratios": [1.15, 1.1, 1.0]})
+    ax = axs[0]
+    series = (("pamcp", "PaMCP", C["pamcp"], "o"), ("per_subtask[analyst]", "per-subtask", C["green"], "s"),
+              ("rag_mcp", "RAG-MCP", C["blue"], "^"), ("colt", "COLT", C["purple"], "v"),
+              ("toolscope[analyst]", "ToolScope", C["grey"], "D"), ("mcp_zero_ranked", "MCP-Zero", C["black"], "P"))
+    for k, lab, col, mk in series:
+        pts = []
+        for b in ("size-matched", "5", "10", "20"):
+            v = e9.get(f"{k}@{b}") or (e9.get(k) if b == "5" and k == "per_subtask[analyst]" else None)
+            if v:
+                pts.append((v["size"]["mean"], v["recall"]["mean"], v["recall"]["ci"]))
+        pts.sort()
+        ax.plot([p_[0] for p_ in pts], [p_[1] for p_ in pts], color=col, marker=mk, ms=3, label=lab)
+        if pts:
+            x0, y0, ci = pts[0]
+            ax.errorbar(x0, y0, yerr=[[y0 - ci[0]], [ci[1] - y0]], color=col, lw=0.6, capsize=1)
+    ax.scatter(v2["pamcp_v2"]["size9"], v2["pamcp_v2"]["recall"], marker="*", s=40, color=C["pamcp2"], zorder=4,
+               label="PaMCP-L")
+    cm = e9["cmtf_path"]
+    ax.scatter(cm["size"]["mean"], cm["recall"]["mean"], marker="x", s=18, color=C["light"], lw=1, label="CMTF")
+    ax.set_xscale("log")
+    ax.set_xlabel("toolkit size $|K|$ (budgets: matched, 5, 10, 20)")
+    ax.set_ylabel("group recall (94 tasks)")
+    ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:g}"))
+    ax.legend(loc="upper left", fontsize=5, ncol=2, columnspacing=0.5, handletextpad=0.2)
+    ax.set_ylim(0, 0.55)
+    grid(ax, "both")
+    panel(ax, "a", "recall against toolkit size")
+    ax = axs[1]
+    rows = (("pamcp(K=10)", "PaMCP"), ("pamcp_nocert", "PaMCP NoCert"),
+            ("per_subtask[analyst]|eligible-only", "per-subtask (elig.)"),
+            ("toolscope[analyst]@5|eligible-only", "ToolScope (elig.)"), ("rag_mcp@5|eligible-only", "RAG-MCP (elig.)"),
+            ("colt@5|eligible-only", "COLT (elig.)"), ("mcp_zero|eligible-only", "MCP-Zero (elig.)"),
+            ("cmtf_path|eligible-only", "CMTF (elig.)"), ("rag_mcp@5|unfiltered", "RAG-MCP (publ.)"))
+    for i, (k, lab) in enumerate(rows):
+        a, b = st[k]["joint_paper"], st[k]["joint_strict"]
+        col = C["pamcp"] if k.startswith("pamcp") else C["blue"]
+        ax.plot([b, a], [i, i], color=col, lw=1.2, alpha=0.5)
+        ax.scatter(a, i, s=18, color=col, zorder=3, label="coarse evaluator" if i == 0 else None)
+        ax.scatter(b, i, s=18, facecolor="white", edgecolor=col, lw=0.9, zorder=3,
+                   label="strict evaluator" if i == 0 else None)
+    ax.scatter(v2["pamcp_v2"]["joint_paper"], -0.9, s=18, color=C["pamcp2"], zorder=3)
+    ax.scatter(v2["pamcp_v2"]["joint_strict"], -0.9, s=18, facecolor="white", edgecolor=C["pamcp2"], lw=0.9)
+    ax.plot([v2["pamcp_v2"]["joint_strict"], v2["pamcp_v2"]["joint_paper"]], [-0.9, -0.9], color=C["pamcp2"],
+            lw=1.2, alpha=0.5)
+    ax.set_yticks([-0.9] + list(range(len(rows))), ["PaMCP-L"] + [l for _, l in rows], fontsize=5.6)
+    ax.invert_yaxis()
+    ax.set_xlim(0, 0.85)
+    ax.xaxis.set_major_formatter(PCT)
+    ax.set_xlabel("jointly feasible toolkits (94 tasks)")
+    ax.legend(loc="lower right", fontsize=5.2, handletextpad=0.1)
+    grid(ax, "x")
+    panel(ax, "b", "joint feasibility")
+    ax = axs[2]
+    checks = ["S", "C", "E", "L", "V", "M"]
+    hr = (("pamcp(K=10)", "PaMCP"), ("pamcp_nocert", "NoCert"), ("per_subtask[analyst]|eligible-only", "per-subtask"),
+          ("toolscope[analyst]@5|eligible-only", "ToolScope"), ("rag_mcp@5|eligible-only", "RAG-MCP"),
+          ("rag_mcp@5|unfiltered", "RAG (publ.)"))
+    M = np.array([[e10[k]["pass"][c] for c in checks] for k, _ in hr])
+    ax.imshow(M, cmap="cividis", vmin=0.2, vmax=1.0, aspect="auto")
+    for i in range(M.shape[0]):
+        for j in range(M.shape[1]):
+            ax.text(j, i, f"{100 * M[i, j]:.0f}", ha="center", va="center", fontsize=5.6,
+                    color="black" if M[i, j] > 0.65 else "white")
+    ax.set_xticks(range(len(checks)), checks)
+    ax.set_yticks(range(len(hr)), [l for _, l in hr], fontsize=5.8)
+    for s_ in ax.spines.values():
+        s_.set_visible(False)
+    ax.tick_params(length=0)
+    panel(ax, "c", "checks passed (%), coarse")
+    fig.tight_layout(w_pad=0.7)
+    save(fig, "fig_rq3_sets")
+
+    # ---- Table: retrieval
+    rows = []
+    for k, lab, _ in BASE + (("pamcp|IJ", "PaMCP, oracle types (diag.)", None),):
+        a, b = t3["B1m"][k], t3["B1"][k]
+        lo, hi = a["hit1_ci_target"]
+        rows.append(f"{lab} & {pct(b['hit1'])} & {pct(a['hit1'])} [{pct(lo, 0)}, {pct(hi, 0)}] & {pct(a['hit3'])} & "
+                    f"{pct(a['hit5'])} & {a['mrr10']:.3f} & {a['ndcg10']:.3f} \\\\")
+    write_table("tab_rq3_retrieval", r"""\begin{table}[t]
+\centering
+\caption{Single-tool retrieval on the 300 test requests with configurations selected on the development split:
+Hit@1 over the 81 MCPToolBench++ tools and, with target-tool clustered 95\% CI, over the 569-tool registry, and
+the other metrics over 569 tools.}
+\label{tab:ev-retrieval}
+\scriptsize
+\setlength{\tabcolsep}{2.4pt}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+ & 81 tools & \multicolumn{5}{c}{569 tools} \\
+\cmidrule(lr){2-2}\cmidrule(l){3-7}
+Method & Hit@1 & Hit@1 [CI] & Hit@3 & Hit@5 & MRR & nDCG \\
+\midrule
+""" + "\n".join(rows) + r"""
+\bottomrule
+\end{tabular}
+\end{table}
+""")
+    # ---- Table: sets
+    def row(lab, s9, k10, ks):
+        r9 = s9["recall"]
+        return (f"{lab} & {s9['size']['mean']:.2f} & {s9['tokens']['mean']:.0f} & {r9['mean']:.3f} "
+                f"[{r9['ci'][0]:.2f}, {r9['ci'][1]:.2f}] & "
+                + (f"{pct(e10[k10]['joint_feasible'])} & {pct(st[k10]['joint_strict'])}" if k10 else "-- & --")
+                + (f" & {pct(e10[k10].get('abstain', 0))}" if k10 and k10.startswith("pamcp") else " & --")
+                + " \\\\")
+    rows = [row("\\pamcp{} ($K{=}10$)", e9["pamcp@10"], "pamcp(K=10)", None),
+            f"\\pamcp{{}}-L & {v2['pamcp_v2']['size9']:.2f} & {v2['pamcp_v2']['tokens9']:.0f} & "
+            f"{v2['pamcp_v2']['recall']:.3f} & {pct(v2['pamcp_v2']['joint_paper'])} & {pct(v2['pamcp_v2']['joint_strict'])}"
+            f" & {pct(v2['pamcp_v2']['abstain9'])} \\\\",
+            row("\\pamcp{} NoCert", e9["pamcp@5"], "pamcp_nocert", None).replace(
+                f"{e9['pamcp@5']['size']['mean']:.2f} & {e9['pamcp@5']['tokens']['mean']:.0f} & "
+                f"{e9['pamcp@5']['recall']['mean']:.3f} [{e9['pamcp@5']['recall']['ci'][0]:.2f}, "
+                f"{e9['pamcp@5']['recall']['ci'][1]:.2f}]", "-- & -- & --"),
+            row("Per-subtask (elig.)", e9["per_subtask[analyst]"], "per_subtask[analyst]|eligible-only", None),
+            row("RAG-MCP@5 (elig.)", e9["rag_mcp@5"], "rag_mcp@5|eligible-only", None),
+            row("COLT@5 (elig.)", e9["colt@5"], "colt@5|eligible-only", None),
+            row("ToolScope@5 (elig.)", e9["toolscope[analyst]@5"], "toolscope[analyst]@5|eligible-only", None),
+            row("MCP-Zero (elig.)", e9["mcp_zero"], "mcp_zero|eligible-only", None),
+            row("CMTF (elig.)", e9["cmtf_path"], "cmtf_path|eligible-only", None),
+            row("RAG-MCP@5 (published)", e9["rag_mcp@5"], "rag_mcp@5|unfiltered", None)]
+    write_table("tab_rq3_sets", r"""\begin{table}[t]
+\centering
+\caption{Toolkits on the 94 LiveMCPBench test tasks: size, manifest tokens, group recall (task bootstrap 95\%
+CI), share of toolkits jointly feasible for the coarse and the strict independent evaluator (least-privilege
+policies), and abstentions. Baselines restricted to eligible tools unless marked published.}
+\label{tab:ev-sets}
+\scriptsize
+\setlength{\tabcolsep}{2.1pt}
+\begin{tabular}{@{}lrrlrrr@{}}
+\toprule
+ & & & & \multicolumn{2}{c}{Joint feas. (\%)} & \\
+\cmidrule(lr){5-6}
+Method & $|K|$ & Tok. & Group recall [CI] & coarse & strict & Abst. \\
+\midrule
+""" + "\n".join(rows) + r"""
+\bottomrule
+\end{tabular}
+\end{table}
+""")
+
+
 if __name__ == "__main__":
     which = sys.argv[1:] or ["setup", "rq1", "rq2", "rq3", "sec", "eff"]
     for w in which:

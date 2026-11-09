@@ -1,0 +1,27 @@
+\begin{table}[t]
+\centering
+\caption{Single-tool retrieval on the 300 test requests with configurations selected on the development split:
+Hit@1 over the 81 MCPToolBench++ tools and, with target-tool clustered 95\% CI, over the 569-tool registry, and
+the other metrics over 569 tools.}
+\label{tab:ev-retrieval}
+\scriptsize
+\setlength{\tabcolsep}{2.4pt}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+ & 81 tools & \multicolumn{5}{c}{569 tools} \\
+\cmidrule(lr){2-2}\cmidrule(l){3-7}
+Method & Hit@1 & Hit@1 [CI] & Hit@3 & Hit@5 & MRR & nDCG \\
+\midrule
+BM25 & 52.7 & 41.0 [26, 60] & 57.3 & 63.7 & 0.503 & 0.543 \\
+RAG-MCP (dense) & 49.7 & 37.3 [22, 56] & 50.0 & 54.3 & 0.451 & 0.492 \\
+RRF fusion & 54.3 & 38.7 [23, 57] & 54.7 & 61.3 & 0.481 & 0.525 \\
+MCP-Zero & 68.0 & 66.7 [49, 80] & 80.0 & 85.7 & 0.743 & 0.775 \\
+COLT & 49.7 & 37.3 [22, 56] & 50.0 & 54.3 & 0.451 & 0.492 \\
+ToolScope & 53.0 & 41.0 [26, 60] & 58.3 & 63.7 & 0.504 & 0.543 \\
+CMTF & 58.7 & 32.7 [19, 49] & 47.0 & 54.7 & 0.428 & 0.488 \\
+PaMCP (Eq. 5) & 61.0 & 29.7 [16, 47] & 45.7 & 53.7 & 0.400 & 0.461 \\
+PaMCP-L & 72.0 & 41.3 [25, 60] & 61.3 & 69.3 & 0.536 & 0.603 \\
+PaMCP, oracle types (diag.) & 71.7 & 58.3 [38, 74] & 75.3 & 81.3 & 0.680 & 0.728 \\
+\bottomrule
+\end{tabular}
+\end{table}
