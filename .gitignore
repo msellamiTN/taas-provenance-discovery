@@ -25,3 +25,4 @@ paper/*.blg
 paper/*.bbl
 paper/*.out
 paper/evaluation_r2_preview.log
+results/reproduced_r2/

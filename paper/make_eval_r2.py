@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import gzip
 import json
+import os
 import sys
 from collections import Counter
 from pathlib import Path
@@ -22,10 +23,13 @@ from matplotlib.patches import Patch  # noqa: E402
 from matplotlib.ticker import FuncFormatter, LogLocator  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
-FIN, R2 = ROOT / "results" / "final", ROOT / "results" / "revision_2"
-FIG, TAB = ROOT / "paper" / "figures_r2", ROOT / "paper" / "tables_r2"
-FIG.mkdir(exist_ok=True)
-TAB.mkdir(exist_ok=True)
+# Inputs and outputs can be redirected for a reviewer's re-run (defaults: the committed reference results).
+FIN = Path(os.environ.get("PAMCP_FINAL_RESULTS", str(ROOT / "results" / "final")))
+R2 = Path(os.environ.get("PAMCP_R2_RESULTS", str(ROOT / "results" / "revision_2")))
+OUT = Path(os.environ.get("PAMCP_PAPER_OUT", str(ROOT / "paper")))
+FIG, TAB = OUT / "figures_r2", OUT / "tables_r2"
+FIG.mkdir(parents=True, exist_ok=True)
+TAB.mkdir(parents=True, exist_ok=True)
 
 # ------------------------------------------------------------------------------------------------ style
 # Okabe-Ito palette (colour-blind safe); PaMCP is always vermillion, baselines blues/greens/greys.

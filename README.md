@@ -27,7 +27,22 @@ python experiments/final/run_all.py --all --e15-max-n 10000 --out results/reprod
 python experiments/final/compare_results.py results/reproduced             # -> results/reproduced/comparison.md
 ```
 
-Reproduction runs write to `--out`; the paper's results in `results/final/` are not touched. Methods and
+Reproduction runs write to `--out`; the paper's results in `results/final/` are not touched.
+
+**Revision 2 (TSC revision) and the revised Section 8.** The analyses added for the revision, the runtime probe of
+the MCP reference servers, and the 16 figures and 12 tables of the revised Section 8 have their own entry point:
+
+```bash
+pip install -r requirements-lock.txt && pip install -e .
+python experiments/revision_2/run_r2.py --list
+python experiments/revision_2/run_r2.py --out results/reproduced_r2            # default steps, about 1 hour
+python experiments/final/compare_results.py results/reproduced_r2 --reference results/revision_2
+python paper/make_eval_r2.py && (cd paper && latexmk -pdf evaluation_r2_preview.tex)
+```
+
+The complete guide for reviewers (environment, inputs and their hashes, every script and its outputs, the probe,
+figure and table generation, and what cannot be re-run identically) is
+[`docs/REPRODUCIBILITY.md`](docs/REPRODUCIBILITY.md); the notebook's Step 6 runs the same from Colab. Methods and
 deviations: `docs/FINAL_EVALUATION_METHODS.md`; preregistered tests: `docs/FINAL_EVALUATION_PLAN.md`; findings:
 `docs/FINAL_EVALUATION.md`.
 

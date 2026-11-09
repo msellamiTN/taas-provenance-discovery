@@ -47,7 +47,8 @@ def same(a, b) -> str:
     return "identical" if a == b else "different"
 
 
-def compare(run: Path) -> dict:
+def compare(run: Path, reference: Path | None = None) -> dict:
+    reference = reference or REFERENCE
     copied = set()
     log = run / "run_log.json"
     if log.exists():
@@ -58,7 +59,7 @@ def compare(run: Path) -> dict:
         name = p.stem
         if name in ("run_log", "comparison") or name in copied:
             continue
-        ref = REFERENCE / p.name
+        ref = reference / p.name
         if not ref.exists():
             out[name] = {"status": "no reference file"}
             continue
@@ -89,9 +90,17 @@ def compare(run: Path) -> dict:
 
 
 def main() -> None:
-    run = Path(sys.argv[1] if len(sys.argv) > 1 else "results/reproduced")
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    run = Path(args[0] if args else "results/reproduced")
     run = run if run.is_absolute() else ROOT / run
-    res = compare(run)
+    ref = None
+    if "--reference" in sys.argv:       # e.g. --reference results/revision_2 for the Revision 2 series
+        ref = Path(sys.argv[sys.argv.index("--reference") + 1])
+        ref = ref if ref.is_absolute() else ROOT / ref
+        args = [a for a in args if Path(a) != ref and a != sys.argv[sys.argv.index("--reference") + 1]]
+        run = Path(args[0] if args else "results/reproduced")
+        run = run if run.is_absolute() else ROOT / run
+    res = compare(run, ref)
     json.dump(res, open(run / "comparison.json", "w"), indent=1, default=str)
     md = ["| Result file | Status | Leaves compared | Identical | Close | Different | Missing |",
           "|---|---|---|---|---|---|---|"]

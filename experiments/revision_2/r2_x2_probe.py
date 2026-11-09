@@ -46,15 +46,18 @@ sys.path.insert(0, str(ROOT / "experiments" / "final"))
 
 CONFIG = ROOT / "data" / "raw" / "livemcpbench" / "all_config.json"
 OUT = ROOT / "results" / "revision_2"
-REC = ROOT / "data" / "x2_probe"                     # per-tool observation records (committed)
-BOX = Path(os.environ.get("PAMCP_PROBE_DIR", "/home/claude/probe_box"))
+REC = Path(os.environ.get("PAMCP_PROBE_RECORDS", str(ROOT / "data" / "x2_probe")))   # observation records
+BOX = Path(os.environ.get("PAMCP_PROBE_DIR", str(Path(__import__("tempfile").gettempdir()) / "pamcp_probe_box")))
 TOKEN = "PAMCP_PROBE_EXEC"
 REFERENCE = ("filesystem", "git", "memory", "time", "sequential-thinking", "fetch")   # modelcontextprotocol/servers
 START_TIMEOUT = float(os.environ.get("PAMCP_START_TIMEOUT", 240))
 CALL_TIMEOUT = float(os.environ.get("PAMCP_CALL_TIMEOUT", 25))
-SHARED_CACHE = {"npm_config_cache": "/root/.npm", "UV_CACHE_DIR": "/root/.cache/uv",
-                "UV_TOOL_DIR": "/root/.local/share/uv/tools", "UV_PYTHON_INSTALL_DIR": "/root/.local/share/uv/python",
-                "PLAYWRIGHT_BROWSERS_PATH": "/root/.cache/ms-playwright", "PUPPETEER_CACHE_DIR": "/root/.cache/puppeteer"}
+_H = Path.home()   # package caches stay in the real home so that each sandbox does not re-download the servers
+SHARED_CACHE = {"npm_config_cache": str(_H / ".npm"), "UV_CACHE_DIR": str(_H / ".cache" / "uv"),
+                "UV_TOOL_DIR": str(_H / ".local" / "share" / "uv" / "tools"),
+                "UV_PYTHON_INSTALL_DIR": str(_H / ".local" / "share" / "uv" / "python"),
+                "PLAYWRIGHT_BROWSERS_PATH": str(_H / ".cache" / "ms-playwright"),
+                "PUPPETEER_CACHE_DIR": str(_H / ".cache" / "puppeteer")}
 NOISE = re.compile(r"(/_cacache/|/\.cache/uv/|__pycache__|\.pyc$|/\.npm/_logs/|/node-compile-cache|/\.npm/_update|"
                    r"/\.cache/node/|/v8-compile-cache|\.lock$|/\.local/share/uv/|/_npx/[^/]+/package-lock\.json$)")
 SYS = ("/dev/", "/proc/", "/sys/", "/run/")

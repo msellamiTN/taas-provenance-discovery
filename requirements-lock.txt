@@ -1,0 +1,15 @@
+# Exact versions of the environment in which every reported result was produced (Linux x86_64, 2 vCPU,
+# Python 3.13.18). requirements.txt gives the minimum versions; use this file to reproduce bit-for-bit.
+numpy==2.5.3
+scipy==1.18.1
+scikit-learn==1.9.1
+matplotlib==3.11.2
+pytest==9.1.1
+hypothesis==6.170.15
+# only for the runtime probe of the MCP reference servers (seed documents in the sandbox)
+pillow==12.3.0
+python-docx==1.2.0
+python-pptx==1.0.2
+openpyxl==3.1.5
+reportlab==5.0.1
+# system tools for the probe (not pip): Node.js 22.23.4 (npx), uv 0.11.32 (uvx), strace 6.8, git

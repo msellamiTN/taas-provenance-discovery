@@ -11,6 +11,7 @@ Evidence class: OBSERVED (controlled execution of the reference servers), compar
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -19,7 +20,7 @@ sys.path.insert(0, str(ROOT / "experiments" / "final"))
 import fe  # noqa: E402
 wilson = fe.wilson
 
-REC = ROOT / "data" / "x2_probe"
+REC = Path(os.environ.get("PAMCP_PROBE_RECORDS", str(ROOT / "data" / "x2_probe")))
 STATE = {"write", "delete", "exec", "money"}
 
 
