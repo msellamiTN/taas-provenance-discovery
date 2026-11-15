@@ -1,6 +1,6 @@
 # TaaS Studio — Verified Feature Catalog and UX Audit
 
-Audit baseline: branch `devin/studio-ux-integration-v1`, commit `72fb8fe` (751 tests green). Earlier audit baselines: `7fbd3fc`, `c3160b8754fa75201d2d58da81733661a7aac88a`, `e641fc7412dbb77ae44304562820db619aaf7359`, `a94d8e8`.
+Audit baseline: branch `devin/studio-ux-integration-v1`, commit `53cc5ac` (752 tests green). Earlier audit baselines: `7fbd3fc`, `c3160b8754fa75201d2d58da81733661a7aac88a`, `e641fc7412dbb77ae44304562820db619aaf7359`, `a94d8e8`.
 
 This catalog records what is present in the repository at the audit baseline. “Implemented” means a code/API surface exists; it does not imply production readiness or browser validation. No runtime invocation of MCP tools is provided by Studio.
 
@@ -149,7 +149,7 @@ The page contains responsive CSS breakpoints and a grouped left-rail navigation.
 
 ## 7. Validation status at this audit baseline
 
-- Integration branch `devin/studio-ux-integration-v1` tip `72fb8fe`: 751 tests green locally; notebook acceptance verified on Colab at `b84d53e` (229 v2 + 122 v3/API + readiness/intelligence/governance cells).
+- Integration branch `devin/studio-ux-integration-v1` tip `53cc5ac`: 752 tests green locally; notebook acceptance verified on Colab at `b84d53e` (229 v2 + 122 v3/API + readiness/intelligence/governance cells).
 - Earlier baseline `e641fc7412dbb77ae44304562820db619aaf7359`: GitHub Actions run completed successfully.
 - Repository tests in `tests/test_studio_api.py`: 102 test functions are present at this baseline; this count is a static source inspection, not a claim that each was executed locally during this audit.
 - The current PR's browser/Colab workflow has not been executed by this agent in this session. Browser behavior remains unverified.
