@@ -247,7 +247,7 @@ execution stays out — Studio inspects (`tools/list`), it does not invoke.
 |---|---|---|
 | **E1 · Contract E2E** | `taas_studio_acceptance_colab.ipynb` — clean notebook, six sections A1→A6 in lifecycle order, every cell asserts `schema` + `record_semantics`/`execution_record` markers, not just HTTP 200 | Every delivered API behaves per contract on a real Colab deploy, populated through the API itself |
 | **E2 · Browser E2E** | Playwright suite — per-surface state matrix: loading/empty/error/unavailable/success + Demo/Live isolation + fail-closed on 401/404/422 | Every UX surface renders every state; no fabricated values in LIVE |
-| **E3 · Lifecycle scenario E2E** | One scripted A1→A6 walkthrough (define goal → build agent+skill → discover+compose → verify verdicts → observe activity → platform overview) with end-state assertions | The product works as one workflow, not 86 disconnected endpoints |
+| **E3 · Lifecycle scenario E2E** | `tests/test_lifecycle_scenario_e2e.py` — **Delivered**: one scripted A1→A6 walkthrough on isolated stores with end-state assertions (signed/published versions, 2 persisted runs + run diff, recorded verdict/approval/freshness, audit chain valid, overview counts cross-checked, named-key actor binding + revoke→401, agent v1 retired) | The product works as one workflow, not 89 disconnected endpoints |
 
 E1 plan (approved direction): Phase 0 deploy cells (pin→install→token→proxy→
 launch→health/ready/401) → A1 define (vocabulary, templates, goals/validate,
@@ -275,7 +275,7 @@ T4/CPU in ~15 min. **Delivered** as `notebooks/colab/taas_studio_acceptance_cola
 
 - [ ] E1 acceptance notebook: every A1–A6 feature PASS on pinned SHA
 - [ ] E2 Playwright: every surface × every state PASS; zero console errors
-- [ ] E3 lifecycle scenario: end-to-end PASS on a clean store
+- [x] E3 lifecycle scenario: `test_lifecycle_scenario_e2e.py` PASS on isolated stores (752 green)
 - [ ] S1: named keys live (`/admin/api-keys`); revoked key → 401 verified by `tests/test_api_keys.py`; shared-token retirement decided at deploy time
 - [ ] S2: container boots, `/health` + `/ready` green, token via env only
 - [ ] S3+S5: backup/restore rehearsed once; logs queryable
