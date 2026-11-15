@@ -1,8 +1,38 @@
 # TaaS Studio — Agent Lifecycle Megaplan (Core API × UX/D)
 
-Status: analysis + target grouping for `devin/studio-ux-integration-v1` @ `ac14b7b`.
-Supersedes the UX-N numbering as the organizing frame; UX identifiers remain
-implementation increments, not product structure.
+Status: consolidated baseline `devin/studio-ux-integration-v1` @ `389bbc1`
+(742 tests green; repin `79feede`). Supersedes the UX-N numbering as the
+organizing frame; UX identifiers remain implementation increments, not
+product structure.
+
+## 0. Roles & responsibilities
+
+Three roles share this project. The megaplan is the contract between them —
+no lane duplicates another's implementation.
+
+| Role | Owner | Owns | Does NOT own |
+|---|---|---|---|
+| **UX/D** | User/Codex lane | Visual design, approved mockups, demo scenarios + synthetic datasets, navigation/information architecture, Demo/Live separation, complete loading/empty/error/unavailable/success states, screen→API documentation, browser verification | Core contracts, persistence, policy/evidence semantics |
+| **Core API Dev** | Devin lane | API routes, schemas/versioned contracts, registries, stores, deterministic validation, discovery runs, workspace persistence, filters/pagination, tests | Visual decisions, demo content, navigation |
+| **Architect** | Devin lane | Lifecycle organization (A1–A6), the `proposal ≠ evidence ≠ authorization ≠ execution` boundary invariant, governance/provenance/trust/traceability, evidence + audit design, Hypergraph projections, Tool Intelligence, API gap identification, security boundaries, deferral decisions (evaluator, production auth, execution sandbox, tenant isolation = separate security projects) | Demo data, visual layout, interaction design |
+
+**Shared:** screen → feature → API → demo-scenario mapping; integration
+tests; Colab acceptance; end-to-end validation.
+
+**Collaboration protocol (binding on all roles):**
+
+1. Analyse the existing implementation and API contract.
+2. Present the visual mockup first — every frozen element carries a
+   **LIVE-state column** (backed endpoint | derived-from | unavailable |
+   demo-only).
+3. Wait for explicit approval. An approved mockup is a binding spec — no
+   silent simplification, no dropped frozen elements; deviations require an
+   amended mockup + re-approval before implementation.
+4. Implement the approved UX (UX/D lane) or contract (Core lane).
+5. Integrate the real API + demo scenario.
+6. Build, test, fix, document. Browser verification is mandatory for
+   frontend claims; static tests do not catch script-scope or runtime errors.
+7. Merge and deploy are separate authorizations — never implied by tests.
 
 ## 1. Organizing principle
 
@@ -25,12 +55,10 @@ authorization; preflight does not execute; diagnostics are observations.
 
 ## 2. UX surface → activity mapping (shared coordination map)
 
-**Lane ownership.** Devin = Core API, schemas, registries, evidence, policy,
-audit, Hypergraph (this table's *API contract* column). Codex = UX surfaces,
-mockups, API integration, demo experience (the *Demo state* column is
-co-authored: Devin seeds it, Codex maintains per-surface scenario docs). Contract
-= this table; neither lane duplicates the other's implementation. UX-xx labels
-are internal traceability only — never user-facing.
+**Lane ownership** — see §0 (UX/D vs Core API Dev vs Architect). The *Demo
+state* column is co-authored: Core seeds it, UX/D maintains per-surface
+scenario docs. Contract = this table. UX-xx labels are internal traceability
+only — never user-facing.
 
 Demo states: `live-only` (real Core data, no synthetic) · `demo/live split`
 (explicit `DEMO DATA · ILLUSTRATIVE` vs `LIVE CORE` modes) · `demo-only`
@@ -101,35 +129,37 @@ Demo states: `live-only` (real Core data, no synthetic) · `demo/live split`
 | Surface | Feature | API contract | Demo state |
 |---|---|---|---|
 | Benchmark workspace / task browser (`#workspace`) | Dataset counts, task selection → GoalSpec seed | `GET /bench/datasets`, `GET /bench/tasks`, `GET /bench/tools` | live-only |
-| Platform overview / settings (`#overview-workspace`) | Health/readiness, token, connection state | `GET /health`, `GET /ready` | live-only |
+| Platform overview / settings (`#overview-workspace`) | Health/readiness, token, connection state + recorded-inventory KPI strip | `GET /health`, `GET /ready`, `GET /platform/overview` (`unsupported_kpis` explicit) | live-only |
 | Deferred: evaluator UX | `eval/*` deliberately absent — separate security project, gold-label isolation | — | unavailable by design |
 
-## 3. Core API → activity mapping (68 routes)
+## 3. Core API → activity mapping (86 routes in `api.py` + assurance router)
 
 ### A1 · Define — covered
 
-`POST /objectives/prepare` · `POST /objectives/discover` · `POST /agents/decompose` · `POST /goals/validate` · `GET /reference/vocabulary`
+`POST /objectives/prepare` · `POST /objectives/discover` · `POST /agents/decompose` · `POST /goals/validate` · `GET /reference/vocabulary` · `GET /goalspec/templates` (+`/{id}`)
 
 ### A2 · Build — covered
 
-`POST /agents` · `GET /agents` · `GET /agents/{id}/versions/{v}` · `POST …/validate` · `POST …/publish` · `POST /skills` (+validate/publish/sign/revoke) · `GET /skills` (+events/version/signature/revocation) · `GET/POST/PUT/DELETE /workspaces` · `GET /models/*` · `POST /models/load` · `POST /models/chat` · `POST /models/estimate-memory`
+`POST /agents` · `GET /agents` · `GET /agents/{id}/versions/{v}` · `POST …/validate` · `POST …/publish` · `GET …/versions/{a}/diff/{b}` · `GET /agents/events` (`?agent_id=&version=`) · `POST/GET …/sign(ature)` · `POST/GET …/revoke(ation)` · `POST /skills` (+validate/publish/sign/revoke) · `GET /skills` (+events `?version=`) · `GET /skills/{id}/versions/{a}/diff/{b}` · `GET /skills/{id}/versions/{v}/activity` · `GET …/dependency-graph` · `GET/POST/PUT/DELETE /workspaces` · `GET /workspaces/{id}/revisions` (`?kind=&actor=&before_revision=`) · `GET /models/*` · `POST /models/load` · `POST /models/chat` · `POST /models/estimate-memory`
 
 ### A3 · Discover — covered
 
-`GET /tools` · `GET /tools/{server}/{name}` (+`/intelligence`) · `POST /tools/retrieve` · `POST /tools/eligibility` · `POST /tools/compare` · `POST /discover` · `GET /discovery/runs` (+`/{run_id}`) · `GET /mcp/servers` · `GET /mcp/registry/snapshots*` · `POST /mcp/*/inspect` · `GET /bench/*` · `POST /agents/validate`
+`GET /tools` (+`facets`) · `GET /tools/{server}/{name}` (+`/intelligence`) · `POST /tools/retrieve` · `POST /tools/eligibility` · `POST /tools/compare` · `POST /discover` · `GET /discovery/runs` (+`/{run_id}` +`/{a}/diff/{b}`) · `GET /mcp/servers` · `GET /mcp/registry/snapshots*` (+`/{a}/diff/{b}`) · `POST /mcp/*/inspect` · `GET /bench/*` · `GET /hypergraph/skills/{id}/versions/{v}` · `GET /hypergraph/objective-traceability` · `GET /hypergraph/projections` · `POST /agents/validate`
 
 ### A4 · Verify — covered
 
-`POST /policy/evaluate` · `GET …/policy-verdict` · `GET …/release-readiness` · `GET/POST …/approvals` · `POST …/authorization/preflight` · `GET /skills/{id}/versions/{v}/signature|revocation` · assurance evidence routes (`build_assurance_router`)
+`POST /policy/evaluate` · `GET …/policy-verdict` (+`/history`) · `GET …/release-readiness` · `GET/POST …/approvals` · `POST …/authorization/preflight` · `GET /skills/{id}/versions/{v}/signature|revocation` · `POST /assurance/evidence/freshness` · assurance evidence routes (`build_assurance_router`)
 
 ### A5 · Operate — covered
 
-`GET /runtime/status` · `GET /runtime/hardware` · `GET /models/runtime` · `GET /audit/events` · `GET /audit/verify` · `GET /agents/events` · `GET /skills/events` · `GET /health` · `GET /ready`
+`GET /runtime/status` · `GET /runtime/hardware` · `GET /models/runtime` · `GET /audit/events` (`?after_seq=&event_type=&subject_agent_id=&subject_version=`) · `GET /audit/verify` · `GET /agents/events` · `GET /agents/{id}/versions/{v}/activity` · `GET /skills/events` · `GET /notifications` · `POST /notifications/read` · `GET /health` · `GET /ready`
 
-### A6 · Evaluate & manage — partial / intentionally absent
+### A6 · Evaluate & manage — covered / intentionally absent
 
 | Route area | State |
 |---|---|
+| `GET /platform/overview` | **Delivered** — recorded-inventory aggregation for the shell KPI strip |
+| `GET /notifications` + `POST /notifications/read` | **Delivered** — audit-derived feed + shared monotonic read cursor |
 | `/api/v1/eval/*` | **Absent by design** — evaluator is a separate security project; gold labels must stay isolated from discovery/analyst paths |
 | Platform admin (users, quotas, tenants) | Absent — production hardening phase (OIDC, RBAC, rate limits) |
 | Execution (`invoke`, `tools/call`, workers) | **Absent by design** — requires sandbox/credential isolation project |
@@ -185,8 +215,13 @@ occurs in this activity" where applicable).
 4. ~~**A3 facets**~~ — **done**: `facets` block on `/api/v1/tools`; UX-15 consumption is a follow-on slice.
 5. ~~**A5 cursor**~~ — **done**: `after_seq` keyset pagination; verify walks the full ledger.
 6. ~~**A1 provenance**~~ — **done** (`3bf8584`): immutable per-revision workspace edit history with field-level added/removed/changed paths + actor.
-11. **UX-26** — Workspace Revision History browser surface: read-only inspection of the existing A1 provenance API; no Core contract changes.
-7. ~~**A1 templates**~~ — **done** (`4964cec`): versioned GoalSpec template catalog; every draft round-trips `/goals/validate`.
+7. ~~**A1 templates**~~ — **done** (`4964cec`): versioned GoalSpec template catalog; every draft round-trips `/goals/validate`; consumed by the GoalSpec designer (`6ea7b6f`, live-verified).
 8. ~~**Registry lifecycle hardening**~~ — **done** (`20da92c`): engine-level transition validation + event-consistency + updated_at guards on agent/skill registries.
 9. ~~**A5 recorded activity**~~ — **done** (`d32c9f6` + `e32ae88`): `GET /agents/{id}/versions/{v}/activity`, explicit `state: recorded|unavailable` per source block; UX-22 consumes end-to-end (verified `2470afb`).
-10. **Deferred** — evaluator (`eval/*`), production auth, execution sandbox: separate security projects per MEGAPLAN §6; do not build in this lane.
+10. ~~**UX-25 review gate**~~ — **done** (merge `ba63049`, live-verified): client-side pre-run review on the `POST /discover` path; no Core change.
+11. ~~**UX-26 revision history**~~ — **done** (merge `85d2145` + scope fix `678d6b2`, live-verified): read-only `GET /workspaces/{id}/revisions` consumption; note — delivered timeline list deviates from the frozen table/filters/pagination/demo mockup; the server-side filters now exist (`kind`/`actor`/`before_revision`) for the amendment or follow-up.
+12. ~~**UX-driven API audit**~~ — **done** (`69a1c8e`, 6 pinned contracts): events `version` filters (agents+skills), skill version-diff, skill `/activity`, MCP snapshot diff, audit subject scope.
+13. ~~**Shell-support endpoints**~~ — **done** (`389bbc1`): `GET /platform/overview`, `GET /notifications` + `POST /notifications/read`, `GET /hypergraph/projections`, revision filters — resolves the UX-63 conditional API items (INT-05/08, KPI strip).
+14. **Open — UX-63 resubmission** — visual language approved; amendment required: LIVE-state column per frozen element (§0 protocol step 2). Core side is pre-built; remaining genuine unavailables: execution telemetry, merged global KG, compliance scoring.
+15. **Pending UX consumption queue (Core delivered, UX/D lane)** — agent version-diff viewer · agent+skill sign/revoke surfaces · discovery run-diff viewer · verdict-history viewer · snapshot-diff viewer · skill activity viewer · notifications center · KPI strip.
+16. **Deferred** — evaluator (`eval/*`), production auth, execution sandbox, tenant isolation: separate security projects; do not build in this lane.
