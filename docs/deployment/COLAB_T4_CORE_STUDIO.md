@@ -74,6 +74,23 @@ The notebook downloads the Cloudflare binary from its latest release in the opti
 - Do not submit private user arguments or secrets in discovery request JSON.
 - The API token protects discovery POSTs; it does not replace tunnel-level access control.
 
+### Runtime state configured by the launch cells
+
+Both Colab notebooks now configure, before Uvicorn starts:
+
+- `TAAS_EVIDENCE_ATTESTATION_KEY` — generated once and persisted to
+  `/content/taas-data/evidence-attestation.key` so re-launching Studio does
+  not invalidate signatures/approvals recorded earlier in the session.
+- `TAAS_*_PATH` stores — audit ledger, agent/skill registries, workspaces,
+  discovery runs, evidence DB and API keys all live under
+  `/content/taas-data/*.sqlite3` (session-scoped, disposable with the VM).
+- `TAAS_MCP_SERVERS_FILE=/content/taas-mcp-servers.json` — only when the
+  demo-server cell ran; it registers a tiny FastMCP stdio server
+  (`mcp>=1.9,<2`) so MCP inspect/snapshot surfaces return real `tools/list`
+  results. Studio still never invokes tools — inspection only.
+- `TAAS_STUDIO_ACTOR=colab-reviewer` — actor stamped on writes made with
+  the shared token. Named API keys (`/admin/api-keys`) override per key.
+
 ## 6. Persistence and lifecycle
 
 Colab runtimes are ephemeral and can be recycled. Files under `/content`, the process and model weights in RAM/VRAM are temporary.
