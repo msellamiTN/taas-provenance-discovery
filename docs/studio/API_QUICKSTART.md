@@ -43,7 +43,41 @@ uvicorn taas.studio.api:app --host 127.0.0.1 --port 8000
 - Benchmark task browser: `GET /api/v1/bench/tasks`
 - Retained tool registry browser: `GET /api/v1/bench/tools`
 
-Discovery requires `Authorization: Bearer <TAAS_STUDIO_API_TOKEN>`.
+Discovery requires `Authorization: Bearer <credential>`.
+
+### Authentication: shared token vs named API keys
+
+Two credential types are accepted; both prove **authentication only** —
+never authorization, approval, or execution.
+
+- **Shared bootstrap token** — `TAAS_STUDIO_API_TOKEN` env var. All calls
+  are attributed to `TAAS_STUDIO_ACTOR` (default `studio-api`). Remains
+  valid as long as it is configured; retire it by unsetting the variable
+  once named keys exist.
+- **Named API keys** — per-key actor identity, SHA-256 hashed storage
+  (never plaintext at rest), recorded revocation. Store path:
+  `TAAS_API_KEYS_PATH` (default `~/.taas/studio/api_keys.sqlite3`).
+
+```bash
+# create (token shown once — store it immediately)
+curl -X POST $BASE/api/v1/admin/api-keys \
+  -H "Authorization: Bearer $TAAS_STUDIO_API_TOKEN" \
+  -H 'Content-Type: application/json' \
+  -d '{"name": "ci-bot", "actor": "ci-bot-actor"}'
+
+# list metadata (never returns token or hash)
+curl $BASE/api/v1/admin/api-keys -H "Authorization: Bearer $TAAS_STUDIO_API_TOKEN"
+
+# revoke — subsequent use returns 401
+curl -X POST $BASE/api/v1/admin/api-keys/{key_id}/revoke \
+  -H "Authorization: Bearer $TAAS_STUDIO_API_TOKEN"
+```
+
+A named key's declared `actor` is stamped on every write it performs
+(workspace revisions, registry events) and key lifecycle events are
+appended to the hash-chained audit ledger as `api_key` events.
+`GET /api/v1/platform/overview` reports `authentication` state
+(shared-token configured, active/total named keys).
 
 ## Repository-retained MCP benchmark data
 
