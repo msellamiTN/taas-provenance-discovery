@@ -17,7 +17,7 @@ from typing import Any
 VERIFY_SCHEMA = "taas.audit-verify/v1"
 EVENT_TYPES = (
     "evidence", "signature", "approval", "revocation",
-    "policy_verdict", "discovery_run",
+    "policy_verdict", "discovery_run", "api_key",
 )
 _GENESIS = "0" * 64
 

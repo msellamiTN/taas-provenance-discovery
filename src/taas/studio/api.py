@@ -12,9 +12,10 @@ import json
 import os
 import re
 import uuid
+from contextvars import ContextVar
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -39,6 +40,7 @@ from taas.studio import tool_registry
 from taas.studio import tool_service
 from taas.studio import discovery_runs
 from taas.studio import audit_ledger
+from taas.studio import api_keys
 from taas.studio import workspaces
 from taas.studio.agent_skill_bindings import (
     AgentSkillBindingConflict,
@@ -178,22 +180,68 @@ class AgentAuthorizationPreflightRequest(BaseModel):
     goal_spec: dict[str, Any]
 
 
-def require_api_token(
+class StudioPrincipal(NamedTuple):
+    """Authenticated caller identity for one request.
+
+    ``kind`` is ``"named-key"`` for per-key credentials or
+    ``"shared-token"`` for the bootstrap ``TAAS_STUDIO_API_TOKEN``.
+    A principal proves authentication only — never authorization,
+    approval, or execution.
+    """
+    actor: str
+    key_id: str | None
+    kind: str
+
+
+_principal_var: ContextVar[StudioPrincipal | None] = ContextVar(
+    "taas_studio_principal", default=None)
+
+
+async def require_api_token(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer),
-) -> None:
-    expected = os.environ.get("TAAS_STUDIO_API_TOKEN", "")
-    if not expected:
+) -> StudioPrincipal:
+    """Authenticate the caller and bind the request's actor identity.
+
+    Accepts either an active named API key (actor = the key's declared
+    actor) or the shared ``TAAS_STUDIO_API_TOKEN`` (actor =
+    ``TAAS_STUDIO_ACTOR``). Async so the contextvar it sets is visible to
+    sync endpoints running in the threadpool. Fails closed: 503 when no
+    credential source is configured, 401 on any mismatch.
+    """
+    supplied = credentials.credentials if credentials else ""
+    if supplied:
+        record = api_keys.lookup_active_key(supplied)
+        if record is not None:
+            principal = StudioPrincipal(
+                actor=record["actor"], key_id=record["key_id"], kind="named-key")
+            _principal_var.set(principal)
+            return principal
+        expected = os.environ.get("TAAS_STUDIO_API_TOKEN", "")
+        if expected and hmac.compare_digest(supplied, expected):
+            principal = StudioPrincipal(
+                actor=os.environ.get("TAAS_STUDIO_ACTOR", "studio-api"),
+                key_id=None, kind="shared-token")
+            _principal_var.set(principal)
+            return principal
+    if not os.environ.get("TAAS_STUDIO_API_TOKEN", "") and not api_keys.has_any_keys():
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Studio API token is not configured",
         )
-    supplied = credentials.credentials if credentials else ""
-    if not hmac.compare_digest(supplied, expected):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or missing bearer token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid or missing bearer token",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+
+def studio_actor() -> str:
+    """Actor identity for the current request: named-key actor, shared-token
+    actor, or the ``TAAS_STUDIO_ACTOR`` fallback outside request context."""
+    principal = _principal_var.get()
+    if principal is not None:
+        return principal.actor
+    return os.environ.get("TAAS_STUDIO_ACTOR", "studio-api")
 
 
 app.include_router(build_assurance_router(require_api_token))
@@ -1230,6 +1278,74 @@ def notifications_mark_read(request: NotificationReadRequest) -> dict[str, Any]:
     }
 
 
+class ApiKeyCreateRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=128)
+    actor: str = Field(min_length=1, max_length=64)
+
+
+@app.get("/api/v1/admin/api-keys", dependencies=[Depends(require_api_token)])
+def api_key_list(limit: int = Query(200, ge=1, le=1000)) -> dict[str, Any]:
+    """List named API keys — metadata only; tokens and hashes never appear."""
+    return api_keys.list_api_keys(limit=limit)
+
+
+@app.post("/api/v1/admin/api-keys", dependencies=[Depends(require_api_token)],
+          status_code=201)
+def api_key_create(payload: ApiKeyCreateRequest) -> dict[str, Any]:
+    """Create a named API key. The plaintext token is returned exactly once;
+    only its SHA-256 digest is stored. A key is an authentication credential —
+    it binds the caller's actor identity but grants no authorization."""
+    try:
+        record = api_keys.create_api_key(
+            name=payload.name, actor=payload.actor, created_by=studio_actor())
+    except api_keys.ApiKeyError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    try:
+        audit_ledger.append_event(
+            "api_key", {"key_id": record["key_id"]},
+            {"action": "created", "name": record["name"],
+             "actor": record["actor"], "created_by": record["created_by"]})
+    except Exception:
+        pass
+    return {
+        "schema": "taas.api-key/v1",
+        **record,
+        "authentication_credential": True,
+        "authorization_granted": False,
+        "execution_enabled": False,
+        "record_semantics": "credential_lifecycle_record_not_evidence_not_authorization",
+    }
+
+
+@app.post("/api/v1/admin/api-keys/{key_id}/revoke",
+          dependencies=[Depends(require_api_token)])
+def api_key_revoke(key_id: str) -> dict[str, Any]:
+    """Revoke a named API key; the row is retained for audit, never deleted.
+    A revoked key authenticates nothing — subsequent use returns 401."""
+    try:
+        record = api_keys.revoke_api_key(key_id, revoked_by=studio_actor())
+    except api_keys.ApiKeyNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except api_keys.ApiKeyAlreadyRevokedError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except api_keys.ApiKeyError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    try:
+        audit_ledger.append_event(
+            "api_key", {"key_id": key_id},
+            {"action": "revoked", "revoked_by": record["revoked_by"]})
+    except Exception:
+        pass
+    return {
+        "schema": "taas.api-key/v1",
+        **record,
+        "authentication_credential": True,
+        "authorization_granted": False,
+        "execution_enabled": False,
+        "record_semantics": "credential_lifecycle_record_not_evidence_not_authorization",
+    }
+
+
 @app.get("/api/v1/platform/overview", dependencies=[Depends(require_api_token)])
 def platform_overview() -> dict[str, Any]:
     """Aggregated recorded-inventory counts for the shell KPI strip.
@@ -1282,6 +1398,15 @@ def platform_overview() -> dict[str, Any]:
             "discovery_runs": _count(
                 lambda: discovery_runs.list_discovery_runs(limit=1)["total_matching"]),
             "audit_events": _count(audit_ledger.count_events),
+        },
+        "authentication": {
+            "state": "recorded",
+            "shared_token_configured": bool(
+                os.environ.get("TAAS_STUDIO_API_TOKEN", "")),
+            "named_keys": api_keys.key_counts(),
+            "credential_semantics": (
+                "authentication_credentials_bind_actor_identity_only_"
+                "not_authorization_not_execution"),
         },
         "unsupported_kpis": [
             "knowledge-graph node count (no persistent global KG — projections are per-skill/per-run)",
@@ -1342,7 +1467,7 @@ def workspace_create(payload: WorkspaceDraftRequest) -> dict[str, Any]:
     """Explicitly save a workspace draft; nothing is persisted implicitly."""
     return workspaces.create_workspace(
         name=payload.name, draft=payload.draft,
-        actor=os.environ.get("TAAS_STUDIO_ACTOR", "studio-api"))
+        actor=studio_actor())
 
 
 @app.get("/api/v1/workspaces/{workspace_id}", dependencies=[Depends(require_api_token)])
@@ -1361,7 +1486,7 @@ def workspace_update(workspace_id: str, payload: WorkspaceUpdateRequest) -> dict
         record = workspaces.update_workspace(
             workspace_id, name=payload.name, draft=payload.draft,
             revision=payload.revision,
-            actor=os.environ.get("TAAS_STUDIO_ACTOR", "studio-api"),
+            actor=studio_actor(),
         )
     except workspaces.RevisionConflictError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
@@ -2000,7 +2125,7 @@ def skill_create(payload: dict[str, Any]) -> dict[str, Any]:
     try:
         manifest = validate_skill_manifest(payload)
         resource = skill_registry.create_draft(
-            manifest, actor=os.environ.get("TAAS_STUDIO_ACTOR", "studio-api")
+            manifest, actor=studio_actor()
         )
     except ValidationError as exc:
         raise HTTPException(status_code=422, detail=exc.errors(include_context=False, include_input=False)) from exc
@@ -2262,7 +2387,7 @@ def skill_validate_saved_version(skill_id: str, version: str) -> dict[str, Any]:
             raise HTTPException(status_code=409, detail="Stored Skill manifest is not canonical")
         resource = skill_registry.transition(
             skill_id, version, "validated",
-            actor=os.environ.get("TAAS_STUDIO_ACTOR", "studio-api"),
+            actor=studio_actor(),
         )
     except ValidationError as exc:
         raise HTTPException(status_code=422, detail=exc.errors(include_context=False, include_input=False)) from exc
@@ -2283,7 +2408,7 @@ def skill_publish_version(skill_id: str, version: str) -> dict[str, Any]:
     try:
         resource = skill_registry.transition(
             skill_id, version, "published",
-            actor=os.environ.get("TAAS_STUDIO_ACTOR", "studio-api"),
+            actor=studio_actor(),
         )
     except skill_registry.SkillRegistryNotFound as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
@@ -2334,7 +2459,7 @@ def skill_sign_version(skill_id: str, version: str,
         raise HTTPException(
             status_code=409, detail="Revoked Skill versions cannot be signed",
         )
-    actor = os.environ.get("TAAS_STUDIO_ACTOR", "studio-api")
+    actor = studio_actor()
     publisher = request.publisher_id or actor
     try:
         envelope = assurance_evidence.attest_evidence(
@@ -2422,7 +2547,7 @@ def skill_revoke_version(skill_id: str, version: str,
     try:
         revocation = skill_registry.revoke_version(
             skill_id, version, reason=request.reason,
-            actor=os.environ.get("TAAS_STUDIO_ACTOR", "studio-api"),
+            actor=studio_actor(),
         )
     except skill_registry.SkillRegistryNotFound as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
@@ -2652,7 +2777,7 @@ def agent_sign_version(agent_id: str, version: str,
         raise HTTPException(
             status_code=409, detail="Revoked Agent versions cannot be signed",
         )
-    actor = os.environ.get("TAAS_STUDIO_ACTOR", "studio-api")
+    actor = studio_actor()
     publisher = request.publisher_id or actor
     try:
         envelope = assurance_evidence.attest_evidence(
@@ -2749,7 +2874,7 @@ def agent_revoke_version(agent_id: str, version: str,
     try:
         revocation = agent_registry.revoke_version(
             agent_id, version, reason=request.reason,
-            actor=os.environ.get("TAAS_STUDIO_ACTOR", "studio-api"),
+            actor=studio_actor(),
         )
     except agent_registry.AgentRegistryNotFound as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
@@ -3142,7 +3267,7 @@ def agent_record_human_approval(agent_id: str, version: str,
             detail="Human approval requires a validated or published Agent version",
         )
     binding = release_readiness.build_release_subject_binding(agent)
-    actor = os.environ.get("TAAS_STUDIO_ACTOR", "studio-api")
+    actor = studio_actor()
     try:
         existing = assurance_evidence.list_verified_evidence_for_subject(
             binding, expected_type="human_approval")

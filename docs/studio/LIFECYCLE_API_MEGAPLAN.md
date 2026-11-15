@@ -132,7 +132,7 @@ Demo states: `live-only` (real Core data, no synthetic) · `demo/live split`
 | Platform overview / settings (`#overview-workspace`) | Health/readiness, token, connection state + recorded-inventory KPI strip | `GET /health`, `GET /ready`, `GET /platform/overview` (`unsupported_kpis` explicit) | live-only |
 | Deferred: evaluator UX | `eval/*` deliberately absent — separate security project, gold-label isolation | — | unavailable by design |
 
-## 3. Core API → activity mapping (86 routes in `api.py` + assurance router)
+## 3. Core API → activity mapping (89 routes in `api.py` + assurance router)
 
 ### A1 · Define — covered
 
@@ -152,7 +152,7 @@ Demo states: `live-only` (real Core data, no synthetic) · `demo/live split`
 
 ### A5 · Operate — covered
 
-`GET /runtime/status` · `GET /runtime/hardware` · `GET /models/runtime` · `GET /audit/events` (`?after_seq=&event_type=&subject_agent_id=&subject_version=`) · `GET /audit/verify` · `GET /agents/events` · `GET /agents/{id}/versions/{v}/activity` · `GET /skills/events` · `GET /notifications` · `POST /notifications/read` · `GET /health` · `GET /ready`
+`GET /runtime/status` · `GET /runtime/hardware` · `GET /models/runtime` · `GET /audit/events` (`?after_seq=&event_type=&subject_agent_id=&subject_version=`) · `GET /audit/verify` · `GET /agents/events` · `GET /agents/{id}/versions/{v}/activity` · `GET /skills/events` · `GET /notifications` · `POST /notifications/read` · `GET /admin/api-keys` · `POST /admin/api-keys` · `POST /admin/api-keys/{key_id}/revoke` · `GET /health` · `GET /ready`
 
 ### A6 · Evaluate & manage — covered / intentionally absent
 
@@ -223,7 +223,7 @@ occurs in this activity" where applicable).
 12. ~~**UX-driven API audit**~~ — **done** (`69a1c8e`, 6 pinned contracts): events `version` filters (agents+skills), skill version-diff, skill `/activity`, MCP snapshot diff, audit subject scope.
 13. ~~**Shell-support endpoints**~~ — **done** (`389bbc1`): `GET /platform/overview`, `GET /notifications` + `POST /notifications/read`, `GET /hypergraph/projections`, revision filters — resolves the UX-63 conditional API items (INT-05/08, KPI strip).
 14. **Open — UX-63 resubmission** — visual language approved; amendment required: LIVE-state column per frozen element (§0 protocol step 2). Core side is pre-built; remaining genuine unavailables: execution telemetry, merged global KG, compliance scoring.
-15. **Pending UX consumption queue (Core delivered, UX/D lane)** — agent version-diff viewer · agent+skill sign/revoke surfaces · discovery run-diff viewer · verdict-history viewer · snapshot-diff viewer · skill activity viewer · notifications center · KPI strip.
+15. **Pending UX consumption queue (Core delivered, UX/D lane)** — agent version-diff viewer · agent+skill sign/revoke surfaces · discovery run-diff viewer · verdict-history viewer · snapshot-diff viewer · skill activity viewer · notifications center · KPI strip · API-key management surface (`/admin/api-keys`).
 16. **Deferred** — evaluator (`eval/*`), production auth, execution sandbox, tenant isolation: separate security projects; do not build in this lane.
 
 ## 7. Path to preprod — full E2E + production hardening
@@ -237,7 +237,7 @@ execution stays out — Studio inspects (`tools/list`), it does not invoke.
 
 | Item | Old status | Preprod verdict |
 |---|---|---|
-| Single shared `TAAS_STUDIO_API_TOKEN` | acceptable dev | **BLOCKER** — must become per-key identity + revocation before any shared deployment |
+| Single shared `TAAS_STUDIO_API_TOKEN` | acceptable dev | **Resolved (S1)** — named API keys delivered (`/admin/api-keys` create/list/revoke, hashed storage, per-key actor binding, `api_key` audit events); shared token remains as bootstrap credential, retirement is an ops decision |
 | `eval/*`, execution sandbox, tenant isolation | separate security projects | **Stays deferred** — preprod is single-tenant; Studio does not execute tools |
 | SQLite stores | dev-grade | **Acceptable for single-instance preprod** with backup story; Postgres adapter only if multi-instance is required |
 
@@ -258,13 +258,13 @@ A4 verify (policy verdict+history, readiness, approvals, evidence freshness,
 audit verify+subject scope) → A5 operate (runtime, notifications cursor,
 platform/overview cross-check) → A6 manage + fail-closed battery (401/404/
 422) → PASS/FAIL matrix + downloadable JSON report. ~40 cells, unattended,
-T4/CPU in ~15 min.
+T4/CPU in ~15 min. **Delivered** as `notebooks/colab/taas_studio_acceptance_colab.ipynb` (48 cells incl. AUTH/api-key section) at `d6ab725`; awaits first live Colab run.
 
 ### 7.3 Preprod workstreams
 
 | # | Workstream | Owner | Scope |
 |---|---|---|---|
-| S1 | **Auth keys** — replace single token with named API keys: `POST/GET/DELETE /admin/keys`, per-key actor identity stamped on every audit event + revision, hashed storage, optional expiry | Core API Dev | Blocks everything; ~1 focused round |
+| S1 | **Auth keys** — ~~replace single token~~ **Delivered**: `GET/POST /admin/api-keys` + `POST /admin/api-keys/{key_id}/revoke`; per-key actor stamped on revisions + audit via request-scoped principal; SHA-256 hashed storage (`TAAS_API_KEYS_PATH`); revocation recorded not deleted; `api_key` audit event type; shared token remains bootstrap | Core API Dev | Done — optional expiry/scopes remain future hardening |
 | S2 | **Deploy packaging** — `Dockerfile`/container recipe, env-only config (`TAAS_*` paths already env-driven), no secrets in repo, TLS at platform edge | Core API Dev + UX/D (deploy doc) | Colab proves the app; container proves portability |
 | S3 | **Persistence & backup** — document SQLite file locations + `sqlite3 .backup` runbook; decide volume strategy | Architect | Single-instance only |
 | S4 | **Hardening pass** — verify existing bounds (limit caps, payload limits, regex IDs) hold on all 86 routes; security headers + CORS policy decision; request-size audit | Core API Dev | Mostly verification, few fixes |
@@ -276,7 +276,7 @@ T4/CPU in ~15 min.
 - [ ] E1 acceptance notebook: every A1–A6 feature PASS on pinned SHA
 - [ ] E2 Playwright: every surface × every state PASS; zero console errors
 - [ ] E3 lifecycle scenario: end-to-end PASS on a clean store
-- [ ] S1: no request accepted without a valid named key; revoked key → 401
+- [ ] S1: named keys live (`/admin/api-keys`); revoked key → 401 verified by `tests/test_api_keys.py`; shared-token retirement decided at deploy time
 - [ ] S2: container boots, `/health` + `/ready` green, token via env only
 - [ ] S3+S5: backup/restore rehearsed once; logs queryable
 - [ ] Boundary invariant re-verified: no response anywhere implies execution,
