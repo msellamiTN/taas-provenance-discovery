@@ -225,3 +225,62 @@ occurs in this activity" where applicable).
 14. **Open — UX-63 resubmission** — visual language approved; amendment required: LIVE-state column per frozen element (§0 protocol step 2). Core side is pre-built; remaining genuine unavailables: execution telemetry, merged global KG, compliance scoring.
 15. **Pending UX consumption queue (Core delivered, UX/D lane)** — agent version-diff viewer · agent+skill sign/revoke surfaces · discovery run-diff viewer · verdict-history viewer · snapshot-diff viewer · skill activity viewer · notifications center · KPI strip.
 16. **Deferred** — evaluator (`eval/*`), production auth, execution sandbox, tenant isolation: separate security projects; do not build in this lane.
+
+## 7. Path to preprod — full E2E + production hardening
+
+"Preprod ready" for TaaS Studio means: the **control-plane service** deploys
+as a real web app, every surface passes E2E against real data, and the
+security posture matches what an operator would accept. Governed tool
+execution stays out — Studio inspects (`tools/list`), it does not invoke.
+
+### 7.1 What "deferred" must become — honest re-scoping
+
+| Item | Old status | Preprod verdict |
+|---|---|---|
+| Single shared `TAAS_STUDIO_API_TOKEN` | acceptable dev | **BLOCKER** — must become per-key identity + revocation before any shared deployment |
+| `eval/*`, execution sandbox, tenant isolation | separate security projects | **Stays deferred** — preprod is single-tenant; Studio does not execute tools |
+| SQLite stores | dev-grade | **Acceptable for single-instance preprod** with backup story; Postgres adapter only if multi-instance is required |
+
+### 7.2 E2E layers (three distinct things, all required)
+
+| Layer | Artifact | What it proves |
+|---|---|---|
+| **E1 · Contract E2E** | `taas_studio_acceptance_colab.ipynb` — clean notebook, six sections A1→A6 in lifecycle order, every cell asserts `schema` + `record_semantics`/`execution_record` markers, not just HTTP 200 | Every delivered API behaves per contract on a real Colab deploy, populated through the API itself |
+| **E2 · Browser E2E** | Playwright suite — per-surface state matrix: loading/empty/error/unavailable/success + Demo/Live isolation + fail-closed on 401/404/422 | Every UX surface renders every state; no fabricated values in LIVE |
+| **E3 · Lifecycle scenario E2E** | One scripted A1→A6 walkthrough (define goal → build agent+skill → discover+compose → verify verdicts → observe activity → platform overview) with end-state assertions | The product works as one workflow, not 86 disconnected endpoints |
+
+E1 plan (approved direction): Phase 0 deploy cells (pin→install→token→proxy→
+launch→health/ready/401) → A1 define (vocabulary, templates, goals/validate,
+workspace+revisions) → A2 build (agent + skill full lifecycle incl. sign/
+revoke/diff/activity/events?version) → A3 discover (tools+facets, compare,
+/discover run, run diff, MCP inspect→snapshot diff, hypergraph inventory) →
+A4 verify (policy verdict+history, readiness, approvals, evidence freshness,
+audit verify+subject scope) → A5 operate (runtime, notifications cursor,
+platform/overview cross-check) → A6 manage + fail-closed battery (401/404/
+422) → PASS/FAIL matrix + downloadable JSON report. ~40 cells, unattended,
+T4/CPU in ~15 min.
+
+### 7.3 Preprod workstreams
+
+| # | Workstream | Owner | Scope |
+|---|---|---|---|
+| S1 | **Auth keys** — replace single token with named API keys: `POST/GET/DELETE /admin/keys`, per-key actor identity stamped on every audit event + revision, hashed storage, optional expiry | Core API Dev | Blocks everything; ~1 focused round |
+| S2 | **Deploy packaging** — `Dockerfile`/container recipe, env-only config (`TAAS_*` paths already env-driven), no secrets in repo, TLS at platform edge | Core API Dev + UX/D (deploy doc) | Colab proves the app; container proves portability |
+| S3 | **Persistence & backup** — document SQLite file locations + `sqlite3 .backup` runbook; decide volume strategy | Architect | Single-instance only |
+| S4 | **Hardening pass** — verify existing bounds (limit caps, payload limits, regex IDs) hold on all 86 routes; security headers + CORS policy decision; request-size audit | Core API Dev | Mostly verification, few fixes |
+| S5 | **Observability** — structured request logging, correlation of audit `seq` ↔ request, `/ready` dependency checks already exist | Core API Dev | Log aggregation is platform-side |
+| O1 | **Runbook** — deploy, rotate keys, backup/restore, rollback, incident notes | Architect + UX/D | Doc only |
+
+### 7.4 Preprod gate — all must hold
+
+- [ ] E1 acceptance notebook: every A1–A6 feature PASS on pinned SHA
+- [ ] E2 Playwright: every surface × every state PASS; zero console errors
+- [ ] E3 lifecycle scenario: end-to-end PASS on a clean store
+- [ ] S1: no request accepted without a valid named key; revoked key → 401
+- [ ] S2: container boots, `/health` + `/ready` green, token via env only
+- [ ] S3+S5: backup/restore rehearsed once; logs queryable
+- [ ] Boundary invariant re-verified: no response anywhere implies execution,
+      authorization, or claim-truth
+- [ ] UX-63 shell merged only after its amended mockup is approved
+
+Order: E1 → S1 (parallel-safe) → E2/E3 → S2/S3/S4/S5/O1 → gate review.
