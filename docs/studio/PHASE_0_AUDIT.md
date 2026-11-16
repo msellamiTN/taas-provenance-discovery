@@ -11,15 +11,15 @@ The three pull requests form a valid, strictly stacked sequence:
 
 | PR | Base | Audited head | CI run | Regression result |
 |---|---|---|---|---:|
-| [#44 Hypergraph discovery actions](https://github.com/msellamiTN/taas-provenance-discovery/pull/44) | `feature/hypergraph-explorer-hardening` | `2c08b48f8f0cab0b31de7d22da4345136646926b` | [41740068540](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/41740068540) | 233 passed, 1 warning |
-| [#45 Discovery refresh persistence](https://github.com/msellamiTN/taas-provenance-discovery/pull/45) | #44 head | `efdbb7d025789127323fba5086a6385245582ccc` | [41742920244](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/41742920244) | 234 passed, 1 warning |
-| [#46 Studio navigation/workflow hardening](https://github.com/msellamiTN/taas-provenance-discovery/pull/46) | #45 head | `324ded546cfc13f19dc512b823fa1263dc2ffb6d` | [41796615806](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/41796615806) | 242 passed, 1 warning |
+| [#44 Hypergraph discovery actions](https://github.com/msellamiTN/taas-provenance-discovery/pull/44) | `feature/hypergraph-explorer-hardening` | `6be03466bcab88fb085f01e7642efa57fd8bb8ee` | [41740068540](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/41740068540) | 233 passed, 1 warning |
+| [#45 Discovery refresh persistence](https://github.com/msellamiTN/taas-provenance-discovery/pull/45) | #44 head | `aefa192fca687bff9036ca618e577458fe890a79` | [41742920244](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/41742920244) | 234 passed, 1 warning |
+| [#46 Studio navigation/workflow hardening](https://github.com/msellamiTN/taas-provenance-discovery/pull/46) | #45 head | `9e2943263ef4a133935f5bfbf8c2f5cd04d87637` | [41796615806](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/41796615806) | 242 passed, 1 warning |
 
 All three PRs remain **open, draft, and unmerged**. Each PR's base SHA equals the preceding stack head. Commit comparisons confirm that each notebook implementation pin is an ancestor of its corresponding PR head.
 
 ## PR #44 — Hypergraph Explorer discovery actions
 
-**Notebook implementation pin:** `f7fbe1ddf27e94ebabe267d5d417dab9da793f22`  
+**Notebook implementation pin:** `f3f4808fc5a66e8e853cba8bbc717b68518401e0`  
 **CI:** success; 233 tests passed.
 
 Reviewed behavior:
@@ -34,7 +34,7 @@ Assessment: no confirmed defect found in the PR-specific implementation during t
 
 ## PR #45 — Discovery result refresh persistence
 
-**Notebook implementation pin:** `888fefa5f14ad31ef367a7bdf560fcd1c6f0338e`  
+**Notebook implementation pin:** `961ecadfb00699369217b4817c3982be1ea1de76`  
 **CI:** success; 234 tests passed.
 
 Reviewed behavior:
@@ -49,9 +49,9 @@ Assessment: behavior is consistent with the documented scope. The persistence me
 
 ## PR #46 — Navigation and workflow hardening
 
-**Original failing head:** `920a41ddd8191e784a606916e5b7a46b094de1cb`  
-**Corrected head:** `324ded546cfc13f19dc512b823fa1263dc2ffb6d`  
-**Notebook implementation pin:** `c24c0f1eee362a2f9ef516474fa567dcc6dd0aab`  
+**Original failing head:** `31148270f81b3960a5f71ea10e0d2111b3a8a434`  
+**Corrected head:** `9e2943263ef4a133935f5bfbf8c2f5cd04d87637`  
+**Notebook implementation pin:** `a5169fbb09fc29a74b6949e6c30bd46bc1c5e1ce`  
 **Final CI:** [41796615806](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/41796615806), success; 242 passed, 1 warning.
 
 ### Confirmed failure and correction
