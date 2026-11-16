@@ -9,8 +9,10 @@ import copy
 import hashlib
 import hmac
 import json
+import logging
 import os
 import re
+import time
 import uuid
 from contextvars import ContextVar
 from functools import lru_cache
@@ -18,6 +20,7 @@ from pathlib import Path
 from typing import Any, NamedTuple
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
+from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
@@ -83,13 +86,97 @@ app = FastAPI(
 )
 
 
+_request_log = logging.getLogger("taas.studio.requests")
+
+
 @app.middleware("http")
 async def request_id_middleware(request: Request, call_next):
-    """Echo or assign an X-Request-ID for traceability across all routes."""
+    """Echo or assign an X-Request-ID; time the request; bind it to audit events.
+
+    Emits one structured log line per request and propagates the id into the
+    audit ledger payload so an audit ``seq`` traces back to the API call.
+    Never logs headers or bodies (the bearer token must not reach logs).
+    """
     request_id = request.headers.get("x-request-id") or uuid.uuid4().hex
+    token = audit_ledger.bind_request_id(request_id)
+    started = time.perf_counter()
+    status_code = 500
+    try:
+        response = await call_next(request)
+        status_code = response.status_code
+        response.headers["X-Request-ID"] = request_id
+        return response
+    finally:
+        audit_ledger.reset_request_id(token)
+        duration_ms = round((time.perf_counter() - started) * 1000, 2)
+        # Single-line JSON payload: queryable with grep/jq without a custom
+        # formatter; never contains headers or bodies.
+        _request_log.info(
+            json.dumps({
+                "event": "http_request",
+                "request_id": request_id,
+                "method": request.method,
+                "path": request.url.path,
+                "status": status_code,
+                "duration_ms": duration_ms,
+            }, separators=(",", ":"))
+        )
+
+
+MAX_REQUEST_BODY_BYTES = 2 * 1024 * 1024
+
+
+class _RequestBodyTooLarge(Exception):
+    pass
+
+
+@app.middleware("http")
+async def security_headers_middleware(request: Request, call_next):
+    """Baseline browser hardening headers on every response."""
     response = await call_next(request)
-    response.headers["X-Request-ID"] = request_id
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "no-referrer")
     return response
+
+
+@app.middleware("http")
+async def request_size_limit_middleware(request: Request, call_next):
+    """Reject oversized request bodies before they are buffered in memory.
+
+    JSON payloads carry Content-Length in every supported client; chunked
+    bodies without it are still bounded by counting http.request frames.
+    """
+    if request.method in {"POST", "PUT", "PATCH"}:
+        content_length = request.headers.get("content-length")
+        if content_length and content_length.isdigit() \
+                and int(content_length) > MAX_REQUEST_BODY_BYTES:
+            return JSONResponse(
+                status_code=413,
+                content={"detail": "Request body exceeds the 2 MiB limit."},
+            )
+        received = 0
+        original_receive = request.receive
+
+        async def limited_receive():
+            nonlocal received
+            message = await original_receive()
+            if message["type"] == "http.request":
+                received += len(message.get("body") or b"")
+                if received > MAX_REQUEST_BODY_BYTES:
+                    raise _RequestBodyTooLarge()
+            return message
+
+        request = Request(request.scope, receive=limited_receive, send=request._send)
+        try:
+            response = await call_next(request)
+        except _RequestBodyTooLarge:
+            return JSONResponse(
+                status_code=413,
+                content={"detail": "Request body exceeds the 2 MiB limit."},
+            )
+        return response
+    return await call_next(request)
 
 
 bearer = HTTPBearer(auto_error=False)

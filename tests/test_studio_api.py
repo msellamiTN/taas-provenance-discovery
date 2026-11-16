@@ -1875,3 +1875,64 @@ def test_ux26_workspace_revision_history_is_read_only_and_contract_aware():
     assert 'Object.prototype.hasOwnProperty.call(c,"truncated")' in html
     assert 'changed_paths is not present as an array' in html
     assert "No restore, replay, rollback, mutation, approval, authorization, or execution action" in html
+
+
+def test_security_headers_present_on_api_and_ui(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    for path in ("/health", "/api/v1/agents"):
+        response = client.get(path, headers={"Authorization": "Bearer test-token"})
+        assert response.headers["X-Content-Type-Options"] == "nosniff"
+        assert response.headers["X-Frame-Options"] == "DENY"
+        assert response.headers["Referrer-Policy"] == "no-referrer"
+        assert response.headers["X-Request-ID"]
+
+
+def test_request_body_over_limit_returns_413(monkeypatch):
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    big = "x" * (3 * 1024 * 1024)
+    response = client.post(
+        "/api/v1/goals/validate",
+        headers={"Authorization": "Bearer test-token"},
+        json={"prompt": big},
+    )
+    assert response.status_code == 413
+
+
+def test_audit_events_carry_request_id_for_correlation(monkeypatch):
+    import time
+    monkeypatch.setenv("TAAS_STUDIO_API_TOKEN", "test-token")
+    monkeypatch.setenv("TAAS_EVIDENCE_ATTESTATION_KEY", "x" * 40)
+    AGT = f"agt-corr-{int(time.time())}"
+    headers = {"Authorization": "Bearer test-token", "X-Request-ID": "corr-1"}
+    agent = {
+        "apiVersion": "taas.ai/v1alpha1", "kind": "Agent",
+        "metadata": {"id": AGT, "name": "T", "version": "9.9.9"},
+        "spec": {
+            "model": {"provider": "huggingface", "model_id": "org/model"},
+            "instructions": "x", "tool_allowlist": [],
+            "resources": {"max_new_tokens": 64, "timeout_seconds": 30,
+                          "max_tool_calls": 0},
+            "approval": {"require_human_approval": True,
+                         "require_assurance": False,
+                         "allow_side_effects": False},
+        },
+    }
+    assert client.post("/api/v1/agents", json=agent, headers=headers).status_code == 201
+    for action in ("validate", "publish"):
+        r = client.post(
+            f"/api/v1/agents/{AGT}/versions/9.9.9/{action}",
+            json={}, headers=headers)
+        assert r.status_code == 200, (action, r.status_code, r.text[:200])
+    r = client.post(
+        f"/api/v1/agents/{AGT}/versions/9.9.9/sign",
+        json={"publisher_id": "p", "statement": "s"},
+        headers=headers,
+    )
+    assert r.status_code == 201, (r.status_code, r.text[:200])
+    events = client.get(
+        "/api/v1/audit/events?event_type=signature&limit=50",
+        headers=headers).json()["events"]
+    match = [e for e in events
+             if e["subject"].get("agent_id") == AGT]
+    assert match, "no signature event for agent"
+    assert match[0]["payload"].get("request_id") == "corr-1"
