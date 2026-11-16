@@ -7,7 +7,7 @@ process, and exposes it through a fresh Colab proxy URL.
 
 ## Watch the walkthrough (~1:45)
 
-[![TaaS Studio walkthrough](https://github.com/msellamiTN/taas-provenance-discovery/raw/main/docs/studio/reviewer/recording/taas-studio-full-walkthrough.mp4)](https://github.com/msellamiTN/taas-provenance-discovery/raw/main/docs/studio/reviewer/recording/taas-studio-full-walkthrough.mp4)
+[![TaaS Studio walkthrough](https://github.com/msellamiTN/taas-provenance-discovery/releases/download/studio-reviewer-demo/taas-studio-full-walkthrough.mp4)](https://github.com/msellamiTN/taas-provenance-discovery/releases/download/studio-reviewer-demo/taas-studio-full-walkthrough.mp4)
 
 ## What you need
 
