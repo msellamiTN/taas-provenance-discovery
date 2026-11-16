@@ -279,7 +279,7 @@ shape, empty `registry_tool_ids` → 422 by design) — fixed in `a4ae1c6`
 ### 7.4 Preprod gate — all must hold
 
 - [x] E1 acceptance notebook: **29 PASS · 0 FAIL · 0 UNAVAILABLE** on pinned `a4ae1c6`, real Colab GPU runtime, report downloaded (2026-11-16)
-- [ ] E2 Playwright: every surface × every state PASS; zero console errors
+- [x] E2 Playwright: **9/9 green on live Studio** (2026-11-16) — auth fail-closed + UI connect, MCP inspect read-only (no tools/call requests observed), discovery-history observation semantics, audit chain verify + non-execution markers, platform-overview live counts, hypergraph explorer journey (both viewports), UX-24 governance (both viewports); zero console errors asserted per test. Stale tests repaired for single-workspace nav + UX-25 review gate. Colab-runtime run via `taas_hypergraph_explorer_browser_e2e_colab.ipynb` picks the suite up automatically
 - [x] E3 lifecycle scenario: `test_lifecycle_scenario_e2e.py` PASS on isolated stores (752 green)
 - [x] S1: named keys live (`/admin/api-keys`) — verified in E1 AUTH section on Colab (create → actor-bound write → revoke → 401 → 409/404) + `tests/test_api_keys.py`; shared-token retirement decided at deploy time
 - [ ] S2: container boots, `/health` + `/ready` green, token via env only
