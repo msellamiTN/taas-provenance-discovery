@@ -1,6 +1,6 @@
 # TaaS Studio — Verified Feature Catalog and UX Audit
 
-Audit baseline: branch `devin/studio-ux-integration-v1`, commit `53cc5ac` (752 tests green). Earlier audit baselines: `7fbd3fc`, `c3160b8754fa75201d2d58da81733661a7aac88a`, `e641fc7412dbb77ae44304562820db619aaf7359`, `a94d8e8`.
+Audit baseline: branch `devin/studio-ux-integration-v1`, commit `53cc5ac` (752 tests green). Earlier audit baselines: `7fbd3fc`, `b45b72ada67a9e45db5e91f783dbab2dc54eb113`, `e641fc7412dbb77ae44304562820db619aaf7359`, `a94d8e8`.
 
 This catalog records what is present in the repository at the audit baseline. “Implemented” means a code/API surface exists; it does not imply production readiness or browser validation. No runtime invocation of MCP tools is provided by Studio.
 

@@ -12,7 +12,7 @@ short_description: TaaS Studio extension staging — API-backed platform overvie
 # TaaS Studio — F01 staging
 
 Private staging deployment of the existing TaaS Studio extended from baseline commit
-18e577d46f1c0b5e896a144a817ddef2b06d988a.
+20edd16b4eec78b0c2a09cadc3384d883d8370b9.
 
 This image serves the existing FastAPI Studio application and static workspace UI.
 The Platform Overview uses existing authenticated Core inventory endpoints.

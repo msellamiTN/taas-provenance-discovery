@@ -1,6 +1,6 @@
 # UX-9 — Objective Traceability Explorer
 
-Status: implemented on `codex/ux9-objective-traceability-explorer`, stacked on UX-8 PR #84 head `64ab65b9d812ee4a96647e583bd8b12c052b7274`. The user approved the complete UX-9 mockup, including all represented views and interactions, before implementation.
+Status: implemented on `codex/ux9-objective-traceability-explorer`, stacked on UX-8 PR #84 head `105705c4b402edff6fc505984cf3edb12a9ce4bd`. The user approved the complete UX-9 mockup, including all represented views and interactions, before implementation.
 
 ## Objective and views
 

@@ -63,7 +63,7 @@ A real-browser acceptance harness is now included:
 - UX-24 browser journey covers navigation, all five tabs, ArrowRight/Home/End keyboard operation, authenticated Agent/version retrieval, read-only assessment when an immutable version exists, and the no-Agent empty state.
 - UX-24 browser assertions reject non-GET API requests and MCP requests from the UX-24 workflow.
 - Desktop (1440px) and mobile (390px) screenshots are exported under `TAAS_E2E_ARTIFACT_DIR`.
-- The Colab launcher pins code/test revision `c799e657b5620f1a3fa3fd35c94cff928bb01dc5`; the browser notebook reuses that running process, token and proxy.
+- The Colab launcher pins code/test revision `31926dc8cacafd3a6fdbe3a105ab74903d064d13`; the browser notebook reuses that running process, token and proxy.
 
 GitHub Actions run [#42457100242](https://github.com/msellamiTN/taas-provenance-discovery/actions/runs/42457100242) on the follow-up branch head completed successfully: **666 passed, 4 skipped, 1 existing warning**. The four browser cases are skipped in ordinary CI because no live Colab URL/token is configured; the notebook runs them against the real Colab process.
 
@@ -84,6 +84,6 @@ GitHub Actions run [#42457100242](https://github.com/msellamiTN/taas-provenance-
 
 ## Validation record
 
-Initial frontend implementation commit: `99d060633de7de249c98f19e792c9e77c9589034`. Current implementation and validation state are tracked by the head commit and checks on [PR #88](https://github.com/msellamiTN/taas-provenance-discovery/pull/88).
+Initial frontend implementation commit: `89f276e14acbd59b995d368c7370723053d71d16`. Current implementation and validation state are tracked by the head commit and checks on [PR #88](https://github.com/msellamiTN/taas-provenance-discovery/pull/88).
 
-Current automated validation was run on commit `1e69553aff3614d1aa934ca1f67927caf68c8170`: GitHub Actions run `42455120612` completed successfully with 666 tests passed and one existing Starlette/httpx deprecation warning. The inline Studio JavaScript syntax gate, benchmark hypergraph build and artifact upload also passed. Browser/keyboard acceptance and live Colab validation remain pending; this draft PR has not been merged or deployed.
+Current automated validation was run on commit `dbbddb0dd612ede31a2d30e7b1b3d2a2200143db`: GitHub Actions run `42455120612` completed successfully with 666 tests passed and one existing Starlette/httpx deprecation warning. The inline Studio JavaScript syntax gate, benchmark hypergraph build and artifact upload also passed. Browser/keyboard acceptance and live Colab validation remain pending; this draft PR has not been merged or deployed.

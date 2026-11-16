@@ -1,6 +1,6 @@
 # UX-7 — Isolated Runtime & Execution Observability Workspace
 
-Status: implemented on `codex/ux7-isolated-runtime-observability`, stacked on UX-6 head `a61bad7c00254a151fda8b6acbaa92026554a38a`. The user explicitly approved the UX-7 visual baseline and all safety corrections before implementation.
+Status: implemented on `codex/ux7-isolated-runtime-observability`, stacked on UX-6 head `987c37fae0d19036cfb3e9ab191b2225526fda23`. The user explicitly approved the UX-7 visual baseline and all safety corrections before implementation.
 
 ## Objective
 
