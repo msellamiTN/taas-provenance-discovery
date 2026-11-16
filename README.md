@@ -62,6 +62,58 @@ print([g.id for g in r.gap.gap], r.toolkit, r.certificate.checks)
 # ['g1', 'g5'] ['db::query_reviews', 'report::generate'] {'S': True, 'C': True, 'P': True, 'E': True, 'L': True, ...}
 ```
 
+## How to use
+
+**1 · Python library (local).** Install and drive the engine directly:
+
+```bash
+pip install -e .                    # core library only
+pip install -e ".[test,studio,hf]"  # tests + Studio UI + HF extras
+```
+
+- `DiscoveryEngine(registry, profile, pair_policy=...).discover(spec, policy)` → gap, toolkit, certificate
+- Scenario registries live in `taas.scenarios`; real 569-tool registry under `data/processed/`
+- `python -m pytest` runs the full suite (751 tests: contract, algorithms, Studio API, lifecycle scenario, browser E2E)
+
+**2 · TaaS Studio (web UI, zero install).** The control-plane UI walks the
+agent/tool lifecycle — DEFINE → BUILD → DISCOVER → VERIFY → OPERATE →
+EVALUATE & MANAGE. No GPU needed:
+
+- Open [`notebooks/colab/taas_studio_reviewer_colab.ipynb`](notebooks/colab/taas_studio_reviewer_colab.ipynb)
+  in Colab → **Runtime → Run all** → copy the printed token → open the proxy
+  URL → **Connect**. Step-by-step guide and video in
+  [`docs/studio/reviewer/README.md`](docs/studio/reviewer/README.md).
+- Studio boundaries (by design): MCP inspection is `tools/list` only — never
+  `tools/call`; discovery records are observations, not execution; the audit
+  chain is tamper-evident, not proof of truth; unsupported live data shows
+  `UNAVAILABLE`.
+
+**3 · Assurance & registry surfaces.** Other Colab notebooks in
+[`notebooks/colab/`](notebooks/colab/) cover acceptance (`taas_studio_acceptance_colab`
+— 29-check A1→A6 matrix), hypergraph exploration, evidence assurance, and the
+PR-27 MCP registry demo.
+
+## Experiments
+
+`experiments/run_all.py` executes the full evaluation plan deterministically
+(replaying `data/llm_records/`; no API key required). `experiments/report.py`
+regenerates `docs/RESULTS.md`; `experiments/plot.py` regenerates figures;
+`./reproduce.sh` runs everything end-to-end.
+
+| Script | What it tests |
+|---|---|
+| `e0_registry.py` | **E0/H1** — Table 1 registry characterisation on published metadata |
+| `e2_eligibility.py` | **E2/H2** — provenance-sound eligibility vs forged/missing metadata |
+| `e3_gap.py` | **E3/H3** — gap analysis shrinks toolkits at equal coverage |
+| `e3_tune.py` | **E3-tune** — Stage 2 baseline tuning on the dev split only |
+| `e4_injection.py` | **E4/H4** — certified toolkits under prompt injection; Property 1 |
+| `e5_synthetic.py` | **E5/RQ3** — controlled synthetic typed registries, backward closure |
+| `e6_ablations.py` | **E6** — Stage 4 ablations (relevance term, propagation, encoders) |
+| `e7_scalability.py` | **E7/RQ4** — eligibility cost, cache invalidation (Prop. 3), Lemma 1, maintenance |
+
+Run one stage directly, e.g. `python experiments/e3_gap.py`. Deviation notes:
+see **Deviations and limitations** below before citing numbers.
+
 ## How the LLM was used
 
 The build environment had no API key, so the LLM roles were played by **Claude models through
