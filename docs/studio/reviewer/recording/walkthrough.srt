@@ -1,0 +1,31 @@
+1
+00:00:00,440 --> 00:00:07,190
+1/8  Connect — open Studio, paste the API token, click Connect
+
+2
+00:00:07,190 --> 00:00:12,050
+2/8  Overview — live runtime diagnostics and platform inventory
+
+3
+00:00:12,050 --> 00:00:19,400
+3/8  DEFINE — GoalSpec designer: templates are drafts, not validation
+
+4
+00:00:19,400 --> 00:00:27,250
+4/8  BUILD — Agent lifecycle: draft, validate, publish, sign, revoke
+
+5
+00:00:27,250 --> 00:00:35,550
+5/8  DISCOVER — MCP connections: tools/list inspection, never tools/call
+
+6
+00:00:35,550 --> 00:00:40,370
+6/8  DISCOVER — Tool registry & persisted discovery history
+
+7
+00:00:40,370 --> 00:00:47,270
+7/8  VERIFY — Audit timeline: load events, verify the hash chain
+
+8
+00:00:47,270 --> 00:00:59,806
+8/8  OPERATE & MANAGE — runtime diagnostics; unsupported data says UNAVAILABLE

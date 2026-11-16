@@ -1,0 +1,38 @@
+{
+  "base_url": "http://127.0.0.1:8000",
+  "steps": [
+    {
+      "t": 0.44,
+      "text": "1/8  Connect \u2014 open Studio, paste the API token, click Connect"
+    },
+    {
+      "t": 7.19,
+      "text": "2/8  Overview \u2014 live runtime diagnostics and platform inventory"
+    },
+    {
+      "t": 12.05,
+      "text": "3/8  DEFINE \u2014 GoalSpec designer: templates are drafts, not validation"
+    },
+    {
+      "t": 19.4,
+      "text": "4/8  BUILD \u2014 Agent lifecycle: draft, validate, publish, sign, revoke"
+    },
+    {
+      "t": 27.25,
+      "text": "5/8  DISCOVER \u2014 MCP connections: tools/list inspection, never tools/call"
+    },
+    {
+      "t": 35.55,
+      "text": "6/8  DISCOVER \u2014 Tool registry & persisted discovery history"
+    },
+    {
+      "t": 40.37,
+      "text": "7/8  VERIFY \u2014 Audit timeline: load events, verify the hash chain"
+    },
+    {
+      "t": 47.27,
+      "text": "8/8  OPERATE & MANAGE \u2014 runtime diagnostics; unsupported data says UNAVAILABLE"
+    }
+  ],
+  "approx_total_s": 59.81
+}

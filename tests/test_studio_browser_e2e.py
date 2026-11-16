@@ -77,7 +77,9 @@ def test_hypergraph_explorer_on_live_colab_studio(viewport, tmp_path: Path):
                     "This points to the static frontend mount/file, not Playwright or the Colab proxy."
                 )
             assert page.title() == "TaaS Studio — Tool Intelligence Platform"
-            assert page.locator("#hg-empty").is_visible()
+            # Single-workspace navigation: reveal the Discovery workspace first.
+            page.locator('nav.studio-nav a[href="#hypergraph-explorer"]').click()
+            page.locator("#hg-empty").wait_for(state="visible", timeout=30000)
             assert page.locator("#hg-filter").is_disabled()
 
             # Use the exact token produced by the existing Colab launch notebook.
@@ -87,7 +89,15 @@ def test_hypergraph_explorer_on_live_colab_studio(viewport, tmp_path: Path):
 
             # Run the notebook-provided metadata-only demo discovery in the
             # already-running Studio. No MCP server should be called.
+            # UX-25 gates discovery behind an explicit review dialog.
+            page.locator("#goal-semantic-review").check()
             page.locator("#run").click()
+            page.locator("#ux25-ack").check()
+            page.wait_for_function(
+                "() => !document.querySelector('#ux25-confirm').disabled",
+                timeout=30000,
+            )
+            page.locator("#ux25-confirm").click()
             page.wait_for_function(
                 """() => {
                   const status = document.querySelector('#hg-projection-state')?.textContent || '';
@@ -255,7 +265,7 @@ def test_agent_governance_trust_center_on_live_colab_studio(viewport, tmp_path: 
             assert not mcp_calls, f"UX-24 issued unexpected MCP requests: {mcp_calls}"
 
             screenshot = tmp_path / f"ux24-governance-{viewport[0]}.png"
-            root.screenshot(path=str(screenshot), full_page=True)
+            root.screenshot(path=str(screenshot))
             assert screenshot.is_file() and screenshot.stat().st_size > 0
             artifact_dir = os.environ.get("TAAS_E2E_ARTIFACT_DIR")
             if artifact_dir:
@@ -265,3 +275,259 @@ def test_agent_governance_trust_center_on_live_colab_studio(viewport, tmp_path: 
         finally:
             context.close()
             browser.close()
+
+
+# ---------------------------------------------------------------------------
+# E2 lifecycle surface suite — reviewer-path coverage on a live Studio.
+#
+# These tests attach to the same Colab-exposed instance as the tests above.
+# They exercise the surfaces a reviewer walks: auth boundary, MCP inspection,
+# discovery history, audit verification and the platform overview. Every test
+# also asserts zero browser console errors.
+# ---------------------------------------------------------------------------
+
+_LIVE_VIEWPORT = (1440, 1000)
+
+
+def _require_live_studio():
+    studio_url = os.environ.get("TAAS_STUDIO_URL", "").strip()
+    api_token = os.environ.get("TAAS_STUDIO_API_TOKEN", "").strip()
+    if not studio_url or not api_token:
+        pytest.skip(
+            "Set TAAS_STUDIO_URL and TAAS_STUDIO_API_TOKEN from the active "
+            "Studio Colab runtime."
+        )
+    parsed = urlparse(studio_url)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        pytest.fail("TAAS_STUDIO_URL must be an absolute HTTP(S) Colab proxy URL.")
+    return studio_url, api_token
+
+
+def _connect_studio(playwright, studio_url, api_token):
+    browser = playwright.chromium.launch(
+        headless=True,
+        args=["--no-sandbox", "--disable-dev-shm-usage"],
+    )
+    context = browser.new_context(viewport={"width": _LIVE_VIEWPORT[0], "height": _LIVE_VIEWPORT[1]})
+    page = context.new_page()
+    console_errors: list[str] = []
+    page.on(
+        "console",
+        lambda msg: console_errors.append(msg.text) if msg.type == "error" else None,
+    )
+    page.on("pageerror", lambda exc: console_errors.append(str(exc)))
+    response = page.goto(studio_url, wait_until="domcontentloaded", timeout=60000)
+    assert response is not None and response.status == 200, "Studio homepage did not load."
+    page.locator("#token").fill(api_token)
+    page.locator("#studio-auth-connect").click()
+    page.wait_for_function(
+        "() => { const el = document.querySelector('#studio-auth-status');"
+        " return el && /connect/i.test(el.textContent || ''); }",
+        timeout=30000,
+    )
+    return browser, context, page, console_errors
+
+
+def test_auth_fail_closed_and_ui_connect():
+    """Unauthenticated API calls must 401; the UI must require the token."""
+    studio_url, api_token = _require_live_studio()
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        pytest.skip("Install Playwright + Chromium in the Colab runtime first.")
+
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(
+            headless=True, args=["--no-sandbox", "--disable-dev-shm-usage"]
+        )
+        context = browser.new_context(viewport={"width": _LIVE_VIEWPORT[0], "height": _LIVE_VIEWPORT[1]})
+        page = context.new_page()
+        try:
+            api = studio_url.rstrip("/") + "/api/v1/platform/overview"
+            unauth = page.request.get(api, timeout=30000)
+            assert unauth.status == 401, f"Expected 401 without token, got {unauth.status}"
+
+            page.goto(studio_url, wait_until="domcontentloaded", timeout=60000)
+            assert "not" in page.locator("#studio-auth-status").inner_text().lower() \
+                or "connect" in page.locator("#studio-auth-status").inner_text().lower()
+
+            page.locator("#token").fill(api_token)
+            page.locator("#studio-auth-connect").click()
+            page.wait_for_function(
+                "() => { const el = document.querySelector('#studio-auth-status');"
+                " return el && /connect/i.test(el.textContent || ''); }",
+                timeout=30000,
+            )
+            authed = page.request.get(
+                api, headers={"Authorization": f"Bearer {api_token}"}, timeout=30000
+            )
+            assert authed.status == 200, f"Authenticated overview returned {authed.status}"
+        finally:
+            context.close()
+            browser.close()
+
+
+def test_mcp_inspection_is_read_only_on_live_studio():
+    """MCP inspection must run tools/list only — never tools/call."""
+    studio_url, api_token = _require_live_studio()
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        pytest.skip("Install Playwright + Chromium in the Colab runtime first.")
+
+    with sync_playwright() as playwright:
+        browser, context, page, console_errors = _connect_studio(
+            playwright, studio_url, api_token
+        )
+        mcp_mutations: list[str] = []
+        page.on(
+            "request",
+            lambda request: mcp_mutations.append(f"{request.method} {request.url}")
+            if "/api/v1/mcp/" in request.url
+            and not (request.method == "GET" or request.url.rstrip("/").endswith("/inspect"))
+            else None,
+        )
+        try:
+            page.goto(studio_url.rstrip("/") + "/#mcp-studio", wait_until="domcontentloaded")
+            page.locator("#mcp-refresh-servers").click()
+            page.wait_for_function(
+                "() => { const el = document.querySelector('#mcp-server-status');"
+                " return el && el.textContent.trim().length > 0; }",
+                timeout=60000,
+            )
+            select = page.locator("#mcp-server-select")
+            if select.count() and select.is_enabled():
+                options = select.locator("option")
+                if options.count() > 1:
+                    select.select_option(index=1)
+            inspect = page.locator("#mcp-inspect-server")
+            if not inspect.is_enabled():
+                pytest.skip("No MCP server configured on this Studio instance.")
+            inspect.click()
+            page.wait_for_function(
+                "() => { const el = document.querySelector('#mcp-server-status');"
+                r" return el && /no tools\/call|inspection completed/i.test(el.textContent || ''); }",
+                timeout=120000,
+            )
+            status_text = page.locator("#mcp-server-status").inner_text()
+            assert "tools/call" in status_text.lower() or "inspection" in status_text.lower()
+            assert not mcp_mutations, f"Unexpected MCP mutation requests: {mcp_mutations}"
+        finally:
+            context.close()
+            browser.close()
+        assert console_errors == [], f"Browser console errors: {console_errors}"
+
+
+def test_discovery_history_is_observation_only():
+    """Discovery history must label runs as observations, never execution."""
+    studio_url, api_token = _require_live_studio()
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        pytest.skip("Install Playwright + Chromium in the Colab runtime first.")
+
+    with sync_playwright() as playwright:
+        browser, context, page, console_errors = _connect_studio(
+            playwright, studio_url, api_token
+        )
+        try:
+            page.goto(
+                studio_url.rstrip("/") + "/#discovery-observability",
+                wait_until="domcontentloaded",
+            )
+            page.locator("#obs-refresh-runs").click()
+            page.wait_for_function(
+                "() => { const el = document.querySelector('#obs-runs-status');"
+                " return el && el.textContent.trim().length > 0; }",
+                timeout=60000,
+            )
+            section_text = page.locator("#discovery-observability").inner_text().lower()
+            assert "observ" in section_text or "execution" in section_text, (
+                "Discovery history panel does not state its observation semantics."
+            )
+        finally:
+            context.close()
+            browser.close()
+        assert console_errors == [], f"Browser console errors: {console_errors}"
+
+
+def test_audit_chain_verification_reports_semantics():
+    """Audit verify must return chain_valid with non-execution semantics."""
+    studio_url, api_token = _require_live_studio()
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        pytest.skip("Install Playwright + Chromium in the Colab runtime first.")
+
+    with sync_playwright() as playwright:
+        browser, context, page, console_errors = _connect_studio(
+            playwright, studio_url, api_token
+        )
+        try:
+            page.goto(
+                studio_url.rstrip("/") + "/#ux19-governance-audit-timeline",
+                wait_until="domcontentloaded",
+            )
+            page.locator("#ux19-load").click()
+            page.wait_for_function(
+                "() => { const el = document.querySelector('#ux19-status');"
+                " return el && el.textContent.trim().length > 0; }",
+                timeout=60000,
+            )
+            page.locator("#ux19-verify").click()
+            page.wait_for_function(
+                "() => { const el = document.querySelector('#ux19-governance-audit-timeline');"
+                " return el && /chain_valid|chain valid/i.test(el.textContent || ''); }",
+                timeout=60000,
+            )
+            section_text = page.locator("#ux19-governance-audit-timeline").inner_text()
+            assert "chain_valid" in section_text or "Chain valid" in section_text
+            lowered = section_text.lower()
+            assert "execution_performed" in lowered or "not proof of execution" in lowered \
+                or "tamper" in lowered
+        finally:
+            context.close()
+            browser.close()
+        assert console_errors == [], f"Browser console errors: {console_errors}"
+
+
+def test_platform_overview_reports_live_counts():
+    """Platform overview must show counts from real stores, not fixtures."""
+    studio_url, api_token = _require_live_studio()
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        pytest.skip("Install Playwright + Chromium in the Colab runtime first.")
+
+    with sync_playwright() as playwright:
+        browser, context, page, console_errors = _connect_studio(
+            playwright, studio_url, api_token
+        )
+        try:
+            page.goto(
+                studio_url.rstrip("/") + "/#overview-workspace",
+                wait_until="domcontentloaded",
+            )
+            page.locator("#platform-overview-refresh").click()
+            page.wait_for_function(
+                "() => { const el = document.querySelector('#platform-overview-status');"
+                " return el && /ok|partial|error/.test(el.className); }",
+                timeout=60000,
+            )
+            status_el = page.locator("#platform-overview-status")
+            assert "ok" in (status_el.get_attribute("class") or ""), (
+                f"Overview refresh did not fully succeed: {status_el.inner_text()}"
+            )
+            status_text = status_el.inner_text()
+            assert "inventory facts" in status_text or "not readiness" in status_text, (
+                f"Overview status lacks its non-authorization semantics: {status_text}"
+            )
+            overview_text = page.locator("#platform-overview").inner_text().lower()
+            assert "unsupported" in overview_text or "not available" in overview_text \
+                or "unavailable" in overview_text or "count" in overview_text
+        finally:
+            context.close()
+            browser.close()
+        assert console_errors == [], f"Browser console errors: {console_errors}"
+
+

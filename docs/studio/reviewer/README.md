@@ -15,9 +15,15 @@ process, and exposes it through a fresh Colab proxy URL.
 | File | Purpose |
 |---|---|
 | `notebooks/colab/taas_studio_reviewer_colab.ipynb` | Clean top-to-bottom reviewer notebook (19 cells) |
-| `docs/studio/reviewer/taas-studio-reviewer-tour.mp4` | 46-second video walkthrough of the Studio surfaces |
+| `recording/taas-studio-step-by-step.mp4` | **Full recorded walkthrough** — real Studio UI, 8 narrated steps with burned-in subtitles (~1 min) |
+| `recording/walkthrough.srt` | Subtitle track for the recording |
+| `taas-studio-reviewer-tour.mp4` | 46-second captioned tour of the key surfaces |
 | `notebooks/colab/taas_studio_acceptance_colab.ipynb` | Optional: automated A1–A6 acceptance matrix (29 checks) |
 | `notebooks/colab/taas_core_studio_colab.ipynb` | Developer notebook with pytest batches and optional tunnel/Ollama cells |
+
+The step-by-step recording was produced by `scripts/record_studio_walkthrough.py`,
+which drives the live UI in headless Chromium and emits the SRT aligned to the
+recording. Re-run it against any reachable Studio to regenerate the video.
 
 ## Steps
 
