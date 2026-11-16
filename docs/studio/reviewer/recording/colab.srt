@@ -1,0 +1,27 @@
+1
+00:00:00,000 --> 00:00:06,000
+Step 1 - Open the TaaS Studio reviewer notebook on Google Colab
+
+2
+00:00:06,000 --> 00:00:12,000
+Step 2 - Connect a free Colab runtime (CPU is enough, no GPU needed)
+
+3
+00:00:12,000 --> 00:00:18,000
+Step 3 - Runtime connected - Colab clones the pinned TaaS revision
+
+4
+00:00:18,000 --> 00:00:24,000
+Step 4 - Run all: checkout, install dependencies, start demo MCP server
+
+5
+00:00:24,000 --> 00:00:30,000
+Step 5 - Cells run top-to-bottom - health and readiness checks pass
+
+6
+00:00:30,000 --> 00:00:36,000
+Step 6 - Open Studio cell - Colab proxyPort generates the HTTPS Studio URL
+
+7
+00:00:36,000 --> 00:00:48,000
+Step 7 - Studio is live - copy the ephemeral token and press Connect
