@@ -258,7 +258,12 @@ A4 verify (policy verdict+history, readiness, approvals, evidence freshness,
 audit verify+subject scope) → A5 operate (runtime, notifications cursor,
 platform/overview cross-check) → A6 manage + fail-closed battery (401/404/
 422) → PASS/FAIL matrix + downloadable JSON report. ~40 cells, unattended,
-T4/CPU in ~15 min. **Delivered** as `notebooks/colab/taas_studio_acceptance_colab.ipynb` (48 cells incl. AUTH/api-key section) at `d6ab725`; awaits first live Colab run.
+T4/CPU in ~15 min. **Delivered and verified live**: first Colab run surfaced
+3 contract mismatches (nested `template.spec_sha256`, `chain_valid` verify
+shape, empty `registry_tool_ids` → 422 by design) — fixed in `a4ae1c6`
+(notebook assertions corrected; `/models/search` gained an explicit
+`semantics` marker). Re-run on pinned `a4ae1c6`: **29 PASS · 0 FAIL ·
+0 UNAVAILABLE**, report `taas-acceptance-report.json` (2026-11-16T00:07Z).
 
 ### 7.3 Preprod workstreams
 
@@ -273,10 +278,10 @@ T4/CPU in ~15 min. **Delivered** as `notebooks/colab/taas_studio_acceptance_cola
 
 ### 7.4 Preprod gate — all must hold
 
-- [ ] E1 acceptance notebook: every A1–A6 feature PASS on pinned SHA
+- [x] E1 acceptance notebook: **29 PASS · 0 FAIL · 0 UNAVAILABLE** on pinned `a4ae1c6`, real Colab GPU runtime, report downloaded (2026-11-16)
 - [ ] E2 Playwright: every surface × every state PASS; zero console errors
 - [x] E3 lifecycle scenario: `test_lifecycle_scenario_e2e.py` PASS on isolated stores (752 green)
-- [ ] S1: named keys live (`/admin/api-keys`); revoked key → 401 verified by `tests/test_api_keys.py`; shared-token retirement decided at deploy time
+- [x] S1: named keys live (`/admin/api-keys`) — verified in E1 AUTH section on Colab (create → actor-bound write → revoke → 401 → 409/404) + `tests/test_api_keys.py`; shared-token retirement decided at deploy time
 - [ ] S2: container boots, `/health` + `/ready` green, token via env only
 - [ ] S3+S5: backup/restore rehearsed once; logs queryable
 - [ ] Boundary invariant re-verified: no response anywhere implies execution,
