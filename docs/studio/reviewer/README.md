@@ -15,15 +15,20 @@ process, and exposes it through a fresh Colab proxy URL.
 | File | Purpose |
 |---|---|
 | `notebooks/colab/taas_studio_reviewer_colab.ipynb` | Clean top-to-bottom reviewer notebook (19 cells) |
-| `recording/taas-studio-step-by-step.mp4` | **Full recorded walkthrough** — real Studio UI, 8 narrated steps with burned-in subtitles (~1 min) |
-| `recording/walkthrough.srt` | Subtitle track for the recording |
+| `recording/taas-studio-full-walkthrough.mp4` | **End-to-end walkthrough (~1:45)** — Part 1: real Colab runtime (open notebook → connect → run all → proxy URL → token). Part 2: real Studio UI, 8 narrated lifecycle steps. All steps subtitled |
+| `recording/colab.srt`, `recording/walkthrough-full.srt` | Subtitle tracks (Colab part; combined full video) |
+| `recording/colab-frames/` | Source screenshots of the real Colab run used in Part 1 |
+| `recording/taas-studio-step-by-step.mp4` | Studio-only recording (Part 2 of the full walkthrough) |
+| `recording/walkthrough.srt` | Subtitle track for the Studio-only recording |
 | `taas-studio-reviewer-tour.mp4` | 46-second captioned tour of the key surfaces |
 | `notebooks/colab/taas_studio_acceptance_colab.ipynb` | Optional: automated A1–A6 acceptance matrix (29 checks) |
 | `notebooks/colab/taas_core_studio_colab.ipynb` | Developer notebook with pytest batches and optional tunnel/Ollama cells |
 
-The step-by-step recording was produced by `scripts/record_studio_walkthrough.py`,
-which drives the live UI in headless Chromium and emits the SRT aligned to the
-recording. Re-run it against any reachable Studio to regenerate the video.
+The full walkthrough's Studio part was produced by
+`scripts/record_studio_walkthrough.py`, which drives the live UI in headless
+Chromium and emits the SRT aligned to the recording. Re-run it against any
+reachable Studio to regenerate that segment; the Colab segment was captured
+from a real Colab run of this notebook (screenshots in `recording/colab-frames/`).
 
 ## Steps
 

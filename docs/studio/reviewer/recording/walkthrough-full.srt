@@ -1,0 +1,60 @@
+1
+00:00:00,000 --> 00:00:06,000
+Step 1 - Open the TaaS Studio reviewer notebook on Google Colab
+
+2
+00:00:06,000 --> 00:00:12,000
+Step 2 - Connect a free Colab runtime (CPU is enough, no GPU needed)
+
+3
+00:00:12,000 --> 00:00:18,000
+Step 3 - Runtime connected - Colab clones the pinned TaaS revision
+
+4
+00:00:18,000 --> 00:00:24,000
+Step 4 - Run all: checkout, install dependencies, start demo MCP server
+
+5
+00:00:24,000 --> 00:00:30,000
+Step 5 - Cells run top-to-bottom - health and readiness checks pass
+
+6
+00:00:30,000 --> 00:00:36,000
+Step 6 - Open Studio cell - Colab proxyPort generates the HTTPS Studio URL
+
+7
+00:00:36,000 --> 00:00:48,000
+Step 7 - Studio is live - copy the ephemeral token and press Connect
+
+8
+00:00:48,440 --> 00:00:55,190
+1/8  Connect — open Studio, paste the API token, click Connect
+
+9
+00:00:55,190 --> 00:01:00,050
+2/8  Overview — live runtime diagnostics and platform inventory
+
+10
+00:01:00,050 --> 00:01:07,400
+3/8  DEFINE — GoalSpec designer: templates are drafts, not validation
+
+11
+00:01:07,400 --> 00:01:15,250
+4/8  BUILD — Agent lifecycle: draft, validate, publish, sign, revoke
+
+12
+00:01:15,250 --> 00:01:23,550
+5/8  DISCOVER — MCP connections: tools/list inspection, never tools/call
+
+13
+00:01:23,550 --> 00:01:28,370
+6/8  DISCOVER — Tool registry & persisted discovery history
+
+14
+00:01:28,370 --> 00:01:35,270
+7/8  VERIFY — Audit timeline: load events, verify the hash chain
+
+15
+00:01:35,270 --> 00:01:47,806
+8/8  OPERATE & MANAGE — runtime diagnostics; unsupported data says UNAVAILABLE
+
