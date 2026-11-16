@@ -915,7 +915,13 @@ def model_search(
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except ModelCatalogError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
-    return {"query": q, "count": len(models), "models": models, "weights_downloaded": False}
+    return {
+        "query": q,
+        "count": len(models),
+        "models": models,
+        "weights_downloaded": False,
+        "semantics": "public_hf_metadata_unverified_not_loaded_not_execution",
+    }
 
 
 @app.get("/api/v1/models/detail", dependencies=[Depends(require_api_token)])
