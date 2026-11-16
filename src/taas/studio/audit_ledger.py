@@ -10,11 +10,27 @@ import hashlib
 import json
 import os
 import sqlite3
+from contextvars import ContextVar
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 VERIFY_SCHEMA = "taas.audit-verify/v1"
+
+# Request-scoped correlation id, set by the HTTP middleware. Appended into
+# event payloads so an audit seq can be traced back to the API call that
+# recorded it. ``None`` outside request scope (scripts, tests, CLI).
+_request_id_var: ContextVar[str | None] = ContextVar(
+    "taas_audit_request_id", default=None)
+
+
+def bind_request_id(request_id: str):
+    """Bind a request id for the current context; returns a reset token."""
+    return _request_id_var.set(request_id)
+
+
+def reset_request_id(token) -> None:
+    _request_id_var.reset(token)
 EVENT_TYPES = (
     "evidence", "signature", "approval", "revocation",
     "policy_verdict", "discovery_run", "api_key",
@@ -74,6 +90,9 @@ def append_event(event_type: str, subject: dict[str, Any],
     """Append one event; returns the stored record including its hash."""
     if event_type not in EVENT_TYPES:
         raise ValueError(f"Unknown audit event type: {event_type}")
+    request_id = _request_id_var.get()
+    if request_id:
+        payload = {**payload, "request_id": request_id}
     created_at = datetime.now(timezone.utc).isoformat()
     with _connect() as connection:
         prev = connection.execute(

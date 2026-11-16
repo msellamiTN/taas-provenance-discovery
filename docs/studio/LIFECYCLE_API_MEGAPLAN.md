@@ -270,11 +270,11 @@ shape, empty `registry_tool_ids` → 422 by design) — fixed in `a4ae1c6`
 | # | Workstream | Owner | Scope |
 |---|---|---|---|
 | S1 | **Auth keys** — ~~replace single token~~ **Delivered**: `GET/POST /admin/api-keys` + `POST /admin/api-keys/{key_id}/revoke`; per-key actor stamped on revisions + audit via request-scoped principal; SHA-256 hashed storage (`TAAS_API_KEYS_PATH`); revocation recorded not deleted; `api_key` audit event type; shared token remains bootstrap | Core API Dev | Done — optional expiry/scopes remain future hardening |
-| S2 | **Deploy packaging** — `Dockerfile`/container recipe, env-only config (`TAAS_*` paths already env-driven), no secrets in repo, TLS at platform edge | Core API Dev + UX/D (deploy doc) | Colab proves the app; container proves portability |
-| S3 | **Persistence & backup** — document SQLite file locations + `sqlite3 .backup` runbook; decide volume strategy | Architect | Single-instance only |
-| S4 | **Hardening pass** — verify existing bounds (limit caps, payload limits, regex IDs) hold on all 86 routes; security headers + CORS policy decision; request-size audit | Core API Dev | Mostly verification, few fixes |
-| S5 | **Observability** — structured request logging, correlation of audit `seq` ↔ request, `/ready` dependency checks already exist | Core API Dev | Log aggregation is platform-side |
-| O1 | **Runbook** — deploy, rotate keys, backup/restore, rollback, incident notes | Architect + UX/D | Doc only |
+| S2 | **Deploy packaging** — `Dockerfile`/container recipe written (`a4ae1c6`); env-only config, no secrets; **build verification blocked** — Docker daemon unavailable locally | Core API Dev + UX/D (deploy doc) | Colab proves the app; container proves portability |
+| S3 | **Persistence & backup** — **Done**: all 7 stores are SQLite; online-backup rehearsal verified (`integrity_check` ok, counts identical); runbook in `docs/deployment/STUDIO_OPERATIONS.md` §3 | Architect | Single-instance only |
+| S4 | **Hardening pass** — **Done**: audit found bounded Pydantic fields, regex-constrained security-relevant IDs, parameterized SQLite everywhere, fixed-path static serving; **fixed**: added `nosniff`/`X-Frame-Options: DENY`/`Referrer-Policy: no-referrer` headers + 2 MiB request-body cap (413); CORS deliberately absent (same-origin only) | Core API Dev | Verified + 2 tests added |
+| S5 | **Observability** — **Done**: `X-Request-ID` middleware now emits one JSON log line per request (method/path/status/duration, never headers/bodies) and binds the id into audit event payloads — `payload.request_id` correlates audit `seq` ↔ API call | Core API Dev | Log aggregation is platform-side |
+| O1 | **Runbook** — **Done**: `docs/deployment/STUDIO_OPERATIONS.md` — deploy, env vars, key rotation, backup/restore, rollback, incident table, explicit non-goals | Architect + UX/D | Doc only |
 
 ### 7.4 Preprod gate — all must hold
 
@@ -283,7 +283,8 @@ shape, empty `registry_tool_ids` → 422 by design) — fixed in `a4ae1c6`
 - [x] E3 lifecycle scenario: `test_lifecycle_scenario_e2e.py` PASS on isolated stores (752 green)
 - [x] S1: named keys live (`/admin/api-keys`) — verified in E1 AUTH section on Colab (create → actor-bound write → revoke → 401 → 409/404) + `tests/test_api_keys.py`; shared-token retirement decided at deploy time
 - [ ] S2: container boots, `/health` + `/ready` green, token via env only
-- [ ] S3+S5: backup/restore rehearsed once; logs queryable
+- [x] S3+S5: backup/restore rehearsed (online backup API, integrity ok) + runbook written; structured request logs + request-id↔audit correlation live (`755 green`)
+- [x] S4: security headers + 2 MiB body cap added; bounds/ID/CORS audit clean
 - [ ] Boundary invariant re-verified: no response anywhere implies execution,
       authorization, or claim-truth
 - [ ] UX-63 shell merged only after its amended mockup is approved
