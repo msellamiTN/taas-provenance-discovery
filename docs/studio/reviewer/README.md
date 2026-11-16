@@ -5,6 +5,10 @@ walk the live UI in about ten minutes. Everything is real: the notebook
 checks out a pinned commit, installs the project, launches one Studio
 process, and exposes it through a fresh Colab proxy URL.
 
+## Watch the walkthrough (~1:45)
+
+[![TaaS Studio walkthrough](https://github.com/msellamiTN/taas-provenance-discovery/raw/main/docs/studio/reviewer/recording/taas-studio-full-walkthrough.mp4)](https://github.com/msellamiTN/taas-provenance-discovery/raw/main/docs/studio/reviewer/recording/taas-studio-full-walkthrough.mp4)
+
 ## What you need
 
 - A Google account (Colab free tier is enough; a CPU runtime is fine)

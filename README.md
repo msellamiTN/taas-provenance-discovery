@@ -12,6 +12,16 @@ repository implements every definition, proposition and algorithm of the paper, 
 scenarios exactly, and tests the four hypotheses of its evaluation plan on the public registries of
 Table 1 (LiveMCPTool + MCPToolBench++, 76 servers, 569 tools).
 
+## Demo video
+
+End-to-end reviewer walkthrough (~1:45): open the Colab notebook → connect a
+runtime → run all → get the Studio proxy URL → tour the lifecycle UI.
+
+[Watch the TaaS Studio walkthrough](https://github.com/msellamiTN/taas-provenance-discovery/raw/main/docs/studio/reviewer/recording/taas-studio-full-walkthrough.mp4)
+
+Reviewer quickstart: [`docs/studio/reviewer/README.md`](docs/studio/reviewer/README.md)
+· Notebook: [`notebooks/colab/taas_studio_reviewer_colab.ipynb`](notebooks/colab/taas_studio_reviewer_colab.ipynb)
+
 ## What is here
 
 | Path | Content |
