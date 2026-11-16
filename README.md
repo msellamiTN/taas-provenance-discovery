@@ -17,7 +17,9 @@ Table 1 (LiveMCPTool + MCPToolBench++, 76 servers, 569 tools).
 End-to-end reviewer walkthrough (~1:45): open the Colab notebook → connect a
 runtime → run all → get the Studio proxy URL → tour the lifecycle UI.
 
-**[▶ Watch the TaaS Studio walkthrough](https://msellamitn.github.io/taas-provenance-discovery/studio/reviewer/watch.html)** (~1:45, subtitled) — or [download the MP4](https://github.com/msellamiTN/taas-provenance-discovery/releases/download/studio-reviewer-demo/taas-studio-full-walkthrough.mp4)
+https://github.com/user-attachments/assets/cb82ebd6-3736-4438-b343-f67440e2bfdb
+
+▶ **[Open the interactive player](https://msellamitn.github.io/taas-provenance-discovery/studio/reviewer/watch.html)** · [MP4 download](https://github.com/msellamiTN/taas-provenance-discovery/releases/download/studio-reviewer-demo/taas-studio-full-walkthrough.mp4)
 
 Reviewer quickstart: [`docs/studio/reviewer/README.md`](docs/studio/reviewer/README.md)
 · Notebook: [`notebooks/colab/taas_studio_reviewer_colab.ipynb`](notebooks/colab/taas_studio_reviewer_colab.ipynb)

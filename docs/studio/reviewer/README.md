@@ -7,7 +7,9 @@ process, and exposes it through a fresh Colab proxy URL.
 
 ## Watch the walkthrough (~1:45)
 
-**[▶ Play the video](https://msellamitn.github.io/taas-provenance-discovery/studio/reviewer/watch.html)** — hosted on GitHub Pages with an HTML5 player. [MP4 download](https://github.com/msellamiTN/taas-provenance-discovery/releases/download/studio-reviewer-demo/taas-studio-full-walkthrough.mp4) also available.
+https://github.com/user-attachments/assets/cb82ebd6-3736-4438-b343-f67440e2bfdb
+
+The video also plays on the [GitHub Pages player](https://msellamitn.github.io/taas-provenance-discovery/studio/reviewer/watch.html); [MP4 download](https://github.com/msellamiTN/taas-provenance-discovery/releases/download/studio-reviewer-demo/taas-studio-full-walkthrough.mp4) available.
 
 ## What you need
 
