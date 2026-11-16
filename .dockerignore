@@ -1,0 +1,16 @@
+.git
+.gitignore
+.github
+.trace-review
+.trunk-review
+.trust-review
+notebooks
+docs
+experiments
+*.md
+__pycache__
+**/__pycache__
+*.pyc
+.pytest_cache
+.venv
+venv
