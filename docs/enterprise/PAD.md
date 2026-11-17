@@ -14,6 +14,23 @@
 
 > **Important reading note.** This PAD is a design baseline, not a claim that depicted resources exist. Names like `prj-taas-mcp-gateway-<env>` and example FQDNs are illustrative, modelled on the reference pattern in `docs/archi/apigeeArea.png`. It must not be used as a firewall implementation specification until the network/platform teams validate the endpoint inventory and connectivity matrix.
 
+## Architecture diagrams (draw.io)
+
+Design-first companion: `docs/archi/taas-pad.drawio` — 8 pages aligned to this document's sections. Open in draw.io desktop, diagrams.net, or the VS Code Draw.io extension. Visual convention: **solid = delivered · dashed = design seam / not implemented**.
+
+| Page | Maps to |
+|---|---|
+| PAD-01 Physical-Overview | §2 reference topology (ApigeeX-style) |
+| PAD-02 K8s-GatewayAPI | §7.1 private/on-prem realization (GatewayClass/Gateway/HTTPRoute) |
+| PAD-03 Env-Matrix | §7 per-environment gateway baseline |
+| PAD-04 Connectivity-Matrix | §5.1 NET-01..10 flow map |
+| PAD-05 Private-Conn-Checklist | §5.3 producer/consumer + port/egress rules |
+| PAD-06 DNS-Environments | §6 DNS design + §11 environment strategy |
+| PAD-07 Trust-DR | §8 trust boundaries + §9 availability/DR |
+| PAD-08 Deploy-TestPlan | §12 pipeline + §14 PT-01..14 test plan |
+
+Feature-level overview diagrams: `docs/archi/taas-enterprise-architecture.drawio` (10 pages, one per feature).
+
 ## 1. Purpose and physical scope
 
 This PAD translates the logical architecture into a deployment and network design covering:

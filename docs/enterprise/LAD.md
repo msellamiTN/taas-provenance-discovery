@@ -14,6 +14,22 @@
 
 > **Reading note.** This document describes the *logical* architecture — responsibilities, contracts and decisions — independent of any single vendor or product. Where a logical element is not yet implemented, it is labelled a **design seam** or **not implemented**. Current delivered scope: single-operator inspection/assurance control plane (see `REQUIREMENTS_GAP.md`).
 
+## Architecture diagrams (draw.io)
+
+Design-first companion: `docs/archi/taas-lad.drawio` — 7 pages aligned to this document's sections. Open in draw.io desktop, diagrams.net, or the VS Code Draw.io extension. Visual convention: **solid = delivered · dashed = design seam / not implemented**.
+
+| Page | Maps to |
+|---|---|
+| LAD-01 Context-Boundary | §4 consumers / governed access layer / runtimes / resources |
+| LAD-02 Consumer-Access | §6.1 access flow + D9 AuthZEN check |
+| LAD-03 Provisioning-Flow | §6.2 registration→READY pipeline + drift |
+| LAD-04 Inspect-vs-Invoke | §6.3 inspection today vs Phase C PEP path |
+| LAD-05 Registry-Model | §8 entities + extension fields |
+| LAD-06 Identity-Threats | §9 five identity domains + threat map |
+| LAD-07 Decisions | §11 decision map D1–D10 |
+
+Feature-level overview diagrams: `docs/archi/taas-enterprise-architecture.drawio` (10 pages, one per feature).
+
 ## 1. Purpose and scope
 
 This LAD translates the SoW's target capability into a logical system design:
