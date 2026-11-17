@@ -1,0 +1,242 @@
+<mxfile host="app.diagrams.net" agent="taas" version="24.0.0">
+  <diagram name="01-Platform-Context" id="p1">
+    <mxGraphModel dx="1000" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="p1z1" value="Consumers" style="swimlane;startSize=24;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;" vertex="1" parent="1"><mxGeometry x="40" y="60" width="220" height="560" as="geometry"/></mxCell>
+        <mxCell id="p1c1" value="Business apps&lt;br&gt;frontends" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="p1z1"><mxGeometry x="30" y="60" width="160" height="60" as="geometry"/></mxCell>
+        <mxCell id="p1c2" value="Agents" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="p1z1"><mxGeometry x="30" y="160" width="160" height="60" as="geometry"/></mxCell>
+        <mxCell id="p1c3" value="M2M / service clients" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="p1z1"><mxGeometry x="30" y="260" width="160" height="60" as="geometry"/></mxCell>
+        <mxCell id="p1z2" value="Governed access layer" style="swimlane;startSize=24;html=1;fillColor=#eaf6ea;strokeColor=#4d7a4d;fontSize=12;" vertex="1" parent="1"><mxGeometry x="320" y="60" width="480" height="560" as="geometry"/></mxCell>
+        <mxCell id="p1g1" value="API Gateway" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;dashed=1;" vertex="1" parent="p1z2"><mxGeometry x="160" y="50" width="160" height="60" as="geometry"/></mxCell>
+        <mxCell id="p1g2" value="MCP proxy&lt;br&gt;(filtered tools/list)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;dashed=1;" vertex="1" parent="p1z2"><mxGeometry x="160" y="150" width="160" height="60" as="geometry"/></mxCell>
+        <mxCell id="p1g3" value="Bearer-token broker&lt;br&gt;Entra ID / equiv. IdP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="p1z2"><mxGeometry x="40" y="270" width="180" height="60" as="geometry"/></mxCell>
+        <mxCell id="p1g4" value="TaaS registry&lt;br&gt;catalogue · lifecycle · policy" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="p1z2"><mxGeometry x="260" y="270" width="180" height="60" as="geometry"/></mxCell>
+        <mxCell id="p1g5" value="Policy engine&lt;br&gt;exposure · quotas" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="p1z2"><mxGeometry x="40" y="380" width="180" height="60" as="geometry"/></mxCell>
+        <mxCell id="p1g6" value="Audit + observability&lt;br&gt;hash chain · request-ID" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="p1z2"><mxGeometry x="260" y="380" width="180" height="60" as="geometry"/></mxCell>
+        <mxCell id="p1z3" value="Runtimes" style="swimlane;startSize=24;html=1;fillColor=#fdf3e7;strokeColor=#a66a3f;fontSize=12;" vertex="1" parent="1"><mxGeometry x="860" y="60" width="220" height="260" as="geometry"/></mxCell>
+        <mxCell id="p1r1" value="Mistral" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="p1z3"><mxGeometry x="30" y="50" width="160" height="50" as="geometry"/></mxCell>
+        <mxCell id="p1r2" value="Vertex AI / Bedrock / Foundry" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="p1z3"><mxGeometry x="30" y="115" width="160" height="50" as="geometry"/></mxCell>
+        <mxCell id="p1r3" value="Ollama / vLLM / local" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="p1z3"><mxGeometry x="30" y="180" width="160" height="50" as="geometry"/></mxCell>
+        <mxCell id="p1z4" value="Tool &amp; resource backends" style="swimlane;startSize=24;html=1;fillColor=#fbeaea;strokeColor=#a05a5a;fontSize=12;" vertex="1" parent="1"><mxGeometry x="860" y="360" width="220" height="260" as="geometry"/></mxCell>
+        <mxCell id="p1b1" value="Private MCP services" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="p1z4"><mxGeometry x="30" y="50" width="160" height="50" as="geometry"/></mxCell>
+        <mxCell id="p1b2" value="REST→MCP adapter&lt;br&gt;JDE / WSO2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;dashed=1;" vertex="1" parent="p1z4"><mxGeometry x="30" y="115" width="160" height="50" as="geometry"/></mxCell>
+        <mxCell id="p1b3" value="SaaS MCP (controlled egress)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="p1z4"><mxGeometry x="30" y="180" width="160" height="50" as="geometry"/></mxCell>
+        <mxCell id="p1e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p1c1" target="p1g1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p1e2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p1c2" target="p1g1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p1e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p1c3" target="p1g1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p1e4" value="Bearer" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=11;" edge="1" source="p1g1" target="p1g3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p1e5" value="policy / exposure" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=11;" edge="1" source="p1g4" target="p1g2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p1e6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p1g1" target="p1g2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p1e7" value="inspect / route" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=11;" edge="1" source="p1g2" target="p1b1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p1e8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p1g2" target="p1b2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p1e9" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p1g2" target="p1b3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p1e10" value="Phase C only" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;fontSize=11;" edge="1" source="p1g2" target="p1r2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p1lg" value="Legend: solid = delivered (control-plane scope) · dashed = design seam / not implemented · invariant: proposal ≠ evidence ≠ authorization ≠ execution" style="text;html=1;fontSize=11;align=left;" vertex="1" parent="1"><mxGeometry x="40" y="650" width="900" height="30" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="02-Gateway-TokenBroker" id="p2">
+    <mxGraphModel dx="1000" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="p2t" value="Single governed ingress — all MCP access transits the gateway; direct consumer→MCP is a defect (LAD D1)" style="text;html=1;fontSize=12;fontStyle=2;" vertex="1" parent="1"><mxGeometry x="40" y="20" width="1000" height="24" as="geometry"/></mxCell>
+        <mxCell id="p2c" value="Consumer&lt;br&gt;(app / agent / M2M)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="40" y="120" width="160" height="60" as="geometry"/></mxCell>
+        <mxCell id="p2e1" value="1 · HTTPS + Bearer" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=11;" edge="1" source="p2c" target="p2gw" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p2gw" value="API Gateway&lt;br&gt;TLS · WAF · quota · 2 MiB · request-ID" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;dashed=1;" vertex="1" parent="1"><mxGeometry x="320" y="110" width="220" height="80" as="geometry"/></mxCell>
+        <mxCell id="p2e2" value="2 · validate iss/aud/sig/exp/scope" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=11;" edge="1" source="p2gw" target="p2tb" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p2tb" value="Bearer-token broker&lt;br&gt;validation + exchange / delegation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="1"><mxGeometry x="640" y="60" width="220" height="70" as="geometry"/></mxCell>
+        <mxCell id="p2idp" value="IdP&lt;br&gt;Entra ID / Keycloak / cloud IAM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1"><mxGeometry x="960" y="60" width="220" height="70" as="geometry"/></mxCell>
+        <mxCell id="p2e3" value="OIDC / JWKS" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=11;" edge="1" source="p2tb" target="p2idp" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p2reg" value="TaaS registry&lt;br&gt;policy profile · exposure set" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1"><mxGeometry x="640" y="180" width="220" height="70" as="geometry"/></mxCell>
+        <mxCell id="p2e4" value="3 · resolve profile" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=11;" edge="1" source="p2gw" target="p2reg" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p2px" value="MCP proxy&lt;br&gt;filtered tools/list · tools/call gated (Phase C)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;dashed=1;" vertex="1" parent="1"><mxGeometry x="640" y="310" width="240" height="70" as="geometry"/></mxCell>
+        <mxCell id="p2e5" value="4 · route (approved tools only)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=11;" edge="1" source="p2gw" target="p2px" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p2bk1" value="Private MCP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="1000" y="250" width="180" height="50" as="geometry"/></mxCell>
+        <mxCell id="p2bk2" value="REST→MCP adapter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;dashed=1;" vertex="1" parent="1"><mxGeometry x="1000" y="315" width="180" height="50" as="geometry"/></mxCell>
+        <mxCell id="p2bk3" value="SaaS MCP via egress" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="1000" y="380" width="180" height="50" as="geometry"/></mxCell>
+        <mxCell id="p2e6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p2px" target="p2bk1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p2e7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p2px" target="p2bk2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p2e8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p2px" target="p2bk3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p2aud" value="Audit chain&lt;br&gt;gateway.decision · token.exchange · request-ID" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1"><mxGeometry x="320" y="310" width="240" height="70" as="geometry"/></mxCell>
+        <mxCell id="p2e9" value="audit every hop" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;fontSize=11;" edge="1" source="p2gw" target="p2aud" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p2no" value="Forbidden: consumer token replayed downstream unchanged → exchange or workload identity only (D5). No token passthrough." style="text;html=1;fontSize=11;fontColor=#b85450;align=left;" vertex="1" parent="1"><mxGeometry x="40" y="470" width="700" height="40" as="geometry"/></mxCell>
+        <mxCell id="p2lg" value="Legend: solid = delivered · dashed = design seam / not implemented" style="text;html=1;fontSize=11;align=left;" vertex="1" parent="1"><mxGeometry x="40" y="520" width="500" height="30" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="03-Lifecycle-Publication" id="p3">
+    <mxGraphModel dx="1000" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="p3s1" value="REGISTERED" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="40" y="80" width="160" height="60" as="geometry"/></mxCell>
+        <mxCell id="p3s2" value="VALIDATED" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="260" y="80" width="160" height="60" as="geometry"/></mxCell>
+        <mxCell id="p3s3" value="READY FOR&lt;br&gt;CONSUMPTION" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="480" y="80" width="180" height="60" as="geometry"/></mxCell>
+        <mxCell id="p3s4" value="PUBLISHED" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="720" y="80" width="160" height="60" as="geometry"/></mxCell>
+        <mxCell id="p3s5" value="REVOKED /&lt;br&gt;DECOMMISSIONED" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="940" y="80" width="180" height="60" as="geometry"/></mxCell>
+        <mxCell id="p3t1" value="registry record" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=11;" edge="1" source="p3s1" target="p3s2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p3t2" value="schema/manifest validate" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=11;" edge="1" source="p3s2" target="p3s3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p3t3" value="catalogue-visible" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=11;" edge="1" source="p3s3" target="p3s4" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p3t4" value="recorded, not deleted" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=11;" edge="1" source="p3s4" target="p3s5" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p3g" value="READY gate (new)&lt;br&gt;gateway config applied + health/auth/route smoke tests pass&lt;br&gt;— config alone never suffices" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="1"><mxGeometry x="440" y="220" width="280" height="80" as="geometry"/></mxCell>
+        <mxCell id="p3e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;" edge="1" source="p3g" target="p3s3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p3map" value="Maps onto existing Studio lifecycle:&lt;br&gt;REGISTERED = registry record · VALIDATED = /agents/validate + /goals/validate pattern ·&lt;br&gt;PUBLISHED = agent published state · REVOKED = revoked/archived.&lt;br&gt;Configuration states — never runtime states." style="text;html=1;fontSize=11;align=left;" vertex="1" parent="1"><mxGeometry x="40" y="360" width="760" height="80" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="04-Registry-Exposure" id="p4">
+    <mxGraphModel dx="1000" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="p4t" value="Entity extensions (MCP_GATEWAY_EXTENSION.md) — all fields are design seams until implemented" style="text;html=1;fontSize=12;fontStyle=2;" vertex="1" parent="1"><mxGeometry x="40" y="20" width="900" height="24" as="geometry"/></mxCell>
+        <mxCell id="p4srv" value="MCP server entry&lt;br&gt;———&lt;br&gt;id · transport (stdio)&lt;br&gt;inspection history&lt;br&gt;&lt;i&gt;+ exposure { mode, gateway.route_ref,&lt;br&gt;private_endpoint, dns_name,&lt;br&gt;adapter, policy_profile_ref, backends }&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;" vertex="1" parent="1"><mxGeometry x="40" y="80" width="300" height="150" as="geometry"/></mxCell>
+        <mxCell id="p4ag" value="Agent manifest v1alpha1&lt;br&gt;———&lt;br&gt;model · instructions · tool_allowlist&lt;br&gt;resources · approval&lt;br&gt;&lt;i&gt;+ spec.identity.workload_identity_ref&lt;br&gt;+ spec.exposure { publish_via,&lt;br&gt;consumer_scopes, policy_profile_ref }&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;" vertex="1" parent="1"><mxGeometry x="40" y="280" width="300" height="150" as="geometry"/></mxCell>
+        <mxCell id="p4pol" value="Policy profile&lt;br&gt;———&lt;br&gt;selection policy (UX-17)&lt;br&gt;&lt;i&gt;+ exposure_rules { consumer_scopes,&lt;br&gt;tools_visible, tools_callable*,&lt;br&gt;egress_class, quota }&lt;/i&gt;&lt;br&gt;*empty until Phase C PEP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;dashed=1;" vertex="1" parent="1"><mxGeometry x="420" y="80" width="300" height="150" as="geometry"/></mxCell>
+        <mxCell id="p4aud" value="Audit chain&lt;br&gt;———&lt;br&gt;hash-chained events · payload.request_id&lt;br&gt;&lt;i&gt;+ kinds: exposure.registered / .ready /&lt;br&gt;.published / .revoked,&lt;br&gt;gateway.decision, token.exchange&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;" vertex="1" parent="1"><mxGeometry x="420" y="280" width="300" height="150" as="geometry"/></mxCell>
+        <mxCell id="p4env" value="route_ref realization (E7)&lt;br&gt;———&lt;br&gt;private/on-prem → K8s Gateway API HTTPRoute&lt;br&gt;GCP → ApigeeX/Hybrid route + PSC&lt;br&gt;AWS → API GW / ALB + PrivateLink&lt;br&gt;Azure → APIM / AppGW + Private Link&lt;br&gt;&lt;i&gt;registry schema identical everywhere&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;" vertex="1" parent="1"><mxGeometry x="800" y="150" width="320" height="160" as="geometry"/></mxCell>
+        <mxCell id="p4e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p4srv" target="p4pol" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p4e2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p4pol" target="p4env" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p4e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;" edge="1" source="p4aud" target="p4srv" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p4lg" value="Italic = proposed extension field · dashed box = design seam" style="text;html=1;fontSize=11;align=left;" vertex="1" parent="1"><mxGeometry x="40" y="480" width="600" height="30" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="05-Provisioning" id="p5">
+    <mxGraphModel dx="1000" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="p5or" value="Provisioning orchestrator&lt;br&gt;(Backstage / Camunda-class — design seam)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="60" width="260" height="70" as="geometry"/></mxCell>
+        <mxCell id="p5r1" value="1 · register&lt;br&gt;idempotency key + correlation ID" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="380" y="20" width="220" height="60" as="geometry"/></mxCell>
+        <mxCell id="p5r2" value="2 · validate&lt;br&gt;manifest / schema" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="640" y="20" width="220" height="60" as="geometry"/></mxCell>
+        <mxCell id="p5r3" value="3 · apply gateway config&lt;br&gt;route + policy" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;dashed=1;" vertex="1" parent="1"><mxGeometry x="900" y="20" width="220" height="60" as="geometry"/></mxCell>
+        <mxCell id="p5r4" value="4 · smoke tests&lt;br&gt;health + auth + route" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="1"><mxGeometry x="900" y="140" width="220" height="60" as="geometry"/></mxCell>
+        <mxCell id="p5r5" value="5 · READY → PUBLISHED&lt;br&gt;only on pass" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="640" y="140" width="220" height="60" as="geometry"/></mxCell>
+        <mxCell id="p5reg" value="TaaS registry" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1"><mxGeometry x="380" y="140" width="220" height="60" as="geometry"/></mxCell>
+        <mxCell id="p5e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p5or" target="p5r1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p5e2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p5r1" target="p5r2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p5e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p5r2" target="p5r3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p5e4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p5r3" target="p5r4" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p5e5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p5r4" target="p5r5" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p5e6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p5r1" target="p5reg" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p5e7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p5r5" target="p5reg" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p5dr" value="Drift reconciliation&lt;br&gt;scheduled compare: actual gateway resources vs registry metadata → alert + correct" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;dashed=1;" vertex="1" parent="1"><mxGeometry x="380" y="270" width="480" height="70" as="geometry"/></mxCell>
+        <mxCell id="p5e8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;" edge="1" source="p5dr" target="p5reg" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p5nt" value="Every step: bounded retries · workflow timeouts · compensating actions on failure · correlation IDs end-to-end." style="text;html=1;fontSize=11;align=left;" vertex="1" parent="1"><mxGeometry x="40" y="390" width="800" height="30" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="06-Private-Connectivity" id="p6">
+    <mxGraphModel dx="1100" dy="750" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="p6t" value="Reference topology (ApigeeX-style, docs/archi/apigeeArea.png) — dedicated gateway project/VPC; all names illustrative TBD" style="text;html=1;fontSize=12;fontStyle=2;" vertex="1" parent="1"><mxGeometry x="40" y="15" width="1000" height="24" as="geometry"/></mxCell>
+        <mxCell id="p6cz" value="Consumer VPC / tenant" style="swimlane;startSize=24;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;" vertex="1" parent="1"><mxGeometry x="40" y="60" width="240" height="340" as="geometry"/></mxCell>
+        <mxCell id="p6c1" value="Consumer FQDN&lt;br&gt;mcp-gw.example.corp" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="p6cz"><mxGeometry x="30" y="50" width="180" height="60" as="geometry"/></mxCell>
+        <mxCell id="p6c2" value="Inbound private endpoint&lt;br&gt;(PSC / PrivateLink / Private Link)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="p6cz"><mxGeometry x="30" y="160" width="180" height="70" as="geometry"/></mxCell>
+        <mxCell id="p6c3" value="Private DNS zone" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="p6cz"><mxGeometry x="30" y="260" width="180" height="50" as="geometry"/></mxCell>
+        <mxCell id="p6gz" value="prj-taas-mcp-gateway-&lt;env&gt; — dedicated gateway project/VPC" style="swimlane;startSize=24;html=1;fillColor=#eaf6ea;strokeColor=#4d7a4d;fontSize=12;" vertex="1" parent="1"><mxGeometry x="340" y="60" width="480" height="340" as="geometry"/></mxCell>
+        <mxCell id="p6g1" value="Inbound service attachment" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;dashed=1;" vertex="1" parent="p6gz"><mxGeometry x="30" y="150" width="180" height="60" as="geometry"/></mxCell>
+        <mxCell id="p6g2" value="Gateway runtime + MCP proxy&lt;br&gt;+ token broker" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;dashed=1;" vertex="1" parent="p6gz"><mxGeometry x="140" y="50" width="200" height="70" as="geometry"/></mxCell>
+        <mxCell id="p6g3" value="Outbound private endpoint" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;dashed=1;" vertex="1" parent="p6gz"><mxGeometry x="270" y="150" width="180" height="60" as="geometry"/></mxCell>
+        <mxCell id="p6g4" value="Internal DNS / peering zone" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="p6gz"><mxGeometry x="140" y="250" width="200" height="50" as="geometry"/></mxCell>
+        <mxCell id="p6bz" value="Backend project/VPC" style="swimlane;startSize=24;html=1;fillColor=#fdf3e7;strokeColor=#a66a3f;fontSize=12;" vertex="1" parent="1"><mxGeometry x="880" y="60" width="260" height="340" as="geometry"/></mxCell>
+        <mxCell id="p6b1" value="Service attachment" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="p6bz"><mxGeometry x="30" y="150" width="180" height="60" as="geometry"/></mxCell>
+        <mxCell id="p6b2" value="Internal LB" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="p6bz"><mxGeometry x="30" y="50" width="180" height="50" as="geometry"/></mxCell>
+        <mxCell id="p6b3" value="MCP services / model endpoints&lt;br&gt;Mistral · Vertex · Bedrock · local" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="p6bz"><mxGeometry x="30" y="240" width="200" height="60" as="geometry"/></mxCell>
+        <mxCell id="p6op" value="On-prem datacenter&lt;br&gt;SD-WAN + firewall → WSO2/JDE" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="120" y="460" width="260" height="60" as="geometry"/></mxCell>
+        <mxCell id="p6eg" value="Controlled egress&lt;br&gt;Zscaler-class → SaaS MCP&lt;br&gt;(Snowflake / Atlassian / ServiceNow)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="440" y="460" width="280" height="70" as="geometry"/></mxCell>
+        <mxCell id="p6e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p6c1" target="p6c2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p6e2" value="private connect" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=11;" edge="1" source="p6c2" target="p6g1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p6e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p6g1" target="p6g2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p6e4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p6g2" target="p6g3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p6e5" value="private connect" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=11;" edge="1" source="p6g3" target="p6b1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p6e6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p6b1" target="p6b2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p6e7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p6b2" target="p6b3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p6e8" value="SD-WAN" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=11;" edge="1" source="p6g2" target="p6op" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p6e9" value="allowlisted egress" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=11;" edge="1" source="p6g2" target="p6eg" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p6nt" value="Rules: private FQDNs only (never raw IP) · producer/consumer role recorded per flow · backend always LB/service-attachment fronted · SaaS only via approved egress." style="text;html=1;fontSize=11;align=left;" vertex="1" parent="1"><mxGeometry x="40" y="560" width="1000" height="40" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="07-Env-Gateway-Matrix" id="p7">
+    <mxGraphModel dx="1000" dy="750" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="p7t" value="One logical contract — four adapted realizations (LAD D3 / PAD §7). Schema identical; substrate differs." style="text;html=1;fontSize=12;fontStyle=2;" vertex="1" parent="1"><mxGeometry x="40" y="15" width="900" height="24" as="geometry"/></mxCell>
+        <mxCell id="p7l" value="Logical contract&lt;br&gt;———&lt;br&gt;identity + exposure filtering&lt;br&gt;policy + audit + correlation&lt;br&gt;request-ID propagation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;" vertex="1" parent="1"><mxGeometry x="40" y="80" width="240" height="130" as="geometry"/></mxCell>
+        <mxCell id="p7pr" value="Private / on-prem&lt;br&gt;———&lt;br&gt;&lt;b&gt;Kubernetes Gateway API&lt;/b&gt;&lt;br&gt;GatewayClass (Envoy GW / NGINX / Kong)&lt;br&gt;Gateway + HTTPRoute&lt;br&gt;NetworkPolicy: proxy pods only&lt;br&gt;Vault · Keycloak · K3s/kubeadm" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;" vertex="1" parent="1"><mxGeometry x="340" y="60" width="280" height="160" as="geometry"/></mxCell>
+        <mxCell id="p7gc" value="GCP&lt;br&gt;———&lt;br&gt;ApigeeX / Apigee Hybrid&lt;br&gt;PSC inbound/outbound endpoints&lt;br&gt;service attachments + internal LB&lt;br&gt;Secret Manager · Workload Identity&lt;br&gt;Vertex AI / Model Garden" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;" vertex="1" parent="1"><mxGeometry x="660" y="60" width="280" height="160" as="geometry"/></mxCell>
+        <mxCell id="p7aw" value="AWS&lt;br&gt;———&lt;br&gt;API Gateway / ALB / NLB&lt;br&gt;PrivateLink endpoint services&lt;br&gt;IAM / Identity Center federation&lt;br&gt;Secrets Manager&lt;br&gt;Bedrock via private connectivity" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;" vertex="1" parent="1"><mxGeometry x="340" y="250" width="280" height="160" as="geometry"/></mxCell>
+        <mxCell id="p7az" value="Azure&lt;br&gt;———&lt;br&gt;API Management / App Gateway&lt;br&gt;Private Link / private endpoints&lt;br&gt;Microsoft Entra ID (native broker)&lt;br&gt;Key Vault · workload identity&lt;br&gt;Azure AI / Foundry" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;" vertex="1" parent="1"><mxGeometry x="660" y="250" width="280" height="160" as="geometry"/></mxCell>
+        <mxCell id="p7e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p7l" target="p7pr" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p7e2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p7l" target="p7gc" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p7e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p7l" target="p7aw" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p7e4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p7l" target="p7az" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p7nt" value="AC-04: private cloud must pass with Gateway API resources only — no cloud-specific CRDs.&lt;br&gt;AC-05: identical logical contract across all four." style="text;html=1;fontSize=11;align=left;" vertex="1" parent="1"><mxGeometry x="40" y="470" width="700" height="50" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="08-Identity-Trust" id="p8">
+    <mxGraphModel dx="1000" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="p8t" value="Five identity domains — never conflated (LAD §9.1)" style="text;html=1;fontSize=12;fontStyle=2;" vertex="1" parent="1"><mxGeometry x="40" y="15" width="600" height="24" as="geometry"/></mxCell>
+        <mxCell id="p8i1" value="1 · Consumer principal&lt;br&gt;app/agent caller" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="60" y="70" width="180" height="60" as="geometry"/></mxCell>
+        <mxCell id="p8i2" value="2 · End-user principal&lt;br&gt;delegated context" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="60" y="160" width="180" height="60" as="geometry"/></mxCell>
+        <mxCell id="p8i3" value="3 · Gateway workload identity" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="380" y="70" width="200" height="60" as="geometry"/></mxCell>
+        <mxCell id="p8i4" value="4 · Agent runtime identity&lt;br&gt;spec.identity.workload_identity_ref" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1"><mxGeometry x="660" y="70" width="220" height="60" as="geometry"/></mxCell>
+        <mxCell id="p8i5" value="5 · Backend / MCP identity" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="960" y="70" width="200" height="60" as="geometry"/></mxCell>
+        <mxCell id="p8e1" value="exchange / delegate" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=11;" edge="1" source="p8i1" target="p8i3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p8e2" value="on-behalf-of" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=11;" edge="1" source="p8i2" target="p8i3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p8e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p8i3" target="p8i4" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p8e4" value="own authZ" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=11;" edge="1" source="p8i4" target="p8i5" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p8tb" value="Trust boundaries&lt;br&gt;———&lt;br&gt;consumer→gateway: TLS + token + scope&lt;br&gt;gateway→proxy: pods-only network policy&lt;br&gt;gateway→backend: private endpoints + allowlist&lt;br&gt;gateway→on-prem: SD-WAN + firewall + mTLS&lt;br&gt;gateway→SaaS: controlled egress + tenant limits&lt;br&gt;orchestrator→planes: workload identity + least privilege" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;" vertex="1" parent="1"><mxGeometry x="60" y="280" width="380" height="200" as="geometry"/></mxCell>
+        <mxCell id="p8th" value="Threats → controls&lt;br&gt;———&lt;br&gt;confused deputy → no token passthrough (D5)&lt;br&gt;over-exposed tools → filtered tools/list&lt;br&gt;SSRF → FQDN allowlists, no raw IP&lt;br&gt;injection→unsafe call → tools/call PEP-gated&lt;br&gt;secret leakage → no payload logging&lt;br&gt;replay/DoS → quota + size caps&lt;br&gt;cross-tenant → RBAC + isolation (Phase B)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;" vertex="1" parent="1"><mxGeometry x="520" y="280" width="420" height="200" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="09-Observability-Audit" id="p9">
+    <mxGraphModel dx="1000" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="p9a" value="API Gateway / MCP proxy&lt;br&gt;decision logs · latency · deny events" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;dashed=1;" vertex="1" parent="1"><mxGeometry x="40" y="80" width="240" height="70" as="geometry"/></mxCell>
+        <mxCell id="p9b" value="Control plane (Studio API)&lt;br&gt;structured JSON request log&lt;br&gt;{event, request_id, path, status, ms}" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="40" y="200" width="260" height="80" as="geometry"/></mxCell>
+        <mxCell id="p9c" value="Audit chain&lt;br&gt;exposure.* · gateway.decision · token.exchange&lt;br&gt;payload.request_id ↔ seq correlation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1"><mxGeometry x="400" y="120" width="300" height="90" as="geometry"/></mxCell>
+        <mxCell id="p9d" value="Observability platform&lt;br&gt;metrics · traces · dashboards" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="1"><mxGeometry x="780" y="80" width="240" height="60" as="geometry"/></mxCell>
+        <mxCell id="p9e" value="SIEM export" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="1"><mxGeometry x="780" y="180" width="240" height="60" as="geometry"/></mxCell>
+        <mxCell id="p9e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p9a" target="p9c" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p9e2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p9b" target="p9c" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p9e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p9c" target="p9d" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p9e4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p9d" target="p9e" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p9nt" value="Never logged: tokens · API keys · passwords · unredacted payloads.&lt;br&gt;Dashboards: tools/list vs tools/call volume · denied calls · drift · per-provider backend latency/errors · endpoint health.&lt;br&gt;Tamper evidence only — the chain proves records were not altered, never that claims were true." style="text;html=1;fontSize=11;align=left;" vertex="1" parent="1"><mxGeometry x="40" y="340" width="900" height="80" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="10-Boundary-Execution" id="p10">
+    <mxGraphModel dx="1000" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="p10t" value="Boundary invariant: proposal ≠ evidence ≠ authorization ≠ execution" style="text;html=1;fontSize=14;fontStyle=2;" vertex="1" parent="1"><mxGeometry x="40" y="20" width="800" height="30" as="geometry"/></mxCell>
+        <mxCell id="p10a" value="Proposal&lt;br&gt;GoalSpec / manifest drafts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="60" y="80" width="180" height="60" as="geometry"/></mxCell>
+        <mxCell id="p10b" value="Evidence&lt;br&gt;certificates · witnesses · audit" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1"><mxGeometry x="300" y="80" width="200" height="60" as="geometry"/></mxCell>
+        <mxCell id="p10c" value="Authorization&lt;br&gt;policy + approvals (Phase B)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;" vertex="1" parent="1"><mxGeometry x="560" y="80" width="200" height="60" as="geometry"/></mxCell>
+        <mxCell id="p10d" value="Execution&lt;br&gt;PEP + isolated workers (Phase C)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;dashed=1;" vertex="1" parent="1"><mxGeometry x="820" y="80" width="200" height="60" as="geometry"/></mxCell>
+        <mxCell id="p10x" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" source="p10a" target="p10b" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p10y" value="≠" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=14;" edge="1" source="p10b" target="p10c" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p10z" value="≠" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=14;" edge="1" source="p10c" target="p10d" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="p10pep" value="Phase C governed path&lt;br&gt;———&lt;br&gt;gateway → policy check → PEP → isolated worker&lt;br&gt;→ fresh evidence check → one-time approval → tools/call&lt;br&gt;&lt;br&gt;Current Studio: inspection only · tools/list read ·&lt;br&gt;inspection_only=true · tool_execution_performed=false&lt;br&gt;· no /tools/call route exists" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;" vertex="1" parent="1"><mxGeometry x="300" y="220" width="460" height="160" as="geometry"/></mxCell>
+        <mxCell id="p10nt" value="A published manifest is not a runtime guarantee. A valid certificate is not proof of runtime behavior.&lt;br&gt;Hash-chain verification = tamper evidence only. UNAVAILABLE is always preferred over fabricated state." style="text;html=1;fontSize=11;align=left;" vertex="1" parent="1"><mxGeometry x="40" y="430" width="800" height="60" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
