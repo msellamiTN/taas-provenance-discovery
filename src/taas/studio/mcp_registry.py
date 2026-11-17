@@ -13,6 +13,9 @@ import re
 from pathlib import Path
 from typing import Any
 
+from .exposure_signing import validate_exposure, verify_exposure
+from .tool_metadata_lint import lint_tools, summarize
+
 
 class MCPRegistryError(RuntimeError):
     """MCP registry configuration or connection failure."""
@@ -61,19 +64,35 @@ def _load_config() -> list[dict[str, Any]]:
             not isinstance(x, str) or not re.fullmatch(r"[A-Z][A-Z0-9_]{0,127}", x) for x in env_keys
         ):
             raise MCPRegistryError(f"MCP server {server_id} env must list environment variable names")
+        exposure = validate_exposure(item.get("exposure"), server_id)
+        exposure_signature = item.get("exposure_signature")
+        if exposure_signature is not None and not (
+                isinstance(exposure_signature, str) and len(exposure_signature) == 64):
+            raise MCPRegistryError(
+                f"MCP server {server_id} exposure_signature must be a 64-char hex digest")
         seen.add(server_id)
         normalized.append({"id": server_id, "name": name.strip(), "command": command,
-                           "args": args, "env": env_keys, "transport": "stdio"})
+                           "args": args, "env": env_keys, "transport": "stdio",
+                           "exposure": exposure, "exposure_signature": exposure_signature})
     return normalized
 
 
 def list_servers() -> dict[str, Any]:
     servers = _load_config()
-    return {"count": len(servers), "servers": [
-        {"id": item["id"], "name": item["name"], "transport": "stdio",
-         "configured": True, "credentials_configured": all(k in os.environ for k in item["env"])}
-        for item in servers
-    ]}
+    out = []
+    for item in servers:
+        entry = {"id": item["id"], "name": item["name"], "transport": "stdio",
+                 "configured": True,
+                 "credentials_configured": all(k in os.environ for k in item["env"])}
+        if item["exposure"]:
+            entry["exposure"] = item["exposure"]
+            if item["exposure_signature"]:
+                entry["exposure_verified"] = verify_exposure(
+                    item["exposure"], item["exposure_signature"])
+            else:
+                entry["exposure_verified"] = None  # unsigned — advisory only
+        out.append(entry)
+    return {"count": len(out), "servers": out}
 
 
 async def _inspect_stdio(server: dict[str, Any], timeout_seconds: float) -> dict[str, Any]:
@@ -108,6 +127,7 @@ async def _inspect_stdio(server: dict[str, Any], timeout_seconds: float) -> dict
                         "category": "mcp",
                     })
                 info = getattr(initialized, "serverInfo", None)
+                lint_tools(tools)
                 return {
                     "server_id": server["id"],
                     "server_name": server["name"],
@@ -116,6 +136,7 @@ async def _inspect_stdio(server: dict[str, Any], timeout_seconds: float) -> dict
                     "protocol_version": getattr(initialized, "protocolVersion", None),
                     "tool_count": len(tools),
                     "tools": tools,
+                    "metadata_lint": summarize(tools),
                     "inspection_only": True,
                     "tool_execution_performed": False,
                 }

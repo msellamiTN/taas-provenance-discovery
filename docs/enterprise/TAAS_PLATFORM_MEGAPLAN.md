@@ -130,8 +130,8 @@ Every requirement must preserve the boundary invariant. Full evidence: `REQUIREM
 | FR-SEC-3 | Secrets from platform secret store (KMS/Vault/Key Vault) | not implemented (Phase B) |
 | FR-SEC-4 | mTLS service mesh | not implemented (Phase C) |
 | FR-SEC-5 | SBOM + signed images (SLSA attestation) | not implemented (Phase B) |
-| FR-SEC-6 | Signed exposure records — `exposure` block on MCP server entries signed + four-eyes publication for `mode: gateway`; backend identity pinned (FQDN + TLS chain/SPIFFE) so route/DNS tamper fails closed (`MCP_GATEWAY_EXTENSION.md` E8) | not implemented (Phase B) |
-| FR-SEC-7 | Tool metadata sanitization — registry lints tool descriptions/schemas at inspection for instruction-like/injection patterns; only schema-required fields propagate to consumers (tool descriptions are untrusted input) | not implemented (Phase B) |
+| FR-SEC-6 | Signed exposure records — `exposure` block on MCP server entries signed + four-eyes publication for `mode: gateway`; backend identity pinned (FQDN + TLS chain/SPIFFE) so route/DNS tamper fails closed (`MCP_GATEWAY_EXTENSION.md` E8) | **partially delivered** — `exposure_signing.py` + registry validation + `exposure_verified` on `GET /mcp/servers`; four-eyes + gateway-side pinning = Phase B seam |
+| FR-SEC-7 | Tool metadata sanitization — registry lints tool descriptions/schemas at inspection for instruction-like/injection patterns; only schema-required fields propagate to consumers (tool descriptions are untrusted input) | **partially delivered** — `tool_metadata_lint.py` advisory findings live in `inspect_server`; propagation scoping = Phase B seam |
 | FR-SEC-8 | MCP server artifact provenance — server record carries image digest + SBOM ref + SLSA-class attestation; platform attests *artifact origin*, not only *inspection snapshots* (`MCP_GATEWAY_EXTENSION.md` E9) | not implemented (Phase C/D) |
 
 ### FR-DR — Resilience

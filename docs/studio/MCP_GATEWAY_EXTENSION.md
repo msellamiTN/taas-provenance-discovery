@@ -156,6 +156,8 @@ The `exposure` block (E1) decides where a governed request lands. A tampered or 
 
 Gateway/proxy validates the signature + pins before honoring a route — a corrupted registry cannot silently reroute traffic.
 
+**Status: control-plane half delivered** (`exposure_signing.py`): canonical HMAC-SHA256 sign/verify, `exposure`/`exposure_signature` validated in the registry config, `GET /api/v1/mcp/servers` reports `exposure_verified` (true/false/unsigned). Still seams: detached-JWS/Sigstore format, `approvals[]` four-eyes enforcement, `backend_identity` pinning, and the gateway-side verify-before-route.
+
 ## E9. Artifact provenance — attest origins, not only observations
 
 Inspection snapshots (delivered) prove *what was observed*; they say nothing about *what served it*. Extension fields on the server record for Phase C/D:

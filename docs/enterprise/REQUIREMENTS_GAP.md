@@ -83,8 +83,8 @@ Audit baseline: `main` @ `e108345` (752 tests; 89 API routes).
 | FR-SEC-3 Secret store | env-only today; `STUDIO_OPERATIONS.md` rotation procedure | not implemented (Phase B) |
 | FR-SEC-4 mTLS | none | not implemented (Phase C) |
 | FR-SEC-5 SBOM/SLSA | none | not implemented (Phase B) |
-| FR-SEC-6 Signed exposure records — signature + four-eyes publication + backend identity pinning on `exposure` block (E8) | registry entries are unsigned JSON today — the configuration plane is the confused-deputy surface | design seam — not implemented (Phase B) |
-| FR-SEC-7 Tool metadata sanitization — lint tool descriptions for injection patterns at inspection; schema-required fields only | `mcp_registry.py` inspection stores metadata as-observed | not implemented (Phase B) |
+| FR-SEC-6 Signed exposure records — signature + four-eyes publication + backend identity pinning on `exposure` block (E8) | `src/taas/studio/exposure_signing.py` — canonical HMAC sign/verify; `mcp_registry._load_config` validates `exposure` block + `exposure_signature`; `GET /mcp/servers` reports `exposure_verified`; `tests/test_mcp_exposure_and_lint.py` | **partially delivered** — control-plane sign/verify + config-plane integrity done; four-eyes publication + gateway-side backend identity pinning remain design seam (Phase B) |
+| FR-SEC-7 Tool metadata sanitization — lint tool descriptions for injection patterns at inspection; schema-required fields only | `src/taas/studio/tool_metadata_lint.py` — phrase/URI/markup/size linter; `mcp_registry.inspect_server` annotates `metadata_findings` per tool + `metadata_lint` summary (advisory); `tests/test_mcp_exposure_and_lint.py` | **partially delivered** — advisory linting live at inspection; propagation-scoping ("schema-required fields only") remains design seam (Phase B) |
 | FR-SEC-8 MCP server artifact provenance — image digest + SBOM + SLSA attestation on server record (E9) | snapshots attest observations, not artifact origins | not implemented (Phase C/D) |
 
 ## FR-DR — Resilience
