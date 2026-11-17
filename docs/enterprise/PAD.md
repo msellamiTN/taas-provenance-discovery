@@ -221,6 +221,33 @@ Realization modelled on `docs/archi/apigeeArea.png`:
 - Consistent gateway/MCP enablement across all clusters in an environment group.
 - Backup/restore/upgrade/rollback ownership for stateful components.
 
+### 7.6 Per-environment capability matrix — the contract promises the floor, not the ceiling
+
+`route_ref` (E1/E7) is schema-identical across environments, but the **enforcement strength is not**. Each realization is attested by the PT test plan; a capability absent in an environment must degrade to an explicit documented control, never to silence.
+
+| Capability (logical contract) | K8s Gateway API (private) | GCP ApigeeX | AWS API GW | Azure APIM |
+|---|---|---|---|---|
+| TLS termination | impl-specific (Envoy/NGINX/Kong) | delivered | delivered | delivered |
+| WAF / threat protection | **absent** — external WAF or netpol+IDS needed | delivered | WAF add-on | WAF add-on |
+| JWT/JWKS validation | impl-specific | delivered | delivered | delivered |
+| Fine-grained authZ hook (AuthZEN) | ext-proc/ext-authz | policy callout | Lambda authorizer | policy send-request |
+| Rate/quota per consumer | impl-specific | delivered | delivered | delivered |
+| Private connectivity | cluster LB / host port | PSC + service attachment | PrivateLink endpoint svc | Private Link |
+| Token exchange/downscope | broker sidecar/service | broker + policy | broker + Lambda | broker + policy |
+| mTLS data-path | mesh (opt) | frontend mTLS (opt) | mTLS (opt) | mTLS (opt) |
+
+> `impl-specific` = capability depends on the chosen GatewayClass implementation (ADR-01) — the environment's conformance test proves what it actually enforces.
+
+### 7.7 Token broker / IdP resilience (data-path SPOF)
+
+The broker sits in the request path; its failure modes must be designed, not discovered:
+
+- **HA:** ≥2 broker replicas across failure domains; no in-memory session state (stateless validation + exchange).
+- **JWKS:** cached with bounded TTL; rotation overlap window honored; clock-skew tolerance configured; stale-key rejection logged.
+- **IdP outage:** new token issuance fails closed; *validation* continues while cached JWKS/metadata remains valid; expired cached material → 401, never fail-open.
+- **Registry outage** (§9) and **IdP outage** compose: publication fails closed on either; serving requires *both* cached policy and cached trust material valid.
+- RTO/RPO for broker + IdP config = `TBD` per environment.
+
 ## 8. Physical security and trust boundaries
 
 | Boundary | Required controls |

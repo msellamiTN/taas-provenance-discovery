@@ -65,7 +65,8 @@ Every requirement must preserve the boundary invariant. Full evidence: `REQUIREM
 | FR-GOV-1 | Fail-closed authentication (503 unset, 401 mismatch) | delivered |
 | FR-GOV-2 | Named API keys: hashed at rest, per-key actor binding, recorded revocation | delivered |
 | FR-GOV-3 | OIDC/SSO interactive login | not implemented (Phase B) |
-| FR-GOV-3b | Token broker — short-lived Bearer tokens for all MCP access, Entra ID or equivalent IdP, JWKS-validated at proxy edge | not implemented (Phase B) — SoW commitments C2/C6; extension seam `MCP_GATEWAY_EXTENSION.md` E6 |
+| FR-GOV-3b | Token broker — short-lived Bearer tokens for all MCP access, Entra ID or equivalent IdP, JWKS-validated at proxy edge | not implemented (Phase B) — SoW commitments C2/C6; extension seam `MCP_GATEWAY_EXTENSION.md` E6. **Replacement at the edge**, not evolution: `ak_*` keys remain control-plane/dev only |
+| FR-GOV-3c | Sender-constrained tokens — DPoP or mTLS-bound tokens for MCP data path so a stolen bearer cannot be replayed (LAD D13) | not implemented (Phase B) — decision recorded, mechanism TBD |
 | FR-GOV-4 | RBAC roles (viewer/operator/approver/admin) | not implemented (Phase B) |
 | FR-GOV-5 | Org-scoped policies + multi-party approval workflows | not implemented (Phase B/E) |
 | FR-GOV-6 | Tenant isolation | not implemented — separate security project |
@@ -90,7 +91,8 @@ Every requirement must preserve the boundary invariant. Full evidence: `REQUIREM
 | FR-INT-5 | GCP Vertex AI adapter | not implemented (Phase D) |
 | FR-INT-6 | AWS Bedrock adapter | not implemented (Phase D) |
 | FR-INT-7 | vLLM private inference adapter | not implemented (Phase D) |
-| FR-INT-8 | REST→MCP onboarding — enterprise REST APIs (JDE/WSO2-class) surfaced as governed MCP tools via gateway adapter (LAD D6) | not implemented (Phase B) |
+| FR-INT-8 | REST→MCP onboarding — enterprise REST APIs (JDE/WSO2-class) surfaced as governed MCP tools via gateway adapter (LAD D6); per-adapter contract tests, output sanitization, rate limits (legacy APIs assumed perimeter trust) | not implemented (Phase B) |
+| FR-INT-9 | MCP session & notification policy — bidirectional JSON-RPC semantics at the proxy: session↔identity binding, `notifications/*` allow-listing (covert/exfil channel), elicitation/sampling interception, streaming + cancellation limits (LAD D11) | not implemented (Phase B) |
 
 ### FR-DEP — Deployment & provisioning
 
@@ -104,6 +106,7 @@ Every requirement must preserve the boundary invariant. Full evidence: `REQUIREM
 | FR-DEP-5b | Centralized MCP gateway/proxy — all MCP access transits the proxy (inspection today, governed execution Phase C) | not implemented (Phase B) — SoW commitment C2, LAD D1/D5 |
 | FR-DEP-5c | Per-environment gateway realization — **private/on-prem via Kubernetes Gateway API** (GatewayClass + Gateway + HTTPRoute); GCP ApigeeX/Hybrid + PSC; AWS API GW/ALB + PrivateLink; Azure APIM/AppGW + Private Link. One logical contract (LAD D3, PAD §7) | not implemented (Phase B) |
 | FR-DEP-5d | Private connectivity to backends & AI platforms — PSC / PrivateLink / Private Link endpoints + service attachments + private DNS; no raw-IP dialing (PAD §5.3) | not implemented (Phase B) |
+| FR-DEP-5e | Per-env gateway capability matrix + conformance tests — `route_ref` is schema-identical but semantically divergent (K8s GW API has no WAF; PrivateLink unidirectional; Apigee policies ≠ APIM policies); the contract promises the floor, proven by PT tests per env (PAD §7.5) | not implemented (Phase B) |
 | FR-DEP-6 | Air-gapped on-prem bundle (offline pip, seed registries) | not implemented (Phase D) |
 
 ### FR-OBS — Observability
@@ -115,6 +118,8 @@ Every requirement must preserve the boundary invariant. Full evidence: `REQUIREM
 | FR-OBS-3 | `/health` + `/ready` | delivered |
 | FR-OBS-4 | OpenTelemetry traces + metrics endpoint | not implemented (Phase B) |
 | FR-OBS-5 | Audit → SIEM export | not implemented (Phase B) |
+| FR-OBS-6 | External audit anchoring — periodic signed ledger digests to WORM/immutable store or transparency-log-style witness; the audit producer must not be the sole anchor of its own evidence (self-attestation gap, LAD D12) | not implemented (Phase B) |
+| FR-OBS-7 | Anomaly detection path — tool-use bursts, new egress FQDN, token-exchange anomalies surfaced via metrics/SIEM alerts | not implemented (Phase B) |
 
 ### FR-SEC — Security
 
@@ -125,6 +130,9 @@ Every requirement must preserve the boundary invariant. Full evidence: `REQUIREM
 | FR-SEC-3 | Secrets from platform secret store (KMS/Vault/Key Vault) | not implemented (Phase B) |
 | FR-SEC-4 | mTLS service mesh | not implemented (Phase C) |
 | FR-SEC-5 | SBOM + signed images (SLSA attestation) | not implemented (Phase B) |
+| FR-SEC-6 | Signed exposure records — `exposure` block on MCP server entries signed + four-eyes publication for `mode: gateway`; backend identity pinned (FQDN + TLS chain/SPIFFE) so route/DNS tamper fails closed (`MCP_GATEWAY_EXTENSION.md` E8) | not implemented (Phase B) |
+| FR-SEC-7 | Tool metadata sanitization — registry lints tool descriptions/schemas at inspection for instruction-like/injection patterns; only schema-required fields propagate to consumers (tool descriptions are untrusted input) | not implemented (Phase B) |
+| FR-SEC-8 | MCP server artifact provenance — server record carries image digest + SBOM ref + SLSA-class attestation; platform attests *artifact origin*, not only *inspection snapshots* (`MCP_GATEWAY_EXTENSION.md` E9) | not implemented (Phase C/D) |
 
 ### FR-DR — Resilience
 
@@ -133,6 +141,7 @@ Every requirement must preserve the boundary invariant. Full evidence: `REQUIREM
 | FR-DR-1 | Online backup + restore rehearsal (7 stores, integrity verified) | delivered |
 | FR-DR-2 | Documented RPO/RTO + rollback | delivered (runbook) |
 | FR-DR-3 | HA topology (replicas + shared store) | design only (Phase B) |
+| FR-DR-4 | Token-broker / IdP resilience — broker is a data-path SPOF: HA replicas, JWKS cache TTL + rotation strategy, defined behavior on IdP outage (new publication fails closed; serving continues only under valid cached policy) | not implemented (Phase B) — PAD §7.6 |
 
 ## 4. Non-functional requirements `NFR-*`
 
@@ -151,6 +160,9 @@ Targets, not achieved metrics. Verification lives in `REQUIREMENTS_GAP.md`.
 | NFR-PRT-2 | Runtime parity | CPU/GPU — GPU profile informational, never a claimed capability |
 | NFR-AUD-1 | Ledger integrity | append-only hash chain; verify scans full ledger; tamper evidence ≠ truth evidence |
 | NFR-AUD-2 | Correlation | every mutation carries actor + `payload.request_id` |
+| NFR-AUD-3 | External anchoring | ledger digests anchored outside the system's own trust domain (WORM store or witnessed log); a hash chain anchored only by its producer proves nothing to an auditor |
+| NFR-SEC-5 | Enforcement-domain separation | PEP, policy store and ledger must run in separate identity/admin domains from the control plane in any phase that gates real traffic; a PEP sharing the control plane's failure domain is a convention, not a boundary |
+| NFR-AVL-1 | Identity-path resilience | token broker + IdP are data-path dependencies: HA required; on IdP outage new publication fails closed and serving continues only under valid cached policy/JWKS |
 | NFR-CMP-1 | Compliance mapping | NIST AI RMF GOVERN/MAP/MEASURE/MANAGE → TaaS artifacts (§6) |
 | NFR-PERF-1 | Bounded latency | inspection timeouts enforced; p95 read < 2 s on preprod stores (target) |
 | NFR-PERF-2 | Bounded payloads | 2 MiB request cap → 413 |
@@ -186,7 +198,8 @@ Targets, not achieved metrics. Verification lives in `REQUIREMENTS_GAP.md`.
 | Phase | Scope | Exit criteria |
 |---|---|---|
 | **A — Control plane (done)** | Lifecycle API, Studio UI, preprod hardening (S1–S5/O1), E1–E3, reviewer package | All §7.4 gates green except S2 build-verify |
-| **B — Enterprise platform** | OIDC/SSO + RBAC, Postgres adapter, Terraform modules, K8s (incl. GPU nodes) + Helm, API gateway policy, **centralized MCP proxy + token broker (Entra ID/equiv.)**, egress proxy, secret-store integration, OTel + SIEM export, SBOM/SLSA pipeline | Deploy from Terraform to ≥2 clouds; SSO + roles enforced; MCP traffic proxied + brokered; metrics/traces flow; image signed |
+| **B — Enterprise platform** | OIDC/SSO + RBAC, Postgres adapter (OD-1), Terraform modules, K8s (incl. GPU nodes) + Helm, API gateway policy, **centralized MCP proxy + token broker (Entra ID/equiv.)**, egress proxy, secret-store integration, OTel + SIEM export, SBOM/SLSA pipeline; **signed exposure records (FR-SEC-6), MCP session/notification policy (FR-INT-9), sender-constrained tokens (FR-GOV-3c), external audit anchoring (FR-OBS-6), tool metadata sanitization (FR-SEC-7), per-env capability matrix (FR-DEP-5e), broker HA (FR-DR-4)** | Deploy from Terraform to ≥2 clouds; SSO + roles enforced; MCP traffic proxied + brokered + session-policy enforced; ledger externally anchored; exposure records signed; image signed |
+| **B.5 — Assurance hardening** | External audit anchoring, artifact provenance for MCP servers (FR-SEC-8), anomaly detection (FR-OBS-7) — may fold into B or C per capacity | Anchor verifiable by third party without repo access |
 | **C — Governed execution pilot** | PEP + isolated workers per `GOVERNED_EXECUTION_GATEWAY_PHASE1.md` + `ISOLATED_PEP.md`; opt-in only; mTLS; still no `tools/call` outside the gated path | One governed invocation end-to-end in staging, all bindings re-checked, audit-complete |
 | **D — AI-platform & air-gap** | Provider adapters (Mistral, Foundry, Vertex, Bedrock, vLLM); offline install bundle; seed-registry import | Adapter contract tests per provider; air-gap install from bundle |
 | **E — Certification readiness** | NIST AI RMF profile, ISO 42001 AIMS evidence pack, tenancy, org policies, multi-party approvals | External audit walk-through; compliance matrix §6 all `delivered` |
@@ -194,3 +207,13 @@ Targets, not achieved metrics. Verification lives in `REQUIREMENTS_GAP.md`.
 Each phase keeps the boundary charter intact: execution enters only via Phase
 C's gated, opt-in path; tenancy only via Phase B/E security workstreams;
 `UNAVAILABLE` is never replaced by synthesized data.
+
+## 8. Open architecture decisions (recorded, unresolved)
+
+| ID | Decision | Options | Risk if decided by accident |
+|---|---|---|---|
+| OD-1 | Store backend for Phase B | Postgres + signed event log / object storage + indexing | concurrent writes, locking, and ACID are assumed but never designed (NFR-SCL-3) |
+| OD-2 | Sender-constraint mechanism | DPoP / mTLS-bound / both by env | bearer tokens stay replayable — the highest-value tokens get the weakest binding |
+| OD-3 | Audit anchor mechanism | WORM object-lock / transparency-log witness / customer-held log | external audit will not accept self-anchored evidence (NFR-AUD-3) |
+| OD-4 | FGA engine | OpenFGA / Permit-class / vendor | AuthZEN is pre-1.0 — facade must keep engine replaceable (LAD D9/ADR-06) |
+| OD-5 | MCP session model | per-connection identity vs per-message claims | covert channels via `notifications/*` if unbounded (FR-INT-9) |

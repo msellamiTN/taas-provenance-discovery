@@ -22,7 +22,8 @@ Audit baseline: `main` @ `e108345` (752 tests; 89 API routes).
 | FR-GOV-1 Fail-closed auth | `require_api_token` in `api.py`; 503/401 asserted in `tests/test_api_keys.py`, acceptance notebook fail-closed battery | delivered |
 | FR-GOV-2 Named API keys | `src/taas/studio/api_keys.py`; `GET/POST /admin/api-keys`, `POST …/revoke`; `api_key` audit events; per-key `StudioPrincipal` actor | delivered |
 | FR-GOV-3 OIDC/SSO | none | not implemented (Phase B) |
-| FR-GOV-3b Token broker (Entra ID / equivalent IdP) — short-lived Bearer tokens for all MCP access, JWKS-validated at proxy edge | `MCP_GATEWAY_EXTENSION.md` E6 — evolution of delivered `TAAS_STUDIO_API_TOKEN` + `ak_*` named-key model (`tests/test_api_keys.py`); `token.exchange` audit kind (design seam) | design seam — not implemented (Phase B) |
+| FR-GOV-3b Token broker (Entra ID / equivalent IdP) — short-lived Bearer tokens for all MCP access, JWKS-validated at proxy edge; **edge replacement** for data-path auth | `MCP_GATEWAY_EXTENSION.md` E6 — `ak_*` keys remain control-plane/dev only; `token.exchange` audit kind (design seam) | design seam — not implemented (Phase B) |
+| FR-GOV-3c Sender-constrained tokens (DPoP / mTLS-bound) on MCP data path | none (LAD D13, OD-2) | not implemented (Phase B) |
 | FR-GOV-4 RBAC | none | not implemented (Phase B) |
 | FR-GOV-5 Org policies, multi-party approvals | `POST /policy/evaluate` (diagnostic) + `GET/POST …/approvals` exist; org-scoped/multi-party absent | partially delivered |
 | FR-GOV-6 Tenant isolation | single-tenant by design; megaplan §7.1 | not implemented — separate security project |
@@ -57,6 +58,8 @@ Audit baseline: `main` @ `e108345` (752 tests; 89 API routes).
 | FR-DEP-5c Per-environment gateway realization — **Kubernetes Gateway API** (GatewayClass/Gateway/HTTPRoute) for private/on-prem; GCP ApigeeX+PSC; AWS API GW/ALB+PrivateLink; Azure APIM/AppGW+Private Link — one logical contract (LAD D3, PAD §7) | `MCP_GATEWAY_EXTENSION.md` E7 `route_ref` per-environment mapping (design seam); no K8s manifests or gateway resources in repo | design seam — not implemented (Phase B) |
 | FR-DEP-5d Private connectivity — PSC/PrivateLink/Private Link endpoints + service attachments + private DNS to backends & AI platforms (PAD §5.3, ref `docs/archi/apigeeArea.png`) | `MCP_GATEWAY_EXTENSION.md` E1 `private_endpoint`/`dns_name`/`lb_ref` fields (design seam) | design seam — not implemented (Phase B) |
 | FR-INT-8 REST→MCP onboarding — enterprise REST APIs exposed as governed MCP tools via gateway adapter (LAD D6) | `MCP_GATEWAY_EXTENSION.md` E1 `mode: rest-adapter` + `adapter.mapping_ref` (design seam) | design seam — not implemented (Phase B) |
+| FR-INT-9 MCP session & notification policy — session↔identity binding, `notifications/*` allow-listing, elicitation/sampling interception, streaming limits (LAD D11) | none — proxy is a REST mental model today; bidirectional JSON-RPC semantics undesigned (OD-5) | not implemented (Phase B) |
+| FR-DEP-5e Per-env capability matrix + conformance tests — `route_ref` schema-identical but enforcement strength divergent (PAD §7.6) | PAD §7.6 matrix (design) | design seam — not implemented (Phase B) |
 | FR-DEP-6 Air-gap bundle | Colab notebooks prove offline-capable checkout; no bundle | not implemented (Phase D) |
 
 ## FR-OBS — Observability
@@ -68,6 +71,8 @@ Audit baseline: `main` @ `e108345` (752 tests; 89 API routes).
 | FR-OBS-3 Health/readiness | `GET /health`, `GET /ready` (`calibration` state) | delivered |
 | FR-OBS-4 OTel/metrics | none | not implemented (Phase B) |
 | FR-OBS-5 SIEM export | none (stdout JSON is SIEM-ingestible) | not implemented (Phase B) |
+| FR-OBS-6 External audit anchoring — signed ledger digests to WORM/witness store; producer never sole anchor (LAD D12, NFR-AUD-3, OD-3) | `audit_ledger.py` hash chain is self-anchored today — tamper-evident but self-attested | not implemented (Phase B) |
+| FR-OBS-7 Anomaly detection — tool-use bursts, new egress FQDN, token-exchange anomalies → metrics/SIEM | none | not implemented (Phase B) |
 
 ## FR-SEC — Security
 
@@ -78,6 +83,9 @@ Audit baseline: `main` @ `e108345` (752 tests; 89 API routes).
 | FR-SEC-3 Secret store | env-only today; `STUDIO_OPERATIONS.md` rotation procedure | not implemented (Phase B) |
 | FR-SEC-4 mTLS | none | not implemented (Phase C) |
 | FR-SEC-5 SBOM/SLSA | none | not implemented (Phase B) |
+| FR-SEC-6 Signed exposure records — signature + four-eyes publication + backend identity pinning on `exposure` block (E8) | registry entries are unsigned JSON today — the configuration plane is the confused-deputy surface | design seam — not implemented (Phase B) |
+| FR-SEC-7 Tool metadata sanitization — lint tool descriptions for injection patterns at inspection; schema-required fields only | `mcp_registry.py` inspection stores metadata as-observed | not implemented (Phase B) |
+| FR-SEC-8 MCP server artifact provenance — image digest + SBOM + SLSA attestation on server record (E9) | snapshots attest observations, not artifact origins | not implemented (Phase C/D) |
 
 ## FR-DR — Resilience
 
@@ -86,6 +94,7 @@ Audit baseline: `main` @ `e108345` (752 tests; 89 API routes).
 | FR-DR-1 Backup/restore | online SQLite backup rehearsal — integrity + row counts verified; megaplan S3 | delivered |
 | FR-DR-2 RPO/RTO + rollback | `docs/deployment/STUDIO_OPERATIONS.md` | delivered (single-instance) |
 | FR-DR-3 HA | `PAD.md` T-C only | design — Phase B |
+| FR-DR-4 Token-broker/IdP resilience — HA, JWKS cache/rotation, IdP-outage behavior (PAD §7.7, NFR-AVL-1) | PAD §7.7 (design) | design seam — not implemented (Phase B) |
 
 ## NFR spot verification
 

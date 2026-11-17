@@ -26,7 +26,7 @@ Design-first companion: `docs/archi/taas-lad.drawio` — 7 pages aligned to this
 | LAD-04 Inspect-vs-Invoke | §6.3 inspection today vs Phase C PEP path |
 | LAD-05 Registry-Model | §8 entities + extension fields |
 | LAD-06 Identity-Threats | §9 five identity domains + threat map |
-| LAD-07 Decisions | §11 decision map D1–D10 |
+| LAD-07 Decisions | §11 decision map D1–D14 |
 
 Feature-level overview diagrams: `docs/archi/taas-enterprise-architecture.drawio` (10 pages, one per feature).
 
@@ -246,6 +246,13 @@ Edge (TLS, WAF/threat, size limits) → Identity (token validation, exchange) �
 | Secret leakage | No payload logging; secret stores; no secrets in audit/manifests |
 | Replay / DoS | Rate limits, quotas, request-size caps, threat protection |
 | Cross-tenant access | Tenant isolation + RBAC (Phase B) |
+| Bearer replay (stolen token) | Sender-constrained tokens — DPoP/mTLS-bound (D13); short TTLs are mitigation, not elimination |
+| Registry/exposure tampering | Signed exposure records; four-eyes publication; backend identity pinned (FQDN + TLS/SPIFFE); fail-closed on mismatch |
+| Audit self-attestation | External anchor — signed digests to WORM store/witness log; producer is never sole anchor (D12) |
+| Covert channel via MCP notifications | Session/notification policy at proxy: `notifications/*` allow-listed, elicitation/sampling intercepted (D11) |
+| Tool-description prompt injection | Metadata sanitization at inspection; only schema-required fields propagate |
+| Backend artifact substitution | Artifact provenance on server record (image digest, SBOM ref); inspection alone proves nothing about *what* served |
+| Approval TOCTOU | Approval bound to hash(policy_fp, tool, canonical_args, evidence) — reuse with different args fails |
 
 ## 10. Logical non-functional requirements
 
@@ -278,6 +285,10 @@ Edge (TLS, WAF/threat, size limits) → Identity (token validation, exchange) �
 | D8 | Provisioning via orchestration with idempotency/compensation/drift | Industrializes onboarding | Design seam |
 | D9 | Fine-grained authZ via **AuthZEN facade → ABAC/ReBAC engine** (OpenFGA/Permit-class); RBAC for coarse checks, ReBAC/ABAC for per-tool/per-resource rules; normalized `403` denials | Coarse gateway checks alone can't express contextual rules; decoupled PDP keeps policy portable | Design seam — ref: Google Apigee MCP-authorization TechTalk |
 | D10 | Token mechanics: OAuth 2.1 + RFC 8693 downscoping per hop + opaque tokens + RFC 6750 step-up consent | Least privilege per segment; no universal static tokens | Design seam — ref: Google Apigee MCP-authorization TechTalk |
+| D11 | **MCP session & notification policy** — MCP is bidirectional JSON-RPC (sessions, `notifications/*`, elicitation, sampling, streaming, cancellation), not request/response; the proxy must bind sessions to identity, allow-list server→client notification kinds, intercept elicitation/sampling, cap streams | A REST mental model on MCP leaves the highest-risk channel (notifications = covert/exfil path) ungoverned | Design seam — FR-INT-9, OD-5 |
+| D12 | **External audit anchoring** — periodic signed ledger digests anchored to WORM/immutable storage or a witnessed transparency log; SIEM streaming export; the audit producer is never the sole anchor of its own evidence | A hash chain anchored only by its producer is self-attestation — an auditor cannot distinguish intact history from rewritten history | Design seam — FR-OBS-6, NFR-AUD-3, OD-3 |
+| D13 | **Sender-constrained tokens** — MCP data-path tokens bound to the caller (DPoP or mTLS) in addition to short TTL; `ak_*` keys remain control-plane/dev only; broker is an edge *replacement*, not an evolution of the key store | Bearer tokens are replayable; the highest-value path (tool access) must not carry the weakest token type | Design seam — FR-GOV-3c, OD-2 |
+| D14 | **Enforcement-domain separation** — PEP, policy store and ledger run in separate identity/admin domains from the control plane wherever real traffic is gated; in-process enforcement is inspection aid, never a boundary | A PEP sharing the control plane's failure/admin domain can be disabled by the thing it gates | Design seam — NFR-SEC-5 |
 
 ## 12. Operations and governance
 

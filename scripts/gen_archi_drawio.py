@@ -246,24 +246,31 @@ def build_lad_p6():
 
 def build_lad_p7():
     p = P()
-    p.title("LAD-07 · Decision map — D1..D10 around the centralized gateway")
-    core = p.node("core", "Centralized\nMCP gateway\n(D1)", "ellipse;whiteSpace=wrap;html=1;fontSize=12;" + C_GOV, 500, 200, 160, 110)
+    p.title("LAD-07 · Decision map — D1..D14 around the centralized gateway")
+    core = p.node("core", "Centralized\nMCP gateway\n(D1)", "ellipse;whiteSpace=wrap;html=1;fontSize=12;" + C_GOV, 560, 210, 160, 110)
     ds = [
         ("d2", "D2 Token broker\nIdP-agnostic", 90, 60, C_IDENT),
         ("d9", "D9 AuthZEN→ReBAC/ABAC", 330, 60, C_IDENT),
         ("d6", "D6 REST→MCP adapter", 700, 60, C_IDENT),
         ("d8", "D8 Orchestrated prov.\n+ drift", 950, 60, C_IDENT),
+        ("d11", "D11 MCP session &\nnotification policy", 1160, 60, C_RISK),
         ("d3", "D3 Gateway per env\nK8s GW API / ApigeeX /\nPrivateLink / Private Link", 90, 220, C_IDENT),
-        ("d5", "D5 No token\npassthrough", 330, 360, C_RISK),
-        ("d4", "D4 Control plane\ninspection-only", 90, 360, C_CONSUMER),
-        ("d7", "D7 Registry owns\nlifecycle ≠ runtime", 700, 360, C_IDENT),
-        ("d10", "D10 OAuth2.1·8693\n·6750·opaque", 950, 360, C_IDENT),
+        ("d13", "D13 Sender-constrained\ntokens (DPoP/mTLS)", 1160, 220, C_IDENT),
+        ("d5", "D5 No token\npassthrough", 330, 400, C_RISK),
+        ("d4", "D4 Control plane\ninspection-only", 90, 400, C_CONSUMER),
+        ("d7", "D7 Registry owns\nlifecycle ≠ runtime", 700, 400, C_IDENT),
+        ("d10", "D10 OAuth2.1·8693\n·6750·opaque", 950, 400, C_IDENT),
+        ("d12", "D12 External audit\nanchoring (WORM)", 90, 540, C_RISK),
+        ("d14", "D14 Enforcement-domain\nseparation (PEP)", 330, 540, C_RISK),
     ]
     ids = []
     for i, (pid, lbl, x, y, col) in enumerate(ds):
         ids.append(p.node(pid, lbl, vstyle(col), x, y, 190, 70))
     for d in ids:
         p.edge(d, core)
+    p.node(None, "D11–D14 added from principal-architect threat review: MCP session semantics, external anchoring,\n"
+                  "sender-constrained tokens, enforcement-domain separation — the seams most likely to be attacked.",
+           vlstyle(C_NEUT), 700, 540, 660, 70)
     return p
 
 
@@ -678,6 +685,45 @@ PAGES_PAD = [
 ]
 
 
+def build_stu_p7():
+    p = P(1500, 1000)
+    p.title("STU-07 · Threat & assurance gap map — findings from principal-architect review → required seams")
+    rows = [
+        ("Audit self-attestation", "audit_ledger.py hash-chains into a file the Studio\ncontrols — producer is sole anchor",
+         "External anchor: signed digests → WORM/witness log;\nSIEM streaming export (LAD D12, NFR-AUD-3)"),
+        ("Enforcement inside gated domain", "PEP/policy/ledger share the Studio's admin &\nfailure domain — gate can disable its own gate",
+         "Separate identity/admin domains mandatory in\nany gating phase (LAD D14, NFR-SEC-5)"),
+        ("Bearer replay", "OAuth bearer tokens are replayable; tool path is\nthe highest-value credential",
+         "Sender-constrained tokens DPoP/mTLS (LAD D13);\nak_* stays control-plane only (E6)"),
+        ("Registry tampering", "exposure.route_ref/backends are plain JSON —\nconfig plane is the confused-deputy surface",
+         "Signed exposure + four-eyes publish + backend\nidentity pinning, fail-closed (E8)"),
+        ("MCP session blind spot", "Bidirectional JSON-RPC: notifications/elicitation/\nsampling = covert channel; REST model unfit",
+         "Session↔identity binding, notification allow-list,\nelicitation interception (LAD D11, FR-INT-9)"),
+        ("Approval TOCTOU", "Approving call X must not authorize call Y",
+         "Approval = hash(policy_fp, tool, canonical_args,\nevidence) — reuse with different args fails"),
+        ("Description injection", "Tool descriptions are untrusted input delivered\nthrough a trusted channel",
+         "Registry-side linting/sanitization at inspection\n(FR-SEC-7)"),
+        ("Observation ≠ origin", "Snapshots prove what was observed, not what\nserved it — swapped backend still valid",
+         "Artifact provenance: image digest + SBOM +\nSLSA attestation (E9)"),
+        ("Divergent enforcement", "route_ref schema-identical but K8s GW API has\nno WAF; PrivateLink unidirectional",
+         "Per-env capability matrix + conformance tests —\ncontract promises the floor (PAD §7.6)"),
+        ("Broker SPOF", "Token broker sits in the data path; JWKS/IdP\noutage behavior undesigned",
+         "HA replicas, JWKS cache TTL+rotation, IdP outage\nfail-closed new-publish / cached serving (PAD §7.7)"),
+    ]
+    p.node(None, "Finding", zone("#fbeaea", "#a05a5a"), 40, 60, 230, 30)
+    p.node(None, "Why it matters (module-level)", zone("#f5f5f5", "#666666"), 285, 60, 560, 30)
+    p.node(None, "Required seam (decision/requirement)", zone("#eaf6ea", "#4d7a4d"), 860, 60, 580, 30)
+    y = 100
+    for name, why, fix in rows:
+        p.node(None, name, vstyle(C_RISK), 40, y, 230, 64)
+        p.node(None, why, vlstyle(C_NEUT), 285, y, 560, 64)
+        p.node(None, fix, vlstyle(C_GOV, True), 860, y, 580, 64)
+        y += 76
+    p.legend("None of these change the delivered Studio surface — they are Phase B/C seams recorded so the "
+             "architecture cannot quietly assume guarantees it does not yet enforce.", y=y+15)
+    return p
+
+
 PAGES_STU = [
     ("STU-01-Component-Map", "st1", build_stu_p1),
     ("STU-02-API-Lifecycle", "st2", build_stu_p2),
@@ -685,6 +731,7 @@ PAGES_STU = [
     ("STU-04-Request-Flow", "st4", build_stu_p4),
     ("STU-05-Assurance-Audit", "st5", build_stu_p5),
     ("STU-06-Deployment", "st6", build_stu_p6),
+    ("STU-07-Threat-Gap-Map", "st7", build_stu_p7),
 ]
 
 
