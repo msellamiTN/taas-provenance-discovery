@@ -420,6 +420,252 @@ PAGES_LAD = [
     ("LAD-07-Decisions", "l7", build_lad_p7),
 ]
 
+# ============================================================ STUDIO pages
+# Studio-centric architecture: every box names a real module under
+# src/taas/studio/ (solid = delivered) or an explicit MCP extension seam
+# (dashed) defined in docs/studio/MCP_GATEWAY_EXTENSION.md.
+
+def build_stu_p1():
+    p = P(1500, 1000)
+    p.title("STU-01 · TaaS Studio component map — real modules (src/taas/studio/) + MCP extension seams")
+
+    cz = p.node(None, "Clients", zone("#f5f5f5", "#666666"), 30, 60, 180, 760)
+    c1 = p.node("c1", "Static UI\nstatic/index.html", vstyle(C_CONSUMER), 20, 50, 140, 55, cz)
+    c2 = p.node("c2", "Colab / notebooks\n(proxy tunnel)", vstyle(C_CONSUMER), 20, 140, 140, 55, cz)
+    c3 = p.node("c3", "SDK / scripts\npython client", vstyle(C_CONSUMER), 20, 230, 140, 55, cz)
+    p.node(None, "Consumers, agents\n& M2M clients\n(gateway path)", vstyle(C_CONSUMER, True), 20, 400, 140, 75, cz)
+
+    sz = p.node(None, "TaaS Studio process — FastAPI control plane (single process today)", zone("#eaf6ea", "#4d7a4d"), 250, 60, 760, 760)
+
+    ap = p.node("ap", "api.py — /api/v1 surface\nrequire_api_token on every route\n(~89 routes · OpenAPI)", vstyle(C_GOV), 20, 40, 330, 70, sz)
+    gw = p.node("gw", "Edge API Gateway\nTLS · WAF · quota · 2MiB", vstyle(C_GOV, True), 390, 40, 330, 70, sz)
+
+    row1 = p.node(None, "Core services", zone("#fdf3e7", "#a66a3f", "startSize=22;"), 20, 140, 720, 200, sz)
+    p.node("svc_tools", "tool_service.py\ntool_registry.py\ntool_intelligence.py", vstyle(C_BACKEND), 15, 30, 160, 80, row1)
+    p.node("svc_disc", "discovery_runs.py\ndiscovery_diagnostics.py\nengine.py (core)", vstyle(C_BACKEND), 190, 30, 160, 80, row1)
+    p.node("svc_agent", "agent_registry.py\nagent_spec.py\nagent_context.py\nagent_skill_bindings.py", vstyle(C_BACKEND), 365, 30, 160, 80, row1)
+    p.node("svc_skill", "skill_registry.py\nskill_spec.py\nskill_dependency_graph.py", vstyle(C_BACKEND), 540, 30, 160, 80, row1)
+    p.node("svc_obj", "objective_contract*.py\nobjective_traceability.py\ngoalspec_templates.py", vstyle(C_BACKEND), 15, 118, 160, 75, row1)
+    p.node("svc_ws", "workspaces.py\nmodels.py (pydantic)\njson_diff.py", vstyle(C_BACKEND), 190, 118, 160, 75, row1)
+    p.node("svc_rt", "model_runtime.py\nollama_runtime.py\nruntime.py", vstyle(C_BACKEND), 365, 118, 160, 75, row1)
+    p.node("svc_rel", "release_readiness.py\nassurance_routes.py", vstyle(C_BACKEND), 540, 118, 160, 75, row1)
+
+    row2 = p.node(None, "Governance services", zone("#f4f0f8", "#9673a6", "startSize=22;"), 20, 365, 720, 130, sz)
+    p.node("svc_pol", "policy_engine.py\npolicy profiles (UX-17)", vstyle(C_STORE), 15, 30, 160, 70, row2)
+    p.node("svc_authz", "authorization_preflight.py\ntrusted auth config", vstyle(C_STORE), 190, 30, 160, 70, row2)
+    p.node("svc_exec", "execution_gateway.py\npolicy_fingerprint ·\nrequire_policy_allow ·\nApprovalStore", vstyle(C_STORE), 365, 30, 160, 70, row2)
+    p.node("svc_audit", "audit_ledger.py\nhash chain · request_id", vstyle(C_STORE), 540, 30, 160, 70, row2)
+
+    row3 = p.node(None, "MCP extension seams (E1–E7 · design)", zone("#fbfbe6", "#a6a040", "startSize=22;"), 20, 520, 720, 110, sz)
+    px = p.node("seam_px", "mcp proxy service\nfiltered tools/list\ncall gated (Phase C)", vstyle(C_GOV, True), 15, 30, 160, 70, row3)
+    tb = p.node("seam_tb", "token broker\nOAuth2.1·8693·6750\n(evolve api_keys.py)", vstyle(C_IDENT, True), 190, 30, 160, 70, row3)
+    xr = p.node("seam_xr", "exposure resolver\nregistry exposure block\nroute_ref → env gw", vstyle(C_IDENT, True), 365, 30, 160, 70, row3)
+    fg = p.node("seam_fg", "AuthZEN facade →\nABAC/ReBAC engine\nnormalized 403", vstyle(C_IDENT, True), 540, 30, 160, 70, row3)
+    p.node("seam_mcp", "mcp_registry.py (delivered)\n+ exposure { mode, route_ref,\n private_endpoint, backends[] }", vstyle(C_STORE, True), 20, 650, 700, 70, sz)
+
+    dz = p.node(None, "Persistence (file/JSON today)", zone("#f4f0f8", "#9673a6"), 1040, 60, 200, 760)
+    p.node(None, "registries dir\nagents · skills · mcp", ICON["db"], 35, 55, 130, 80, dz)
+    p.node(None, "audit log\nhash chain", ICON["db"], 35, 175, 130, 80, dz)
+    p.node(None, "evidence bundles\nsigned", ICON["db"], 35, 295, 130, 80, dz)
+    p.node(None, "workspaces\n+ revisions", ICON["db"], 35, 415, 130, 80, dz)
+    p.node(None, "discovery runs\nsnapshots", ICON["db"], 35, 535, 130, 80, dz)
+
+    bz = p.node(None, "Backends", zone("#fbeaea", "#a05a5a"), 1270, 60, 200, 760)
+    b1 = p.node("b1", "MCP servers\n(private / LB-fronted)", vstyle(C_RISK), 20, 50, 160, 60, bz)
+    b2 = p.node("b2", "REST→MCP adapter\nJDE / WSO2-class", vstyle(C_RISK, True), 20, 145, 160, 65, bz)
+    b3 = p.node("b3", "SaaS MCP\n(controlled egress)", vstyle(C_RISK), 20, 245, 160, 60, bz)
+    r1 = p.node("r1", "Model runtimes\nMistral·Vertex·Foundry\nOllama/vLLM", vstyle(C_BACKEND), 20, 340, 160, 75, bz)
+    p.node("idp", "IdP · Entra ID\n/equivalent", vstyle(C_IDENT, True), 20, 460, 160, 60, bz)
+
+    for c in (c1, c2, c3):
+        p.edge(c, ap)
+    p.edge(ap, "svc_tools"); p.edge(ap, "svc_authz"); p.edge(ap, "svc_audit")
+    p.edge(ap, gw, "egress via edge", dashed=True)
+    p.edge(gw, px, "", dashed=True)
+    p.edge(tb, gw, "JWKS·exchange", dashed=True)
+    p.edge("seam_mcp", xr, "E1 exposure", dashed=True)
+    p.edge("svc_pol", fg, "E3 exposure_rules", dashed=True)
+    p.edge("svc_exec", fg, "PEP (Phase C)", dashed=True)
+    p.edge(px, b1, "", dashed=True); p.edge(px, b2, "", dashed=True); p.edge(px, b3, "", dashed=True)
+    p.edge("svc_rt", r1); p.edge(tb, "idp", "", dashed=True)
+    p.legend("solid = delivered module (src/taas/studio/) · dashed = design seam · the Studio stays inspection-only until Phase C.", y=860)
+    return p
+
+
+def build_stu_p2():
+    p = P(1500, 1000)
+    p.title("STU-02 · API surface by agent-tool lifecycle — real /api/v1 routes + MCP extension routes (dashed)")
+    lanes = [
+        ("DEFINE",  ["POST /goals/validate", "GET /goalspec/templates",
+                     "POST /agents/validate (manifest v1alpha1)", "POST /workspaces"],
+                    ["+ v1alpha2 spec.exposure / spec.identity (E2)"]),
+        ("BUILD",   ["POST /skills · /skills/validate", "GET /skills/{id}/versions",
+                     "POST /agents/decompose · /objectives/prepare",
+                     "POST /objectives/discover"],
+                    ["+ POST /mcp/servers/{id}/exposure-draft (E1)"]),
+        ("DISCOVER",["POST /discover", "GET /tools · /tools/retrieve",
+                     "POST /tools/eligibility · /tools/compare",
+                     "GET /mcp/servers · POST /mcp/servers/{id}/inspect",
+                     "GET /mcp/registry/snapshots(+diff)"],
+                    ["+ GET /mcp/exposure-map (visible tools per profile)"]),
+        ("VERIFY",  ["GET /agents/{id}/versions/{v}/policy-verdict",
+                     "GET /agents/{id}/versions/{v}/release-readiness",
+                     "POST /agents/{id}/versions/{v}/sign",
+                     "GET /audit/events · /audit/verify · /assurance/evidence/*"],
+                    ["+ POST /mcp/exposure/verify (smoke test, E4)"]),
+        ("OPERATE", ["GET /discovery/runs(+diff)", "GET /notifications",
+                     "GET /platform/overview", "GET /runtime/status"],
+                    ["+ GET /mcp/routes/{route_ref}/health (E7)",
+                     "+ POST /mcp/exposure/publish → READY (E4)"]),
+        ("EVALUATE & MANAGE", ["GET /bench/datasets · /bench/tasks",
+                     "GET /skills/events · versions/{a}/diff/{b}",
+                     "GET /hypergraph/projections"],
+                    ["+ GET /audit?kind=exposure.*|gateway.decision|token.exchange (E5)"]),
+    ]
+    y = 60
+    for name, solid, dashed in lanes:
+        lz = p.node(None, name, zone("#f5f5f5", "#666666", "horizontal=0;"), 40, y, 1400, 120)
+        x = 30
+        for r in solid:
+            p.node(None, r, vstyle(C_GOV), x, 32, 215, 60, lz)
+            x += 228
+        for r in dashed:
+            p.node(None, r, vstyle(C_IDENT, True), x, 32, 250, 60, lz)
+            x += 263
+        y += 130
+    p.legend("Every delivered route sits behind require_api_token (api_keys.py / TAAS_STUDIO_API_TOKEN). "
+             "Dashed routes are design seams — none expose tools/call; the Studio API stays inspection-only.", y=y+10)
+    return p
+
+
+def build_stu_p3():
+    p = P(1500, 950)
+    p.title("STU-03 · MCP extension points — where E1–E7 land on existing Studio modules")
+    rows = [
+        ("E1 exposure block",  "mcp_registry.py",       "server record gains exposure { mode, route_ref,\nprivate_endpoint, dns_name, adapter, backends[] }"),
+        ("E2 manifest v1alpha2","agent_spec.py + /agents/validate","spec.exposure { publish_via, consumer_scopes }\nspec.identity { workload_identity_ref }"),
+        ("E3 exposure_rules",  "policy_engine.py",      "profile gains { consumer_scopes, tools_visible,\ntools_callable*, egress_class, quota } — AuthZEN-portable"),
+        ("E4 READY gate",      "agent_registry.py\nlifecycle state machine","draft→published kept; READY requires\nexposure smoke-test pass"),
+        ("E5 audit kinds",     "audit_ledger.py",       "+ exposure.* · gateway.decision · token.exchange\nsame hash chain, same payload.request_id"),
+        ("E6 token broker",    "api_keys.py /\nrequire_api_token","TAAS_STUDIO_API_TOKEN + ak_* evolve to\nOAuth2.1 · RFC 8693 · opaque bearer at edge"),
+        ("E7 route_ref",       "mcp_registry.py (exposure)","one schema; per-env realization:\nK8s GW API / ApigeeX / PrivateLink / Private Link"),
+    ]
+    p.node(None, "Extension", zone("#fbfbe6", "#a6a040"), 40, 60, 260, 30)
+    p.node(None, "Existing module (anchored)", zone("#f4f0f8", "#9673a6"), 320, 60, 300, 30)
+    p.node(None, "What is added", zone("#eaf6ea", "#4d7a4d"), 640, 60, 700, 30)
+    y = 95
+    for ext, mod, desc in rows:
+        e = p.node(None, ext, vstyle(C_IDENT, True), 40, y, 260, 70)
+        m = p.node(None, mod, vstyle(C_STORE), 320, y, 300, 70)
+        p.node(None, desc, vlstyle(C_GOV), 640, y, 700, 70)
+        p.edge(e, m)
+        y += 82
+    p.node(None, "Rule (per user directive): the gateway/proxy/token-broker is an extension of existing "
+                 "registry, manifest, policy, lifecycle and audit entities — no parallel subsystem is invented.",
+           vlstyle(C_RISK), 40, y + 15, 1300, 60)
+    return p
+
+
+def build_stu_p4():
+    p = P(1500, 950)
+    p.title("STU-04 · Request flow — inspection path today (solid) vs extended MCP path (dashed)")
+    c = p.node("c", "Caller\nUI · notebook · SDK", vstyle(C_CONSUMER), 40, 120, 160, 65)
+    tk = p.node("tk", "require_api_token\nTAAS_STUDIO_API_TOKEN\n/ ak_* key", vstyle(C_IDENT), 280, 120, 200, 65)
+    ap = p.node("ap", "api.py route", vstyle(C_GOV), 560, 120, 170, 65)
+    sv = p.node("sv", "service module\n(tool/agent/mcp_registry…)", vstyle(C_BACKEND), 820, 120, 210, 65)
+    st = p.node("st", "registry / store\n+ audit_ledger event", vstyle(C_STORE), 1120, 120, 210, 65)
+    p.edge(c, tk, "1"); p.edge(tk, ap, "2 authed"); p.edge(ap, sv, "3"); p.edge(sv, st, "4 read+audit")
+
+    gw = p.node("gw", "Edge gateway\nTLS·WAF·quota", vstyle(C_GOV, True), 40, 320, 180, 60)
+    br = p.node("br", "Token broker\nvalidate → exchange/downscope\nopaque out (E6)", vstyle(C_IDENT, True), 300, 320, 220, 75)
+    xr = p.node("xr", "Exposure resolver\nserver.exposure + policy\nprofile (E1·E3)", vstyle(C_IDENT, True), 600, 320, 220, 75)
+    px = p.node("px", "MCP proxy\nfiltered tools/list", vstyle(C_GOV, True), 900, 320, 190, 60)
+    fg = p.node("fg", "AuthZEN → ReBAC/ABAC\n403 / step-up 6750", vstyle(C_IDENT, True), 1150, 320, 200, 75)
+    bk = p.node("bk", "MCP backend\nLB / private endpoint", vstyle(C_RISK), 900, 480, 190, 60)
+    p.edge(c, gw, "", dashed=True); p.edge(gw, br, "JWKS", dashed=True)
+    p.edge(br, xr, "scoped claims", dashed=True); p.edge(xr, px, "allowed route", dashed=True)
+    p.edge(px, fg, "sensitive call", dashed=True); p.edge(px, bk, "governed", dashed=True)
+    p.edge(st, xr, "feeds profile", dashed=True)
+
+    l1 = p.node(None, "Denied today (by design)", zone("#fbeaea", "#a05a5a", "horizontal=0;"), 40, 600, 1400, 110)
+    p.node(None, "no /tools/call route in api.py", vstyle(C_RISK), 40, 35, 300, 60, l1)
+    p.node(None, "no bearer passthrough (D5)", vstyle(C_RISK), 380, 35, 300, 60, l1)
+    p.node(None, "inspection-only results\nexecution_performed=false", vstyle(C_RISK), 720, 35, 320, 60, l1)
+    p.node(None, "Phase C: PEP in execution_gateway.py\n+ isolated worker + fresh evidence", vstyle(C_RISK, True), 1080, 30, 290, 75, l1)
+    p.legend("Every hop writes an audit_ledger event carrying the same request_id — deny paths: 401 (token), 403+step-up (scope), deny+log (backend not allowlisted).", y=750)
+    return p
+
+
+def build_stu_p5():
+    p = P(1500, 950)
+    p.title("STU-05 · Assurance & evidence pipeline — signed evidence, hash-chained audit, MCP inspection")
+    i1 = p.node("i1", "authorization_preflight.py\ntrusted auth config\nfail closed", vstyle(C_IDENT), 40, 80, 230, 80)
+    i2 = p.node("i2", "assurance_evidence.py\nTAAS_EVIDENCE_ATTESTATION_KEY\nsigned bundles · freshness", vstyle(C_STORE), 340, 80, 260, 80)
+    i3 = p.node("i3", "audit_ledger.py\nhash chain · /audit/verify\npayload.request_id", vstyle(C_STORE), 680, 80, 250, 80)
+    i4 = p.node("i4", "release_readiness.py\napprovals · gates", vstyle(C_STORE), 1010, 80, 230, 80)
+    p.edge(i1, i2); p.edge(i2, i3); p.edge(i3, i4)
+
+    mz = p.node(None, "MCP inspection (delivered — mcp_registry.py)", zone("#eaf6ea", "#4d7a4d", "horizontal=0;"), 40, 230, 1400, 130)
+    m1 = p.node("m1", "POST /mcp/registry/\nsnapshots/inspect", vstyle(C_GOV), 40, 35, 250, 70, mz)
+    m2 = p.node("m2", "snapshot persisted\n(tools/list result)", vstyle(C_GOV), 340, 35, 250, 70, mz)
+    m3 = p.node("m3", "GET snapshots/{a}/diff/{b}\ndrift evidence", vstyle(C_GOV), 640, 35, 250, 70, mz)
+    m4 = p.node("m4", "audit event\n(inspection only)", vstyle(C_GOV), 940, 35, 250, 70, mz)
+    p.edge(m1, m2); p.edge(m2, m3); p.edge(m3, m4)
+
+    xz = p.node(None, "Extension (E5) — gateway-era audit kinds, same ledger", zone("#fbfbe6", "#a6a040", "horizontal=0;"), 40, 400, 1400, 130)
+    x1 = p.node("x1", "exposure.published\n/ exposure.revoked", vstyle(C_IDENT, True), 40, 35, 280, 70, xz)
+    x2 = p.node("x2", "gateway.decision\nallow/deny + reason", vstyle(C_IDENT, True), 380, 35, 280, 70, xz)
+    x3 = p.node("x3", "token.exchange\nsubject→act-as chain\n(no token material logged)", vstyle(C_IDENT, True), 720, 35, 300, 70, xz)
+    p.edge(x1, i3, "", dashed=True); p.edge(x2, i3, "", dashed=True); p.edge(x3, i3, "", dashed=True)
+
+    p.node(None, "Invariant enforced by evidence: a snapshot or certificate proves what was observed — "
+                 "never that a call is authorized or executed.", vlstyle(C_RISK), 40, 560, 1300, 60)
+    return p
+
+
+def build_stu_p6():
+    p = P(1500, 1000)
+    p.title("STU-06 · Deployment — Studio process today (solid) vs governed MCP topology (dashed seams)")
+
+    tz = p.node(None, "Today — single process", zone("#eaf6ea", "#4d7a4d"), 40, 60, 380, 860)
+    t1 = p.node("t1", "Studio FastAPI\n(src/taas/studio)\nall modules in-proc", vstyle(C_GOV), 60, 60, 260, 80, tz)
+    t2 = p.node("t2", "static UI served\nby same process", vstyle(C_GOV), 60, 180, 260, 60, tz)
+    t3 = p.node("t3", "file stores\nregistries·audit·evidence", vstyle(C_STORE), 60, 280, 260, 70, tz)
+    t4 = p.node("t4", "Colab tunnel\n(reviewer path)", vstyle(C_CONSUMER), 60, 390, 260, 60, tz)
+    p.edge(t4, t1); p.edge(t2, t1); p.edge(t1, t3)
+
+    gz = p.node(None, "Target — governed topology (Phase B; dashed = not implemented)", zone("#fbfbe6", "#a6a040"), 460, 60, 980, 860)
+    g1 = p.node("g1", "Edge API Gateway\n(per env: K8s GW API /\nApigeeX / API GW / APIM)", vstyle(C_GOV, True), 40, 60, 230, 90, gz)
+    p.node(None, "", ICON["aws_gw"], 110, 170, 60, 60, gz)
+    g2 = p.node("g2", "Studio control plane\n(unchanged modules\n+ exposure fields)", vstyle(C_STORE, True), 330, 60, 240, 90, gz)
+    g3 = p.node("g3", "MCP proxy svc\nseparate deployment\n(filtered tools/list)", vstyle(C_GOV, True), 630, 60, 240, 90, gz)
+    g4 = p.node("g4", "Token broker svc\nIdP-agnostic (E6)", vstyle(C_IDENT, True), 330, 220, 240, 75, gz)
+    g5 = p.node("g5", "Policy/PEP svc\nAuthZEN → ReBAC (D9)", vstyle(C_IDENT, True), 630, 220, 240, 75, gz)
+
+    kz = p.node(None, "Private cloud — K8s Gateway API", zone("#eaf3fb", "#3a6ea5", "startSize=22;"), 40, 350, 440, 300, gz)
+    p.node(None, "GatewayClass", ICON["k8s_svc"], 30, 40, 120, 70, kz)
+    p.node(None, "Gateway", ICON["k8s_svc"], 160, 40, 110, 70, kz)
+    p.node(None, "HTTPRoute", ICON["k8s_svc"], 280, 40, 120, 70, kz)
+    p.node(None, "mcp-proxy\npods", ICON["k8s_pod"], 60, 170, 120, 80, kz)
+    p.node(None, "studio\npods", ICON["k8s_pod"], 250, 170, 120, 80, kz)
+    p.node(None, "NetworkPolicy\npods-only ingress", ICON["k8s_netpol"], 155, 175, 85, 80, kz)
+
+    p.node(None, "Namespaces: cp-studio · mcp-proxy · pep (separated)",
+           vlstyle(C_NEUT), 40, 680, 440, 50, gz)
+    p.node(None, "Backends via private endpoints only\nservice attachments / LB · private FQDN",
+           vlstyle(C_RISK), 520, 350, 400, 80, gz)
+    p.node(None, "IdP (Entra ID / equivalent)\nJWKS at edge", vstyle(C_IDENT, True), 520, 470, 200, 75, gz)
+    p.node(None, "", ICON["az_entra"], 750, 470, 60, 60, gz)
+    p.node(None, "", ICON["az_kv"], 840, 470, 60, 60, gz)
+
+    p.edge(g1, g2, "", dashed=True); p.edge(g1, g3, "", dashed=True)
+    p.edge(g4, g1, "", dashed=True); p.edge(g3, g5, "", dashed=True)
+    p.edge(t1, g2, "same codebase,\nsplit deploy", dashed=True)
+    p.legend("The Studio codebase does not fork: control-plane modules stay identical; the MCP proxy/broker are separate "
+             "deployments configured through the same registry — schema identical across private/GCP/AWS/Azure.", y=940)
+    return p
+
+
 PAGES_PAD = [
     ("PAD-01-Physical-Overview", "pd1", build_pad_p1),
     ("PAD-02-K8s-GatewayAPI", "pd2", build_pad_p2),
@@ -432,8 +678,20 @@ PAGES_PAD = [
 ]
 
 
+PAGES_STU = [
+    ("STU-01-Component-Map", "st1", build_stu_p1),
+    ("STU-02-API-Lifecycle", "st2", build_stu_p2),
+    ("STU-03-Extension-Points", "st3", build_stu_p3),
+    ("STU-04-Request-Flow", "st4", build_stu_p4),
+    ("STU-05-Assurance-Audit", "st5", build_stu_p5),
+    ("STU-06-Deployment", "st6", build_stu_p6),
+]
+
+
 def main():
-    for fname, spec in (("taas-lad.drawio", PAGES_LAD), ("taas-pad.drawio", PAGES_PAD)):
+    for fname, spec in (("taas-lad.drawio", PAGES_LAD),
+                        ("taas-pad.drawio", PAGES_PAD),
+                        ("taas-studio-architecture.drawio", PAGES_STU)):
         pages = [(name, pid, fn().render()) for name, pid, fn in spec]
         (OUT / fname).write_text(mxfile(pages), encoding="utf-8")
         print(f"wrote {OUT / fname} ({len(pages)} pages)")
