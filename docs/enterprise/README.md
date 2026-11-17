@@ -7,11 +7,18 @@ be, and honestly record what is delivered, designed, or not yet implemented.
 
 | Doc | Role |
 |---|---|
+| `SOW.md` | Statement of Work: executive summary, business outcomes, scope in/out, work packages + lifecycle states, deliverables, roles, acceptance criteria, risks, security/compliance, approval |
 | `TAAS_PLATFORM_MEGAPLAN.md` | Governing plan: vision, threat model, functional requirements `FR-*`, non-functional requirements `NFR-*`, boundary charter, NIST AI RMF / ISO 42001 / ISO 27001 mapping, phased roadmap |
 | `SAW.md` | Software Architecture Whitepaper: trust zones, components, design principles |
-| `LAD.md` | Logical Architecture Design: component and data-flow views, interface inventory, trust-boundary analysis |
-| `PAD.md` | Physical/Deployment Architecture Design: topologies, Terraform provisioning layout, API gateway + egress policy, secrets/KMS, multi-cloud/on-prem matrix |
+| `LAD.md` | Logical Architecture Document: context boundary, component contracts, sequence views (consumer access, provisioning, inspection vs invocation), five identity domains, threat model, decisions D1–D8 (incl. D3 gateway-per-environment, D2 token broker), ADRs |
+| `PAD.md` | Physical Architecture Document: zones, PHY/NET inventories, private-connectivity checklist, DNS design, **per-environment gateway baseline — Kubernetes Gateway API for private/on-prem; ApigeeX+PSC (GCP); API GW/ALB+PrivateLink (AWS); APIM+Private Link (Azure)**, PT test plan, open items |
 | `REQUIREMENTS_GAP.md` | Requirement → repo evidence → status table (the audit trail for every `delivered` claim) |
+
+## Template & reference baseline
+
+- `docs/examples/` — professional SoW/LAD/PAD template (MCP Agent Gateway set) that these documents follow in structure and depth.
+- `docs/archi/apigeeArea.png` — real-project connectivity pattern (dedicated gateway project/VPC, inbound/outbound private endpoints, service attachments, private DNS, controlled SaaS egress, on-prem via SD-WAN/firewall) that informs `PAD.md`.
+- Kubernetes Gateway API — https://kubernetes.io/docs/concepts/services-networking/gateway/ — the private-cloud gateway substrate (PAD §7.1).
 
 ## Vocabulary (binding across all enterprise docs)
 

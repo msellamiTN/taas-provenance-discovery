@@ -22,6 +22,7 @@ Audit baseline: `main` @ `e108345` (752 tests; 89 API routes).
 | FR-GOV-1 Fail-closed auth | `require_api_token` in `api.py`; 503/401 asserted in `tests/test_api_keys.py`, acceptance notebook fail-closed battery | delivered |
 | FR-GOV-2 Named API keys | `src/taas/studio/api_keys.py`; `GET/POST /admin/api-keys`, `POST …/revoke`; `api_key` audit events; per-key `StudioPrincipal` actor | delivered |
 | FR-GOV-3 OIDC/SSO | none | not implemented (Phase B) |
+| FR-GOV-3b Token broker (Entra ID / equivalent IdP) — short-lived Bearer tokens for all MCP access, JWKS-validated at proxy edge | none — SoW commitment C4 | not implemented (Phase B) |
 | FR-GOV-4 RBAC | none | not implemented (Phase B) |
 | FR-GOV-5 Org policies, multi-party approvals | `POST /policy/evaluate` (diagnostic) + `GET/POST …/approvals` exist; org-scoped/multi-party absent | partially delivered |
 | FR-GOV-6 Tenant isolation | single-tenant by design; megaplan §7.1 | not implemented — separate security project |
@@ -52,6 +53,10 @@ Audit baseline: `main` @ `e108345` (752 tests; 89 API routes).
 | FR-DEP-3 Terraform | none | not implemented (Phase B) |
 | FR-DEP-4 API gateway | same-origin design documented; no gateway artifact | not implemented (Phase B) |
 | FR-DEP-5 Egress proxy | none | not implemented (Phase B) |
+| FR-DEP-5b Centralized MCP gateway/proxy — all MCP access (inspection today, governed execution Phase C) transits the proxy; direct client→MCP unsanctioned (SoW C2, LAD D1/D5, PAD §2/§5) | none — today inspection reaches operator-configured stdio servers directly | not implemented (Phase B) |
+| FR-DEP-5c Per-environment gateway realization — **Kubernetes Gateway API** (GatewayClass/Gateway/HTTPRoute) for private/on-prem; GCP ApigeeX+PSC; AWS API GW/ALB+PrivateLink; Azure APIM/AppGW+Private Link — one logical contract (LAD D3, PAD §7) | none — no K8s manifests or gateway resources in repo | not implemented (Phase B) |
+| FR-DEP-5d Private connectivity — PSC/PrivateLink/Private Link endpoints + service attachments + private DNS to backends & AI platforms (PAD §5.3, ref `docs/archi/apigeeArea.png`) | none | not implemented (Phase B) |
+| FR-INT-8 REST→MCP onboarding — enterprise REST APIs exposed as governed MCP tools via gateway adapter (LAD D6) | none | not implemented (Phase B) |
 | FR-DEP-6 Air-gap bundle | Colab notebooks prove offline-capable checkout; no bundle | not implemented (Phase D) |
 
 ## FR-OBS — Observability
