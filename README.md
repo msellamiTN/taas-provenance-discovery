@@ -75,6 +75,15 @@ pip install -e ".[test,studio,hf]"  # tests + Studio UI + HF extras
 - Scenario registries live in `taas.scenarios`; real 569-tool registry under `data/processed/`
 - `python -m pytest` runs the full suite (751 tests: contract, algorithms, Studio API, lifecycle scenario, browser E2E)
 
+**API keys — when they are needed.**
+
+| Variable | Required when | Notes |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | Regenerating `data/llm_records/` live via `taas.llm.backends.AnthropicAnalyst` | Not needed to run experiments — they replay recorded outputs |
+| `TAAS_STUDIO_API_TOKEN` | Running TaaS Studio (UI + every `/api/v1` write/read) | Fails closed: 503 if unset, 401 on mismatch. The Colab notebook generates an ephemeral one automatically |
+| `TAAS_EVIDENCE_ATTESTATION_KEY` | Evidence signing, signatures, approvals, freshness checks | Persist across restarts or prior signatures invalidate |
+| `TAAS_STUDIO_ACTOR` | Optional — actor name attached to writes when using the shared token | Named API keys (`ak_*`) bind the actor per caller; see `docs/deployment/STUDIO_OPERATIONS.md` |
+
 **2 · TaaS Studio (web UI, zero install).** The control-plane UI walks the
 agent/tool lifecycle — DEFINE → BUILD → DISCOVER → VERIFY → OPERATE →
 EVALUATE & MANAGE. No GPU needed:
