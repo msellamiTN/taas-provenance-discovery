@@ -69,6 +69,8 @@ exposure_rules:
 
 `tools_callable` is non-empty **only** under the Phase C governed-execution design; a policy that lists callable tools without a deployed PEP is invalid.
 
+Fine-grained checks beyond coarse scope matching route through a standardized **AuthZEN facade → ABAC/ReBAC engine** (OpenFGA/Permit-class) — LAD D9 — so `exposure_rules` remain portable declarations; the engine evaluates contextual rules and returns normalized `403` denials. Token mechanics follow LAD D10: OAuth 2.1, RFC 8693 downscoping per hop, opaque tokens outward, RFC 6750 step-up consent for sensitive operations.
+
 ## E4. Lifecycle states — mapping, not replacement
 
 The enterprise publication lifecycle is the **same state machine** the Studio already uses for agents (draft→published), renamed for catalogue semantics:

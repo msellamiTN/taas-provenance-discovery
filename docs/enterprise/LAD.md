@@ -207,6 +207,13 @@ Lifecycle states: `REGISTERED → VALIDATED → READY FOR CONSUMPTION → PUBLIS
 
 **Rule (D5):** the consumer Bearer token is *never* assumed valid downstream. Use token exchange (delegated) or a dedicated workload identity — the choice is explicit per backend, never implicit passthrough.
 
+**Token mechanics (aligned with the Apigee MCP-authorization pattern):**
+
+- **OAuth 2.1** for consumer flows; **token downscoping via RFC 8693 exchange** — each hop receives a token scoped exactly to that segment, never a universal token.
+- **Opaque tokens outward** — internal token structures are never exposed to agents/consumers.
+- **Step-up consent (RFC 6750)** — sensitive operations may demand a stronger/scoped token mid-flow (insufficient-scope → `403` + `WWW-Authenticate` challenge pattern), rather than over-granting upfront.
+- **Fine-grained authorization facade (OpenID AuthZEN)** — complex per-tool/per-resource checks route to a decoupled ABAC/ReBAC engine (OpenFGA/Permit-class) behind a standardized AuthZEN API; denials are normalized (`403`), not backend-specific.
+
 ### 9.2 Control layers
 
 Edge (TLS, WAF/threat, size limits) → Identity (token validation, exchange) → Policy (exposure, quota, approval) → Routing (allow-listed backends) → Audit (correlated records) → Observability (decision logs).
@@ -253,6 +260,8 @@ Edge (TLS, WAF/threat, size limits) → Identity (token validation, exchange) �
 | D6 | REST→MCP exposure via gateway adapter | Enterprise APIs onboarded as tools without rewrites | Approved (design) |
 | D7 | Registry is authoritative for lifecycle, not runtime | Prevents config≠runtime conflation | Approved |
 | D8 | Provisioning via orchestration with idempotency/compensation/drift | Industrializes onboarding | Design seam |
+| D9 | Fine-grained authZ via **AuthZEN facade → ABAC/ReBAC engine** (OpenFGA/Permit-class); RBAC for coarse checks, ReBAC/ABAC for per-tool/per-resource rules; normalized `403` denials | Coarse gateway checks alone can't express contextual rules; decoupled PDP keeps policy portable | Design seam — ref: Google Apigee MCP-authorization TechTalk |
+| D10 | Token mechanics: OAuth 2.1 + RFC 8693 downscoping per hop + opaque tokens + RFC 6750 step-up consent | Least privilege per segment; no universal static tokens | Design seam — ref: Google Apigee MCP-authorization TechTalk |
 
 ## 12. Operations and governance
 
@@ -274,6 +283,7 @@ Minimum per governed request: `request_id`, `correlation_id`, caller principal (
 | ADR-03 | Managed vs self-hosted gateway on public clouds | Provider-native preferred (D3) | Platform architect |
 | ADR-04 | Orchestrator product (Backstage/Camunda/other) | Registry contract first; orchestrator pluggable | Product owner |
 | ADR-05 | Phase C PEP/worker model | Design exists (`ISOLATED_PEP.md`); not scheduled | Platform architect |
+| ADR-06 | Authorization engine for fine-grained checks | AuthZEN facade; engine choice open (OpenFGA / Permit.io / equivalent) | Identity eng |
 
 ## 15. References
 
@@ -282,6 +292,8 @@ Minimum per governed request: `request_id`, `correlation_id`, caller principal (
 - Kubernetes Gateway API — https://kubernetes.io/docs/concepts/services-networking/gateway/
 - `docs/studio/AGENT_MANIFEST_V1ALPHA1.md`, `GOVERNED_EXECUTION_GATEWAY_PHASE1.md`, `ISOLATED_PEP.md`, `POLICY_ENGINE_V1.md`
 - `docs/enterprise/TAAS_PLATFORM_MEGAPLAN.md`, `SOW.md`, `PAD.md`, `SAW.md`, `REQUIREMENTS_GAP.md`
+- Google Cloud Community TechTalk — *Gouvernance des agents : maîtriser l'autorisation des tools MCP avec Google Apigee* — https://discuss.google.dev/t/398242 (OAuth 2.1, RFC 8693 downscoping, RFC 6750 step-up, opaque tokens, AuthZEN→ReBAC/ABAC, decoupled PEP)
+- OpenID AuthZEN — https://openid.net/wg/authzen/ ; OpenFGA — https://openfga.dev/ ; MCP authorization spec — https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization
 
 ---
 

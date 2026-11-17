@@ -201,7 +201,8 @@ Each phase ships only what its evidence supports; phases do not borrow capabilit
 
 - TLS for all gateway, registry, management and backend paths; re-encryption where trust domains change.
 - OIDC/JWT validation at the gateway: issuer, audience, signature, expiry, scope/role/claim checks.
-- Token exchange or dedicated workload identity downstream — never passthrough.
+- Token exchange or dedicated workload identity downstream — never passthrough. Token mechanics: OAuth 2.1, RFC 8693 downscoping per hop, opaque tokens outward, RFC 6750 step-up consent for sensitive operations.
+- Fine-grained authorization behind a standardized AuthZEN facade → ABAC/ReBAC engine (OpenFGA/Permit-class), with normalized `403` denials — aligned with the Google Apigee MCP-authorization pattern (see LAD D9/D10 references).
 - Rate limits, quotas, threat protection, request-body limit parity (2 MiB), request-ID propagation.
 - Audit: tamper-evident chain; SIEM export; no payload logging by default; no secrets in logs/audit.
 - Secrets: environment-only bootstrap today; platform secret stores in target deployments (Vault/Key Vault/Secrets Manager/Secret Manager); evidence-signing key persisted and rotatable.
