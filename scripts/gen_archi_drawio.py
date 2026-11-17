@@ -273,8 +273,8 @@ def build_pad_p1():
     p = P(1500, 1000)
     p.title("PAD-01 · Reference physical topology — dedicated gateway project/VPC (ApigeeX-style, names TBD)")
     cz = p.node(None, "Consumer VPC / tenant", zone("#f5f5f5", "#666666"), 40, 60, 250, 340)
-    c1 = p.node("c1", "Consumers\nmcp-gw.example.corp", vstyle(C_CONSUMER), 35, 50, 180, 60, cz)
-    c2 = p.node("c2", "Inbound private endpoint\nPSC / PrivateLink / Private Link", vstyle(C_CONSUMER), 35, 160, 180, 70, cz)
+    c1 = p.node("cv1", "Consumers\nmcp-gw.example.corp", vstyle(C_CONSUMER), 35, 50, 180, 60, cz)
+    c2 = p.node("cv2", "Inbound private endpoint\nPSC / PrivateLink / Private Link", vstyle(C_CONSUMER), 35, 160, 180, 70, cz)
     p.node(None, "", ICON["az_dns"], 90, 260, 70, 70, cz)
 
     gz = p.node(None, "prj-taas-mcp-gateway-<env> — dedicated gateway project / VPC", zone("#eaf6ea", "#4d7a4d"), 350, 60, 520, 340)
@@ -430,9 +430,9 @@ def build_stu_p1():
     p.title("STU-01 · TaaS Studio component map — real modules (src/taas/studio/) + MCP extension seams")
 
     cz = p.node(None, "Clients", zone("#f5f5f5", "#666666"), 30, 60, 180, 760)
-    c1 = p.node("c1", "Static UI\nstatic/index.html", vstyle(C_CONSUMER), 20, 50, 140, 55, cz)
-    c2 = p.node("c2", "Colab / notebooks\n(proxy tunnel)", vstyle(C_CONSUMER), 20, 140, 140, 55, cz)
-    c3 = p.node("c3", "SDK / scripts\npython client", vstyle(C_CONSUMER), 20, 230, 140, 55, cz)
+    c1 = p.node("cl1", "Static UI\nstatic/index.html", vstyle(C_CONSUMER), 20, 50, 140, 55, cz)
+    c2 = p.node("cl2", "Colab / notebooks\n(proxy tunnel)", vstyle(C_CONSUMER), 20, 140, 140, 55, cz)
+    c3 = p.node("cl3", "SDK / scripts\npython client", vstyle(C_CONSUMER), 20, 230, 140, 55, cz)
     p.node(None, "Consumers, agents\n& M2M clients\n(gateway path)", vstyle(C_CONSUMER, True), 20, 400, 140, 75, cz)
 
     sz = p.node(None, "TaaS Studio process — FastAPI control plane (single process today)", zone("#eaf6ea", "#4d7a4d"), 250, 60, 760, 760)
