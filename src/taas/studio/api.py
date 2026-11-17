@@ -42,7 +42,7 @@ from taas.studio.tool_intelligence import build_tool_intelligence
 from taas.studio import tool_registry
 from taas.studio import tool_service
 from taas.studio import discovery_runs
-from taas.studio import audit_ledger
+from taas.studio import audit_anchor, audit_ledger
 from taas.studio import api_keys
 from taas.studio import workspaces
 from taas.studio.agent_skill_bindings import (
@@ -1323,6 +1323,27 @@ def audit_event_list(limit: int = 100, event_type: str | None = None,
 def audit_chain_verify() -> dict[str, Any]:
     """Recompute the event hash chain and report the first divergence, if any."""
     return audit_ledger.verify_chain()
+
+
+@app.post("/api/v1/audit/anchors", dependencies=[Depends(require_api_token)])
+def audit_anchor_create() -> dict[str, Any]:
+    """Sign the current chain head into a separate anchor artifact (D12 phase 1).
+
+    Local signed digests only — WORM/witness transport is a Phase B seam.
+    """
+    try:
+        return audit_anchor.create_anchor()
+    except ValueError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+
+
+@app.get("/api/v1/audit/anchors/verify", dependencies=[Depends(require_api_token)])
+def audit_anchor_verify() -> dict[str, Any]:
+    """Verify the latest anchor: intact / advanced / tampered / no_anchors."""
+    try:
+        return audit_anchor.verify_anchor()
+    except ValueError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
 
 
 class NotificationReadRequest(BaseModel):

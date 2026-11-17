@@ -71,7 +71,7 @@ Audit baseline: `main` @ `e108345` (752 tests; 89 API routes).
 | FR-OBS-3 Health/readiness | `GET /health`, `GET /ready` (`calibration` state) | delivered |
 | FR-OBS-4 OTel/metrics | none | not implemented (Phase B) |
 | FR-OBS-5 SIEM export | none (stdout JSON is SIEM-ingestible) | not implemented (Phase B) |
-| FR-OBS-6 External audit anchoring — signed ledger digests to WORM/witness store; producer never sole anchor (LAD D12, NFR-AUD-3, OD-3) | `audit_ledger.py` hash chain is self-anchored today — tamper-evident but self-attested | not implemented (Phase B) |
+| FR-OBS-6 External audit anchoring — signed ledger digests to WORM/witness store; producer never sole anchor (LAD D12, NFR-AUD-3, OD-3) | `src/taas/studio/audit_anchor.py` — signed `(seq, head_hash)` digests to a separate artifact under `TAAS_AUDIT_ANCHOR_KEY`; verify detects rewrite+re-chain, truncation, forged anchors; routes `POST /audit/anchors` + `GET /audit/anchors/verify`; `tests/test_audit_anchor.py` | **partially delivered** — local signed anchoring done; WORM/witness transport + SIEM streaming remain Phase B |
 | FR-OBS-7 Anomaly detection — tool-use bursts, new egress FQDN, token-exchange anomalies → metrics/SIEM | none | not implemented (Phase B) |
 
 ## FR-SEC — Security

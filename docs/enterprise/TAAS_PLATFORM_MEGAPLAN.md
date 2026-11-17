@@ -118,7 +118,7 @@ Every requirement must preserve the boundary invariant. Full evidence: `REQUIREM
 | FR-OBS-3 | `/health` + `/ready` | delivered |
 | FR-OBS-4 | OpenTelemetry traces + metrics endpoint | not implemented (Phase B) |
 | FR-OBS-5 | Audit → SIEM export | not implemented (Phase B) |
-| FR-OBS-6 | External audit anchoring — periodic signed ledger digests to WORM/immutable store or transparency-log-style witness; the audit producer must not be the sole anchor of its own evidence (self-attestation gap, LAD D12) | not implemented (Phase B) |
+| FR-OBS-6 | External audit anchoring — periodic signed ledger digests to WORM/immutable store or transparency-log-style witness; the audit producer must not be the sole anchor of its own evidence (self-attestation gap, LAD D12) | **partially delivered** — `audit_anchor.py` local signed digests + `/audit/anchors` + `/audit/anchors/verify`; WORM/witness transport = Phase B seam |
 | FR-OBS-7 | Anomaly detection path — tool-use bursts, new egress FQDN, token-exchange anomalies surfaced via metrics/SIEM alerts | not implemented (Phase B) |
 
 ### FR-SEC — Security

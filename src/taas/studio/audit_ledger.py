@@ -33,7 +33,7 @@ def reset_request_id(token) -> None:
     _request_id_var.reset(token)
 EVENT_TYPES = (
     "evidence", "signature", "approval", "revocation",
-    "policy_verdict", "discovery_run", "api_key",
+    "policy_verdict", "discovery_run", "api_key", "audit_anchor",
 )
 _GENESIS = "0" * 64
 
