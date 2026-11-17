@@ -124,7 +124,135 @@ Gateway honors a route only if signature verifies and backend connection
 matches `backend_identity` pin (FQDN + TLS chain/SPIFFE). Revocation tears
 down the route and writes `exposure.revoked`.
 
-## 5. Traceability
+## 5. Sequence diagrams (Mermaid)
+
+Same flows as `taas-studio-architecture.drawio` pages STU-08/09/10 — kept
+here so they render in GitHub and stay diffable next to the decisions.
+
+### 5.1 Governed request — every hop bound to request_id (Phase B)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor C as Consumer (agent / app)
+    participant GW as API Gateway
+    participant BR as Token broker
+    participant IDP as IdP (Entra/equiv)
+    participant XR as Exposure resolver
+    participant PX as MCP proxy
+    participant FG as AuthZEN → ReBAC
+    participant AU as Audit ledger
+    C->>GW: HTTPS + bearer (DPoP/mTLS-bound)
+    GW->>BR: validate + exchange (8693 downscope)
+    BR->>IDP: JWKS fetch/verify · iss/aud/exp
+    BR-->>GW: scoped claims · opaque token
+    GW->>XR: resolve exposure + policy profile
+    XR-->>GW: allowed tools + route_ref
+    GW->>PX: route → filtered tools/list
+    PX->>FG: sensitive op? FGA check
+    FG-->>PX: allow | 403+step-up (6750)
+    PX->>AU: gateway.decision (allow/deny+reason)
+    PX-->>GW: response · no payload logged
+    GW-->>C: filtered tools/list
+    Note over GW,IDP: 401 exits: bad/expired token at 2–4
+    Note over XR,FG: deny exits: unpublished route at 5–6 · 403+step-up at 9
+    Note over PX,AU: tools/call never on this path — Phase C only
+```
+
+### 5.2 Exposure publication — READY only after sign + four-eyes + smoke test
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor PUB as Publisher (mcp owner)
+    participant API as Studio API (api.py)
+    participant REG as mcp_registry.py
+    participant SIG as Signer
+    participant AP as Approvers ×2 (four-eyes)
+    participant GWC as Gateway control plane
+    participant SM as Smoke test
+    participant AU as Audit ledger
+    PUB->>API: draft exposure {mode, route_ref, backends}
+    API->>REG: persist draft (REGISTERED)
+    API->>SIG: sign canonical exposure block
+    SIG-->>REG: exposure.signature stored
+    API->>AP: approval request (mode: gateway)
+    AP-->>API: 2 distinct approvals
+    API->>GWC: deploy route + pins (FQDN·TLS·SPIFFE)
+    GWC->>SM: run smoke test
+    SM-->>API: pass → READY | fail → compensate
+    API->>AU: exposure.published {request_id, approvers}
+    API-->>PUB: PUBLISHED · visible per policy profile
+    Note over SIG,AP: E8 — tampered exposure fails closed at gateway pin check
+    Note over GWC,SM: revocation = mirror: teardown route → exposure.revoked
+```
+
+### 5.3 Phase C governed tools/call — design seam only (TOCTOU-proof)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor AG as Agent
+    participant GW as API Gateway
+    participant PX as MCP proxy
+    participant PEP as PEP service (own domain)
+    participant FG as AuthZEN → ReBAC
+    participant APV as Approval store
+    participant WK as Isolated worker
+    participant BK as MCP backend
+    participant AU as Audit ledger
+    AG->>GW: tools/call {server, tool, args}
+    GW->>PX: routed (profile resolved)
+    PX->>PEP: enforce — fresh decision, never caller state
+    PEP->>FG: FGA per-tool/resource check
+    PEP->>APV: verify approval = hash(policy_fp, tool, args, evidence, exp)
+    APV-->>PEP: valid once | replay/diff args → deny
+    PEP->>WK: dispatch (approved call only)
+    WK->>BK: governed call (egress-limited)
+    BK-->>WK: result (bounded)
+    WK->>AU: execution outcome evidence
+    PEP->>AU: gateway.decision + token.exchange refs
+    WK-->>AG: result (normalized)
+    Note over PEP,APV: TOCTOU-proof — approval binds canonical args
+    Note over PEP,WK: binding failure → worker never reached → normalized 403
+```
+
+### 5.4 Platform context — trust zones and data flow
+
+```mermaid
+flowchart LR
+    subgraph T0["T0 · Untrusted consumers"]
+        C1[Business apps / agents / M2M]
+    end
+    subgraph T1["T1 · Governed edge (data plane)"]
+        GW[API Gateway] --> PX[MCP proxy]
+        BR[Token broker<br/>OAuth2.1 · 8693 · 6750]
+        FG[AuthZEN → ReBAC]
+    end
+    subgraph T2["T2 · Control plane (Studio)"]
+        REG[Registry · mcp_registry<br/>policy_engine · execution_gateway]
+        AUD[Audit ledger] -->|signed digest| ANCH[External anchor<br/>WORM/witness]
+    end
+    subgraph T4["T4 · Tool backends"]
+        BK1[Private MCP]
+        BK2[REST→MCP adapter]
+        BK3[SaaS via egress]
+    end
+    IDP[(IdP · Entra/equiv)]
+    C1 -->|1 bearer| GW
+    GW -->|2 validate/exchange| BR
+    BR <-->|3 JWKS| IDP
+    GW -->|4 resolve| REG
+    GW --> PX
+    PX -->|6 FGA| FG
+    PX -->|7 private conn| BK1 & BK2 & BK3
+    PX -->|8 decision| AUD
+    PX -.->|Phase C only| WK[Isolated worker]
+```
+
+Solid connections = delivered today; the Phase C worker edge is a design seam.
+
+## 6. Traceability
 
 | Artifact | Where the decisions live |
 |---|---|
