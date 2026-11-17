@@ -13,6 +13,7 @@ be, and honestly record what is delivered, designed, or not yet implemented.
 | `LAD.md` | Logical Architecture Document: context boundary, component contracts, sequence views (consumer access, provisioning, inspection vs invocation), five identity domains, threat model, decisions D1–D8 (incl. D3 gateway-per-environment, D2 token broker), ADRs |
 | `PAD.md` | Physical Architecture Document: zones, PHY/NET inventories, private-connectivity checklist, DNS design, **per-environment gateway baseline — Kubernetes Gateway API for private/on-prem; ApigeeX+PSC (GCP); API GW/ALB+PrivateLink (AWS); APIM+Private Link (Azure)**, PT test plan, open items |
 | `REQUIREMENTS_GAP.md` | Requirement → repo evidence → status table (the audit trail for every `delivered` claim) |
+| `ARCHITECTURE_REVIEW.md` | Principal review-board record: 12 findings, debated options, decisions (D11–D14, E8/E9, new FR/NFR rows), detailed design notes (session policy, anchoring, sender-constrained tokens, approval binding, signed exposure) |
 
 ## Template & reference baseline
 

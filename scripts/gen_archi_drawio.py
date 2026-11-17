@@ -96,6 +96,37 @@ class P:
     def title(self, text):
         self.node(None, text, TITLE, 40, 12, 1200, 26)
 
+    def vline(self, x, y1, y2):
+        """Dashed vertical lifeline (sequence diagrams)."""
+        i = self._id(None)
+        self.cells.append(
+            f'<mxCell id="{i}" style="endArrow=none;dashed=1;html=1;strokeColor=#999999;" '
+            f'edge="1" parent="1"><mxGeometry relative="1" as="geometry">'
+            f'<mxPoint x="{x}" y="{y1}" as="sourcePoint"/>'
+            f'<mxPoint x="{x}" y="{y2}" as="targetPoint"/></mxGeometry></mxCell>')
+
+    def msg(self, x1, x2, y, label, dashed=False, ret=False):
+        """Horizontal sequence message between lifelines."""
+        i = self._id(None)
+        st = ("edgeStyle=orthogonalEdgeStyle;html=1;fontSize=10;strokeWidth=1.5;"
+              + ("dashed=1;dashPattern=4 4;" if dashed else "")
+              + ("endArrow=open;" if ret else "endArrow=block;"))
+        src, dst = (x2, x1) if ret else (x1, x2)
+        self.cells.append(
+            f'<mxCell id="{i}" value="{self._val(label)}" style="{st}" edge="1" parent="1">'
+            f'<mxGeometry relative="1" as="geometry">'
+            f'<mxPoint x="{src}" y="{y}" as="sourcePoint"/>'
+            f'<mxPoint x="{dst}" y="{y}" as="targetPoint"/></mxGeometry></mxCell>')
+
+    def lifeline(self, id, label, x, y_top=70, y_bot=760, w=150, h=44, color=C_CONSUMER, dashed=False):
+        nid = self.node(id, label, vstyle(color, dashed), x - w // 2, y_top, w, h)
+        self.vline(x, y_top + h, y_bot)
+        return nid
+
+    def bar(self, x, y, h, w=10):
+        """Activation bar on a lifeline."""
+        self.node(None, "", "fillColor=#999999;strokeColor=none;", x - w // 2, y, w, h)
+
     def legend(self, text, y=640, x=40, w=1200):
         self.node(None, text, TXT, x, y, w, 40)
 
@@ -797,6 +828,111 @@ def build_ent_p1():
     return p
 
 
+# ---- sequence diagrams --------------------------------------------------
+# lifeline x positions: give each participant a column; messages are numbered
+# horizontal arrows at increasing y. Solid = delivered path today; dashed =
+# design seam. These are the "high detail" flows behind STU-01..07.
+
+def _seq_header(p, title, participants):
+    p.title(title)
+    xs = {}
+    for i, (pid, label, color, dashed) in enumerate(participants):
+        x = 90 + i * 175
+        xs[pid] = x
+        p.lifeline(pid, label, x, 70, 780, 150, 44, color, dashed)
+    return xs
+
+
+def build_stu_p8():
+    p = P(1500, 1000)
+    x = _seq_header(p, "STU-08 · Governed request sequence — every hop bound to request_id (Phase B data path, dashed participants = seams)", [
+        ("cons", "Consumer\n(agent / app)", C_CONSUMER, False),
+        ("gw",   "API Gateway\n(edge)", C_GOV, True),
+        ("br",   "Token broker", C_IDENT, True),
+        ("idp",  "IdP\nEntra/equiv.", C_IDENT, True),
+        ("xr",   "Exposure\nresolver", C_IDENT, True),
+        ("px",   "MCP proxy", C_GOV, True),
+        ("fg",   "AuthZEN →\nReBAC", C_IDENT, True),
+        ("au",   "Audit ledger", C_STORE, False),
+    ])
+    y = 170
+    p.msg(x["cons"], x["gw"], y, "1 HTTPS + bearer (DPoP/mTLS-bound)"); y += 55
+    p.msg(x["gw"], x["br"], y, "2 validate + exchange (8693 downscope)", dashed=True); y += 55
+    p.msg(x["br"], x["idp"], y, "3 JWKS fetch/verify · iss/aud/exp", dashed=True); y += 55
+    p.msg(x["br"], x["gw"], y, "4 scoped claims · opaque token", ret=True); y += 55
+    p.msg(x["gw"], x["xr"], y, "5 resolve exposure + policy profile", dashed=True); y += 55
+    p.msg(x["xr"], x["gw"], y, "6 allowed tools + route_ref", ret=True); y += 55
+    p.msg(x["gw"], x["px"], y, "7 route → filtered tools/list", dashed=True); y += 55
+    p.msg(x["px"], x["fg"], y, "8 sensitive op? FGA check", dashed=True); y += 55
+    p.msg(x["fg"], x["px"], y, "9 allow | 403+step-up (6750)", ret=True); y += 55
+    p.msg(x["px"], x["au"], y, "10 gateway.decision (allow/deny+reason)", dashed=True); y += 55
+    p.msg(x["px"], x["gw"], y, "11 response · no payload logged", ret=True); y += 55
+    p.msg(x["gw"], x["cons"], y, "12 filtered tools/list", ret=True)
+    p.legend("Deny exits: 401 (bad/expired token) at 2–4 · 403+step-up at 9 · deny+log (route not published) at 5–6. "
+             "tools/call never reaches this path — it is the STU-10 Phase C sequence only.", y=880)
+    return p
+
+
+def build_stu_p9():
+    p = P(1500, 1000)
+    x = _seq_header(p, "STU-09 · Exposure publication sequence — READY only after signature + four-eyes + smoke test (E8/E4)", [
+        ("pub", "Publisher\n(mcp owner)", C_CONSUMER, False),
+        ("api", "Studio API\napi.py", C_GOV, False),
+        ("reg", "mcp_registry.py\nserver record", C_STORE, False),
+        ("sig", "Signer\n(exposure.signature)", C_IDENT, True),
+        ("ap",  "Approvers ×2\n(four-eyes)", C_IDENT, True),
+        ("gwc", "Gateway CP\nroute deploy", C_GOV, True),
+        ("sm",  "Smoke test\nhealth+auth+route", C_GOV, True),
+        ("au",  "Audit ledger", C_STORE, False),
+    ])
+    y = 170
+    p.msg(x["pub"], x["api"], y, "1 draft exposure { mode, route_ref, backends }", ); y += 52
+    p.msg(x["api"], x["reg"], y, "2 persist draft (REGISTERED)"); y += 52
+    p.msg(x["api"], x["sig"], y, "3 sign canonical exposure block", dashed=True); y += 52
+    p.msg(x["sig"], x["reg"], y, "4 exposure.signature stored", ret=True); y += 52
+    p.msg(x["api"], x["ap"], y, "5 approval request (mode: gateway)", dashed=True); y += 52
+    p.msg(x["ap"], x["api"], y, "6 2 distinct approvals", ret=True); y += 52
+    p.msg(x["api"], x["gwc"], y, "7 deploy route + pins (FQDN·TLS·SPIFFE)", dashed=True); y += 52
+    p.msg(x["gwc"], x["sm"], y, "8 run smoke test", dashed=True); y += 52
+    p.msg(x["sm"], x["api"], y, "9 pass → READY · fail → compensate", ret=True); y += 52
+    p.msg(x["api"], x["au"], y, "10 exposure.published { request_id, approvers }", dashed=True); y += 52
+    p.msg(x["api"], x["pub"], y, "11 PUBLISHED · visible per policy profile", ret=True)
+    p.legend("Revocation is the mirror: teardown route → exposure.revoked audit. "
+             "A corrupted/tampered exposure fails closed at gateway signature+pin check — never silently reroutes.", y=880)
+    return p
+
+
+def build_stu_p10():
+    p = P(1500, 1000)
+    x = _seq_header(p, "STU-10 · Phase C governed tools/call — design only; approval bound to canonical args (TOCTOU-proof)", [
+        ("ag",  "Agent", C_CONSUMER, False),
+        ("gw",  "API Gateway", C_GOV, True),
+        ("px",  "MCP proxy", C_GOV, True),
+        ("pep", "PEP svc\n(own domain)", C_RISK, True),
+        ("fg",  "AuthZEN →\nReBAC", C_IDENT, True),
+        ("apv", "Approval store\nargs-bound", C_STORE, True),
+        ("wk",  "Isolated worker\n(egress-limited)", C_RISK, True),
+        ("bk",  "MCP backend", C_RISK, False),
+        ("au",  "Audit ledger", C_STORE, False),
+    ])
+    y = 170
+    p.msg(x["ag"], x["gw"], y, "1 tools/call { server, tool, args }"); y += 50
+    p.msg(x["gw"], x["px"], y, "2 routed (profile resolved)", dashed=True); y += 50
+    p.msg(x["px"], x["pep"], y, "3 enforce: fresh decision, never caller state", dashed=True); y += 50
+    p.msg(x["pep"], x["fg"], y, "4 FGA: per-tool/per-resource rule", dashed=True); y += 50
+    p.msg(x["pep"], x["apv"], y, "5 verify approval = hash(policy_fp,tool,\ncanonical_args,evidence,exp)", dashed=True); y += 50
+    p.msg(x["apv"], x["pep"], y, "6 valid once | replay/different args → deny", ret=True); y += 50
+    p.msg(x["pep"], x["wk"], y, "7 dispatch to isolated worker", dashed=True); y += 50
+    p.msg(x["wk"], x["bk"], y, "8 governed call (egress-limited)", dashed=True); y += 50
+    p.msg(x["bk"], x["wk"], y, "9 result (bounded)", ret=True); y += 50
+    p.msg(x["wk"], x["au"], y, "10 execution outcome evidence", dashed=True); y += 50
+    p.msg(x["pep"], x["au"], y, "11 gateway.decision + token.exchange refs", dashed=True); y += 50
+    p.msg(x["wk"], x["ag"], y, "12 result → agent (normalized)", ret=True)
+    p.legend("DESIGN SEAM ONLY — no /tools/call route exists today. If any binding fails, the worker is never reached; "
+             "denials are normalized 403 (+step-up where appropriate).", y=880)
+    return p
+
+
 PAGES_STU = [
     ("STU-01-Component-Map", "st1", build_stu_p1),
     ("STU-02-API-Lifecycle", "st2", build_stu_p2),
@@ -805,6 +941,9 @@ PAGES_STU = [
     ("STU-05-Assurance-Audit", "st5", build_stu_p5),
     ("STU-06-Deployment", "st6", build_stu_p6),
     ("STU-07-Threat-Gap-Map", "st7", build_stu_p7),
+    ("STU-08-Seq-Governed-Request", "st8", build_stu_p8),
+    ("STU-09-Seq-Exposure-Publication", "st9", build_stu_p9),
+    ("STU-10-Seq-Governed-Call", "st10", build_stu_p10),
 ]
 
 
