@@ -66,10 +66,14 @@ class P:
         self.cells = []
         self.w, self.h = page_w, page_h
         self.n = 0
+        self.seen = set()
 
     def _id(self, base):
         self.n += 1
-        return base or f"c{self.n}"
+        i = base or f"c{self.n}"
+        assert i not in self.seen, f"duplicate mxCell id {i!r} — pick unique explicit ids"
+        self.seen.add(i)
+        return i
 
     def _val(self, v):
         return escape(v, {chr(34): "&quot;"}).replace("\n", "&lt;br&gt;")
@@ -724,6 +728,75 @@ def build_stu_p7():
     return p
 
 
+# ========================================================= ENTERPRISE page 01
+# Rebuilt to architect standard: trust boundaries, control/data plane split,
+# numbered protocol-annotated flows, real stencils.
+
+def build_ent_p1():
+    p = P(1500, 1000)
+    p.title("TaaS target platform — consumers reach tools only through the governed edge; "
+            "the control plane governs, it is never in the request path")
+
+    # ---- T0 consumers -----------------------------------------------------
+    z0 = p.node(None, "T0 — Untrusted consumers", zone("#f5f5f5", "#666666"), 30, 60, 170, 700)
+    c1 = p.node("k1", "Business apps\n/ frontends", vstyle(C_CONSUMER), 20, 50, 130, 55, z0)
+    c2 = p.node("k2", "Agents\n(LLM hosts)", vstyle(C_CONSUMER), 20, 140, 130, 55, z0)
+    c3 = p.node("k3", "M2M service\nclients", vstyle(C_CONSUMER), 20, 230, 130, 55, z0)
+    p.node(None, "", ICON["user"], 55, 340, 55, 55, z0)
+    p.node(None, "any principal,\nany network", TXT, 25, 420, 130, 45, z0)
+
+    # ---- T1 governed edge (data plane) ------------------------------------
+    z1 = p.node(None, "T1 — Governed edge · data plane (enforcement)", zone("#eaf6ea", "#4d7a4d"), 240, 60, 300, 700)
+    gw = p.node("gw", "API Gateway\nTLS · WAF* · quota · 2MiB\nJWT/JWKS check", vstyle(C_GOV, True), 60, 60, 185, 80, z1)
+    tb = p.node("tb", "Token broker\nOIDC · RFC 8693 downscope\nopaque out · sender-constrained*", vstyle(C_IDENT, True), 60, 185, 185, 85, z1)
+    px = p.node("px", "MCP proxy\nfiltered tools/list\nsession+notification policy\ncall gated → PEP", vstyle(C_GOV, True), 60, 315, 185, 95, z1)
+    fg = p.node("fg", "Fine-grained authZ\nAuthZEN → ABAC/ReBAC\nnormalized 403 · step-up", vstyle(C_IDENT, True), 60, 455, 185, 80, z1)
+    p.node(None, "separate identity + admin\ndomain (D14)", TXT, 60, 570, 185, 45, z1)
+
+    # ---- T2 control plane -------------------------------------------------
+    z2 = p.node(None, "T2 — TaaS Studio control plane (governs, never executes)", zone("#f4f0f8", "#9673a6"), 580, 60, 330, 700)
+    rg = p.node("rg", "TaaS registry\nagents · skills · mcp servers\n+ signed exposure records", vstyle(C_STORE), 30, 60, 270, 85, z2)
+    pl = p.node("pl", "Policy engine\nexposure_rules · quotas\napprovals", vstyle(C_STORE), 30, 180, 270, 75, z2)
+    au = p.node("au", "Audit ledger\nhash chain · request_id\n+ signed digests", vstyle(C_STORE), 30, 295, 270, 75, z2)
+    ev = p.node("ev", "Assurance evidence\ninspection snapshots\nsigned bundles", vstyle(C_STORE), 30, 410, 270, 70, z2)
+    p.node(None, "inspection-only until Phase C\nproposal ≠ evidence ≠\nauthorization ≠ execution", TXT, 30, 520, 270, 75, z2)
+
+    # ---- external trust services ------------------------------------------
+    z5 = p.node(None, "T5 — External trust services", zone("#fdf6ec", "#b08a3e"), 950, 60, 240, 200)
+    idp = p.node("idp", "IdP — Entra ID\n/ equivalent\nOIDC + JWKS", vstyle(C_IDENT, True), 30, 45, 180, 70, z5)
+    wm = p.node("wm", "External anchor\nWORM store / witness log\n(audit ≠ self-attested)", vstyle(C_IDENT, True), 30, 125, 180, 70, z5)
+
+    # ---- T3/T4 backends ----------------------------------------------------
+    z3 = p.node(None, "T3 — Runtimes (no consumer-direct)", zone("#fdf3e7", "#a66a3f"), 950, 300, 240, 190)
+    r1 = p.node("r1", "Model runtimes\nMistral · Vertex ·\nBedrock · Foundry ·\nOllama/vLLM", vstyle(C_BACKEND), 30, 45, 180, 105, z3)
+    z4 = p.node(None, "T4 — Tool backends (LB / private endpoint)", zone("#fbeaea", "#a05a5a"), 950, 520, 240, 240)
+    b1 = p.node("b1", "Private MCP\nservices", vstyle(C_RISK), 30, 45, 180, 55, z4)
+    b2 = p.node("b2", "REST→MCP adapter\nJDE / WSO2-class", vstyle(C_RISK, True), 30, 115, 180, 60, z4)
+    b3 = p.node("b3", "SaaS MCP\ncontrolled egress", vstyle(C_RISK), 30, 190, 180, 50, z4)
+
+    p.node(None, "", ICON["az_entra"], 1230, 90, 60, 60)
+    p.node(None, "", ICON["az_kv"], 1230, 190, 60, 60)
+    p.node(None, "Private endpoints only\nFQDN + pinned identity\nnever raw IP (E8)", vlstyle(C_NEUT), 1210, 300, 240, 80)
+
+    # ---- numbered flows ----------------------------------------------------
+    p.edge(c1, gw, "1"); p.edge(c2, gw, "1"); p.edge(c3, gw, "1")
+    p.edge(gw, tb, "2 validate+exchange")
+    p.edge(tb, idp, "3 JWKS · metadata", dashed=True)
+    p.edge(gw, rg, "4 resolve profile", dashed=True)
+    p.edge(gw, px, "5 route")
+    p.edge(px, fg, "6 FGA check", dashed=True)
+    p.edge(px, b1, "7 private conn"); p.edge(px, b2, "7"); p.edge(px, b3, "7")
+    p.edge(px, r1, "8 Phase C only", dashed=True)
+    p.edge(px, au, "9 decision→audit", dashed=True)
+    p.edge(au, wm, "10 signed digest\nexternal anchor", dashed=True)
+
+    p.node(None, "Control plane ⟂ data plane: registry/policy configure the edge via deployment;"
+                 " the request path never calls back into Studio.\n"
+                 "solid = delivered · dashed = design seam · * capability per env (PAD §7.6 matrix)",
+           vlstyle(C_NEUT), 40, 800, 1400, 70)
+    return p
+
+
 PAGES_STU = [
     ("STU-01-Component-Map", "st1", build_stu_p1),
     ("STU-02-API-Lifecycle", "st2", build_stu_p2),
@@ -736,12 +809,24 @@ PAGES_STU = [
 
 
 def main():
+    import re
     for fname, spec in (("taas-lad.drawio", PAGES_LAD),
                         ("taas-pad.drawio", PAGES_PAD),
                         ("taas-studio-architecture.drawio", PAGES_STU)):
         pages = [(name, pid, fn().render()) for name, pid, fn in spec]
         (OUT / fname).write_text(mxfile(pages), encoding="utf-8")
         print(f"wrote {OUT / fname} ({len(pages)} pages)")
+
+    # Enterprise file: replace page 01 (Platform-Context) with the rebuilt
+    # trust-boundary version; other pages remain hand-maintained for now.
+    f = OUT / "taas-enterprise-architecture.drawio"
+    src = f.read_text(encoding="utf-8")
+    new = build_ent_p1().render()
+    src2, n = re.subn(r'(<diagram name="01-Platform-Context"[^>]*>).*?(</diagram>)',
+                      lambda m: m.group(1) + new + m.group(2), src, count=1, flags=re.S)
+    assert n == 1, "page 01 not found"
+    f.write_text(src2, encoding="utf-8")
+    print(f"wrote {f} (page 01 rebuilt)")
 
 
 if __name__ == "__main__":
