@@ -1,6 +1,6 @@
 # UX-3 — Tool Registry Workspace
 
-Status: implementation branch `codex/ux3-tool-registry-workspace`, stacked on UX-2 head `547cfd97cbd2eef2e26d2c5fd9af972bab93facb`.
+Status: implementation branch `codex/ux3-tool-registry-workspace`, stacked on UX-2 head `0aa43cf2d9ea9cef8cb463669bb99504ed6af7e8`.
 
 ## Objective
 

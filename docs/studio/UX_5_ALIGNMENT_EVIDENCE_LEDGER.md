@@ -1,6 +1,6 @@
 # UX-5 — Alignment Review & Evidence Ledger
 
-Status: implementation branch `codex/ux5-alignment-evidence-ledger`, stacked on UX-4 head `62ab53e46ee86c32a96a8511f785ea58697145c9`.
+Status: implementation branch `codex/ux5-alignment-evidence-ledger`, stacked on UX-4 head `79c485d1d6dd0e8e03b85743d38a76f5b1d5bce1`.
 
 ## Objective
 

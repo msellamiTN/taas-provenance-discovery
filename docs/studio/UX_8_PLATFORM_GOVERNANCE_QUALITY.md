@@ -1,6 +1,6 @@
 # UX-8 — Platform Governance, Security, Performance & Validation
 
-Status: implemented as a UI-only increment on `codex/ux8-governance-quality-validation`, stacked on UX-7 PR #83 head `27ddf7edccebe67564ec1e18dd405836829837bb`. The user explicitly approved the UX-8 visual structure before implementation.
+Status: implemented as a UI-only increment on `codex/ux8-governance-quality-validation`, stacked on UX-7 PR #83 head `787af310075561776ee9be477110ad5a92d39d3b`. The user explicitly approved the UX-8 visual structure before implementation.
 
 ## Objective
 

@@ -1,6 +1,6 @@
 # UX-6 — Evidence Diff & Change Impact Workspace
 
-Status: implemented on branch `codex/ux6-evidence-diff-change-impact`; stacked on the approved UX-5 head `65fd313f69570882ba6aaa6a6a58e11a5d76f42f`. The visual mockup was explicitly approved before implementation.
+Status: implemented on branch `codex/ux6-evidence-diff-change-impact`; stacked on the approved UX-5 head `4095ce01ba09f528e97fa18a7f099288f90e218e`. The visual mockup was explicitly approved before implementation.
 
 ## Objective
 
