@@ -967,6 +967,23 @@ def main():
     f.write_text(src2, encoding="utf-8")
     print(f"wrote {f} (page 01 rebuilt)")
 
+    # Consolidated single document: every page from all four files, with
+    # section-prefixed names so the page list reads like a document index.
+    import xml.etree.ElementTree as ET
+    sections = [("LAD", "taas-lad.drawio"), ("PAD", "taas-pad.drawio"),
+                ("STU", "taas-studio-architecture.drawio"),
+                ("ENT", "taas-enterprise-architecture.drawio")]
+    combined = ET.Element("mxfile", {"compressed": "false"})
+    count = 0
+    for prefix, fname in sections:
+        for d in ET.parse(OUT / fname).getroot():
+            d.set("name", f"{prefix} · {d.get('name')}")
+            combined.append(d)
+            count += 1
+    (OUT / "taas-architecture.drawio").write_text(
+        ET.tostring(combined, encoding="unicode"), encoding="utf-8")
+    print(f"wrote {OUT / 'taas-architecture.drawio'} ({count} pages)")
+
 
 if __name__ == "__main__":
     main()
