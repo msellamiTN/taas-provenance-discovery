@@ -64,3 +64,12 @@ A successful response reports:
 - Isolated workers, secrets brokering, quotas, cancellation, or durable run traces.
 
 These capabilities must be delivered as separate, testable increments. In particular, a future executor must resolve the manifest's tool grants against a versioned registry snapshot and re-authorize each call at the execution boundary; it must not treat this manifest as a bearer capability.
+
+## Proposed v1alpha2 extension fields (design seam — not implemented)
+
+The enterprise gateway architecture extends this manifest rather than replacing it — see `MCP_GATEWAY_EXTENSION.md` §E2 for the full contract:
+
+- `spec.identity.workload_identity_ref` — the agent runtime's own identity for downstream calls; never a consumer token.
+- `spec.exposure` — how the agent's tool surface is published through the governed gateway (`publish_via`, `consumer_scopes`, `policy_profile_ref`); defaults closed (not exposed).
+
+v1alpha1 validation semantics are unchanged: these fields are **not yet accepted** by `POST /api/v1/agents/validate`.

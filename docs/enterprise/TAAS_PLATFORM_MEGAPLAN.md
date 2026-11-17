@@ -65,7 +65,7 @@ Every requirement must preserve the boundary invariant. Full evidence: `REQUIREM
 | FR-GOV-1 | Fail-closed authentication (503 unset, 401 mismatch) | delivered |
 | FR-GOV-2 | Named API keys: hashed at rest, per-key actor binding, recorded revocation | delivered |
 | FR-GOV-3 | OIDC/SSO interactive login | not implemented (Phase B) |
-| FR-GOV-3b | Token broker — short-lived Bearer tokens for all MCP access, Entra ID or equivalent IdP, JWKS-validated at proxy edge | not implemented (Phase B) — SoW commitment C4 |
+| FR-GOV-3b | Token broker — short-lived Bearer tokens for all MCP access, Entra ID or equivalent IdP, JWKS-validated at proxy edge | not implemented (Phase B) — SoW commitments C2/C6; extension seam `MCP_GATEWAY_EXTENSION.md` E6 |
 | FR-GOV-4 | RBAC roles (viewer/operator/approver/admin) | not implemented (Phase B) |
 | FR-GOV-5 | Org-scoped policies + multi-party approval workflows | not implemented (Phase B/E) |
 | FR-GOV-6 | Tenant isolation | not implemented — separate security project |

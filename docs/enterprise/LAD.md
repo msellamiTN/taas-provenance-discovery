@@ -184,6 +184,15 @@ The registry is the authoritative catalogue. Logical entities map to the deliver
 
 Lifecycle states: `REGISTERED → VALIDATED → READY FOR CONSUMPTION → PUBLISHED → REVOKED/DECOMMISSIONED` — configuration states, never runtime states.
 
+**Entity extension, not parallel model.** Every gateway-era concept is defined as an extension of a delivered TaaS entity — see `docs/studio/MCP_GATEWAY_EXTENSION.md`:
+
+- MCP server registry entries gain an `exposure` block (direct/gateway/rest-adapter mode, route_ref, policy_profile_ref) — `mode: direct` is the only implemented reality.
+- The agent manifest gains `spec.exposure` + `spec.identity` (v1alpha2 proposal, not yet accepted by `/agents/validate`).
+- Policy profiles gain `exposure_rules` (consumer scopes, visible tools, egress class); `tools_callable` is structurally gated on the Phase C PEP.
+- Publication lifecycle maps onto the existing draft→published state machine; READY adds the smoke-test gate.
+- Audit gains `exposure.*`, `gateway.decision`, `token.exchange` event kinds on the same hash chain.
+- The token broker is the enterprise evolution of the delivered `TAAS_STUDIO_API_TOKEN` + `ak_*` named-key auth model — not a replacement.
+
 ## 9. Security architecture
 
 ### 9.1 Identity domains (strictly separated)

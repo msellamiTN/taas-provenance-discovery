@@ -157,6 +157,19 @@ The page contains responsive CSS breakpoints and a grouped left-rail navigation.
 - No `git apply --check` workflow is part of this process.
 - PR #9 remains unmerged.
 
+## 7b. Enterprise extension seams (design — not implemented)
+
+The enterprise gateway architecture (see `docs/enterprise/SOW.md`, `LAD.md`, `PAD.md`) is expressed as **extensions of the existing feature model**, not a parallel system. Full mapping: `docs/studio/MCP_GATEWAY_EXTENSION.md`.
+
+| Extension seam | Extends | Status |
+|---|---|---|
+| `exposure` block on MCP server registry entries (mode: direct/gateway/rest-adapter, route_ref, policy_profile_ref) | MCP server registry + UX-15 governance | design seam |
+| `spec.exposure` + `spec.identity` on the agent manifest (v1alpha2 proposal) | `AGENT_MANIFEST_V1ALPHA1.md` + `/agents/validate` | design seam — fields not yet accepted |
+| `exposure_rules` on policy profiles (consumer scopes, visible/callable tools, egress class, quotas) | UX-17 Policy Designer model | design seam; `tools_callable` gated on Phase C PEP |
+| READY FOR CONSUMPTION gate (gateway config + health/auth/route smoke tests) | existing draft→published lifecycle | design seam |
+| Audit event kinds `exposure.*`, `gateway.decision`, `token.exchange` | existing tamper-evident audit chain + `payload.request_id` correlation | design seam |
+| Bearer-token broker (Entra ID / equivalent IdP) | existing `TAAS_STUDIO_API_TOKEN` + named `ak_*` key model | Phase B evolution, not a replacement |
+
 ## 8. Source map
 
 - API and request contracts: `src/taas/studio/api.py`

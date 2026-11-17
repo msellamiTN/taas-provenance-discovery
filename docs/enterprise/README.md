@@ -35,4 +35,6 @@ be, and honestly record what is delivered, designed, or not yet implemented.
 
 Lower-level docs: `docs/studio/LIFECYCLE_API_MEGAPLAN.md` (A1–A6 lifecycle),
 `docs/studio/FEATURE_CATALOG.md` (verified feature audit),
+`docs/studio/MCP_GATEWAY_EXTENSION.md` (how the gateway requirements extend
+existing TaaS entities — registry, manifest, policy, lifecycle, audit),
 `docs/deployment/STUDIO_OPERATIONS.md` (operations runbook).
