@@ -5,6 +5,10 @@ Status: consolidated baseline `devin/studio-ux-integration-v1` @ `389bbc1`
 organizing frame; UX identifiers remain implementation increments, not
 product structure.
 
+Enterprise layer: `docs/enterprise/TAAS_PLATFORM_MEGAPLAN.md` governs
+platform-level requirements, compliance mapping, and deployment
+architecture; this document stays scoped to the lifecycle control plane.
+
 ## 0. Roles & responsibilities
 
 Three roles share this project. The megaplan is the contract between them —
