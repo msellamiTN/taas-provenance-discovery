@@ -1,0 +1,41 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install
+        run: pip install -e ".[test,studio,probe,mcp,edge]" build
+      - name: Compile check
+        run: python -m compileall -q src tests scripts
+      - name: Build wheel
+        run: |
+          python -m build --wheel
+          python - <<'PY'
+          import zipfile, glob
+          wheel = glob.glob("dist/*.whl")[0]
+          names = zipfile.ZipFile(wheel).namelist()
+          for m in ("taas/studio/api.py", "taas/studio/audit_anchor.py",
+                    "taas/broker/api.py", "taas/proxy/service.py"):
+              assert any(n.endswith(m) for n in names), m
+          print("wheel contents OK")
+          PY
+      - name: Test
+        run: python -m pytest tests/ -x -q
+      - name: Drawio generator regression
+        run: |
+          python scripts/gen_archi_drawio.py
+          git diff --exit-code docs/archi/ || (echo "drawio output drifted — regenerate and commit" && exit 1)
