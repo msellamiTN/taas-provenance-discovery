@@ -5,7 +5,7 @@ services:
       args: { SERVICE: studio }
     environment:
       TAAS_STUDIO_API_TOKEN: ${TAAS_STUDIO_API_TOKEN:-dev-token-change-me}
-      TAAS_AUDIT_DB_PATH: /data/audit.sqlite3
+      TAAS_AUDIT_LEDGER_PATH: /data/audit.sqlite3
       TAAS_MCP_SERVERS_FILE: /data/mcp-servers.json
       TAAS_EXPOSURE_SIGNING_KEY: ${TAAS_EXPOSURE_SIGNING_KEY:-dev-exposure-key-change-me}
       TAAS_AUDIT_ANCHOR_KEY: ${TAAS_AUDIT_ANCHOR_KEY:-dev-anchor-key-change-me}
@@ -36,7 +36,7 @@ services:
       TAAS_MCP_SERVERS_FILE: /data/mcp-servers.json
       TAAS_EXPOSURE_SIGNING_KEY: ${TAAS_EXPOSURE_SIGNING_KEY:-dev-exposure-key-change-me}
       TAAS_POLICY_PROFILES_FILE: /data/policy-profiles.json
-      TAAS_AUDIT_DB_PATH: /data/audit.sqlite3
+      TAAS_AUDIT_LEDGER_PATH: /data/audit.sqlite3
     volumes: [ "taas-data:/data" ]
     depends_on: [ broker ]
     ports: [ "8002:8002" ]
