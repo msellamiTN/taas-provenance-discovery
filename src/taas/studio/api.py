@@ -70,6 +70,7 @@ from taas.studio.analyst_contract import validate_theta_types, build_refinement_
 from taas.studio.objective_contract import (build_objective_context, derive_objective_contract, diagnose_objective_alignment, build_outcome_coverage)
 from taas.studio.objective_contract_v3 import derive_objective_contract_v3, validate_objective_contract_v3
 from taas.studio.ollama_runtime import get_ollama_runtime
+from taas.studio.colibri_runtime import get_colibri_runtime
 from taas.studio.mcp_registry import MCPRegistryError, inspect_server as inspect_mcp_server, list_servers as list_mcp_servers
 from taas.types import KINDS
 from taas.studio.assurance_routes import build_assurance_router
@@ -213,7 +214,7 @@ class DiscoverRequest(BaseModel):
     goal_spec: dict[str, Any]
     tools: list[ToolInput] = Field(default_factory=list, max_length=500)
     registry_tool_ids: list[str] = Field(default_factory=list, max_length=500)
-    provider: str = Field(default="huggingface", pattern="^(huggingface|ollama)$")
+    provider: str = Field(default="huggingface", pattern="^(huggingface|ollama|colibri)$")
     model_id: str | None = Field(default=None, min_length=3, max_length=257)
     human_review_confirmed: bool = False
     policy: dict[str, Any] = Field(default_factory=dict)
@@ -223,13 +224,13 @@ class DiscoverRequest(BaseModel):
 class ModelLoadRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     model_id: str = Field(min_length=3, max_length=257)
-    provider: str = Field(default="huggingface", pattern="^(huggingface|ollama)$")
+    provider: str = Field(default="huggingface", pattern="^(huggingface|ollama|colibri)$")
     device: str = Field(default="auto", pattern="^(auto|cpu|cuda)$")
 
 
 class ModelChatRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    provider: str = Field(default="huggingface", pattern="^(huggingface|ollama)$")
+    provider: str = Field(default="huggingface", pattern="^(huggingface|ollama|colibri)$")
     message: str = Field(min_length=1, max_length=12000)
     system: str = Field(default="You are a helpful assistant.", max_length=4000)
     max_new_tokens: int = Field(default=512, ge=1, le=2048)
@@ -238,7 +239,7 @@ class ModelChatRequest(BaseModel):
 
 class AgentDecomposeRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    provider: str = Field(default="huggingface", pattern="^(huggingface|ollama)$")
+    provider: str = Field(default="huggingface", pattern="^(huggingface|ollama|colibri)$")
     prompt: str = Field(min_length=1, max_length=12000)
     context: str = Field(default="", max_length=8000)
     max_new_tokens: int = Field(default=1200, ge=1, le=2048)
@@ -1885,6 +1886,15 @@ def discover(request: DiscoverRequest) -> dict[str, Any]:
     }
 
 
+
+
+def _runtime_for_provider(provider: str):
+    if provider == "ollama":
+        return get_ollama_runtime()
+    if provider == "colibri":
+        return get_colibri_runtime()
+    return get_model_runtime()
+
 @app.get("/api/v1/models/runtime", dependencies=[Depends(require_api_token)])
 def model_runtime_status() -> dict[str, Any]:
     """Report runtime state for both configured inference providers."""
@@ -1893,6 +1903,7 @@ def model_runtime_status() -> dict[str, Any]:
         "huggingface": {"supported": True, "model_loaded": state.get("model_loaded", False),
                         "model_id": state.get("model_id"), "device": state.get("device")},
         "ollama": get_ollama_runtime().status(),
+        "colibri": get_colibri_runtime().status(),
     }
     return state
 
@@ -1905,6 +1916,10 @@ def model_runtime_load(request: ModelLoadRequest) -> dict[str, Any]:
             if request.device != "auto":
                 raise ValueError("Ollama manages device placement; omit device or use auto")
             return get_ollama_runtime().load(request.model_id)
+        if request.provider == "colibri":
+            if request.device != "auto":
+                raise ValueError("Colibri manages expert placement; omit device or use auto")
+            return get_colibri_runtime().load(request.model_id)
         return get_model_runtime().load(request.model_id, request.device)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
@@ -1916,7 +1931,7 @@ def model_runtime_load(request: ModelLoadRequest) -> dict[str, Any]:
 def model_runtime_chat(request: ModelChatRequest) -> dict[str, Any]:
     """Run a real inference request against the currently loaded model."""
     try:
-        runtime = get_ollama_runtime() if request.provider == "ollama" else get_model_runtime()
+        runtime = _runtime_for_provider(request.provider)
         return runtime.chat(request.message, request.system, request.max_new_tokens, request.temperature)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
@@ -1929,7 +1944,7 @@ def model_runtime_chat(request: ModelChatRequest) -> dict[str, Any]:
 def agent_decompose(request: AgentDecomposeRequest) -> dict[str, Any]:
     """Use the selected Studio model to propose a GoalSpec; validate separately."""
     try:
-        runtime = get_ollama_runtime() if request.provider == "ollama" else get_model_runtime()
+        runtime = _runtime_for_provider(request.provider)
         # TaaS Core contributes an objective frame before generation. The model is
         # not given the MCP registry; capability matching remains a later Core stage.
         objective_contract = derive_objective_contract(request.prompt)
