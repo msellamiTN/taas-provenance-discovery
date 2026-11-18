@@ -1,0 +1,52 @@
+services:
+  studio:
+    build:
+      context: .
+      args: { SERVICE: studio }
+    environment:
+      TAAS_STUDIO_API_TOKEN: ${TAAS_STUDIO_API_TOKEN:-dev-token-change-me}
+      TAAS_AUDIT_DB_PATH: /data/audit.sqlite3
+      TAAS_MCP_SERVERS_FILE: /data/mcp-servers.json
+      TAAS_EXPOSURE_SIGNING_KEY: ${TAAS_EXPOSURE_SIGNING_KEY:-dev-exposure-key-change-me}
+      TAAS_AUDIT_ANCHOR_KEY: ${TAAS_AUDIT_ANCHOR_KEY:-dev-anchor-key-change-me}
+      TAAS_AUDIT_ANCHOR_PATH: /data/audit.anchors.json
+      TAAS_COLIBRI_BASE_URL: http://colibri:8090/v1
+    volumes: [ "taas-data:/data" ]
+    ports: [ "8000:8000" ]
+
+  broker:
+    build:
+      context: .
+      args: { SERVICE: broker, PORT: 8001 }
+    environment:
+      PORT: "8001"
+      TAAS_BROKER_DEV_SECRET: ${TAAS_BROKER_DEV_SECRET:-dev-broker-secret-32-bytes-minimum!!}
+      TAAS_BROKER_TOKEN_STORE: /data/broker-tokens.sqlite3
+      # prod mode: set TAAS_BROKER_ISSUER + TAAS_BROKER_JWKS_URI instead
+    volumes: [ "taas-data:/data" ]
+    ports: [ "8001:8001" ]
+
+  proxy:
+    build:
+      context: .
+      args: { SERVICE: proxy, PORT: 8002 }
+    environment:
+      PORT: "8002"
+      TAAS_BROKER_URL: http://broker:8001
+      TAAS_MCP_SERVERS_FILE: /data/mcp-servers.json
+      TAAS_EXPOSURE_SIGNING_KEY: ${TAAS_EXPOSURE_SIGNING_KEY:-dev-exposure-key-change-me}
+      TAAS_POLICY_PROFILES_FILE: /data/policy-profiles.json
+      TAAS_AUDIT_DB_PATH: /data/audit.sqlite3
+    volumes: [ "taas-data:/data" ]
+    depends_on: [ broker ]
+    ports: [ "8002:8002" ]
+
+  # Optional T4-optimized inference backend — uncomment to enable
+  # colibri:
+  #   build: https://github.com/JustVugg/colibri.git#main:docker
+  #   volumes: [ "colibri-models:/models" ]
+  #   ports: [ "8090:8090" ]
+
+volumes:
+  taas-data:
+  colibri-models:
