@@ -212,7 +212,7 @@ C's gated, opt-in path; tenancy only via Phase B/E security workstreams;
 
 | ID | Decision | Options | Risk if decided by accident |
 |---|---|---|---|
-| OD-1 | Store backend for Phase B | Postgres + signed event log / object storage + indexing | concurrent writes, locking, and ACID are assumed but never designed (NFR-SCL-3) |
+| OD-1 | Store backend for Phase B | Postgres + signed event log / object storage + indexing — **ADR drafted: `docs/adr/ADR-001-persistence.md` (proposed: Postgres primary + sqlite embedded profile)** | concurrent writes, locking, and ACID are assumed but never designed (NFR-SCL-3) |
 | OD-2 | Sender-constraint mechanism | DPoP / mTLS-bound / both by env | bearer tokens stay replayable — the highest-value tokens get the weakest binding |
 | OD-3 | Audit anchor mechanism | WORM object-lock / transparency-log witness / customer-held log | external audit will not accept self-anchored evidence (NFR-AUD-3) |
 | OD-4 | FGA engine | OpenFGA / Permit-class / vendor | AuthZEN is pre-1.0 — facade must keep engine replaceable (LAD D9/ADR-06) |

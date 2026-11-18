@@ -72,7 +72,7 @@
 - **Decision:** broker is a data-path **replacement** at the edge; `ak_*` keys remain for control-plane/admin/dev only. Prevents bolting asymmetric trust onto a symmetric store.
 
 ### F12 — Store decision
-- **Decision (OD-1):** recorded as open decision (Postgres + signed event log vs object storage + indexing); NFR-SCL-3 keeps the swap contract-safe. Phase B must not let it happen by accident.
+- **Decision (OD-1):** ADR drafted at `docs/adr/ADR-001-persistence.md` — proposed Postgres primary + sqlite embedded profile, object store retained for anchors/evidence blobs; NFR-SCL-3 keeps the swap contract-safe. Awaiting owner sign-off.
 
 ## 3. What was deliberately NOT changed
 
