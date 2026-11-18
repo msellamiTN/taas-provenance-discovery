@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:taas.dev:contracts:audit-anchor:v1",
+  "title": "Audit anchor record (D12 phase 1 — implemented in audit_anchor.py)",
+  "type": "object",
+  "required": ["schema", "seq", "head_hash", "created_at", "digest"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "taas.audit-anchor/v1" },
+    "seq": { "type": "integer", "minimum": 0 },
+    "head_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "HMAC-SHA256 over canonical {schema,seq,head_hash,created_at} under TAAS_AUDIT_ANCHOR_KEY"
+    }
+  },
+  "x-invariants": [
+    "producer never sole anchor — key + artifact separated from the ledger",
+    "verify distinguishes intact / advanced / tampered / no_anchors",
+    "WORM/witness transport is the Phase B seam — this is the local record it will carry"
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:taas.dev:contracts:filtered-tools-list:v1",
+  "title": "MCP proxy filtered tools/list response (E3)",
+  "type": "object",
+  "required": ["schema", "server_id", "policy_profile", "tools", "filter"],
+  "properties": {
+    "schema": { "const": "taas.filtered-tools-list/v1" },
+    "server_id": { "type": "string" },
+    "policy_profile": { "type": "string" },
+    "tools": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "input_schema"],
+        "properties": {
+          "name": { "type": "string" },
+          "description": {
+            "type": "string",
+            "description": "Sanitized — only schema-required fields propagate (FR-SEC-7)"
+          },
+          "input_schema": { "type": "object" },
+          "metadata_findings": {
+            "type": "array",
+            "items": { "type": "object", "required": ["kind", "match"],
+                       "properties": { "kind": {"type": "string"}, "match": {"type": "string"} } },
+            "description": "Lint findings carried through from inspection — advisory"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "filter": {
+      "type": "object",
+      "required": ["visible_count", "hidden_count"],
+      "properties": {
+        "visible_count": { "type": "integer" },
+        "hidden_count": { "type": "integer" },
+        "policy_fingerprint": { "type": "string" }
+      }
+    },
+    "request_id": { "type": "string" },
+    "inspection_only": { "const": true },
+    "x-notes": [
+      "tools/call is NEVER on this contract — it is the Phase C PEP contract (pep-decision)",
+      "hidden tools are counted, not listed — no existence leak",
+      "session binding is transport-level (D11), not in this payload"
+    ]
+  }
+}

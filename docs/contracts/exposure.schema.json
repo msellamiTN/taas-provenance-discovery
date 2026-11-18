@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:taas.dev:contracts:exposure:v1",
+  "title": "MCP server exposure record (E1 + E8)",
+  "type": "object",
+  "required": ["mode"],
+  "additionalProperties": false,
+  "properties": {
+    "mode": {
+      "type": "string",
+      "enum": ["direct", "gateway", "rest-adapter"],
+      "description": "direct = inspection only today; gateway/rest-adapter = governed data-path seams"
+    },
+    "route_ref": {
+      "type": "string",
+      "maxLength": 512,
+      "description": "Logical route identifier realized per environment (K8s HTTPRoute name, Apigee proxy, AWS API GW route, Azure APIM op)"
+    },
+    "policy_profile_ref": {
+      "type": "string",
+      "maxLength": 512,
+      "description": "Reference to a policy profile carrying exposure_rules (E3)"
+    },
+    "backends": {
+      "type": "array",
+      "maxItems": 32,
+      "items": { "type": "string", "minLength": 1, "maxLength": 512 },
+      "description": "Backend identities the route may target (private FQDNs or LB-fronted ids — never raw IPs)"
+    },
+    "server_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
+    },
+    "signature": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "HMAC-SHA256 (today) / detached JWS (seam) over the canonical exposure block",
+      "x-seam": "jws-format"
+    },
+    "approvals": {
+      "type": "array",
+      "minItems": 2,
+      "x-seam": true,
+      "items": {
+        "type": "object",
+        "required": ["approver", "at"],
+        "properties": {
+          "approver": { "type": "string" },
+          "at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "description": "Four-eyes publication — two distinct approvers required for mode: gateway (seam)"
+    },
+    "backend_identity": {
+      "type": "object",
+      "x-seam": true,
+      "properties": {
+        "fqdn": { "type": "string" },
+        "tls_chain_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "spiffe_id": { "type": "string", "pattern": "^spiffe://" }
+      },
+      "description": "Pinned backend identity — connection fails closed on mismatch (seam)"
+    },
+    "published_by": { "type": "string", "x-seam": true },
+    "published_at": { "type": "string", "format": "date-time", "x-seam": true }
+  }
+}

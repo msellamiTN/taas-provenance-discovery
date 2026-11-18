@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:taas.dev:contracts:token-exchange:v1",
+  "title": "Bearer-token broker exchange (D2/D10 — OAuth 2.1 + RFC 8693)",
+  "type": "object",
+  "oneOf": [
+    { "$ref": "#/$defs/exchange_request" },
+    { "$ref": "#/$defs/exchange_response" },
+    { "$ref": "#/$defs/deny_response" }
+  ],
+  "$defs": {
+    "exchange_request": {
+      "type": "object",
+      "required": ["grant_type", "subject_token", "requested_scope", "audience"],
+      "properties": {
+        "grant_type": {
+          "const": "urn:ietf:params:oauth:grant-type:token-exchange"
+        },
+        "subject_token": {
+          "type": "string",
+          "description": "Inbound bearer; sender-constrained via DPoP or mTLS cnf (D13)"
+        },
+        "subject_token_type": {
+          "const": "urn:ietf:params:oauth:token-type:access_token"
+        },
+        "requested_scope": {
+          "type": "string",
+          "description": "Downscoped per-hop scope, e.g. mcp:tools:list:server:demo"
+        },
+        "audience": { "type": "string", "description": "Next-hop audience — never the backend's own" },
+        "dpop_proof": { "type": "string", "x-seam": true },
+        "resource": { "type": "string", "x-seam": true }
+      }
+    },
+    "exchange_response": {
+      "type": "object",
+      "required": ["issued_token_type", "token_type", "expires_in", "scope"],
+      "properties": {
+        "issued_token_type": { "const": "urn:ietf:params:oauth:token-type:access_token" },
+        "access_token": {
+          "type": "string",
+          "description": "OPAQUE outward token — internal claims structure never exposed"
+        },
+        "token_type": { "enum": ["Bearer", "DPoP"] },
+        "expires_in": { "type": "integer", "maximum": 300 },
+        "scope": { "type": "string" },
+        "cnf": {
+          "type": "object",
+          "x-seam": true,
+          "properties": {
+            "jkt": { "type": "string" },
+            "x5t#S256": { "type": "string" }
+          }
+        }
+      }
+    },
+    "deny_response": {
+      "type": "object",
+      "required": ["error"],
+      "properties": {
+        "error": { "enum": ["invalid_grant", "insufficient_scope", "unauthorized_client"] },
+        "error_description": { "type": "string" },
+        "step_up": {
+          "type": "object",
+          "properties": {
+            "challenge": { "type": "string" },
+            "acr_values": { "type": "string" }
+          },
+          "description": "RFC 6750 step-up challenge — deny path is normalized, not per-layer"
+        }
+      }
+    }
+  },
+  "x-invariants": [
+    "consumer token NEVER passthrough to backend",
+    "opaque outward — internal structure hidden",
+    "downscoped per hop — no universal tokens",
+    "sender-constrained preferred (DPoP floor, mTLS where mesh)"
+  ]
+}

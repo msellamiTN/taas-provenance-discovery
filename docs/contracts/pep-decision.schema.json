@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:taas.dev:contracts:pep-decision:v1",
+  "title": "PEP decision request/response — Phase C governed tools/call",
+  "type": "object",
+  "oneOf": [
+    { "$ref": "#/$defs/decision_request" },
+    { "$ref": "#/$defs/decision_response" }
+  ],
+  "$defs": {
+    "decision_request": {
+      "type": "object",
+      "required": ["actor", "server_id", "tool_name", "canonical_args_hash", "goal_spec_hash", "session_id"],
+      "properties": {
+        "actor": { "type": "string", "description": "Resolved principal — never caller-supplied" },
+        "server_id": { "type": "string" },
+        "tool_name": { "type": "string" },
+        "canonical_args_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "SHA-256 of canonical JSON args — TOCTOU binding"
+        },
+        "goal_spec_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "policy_fingerprint": { "type": "string" },
+        "tool_definition_hash": { "type": "string" },
+        "evidence_hash": { "type": "string" },
+        "session_id": { "type": "string", "description": "D11-bound session identity" },
+        "approval_token": {
+          "type": "string",
+          "description": "sign(hash(actor, server, tool, canonical_args, goal_spec, policy_fp, tool_def, evidence, exp)) — one-time"
+        },
+        "dpop_proof": { "type": "string", "x-seam": true }
+      }
+    },
+    "decision_response": {
+      "type": "object",
+      "required": ["decision", "request_id"],
+      "properties": {
+        "decision": { "enum": ["allow", "deny"] },
+        "reason_code": {
+          "enum": [
+            "ok", "token_expired", "scope_insufficient", "route_unpublished",
+            "approval_missing", "approval_replay", "approval_args_mismatch",
+            "approval_expired", "fga_deny", "backend_pin_mismatch",
+            "session_mismatch", "notification_denied", "step_up_required"
+          ]
+        },
+        "audit_seq": { "type": "integer", "description": "seq of the gateway.decision audit event" },
+        "step_up": {
+          "type": "object",
+          "properties": {
+            "challenge": { "type": "string" },
+            "acr_values": { "type": "string" }
+          }
+        },
+        "request_id": { "type": "string" }
+      },
+      "x-invariants": [
+        "deny is always normalized 403 — never a distinct error per layer",
+        "worker is only reached on allow with a fresh decision",
+        "approval is once-only — replay/different args = approval_replay"
+      ]
+    }
+  }
+}
